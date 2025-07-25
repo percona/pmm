@@ -17,7 +17,7 @@ export const getStyles = (
   },
   listItemButton: {
     px: 2,
-    borderRadius: drawerOpen ? 50 : 0,
+    borderRadius: 50,
     justifyContent: drawerOpen ? undefined : 'center',
 
     [`.${typographyClasses.root}`]: {

@@ -1,11 +1,3 @@
-// todo: remove
-export enum AdvisorInterval1 {
-  ADVISOR_CHECK_INTERVAL_STANDARD = 'Standard',
-  ADVISOR_CHECK_INTERVAL_RARE = 'Rare',
-  ADVISOR_CHECK_INTERVAL_FREQUENT = 'Frequent',
-  ADVISOR_CHECK_INTERVAL_UNSPECIFIED = 'Unspecified',
-}
-
 export enum AdvisorInterval {
   standard = 'ADVISOR_CHECK_INTERVAL_STANDARD',
   rare = 'ADVISOR_CHECK_INTERVAL_RARE',

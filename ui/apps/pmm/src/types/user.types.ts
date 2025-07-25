@@ -1,3 +1,5 @@
+import { ColorMode } from '@pmm/shared';
+
 // comes from grafana
 export enum OrgRole {
   None = 'None',
@@ -42,5 +44,5 @@ export interface UserOrg {
 }
 
 export interface UpdatePreferencesBody {
-  theme: 'light' | 'dark';
+  theme: ColorMode;
 }

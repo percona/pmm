@@ -19,6 +19,7 @@ import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { useUser } from 'contexts/user';
 
+// todo: work in progress - see PMM-14190 and PMM-13707
 const WelcomeCard: FC = () => {
   const { user } = useUser();
 
@@ -26,7 +27,6 @@ const WelcomeCard: FC = () => {
     return null;
   }
 
-  // todo: figure out conditions when hidden/visible
   return (
     <Card
       variant="outlined"

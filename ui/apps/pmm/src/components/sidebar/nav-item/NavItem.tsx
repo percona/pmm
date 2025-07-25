@@ -39,7 +39,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
     setIsOpen(true);
 
     if (firstChild?.url) {
-      navigate(firstChild?.url);
+      navigate(firstChild.url);
     }
   };
 
@@ -74,6 +74,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
             />
           </ListItemButton>
           <IconButton
+            data-testid={`${dataTestid}-toggle`}
             onClick={handleToggle}
             sx={{
               mr: 1,

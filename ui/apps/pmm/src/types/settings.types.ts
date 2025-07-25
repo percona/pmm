@@ -1,3 +1,4 @@
+// doesn't yet have the complete response
 export interface ReadonlySettings {
   updatesEnabled: boolean;
   telemetryEnabled: boolean;

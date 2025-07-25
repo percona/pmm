@@ -11,12 +11,14 @@ import { useUser } from 'contexts/user';
 export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
   const settings = useSettings({
-    enabled: user && user.isPMMAdmin,
+    enabled: !!user && user.isPMMAdmin,
   });
   const readonlySettings = useReadonlySettings({
-    enabled: user && !user.isPMMAdmin,
+    enabled: !!user && !user.isPMMAdmin,
   });
-  const frontendSettings = useFrontendSettings();
+  const frontendSettings = useFrontendSettings({
+    refetchOnMount: false,
+  });
   const combinedSettings = useMemo<CombinedSettings | null>(() => {
     if (!(settings.data || readonlySettings.data) || !frontendSettings.data) {
       return null;

@@ -1,5 +1,5 @@
 import { CSSObject, Theme } from '@mui/material/styles';
-import { DRAWER_WIDTH } from './Drawer.constants';
+import { DRAWER_CLOSED_WIDTH, DRAWER_WIDTH } from './Drawer.constants';
 
 export const openedMixin = (theme: Theme): CSSObject => ({
   width: DRAWER_WIDTH,
@@ -16,5 +16,5 @@ export const closedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: 'hidden',
-  width: 54,
+  width: DRAWER_CLOSED_WIDTH,
 });

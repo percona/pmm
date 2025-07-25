@@ -12,7 +12,7 @@ import {
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
 import { useColorMode } from 'hooks/theme';
-import { ALL_SERVICE_TYPES } from 'lib/constants';
+import { ALL_SERVICE_TYPES, INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
 import {
   NAV_BACKUPS,
@@ -28,7 +28,9 @@ import {
 import { useFolders } from 'hooks/api/useFolders';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { data: serviceTypes } = useServiceTypes();
+  const { data: serviceTypes } = useServiceTypes({
+    refetchInterval: INTERVALS_MS.SERVICE_TYPES,
+  });
   const { settings } = useSettings();
   const { data: advisors } = useAdvisors();
   const { data: folders = [] } = useFolders();

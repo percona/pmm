@@ -13,6 +13,11 @@ export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
 
+export const INTERVALS_MS = {
+  // 5 mins
+  SERVICE_TYPES: 300000,
+};
+
 export const ADVISOR_FAMILY: Record<AdvisorFamily, string> = {
   [AdvisorFamily.mysql]: 'MySQL',
   [AdvisorFamily.postgresql]: 'PostgreSQL',
