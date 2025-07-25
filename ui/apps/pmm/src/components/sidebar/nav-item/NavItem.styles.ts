@@ -12,12 +12,13 @@ export const getStyles = (
     borderRadius: 0,
   },
   navItemRootCollapsible: {
-    borderRadius: drawerOpen ? levelBorderRadius[level] : 0,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
   },
   listItemButton: {
     px: 2,
-
-    borderRadius: drawerOpen ? levelBorderRadius[level] : 0,
+    borderRadius: drawerOpen ? 50 : 0,
+    justifyContent: drawerOpen ? undefined : 'center',
 
     [`.${typographyClasses.root}`]: {
       fontWeight: 600,
@@ -26,8 +27,6 @@ export const getStyles = (
     [`&, .${listItemIconClasses.root}`]: {
       color: active ? theme.palette.primary.main : theme.palette.text.primary,
     },
-
-    justifyContent: drawerOpen ? undefined : 'center',
   },
   listItemButtonCollapsible: {
     backgroundColor: active
@@ -63,12 +62,3 @@ export const getStyles = (
     whiteSpace: 'normal',
   },
 });
-
-const levelBorderRadius: Record<number, any> = {
-  0: {
-    borderTopRightRadius: 50,
-    borderBottomRightRadius: 50,
-  },
-  1: 50,
-  2: 50,
-};
