@@ -425,6 +425,10 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 
 	// Folder on storage for artifact.
 	Folder string `json:"folder,omitempty"`
+
+	// BackupCompression specifies compression
+	// Enum: [NONE QUICKLZ ZSTD LZ4]
+	Compression *string `json:"compression,omitempty"`
 }
 
 // Validate validates this list scheduled backups OK body scheduled backups items0
@@ -448,6 +452,10 @@ func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) Validate(formats strf
 	}
 
 	if err := o.validateMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCompression(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -580,6 +588,54 @@ func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateMode(formats 
 
 	// value enum
 	if err := o.validateModeEnum("mode", "body", *o.Mode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listScheduledBackupsOkBodyScheduledBackupsItems0TypeCompressionPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NONE","QUICKLZ","ZSTD","LZ4"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listScheduledBackupsOkBodyScheduledBackupsItems0TypeCompressionPropEnum = append(listScheduledBackupsOkBodyScheduledBackupsItems0TypeCompressionPropEnum, v)
+	}
+}
+
+const (
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionNONE captures enum value "NONE"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionNONE string = "NONE"
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionQUICKLZ captures enum value "QUICKLZ"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionQUICKLZ string = "QUICKLZ"
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionZSTD captures enum value "ZSTD"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionZSTD string = "ZSTD"
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionLZ4 captures enum value "LZ4"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionLZ4 string = "LZ4"
+)
+
+// prop value enum
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateCompressionEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listScheduledBackupsOkBodyScheduledBackupsItems0TypeCompressionPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateCompression(formats strfmt.Registry) error {
+	if swag.IsZero(o.Compression) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateCompressionEnum("compression", "body", *o.Compression); err != nil {
 		return err
 	}
 

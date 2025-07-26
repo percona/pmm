@@ -37,7 +37,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = backupv1.DataModel(0)
+	_ = backupv1.BackupCompression(0)
 
 	_ = inventorypb.AgentStatus(0)
 )
@@ -11370,6 +11370,8 @@ func (m *StartJobRequest_MySQLBackup) validate(all bool) error {
 
 	// no validation rules for Folder
 
+	// no validation rules for Compression
+
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MySQLBackup_S3Config:
 		if v == nil {
@@ -11525,6 +11527,8 @@ func (m *StartJobRequest_MySQLRestoreBackup) validate(all bool) error {
 	// no validation rules for Name
 
 	// no validation rules for Folder
+
+	// no validation rules for Compression
 
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MySQLRestoreBackup_S3Config:

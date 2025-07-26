@@ -166,6 +166,10 @@ type ScheduleBackupBody struct {
 
 	// Folder on storage for artifact.
 	Folder string `json:"folder,omitempty"`
+
+	// BackupCompression specifies compression
+	// Enum: [NONE QUICKLZ ZSTD LZ4]
+	Compression *string `json:"compression,omitempty"`
 }
 
 // Validate validates this schedule backup body
@@ -181,6 +185,10 @@ func (o *ScheduleBackupBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateDataModel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCompression(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -289,6 +297,54 @@ func (o *ScheduleBackupBody) validateDataModel(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateDataModelEnum("body"+"."+"data_model", "body", *o.DataModel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var scheduleBackupBodyTypeCompressionPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NONE","QUICKLZ","ZSTD","LZ4"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		scheduleBackupBodyTypeCompressionPropEnum = append(scheduleBackupBodyTypeCompressionPropEnum, v)
+	}
+}
+
+const (
+
+	// ScheduleBackupBodyCompressionNONE captures enum value "NONE"
+	ScheduleBackupBodyCompressionNONE string = "NONE"
+
+	// ScheduleBackupBodyCompressionQUICKLZ captures enum value "QUICKLZ"
+	ScheduleBackupBodyCompressionQUICKLZ string = "QUICKLZ"
+
+	// ScheduleBackupBodyCompressionZSTD captures enum value "ZSTD"
+	ScheduleBackupBodyCompressionZSTD string = "ZSTD"
+
+	// ScheduleBackupBodyCompressionLZ4 captures enum value "LZ4"
+	ScheduleBackupBodyCompressionLZ4 string = "LZ4"
+)
+
+// prop value enum
+func (o *ScheduleBackupBody) validateCompressionEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, scheduleBackupBodyTypeCompressionPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ScheduleBackupBody) validateCompression(formats strfmt.Registry) error {
+	if swag.IsZero(o.Compression) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateCompressionEnum("body"+"."+"compression", "body", *o.Compression); err != nil {
 		return err
 	}
 

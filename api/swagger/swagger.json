@@ -24345,6 +24345,18 @@
                           }
                         },
                         "x-order": 13
+                      },
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "NONE",
+                        "enum": [
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4"
+                        ],
+                        "x-order": 14
                       }
                     }
                   },
@@ -25030,6 +25042,18 @@
                         "description": "Folder on storage for artifact.",
                         "type": "string",
                         "x-order": 18
+                      },
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "NONE",
+                        "enum": [
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4"
+                        ],
+                        "x-order": 19
                       }
                     }
                   },
@@ -25315,6 +25339,18 @@
                   "description": "Folder on storage for artifact.",
                   "type": "string",
                   "x-order": 12
+                },
+                "compression": {
+                  "type": "string",
+                  "title": "BackupCompression specifies compression",
+                  "default": "NONE",
+                  "enum": [
+                    "NONE",
+                    "QUICKLZ",
+                    "ZSTD",
+                    "LZ4"
+                  ],
+                  "x-order": 13
                 }
               }
             }
@@ -25429,6 +25465,18 @@
                   "description": "Folder on storage for artifact.",
                   "type": "string",
                   "x-order": 7
+                },
+                "compression": {
+                  "type": "string",
+                  "title": "BackupCompression specifies compression",
+                  "default": "NONE",
+                  "enum": [
+                    "NONE",
+                    "QUICKLZ",
+                    "ZSTD",
+                    "LZ4"
+                  ],
+                  "x-order": 8
                 }
               }
             }
@@ -26092,6 +26140,18 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 12
+                      },
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "NONE",
+                        "enum": [
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4"
+                        ],
+                        "x-order": 13
                       }
                     }
                   },

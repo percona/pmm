@@ -407,6 +407,10 @@ type ListRestoreHistoryOKBodyItemsItems0 struct {
 	// PITR timestamp is filled for PITR restores, empty otherwise.
 	// Format: date-time
 	PitrTimestamp strfmt.DateTime `json:"pitr_timestamp,omitempty"`
+
+	// BackupCompression specifies compression
+	// Enum: [NONE QUICKLZ ZSTD LZ4]
+	Compression *string `json:"compression,omitempty"`
 }
 
 // Validate validates this list restore history OK body items items0
@@ -430,6 +434,10 @@ func (o *ListRestoreHistoryOKBodyItemsItems0) Validate(formats strfmt.Registry) 
 	}
 
 	if err := o.validatePitrTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCompression(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -562,6 +570,54 @@ func (o *ListRestoreHistoryOKBodyItemsItems0) validatePitrTimestamp(formats strf
 	}
 
 	if err := validate.FormatOf("pitr_timestamp", "body", "date-time", o.PitrTimestamp.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listRestoreHistoryOkBodyItemsItems0TypeCompressionPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NONE","QUICKLZ","ZSTD","LZ4"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listRestoreHistoryOkBodyItemsItems0TypeCompressionPropEnum = append(listRestoreHistoryOkBodyItemsItems0TypeCompressionPropEnum, v)
+	}
+}
+
+const (
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionNONE captures enum value "NONE"
+	ListRestoreHistoryOKBodyItemsItems0CompressionNONE string = "NONE"
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionQUICKLZ captures enum value "QUICKLZ"
+	ListRestoreHistoryOKBodyItemsItems0CompressionQUICKLZ string = "QUICKLZ"
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionZSTD captures enum value "ZSTD"
+	ListRestoreHistoryOKBodyItemsItems0CompressionZSTD string = "ZSTD"
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionLZ4 captures enum value "LZ4"
+	ListRestoreHistoryOKBodyItemsItems0CompressionLZ4 string = "LZ4"
+)
+
+// prop value enum
+func (o *ListRestoreHistoryOKBodyItemsItems0) validateCompressionEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listRestoreHistoryOkBodyItemsItems0TypeCompressionPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListRestoreHistoryOKBodyItemsItems0) validateCompression(formats strfmt.Registry) error {
+	if swag.IsZero(o.Compression) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateCompressionEnum("compression", "body", *o.Compression); err != nil {
 		return err
 	}
 

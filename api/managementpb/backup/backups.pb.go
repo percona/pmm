@@ -47,7 +47,9 @@ type StartBackupRequest struct {
 	// DataModel represents the data model used for the backup.
 	DataModel DataModel `protobuf:"varint,7,opt,name=data_model,json=dataModel,proto3,enum=backup.v1.DataModel" json:"data_model,omitempty"`
 	// Folder on storage for artifact.
-	Folder        string `protobuf:"bytes,8,opt,name=folder,proto3" json:"folder,omitempty"`
+	Folder string `protobuf:"bytes,8,opt,name=folder,proto3" json:"folder,omitempty"`
+	// Compression
+	Compression   BackupCompression `protobuf:"varint,9,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -136,6 +138,13 @@ func (x *StartBackupRequest) GetFolder() string {
 		return x.Folder
 	}
 	return ""
+}
+
+func (x *StartBackupRequest) GetCompression() BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return BackupCompression_NONE
 }
 
 type StartBackupResponse struct {
@@ -428,7 +437,9 @@ type ScheduledBackup struct {
 	// Backup mode.
 	Mode BackupMode `protobuf:"varint,19,opt,name=mode,proto3,enum=backup.v1.BackupMode" json:"mode,omitempty"`
 	// Folder on storage for artifact.
-	Folder        string `protobuf:"bytes,20,opt,name=folder,proto3" json:"folder,omitempty"`
+	Folder string `protobuf:"bytes,20,opt,name=folder,proto3" json:"folder,omitempty"`
+	// Compression
+	Compression   BackupCompression `protobuf:"varint,21,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -596,6 +607,13 @@ func (x *ScheduledBackup) GetFolder() string {
 	return ""
 }
 
+func (x *ScheduledBackup) GetCompression() BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return BackupCompression_NONE
+}
+
 type ScheduleBackupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Service identifier where backup should be performed.
@@ -623,7 +641,9 @@ type ScheduleBackupRequest struct {
 	// Backup data model (physical or logical).
 	DataModel DataModel `protobuf:"varint,12,opt,name=data_model,json=dataModel,proto3,enum=backup.v1.DataModel" json:"data_model,omitempty"`
 	// Folder on storage for artifact.
-	Folder        string `protobuf:"bytes,13,opt,name=folder,proto3" json:"folder,omitempty"`
+	Folder string `protobuf:"bytes,13,opt,name=folder,proto3" json:"folder,omitempty"`
+	// Compression
+	Compression   BackupCompression `protobuf:"varint,14,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -747,6 +767,13 @@ func (x *ScheduleBackupRequest) GetFolder() string {
 		return x.Folder
 	}
 	return ""
+}
+
+func (x *ScheduleBackupRequest) GetCompression() BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return BackupCompression_NONE
 }
 
 type ScheduleBackupResponse struct {
@@ -1299,7 +1326,7 @@ var file_managementpb_backup_backups_proto_rawDesc = string([]byte{
 	0x32, 0x2f, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61,
 	0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x17, 0x76, 0x61, 0x6c,
 	0x69, 0x64, 0x61, 0x74, 0x65, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x65, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x22, 0xc5, 0x02, 0x0a, 0x12, 0x53, 0x74, 0x61, 0x72, 0x74, 0x42, 0x61,
+	0x72, 0x6f, 0x74, 0x6f, 0x22, 0x85, 0x03, 0x0a, 0x12, 0x53, 0x74, 0x61, 0x72, 0x74, 0x42, 0x61,
 	0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x26, 0x0a, 0x0a, 0x73,
 	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42,
 	0x07, 0xfa, 0x42, 0x04, 0x72, 0x02, 0x10, 0x01, 0x52, 0x09, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63,
@@ -1319,7 +1346,11 @@ var file_managementpb_backup_backups_proto_rawDesc = string([]byte{
 	0x01, 0x28, 0x0e, 0x32, 0x14, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x2e,
 	0x44, 0x61, 0x74, 0x61, 0x4d, 0x6f, 0x64, 0x65, 0x6c, 0x52, 0x09, 0x64, 0x61, 0x74, 0x61, 0x4d,
 	0x6f, 0x64, 0x65, 0x6c, 0x12, 0x16, 0x0a, 0x06, 0x66, 0x6f, 0x6c, 0x64, 0x65, 0x72, 0x18, 0x08,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x66, 0x6f, 0x6c, 0x64, 0x65, 0x72, 0x22, 0x36, 0x0a, 0x13,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x66, 0x6f, 0x6c, 0x64, 0x65, 0x72, 0x12, 0x3e, 0x0a, 0x0b,
+	0x63, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x09, 0x20, 0x01, 0x28,
+	0x0e, 0x32, 0x1c, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x2e, 0x42, 0x61,
+	0x63, 0x6b, 0x75, 0x70, 0x43, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x52,
+	0x0b, 0x63, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x22, 0x36, 0x0a, 0x13,
 	0x53, 0x74, 0x61, 0x72, 0x74, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f,
 	0x6e, 0x73, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x5f,
 	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61,
@@ -1351,7 +1382,7 @@ var file_managementpb_backup_backups_proto_rawDesc = string([]byte{
 	0x74, 0x61, 0x6d, 0x70, 0x22, 0x36, 0x0a, 0x15, 0x52, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x42,
 	0x61, 0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1d, 0x0a,
 	0x0a, 0x72, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x09, 0x72, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x22, 0xf5, 0x05, 0x0a,
+	0x09, 0x52, 0x09, 0x72, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x22, 0xb5, 0x06, 0x0a,
 	0x0f, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70,
 	0x12, 0x2e, 0x0a, 0x13, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x5f, 0x62, 0x61,
 	0x63, 0x6b, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x73,
@@ -1399,7 +1430,11 @@ var file_managementpb_backup_backups_proto_rawDesc = string([]byte{
 	0x15, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31, 0x2e, 0x42, 0x61, 0x63, 0x6b,
 	0x75, 0x70, 0x4d, 0x6f, 0x64, 0x65, 0x52, 0x04, 0x6d, 0x6f, 0x64, 0x65, 0x12, 0x16, 0x0a, 0x06,
 	0x66, 0x6f, 0x6c, 0x64, 0x65, 0x72, 0x18, 0x14, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x66, 0x6f,
-	0x6c, 0x64, 0x65, 0x72, 0x22, 0x98, 0x04, 0x0a, 0x15, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c,
+	0x6c, 0x64, 0x65, 0x72, 0x12, 0x3e, 0x0a, 0x0b, 0x63, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73, 0x73,
+	0x69, 0x6f, 0x6e, 0x18, 0x15, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1c, 0x2e, 0x62, 0x61, 0x63, 0x6b,
+	0x75, 0x70, 0x2e, 0x76, 0x31, 0x2e, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x43, 0x6f, 0x6d, 0x70,
+	0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x52, 0x0b, 0x63, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73,
+	0x73, 0x69, 0x6f, 0x6e, 0x22, 0xd8, 0x04, 0x0a, 0x15, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c,
 	0x65, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x26,
 	0x0a, 0x0a, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x72, 0x02, 0x10, 0x01, 0x52, 0x09, 0x73, 0x65, 0x72,
@@ -1432,7 +1467,11 @@ var file_managementpb_backup_backups_proto_rawDesc = string([]byte{
 	0x18, 0x0c, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x14, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e,
 	0x76, 0x31, 0x2e, 0x44, 0x61, 0x74, 0x61, 0x4d, 0x6f, 0x64, 0x65, 0x6c, 0x52, 0x09, 0x64, 0x61,
 	0x74, 0x61, 0x4d, 0x6f, 0x64, 0x65, 0x6c, 0x12, 0x16, 0x0a, 0x06, 0x66, 0x6f, 0x6c, 0x64, 0x65,
-	0x72, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x66, 0x6f, 0x6c, 0x64, 0x65, 0x72, 0x22,
+	0x72, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x66, 0x6f, 0x6c, 0x64, 0x65, 0x72, 0x12,
+	0x3e, 0x0a, 0x0b, 0x63, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x0e,
+	0x20, 0x01, 0x28, 0x0e, 0x32, 0x1c, 0x2e, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x2e, 0x76, 0x31,
+	0x2e, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x43, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73, 0x73, 0x69,
+	0x6f, 0x6e, 0x52, 0x0b, 0x63, 0x6f, 0x6d, 0x70, 0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x22,
 	0x48, 0x0a, 0x16, 0x53, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x42, 0x61, 0x63, 0x6b, 0x75,
 	0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2e, 0x0a, 0x13, 0x73, 0x63, 0x68,
 	0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x5f, 0x62, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x5f, 0x69, 0x64,
@@ -1687,63 +1726,67 @@ var (
 		(*LogChunk)(nil),                               // 17: backup.v1.LogChunk
 		(*durationpb.Duration)(nil),                    // 18: google.protobuf.Duration
 		(DataModel)(0),                                 // 19: backup.v1.DataModel
-		(*inventorypb.MySQLService)(nil),               // 20: inventory.MySQLService
-		(*inventorypb.MongoDBService)(nil),             // 21: inventory.MongoDBService
-		(*timestamppb.Timestamp)(nil),                  // 22: google.protobuf.Timestamp
-		(BackupMode)(0),                                // 23: backup.v1.BackupMode
-		(*wrapperspb.BoolValue)(nil),                   // 24: google.protobuf.BoolValue
-		(*wrapperspb.StringValue)(nil),                 // 25: google.protobuf.StringValue
-		(*wrapperspb.UInt32Value)(nil),                 // 26: google.protobuf.UInt32Value
+		(BackupCompression)(0),                         // 20: backup.v1.BackupCompression
+		(*inventorypb.MySQLService)(nil),               // 21: inventory.MySQLService
+		(*inventorypb.MongoDBService)(nil),             // 22: inventory.MongoDBService
+		(*timestamppb.Timestamp)(nil),                  // 23: google.protobuf.Timestamp
+		(BackupMode)(0),                                // 24: backup.v1.BackupMode
+		(*wrapperspb.BoolValue)(nil),                   // 25: google.protobuf.BoolValue
+		(*wrapperspb.StringValue)(nil),                 // 26: google.protobuf.StringValue
+		(*wrapperspb.UInt32Value)(nil),                 // 27: google.protobuf.UInt32Value
 	}
 )
 
 var file_managementpb_backup_backups_proto_depIdxs = []int32{
 	18, // 0: backup.v1.StartBackupRequest.retry_interval:type_name -> google.protobuf.Duration
 	19, // 1: backup.v1.StartBackupRequest.data_model:type_name -> backup.v1.DataModel
-	20, // 2: backup.v1.ListArtifactCompatibleServicesResponse.mysql:type_name -> inventory.MySQLService
-	21, // 3: backup.v1.ListArtifactCompatibleServicesResponse.mongodb:type_name -> inventory.MongoDBService
-	22, // 4: backup.v1.RestoreBackupRequest.pitr_timestamp:type_name -> google.protobuf.Timestamp
-	22, // 5: backup.v1.ScheduledBackup.start_time:type_name -> google.protobuf.Timestamp
-	18, // 6: backup.v1.ScheduledBackup.retry_interval:type_name -> google.protobuf.Duration
-	19, // 7: backup.v1.ScheduledBackup.data_model:type_name -> backup.v1.DataModel
-	22, // 8: backup.v1.ScheduledBackup.last_run:type_name -> google.protobuf.Timestamp
-	22, // 9: backup.v1.ScheduledBackup.next_run:type_name -> google.protobuf.Timestamp
-	23, // 10: backup.v1.ScheduledBackup.mode:type_name -> backup.v1.BackupMode
-	22, // 11: backup.v1.ScheduleBackupRequest.start_time:type_name -> google.protobuf.Timestamp
-	18, // 12: backup.v1.ScheduleBackupRequest.retry_interval:type_name -> google.protobuf.Duration
-	23, // 13: backup.v1.ScheduleBackupRequest.mode:type_name -> backup.v1.BackupMode
-	19, // 14: backup.v1.ScheduleBackupRequest.data_model:type_name -> backup.v1.DataModel
-	6,  // 15: backup.v1.ListScheduledBackupsResponse.scheduled_backups:type_name -> backup.v1.ScheduledBackup
-	24, // 16: backup.v1.ChangeScheduledBackupRequest.enabled:type_name -> google.protobuf.BoolValue
-	25, // 17: backup.v1.ChangeScheduledBackupRequest.cron_expression:type_name -> google.protobuf.StringValue
-	22, // 18: backup.v1.ChangeScheduledBackupRequest.start_time:type_name -> google.protobuf.Timestamp
-	25, // 19: backup.v1.ChangeScheduledBackupRequest.name:type_name -> google.protobuf.StringValue
-	25, // 20: backup.v1.ChangeScheduledBackupRequest.description:type_name -> google.protobuf.StringValue
-	18, // 21: backup.v1.ChangeScheduledBackupRequest.retry_interval:type_name -> google.protobuf.Duration
-	26, // 22: backup.v1.ChangeScheduledBackupRequest.retries:type_name -> google.protobuf.UInt32Value
-	26, // 23: backup.v1.ChangeScheduledBackupRequest.retention:type_name -> google.protobuf.UInt32Value
-	17, // 24: backup.v1.GetLogsResponse.logs:type_name -> backup.v1.LogChunk
-	0,  // 25: backup.v1.Backups.StartBackup:input_type -> backup.v1.StartBackupRequest
-	2,  // 26: backup.v1.Backups.ListArtifactCompatibleServices:input_type -> backup.v1.ListArtifactCompatibleServicesRequest
-	4,  // 27: backup.v1.Backups.RestoreBackup:input_type -> backup.v1.RestoreBackupRequest
-	7,  // 28: backup.v1.Backups.ScheduleBackup:input_type -> backup.v1.ScheduleBackupRequest
-	9,  // 29: backup.v1.Backups.ListScheduledBackups:input_type -> backup.v1.ListScheduledBackupsRequest
-	11, // 30: backup.v1.Backups.ChangeScheduledBackup:input_type -> backup.v1.ChangeScheduledBackupRequest
-	13, // 31: backup.v1.Backups.RemoveScheduledBackup:input_type -> backup.v1.RemoveScheduledBackupRequest
-	15, // 32: backup.v1.Backups.GetLogs:input_type -> backup.v1.GetLogsRequest
-	1,  // 33: backup.v1.Backups.StartBackup:output_type -> backup.v1.StartBackupResponse
-	3,  // 34: backup.v1.Backups.ListArtifactCompatibleServices:output_type -> backup.v1.ListArtifactCompatibleServicesResponse
-	5,  // 35: backup.v1.Backups.RestoreBackup:output_type -> backup.v1.RestoreBackupResponse
-	8,  // 36: backup.v1.Backups.ScheduleBackup:output_type -> backup.v1.ScheduleBackupResponse
-	10, // 37: backup.v1.Backups.ListScheduledBackups:output_type -> backup.v1.ListScheduledBackupsResponse
-	12, // 38: backup.v1.Backups.ChangeScheduledBackup:output_type -> backup.v1.ChangeScheduledBackupResponse
-	14, // 39: backup.v1.Backups.RemoveScheduledBackup:output_type -> backup.v1.RemoveScheduledBackupResponse
-	16, // 40: backup.v1.Backups.GetLogs:output_type -> backup.v1.GetLogsResponse
-	33, // [33:41] is the sub-list for method output_type
-	25, // [25:33] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	20, // 2: backup.v1.StartBackupRequest.compression:type_name -> backup.v1.BackupCompression
+	21, // 3: backup.v1.ListArtifactCompatibleServicesResponse.mysql:type_name -> inventory.MySQLService
+	22, // 4: backup.v1.ListArtifactCompatibleServicesResponse.mongodb:type_name -> inventory.MongoDBService
+	23, // 5: backup.v1.RestoreBackupRequest.pitr_timestamp:type_name -> google.protobuf.Timestamp
+	23, // 6: backup.v1.ScheduledBackup.start_time:type_name -> google.protobuf.Timestamp
+	18, // 7: backup.v1.ScheduledBackup.retry_interval:type_name -> google.protobuf.Duration
+	19, // 8: backup.v1.ScheduledBackup.data_model:type_name -> backup.v1.DataModel
+	23, // 9: backup.v1.ScheduledBackup.last_run:type_name -> google.protobuf.Timestamp
+	23, // 10: backup.v1.ScheduledBackup.next_run:type_name -> google.protobuf.Timestamp
+	24, // 11: backup.v1.ScheduledBackup.mode:type_name -> backup.v1.BackupMode
+	20, // 12: backup.v1.ScheduledBackup.compression:type_name -> backup.v1.BackupCompression
+	23, // 13: backup.v1.ScheduleBackupRequest.start_time:type_name -> google.protobuf.Timestamp
+	18, // 14: backup.v1.ScheduleBackupRequest.retry_interval:type_name -> google.protobuf.Duration
+	24, // 15: backup.v1.ScheduleBackupRequest.mode:type_name -> backup.v1.BackupMode
+	19, // 16: backup.v1.ScheduleBackupRequest.data_model:type_name -> backup.v1.DataModel
+	20, // 17: backup.v1.ScheduleBackupRequest.compression:type_name -> backup.v1.BackupCompression
+	6,  // 18: backup.v1.ListScheduledBackupsResponse.scheduled_backups:type_name -> backup.v1.ScheduledBackup
+	25, // 19: backup.v1.ChangeScheduledBackupRequest.enabled:type_name -> google.protobuf.BoolValue
+	26, // 20: backup.v1.ChangeScheduledBackupRequest.cron_expression:type_name -> google.protobuf.StringValue
+	23, // 21: backup.v1.ChangeScheduledBackupRequest.start_time:type_name -> google.protobuf.Timestamp
+	26, // 22: backup.v1.ChangeScheduledBackupRequest.name:type_name -> google.protobuf.StringValue
+	26, // 23: backup.v1.ChangeScheduledBackupRequest.description:type_name -> google.protobuf.StringValue
+	18, // 24: backup.v1.ChangeScheduledBackupRequest.retry_interval:type_name -> google.protobuf.Duration
+	27, // 25: backup.v1.ChangeScheduledBackupRequest.retries:type_name -> google.protobuf.UInt32Value
+	27, // 26: backup.v1.ChangeScheduledBackupRequest.retention:type_name -> google.protobuf.UInt32Value
+	17, // 27: backup.v1.GetLogsResponse.logs:type_name -> backup.v1.LogChunk
+	0,  // 28: backup.v1.Backups.StartBackup:input_type -> backup.v1.StartBackupRequest
+	2,  // 29: backup.v1.Backups.ListArtifactCompatibleServices:input_type -> backup.v1.ListArtifactCompatibleServicesRequest
+	4,  // 30: backup.v1.Backups.RestoreBackup:input_type -> backup.v1.RestoreBackupRequest
+	7,  // 31: backup.v1.Backups.ScheduleBackup:input_type -> backup.v1.ScheduleBackupRequest
+	9,  // 32: backup.v1.Backups.ListScheduledBackups:input_type -> backup.v1.ListScheduledBackupsRequest
+	11, // 33: backup.v1.Backups.ChangeScheduledBackup:input_type -> backup.v1.ChangeScheduledBackupRequest
+	13, // 34: backup.v1.Backups.RemoveScheduledBackup:input_type -> backup.v1.RemoveScheduledBackupRequest
+	15, // 35: backup.v1.Backups.GetLogs:input_type -> backup.v1.GetLogsRequest
+	1,  // 36: backup.v1.Backups.StartBackup:output_type -> backup.v1.StartBackupResponse
+	3,  // 37: backup.v1.Backups.ListArtifactCompatibleServices:output_type -> backup.v1.ListArtifactCompatibleServicesResponse
+	5,  // 38: backup.v1.Backups.RestoreBackup:output_type -> backup.v1.RestoreBackupResponse
+	8,  // 39: backup.v1.Backups.ScheduleBackup:output_type -> backup.v1.ScheduleBackupResponse
+	10, // 40: backup.v1.Backups.ListScheduledBackups:output_type -> backup.v1.ListScheduledBackupsResponse
+	12, // 41: backup.v1.Backups.ChangeScheduledBackup:output_type -> backup.v1.ChangeScheduledBackupResponse
+	14, // 42: backup.v1.Backups.RemoveScheduledBackup:output_type -> backup.v1.RemoveScheduledBackupResponse
+	16, // 43: backup.v1.Backups.GetLogs:output_type -> backup.v1.GetLogsResponse
+	36, // [36:44] is the sub-list for method output_type
+	28, // [28:36] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_managementpb_backup_backups_proto_init() }

@@ -119,6 +119,18 @@
                         "type": "string",
                         "x-order": 0
                       },
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "NONE",
+                        "enum": [
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4"
+                        ],
+                        "x-order": 14
+                      },
                       "created_at": {
                         "description": "Artifact creation time.",
                         "type": "string",
@@ -825,6 +837,18 @@
                     "description": "ScheduledBackup represents scheduled task for backup.",
                     "type": "object",
                     "properties": {
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "NONE",
+                        "enum": [
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4"
+                        ],
+                        "x-order": 19
+                      },
                       "cron_expression": {
                         "description": "How often backup will be run in cron format.",
                         "type": "string",
@@ -1142,6 +1166,18 @@
             "schema": {
               "type": "object",
               "properties": {
+                "compression": {
+                  "type": "string",
+                  "title": "BackupCompression specifies compression",
+                  "default": "NONE",
+                  "enum": [
+                    "NONE",
+                    "QUICKLZ",
+                    "ZSTD",
+                    "LZ4"
+                  ],
+                  "x-order": 13
+                },
                 "cron_expression": {
                   "description": "How often backup should be run in cron format.",
                   "type": "string",
@@ -1290,6 +1326,18 @@
             "schema": {
               "type": "object",
               "properties": {
+                "compression": {
+                  "type": "string",
+                  "title": "BackupCompression specifies compression",
+                  "default": "NONE",
+                  "enum": [
+                    "NONE",
+                    "QUICKLZ",
+                    "ZSTD",
+                    "LZ4"
+                  ],
+                  "x-order": 8
+                },
                 "data_model": {
                   "description": "DataModel is a model used for performing a backup.",
                   "type": "string",
@@ -1923,6 +1971,18 @@
                         "description": "ID of the artifact used for restore.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "NONE",
+                        "enum": [
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4"
+                        ],
+                        "x-order": 13
                       },
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",

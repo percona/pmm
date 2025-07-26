@@ -149,6 +149,10 @@ type StartBackupBody struct {
 
 	// Folder on storage for artifact.
 	Folder string `json:"folder,omitempty"`
+
+	// BackupCompression specifies compression
+	// Enum: [NONE QUICKLZ ZSTD LZ4]
+	Compression *string `json:"compression,omitempty"`
 }
 
 // Validate validates this start backup body
@@ -156,6 +160,10 @@ func (o *StartBackupBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDataModel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCompression(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -204,6 +212,54 @@ func (o *StartBackupBody) validateDataModel(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateDataModelEnum("body"+"."+"data_model", "body", *o.DataModel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var startBackupBodyTypeCompressionPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NONE","QUICKLZ","ZSTD","LZ4"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		startBackupBodyTypeCompressionPropEnum = append(startBackupBodyTypeCompressionPropEnum, v)
+	}
+}
+
+const (
+
+	// StartBackupBodyCompressionNONE captures enum value "NONE"
+	StartBackupBodyCompressionNONE string = "NONE"
+
+	// StartBackupBodyCompressionQUICKLZ captures enum value "QUICKLZ"
+	StartBackupBodyCompressionQUICKLZ string = "QUICKLZ"
+
+	// StartBackupBodyCompressionZSTD captures enum value "ZSTD"
+	StartBackupBodyCompressionZSTD string = "ZSTD"
+
+	// StartBackupBodyCompressionLZ4 captures enum value "LZ4"
+	StartBackupBodyCompressionLZ4 string = "LZ4"
+)
+
+// prop value enum
+func (o *StartBackupBody) validateCompressionEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, startBackupBodyTypeCompressionPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *StartBackupBody) validateCompression(formats strfmt.Registry) error {
+	if swag.IsZero(o.Compression) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateCompressionEnum("body"+"."+"compression", "body", *o.Compression); err != nil {
 		return err
 	}
 
