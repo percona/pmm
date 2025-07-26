@@ -101,6 +101,11 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
 	}
 
+	compression, err := convertCompressionToBackupCompression(req.Compression)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid compression: %s", req.Compression.String())
+	}
+
 	svc, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
 	if err != nil {
 		return nil, err
@@ -121,6 +126,7 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		Retries:       req.Retries,
 		RetryInterval: req.RetryInterval.AsDuration(),
 		Folder:        req.Folder,
+		Compression:   compression,
 	})
 	if err != nil {
 		return nil, convertError(err)
@@ -202,6 +208,11 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			return status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
 		}
 
+		compression, err := convertCompressionToBackupCompression(req.Compression)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid compression: %s", req.Compression.String())
+		}
+
 		backupParams := &scheduler.BackupTaskParams{
 			ServiceID:     svc.ServiceID,
 			ClusterName:   svc.Cluster,
@@ -214,6 +225,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			Retries:       req.Retries,
 			RetryInterval: req.RetryInterval.AsDuration(),
 			Folder:        req.Folder,
+			Compression:   compression,
 		}
 
 		var task scheduler.Task
@@ -596,6 +608,10 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 		return nil, err
 	}
 
+	if scheduledBackup.Compression, err = convertBackupCompression(commonBackupData.Compression); err != nil {
+		return nil, err
+	}
+
 	if commonBackupData.RetryInterval > 0 {
 		scheduledBackup.RetryInterval = durationpb.New(commonBackupData.RetryInterval)
 	}
@@ -643,6 +659,19 @@ func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, 
 		return models.PhysicalDataModel, nil
 	default:
 		return "", errors.Errorf("unknown backup mode: %s", dataModel)
+	}
+}
+
+func convertCompressionToBackupCompression(compression backuppb.BackupCompression) (models.BackupCompression, error) {
+	switch compression {
+	case backuppb.BackupCompression_QUICKLZ:
+		return models.QuickLZ, nil
+	case backuppb.BackupCompression_ZSTD:
+		return models.ZSTD, nil
+	case backuppb.BackupCompression_LZ4:
+		return models.LZ4, nil
+	default:
+		return "", errors.Errorf("unknown backup compression: %s", compression)
 	}
 }
 

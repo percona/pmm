@@ -528,6 +528,8 @@ message StartJobRequest {
     }
     // Folder to store artifact on a storage.
     string folder = 12;
+    // Compression
+    backup.v1.BackupCompression compression = 13;
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {
@@ -545,6 +547,8 @@ message StartJobRequest {
     }
     // Folder to store artifact on a storage.
     string folder = 12;
+    // Compression
+    backup.v1.BackupCompression compression = 13;
   }
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {

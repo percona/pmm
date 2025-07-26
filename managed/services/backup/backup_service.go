@@ -66,6 +66,7 @@ type PerformBackupParams struct {
 	Retries       uint32
 	RetryInterval time.Duration
 	Folder        string
+	Compression   models.BackupCompression
 }
 
 // PerformBackup starts on-demand backup.
