@@ -427,7 +427,7 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	Folder string `json:"folder,omitempty"`
 
 	// BackupCompression specifies compression
-	// Enum: [NONE QUICKLZ ZSTD LZ4]
+	// Enum: [BACKUP_COMPRESSION_INVALID NONE QUICKLZ ZSTD LZ4 S2 GZIP SNAPPY PGZIP]
 	Compression *string `json:"compression,omitempty"`
 }
 
@@ -598,7 +598,7 @@ var listScheduledBackupsOkBodyScheduledBackupsItems0TypeCompressionPropEnum []in
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NONE","QUICKLZ","ZSTD","LZ4"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_COMPRESSION_INVALID","NONE","QUICKLZ","ZSTD","LZ4","S2","GZIP","SNAPPY","PGZIP"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -607,6 +607,9 @@ func init() {
 }
 
 const (
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionBACKUPCOMPRESSIONINVALID captures enum value "BACKUP_COMPRESSION_INVALID"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionBACKUPCOMPRESSIONINVALID string = "BACKUP_COMPRESSION_INVALID"
 
 	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionNONE captures enum value "NONE"
 	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionNONE string = "NONE"
@@ -619,6 +622,18 @@ const (
 
 	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionLZ4 captures enum value "LZ4"
 	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionLZ4 string = "LZ4"
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionS2 captures enum value "S2"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionS2 string = "S2"
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionGZIP captures enum value "GZIP"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionGZIP string = "GZIP"
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionSNAPPY captures enum value "SNAPPY"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionSNAPPY string = "SNAPPY"
+
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionPGZIP captures enum value "PGZIP"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0CompressionPGZIP string = "PGZIP"
 )
 
 // prop value enum

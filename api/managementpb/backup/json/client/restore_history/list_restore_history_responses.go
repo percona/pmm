@@ -409,7 +409,7 @@ type ListRestoreHistoryOKBodyItemsItems0 struct {
 	PitrTimestamp strfmt.DateTime `json:"pitr_timestamp,omitempty"`
 
 	// BackupCompression specifies compression
-	// Enum: [NONE QUICKLZ ZSTD LZ4]
+	// Enum: [BACKUP_COMPRESSION_INVALID NONE QUICKLZ ZSTD LZ4 S2 GZIP SNAPPY PGZIP]
 	Compression *string `json:"compression,omitempty"`
 }
 
@@ -580,7 +580,7 @@ var listRestoreHistoryOkBodyItemsItems0TypeCompressionPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NONE","QUICKLZ","ZSTD","LZ4"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_COMPRESSION_INVALID","NONE","QUICKLZ","ZSTD","LZ4","S2","GZIP","SNAPPY","PGZIP"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -589,6 +589,9 @@ func init() {
 }
 
 const (
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionBACKUPCOMPRESSIONINVALID captures enum value "BACKUP_COMPRESSION_INVALID"
+	ListRestoreHistoryOKBodyItemsItems0CompressionBACKUPCOMPRESSIONINVALID string = "BACKUP_COMPRESSION_INVALID"
 
 	// ListRestoreHistoryOKBodyItemsItems0CompressionNONE captures enum value "NONE"
 	ListRestoreHistoryOKBodyItemsItems0CompressionNONE string = "NONE"
@@ -601,6 +604,18 @@ const (
 
 	// ListRestoreHistoryOKBodyItemsItems0CompressionLZ4 captures enum value "LZ4"
 	ListRestoreHistoryOKBodyItemsItems0CompressionLZ4 string = "LZ4"
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionS2 captures enum value "S2"
+	ListRestoreHistoryOKBodyItemsItems0CompressionS2 string = "S2"
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionGZIP captures enum value "GZIP"
+	ListRestoreHistoryOKBodyItemsItems0CompressionGZIP string = "GZIP"
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionSNAPPY captures enum value "SNAPPY"
+	ListRestoreHistoryOKBodyItemsItems0CompressionSNAPPY string = "SNAPPY"
+
+	// ListRestoreHistoryOKBodyItemsItems0CompressionPGZIP captures enum value "PGZIP"
+	ListRestoreHistoryOKBodyItemsItems0CompressionPGZIP string = "PGZIP"
 )
 
 // prop value enum

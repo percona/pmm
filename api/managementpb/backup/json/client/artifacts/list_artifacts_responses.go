@@ -411,7 +411,7 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	MetadataList []*ListArtifactsOKBodyArtifactsItems0MetadataListItems0 `json:"metadata_list"`
 
 	// BackupCompression specifies compression
-	// Enum: [NONE QUICKLZ ZSTD LZ4]
+	// Enum: [BACKUP_COMPRESSION_INVALID NONE QUICKLZ ZSTD LZ4 S2 GZIP SNAPPY PGZIP]
 	Compression *string `json:"compression,omitempty"`
 }
 
@@ -647,7 +647,7 @@ var listArtifactsOkBodyArtifactsItems0TypeCompressionPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NONE","QUICKLZ","ZSTD","LZ4"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_COMPRESSION_INVALID","NONE","QUICKLZ","ZSTD","LZ4","S2","GZIP","SNAPPY","PGZIP"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -656,6 +656,9 @@ func init() {
 }
 
 const (
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONINVALID captures enum value "BACKUP_COMPRESSION_INVALID"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONINVALID string = "BACKUP_COMPRESSION_INVALID"
 
 	// ListArtifactsOKBodyArtifactsItems0CompressionNONE captures enum value "NONE"
 	ListArtifactsOKBodyArtifactsItems0CompressionNONE string = "NONE"
@@ -668,6 +671,18 @@ const (
 
 	// ListArtifactsOKBodyArtifactsItems0CompressionLZ4 captures enum value "LZ4"
 	ListArtifactsOKBodyArtifactsItems0CompressionLZ4 string = "LZ4"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionS2 captures enum value "S2"
+	ListArtifactsOKBodyArtifactsItems0CompressionS2 string = "S2"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionGZIP captures enum value "GZIP"
+	ListArtifactsOKBodyArtifactsItems0CompressionGZIP string = "GZIP"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionSNAPPY captures enum value "SNAPPY"
+	ListArtifactsOKBodyArtifactsItems0CompressionSNAPPY string = "SNAPPY"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionPGZIP captures enum value "PGZIP"
+	ListArtifactsOKBodyArtifactsItems0CompressionPGZIP string = "PGZIP"
 )
 
 // prop value enum

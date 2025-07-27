@@ -24,10 +24,15 @@ enum BackupMode {
 
 // BackupCompression specifies compression
 enum BackupCompression {
-  NONE = 0;
-  QUICKLZ = 1;
-  ZSTD = 2;
-  LZ4 = 3;
+  BACKUP_COMPRESSION_INVALID = 0;
+  NONE = 1;
+  QUICKLZ = 2;
+  ZSTD = 3;
+  LZ4 = 4;
+  S2 = 5;
+  GZIP = 6;
+  SNAPPY = 7;
+  PGZIP = 8;
 }
 
 // File represents file or folder on a storage.

@@ -123,9 +123,14 @@ type BackupCompression string
 
 // BackupCompression types.
 const (
+	None    BackupCompression = "none"
 	QuickLZ BackupCompression = "quicklz"
 	ZSTD    BackupCompression = "zstd"
 	LZ4     BackupCompression = "lz4"
+	S2      BackupCompression = "s2"
+	GZIP    BackupCompression = "gzip"
+	Snappy  BackupCompression = "snappy"
+	PGZIP   BackupCompression = "pgzip"
 )
 
 // Validate validates compression.

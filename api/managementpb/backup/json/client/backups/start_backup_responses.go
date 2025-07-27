@@ -151,7 +151,7 @@ type StartBackupBody struct {
 	Folder string `json:"folder,omitempty"`
 
 	// BackupCompression specifies compression
-	// Enum: [NONE QUICKLZ ZSTD LZ4]
+	// Enum: [BACKUP_COMPRESSION_INVALID NONE QUICKLZ ZSTD LZ4 S2 GZIP SNAPPY PGZIP]
 	Compression *string `json:"compression,omitempty"`
 }
 
@@ -222,7 +222,7 @@ var startBackupBodyTypeCompressionPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NONE","QUICKLZ","ZSTD","LZ4"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_COMPRESSION_INVALID","NONE","QUICKLZ","ZSTD","LZ4","S2","GZIP","SNAPPY","PGZIP"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -231,6 +231,9 @@ func init() {
 }
 
 const (
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONINVALID captures enum value "BACKUP_COMPRESSION_INVALID"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONINVALID string = "BACKUP_COMPRESSION_INVALID"
 
 	// StartBackupBodyCompressionNONE captures enum value "NONE"
 	StartBackupBodyCompressionNONE string = "NONE"
@@ -243,6 +246,18 @@ const (
 
 	// StartBackupBodyCompressionLZ4 captures enum value "LZ4"
 	StartBackupBodyCompressionLZ4 string = "LZ4"
+
+	// StartBackupBodyCompressionS2 captures enum value "S2"
+	StartBackupBodyCompressionS2 string = "S2"
+
+	// StartBackupBodyCompressionGZIP captures enum value "GZIP"
+	StartBackupBodyCompressionGZIP string = "GZIP"
+
+	// StartBackupBodyCompressionSNAPPY captures enum value "SNAPPY"
+	StartBackupBodyCompressionSNAPPY string = "SNAPPY"
+
+	// StartBackupBodyCompressionPGZIP captures enum value "PGZIP"
+	StartBackupBodyCompressionPGZIP string = "PGZIP"
 )
 
 // prop value enum

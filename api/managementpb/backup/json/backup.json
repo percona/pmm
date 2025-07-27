@@ -122,12 +122,17 @@
                       "compression": {
                         "type": "string",
                         "title": "BackupCompression specifies compression",
-                        "default": "NONE",
+                        "default": "BACKUP_COMPRESSION_INVALID",
                         "enum": [
+                          "BACKUP_COMPRESSION_INVALID",
                           "NONE",
                           "QUICKLZ",
                           "ZSTD",
-                          "LZ4"
+                          "LZ4",
+                          "S2",
+                          "GZIP",
+                          "SNAPPY",
+                          "PGZIP"
                         ],
                         "x-order": 14
                       },
@@ -840,12 +845,17 @@
                       "compression": {
                         "type": "string",
                         "title": "BackupCompression specifies compression",
-                        "default": "NONE",
+                        "default": "BACKUP_COMPRESSION_INVALID",
                         "enum": [
+                          "BACKUP_COMPRESSION_INVALID",
                           "NONE",
                           "QUICKLZ",
                           "ZSTD",
-                          "LZ4"
+                          "LZ4",
+                          "S2",
+                          "GZIP",
+                          "SNAPPY",
+                          "PGZIP"
                         ],
                         "x-order": 19
                       },
@@ -1169,12 +1179,17 @@
                 "compression": {
                   "type": "string",
                   "title": "BackupCompression specifies compression",
-                  "default": "NONE",
+                  "default": "BACKUP_COMPRESSION_INVALID",
                   "enum": [
+                    "BACKUP_COMPRESSION_INVALID",
                     "NONE",
                     "QUICKLZ",
                     "ZSTD",
-                    "LZ4"
+                    "LZ4",
+                    "S2",
+                    "GZIP",
+                    "SNAPPY",
+                    "PGZIP"
                   ],
                   "x-order": 13
                 },
@@ -1329,12 +1344,17 @@
                 "compression": {
                   "type": "string",
                   "title": "BackupCompression specifies compression",
-                  "default": "NONE",
+                  "default": "BACKUP_COMPRESSION_INVALID",
                   "enum": [
+                    "BACKUP_COMPRESSION_INVALID",
                     "NONE",
                     "QUICKLZ",
                     "ZSTD",
-                    "LZ4"
+                    "LZ4",
+                    "S2",
+                    "GZIP",
+                    "SNAPPY",
+                    "PGZIP"
                   ],
                   "x-order": 8
                 },
@@ -1975,12 +1995,17 @@
                       "compression": {
                         "type": "string",
                         "title": "BackupCompression specifies compression",
-                        "default": "NONE",
+                        "default": "BACKUP_COMPRESSION_INVALID",
                         "enum": [
+                          "BACKUP_COMPRESSION_INVALID",
                           "NONE",
                           "QUICKLZ",
                           "ZSTD",
-                          "LZ4"
+                          "LZ4",
+                          "S2",
+                          "GZIP",
+                          "SNAPPY",
+                          "PGZIP"
                         ],
                         "x-order": 13
                       },
