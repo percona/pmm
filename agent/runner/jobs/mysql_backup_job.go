@@ -165,6 +165,9 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress=zstd")
 	case backuppb.BackupCompression_LZ4:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress=lz4")
+	case backuppb.BackupCompression_NONE:
+	default:
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress")
 	}
 
 	if j.connConf.User != "" {

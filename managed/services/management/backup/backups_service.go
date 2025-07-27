@@ -670,6 +670,16 @@ func convertCompressionToBackupCompression(compression backuppb.BackupCompressio
 		return models.ZSTD, nil
 	case backuppb.BackupCompression_LZ4:
 		return models.LZ4, nil
+	case backuppb.BackupCompression_S2:
+		return models.S2, nil
+	case backuppb.BackupCompression_GZIP:
+		return models.GZIP, nil
+	case backuppb.BackupCompression_SNAPPY:
+		return models.Snappy, nil
+	case backuppb.BackupCompression_PGZIP:
+		return models.PGZIP, nil
+	case backuppb.BackupCompression_NONE:
+		return models.None, nil
 	default:
 		return "", errors.Errorf("unknown backup compression: %s", compression)
 	}

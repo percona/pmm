@@ -139,7 +139,13 @@ func (c BackupCompression) Validate() error {
 	case QuickLZ:
 	case LZ4:
 	case ZSTD:
+	case S2:
+	case GZIP:
+	case Snappy:
+	case PGZIP:
+	case None:
 	case "":
+		return NewInvalidArgumentError("empty compression")
 	default:
 		return NewInvalidArgumentError("invalid compression '%s'", c)
 	}

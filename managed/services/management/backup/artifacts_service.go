@@ -217,8 +217,18 @@ func convertBackupCompression(compression models.BackupCompression) (backuppb.Ba
 		return backuppb.BackupCompression_ZSTD, nil
 	case models.LZ4:
 		return backuppb.BackupCompression_LZ4, nil
+	case models.S2:
+		return backuppb.BackupCompression_S2, nil
+	case models.GZIP:
+		return backuppb.BackupCompression_GZIP, nil
+	case models.Snappy:
+		return backuppb.BackupCompression_SNAPPY, nil
+	case models.PGZIP:
+		return backuppb.BackupCompression_PGZIP, nil
+	case models.None:
+		return backuppb.BackupCompression_NONE, nil
 	default:
-		return 0, nil
+		return 0, errors.Errorf("invalid compression '%s'", compression)
 	}
 }
 
