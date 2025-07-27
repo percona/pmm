@@ -157,16 +157,17 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 
 			if artifact == nil {
 				if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
-					Name:       name,
-					Vendor:     string(svc.ServiceType),
-					DBVersion:  dbVersion,
-					LocationID: locationModel.ID,
-					ServiceID:  svc.ServiceID,
-					DataModel:  params.DataModel,
-					Mode:       params.Mode,
-					Status:     models.PendingBackupStatus,
-					ScheduleID: params.ScheduleID,
-					Folder:     params.Folder,
+					Name:        name,
+					Vendor:      string(svc.ServiceType),
+					DBVersion:   dbVersion,
+					LocationID:  locationModel.ID,
+					ServiceID:   svc.ServiceID,
+					DataModel:   params.DataModel,
+					Mode:        params.Mode,
+					Status:      models.PendingBackupStatus,
+					ScheduleID:  params.ScheduleID,
+					Folder:      params.Folder,
+					Compression: params.Compression,
 				}); err != nil {
 					return err
 				}
@@ -214,10 +215,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 
 	switch svc.ServiceType {
 	case models.MySQLServiceType:
-		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig, params.Folder)
+		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig, params.Folder, params.Compression)
 	case models.MongoDBServiceType:
 		err = s.jobsService.StartMongoDBBackupJob(svc, job.ID, job.PMMAgentID, 0, name, dbConfig,
-			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, params.Folder)
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, params.Folder, params.Compression)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
@@ -255,6 +256,7 @@ type restoreJobParams struct {
 	DataModel     models.DataModel
 	PITRTimestamp time.Time
 	Folder        string
+	Compression   models.BackupCompression
 }
 
 // RestoreBackup starts restore backup job.
@@ -370,6 +372,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			DataModel:     artifact.DataModel,
 			PITRTimestamp: pitrTimestamp,
 			Folder:        artifactFolder,
+			Compression:   artifact.Compression,
 		}
 
 		if len(artifact.MetadataList) != 0 &&
@@ -450,7 +453,8 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 			0,
 			params.ArtifactName,
 			locationConfig,
-			params.Folder)
+			params.Folder,
+			params.Compression)
 	case models.MongoDBServiceType:
 		return s.jobsService.StartMongoDBRestoreBackupJob(
 			params.Service,
@@ -463,7 +467,8 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 			params.DataModel,
 			locationConfig,
 			params.PITRTimestamp,
-			params.Folder)
+			params.Folder,
+			params.Compression)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,

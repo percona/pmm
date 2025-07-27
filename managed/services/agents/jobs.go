@@ -150,7 +150,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 
 	switch job.Type {
 	case models.MySQLBackupJob:
-		if err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig, artifact.Folder); err != nil {
+		if err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig, artifact.Folder, artifact.Compression); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MongoDBBackupJob:
@@ -160,7 +160,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 		}
 
 		if err := s.StartMongoDBBackupJob(service, job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
-			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder); err != nil {
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder, artifact.Compression); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MySQLRestoreBackupJob:
@@ -375,7 +375,7 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.Job
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string) error { //nolint:lll
+func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string, compression models.BackupCompression) error { //nolint:lll
 	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
@@ -389,6 +389,11 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 		Port:     int32(dbConfig.Port),
 		Socket:   dbConfig.Socket,
 		Folder:   folder,
+	}
+
+	var err error
+	if mySQLReq.Compression, err = convertBackupCompression(compression); err != nil {
+		return err
 	}
 
 	switch {
@@ -435,6 +440,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 	folder string,
+	compression models.BackupCompression,
 ) error {
 	var err error
 	switch dataModel {
@@ -530,6 +536,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	name string,
 	locationConfig *models.BackupLocationConfig,
 	folder string,
+	compression models.BackupCompression,
 ) error {
 	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
@@ -584,6 +591,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	locationConfig *models.BackupLocationConfig,
 	pitrTimestamp time.Time,
 	folder string,
+	compression models.BackupCompression,
 ) error {
 	var err error
 	switch dataModel {
@@ -803,6 +811,29 @@ func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {
 		return backuppb.DataModel_LOGICAL, nil
 	default:
 		return 0, errors.Errorf("unknown data model: %s", model)
+	}
+}
+
+func convertBackupCompression(compression models.BackupCompression) (backuppb.BackupCompression, error) {
+	switch compression {
+	case models.QuickLZ:
+		return backuppb.BackupCompression_QUICKLZ, nil
+	case models.ZSTD:
+		return backuppb.BackupCompression_ZSTD, nil
+	case models.LZ4:
+		return backuppb.BackupCompression_LZ4, nil
+	case models.S2:
+		return backuppb.BackupCompression_S2, nil
+	case models.GZIP:
+		return backuppb.BackupCompression_GZIP, nil
+	case models.Snappy:
+		return backuppb.BackupCompression_SNAPPY, nil
+	case models.PGZIP:
+		return backuppb.BackupCompression_PGZIP, nil
+	case models.None:
+		return backuppb.BackupCompression_NONE, nil
+	default:
+		return 0, errors.Errorf("invalid compression '%s'", compression)
 	}
 }
 
