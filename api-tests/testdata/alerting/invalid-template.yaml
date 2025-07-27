@@ -4,7 +4,6 @@ templates:
       field: value # Unknown field
       version: 1
       summary: MySQL connections in use
-      tiers: [anonymous, registered]
       expr: %s
       params:
         - name: threshold
