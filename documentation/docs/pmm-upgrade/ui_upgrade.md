@@ -2,7 +2,7 @@
 
 PMM Server and Client components are installed and updated separately.
 
-PMM v3 Server can run natively, as a Docker image, a virtual appliance<!----or an AWS cloud instance-->. While each environment has its own specific installation and update steps, the UI-based upgrade method is universal and recommended for most users.
+PMM v3 Server can run natively, as a Docker image, a virtual appliance or an AWS cloud instance. While each environment has its own specific installation and update steps, the UI-based upgrade method is universal and recommended for most users.
 
 ## Prerequisites
 
