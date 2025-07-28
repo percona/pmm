@@ -29,16 +29,13 @@ As a result of the move to VictoriaMetrics some direct Prometheus paths are no l
 | `/prometheus/status`            | Some information at `/prometheus/metrics`. High cardinality metrics information at `/prometheus/api/v1/status/tsdb`.
 | `/prometheus/targets`           | `/victoriametrics/targets`
 
-
-
 ## Environment variables
-
 
 PMM predefines certain flags that allow users to set all other [VictoriaMetrics parameters](https://docs.victoriametrics.com/#list-of-command-line-flags) as environment variables:
 
 The environment variable must be prepended with `VM_`.
 
-**Example**
+### Example
 
 To set downsampling, use the `downsampling.period` parameter as follows:
 
@@ -61,13 +58,16 @@ The environment variable `PMM_VM_URL` has been added, which should point to the 
 http(s)://hostname:port/path.
 ```
 
-If the external VictoriaMetrics database requires basic authentication, the following environment variables should be used:
+If the external VictoriaMetrics database requires basic authentication, the following environment variables should be used. 
 
 ```sh
 VMAGENT_remoteWrite_basicAuth_username={username}
 VMAGENT_remoteWrite_basicAuth_password={password}
 ```
-If other authentication methods are used on the VictoriaMetrics side, users can use any of the `vmagent` environment variables by prepending `VMAGENT_ prefix`.
+
+These credentials can be [set on PMM Server](../../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#pmm-client-configuration-variables) and will automatically apply to all connected PMM Clients.
+
+If other authentication methods are used on the VictoriaMetrics side, use any of the `vmagent` environment variables by prepending `VMAGENT_ prefix`.
 
 When external VictoriaMetrics is configured, internal VictoriaMetrics stops. In this case, VM Agent on PMM Server pulls metrics from agents configured in the `pull metrics mode` and from remote nodes. Data is then pushed to external VictoriaMetrics.
 

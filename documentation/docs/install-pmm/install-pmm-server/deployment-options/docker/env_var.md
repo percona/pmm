@@ -47,24 +47,25 @@ Use these variables when diagnosing issues with PMM Server:
 !!! warning "Production use"
     Debug and trace logging can significantly impact performance and generate large log volumes. Use only temporarily when troubleshooting issues.
 
-## Configure PMM Clients with environment variables
+## PMM Client configuration variables
 
-Set environment variables on the PMM Server to automatically apply them across your entire monitoring infrastructure. 
+Instead of configuring each client individually, set environment variables once on the PMM Server to automatically apply settings across your entire monitoring infrastructure.
 
-This eliminates the need to manually update each client deployment and ensures consistent configuration across your entire monitoring infrastructure.
+This centralized approach lets you manage disk usage limits, logging levels, and resource constraints from a single location. 
 
-### Why centralized client configuration matters
-The default 1GB disk usage per client can overwhelm shared storage in Kubernetes environments. 
+For instance, PMM Clients can consume up to 1GB of disk space by default, which can quickly exhaust shared volumes in containerized environments like Kubernetes.
 
-Centralized configuration lets you set parameters once on PMM Server and apply them to all clients automatically, eliminating manual per-client configuration.
+To avoid storage issues and maintain consistency, configure disk usage limits on the PMM Server that apply to all clients automatically. For most deployments, consider reducing disk usage to 50–100MB per client.
 
-### configure `vmagent`
+### Configure `vmagent` settings
 
-Control `vmagent` behavior on all PMM Clients by setting `VMAGENT_*` environment variables on the PMM Server. 
+Control `vmagent` behavior on all PMM Clients by setting `VMAGENT_*` environment variables on PMM Server. 
+
+This gives you centralized control over resource usage, logging, and storage settings without touching individual client deployments.
 
 #### Essential variables
 
-These environment variables prevent the most common deployment issues. For the complete list of configuration options, see [Victoria metrics command-line flags](https://docs.victoriametrics.com/#list-of-command-line-flags)
+These environment variables prevent the most common deployment challenges. For all available configuration options, see [Victoria metrics command-line flags](https://docs.victoriametrics.com/#list-of-command-line-flags)
 
 
 | Variable | Purpose | Example | Default | Notes |
@@ -77,24 +78,22 @@ These environment variables prevent the most common deployment issues. For the c
 | `VMAGENT_remoteWrite_basicAuth_password` | Basic auth password for external VictoriaMetrics | `secret` | Template-based | Auto-extracted from URL |
 | `VMAGENT_remoteWrite_tlsInsecureSkipVerify` | Skip TLS certificate verification | `true`, `false` | `false` | Security setting |
 
-
-!!! warning "Kubernetes storage warning"
-Default 1GB per client can cause disk pressure in shared storage environments. Consider reducing to 50-100MB per client.
-
-### Configuration format
+### Convert flags to environment variables
 
 `Vmagent` uses command-line flags for configuration. 
 
 To manage these settings centrally through PMM Server, convert the flags to environment variables using this pattern:
 
-- adding `VMAGENT_ prefix`
-- replacing hyphens (`-`)with underscores (`_`)
-- replacing dots (`.`) with underscores (_)
+- add `VMAGENT_ prefix`
+- replace hyphens (`-`)with underscores (`_`)
+- replace dots (`.`) with underscores (_)
 
 #### Examples
 
 - `remoteWrite.maxDiskUsagePerURL` > `VMAGENT_remoteWrite_maxDiskUsagePerURL`
--`loggerLevel` > `VMAGENT_loggerLevel`
+
+- `loggerLevel` > `VMAGENT_loggerLevel`
+
 - `httpListenAddr` > `VMAGENT_httpListenAddr`
 
 ### Common deployment scenarios
@@ -105,6 +104,8 @@ Set these variables on PMM Server startup to automatically configure all connect
 
 #### Kubernetes with shared storage
 
+Optimize for disk space constraints:
+
 ```sh
 docker run \
   -e VMAGENT_remoteWrite_maxDiskUsagePerURL=52428800 \
@@ -114,6 +115,7 @@ docker run \
 ```
 
 #### High-traffic environments
+Balance resource usage with monitoring detail:
 
 ```sh
 docker run \
@@ -124,6 +126,7 @@ docker run \
 ```
 
 ### Development and debugging
+Enable detailed logging for troubleshooting:
 
 ```sh
 docker run \
@@ -136,7 +139,7 @@ docker run \
 Configuration changes apply to all connected PMM Clients automatically without requiring restarts.
 
 ## Verify configuration
-Use these commands on PMM Client systems to confirm that the environment variables set on PMM Server are being applied to the vmagent processes: 
+Confirm that the environment variables set on PMM Server are being applied to the `vmagent` processes: 
 
 ### Check if `vmagent` is running
 
@@ -159,7 +162,6 @@ Check that `vmagent` is listening on expected port:
 ```sh
 netstat -tulpn | grep $(pidof vmagent)
 ```
-
 
 ## Advanced configuration
 

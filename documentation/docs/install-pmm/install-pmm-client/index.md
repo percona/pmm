@@ -57,3 +57,4 @@ If you need to modify the configuration of a service you've already added, you'l
 
 - [Connect database services](connect-database/index.md) for monitoring
 - [Configure optimization settings](connect-database/mysql/improve_perf.md) for specific database types
+- [Optimize resources usage with centralized  vmagent settings](../install-pmm-server/deployment-options/docker/env_var.md#pmm-client-configuration-variables)
