@@ -11729,6 +11729,8 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Compression
+
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MongoDBBackup_S3Config:
 		if v == nil {
@@ -12022,6 +12024,8 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for Compression
 
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MongoDBRestoreBackup_S3Config:

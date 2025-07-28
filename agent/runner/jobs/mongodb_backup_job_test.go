@@ -82,10 +82,11 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 	testJobDuration := 1 * time.Second
 
 	tests := []struct {
-		name      string
-		dataModel backuppb.DataModel
-		pitr      bool
-		errMsg    string
+		name        string
+		dataModel   backuppb.DataModel
+		pitr        bool
+		errMsg      string
+		compression backuppb.BackupCompression
 	}{
 		{
 			name:      "logical backup model",
@@ -114,7 +115,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), "", BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
+			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), "", BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder", tc.compression)
 			if tc.errMsg == "" {
 				assert.NoError(t, err)
 			} else {

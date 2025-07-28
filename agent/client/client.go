@@ -651,7 +651,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		}
 
 		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dsn, locationConfig,
-			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder)
+			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder, j.MongodbBackup.Compression)
 		if err != nil {
 			return err
 		}

@@ -63,6 +63,7 @@ func NewMongoDBBackupJob(
 	pitr bool,
 	dataModel backuppb.DataModel,
 	folder string,
+	compression backuppb.BackupCompression,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
@@ -82,6 +83,7 @@ func NewMongoDBBackupJob(
 		dataModel:      dataModel,
 		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dsn),
 		folder:         folder,
+		compression:    compression,
 	}, nil
 }
 
