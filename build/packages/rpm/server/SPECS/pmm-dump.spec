@@ -40,7 +40,6 @@ install -p -m 0755 pmm-dump %{buildroot}%{_sbindir}/pmm-dump
 * Thu Jul 28 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0
 - PMM-14215 Default to main branch for pmm-dump
 
-%changelog
 * Thu Aug 8 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-1
 - PMM-13282 Migrate pmm-dump to v3 API
 
