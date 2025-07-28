@@ -47,17 +47,15 @@ Use these variables when diagnosing issues with PMM Server:
 !!! warning "Production use"
     Debug and trace logging can significantly impact performance and generate large log volumes. Use only temporarily when troubleshooting issues.
 
-## PMM Client configuration variables
+## Configure vmagent on PMM Client
 
 Instead of configuring each client individually, set environment variables once on the PMM Server to automatically apply settings across your entire monitoring infrastructure.
 
 This centralized approach lets you manage disk usage limits, logging levels, and resource constraints from a single location. 
 
-For instance, PMM Clients can consume up to 1GB of disk space by default, which can quickly exhaust shared volumes in containerized environments like Kubernetes.
+For instance, PMM Clients can consume up to 1GB of disk space by default, which can quickly exhaust shared volumes in containerized environments like Kubernetes. To avoid storage issues and maintain consistency, configure disk usage limits on the PMM Server that apply to all clients automatically. For most deployments, consider reducing disk usage to 50–100MB per client.
 
-To avoid storage issues and maintain consistency, configure disk usage limits on the PMM Server that apply to all clients automatically. For most deployments, consider reducing disk usage to 50–100MB per client.
-
-### Configure `vmagent` settings
+### Configure `vmagent` variables
 
 Control `vmagent` behavior on all PMM Clients by setting `VMAGENT_*` environment variables on PMM Server. 
 
@@ -139,28 +137,14 @@ docker run \
 Configuration changes apply to all connected PMM Clients automatically without requiring restarts.
 
 ## Verify configuration
-Confirm that the environment variables set on PMM Server are being applied to the `vmagent` processes: 
-
-### Check if `vmagent` is running
+To confirm that centralized configuration is working, check that `vmagent` is running and using the expected settings:
 
 ```sh
+# Check vmagent process exists
 pidof vmagent
-# Should return a process ID
-```
 
-### Check configuration is applied
-Check that configuration parameters are present:
-
-```sh
-ps aux | grep vmagent | grep -v grep | wc -w
-# Should return > 10 (indicating multiple arguments)
-```
-
-### Verify network connectivity
-Check that `vmagent` is listening on expected port:
-
-```sh
-netstat -tulpn | grep $(pidof vmagent)
+# Verify environment variables are applied
+cat /proc/$(pidof vmagent)/environ | tr '\0' '\n' | grep VMAGENT
 ```
 
 ## Advanced configuration
@@ -188,7 +172,6 @@ PMM Server passes these variables to integrated components:
 - **VictoriaMetrics**: All `VM_*` variables (e.g., VM_retentionPeriod)
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.
-
 
 ## Experimental variables
 
