@@ -152,7 +152,7 @@ pidof vmagent
 Check that configuration parameters are present:
 
 ```sh
-ps aux | grep vmagent | wc -w
+ps aux | grep vmagent | grep -v grep | wc -w
 # Should return > 10 (indicating multiple arguments)
 ```
 
