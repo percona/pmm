@@ -123,7 +123,7 @@ docker run \
   percona/pmm-server:3
 ```
 
-#### Development and debugging
+##### Development and debugging
 Enable detailed logging for troubleshooting:
 
 ```sh
