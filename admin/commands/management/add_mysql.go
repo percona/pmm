@@ -148,8 +148,8 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 
 // RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	extraDSNParams := commands.ParseExtraDSNParams(cmd.ExtraDSNParams)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	extraDSNParams := commands.ParseKeyValuePair(cmd.ExtraDSNParams)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +

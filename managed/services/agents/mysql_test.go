@@ -43,7 +43,6 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword:   pointer.ToString("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
-		MySQLOptions:    models.MySQLOptions{},
 	}
 	pmmAgentVersion := version.MustParse("2.21.0")
 
@@ -135,6 +134,21 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		}
 		require.NoError(t, err)
 		assert.Equal(t, expectedFiles, actual.TextFiles)
+	})
+
+	t.Run("with allowCleartextPasswords dsn param", func(t *testing.T) {
+		pmmAgentVersion = version.MustParse("3.4.0")
+		t.Cleanup(func() {
+			pmmAgentVersion = version.MustParse("2.21.0")
+		})
+		exporter.MySQLOptions = models.MySQLOptions{
+			ExtraDSNParams: map[string]string{
+				"allowCleartextPasswords": "true",
+			},
+		}
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
+		assert.Contains(t, actual.TextFiles, "myCnf")
 	})
 }
 

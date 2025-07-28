@@ -152,24 +152,10 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 
 var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`) //nolint:unused,varcheck
 
-// ParseCustomLabels trims spaces in --custom-labels flag value.
-func ParseCustomLabels(labels map[string]string) map[string]string {
+// ParseKeyValuePair parses values in key-value pair flags (e.g --custom-labels and --extra-dsn-params)
+func ParseKeyValuePair(labels map[string]string) map[string]string {
 	result := make(map[string]string)
 	for k, v := range labels {
-		v = strings.TrimSpace(v)
-		if v == "" {
-			continue
-		}
-
-		result[k] = v
-	}
-	return result
-}
-
-// ParseExtraDSNParams trims spaces in --extra-dsn-params flag value.
-func ParseExtraDSNParams(params map[string]string) map[string]string {
-	result := make(map[string]string)
-	for k, v := range params {
 		v = strings.TrimSpace(v)
 		if v == "" {
 			continue

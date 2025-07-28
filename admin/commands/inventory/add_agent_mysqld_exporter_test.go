@@ -200,7 +200,7 @@ Tablestat collectors  : disabled (always).
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
 
-	t.Run("with allowCleartextPassword DSN param", func(t *testing.T) {
+	t.Run("with allowCleartextPasswords DSN param", func(t *testing.T) {
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "1",

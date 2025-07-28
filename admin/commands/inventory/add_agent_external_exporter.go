@@ -63,7 +63,7 @@ type AddAgentExternalExporterCommand struct {
 
 // RunCmd executes the AddAgentExternalExporterCommand and returns the result.
 func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)

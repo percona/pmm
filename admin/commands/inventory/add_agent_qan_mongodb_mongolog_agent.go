@@ -67,7 +67,7 @@ type AddAgentQANMongoDBMongologAgentCommand struct {
 
 // RunCmd executes the AddAgentQANMongoDBMongologAgentCommand and returns the result.
 func (cmd *AddAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {

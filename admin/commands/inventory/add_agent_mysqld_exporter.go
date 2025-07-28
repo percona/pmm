@@ -107,8 +107,8 @@ type AddAgentMysqldExporterCommand struct {
 
 // RunCmd executes the AddAgentMysqldExporterCommand and returns the result.
 func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	extraDSNParams := commands.ParseKeyValuePair(cmd.ExtraDSNParams)
 	var (
 		err                    error
 		tlsCa, tlsCert, tlsKey string
@@ -139,7 +139,7 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 				Password:                  cmd.Password,
 				AgentPassword:             cmd.AgentPassword,
 				CustomLabels:              customLabels,
-				ExtraDsnParams:            cmd.ExtraDSNParams,
+				ExtraDsnParams:            extraDSNParams,
 				SkipConnectionCheck:       cmd.SkipConnectionCheck,
 				TLS:                       cmd.TLS,
 				TLSSkipVerify:             cmd.TLSSkipVerify,

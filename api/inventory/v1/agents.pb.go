@@ -1394,8 +1394,9 @@ type QANMySQLPerfSchemaAgent struct {
 	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,21,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
-	LogLevel       LogLevel          `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
-	ExtraDsnParams map[string]string `protobuf:"bytes,23,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // Extra DSN parameters for MySQL connection.
+	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `protobuf:"bytes,23,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1594,8 +1595,9 @@ type QANMySQLSlowlogAgent struct {
 	// mod tidy
 	ProcessExecPath string `protobuf:"bytes,21,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
-	LogLevel       LogLevel          `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
-	ExtraDsnParams map[string]string `protobuf:"bytes,23,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // Extra DSN parameters for MySQL connection.
+	LogLevel LogLevel `protobuf:"varint,22,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `protobuf:"bytes,23,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }

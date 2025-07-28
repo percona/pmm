@@ -41,6 +41,7 @@ type MySQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
+	//	GetExtraDsnParams() map[string]string
 }
 
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
@@ -49,6 +50,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) MySQLOptions {
 		TLSCa:   params.GetTlsCa(),
 		TLSCert: params.GetTlsCert(),
 		TLSKey:  params.GetTlsKey(),
+		//		ExtraDSNParams: params.GetExtraDsnParams(),
 	}
 }
 

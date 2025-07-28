@@ -181,7 +181,6 @@ message MySQLdExporter {
   bool expose_exporter = 25;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 26;
-
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 27;
 }

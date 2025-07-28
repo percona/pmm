@@ -62,7 +62,7 @@ type AddServiceMySQLCommand struct {
 
 // RunCmd runs the command for AddServiceMySQLCommand.
 func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{

@@ -136,13 +136,13 @@ func TestParseCustomLabel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			customLabels := ParseCustomLabels(tt.input)
+			customLabels := ParseKeyValuePair(tt.input)
 			assert.Equal(t, tt.expected, customLabels)
 		})
 	}
 }
 
-func TestParseExtraDSNParams(t *testing.T) {
+func TestParseKeyValuePair(t *testing.T) {
 	t.Parallel()
 	for _, tt := range []struct {
 		name     string
@@ -156,7 +156,7 @@ func TestParseExtraDSNParams(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			extraDSNParams := ParseExtraDSNParams(tt.input)
+			extraDSNParams := ParseKeyValuePair(tt.input)
 			assert.Equal(t, tt.expected, extraDSNParams)
 		})
 	}
