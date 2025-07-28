@@ -47,7 +47,7 @@ Use these variables when diagnosing issues with PMM Server:
 !!! warning "Production use"
     Debug and trace logging can significantly impact performance and generate large log volumes. Use only temporarily when troubleshooting issues.
 
-## Configure vmagent on PMM Client
+### Configure vmagent on PMM Client
 
 Instead of configuring each client individually, set environment variables once on the PMM Server to automatically apply settings across your entire monitoring infrastructure.
 
@@ -55,15 +55,15 @@ This centralized approach lets you manage disk usage limits, logging levels, and
 
 For instance, PMM Clients can consume up to 1GB of disk space by default, which can quickly exhaust shared volumes in containerized environments like Kubernetes. To avoid storage issues and maintain consistency, configure disk usage limits on the PMM Server that apply to all clients automatically. For most deployments, consider reducing disk usage to 50–100MB per client.
 
-### Configure `vmagent` variables
+#### Configure `vmagent` variables
 
 Control `vmagent` behavior on all PMM Clients by setting `VMAGENT_*` environment variables on PMM Server. 
 
 This gives you centralized control over resource usage, logging, and storage settings without touching individual client deployments.
 
-#### Essential variables
+##### Essential variables
 
-These environment variables prevent the most common deployment challenges. For all available configuration options, see [Victoria metrics command-line flags](https://docs.victoriametrics.com/#list-of-command-line-flags)
+These environment variables prevent the most common deployment challenges. For all available configuration options, see [Victoria metrics command-line flags](https://docs.victoriametrics.com/#list-of-command-line-flags).
 
 
 | Variable | Purpose | Example | Default | Notes |
@@ -76,7 +76,7 @@ These environment variables prevent the most common deployment challenges. For a
 | `VMAGENT_remoteWrite_basicAuth_password` | Basic auth password for external VictoriaMetrics | `secret` | Template-based | Auto-extracted from URL |
 | `VMAGENT_remoteWrite_tlsInsecureSkipVerify` | Skip TLS certificate verification | `true`, `false` | `false` | Security setting |
 
-### Convert flags to environment variables
+##### Convert flags to environment variables
 
 `Vmagent` uses command-line flags for configuration. 
 
@@ -86,7 +86,7 @@ To manage these settings centrally through PMM Server, convert the flags to envi
 - replace hyphens (`-`)with underscores (`_`)
 - replace dots (`.`) with underscores (_)
 
-#### Examples
+###### Examples
 
 - `remoteWrite.maxDiskUsagePerURL` > `VMAGENT_remoteWrite_maxDiskUsagePerURL`
 
@@ -94,13 +94,13 @@ To manage these settings centrally through PMM Server, convert the flags to envi
 
 - `httpListenAddr` > `VMAGENT_httpListenAddr`
 
-### Common deployment scenarios
+#### Common deployment scenarios
 
 Here are some examples for typical production configurations for different environments. 
 
 Set these variables on PMM Server startup to automatically configure all connected clients.
 
-#### Kubernetes with shared storage
+##### Kubernetes with shared storage
 
 Optimize for disk space constraints:
 
@@ -112,7 +112,7 @@ docker run \
   percona/pmm-server:3
 ```
 
-#### High-traffic environments
+##### High-traffic environments
 Balance resource usage with monitoring detail:
 
 ```sh
@@ -123,7 +123,7 @@ docker run \
   percona/pmm-server:3
 ```
 
-### Development and debugging
+#### Development and debugging
 Enable detailed logging for troubleshooting:
 
 ```sh
@@ -136,7 +136,7 @@ docker run \
 
 Configuration changes apply to all connected PMM Clients automatically without requiring restarts.
 
-## Verify configuration
+#### Verify configuration
 To confirm that centralized configuration is working, check that `vmagent` is running and using the expected settings:
 
 ```sh
