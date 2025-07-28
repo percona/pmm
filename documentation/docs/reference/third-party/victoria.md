@@ -65,7 +65,7 @@ VMAGENT_remoteWrite_basicAuth_username={username}
 VMAGENT_remoteWrite_basicAuth_password={password}
 ```
 
-These credentials can be [set on PMM Server](../../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#pmm-client-configuration-variables) and will automatically apply to all connected PMM Clients.
+These credentials can be [set on PMM Server](../../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#configure-vmagent-variables) and will automatically apply to all connected PMM Clients.
 
 If other authentication methods are used on the VictoriaMetrics side, use any of the `vmagent` environment variables by prepending `VMAGENT_ prefix`.
 
