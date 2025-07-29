@@ -50,55 +50,7 @@ Choose the restoration method that matches how your backup was created:
         ```sh
         docker logs pmm-server
         ```
-
-=== "Archive backup"
-    Restore from a compressed archive backup (.tar.gz file):
-    {.power-number}
-
-    1. Stop the current PMM Server container:
-        ```sh
-        docker stop pmm-server
-        ```
-
-    2. Remove the current container:
-        ```sh
-        docker rm pmm-server
-        ```
-
-    3. Create a temporary volume and extract archive:
-        ```sh
-        # Create temporary restore volume
-        docker volume create pmm-restore-temp
         
-        # Extract archive to volume
-        docker run --rm -v $(pwd):/backup -v pmm-restore-temp:/restore alpine sh -c 'cd /restore && tar xzf /backup/pmm-data-backup-*.tar.gz'
-        ```
-
-    4. Copy restored data to PMM data volume:
-        ```sh
-        # Remove current volume (WARNING: This deletes current data)
-        docker volume rm pmm-data
-        
-        # Create new pmm-data volume
-        docker volume create pmm-data
-        
-        # Copy restored data
-        sudo docker run --rm -v pmm-restore-temp:/from -v pmm-data:/to alpine ash -c 'cd /from ; cp -av . /to'
-        
-        # Clean up temporary volume
-        docker volume rm pmm-restore-temp
-        ```
-
-    5. Start the restored PMM Server:
-        ```sh
-        docker run -d \
-        --publish 443:8443 \
-        --volume pmm-data:/srv \
-        --name pmm-server \
-        --restart always \
-        percona/pmm-server:3
-        ```
-
 === "Directory backup"
     Restore from a host directory backup:
     {.power-number}

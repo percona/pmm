@@ -241,16 +241,6 @@ Choose the appropriate backup method based on your PMM Server deployment:
     docker run --rm -v $BACKUP_VOLUME:/backup alpine \
       ash -c 'ls -la /backup/grafana /backup/prometheus /backup/clickhouse 2>/dev/null || echo "Some directories may not exist in older versions"'
     ```
-=== "Archive backups" 
-    For compressed archive backups (.tar.gz files):
-
-    ```sh
-    # List archive contents
-    tar -tzf pmm-data-backup-*.tar.gz | head -20
-
-    # Test archive integrity
-    tar -tzf pmm-data-backup-*.tar.gz > /dev/null && echo "✅ Archive OK" || echo "❌ Archive corrupted"
-    ```
 
 === "Directory backups" 
     For directory-based backups:
