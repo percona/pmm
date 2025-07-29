@@ -12,7 +12,7 @@ To check used Grafana plugins:
 docker exec -t pmm-server ls -l /var/lib/grafana/plugins
 ```
 
-## Back up procedure
+## Backup procedure
 To back up your PMM Server container, follow the backup instructions for your deployment type.
 
 ### Step 1: Back up PMM Server container
@@ -44,9 +44,8 @@ kubectl get pods -l app.kubernetes.io/name=pmm 2>/dev/null && echo "Kubernetes d
 - Podman SystemD: `Podman SystemD deployment detected`
 - Kubernetes: Shows running PMM pods
 
-
 ### Step 2: Choose a backup method 
-Choose the appropriate backup methid based on your PMM Server deployment:
+Choose the appropriate backup method based on your PMM Server deployment:
 
 === "Docker with named volume"
     This is the most common deployment pattern and is ideal for migrations, as it preserves the entire `pmm-data` volume structure required for a successful transfer. Use this method if your PMM Server is deployed with a named Docker volume:
