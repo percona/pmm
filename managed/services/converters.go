@@ -246,7 +246,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.MySQLdExporterType:
-		exporter := &inventoryv1.MySQLdExporter{
+		return &inventoryv1.MySQLdExporter{
 			AgentId:                   agent.AgentID,
 			PmmAgentId:                pointer.GetString(agent.PMMAgentID),
 			ServiceId:                 serviceID,
@@ -267,8 +267,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:            agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions:        ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			ExtraDsnParams:            agent.MySQLOptions.ExtraDSNParams,
-		}
-		return exporter, nil
+		}, nil
 
 	case models.MongoDBExporterType:
 		exporter := &inventoryv1.MongoDBExporter{
