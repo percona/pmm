@@ -53,7 +53,7 @@ export const getStyles = (
     pr: drawerOpen ? 1 : 0,
   },
   listItemDivider: {
-    px: 2,
+    px: drawerOpen ? 2 : 1,
   },
   divider: {
     flex: 1,

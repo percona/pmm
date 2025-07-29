@@ -158,14 +158,6 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
           variant: 'outlined',
         },
       },
-      MuiButton: {
-        styleOverrides: {
-          textSizeMedium: {
-            padding: '11px 16px',
-            height: '42px',
-          },
-        },
-      },
       MuiDrawer: {
         styleOverrides: {
           root: {
@@ -211,6 +203,20 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
               },
             },
           },
+        },
+      },
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: ({ theme }) => ({
+            ...theme.typography.helperText,
+            p: 6,
+            boxShadow: theme.shadows[8],
+            color: peakTheme.neutral.primary.contrast,
+            backgroundColor: peakTheme.neutral.primary.main,
+          }),
+          arrow: () => ({
+            color: peakTheme.neutral.primary.main,
+          }),
         },
       },
     },

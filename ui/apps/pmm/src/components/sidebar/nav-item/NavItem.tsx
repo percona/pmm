@@ -17,6 +17,7 @@ import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import NavItemIcon from './nav-item-icon/NavItemIcon';
 import IconButton from '@mui/material/IconButton';
+import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 
 const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const location = useLocation();
@@ -116,28 +117,30 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   }
 
   return (
-    <ListItem key={item.url} disablePadding>
-      <ListItemButton
-        disableGutters
-        sx={[styles.listItemButton, level === 0 && styles.navItemRoot]}
-        selected={active}
-        {...linkProps}
-        data-testid={dataTestid}
-        data-navlevel={level}
-      >
-        {item.icon && (
-          <ListItemIcon sx={styles.listItemIcon}>
-            <NavItemIcon icon={item.icon} />
-          </ListItemIcon>
-        )}
-        {drawerOpen && (
-          <ListItemText
-            primary={item.text}
-            primaryTypographyProps={level > 0 ? { style: styles.text } : {}}
-          />
-        )}
-      </ListItemButton>
-    </ListItem>
+    <NavItemTooltip key={item.url} drawerOpen={drawerOpen} item={item}>
+      <ListItem disablePadding>
+        <ListItemButton
+          disableGutters
+          sx={[styles.listItemButton, level === 0 && styles.navItemRoot]}
+          selected={active}
+          {...linkProps}
+          data-testid={dataTestid}
+          data-navlevel={level}
+        >
+          {item.icon && (
+            <ListItemIcon sx={styles.listItemIcon}>
+              <NavItemIcon icon={item.icon} />
+            </ListItemIcon>
+          )}
+          {drawerOpen && (
+            <ListItemText
+              primary={item.text}
+              primaryTypographyProps={level > 0 ? { style: styles.text } : {}}
+            />
+          )}
+        </ListItemButton>
+      </ListItem>
+    </NavItemTooltip>
   );
 };
 
