@@ -1126,6 +1126,8 @@ message AddQANMySQLPerfSchemaAgentParams {
   bool disable_comments_parsing = 14;
   // Log level for exporter.
   LogLevel log_level = 15;
+  // Extra DSN parameters for MySQL connection.
+  map<string, string> extra_dsn_params = 16;
 }
 
 message ChangeQANMySQLPerfSchemaAgentParams {
@@ -1175,6 +1177,8 @@ message AddQANMySQLSlowlogAgentParams {
   bool disable_comments_parsing = 15;
   // Log level for exporter.
   LogLevel log_level = 16;
+  // Extra DSN parameters for MySQL connection.
+  map<string, string> extra_dsn_params = 17;
 }
 
 message ChangeQANMySQLSlowlogAgentParams {

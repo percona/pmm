@@ -88,9 +88,6 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 
 		mysqlOptions := models.MySQLOptionsFromRequest(req)
 		mysqlOptions.TableCountTablestatsGroupLimit = tablestatsGroupTableLimit
-		if req.ExtraDsnParams != nil {
-			mysqlOptions.ExtraDSNParams = req.ExtraDsnParams
-		}
 
 		row, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
 			PMMAgentID:    req.PmmAgentId,

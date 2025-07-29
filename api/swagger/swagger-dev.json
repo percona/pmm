@@ -7934,6 +7934,14 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
+                    },
+                    "extra_dsn_params": {
+                      "description": "Extra DSN parameters for MySQL connection.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 15
                     }
                   },
                   "x-order": 9
@@ -8035,6 +8043,14 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 15
+                    },
+                    "extra_dsn_params": {
+                      "description": "Extra DSN parameters for MySQL connection.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 16
                     }
                   },
                   "x-order": 10

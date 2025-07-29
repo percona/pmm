@@ -9206,6 +9206,8 @@ func (m *AddQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExtraDsnParams
+
 	if len(errors) > 0 {
 		return AddQANMySQLPerfSchemaAgentParamsMultiError(errors)
 	}
@@ -9541,6 +9543,8 @@ func (m *AddQANMySQLSlowlogAgentParams) validate(all bool) error {
 	// no validation rules for DisableCommentsParsing
 
 	// no validation rules for LogLevel
+
+	// no validation rules for ExtraDsnParams
 
 	if len(errors) > 0 {
 		return AddQANMySQLSlowlogAgentParamsMultiError(errors)
