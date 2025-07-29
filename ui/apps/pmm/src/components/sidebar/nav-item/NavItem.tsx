@@ -54,7 +54,6 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
           <ListItemButton
             color="primary.main"
             disableGutters
-            selected={active}
             sx={[
               styles.listItemButton,
               level === 0 && styles.navItemRootCollapsible,
