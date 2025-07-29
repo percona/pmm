@@ -7,9 +7,9 @@ Connect a MongoDB instance to PMM to monitor a [MongoDB] or [Percona Server for 
 Before you start, ensure you have:
 
 - [PMM Server installed](../../install-pmm-server/index.md) and running with a known IP address or hostname accessible from the Client node.
-- [PMM Client installed](../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../register-client-node/index.md).
-- Admin privileges to install and configure PMM Client on the host.
-- Preconfigured MongoDB user with appropriate monitoring privileges, or sufficient privileges to create the required roles and users.
+- [PMM Client installed](../../install-pmm-client/index.md) and the nodes are registered with PMM Server.
+- admin privileges to install and configure PMM Client on the host.
+- preconfigured MongoDB user with appropriate monitoring privileges, or sufficient privileges to create the required roles and users.
 - MongoDB server version 6.0 or higher. PMM may work with MongoDB versions as old as 4.4, but we recommend using MongoDB 6.0+ for complete feature support.
 
 ## Create PMM account and set permissions
