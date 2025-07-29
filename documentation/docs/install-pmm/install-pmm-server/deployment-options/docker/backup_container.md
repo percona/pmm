@@ -18,12 +18,11 @@ To back up your PMM Server container, follow the backup instructions for your de
 ### Step 1: Back up PMM Server container
 
 Identify your deployment type and storage method since different PMM Server deployments store data differently:
-{.power-number}
 
-    - named volumes (like `pmm-data`) need volume-to-volume copying
-    - host directories need file system backups
-    - Podman services require service management
-    - Kubernetes uses volume snapshots
+- named volumes (like `pmm-data`) need volume-to-volume copying
+- host directories need file system backups
+- Podman services require service management
+- Kubernetes uses volume snapshots
 
 Run these commands to determine your deployment:
 
@@ -184,12 +183,7 @@ Choose the appropriate backup method based on your PMM Server deployment:
 
 === "Universal container copy"
 
-    While this method works universally, the deployment-specific methods above are more efficient and preserve storage structures better. This method works for all deployment types as a fallback option when:
-
-    - you're unsure about your deployment type
-    - you need a quick backup without determining volume setup
-    - other methods are not applicable to your configuration
-    - you prefer a simple, one-size-fits-all approach
+    While this method works universally, the deployment-specific methods above are more efficient and preserve storage structures better. This method works for all deployment types as a fallback option when you're unsure about your deployment type or you need a quick backup without determining volume setup.
     {.power-number}
 
     1. Stop the running PMM Server container:
