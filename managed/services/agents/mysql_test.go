@@ -43,6 +43,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword:   pointer.ToString("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
+		MySQLOptions:    models.MySQLOptions{},
 	}
 	pmmAgentVersion := version.MustParse("2.21.0")
 
@@ -148,7 +149,8 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		}
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Contains(t, actual.TextFiles, "myCnf")
+		require.Contains(t, actual.TextFiles, "myCnf")
+		assert.Contains(t, actual.TextFiles["myCnf"], "enable-cleartext-plugin")
 	})
 }
 
