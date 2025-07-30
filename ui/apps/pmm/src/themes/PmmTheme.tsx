@@ -1,7 +1,8 @@
-import { PaletteMode } from '@mui/material';
+import { listItemTextClasses } from '@mui/material/ListItemText';
 import { ThemeOptions } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 import { baseThemeOptions } from '@percona/design';
+import { ColorMode, PEAK_DARK_THEME, PEAK_LIGHT_THEME } from '@pmm/shared';
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -13,18 +14,22 @@ import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/600.css';
 
 import '@fontsource/roboto-mono';
+import { iconButtonClasses } from '@mui/material/IconButton';
+import { listItemIconClasses } from '@mui/material/ListItemIcon';
+import { listItemButtonClasses } from '@mui/material/ListItemButton';
 
-const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
+const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
+  const peakTheme = mode === 'light' ? PEAK_LIGHT_THEME : PEAK_DARK_THEME;
   const newOptions: ThemeOptions = {
     palette: {
       mode,
       ...(mode === 'light'
         ? {
             primary: {
-              main: '#AC3100',
-              dark: '#852600',
-              light: '#DC3F00',
-              contrastText: '#FFFFFF',
+              main: peakTheme.primary.pmm.main,
+              dark: peakTheme.primary.pmm.dark,
+              light: peakTheme.primary.pmm.light,
+              contrastText: peakTheme.primary.pmm.contrast,
             },
             action: {
               hover: 'rgba(220, 63, 0, 0.04)',
@@ -41,10 +46,10 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }
         : {
             primary: {
-              main: '#F68254',
-              dark: '#F56A33',
-              light: '#F9A98A',
-              contrastText: '#000000',
+              main: peakTheme.primary.pmm.main,
+              dark: peakTheme.primary.pmm.dark,
+              light: peakTheme.primary.pmm.light,
+              contrastText: peakTheme.primary.pmm.contrast,
             },
             action: {
               hover: 'rgba(245, 106, 51, 0.08)',
@@ -62,11 +67,16 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
     },
     components: {
       MuiCssBaseline: {
-        styleOverrides: {
-          body: {
-            backgroundColor: '#F0F1F4',
+        styleOverrides: (theme) => ({
+          html: {
+            backgroundColor: peakTheme.surfaces.elevation0,
+            scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
           },
-        },
+          body: {
+            backgroundColor: peakTheme.surfaces.elevation0,
+            scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
+          },
+        }),
       },
       MuiIconButton: {
         defaultProps: {
@@ -141,6 +151,72 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
             color: '#920000',
             backgroundColor: '#FFECE9',
           },
+        },
+      },
+      MuiCard: {
+        defaultProps: {
+          variant: 'outlined',
+        },
+      },
+      MuiDrawer: {
+        styleOverrides: {
+          root: {
+            fontFamily: 'Poppins',
+
+            [`.${listItemTextClasses.root} *`]: {
+              fontFamily: 'Poppins',
+            },
+
+            [`.${iconButtonClasses.root}:hover`]: {
+              color: peakTheme.primary.pmm.main,
+              backgroundColor: peakTheme.primary.pmm.hover,
+            },
+
+            [`.${iconButtonClasses.root}:focus`]: {
+              color: peakTheme.primary.pmm.main,
+              backgroundColor: peakTheme.primary.pmm.focus,
+            },
+          },
+        },
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            fontFamily: 'Poppins',
+          },
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            '&:hover, &:focus': {
+              color: peakTheme.primary.pmm.main,
+              backgroundColor: peakTheme.primary.pmm.hover,
+
+              [`.${listItemIconClasses.root}`]: {
+                color: peakTheme.primary.pmm.main,
+              },
+
+              [`&.${listItemButtonClasses.selected}`]: {
+                color: peakTheme.primary.pmm.main,
+                backgroundColor: peakTheme.primary.pmm.selected,
+              },
+            },
+          },
+        },
+      },
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: ({ theme }) => ({
+            ...theme.typography.helperText,
+            p: 6,
+            boxShadow: theme.shadows[8],
+            color: peakTheme.neutral.primary.contrast,
+            backgroundColor: peakTheme.neutral.primary.main,
+          }),
+          arrow: () => ({
+            color: peakTheme.neutral.primary.main,
+          }),
         },
       },
     },
