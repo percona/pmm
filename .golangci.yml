@@ -1,164 +1,149 @@
----
-linters-settings:
-  exhaustive:
-    default-signifies-exhaustive: true
-
-  cyclop:
-    max-complexity: 30
-
-  inamedparam:
-    # Skips check for interface methods with only a single parameter.
-    skip-single-param: true    
-
-  depguard:
-    rules:
-      main:
-        deny:
-          - pkg: "github.com/pkg/errors"
-            desc: use "errors" instead
-          - pkg: "github.com/gogo/protobuf/proto"
-            desc: use "github.com/golang/protobuf/proto" instead
-          - pkg: "github.com/percona/go-mysql/log/slow"
-            desc: only use the forked parser
-          - pkg: "github.com/percona-platform/platform"
-            desc: use "github.com/percona/saas" instead
-          - pkg: "github.com/percona/platform"
-            desc: use "github.com/percona/saas" instead
-          - pkg: "gopkg.in/yaml.v2"
-            desc: use "gopkg.in/yaml.v3" instead
-
-  gci:
-    sections:
-      - standard # Captures all standard packages if they do not match another section.
-      - default # Contains all imports that could not be matched to another section type.
-      - prefix(github.com/percona/pmm) # Groups all local imports.
-
-  godot:
-    capital: true
-    period: true
-    scope: toplevel
-    exclude:
-      - go-sumtype:decl 
-      - pmm-managed
-
-  goimports:
-    local-prefixes: github.com/percona/pmm
-
-  ireturn:
-    allow:
-      - anon
-      - error
-      - empty
-      - stdlib
-      - github.com/charmbracelet/bubbletea.Model
-      - github.com/percona/pmm/admin/commands.Result
-      - github.com/percona/pmm/agent/runner/actions.Action
-      - github.com/percona/pmm/managed/services/telemetry.DataSource
-
-  lll:
-    line-length: 170
-    tab-width: 4
-
-  maintidx:
-    under: 20
-
-  nestif:
-    min-complexity: 7
-
-  tagliatelle:
-    # Check the struck tag name case.
-    case:
-      rules:
-        avro: snake
-        bson: camel
-        # Disabled because we have too many errors at the moment
-        json: ""
-        # Disabled because we have too many errors at the moment
-        yaml: ""
-        xml: camel
-
-  unused:
-    check-exported: false #TODO: set true for agent
-
-  unparam:
-    check-exported: true
-
-  recvcheck:
-    exclusions:
-      - "*.pb.go"
-      - "*_test.go"
-      - "mock_*.go"
-      - "*_reform.go"
-
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
-    # keep the rules sorted alphabetically
-    - copyloopvar      # replaced exportloopref, but we don't need it for Go 1.22+
-    - dupl             # we can't avoid duplicating code
-    - err113           # extra work & poor benefit (renamed from goerr113)
-    - exhaustruct      # too many files to fix/nolint
-    - funlen           # useless
-    - gochecknoglobals # mostly useless
-    - gochecknoinits   # we use init functions
-    - gocyclo          # using cyclop with the max 30 instead
-    - godox            # we sometimes leave TODOS right in the code
-    - gomoddirectives  # we use replace directives
-    - nlreturn         # too annoying
-    - protogetter      # we need direct access to proto fields
-    - rowserrcheck     # disabled because of generics
-    - tenv             # deprecated, replaced by usetesting
-    - varnamelen       # useless
-    - wastedassign     # disabled because of generics
-    - wrapcheck        # we do not use wrapping everywhere
-    - wsl              # too annoying
-
-    # TODO: carefully review all the rules below and either fix the code
-    # or leave disabled and provide a reason why
-    #- tagliatelle
-    #- revive
-    - paralleltest
+    - copyloopvar
+    - dupl
+    - err113
+    - exhaustruct
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
     - gocognit
+    - gocyclo
+    - godox
+    - gomoddirectives
+    - nlreturn
+    - paralleltest
+    - protogetter
+    - rowserrcheck
     - tagalign
-
-    # ENDTODO
-
-run:
-  timeout: 5m
-
-issues:
-  exclude-use-default: false
-  exclude-dirs:
-    - agent/agents/mongodb/internal/
-    - qan-api2/migrations/
-  exclude:
-    # gas: Duplicated errcheck checks
-    - "G104: Errors unhandled"
-    # golint: Methods for implementing interfaces are not documented
-    - "exported method `.+` should have comment or be unexported"
-    - "comment on exported method `.+` should be of the form `.+ ...`"
-    # golint: We have to return unexported types due to oneof implementation
-    - "exported method .+ returns unexported type .+, which can be annoying to use"
-    # Exclude build issues from external dependencies
-    - "buildssa: failed to load package"
-    - "could not load export data"
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        # keep sorted
-        - contextcheck     # not critical, too many things to disable
-        - exhaustivestruct # very annoying
-        - forcetypeassert  # for tests' brevity sake
-        - funlen           # tests may be long
-        - gocognit         # triggered by subtests
-        - goconst          # not critical for tests
-        - gomnd            # tests are full of magic numbers
-        - ireturn          # we have exceptions, so need to silence them in tests
-        - lll              # tests often require long lines
-        - maintidx         # not critical for tests
-        - nonamedreturns   # not critical for tests, albeit desirable
-        - testpackage      # senseless
-        - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-    - path: managed/models/
-      linters:
-        - recvcheck
+    - varnamelen
+    - wastedassign
+    - wrapcheck
+    - wsl
+  settings:
+    cyclop:
+      max-complexity: 30
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: github.com/pkg/errors
+              desc: use "errors" instead
+            - pkg: github.com/gogo/protobuf/proto
+              desc: use "github.com/golang/protobuf/proto" instead
+            - pkg: github.com/percona/go-mysql/log/slow
+              desc: only use the forked parser
+            - pkg: github.com/percona-platform/platform
+              desc: use "github.com/percona/saas" instead
+            - pkg: github.com/percona/platform
+              desc: use "github.com/percona/saas" instead
+            - pkg: gopkg.in/yaml.v2
+              desc: use "gopkg.in/yaml.v3" instead
+    exhaustive:
+      default-signifies-exhaustive: true
+    godot:
+      scope: toplevel
+      exclude:
+        - go-sumtype:decl
+        - pmm-managed
+      capital: true
+      period: true
+    inamedparam:
+      skip-single-param: true
+    ireturn:
+      allow:
+        - anon
+        - error
+        - empty
+        - stdlib
+        - github.com/charmbracelet/bubbletea.Model
+        - github.com/percona/pmm/admin/commands.Result
+        - github.com/percona/pmm/agent/runner/actions.Action
+        - github.com/percona/pmm/managed/services/telemetry.DataSource
+    lll:
+      line-length: 170
+      tab-width: 4
+    maintidx:
+      under: 20
+    nestif:
+      min-complexity: 7
+    recvcheck:
+      exclusions:
+        - '*.pb.go'
+        - '*_test.go'
+        - mock_*.go
+        - '*_reform.go'
+    tagliatelle:
+      case:
+        rules:
+          avro: snake
+          bson: camel
+          json: ""
+          xml: camel
+          yaml: ""
+    unparam:
+      check-exported: true
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - contextcheck
+          - exhaustivestruct
+          - forcetypeassert
+          - funlen
+          - gocognit
+          - goconst
+          - ireturn
+          - lll
+          - maintidx
+          - mnd
+          - nonamedreturns
+          - testpackage
+          - unused
+        path: _test\.go
+      - linters:
+          - recvcheck
+        path: managed/models/
+      - path: (.+)\.go$
+        text: 'G104: Errors unhandled'
+      - path: (.+)\.go$
+        text: exported method `.+` should have comment or be unexported
+      - path: (.+)\.go$
+        text: comment on exported method `.+` should be of the form `.+ ...`
+      - path: (.+)\.go$
+        text: exported method .+ returns unexported type .+, which can be annoying to use
+      - path: (.+)\.go$
+        text: 'buildssa: failed to load package'
+      - path: (.+)\.go$
+        text: could not load export data
+    paths:
+      - agent/agents/mongodb/internal/
+      - qan-api2/migrations/
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/percona/pmm)
+    goimports:
+      local-prefixes:
+        - github.com/percona/pmm
+  exclusions:
+    generated: lax
+    paths:
+      - agent/agents/mongodb/internal/
+      - qan-api2/migrations/
+      - third_party$
+      - builtin$
+      - examples$
