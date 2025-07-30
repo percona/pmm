@@ -14,7 +14,7 @@ const NavItemTooltip: FC<Props> = ({ children, item, drawerOpen }) => {
   }
 
   return (
-    <Tooltip title={item.text} placement="right" enterDelay={1000} arrow>
+    <Tooltip title={item.text} placement="right" enterDelay={500} arrow>
       {children}
     </Tooltip>
   );
