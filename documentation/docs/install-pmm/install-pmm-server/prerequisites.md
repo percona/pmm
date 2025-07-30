@@ -31,7 +31,7 @@ PMM Server requirements scale with the number of monitored nodes:
     - **Use cases**: Production environments, mid-sized companies
 
 === "Large (200+ nodes)"
-w1
+
     - **CPU**: 16+ cores with SSE4.2 support
     - **Memory**: 32+ GB RAM
     - **Storage**: 500+ GB

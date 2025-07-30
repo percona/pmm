@@ -1,6 +1,6 @@
 # About PMM
 
-<i info>:material-information: Info:</i> This is the documentation for the latest PMM 3 release. For details, see the [PMM {{release}} release notes](release-notes/3.3.0.md).
+<i info>:material-information: Info:</i> This is the documentation for the latest PMM 3 release. For details, see the [PMM {{release}} release notes](release-notes/3.3.1.md).
 
 Percona Monitoring and Management (PMM) is an open source database observability, monitoring, and management platform that gives you a single view of performance metrics - from entire database clusters down to individual queries.
 
