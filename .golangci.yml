@@ -2,27 +2,27 @@ version: "2"
 linters:
   default: all
   disable:
-    - copyloopvar
-    - dupl
-    - err113
-    - exhaustruct
-    - funcorder
-    - funlen
-    - gochecknoglobals
-    - gochecknoinits
+    - copyloopvar         # replaced exportloopref, but we don't need it for Go 1.22+
+    - dupl                # we can't avoid duplicating code
+    - err113              # extra work & poor benefit (renamed from goerr113)
+    - exhaustruct         # too many files to fix/nolint
+    - funcorder           # not very useful
+    - funlen              # useless
+    - gochecknoglobals    # mostly useless
+    - gochecknoinits      # we use init functions
     - gocognit
-    - gocyclo
-    - godox
-    - gomoddirectives
-    - nlreturn
+    - gocyclo             # using cyclop with the max 30 instead
+    - godox               # we sometimes leave TODOS right in the code
+    - gomoddirectives     # we use replace directives
+    - nlreturn            # too annoying
     - paralleltest
-    - protogetter
-    - rowserrcheck
+    - protogetter         # we need direct access to proto fields
+    - rowserrcheck        # disabled because of generics
     - tagalign
-    - varnamelen
-    - wastedassign
-    - wrapcheck
-    - wsl
+    - varnamelen          # useless
+    - wastedassign        # disabled because of generics
+    - wrapcheck           # we do not use wrapping everywhere
+    - wsl                 # too annoying
   settings:
     cyclop:
       max-complexity: 30
@@ -90,19 +90,19 @@ linters:
     generated: lax
     rules:
       - linters:
-          - contextcheck
-          - exhaustivestruct
-          - forcetypeassert
-          - funlen
-          - gocognit
-          - goconst
-          - ireturn
-          - lll
-          - maintidx
-          - mnd
-          - nonamedreturns
-          - testpackage
-          - unused
+          - contextcheck     # not critical, too many things to disable
+          - exhaustivestruct # very annoying
+          - forcetypeassert  # for tests' brevity sake 
+          - funlen           # tests may be long
+          - gocognit         # triggered by subtests
+          - goconst          # not critical for tests
+          - ireturn          # we have exceptions, so need to silence them in tests
+          - lll              # tests often require long lines
+          - maintidx         # not critical for tests
+          - mnd              # tests are full of magic numbers
+          - nonamedreturns   # not critical for tests, albeit desirable
+          - testpackage      # senseless
+          - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
         path: _test\.go
       - linters:
           - recvcheck
