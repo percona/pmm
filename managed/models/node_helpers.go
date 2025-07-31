@@ -60,12 +60,12 @@ func checkUniqueNodeName(q *reform.Querier, name string) error {
 	return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
 }
 
-// CheckUniqueNodeInstanceRegion checks for uniqueness of instance address and region.
+// CheckUniqueNodeAddressRegion checks for uniqueness of instance address and region.
 // This function not only returns an error in case it finds an existing node with the same address and region, but
 // also returns the Node itself if there is any, because if we are recreating the instance (--force in pmm-admin)
 // we need to know the Node.ID to remove it along with its dependencies.
 // This check is performed only if the region is not empty.
-func CheckUniqueNodeInstanceRegion(q *reform.Querier, address string, region *string) (*Node, error) {
+func CheckUniqueNodeAddressRegion(q *reform.Querier, address string, region *string) (*Node, error) {
 	if pointer.GetString(region) == "" {
 		return nil, nil //nolint:nilnil
 	}
@@ -206,7 +206,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		}
 	}
 
-	if _, err := CheckUniqueNodeInstanceRegion(q, params.Address, params.Region); err != nil {
+	if _, err := CheckUniqueNodeAddressRegion(q, params.Address, params.Region); err != nil {
 		return nil, err
 	}
 
