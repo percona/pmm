@@ -9758,7 +9758,10 @@ These settings control the following:</p>
    copytruncate
    missingok
    notifempty
-   create 640 mongodb mongodb
+   create 640 mongod mongod
+   postrotate
+    /bin/kill -SIGUSR1 `cat /var/run/mongod.pid &gt;/dev/null` /dev/null 2&gt;&amp;1
+   endscript
 }
 </code></pre></div>
 <h4 id="critical-requirements">Critical requirements<a class="headerlink" href="#critical-requirements" title="Permanent link">&para;</a></h4>
