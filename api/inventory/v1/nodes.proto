@@ -96,6 +96,8 @@ message RemoteRDSNode {
   string az = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
+  // AWS instance ID.
+  string instance_id = 8;
 }
 
 // RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.

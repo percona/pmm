@@ -37,6 +37,7 @@ func (v *nodeTableType) Columns() []string {
 		"az",
 		"custom_labels",
 		"address",
+		"instance_id",
 		"created_at",
 		"updated_at",
 		"container_id",
@@ -75,6 +76,7 @@ var NodeTable = &nodeTableType{
 			{Name: "AZ", Type: "string", Column: "az"},
 			{Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"},
 			{Name: "Address", Type: "string", Column: "address"},
+			{Name: "InstanceId", Type: "*string", Column: "instance_id"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 			{Name: "ContainerID", Type: "*string", Column: "container_id"},
@@ -88,7 +90,7 @@ var NodeTable = &nodeTableType{
 
 // String returns a string representation of this struct or record.
 func (s Node) String() string {
-	res := make([]string, 14)
+	res := make([]string, 15)
 	res[0] = "NodeID: " + reform.Inspect(s.NodeID, true)
 	res[1] = "NodeType: " + reform.Inspect(s.NodeType, true)
 	res[2] = "NodeName: " + reform.Inspect(s.NodeName, true)
@@ -98,11 +100,12 @@ func (s Node) String() string {
 	res[6] = "AZ: " + reform.Inspect(s.AZ, true)
 	res[7] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
 	res[8] = "Address: " + reform.Inspect(s.Address, true)
-	res[9] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[10] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[11] = "ContainerID: " + reform.Inspect(s.ContainerID, true)
-	res[12] = "ContainerName: " + reform.Inspect(s.ContainerName, true)
-	res[13] = "Region: " + reform.Inspect(s.Region, true)
+	res[9] = "InstanceId: " + reform.Inspect(s.InstanceId, true)
+	res[10] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[11] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[12] = "ContainerID: " + reform.Inspect(s.ContainerID, true)
+	res[13] = "ContainerName: " + reform.Inspect(s.ContainerName, true)
+	res[14] = "Region: " + reform.Inspect(s.Region, true)
 	return strings.Join(res, ", ")
 }
 
@@ -119,6 +122,7 @@ func (s *Node) Values() []interface{} {
 		s.AZ,
 		s.CustomLabels,
 		s.Address,
+		s.InstanceId,
 		s.CreatedAt,
 		s.UpdatedAt,
 		s.ContainerID,
@@ -140,6 +144,7 @@ func (s *Node) Pointers() []interface{} {
 		&s.AZ,
 		&s.CustomLabels,
 		&s.Address,
+		&s.InstanceId,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 		&s.ContainerID,

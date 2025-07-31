@@ -48,7 +48,7 @@ message DiscoverRDSResponse {
 
 message AddRDSServiceParams {
   // AWS region.
-  string region = 1 [(validate.rules).string.min_len = 1];
+  string region = 1 [(validate.rules).string.pattern = "^(us|eu|ap|sa|ca|me|af|il)-(north|south|east|west|central|northeast|northwest|southeast|southwest)-[1-9]$|^us-gov-(east|west)-[1-9]$|^cn-(north|northwest)-[1-9]$"];
   // AWS availability zone.
   string az = 2;
   // AWS instance ID.
