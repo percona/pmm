@@ -65,9 +65,9 @@ The following sections describe the migration steps for individual components. T
 ```
 
 4. Recreate the following files or directories setting the ownership to `pmm` user:
-    - /srv/postgres14 (0700)
-    - /run/postgresql (0755)
-    - /srv/logs/postgresql14.log (0744)
+    - /srv/postgres14 (0750)
+    - /run/postgresql (0775)
+    - /srv/logs/postgresql14.log (0664)
 
 5. Start a v3 instance
 Remember to pass the data volume to the instance so it can bootstrap the database. This is normally done by passing the `-v pmm-data:/srv` option to the `docker run` command, where `pmm-data` is the name of the volume.
