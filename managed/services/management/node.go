@@ -81,6 +81,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			ContainerID:   pointer.ToStringOrNil(req.ContainerId),
 			ContainerName: pointer.ToStringOrNil(req.ContainerName),
 			CustomLabels:  req.CustomLabels,
+			InstanceId:    pointer.ToStringOrNil(req.InstanceId),
 			Address:       req.Address,
 			Region:        pointer.ToStringOrNil(req.Region),
 		})

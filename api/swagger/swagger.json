@@ -18099,6 +18099,11 @@
                   "type": "boolean",
                   "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 15
+                },
+                "instance_id": {
+                  "description": "AWS instance ID.",
+                  "type": "string",
+                  "x-order": 16
                 }
               }
             }

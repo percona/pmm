@@ -201,7 +201,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 	// do not check that machine-id is unique: https://jira.percona.com/browse/PMM-4196
 
 	if nodeType == RemoteRDSNodeType {
-		if strings.Contains(params.Address, ".") {
+		if strings.Contains(*params.InstanceId, ".") {
 			return nil, status.Error(codes.InvalidArgument, "DB instance identifier should not contain dots.")
 		}
 	}
@@ -224,6 +224,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		AZ:            params.AZ,
 		ContainerID:   params.ContainerID,
 		ContainerName: params.ContainerName,
+		InstanceId:    params.InstanceId,
 		Address:       params.Address,
 		Region:        params.Region,
 	}
