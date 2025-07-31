@@ -303,8 +303,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			NodeName:     req.NodeName,
 			NodeModel:    req.NodeModel,
 			AZ:           req.Az,
-			Address:      req.Address,
 			InstanceId:   &req.InstanceId,
+			Address:      req.Address,
 			Region:       &req.Region,
 			CustomLabels: req.CustomLabels,
 		})
