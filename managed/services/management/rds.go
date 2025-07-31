@@ -22,12 +22,12 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/rds"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/rds"
+	"github.com/aws/aws-sdk-go-v2/service/rds/types"
+	"github.com/aws/smithy-go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -45,10 +45,11 @@ import (
 const (
 	// Maximum time for AWS discover APIs calls.
 	awsDiscoverTimeout = 7 * time.Second
+	rdsEndpointsID     = "rds"
 )
 
 var (
-	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
+	// See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
 	rdsEngines = map[string]managementv1.DiscoverRDSEngine{
 		"aurora-mysql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL, // MySQL 5.7-compatible Aurora
@@ -72,35 +73,70 @@ var (
 // Returned error is wrapped with a stack trace, but unchanged otherwise.
 //
 //nolint:interfacer
-func discoverRDSRegion(ctx context.Context, sess *session.Session, region string) ([]*rds.DBInstance, error) {
-	var res []*rds.DBInstance
+func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]types.DBInstance, error) {
+	var res []types.DBInstance
+	client := rds.NewFromConfig(cfg, func(o *rds.Options) {
+		o.Region = region
+	})
+
 	input := &rds.DescribeDBInstancesInput{
-		Filters: []*rds.Filter{{
-			Name:   pointer.ToString("engine"),
-			Values: rdsEnginesKeys,
-		}},
+		Filters: []types.Filter{
+			{
+				Name:   aws.String("engine"),
+				Values: []string{"postgres", "mysql", "aurora-mysql", "aurora-postgresql"},
+			},
+		},
 	}
-	fn := func(out *rds.DescribeDBInstancesOutput, _ bool) bool {
-		res = append(res, out.DBInstances...)
-		return true // continue pagination
+
+	paginator := rds.NewDescribeDBInstancesPaginator(client, input)
+	for paginator.HasMorePages() {
+		page, err := paginator.NextPage(ctx)
+		if err != nil {
+			return res, err
+		}
+		res = append(res, page.DBInstances...)
 	}
-	err := rds.New(sess, &aws.Config{Region: &region}).DescribeDBInstancesPagesWithContext(ctx, input, fn)
-	if err != nil {
-		return res, errors.WithStack(err)
-	}
+
 	return res, nil
 }
 
 // listRegions returns a list of AWS regions for given partitions.
 func listRegions(partitions []string) []string {
+	partitionServices := map[string]map[string][]string{
+		"aws": {
+			"rds": {
+				"af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1",
+				"ap-south-2", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ap-southeast-4", "ca-central-1",
+				"ca-west-1", "eu-central-1", "eu-central-2", "eu-north-1", "eu-south-1", "eu-south-2",
+				"eu-west-1", "eu-west-2", "eu-west-3", "il-central-1", "me-central-1", "me-south-1",
+				"sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2",
+			},
+		},
+		"aws-cn": {
+			"rds": {
+				"cn-north-1", "cn-northwest-1",
+			},
+		},
+		"aws-iso": {
+			"rds": {
+				"us-iso-east-1", "us-iso-west-1", "us-isob-east-1",
+			},
+		},
+		"aws-us-gov": {
+			"rds": {
+				"us-gov-west-1", "us-gov-east-1",
+			},
+		},
+	}
+
 	set := make(map[string]struct{})
 	for _, p := range partitions {
-		for _, partition := range endpoints.DefaultPartitions() {
-			if p != partition.ID() {
+		for name, partition := range partitionServices {
+			if p != name {
 				continue
 			}
 
-			for r := range partition.Services()[rds.EndpointsID].Regions() {
+			for _, r := range partition[rdsEndpointsID] {
 				set[r] = struct{}{}
 			}
 			break
@@ -126,19 +162,20 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	}
 
 	// use given credentials, or default credential chain
-	var creds *credentials.Credentials
-	if req.AwsAccessKey != "" || req.AwsSecretKey != "" {
-		creds = credentials.NewStaticCredentials(req.AwsAccessKey, req.AwsSecretKey, "")
+	var creds aws.CredentialsProvider
+	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
+		creds = credentials.NewStaticCredentialsProvider(req.AwsAccessKey, req.AwsSecretKey, "")
 	}
-	cfg := &aws.Config{
-		CredentialsChainVerboseErrors: aws.Bool(true),
-		Credentials:                   creds,
-		HTTPClient:                    &http.Client{},
+
+	opts := []func(*config.LoadOptions) error{
+		config.WithCredentialsProvider(creds),
+		config.WithHTTPClient(&http.Client{}),
 	}
-	if l.Logger.GetLevel() >= logrus.DebugLevel {
-		cfg.LogLevel = aws.LogLevel(aws.LogDebug)
+	if l.Logger != nil && l.Logger.Level >= logrus.DebugLevel {
+		opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
 	}
-	sess, err := session.NewSession(cfg)
+
+	cfg, err := config.LoadDefaultConfig(ctx, opts...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -150,8 +187,9 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
 	for _, region := range listRegions(settings.AWSPartitions) {
+		region := region
 		wg.Go(func() error {
-			regInstances, err := discoverRDSRegion(ctx, sess, region)
+			regInstances, err := discoverRDSRegion(ctx, cfg, region)
 			if err != nil {
 				l.Debugf("%s: %+v", region, err)
 			}
@@ -207,16 +245,29 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 
 	// return better gRPC errors in typical cases
 	err = wg.Wait()
-	if e, ok := errors.Cause(err).(awserr.Error); ok { //nolint:errorlint
-		switch {
-		case e.Code() == "InvalidClientTokenId":
-			return res, status.Error(codes.InvalidArgument, e.Message())
-		case errors.Is(e.OrigErr(), context.Canceled) || errors.Is(e.OrigErr(), context.DeadlineExceeded):
-			return res, status.Error(codes.DeadlineExceeded, "Request timeout.")
-		default:
-			return res, status.Error(codes.Unknown, e.Error())
+	if err != nil {
+		var apiErr *smithy.GenericAPIError
+		if errors.As(err, &apiErr) {
+			switch {
+			case apiErr.Code == "InvalidClientTokenId":
+				return res, status.Error(codes.InvalidArgument, apiErr.Message)
+
+			case errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded):
+				return res, status.Error(codes.DeadlineExceeded, "Request timeout.")
+
+			default:
+				return res, status.Error(codes.Unknown, apiErr.Error())
+			}
 		}
+
+		// If not an AWS API error, but maybe a context error.
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			return res, status.Error(codes.DeadlineExceeded, "Request timeout.")
+		}
+
+		return res, status.Error(codes.Unknown, err.Error())
 	}
+
 	return nil, err
 }
 
