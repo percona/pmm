@@ -183,7 +183,7 @@ type CreateNodeParams struct {
 	ContainerName *string
 	CustomLabels  map[string]string
 	Address       string
-	InstanceId    *string
+	InstanceId    *string //nolint:revive
 	Region        *string
 	Password      *string
 }

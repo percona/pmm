@@ -57,7 +57,7 @@ type Node struct {
 	// Node address. Used to construct the endpoint for node_exporter.
 	// For RemoteRDS Nodes contains DBInstanceIdentifier (not DbiResourceId; not endpoint - that's Service address).
 	Address    string  `reform:"address"`
-	InstanceId *string `reform:"instance_id"` // nil means "unknown"; non-nil value must be unique
+	InstanceId *string `reform:"instance_id"` //nolint:revive
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
