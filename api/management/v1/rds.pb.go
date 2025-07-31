@@ -747,9 +747,9 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x0eaws_access_key\x18\x01 \x01(\tR\fawsAccessKey\x12$\n" +
 	"\x0eaws_secret_key\x18\x02 \x01(\tR\fawsSecretKey\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xc4\r\n" +
-	"\x13AddRDSServiceParams\x12\xc4\x01\n" +
-	"\x06region\x18\x01 \x01(\tB\xab\x01\xfaB\xa7\x01r\xa4\x012\xa1\x01^(us|eu|ap|sa|ca|me|af|il)-(north|south|east|west|central|northeast|northwest|southeast|southwest)-[1-9]$|^us-gov-(east|west)-[1-9]$|^cn-(north|northwest)-[1-9]$R\x06region\x12\x0e\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\x9e\f\n" +
+	"\x13AddRDSServiceParams\x12\x1f\n" +
+	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
 	"\vinstance_id\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"instanceId\x12\x1d\n" +

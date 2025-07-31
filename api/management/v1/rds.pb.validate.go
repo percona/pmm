@@ -417,10 +417,10 @@ func (m *AddRDSServiceParams) validate(all bool) error {
 
 	var errors []error
 
-	if !_AddRDSServiceParams_Region_Pattern.MatchString(m.GetRegion()) {
+	if utf8.RuneCountInString(m.GetRegion()) < 1 {
 		err := AddRDSServiceParamsValidationError{
 			field:  "Region",
-			reason: "value does not match regex pattern \"^(us|eu|ap|sa|ca|me|af|il)-(north|south|east|west|central|northeast|northwest|southeast|southwest)-[1-9]$|^us-gov-(east|west)-[1-9]$|^cn-(north|northwest)-[1-9]$\"",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -609,8 +609,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRDSServiceParamsValidationError{}
-
-var _AddRDSServiceParams_Region_Pattern = regexp.MustCompile("^(us|eu|ap|sa|ca|me|af|il)-(north|south|east|west|central|northeast|northwest|southeast|southwest)-[1-9]$|^us-gov-(east|west)-[1-9]$|^cn-(north|northwest)-[1-9]$")
 
 // Validate checks the field values on RDSServiceResult with the rules defined
 // in the proto definition for this message. If any rules are violated, the
