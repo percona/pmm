@@ -22,7 +22,7 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |
 | `PMM_METRICS_RESOLUTION_LR` | `60s` | Low-resolution metrics interval | `300s` |
 
-!!! tip "Performance Impact"
+!!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
 
 ### Feature controls
@@ -47,6 +47,106 @@ Use these variables when diagnosing issues with PMM Server:
 !!! warning "Production use"
     Debug and trace logging can significantly impact performance and generate large log volumes. Use only temporarily when troubleshooting issues.
 
+### Configure vmagent on PMM Client
+
+Instead of configuring each client individually, set environment variables once on the PMM Server to automatically apply settings across your entire monitoring infrastructure.
+
+This centralized approach lets you manage disk usage limits, logging levels, and resource constraints from a single location. 
+
+For instance, PMM Clients can consume up to 1GB of disk space by default, which can quickly exhaust shared volumes in containerized environments like Kubernetes. To avoid storage issues and maintain consistency, configure disk usage limits on the PMM Server that apply to all clients automatically. For most deployments, consider reducing disk usage to 50–100MB per client.
+
+#### Configure `vmagent` variables
+
+Control `vmagent` behavior on all PMM Clients by setting `VMAGENT_*` environment variables on PMM Server. 
+
+This gives you centralized control over resource usage, logging, and storage settings without touching individual client deployments.
+
+##### Essential variables
+
+These environment variables prevent the most common deployment challenges. For all available configuration options, see [Victoria metrics command-line flags](https://docs.victoriametrics.com/#list-of-command-line-flags).
+
+
+| Variable | Purpose | Example | Default | Notes |
+|----------|---------|---------|---------|-------|
+| `VMAGENT_remoteWrite_maxDiskUsagePerURL` | Disk space limit per client during network outages | `52428800` (50MB) | `1073741824` (1GB) | Critical for Kubernetes |
+| `VMAGENT_remoteWrite_tmpDataPath` | Temporary data storage path | `/tmp/custom-vmagent` | `/tmp/vmagent-temp-dir` | |
+| `VMAGENT_loggerLevel` | Logging verbosity level | `DEBUG`, `WARN`, `ERROR` | `INFO` | |
+| `VMAGENT_promscrape_maxScrapeSize` | Maximum scrape size per target | `128MiB`, `32MiB` | `64MiB` | Controls memory usage |
+| `VMAGENT_remoteWrite_basicAuth_username` | Basic auth username for external VictoriaMetrics | `admin` | Template-based | Auto-extracted from URL |
+| `VMAGENT_remoteWrite_basicAuth_password` | Basic auth password for external VictoriaMetrics | `secret` | Template-based | Auto-extracted from URL |
+| `VMAGENT_remoteWrite_tlsInsecureSkipVerify` | Skip TLS certificate verification | `true`, `false` | `false` | Security setting |
+
+##### Convert flags to environment variables
+
+`Vmagent` uses command-line flags for configuration. 
+
+To manage these settings centrally through PMM Server, convert the flags to environment variables using this pattern:
+
+- add `VMAGENT_ prefix`
+- replace hyphens (`-`)with underscores (`_`)
+- replace dots (`.`) with underscores (_)
+
+###### Examples
+
+- `remoteWrite.maxDiskUsagePerURL` > `VMAGENT_remoteWrite_maxDiskUsagePerURL`
+
+- `loggerLevel` > `VMAGENT_loggerLevel`
+
+- `httpListenAddr` > `VMAGENT_httpListenAddr`
+
+#### Common deployment scenarios
+
+Here are some examples for typical production configurations for different environments. 
+
+Set these variables on PMM Server startup to automatically configure all connected clients.
+
+##### Kubernetes with shared storage
+
+Optimize for disk space constraints:
+
+```sh
+docker run \
+  -e VMAGENT_remoteWrite_maxDiskUsagePerURL=52428800 \
+  -e VMAGENT_promscrape_maxScrapeSize=32MiB \
+  -e VMAGENT_loggerLevel=WARN \
+  percona/pmm-server:3
+```
+
+##### High-traffic environments
+Balance resource usage with monitoring detail:
+
+```sh
+docker run \
+  -e VMAGENT_remoteWrite_maxDiskUsagePerURL=104857600 \
+  -e VMAGENT_promscrape_maxScrapeSize=128MiB \
+  -e VMAGENT_loggerLevel=ERROR \
+  percona/pmm-server:3
+```
+
+##### Development and debugging
+Enable detailed logging for troubleshooting:
+
+```sh
+docker run \
+  -e VMAGENT_loggerLevel=DEBUG \
+  -e VMAGENT_remoteWrite_maxDiskUsagePerURL=26214400 \
+  -e VMAGENT_promscrape_maxScrapeSize=64MiB \
+  percona/pmm-server:3
+```
+
+Configuration changes apply to all connected PMM Clients automatically without requiring restarts.
+
+#### Verify configuration
+To confirm that centralized configuration is working, check that `vmagent` is running and using the expected settings:
+
+```sh
+# Check vmagent process exists
+pidof vmagent
+
+# Verify environment variables are applied
+cat /proc/$(pidof vmagent)/environ | tr '\0' '\n' | grep VMAGENT
+```
+
 ## Advanced configuration
 
 ### Network configuration
@@ -65,7 +165,6 @@ Configure connections to external database services:
 | `PMM_CLICKHOUSE_*` | ClickHouse connection settings |
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
-
 ### Supported external variables
 PMM Server passes these variables to integrated components:
 
@@ -73,7 +172,6 @@ PMM Server passes these variables to integrated components:
 - **VictoriaMetrics**: All `VM_*` variables (e.g., VM_retentionPeriod)
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.
-
 
 ## Experimental variables
 
