@@ -14,7 +14,7 @@ Currently, our development team has fewer people than components/repositories. I
 - [logrus](https://github.com/sirupsen/logrus) or stdlib `log` package should be used for logging. Always log to unbuffered stderr, let process supervisor do the rest.
 - [prometheus client](https://github.com/prometheus/client_golang) is used for exposing internal metrics of application and gRPC library.
 - [testify](https://github.com/stretchr/testify) or stdlib `testing` package should be used for writing tests. Testify should be used only for `assert` and `require` packages – suites here have some problems with logging and parallel tests. Common setups and teardowns should be implemented with `testing` [subtests](https://golang.org/pkg/testing/#hdr-Subtests_and_Sub_benchmarks).
-- [golangci-lint](https://github.com/golangci/golangci-lint) is used for static code checks.
+- [golangci-lint](https://github.com/golangci/golangci-lint/v2) is used for static code checks.
 - [gocoverutil](https://github.com/AlekSi/gocoverutil) gather code coverage metrics.
 - [Docker Compose](https://docs.docker.com/compose/) is used for a local development environment and in CI.
 - [Kong](https://github.com/alecthomas/kong) for PMM CLI and [kingpin.v2](http://gopkg.in/alecthomas/kingpin.v2) for exporters and some other code. Use [Kong](https://github.com/alecthomas/kong) if you want to contribute a brand new CLI or need to make significant changes to the old `kingpin.v2`-based CLI.
