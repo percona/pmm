@@ -136,8 +136,28 @@ func TestParseCustomLabel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			customLabels := ParseCustomLabels(tt.input)
+			customLabels := ParseKeyValuePair(tt.input)
 			assert.Equal(t, tt.expected, customLabels)
+		})
+	}
+}
+
+func TestParseKeyValuePair(t *testing.T) {
+	t.Parallel()
+	for _, tt := range []struct {
+		name     string
+		input    map[string]string
+		expected map[string]string
+	}{
+		{"simple param", map[string]string{"allowCleartextPasswords": "1"}, map[string]string{"allowCleartextPasswords": "1"}},
+		{"no value", map[string]string{"foo": ""}, make(map[string]string)},
+		{"trim spaces", map[string]string{"allowCleartextPasswords": " 1 "}, map[string]string{"allowCleartextPasswords": "1"}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			extraDSNParams := ParseKeyValuePair(tt.input)
+			assert.Equal(t, tt.expected, extraDSNParams)
 		})
 	}
 }

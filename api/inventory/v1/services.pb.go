@@ -116,9 +116,11 @@ type MySQLService struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// MySQL version.
-	Version       string `protobuf:"bytes,11,opt,name=version,proto3" json:"version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Version string `protobuf:"bytes,11,opt,name=version,proto3" json:"version,omitempty"`
+	// Extra parameters to be added to the DSN.
+	ExtraDsnParams map[string]string `protobuf:"bytes,12,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *MySQLService) Reset() {
@@ -226,6 +228,13 @@ func (x *MySQLService) GetVersion() string {
 		return x.Version
 	}
 	return ""
+}
+
+func (x *MySQLService) GetExtraDsnParams() map[string]string {
+	if x != nil {
+		return x.ExtraDsnParams
+	}
+	return nil
 }
 
 // MongoDBService represents a generic MongoDB instance.
@@ -1604,9 +1613,11 @@ type AddMySQLServiceParams struct {
 	// Replication set name.
 	ReplicationSet string `protobuf:"bytes,8,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
 	// Custom user-assigned labels.
-	CustomLabels  map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CustomLabels map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Extra parameters to be added to the DSN.
+	ExtraDsnParams map[string]string `protobuf:"bytes,10,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AddMySQLServiceParams) Reset() {
@@ -1698,6 +1709,13 @@ func (x *AddMySQLServiceParams) GetReplicationSet() string {
 func (x *AddMySQLServiceParams) GetCustomLabels() map[string]string {
 	if x != nil {
 		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *AddMySQLServiceParams) GetExtraDsnParams() map[string]string {
+	if x != nil {
+		return x.ExtraDsnParams
 	}
 	return nil
 }
@@ -2585,7 +2603,7 @@ var File_inventory_v1_services_proto protoreflect.FileDescriptor
 
 const file_inventory_v1_services_proto_rawDesc = "" +
 	"\n" +
-	"\x1binventory/v1/services.proto\x12\finventory.v1\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xc2\x03\n" +
+	"\x1binventory/v1/services.proto\x12\finventory.v1\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xdf\x04\n" +
 	"\fMySQLService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -2599,8 +2617,12 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\x0freplication_set\x18\t \x01(\tR\x0ereplicationSet\x12Q\n" +
 	"\rcustom_labels\x18\n" +
 	" \x03(\v2,.inventory.v1.MySQLService.CustomLabelsEntryR\fcustomLabels\x12\x18\n" +
-	"\aversion\x18\v \x01(\tR\aversion\x1a?\n" +
+	"\aversion\x18\v \x01(\tR\aversion\x12X\n" +
+	"\x10extra_dsn_params\x18\f \x03(\v2..inventory.v1.MySQLService.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
+	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc6\x03\n" +
 	"\x0eMongoDBService\x12\x1d\n" +
@@ -2729,7 +2751,7 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\bproxysql\x18\x04 \x01(\v2\x1d.inventory.v1.ProxySQLServiceH\x00R\bproxysql\x128\n" +
 	"\ahaproxy\x18\x05 \x01(\v2\x1c.inventory.v1.HAProxyServiceH\x00R\ahaproxy\x12;\n" +
 	"\bexternal\x18\x06 \x01(\v2\x1d.inventory.v1.ExternalServiceH\x00R\bexternalB\t\n" +
-	"\aservice\"\xad\x03\n" +
+	"\aservice\"\xd3\x04\n" +
 	"\x15AddMySQLServiceParams\x12*\n" +
 	"\fservice_name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vserviceName\x12 \n" +
 	"\anode_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x18\n" +
@@ -2739,8 +2761,13 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\venvironment\x18\x06 \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\a \x01(\tR\acluster\x12'\n" +
 	"\x0freplication_set\x18\b \x01(\tR\x0ereplicationSet\x12Z\n" +
-	"\rcustom_labels\x18\t \x03(\v25.inventory.v1.AddMySQLServiceParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	"\rcustom_labels\x18\t \x03(\v25.inventory.v1.AddMySQLServiceParams.CustomLabelsEntryR\fcustomLabels\x12a\n" +
+	"\x10extra_dsn_params\x18\n" +
+	" \x03(\v27.inventory.v1.AddMySQLServiceParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
+	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb1\x03\n" +
 	"\x17AddMongoDBServiceParams\x12*\n" +
@@ -2868,7 +2895,7 @@ func file_inventory_v1_services_proto_rawDescGZIP() []byte {
 
 var (
 	file_inventory_v1_services_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventory_v1_services_proto_msgTypes  = make([]protoimpl.MessageInfo, 36)
+	file_inventory_v1_services_proto_msgTypes  = make([]protoimpl.MessageInfo, 38)
 	file_inventory_v1_services_proto_goTypes   = []any{
 		(ServiceType)(0),                       // 0: inventory.v1.ServiceType
 		(*MySQLService)(nil),                   // 1: inventory.v1.MySQLService
@@ -2896,84 +2923,88 @@ var (
 		(*ChangeServiceRequest)(nil),           // 23: inventory.v1.ChangeServiceRequest
 		(*ChangeServiceResponse)(nil),          // 24: inventory.v1.ChangeServiceResponse
 		nil,                                    // 25: inventory.v1.MySQLService.CustomLabelsEntry
-		nil,                                    // 26: inventory.v1.MongoDBService.CustomLabelsEntry
-		nil,                                    // 27: inventory.v1.PostgreSQLService.CustomLabelsEntry
-		nil,                                    // 28: inventory.v1.ProxySQLService.CustomLabelsEntry
-		nil,                                    // 29: inventory.v1.HAProxyService.CustomLabelsEntry
-		nil,                                    // 30: inventory.v1.ExternalService.CustomLabelsEntry
-		nil,                                    // 31: inventory.v1.AddMySQLServiceParams.CustomLabelsEntry
-		nil,                                    // 32: inventory.v1.AddMongoDBServiceParams.CustomLabelsEntry
-		nil,                                    // 33: inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
-		nil,                                    // 34: inventory.v1.AddProxySQLServiceParams.CustomLabelsEntry
-		nil,                                    // 35: inventory.v1.AddHAProxyServiceParams.CustomLabelsEntry
-		nil,                                    // 36: inventory.v1.AddExternalServiceParams.CustomLabelsEntry
-		(*common.StringMap)(nil),               // 37: common.StringMap
+		nil,                                    // 26: inventory.v1.MySQLService.ExtraDsnParamsEntry
+		nil,                                    // 27: inventory.v1.MongoDBService.CustomLabelsEntry
+		nil,                                    // 28: inventory.v1.PostgreSQLService.CustomLabelsEntry
+		nil,                                    // 29: inventory.v1.ProxySQLService.CustomLabelsEntry
+		nil,                                    // 30: inventory.v1.HAProxyService.CustomLabelsEntry
+		nil,                                    // 31: inventory.v1.ExternalService.CustomLabelsEntry
+		nil,                                    // 32: inventory.v1.AddMySQLServiceParams.CustomLabelsEntry
+		nil,                                    // 33: inventory.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
+		nil,                                    // 34: inventory.v1.AddMongoDBServiceParams.CustomLabelsEntry
+		nil,                                    // 35: inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
+		nil,                                    // 36: inventory.v1.AddProxySQLServiceParams.CustomLabelsEntry
+		nil,                                    // 37: inventory.v1.AddHAProxyServiceParams.CustomLabelsEntry
+		nil,                                    // 38: inventory.v1.AddExternalServiceParams.CustomLabelsEntry
+		(*common.StringMap)(nil),               // 39: common.StringMap
 	}
 )
 
 var file_inventory_v1_services_proto_depIdxs = []int32{
 	25, // 0: inventory.v1.MySQLService.custom_labels:type_name -> inventory.v1.MySQLService.CustomLabelsEntry
-	26, // 1: inventory.v1.MongoDBService.custom_labels:type_name -> inventory.v1.MongoDBService.CustomLabelsEntry
-	27, // 2: inventory.v1.PostgreSQLService.custom_labels:type_name -> inventory.v1.PostgreSQLService.CustomLabelsEntry
-	28, // 3: inventory.v1.ProxySQLService.custom_labels:type_name -> inventory.v1.ProxySQLService.CustomLabelsEntry
-	29, // 4: inventory.v1.HAProxyService.custom_labels:type_name -> inventory.v1.HAProxyService.CustomLabelsEntry
-	30, // 5: inventory.v1.ExternalService.custom_labels:type_name -> inventory.v1.ExternalService.CustomLabelsEntry
-	0,  // 6: inventory.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
-	1,  // 7: inventory.v1.ListServicesResponse.mysql:type_name -> inventory.v1.MySQLService
-	2,  // 8: inventory.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	3,  // 9: inventory.v1.ListServicesResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
-	4,  // 10: inventory.v1.ListServicesResponse.proxysql:type_name -> inventory.v1.ProxySQLService
-	5,  // 11: inventory.v1.ListServicesResponse.haproxy:type_name -> inventory.v1.HAProxyService
-	6,  // 12: inventory.v1.ListServicesResponse.external:type_name -> inventory.v1.ExternalService
-	0,  // 13: inventory.v1.ListActiveServiceTypesResponse.service_types:type_name -> inventory.v1.ServiceType
-	1,  // 14: inventory.v1.GetServiceResponse.mysql:type_name -> inventory.v1.MySQLService
-	2,  // 15: inventory.v1.GetServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	3,  // 16: inventory.v1.GetServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
-	4,  // 17: inventory.v1.GetServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
-	5,  // 18: inventory.v1.GetServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
-	6,  // 19: inventory.v1.GetServiceResponse.external:type_name -> inventory.v1.ExternalService
-	15, // 20: inventory.v1.AddServiceRequest.mysql:type_name -> inventory.v1.AddMySQLServiceParams
-	16, // 21: inventory.v1.AddServiceRequest.mongodb:type_name -> inventory.v1.AddMongoDBServiceParams
-	17, // 22: inventory.v1.AddServiceRequest.postgresql:type_name -> inventory.v1.AddPostgreSQLServiceParams
-	18, // 23: inventory.v1.AddServiceRequest.proxysql:type_name -> inventory.v1.AddProxySQLServiceParams
-	19, // 24: inventory.v1.AddServiceRequest.haproxy:type_name -> inventory.v1.AddHAProxyServiceParams
-	20, // 25: inventory.v1.AddServiceRequest.external:type_name -> inventory.v1.AddExternalServiceParams
-	1,  // 26: inventory.v1.AddServiceResponse.mysql:type_name -> inventory.v1.MySQLService
-	2,  // 27: inventory.v1.AddServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	3,  // 28: inventory.v1.AddServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
-	4,  // 29: inventory.v1.AddServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
-	5,  // 30: inventory.v1.AddServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
-	6,  // 31: inventory.v1.AddServiceResponse.external:type_name -> inventory.v1.ExternalService
-	31, // 32: inventory.v1.AddMySQLServiceParams.custom_labels:type_name -> inventory.v1.AddMySQLServiceParams.CustomLabelsEntry
-	32, // 33: inventory.v1.AddMongoDBServiceParams.custom_labels:type_name -> inventory.v1.AddMongoDBServiceParams.CustomLabelsEntry
-	33, // 34: inventory.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
-	34, // 35: inventory.v1.AddProxySQLServiceParams.custom_labels:type_name -> inventory.v1.AddProxySQLServiceParams.CustomLabelsEntry
-	35, // 36: inventory.v1.AddHAProxyServiceParams.custom_labels:type_name -> inventory.v1.AddHAProxyServiceParams.CustomLabelsEntry
-	36, // 37: inventory.v1.AddExternalServiceParams.custom_labels:type_name -> inventory.v1.AddExternalServiceParams.CustomLabelsEntry
-	37, // 38: inventory.v1.ChangeServiceRequest.custom_labels:type_name -> common.StringMap
-	1,  // 39: inventory.v1.ChangeServiceResponse.mysql:type_name -> inventory.v1.MySQLService
-	2,  // 40: inventory.v1.ChangeServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	3,  // 41: inventory.v1.ChangeServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
-	4,  // 42: inventory.v1.ChangeServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
-	5,  // 43: inventory.v1.ChangeServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
-	6,  // 44: inventory.v1.ChangeServiceResponse.external:type_name -> inventory.v1.ExternalService
-	7,  // 45: inventory.v1.ServicesService.ListServices:input_type -> inventory.v1.ListServicesRequest
-	9,  // 46: inventory.v1.ServicesService.ListActiveServiceTypes:input_type -> inventory.v1.ListActiveServiceTypesRequest
-	11, // 47: inventory.v1.ServicesService.GetService:input_type -> inventory.v1.GetServiceRequest
-	13, // 48: inventory.v1.ServicesService.AddService:input_type -> inventory.v1.AddServiceRequest
-	21, // 49: inventory.v1.ServicesService.RemoveService:input_type -> inventory.v1.RemoveServiceRequest
-	23, // 50: inventory.v1.ServicesService.ChangeService:input_type -> inventory.v1.ChangeServiceRequest
-	8,  // 51: inventory.v1.ServicesService.ListServices:output_type -> inventory.v1.ListServicesResponse
-	10, // 52: inventory.v1.ServicesService.ListActiveServiceTypes:output_type -> inventory.v1.ListActiveServiceTypesResponse
-	12, // 53: inventory.v1.ServicesService.GetService:output_type -> inventory.v1.GetServiceResponse
-	14, // 54: inventory.v1.ServicesService.AddService:output_type -> inventory.v1.AddServiceResponse
-	22, // 55: inventory.v1.ServicesService.RemoveService:output_type -> inventory.v1.RemoveServiceResponse
-	24, // 56: inventory.v1.ServicesService.ChangeService:output_type -> inventory.v1.ChangeServiceResponse
-	51, // [51:57] is the sub-list for method output_type
-	45, // [45:51] is the sub-list for method input_type
-	45, // [45:45] is the sub-list for extension type_name
-	45, // [45:45] is the sub-list for extension extendee
-	0,  // [0:45] is the sub-list for field type_name
+	26, // 1: inventory.v1.MySQLService.extra_dsn_params:type_name -> inventory.v1.MySQLService.ExtraDsnParamsEntry
+	27, // 2: inventory.v1.MongoDBService.custom_labels:type_name -> inventory.v1.MongoDBService.CustomLabelsEntry
+	28, // 3: inventory.v1.PostgreSQLService.custom_labels:type_name -> inventory.v1.PostgreSQLService.CustomLabelsEntry
+	29, // 4: inventory.v1.ProxySQLService.custom_labels:type_name -> inventory.v1.ProxySQLService.CustomLabelsEntry
+	30, // 5: inventory.v1.HAProxyService.custom_labels:type_name -> inventory.v1.HAProxyService.CustomLabelsEntry
+	31, // 6: inventory.v1.ExternalService.custom_labels:type_name -> inventory.v1.ExternalService.CustomLabelsEntry
+	0,  // 7: inventory.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
+	1,  // 8: inventory.v1.ListServicesResponse.mysql:type_name -> inventory.v1.MySQLService
+	2,  // 9: inventory.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	3,  // 10: inventory.v1.ListServicesResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
+	4,  // 11: inventory.v1.ListServicesResponse.proxysql:type_name -> inventory.v1.ProxySQLService
+	5,  // 12: inventory.v1.ListServicesResponse.haproxy:type_name -> inventory.v1.HAProxyService
+	6,  // 13: inventory.v1.ListServicesResponse.external:type_name -> inventory.v1.ExternalService
+	0,  // 14: inventory.v1.ListActiveServiceTypesResponse.service_types:type_name -> inventory.v1.ServiceType
+	1,  // 15: inventory.v1.GetServiceResponse.mysql:type_name -> inventory.v1.MySQLService
+	2,  // 16: inventory.v1.GetServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	3,  // 17: inventory.v1.GetServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
+	4,  // 18: inventory.v1.GetServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
+	5,  // 19: inventory.v1.GetServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
+	6,  // 20: inventory.v1.GetServiceResponse.external:type_name -> inventory.v1.ExternalService
+	15, // 21: inventory.v1.AddServiceRequest.mysql:type_name -> inventory.v1.AddMySQLServiceParams
+	16, // 22: inventory.v1.AddServiceRequest.mongodb:type_name -> inventory.v1.AddMongoDBServiceParams
+	17, // 23: inventory.v1.AddServiceRequest.postgresql:type_name -> inventory.v1.AddPostgreSQLServiceParams
+	18, // 24: inventory.v1.AddServiceRequest.proxysql:type_name -> inventory.v1.AddProxySQLServiceParams
+	19, // 25: inventory.v1.AddServiceRequest.haproxy:type_name -> inventory.v1.AddHAProxyServiceParams
+	20, // 26: inventory.v1.AddServiceRequest.external:type_name -> inventory.v1.AddExternalServiceParams
+	1,  // 27: inventory.v1.AddServiceResponse.mysql:type_name -> inventory.v1.MySQLService
+	2,  // 28: inventory.v1.AddServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	3,  // 29: inventory.v1.AddServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
+	4,  // 30: inventory.v1.AddServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
+	5,  // 31: inventory.v1.AddServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
+	6,  // 32: inventory.v1.AddServiceResponse.external:type_name -> inventory.v1.ExternalService
+	32, // 33: inventory.v1.AddMySQLServiceParams.custom_labels:type_name -> inventory.v1.AddMySQLServiceParams.CustomLabelsEntry
+	33, // 34: inventory.v1.AddMySQLServiceParams.extra_dsn_params:type_name -> inventory.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
+	34, // 35: inventory.v1.AddMongoDBServiceParams.custom_labels:type_name -> inventory.v1.AddMongoDBServiceParams.CustomLabelsEntry
+	35, // 36: inventory.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
+	36, // 37: inventory.v1.AddProxySQLServiceParams.custom_labels:type_name -> inventory.v1.AddProxySQLServiceParams.CustomLabelsEntry
+	37, // 38: inventory.v1.AddHAProxyServiceParams.custom_labels:type_name -> inventory.v1.AddHAProxyServiceParams.CustomLabelsEntry
+	38, // 39: inventory.v1.AddExternalServiceParams.custom_labels:type_name -> inventory.v1.AddExternalServiceParams.CustomLabelsEntry
+	39, // 40: inventory.v1.ChangeServiceRequest.custom_labels:type_name -> common.StringMap
+	1,  // 41: inventory.v1.ChangeServiceResponse.mysql:type_name -> inventory.v1.MySQLService
+	2,  // 42: inventory.v1.ChangeServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	3,  // 43: inventory.v1.ChangeServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
+	4,  // 44: inventory.v1.ChangeServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
+	5,  // 45: inventory.v1.ChangeServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
+	6,  // 46: inventory.v1.ChangeServiceResponse.external:type_name -> inventory.v1.ExternalService
+	7,  // 47: inventory.v1.ServicesService.ListServices:input_type -> inventory.v1.ListServicesRequest
+	9,  // 48: inventory.v1.ServicesService.ListActiveServiceTypes:input_type -> inventory.v1.ListActiveServiceTypesRequest
+	11, // 49: inventory.v1.ServicesService.GetService:input_type -> inventory.v1.GetServiceRequest
+	13, // 50: inventory.v1.ServicesService.AddService:input_type -> inventory.v1.AddServiceRequest
+	21, // 51: inventory.v1.ServicesService.RemoveService:input_type -> inventory.v1.RemoveServiceRequest
+	23, // 52: inventory.v1.ServicesService.ChangeService:input_type -> inventory.v1.ChangeServiceRequest
+	8,  // 53: inventory.v1.ServicesService.ListServices:output_type -> inventory.v1.ListServicesResponse
+	10, // 54: inventory.v1.ServicesService.ListActiveServiceTypes:output_type -> inventory.v1.ListActiveServiceTypesResponse
+	12, // 55: inventory.v1.ServicesService.GetService:output_type -> inventory.v1.GetServiceResponse
+	14, // 56: inventory.v1.ServicesService.AddService:output_type -> inventory.v1.AddServiceResponse
+	22, // 57: inventory.v1.ServicesService.RemoveService:output_type -> inventory.v1.RemoveServiceResponse
+	24, // 58: inventory.v1.ServicesService.ChangeService:output_type -> inventory.v1.ChangeServiceResponse
+	53, // [53:59] is the sub-list for method output_type
+	47, // [47:53] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_services_proto_init() }
@@ -3020,7 +3051,7 @@ func file_inventory_v1_services_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_v1_services_proto_rawDesc), len(file_inventory_v1_services_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   36,
+			NumMessages:   38,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

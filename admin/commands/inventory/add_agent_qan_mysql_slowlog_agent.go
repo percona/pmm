@@ -88,7 +88,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 
 // RunCmd executes the AddAgentQANMySQLSlowlogAgentCommand and returns the result.
 func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	var (
 		err                    error

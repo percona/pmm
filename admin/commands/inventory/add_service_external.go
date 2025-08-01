@@ -55,7 +55,7 @@ type AddServiceExternalCommand struct {
 
 // RunCmd executes the AddServiceExternalCommand and returns the result.
 func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
