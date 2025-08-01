@@ -345,7 +345,7 @@ Once PMM is set up, choose the database or the application that you want it to m
     4. Register PMM Client:
         
         ```sh
-        pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:8443
+        pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
         ```
 
     5. Add the MongoDB database:
