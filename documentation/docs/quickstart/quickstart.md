@@ -279,7 +279,7 @@ Once PMM is set up, choose the database or the application that you want it to m
                       { "db": "admin", "role": "directShardOperations" }
                   ]
               })
-              ```
+            ```
 
         === "MongoDB <8.0"
 
@@ -293,7 +293,7 @@ Once PMM is set up, choose the database or the application that you want it to m
                       { "db": "admin", "role": "clusterMonitor" }
                   ]
               })
-              ```
+            ```
 
     3. To optimize server-side resources, install PMM Client via Package Manager on the database node:
         { .power-number}     
