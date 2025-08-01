@@ -50,6 +50,7 @@ type MongoDBBackupJob struct {
 	dataModel      backuppb.DataModel
 	jobLogger      *pbmJobLogger
 	folder         string
+	compression    backuppb.BackupCompression
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -62,6 +63,7 @@ func NewMongoDBBackupJob(
 	pitr bool,
 	dataModel backuppb.DataModel,
 	folder string,
+	compression backuppb.BackupCompression,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
@@ -81,6 +83,7 @@ func NewMongoDBBackupJob(
 		dataModel:      dataModel,
 		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dsn),
 		folder:         folder,
+		compression:    compression,
 	}, nil
 }
 
@@ -214,6 +217,21 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	case backuppb.DataModel_DATA_MODEL_INVALID:
 	default:
 		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
+	}
+
+	switch j.compression {
+	case backuppb.BackupCompression_NONE:
+		pbmArgs = append(pbmArgs, "--compression=none")
+	case backuppb.BackupCompression_QUICKLZ:
+		pbmArgs = append(pbmArgs, "--compression=quicklz")
+	case backuppb.BackupCompression_ZSTD:
+		pbmArgs = append(pbmArgs, "--compression=zstd")
+	case backuppb.BackupCompression_LZ4:
+		pbmArgs = append(pbmArgs, "--compression=lz4")
+	case backuppb.BackupCompression_S2:
+		pbmArgs = append(pbmArgs, "--compression=s2")
+	case backuppb.BackupCompression_GZIP:
+		pbmArgs = append(pbmArgs, "--compression=gzip")
 	}
 
 	if err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...); err != nil {

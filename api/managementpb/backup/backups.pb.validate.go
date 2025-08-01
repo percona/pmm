@@ -118,6 +118,8 @@ func (m *StartBackupRequest) validate(all bool) error {
 
 	// no validation rules for Folder
 
+	// no validation rules for Compression
+
 	if len(errors) > 0 {
 		return StartBackupRequestMultiError(errors)
 	}
@@ -1017,6 +1019,8 @@ func (m *ScheduledBackup) validate(all bool) error {
 
 	// no validation rules for Folder
 
+	// no validation rules for Compression
+
 	if len(errors) > 0 {
 		return ScheduledBackupMultiError(errors)
 	}
@@ -1223,6 +1227,8 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 	// no validation rules for DataModel
 
 	// no validation rules for Folder
+
+	// no validation rules for Compression
 
 	if len(errors) > 0 {
 		return ScheduleBackupRequestMultiError(errors)
