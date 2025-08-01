@@ -264,11 +264,11 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     2. Create a user and grant it the role created above:
 
-          === "MongoDB 8.0+"
+        === "MongoDB 8.0+"
           
-              MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the `directShardOperations` role to collect complete metrics from all cluster components.
+            MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the `directShardOperations` role to collect complete metrics from all cluster components.
           
-              ```javascript
+            ```javascript
               db.getSiblingDB("admin").createUser({
                   "user": "pmm",
                   "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
@@ -281,10 +281,10 @@ Once PMM is set up, choose the database or the application that you want it to m
               })
               ```
 
-          === "MongoDB <8.0"
+        === "MongoDB <8.0"
 
-              ```javascript
-              db.getSiblingDB("admin").createUser({
+            ```javascript
+            db.getSiblingDB("admin").createUser({
                   "user": "pmm",
                   "pwd": "pmm",
                   "roles": [
