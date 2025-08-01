@@ -76,7 +76,7 @@ var NodeTable = &nodeTableType{
 			{Name: "AZ", Type: "string", Column: "az"},
 			{Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"},
 			{Name: "Address", Type: "string", Column: "address"},
-			{Name: "InstanceId", Type: "*string", Column: "instance_id"},
+			{Name: "InstanceId", Type: "string", Column: "instance_id"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 			{Name: "ContainerID", Type: "*string", Column: "container_id"},

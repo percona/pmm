@@ -55,9 +55,10 @@ type Node struct {
 	CustomLabels []byte   `reform:"custom_labels"`
 
 	// Node address. Used to construct the endpoint for node_exporter.
-	// For RemoteRDS Nodes contains DBInstanceIdentifier (not DbiResourceId; not endpoint - that's Service address).
-	Address    string  `reform:"address"`
-	InstanceId *string `reform:"instance_id"` //nolint:revive,stylecheck
+	// For RemoteRDS Nodes it contains the Service address (not DbiResourceId, DBInstanceIdentifier, not endpoint).
+	Address string `reform:"address"`
+	// For RemoteRDS Nodes it contains the DBInstanceIdentifier.
+	InstanceId string `reform:"instance_id"` //nolint:revive,stylecheck
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
