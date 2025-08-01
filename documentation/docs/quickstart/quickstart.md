@@ -286,7 +286,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             ```javascript
             db.getSiblingDB("admin").createUser({
                   "user": "pmm",
-                  "pwd": "pmm",
+                  "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
                   "roles": [
                       { "db": "admin", "role": "pmmMonitor" },
                       { "db": "local", "role": "read" },
