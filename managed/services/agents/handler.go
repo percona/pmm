@@ -85,7 +85,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 	for {
 		select {
 		case <-ticker.C:
-			err := h.r.ping(ctx, agent)
+			_, err := h.r.ping(ctx, agent)
 			if err != nil {
 				l.Errorf("agent %s ping: %v", agent.id, err)
 			}

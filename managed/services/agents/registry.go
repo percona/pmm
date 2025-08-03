@@ -185,14 +185,22 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		return nil, err
 	}
 
-	if r.IsConnected(agentMD.ID) {
+	currentAgent, err := r.get(agentMD.ID)
+	if err == nil {
 		// pmm-agent with the same ID can still be connected in two cases:
 		//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
 		//   2. pmm-agent detects broken connection and reconnects,
 		//      but pmm-managed still thinks that the previous connection is okay.
-		// In both cases, kick it.
-		l.Warnf("Another pmm-agent with ID %q is already connected.", agentMD.ID)
-		r.Kick(ctx, agentMD.ID)
+		// If agent respond with pong new connection is not established,
+		// so we return AlreadyExists error.
+
+		pong, err := r.ping(ctx, currentAgent)
+		switch {
+		case err == nil:
+			l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
+		case pong:
+			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
+		}
 	}
 	r.rw.Lock()
 	defer r.rw.Unlock()
@@ -278,15 +286,16 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
-func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
+// returns true if pong is received, false if there is no pong or error occurred.
+func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) (bool, error) {
 	l := logger.Get(ctx)
 	start := time.Now()
 	resp, err := agent.channel.SendAndWaitResponse(&agentv1.Ping{})
 	if err != nil {
-		return err
+		return false, err
 	}
 	if resp == nil {
-		return nil
+		return false, nil
 	}
 	roundtrip := time.Since(start)
 	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
@@ -297,7 +306,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l.Debugf("Round-trip time: %s. Estimated clock drift: %s.", roundtrip, clockDrift)
 	r.mRoundTrip.Observe(roundtrip.Seconds())
 	r.mClockDrift.Observe(clockDrift.Seconds())
-	return nil
+	return true, nil
 }
 
 // addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent not exists yet,
