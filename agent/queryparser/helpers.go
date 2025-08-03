@@ -18,44 +18,21 @@ package queryparser
 import (
 	"regexp"
 	"strings"
-	"sync"
 )
 
 var (
-	mySQLQuotedRegexp *regexp.Regexp
-	mySQLQuotedOnce   sync.Once
-	errMySQLQuoted    error
-
-	mySQLCommentRegexp *regexp.Regexp
-	mySQLCommentOnce   sync.Once
-	errMySQLComment    error
-
-	pgQuotedRegexp *regexp.Regexp
-	pgQuotedOnce   sync.Once
-	errPGQuoted    error
-
-	pgCommentRegexp *regexp.Regexp
-	pgCommentOnce   sync.Once
-	errPGComment    error
-
-	keyValueRegexp *regexp.Regexp
-	keyValueOnce   sync.Once
-	errKeyValue    error
+	mySQLQuotedRegexp  *regexp.Regexp = regexp.MustCompile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"`)
+	mySQLCommentRegexp *regexp.Regexp = regexp.MustCompile(`(?m)--.*$|#.*$|(?s)/\*.*?\*/`)
+	pgQuotedRegexp     *regexp.Regexp = regexp.MustCompile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|\$\$.*?\$\$`)
+	pgCommentRegexp    *regexp.Regexp = regexp.MustCompile(`(?m)--.*$|(?s)/\*.*?\*/`)
+	keyValueRegexp     *regexp.Regexp = regexp.MustCompile(`(?s)([a-zA-Z-\d]+='.+?')`)
 )
 
 func parseMySQLComments(query string) (map[string]bool, error) {
-	if err := prepareMySQLComments(); err != nil {
-		return nil, err
-	}
-
 	return parseComments(query, mySQLQuotedRegexp, mySQLCommentRegexp)
 }
 
 func parsePGComments(query string) (map[string]bool, error) {
-	if err := preparePGComments(); err != nil {
-		return nil, err
-	}
-
 	return parseComments(query, pgQuotedRegexp, pgCommentRegexp)
 }
 
@@ -100,10 +77,6 @@ func extractComments(query string, quotedRegexp, commentRegexp *regexp.Regexp) [
 }
 
 func parseKeyValueFromComment(s string) (map[string]bool, error) {
-	if err := prepareKeyValueRegexp(); err != nil {
-		return nil, err
-	}
-
 	res := make(map[string]bool)
 	matches := keyValueRegexp.FindAllStringSubmatch(s, -1)
 	for _, v := range matches {
@@ -114,54 +87,4 @@ func parseKeyValueFromComment(s string) (map[string]bool, error) {
 	}
 
 	return res, nil
-}
-
-func prepareMySQLComments() error {
-	// to compile regexp only once
-	mySQLQuotedOnce.Do(func() {
-		mySQLQuotedRegexp, errMySQLQuoted = regexp.Compile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"`) //nolint:gocritic
-	})
-	if errMySQLQuoted != nil {
-		return errMySQLQuoted
-	}
-
-	mySQLCommentOnce.Do(func() {
-		mySQLCommentRegexp, errMySQLComment = regexp.Compile(`(?m)--.*$|#.*$|(?s)/\*.*?\*/`) //nolint:gocritic
-	})
-	if errMySQLComment != nil {
-		return errMySQLComment
-	}
-
-	return nil
-}
-
-func preparePGComments() error {
-	// to compile regexp only once
-	pgQuotedOnce.Do(func() {
-		pgQuotedRegexp, errPGQuoted = regexp.Compile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|\$\$.*?\$\$`) //nolint:gocritic
-	})
-	if errPGQuoted != nil {
-		return errPGQuoted
-	}
-
-	pgCommentOnce.Do(func() {
-		pgCommentRegexp, errPGComment = regexp.Compile(`(?m)--.*$|(?s)/\*.*?\*/`) //nolint:gocritic
-	})
-	if errPGComment != nil {
-		return errPGComment
-	}
-
-	return nil
-}
-
-func prepareKeyValueRegexp() error {
-	// to compile regexp only once
-	keyValueOnce.Do(func() {
-		keyValueRegexp, errKeyValue = regexp.Compile(`(?s)([a-zA-Z-\d]+='.+?')`) //nolint:gocritic
-	})
-	if errKeyValue != nil {
-		return errKeyValue
-	}
-
-	return nil
 }
