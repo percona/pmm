@@ -21,11 +21,11 @@ import (
 )
 
 var (
-	mySQLQuotedRegexp  *regexp.Regexp = regexp.MustCompile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"`)
-	mySQLCommentRegexp *regexp.Regexp = regexp.MustCompile(`(?m)--.*$|#.*$|(?s)/\*.*?\*/`)
-	pgQuotedRegexp     *regexp.Regexp = regexp.MustCompile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|\$\$.*?\$\$`)
-	pgCommentRegexp    *regexp.Regexp = regexp.MustCompile(`(?m)--.*$|(?s)/\*.*?\*/`)
-	keyValueRegexp     *regexp.Regexp = regexp.MustCompile(`(?s)([a-zA-Z-\d]+='.+?')`)
+	mySQLQuotedRegexp  = regexp.MustCompile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"`)
+	mySQLCommentRegexp = regexp.MustCompile(`(?m)--.*$|#.*$|(?s)/\*.*?\*/`)
+	pgQuotedRegexp     = regexp.MustCompile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|\$\$.*?\$\$`)
+	pgCommentRegexp    = regexp.MustCompile(`(?m)--.*$|(?s)/\*.*?\*/`)
+	keyValueRegexp     = regexp.MustCompile(`(?s)([a-zA-Z-\d]+='.+?')`)
 )
 
 func parseMySQLComments(query string) (map[string]bool, error) {
