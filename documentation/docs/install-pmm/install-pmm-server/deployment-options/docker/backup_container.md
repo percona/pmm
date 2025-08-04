@@ -76,7 +76,7 @@ Choose the appropriate backup method based on your PMM Server deployment:
     # Restart PMM Server
     docker start pmm-server
 
-    # Note backup volume name for restoration
+    # Note backup volume name for recovery
     echo "Backup volume created: $BACKUP_VOLUME"
     ```
 
