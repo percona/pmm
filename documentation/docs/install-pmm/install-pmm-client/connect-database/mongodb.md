@@ -215,7 +215,7 @@ To configure mongolog for MongoDB:
           slowOpThresholdMs: 100
         ```
 
-        #### Configuration explained
+        Configuration explained:
 
         - `destination: file` - ensures MongoDB logs to a file (required for mongolog)
         - `path` - specifies the log file location that mongolog will read
@@ -241,7 +241,7 @@ To configure mongolog for MongoDB:
           --slowms 100
         ```
 
-        #### Flag reference
+        Flag reference:
 
         | Flag | Purpose |
         |----------------|--------------------------------------------------------|
@@ -268,7 +268,7 @@ To configure mongolog for MongoDB:
     }
     ```
 
-    #### Critical requirements
+    Critical requirements:
 
     - Use `copytruncate` to preserve file handle for mongolog
     - Avoid moving/renaming log files as this breaks mongolog's file tail
