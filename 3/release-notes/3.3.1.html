@@ -6210,6 +6210,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Remediation options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard impact
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade behavior
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -9013,6 +9037,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Remediation options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard impact
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade behavior
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -9123,7 +9171,7 @@
 </tbody>
 </table>
 <h3 id="remediation-options">Remediation options<a class="headerlink" href="#remediation-options" title="Permanent link">&para;</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">RECOMMENDED: Upgrade to PMM 3.3.1</label><label for="__tabbed_1_2">TEMPORARY: If you cannot upgrade immediately</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">RECOMMENDED: Upgrade to PMM 3.3.1</label><label for="__tabbed_1_2">TEMPORARY WORKAROUND: If you cannot upgrade immediately</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p class="power-number">This release directly fixes the vulnerability and enhances overall security in all PMM deployments. To upgrade:</p>
@@ -9139,27 +9187,40 @@
 <p class="power-number">If you are unable to upgrade to PMM 3.3.1 immediately, implement one of the following temporary measures to reduce risk. These options do not eliminate the vulnerability entirely. <strong>Prioritize upgrading to PMM 3.3.1 as soon as possible</strong>.</p>
 <ol>
 <li>
-<p>Choose one of the following temporary mitigation options:</p>
+<p>Verify your PMM installation path:</p>
+<div class="highlight"><pre><span></span><code>find<span class="w"> </span>/usr/local/percona<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;pt-mysql-summary&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null
+</code></pre></div>
+<details class="example">
+<summary>Expected paths</summary>
+<ul>
+<li><strong>PMM 3.x default</strong>: <code>/usr/local/percona/pmm/tools/pt-mysql-summary</code></li>
+<li><strong>PMM 2.x default</strong>: <code>/usr/local/percona/pmm2/tools/pt-mysql-summary</code></li>
+<li><strong>Custom installations</strong>: May be in a different location</li>
+</ul>
+</details>
+</li>
+<li>
+<p>Choose one of the following temporary mitigation options. Use the actual path returned by the command above:</p>
 <ul>
 <li>Make <code>pt-mysql-summary</code> script non-executable to keep the system information tool on disk but prevent it from being executed via the vulnerable path:</li>
 </ul>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>chmod<span class="w"> </span>-x<span class="w"> </span>/usr/local/percona/pmm/tools/pt-mysql-summary
+<div class="highlight"><pre><span></span><code><span class="w">   </span>sudo<span class="w"> </span>chmod<span class="w"> </span>-x<span class="w"> </span>/&lt;path<span class="w"> </span>to<span class="w"> </span>your<span class="w"> </span>PMM<span class="w"> </span>installation&gt;/pt-mysql-summary
 </code></pre></div>
 <ul>
 <li>Delete <code>pt-mysql-summary</code> to permanently remove the vulnerable tool from your system:</li>
 </ul>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span>/usr/local/percona/pmm/tools/pt-mysql-summary
+<div class="highlight"><pre><span></span><code><span class="w">   </span>sudo<span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span>/&lt;path<span class="w"> </span>to<span class="w"> </span>your<span class="w"> </span>PMM<span class="w"> </span>installation&gt;/pt-mysql-summary
 </code></pre></div>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Dashboard impact  </p>
-<p>Both options impact the <strong>MySQL Instance Summary</strong> dashboard. Since <code>pt-mysql-summary</code> collects system information, disabling or removing this tool will remove CPU, memory, disk, and OS version information from the dashboard. Other performance metrics continue to be collected normally.</p>
-</div>
 </li>
 <li>
 <p>Change all credentials for the services that PMM monitors, including database user accounts and any other credentials (e.g., API keys, SSH keys) PMM uses to connect to your infrastructure.</p>
 </li>
 <li>Thoroughly check access logs for any potential unauthorized access attempts or suspicious activity.</li>
 </ol>
+<h4 id="dashboard-impact">Dashboard impact<a class="headerlink" href="#dashboard-impact" title="Permanent link">&para;</a></h4>
+<p>Both temporary options impact the <strong>MySQL Instance Summary</strong> dashboard. Since <code>pt-mysql-summary</code> collects system information, disabling or removing this tool will remove CPU, memory, disk, and OS version information from the dashboard. Other performance metrics continue to be collected normally.</p>
+<h4 id="upgrade-behavior">Upgrade behavior<a class="headerlink" href="#upgrade-behavior" title="Permanent link">&para;</a></h4>
+<p>When upgrading to PMM 3.3.1 (which includes a security fix), the <code>pt-mysql-summary</code> tool will automatically be restored with executable permissions, even if it was previously removed or disabled. This is intentional and expected, as PMM 3.3.1 ships with the patched and secure version of the tool.</p>
 </div>
 </div>
 </div>
@@ -9190,7 +9251,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-07-30
+    2025-08-04
   </span>
 
     
