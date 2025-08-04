@@ -200,7 +200,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
 		}
 
-		l.Warningf("Failed to ping pmm-agent with ID %q: %w", agentMD.ID, err)
+		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
 		r.Kick(ctx, agentMD.ID)
 		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
 	}
