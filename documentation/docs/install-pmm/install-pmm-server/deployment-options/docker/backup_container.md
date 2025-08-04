@@ -246,6 +246,19 @@ Choose the appropriate backup method based on your PMM Server deployment:
     # Verify critical subdirectories
     ls -la $BACKUP_DIR/{grafana,prometheus,clickhouse} 2>/dev/null || echo "Some directories may not exist in older versions"
     ```
+
+=== "Podman volumes"
+
+    For backups created using Podman volumes:
+
+    ```sh
+    # Check backup volume contents
+    podman run --rm -v $BACKUP_VOLUME:/backup alpine ls -la /backup
+
+    # Verify critical directories exist
+    podman run --rm -v $BACKUP_VOLUME:/backup alpine ls -la /backup/grafana /backup/prometheus /backup/clickhouse 2>/dev/null || echo "Some directories may not exist in older versions"
+    ```
+
 === "Kubernetes snapshots"
 
     For backups created using Kubernetes volume snapshots:
@@ -260,19 +273,6 @@ Choose the appropriate backup method based on your PMM Server deployment:
     # Check snapshot size and source
     kubectl describe volumesnapshot pmm-backup-YYYYMMDD-HHMMSS
     ```
-
-=== "Podman volumes"
-
-    For backups created using Podman volumes:
-
-    ```sh
-    # Check backup volume contents
-    podman run --rm -v $BACKUP_VOLUME:/backup alpine ls -la /backup
-
-    # Verify critical directories exist
-    podman run --rm -v $BACKUP_VOLUME:/backup alpine ls -la /backup/grafana /backup/prometheus /backup/clickhouse 2>/dev/null || echo "Some directories may not exist in older versions"
-    ```
-
 
 ## Next steps after backup  
 
