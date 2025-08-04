@@ -207,7 +207,7 @@ Choose the appropriate backup method based on your PMM Server deployment:
     4. Back up the data:
 
         ```sh
-        docker cp pmm-server-backup:/srv .
+        docker cp pmm-server-backup:/srv/. .
         ```
 
     5. Verify the backup was created successfully:
