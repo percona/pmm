@@ -8,6 +8,7 @@ Using the Docker container approach offers several advantages:
 - consistent environment across different operating systems
 - simplified setup and configuration process
 - automatic architecture detection (x86_64/ARM64)
+- [centralized configuration management](../install-pmm-server/deployment-options/docker/env_var.md#configure-vmagent-variables) through PMM Server environment variables
 
 ## Prerequisites
 Complete these essential steps before installation:
