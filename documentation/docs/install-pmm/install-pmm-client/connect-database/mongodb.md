@@ -105,7 +105,7 @@ Create or update a user with the minimum required privileges for monitoring by a
     ```javascript
     db.getSiblingDB("admin").createUser({
         "user": "pmm",
-        "pwd": "pmm",
+        "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
         "roles": [
             { "db": "admin", "role": "pmmMonitor" },
             { "db": "local", "role": "read" },
@@ -118,7 +118,7 @@ Create or update a user with the minimum required privileges for monitoring by a
     ```javascript
     db.getSiblingDB("admin").createUser({
         "user": "pmm",
-        "pwd": "pmm",
+        "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
         "roles": [
             { "db": "admin", "role": "pmmMonitor" },
             { "db": "local", "role": "read" },
@@ -186,6 +186,67 @@ PMM offers two methods for collecting MongoDB queries. Use the comparison table 
     - Eliminates connection pool errors completely
     - Scales linearly regardless of database count
     - Identical query analytics data as traditional profiler
+
+### Using the MongoDB Profiler
+
+Choose one of the following methods to enable the MongoDB Profiler: 
+
+=== "In MongoDB configuration file (Recommended)"
+
+    This method ensures your settings persist across server restarts and system reboots. It's the recommended approach for production environments:
+    {.power-number}
+    
+    1. Edit the configuration file (usually `/etc/mongod.conf`).
+    2. Add or modify the `operationProfiling` section in the configuration file. Pay close attention to indentation as YAML is whitespace-sensitive:
+
+        ```yml
+        operationProfiling:
+            mode: all             
+            slowOpThresholdMs: 200
+            rateLimit: 100        
+        ```
+        These settings control the following:
+
+        - `mode: all` - Collects data for all operations.
+        - `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as "slow."
+        - `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
+                
+        For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
+
+    3. Restart the `mongod` service using the appropriate command for your system. For example, for `systemd`:
+
+        ```sh
+        systemctl restart mongod
+        ```
+
+=== "On CLI"
+
+    Use this method when starting the MongoDB server manually:
+
+    ```sh
+    mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
+    ```
+
+    - `--dbpath`: The path to database files (usually `/var/lib/mongo`).
+    - `--profile`: The MongoDB profiling level. A value of `2` tells the server to collect profiling data for *all* operations. To lower the load on the server, use a value of `1` to only record slow operations.
+    - `--slowms`: An operation is classified as *slow* if it runs for longer than this number of milliseconds.
+    - `--rateLimit`: (Only available with Percona Server for MongoDB.) The sample rate of profiled queries. A value of `100` means sample every 100th fast query. ([Read more][PSMDB_RATELIMIT])
+
+        !!! caution alert alert-warning "Caution"
+            Smaller values improve accuracy but can adversely affect the performance of your server.
+
+=== "In MongoDB shell (temporary)"
+
+    This method enables profiling until the next server restart. Profiling must be enabled for **each** database you want to monitor. For example, to enable the profiler in the `testdb`, run this:
+
+    ```json
+    use testdb
+    db.setProfilingLevel(2, {slowms: 0})
+    ```
+
+!!! note alert alert-primary ""
+
+    If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
 
 ### Using the MongoDB Diagnostic Log collector
   
@@ -273,68 +334,7 @@ To configure mongolog for MongoDB:
     - Use `copytruncate` to preserve file handle for mongolog
     - Avoid moving/renaming log files as this breaks mongolog's file tail
     - Do not delete active log files during rotation
-
-### Using the MongoDB Profiler
-
-Choose one of the following methods to enable the MongoDB Profiler: 
-
-=== "In MongoDB configuration file (Recommended)"
-
-    This method ensures your settings persist across server restarts and system reboots. It's the recommended approach for production environments:
-    {.power-number}
-    
-    1. Edit the configuration file (usually `/etc/mongod.conf`).
-    2. Add or modify the `operationProfiling` section in the configuration file. Pay close attention to indentation as YAML is whitespace-sensitive:
-
-        ```yml
-        operationProfiling:
-            mode: all             
-            slowOpThresholdMs: 200
-            rateLimit: 100        
-        ```
-        These settings control the following:
-
-        - `mode: all` - Collects data for all operations.
-        - `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as "slow."
-        - `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
-                
-        For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
-
-    3. Restart the `mongod` service using the appropriate command for your system. For example, for `systemd`:
-
-        ```sh
-        systemctl restart mongod
-        ```
-
-=== "On CLI"
-
-    Use this method when starting the MongoDB server manually:
-
-    ```sh
-    mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
-    ```
-
-    - `--dbpath`: The path to database files (usually `/var/lib/mongo`).
-    - `--profile`: The MongoDB profiling level. A value of `2` tells the server to collect profiling data for *all* operations. To lower the load on the server, use a value of `1` to only record slow operations.
-    - `--slowms`: An operation is classified as *slow* if it runs for longer than this number of milliseconds.
-    - `--rateLimit`: (Only available with Percona Server for MongoDB.) The sample rate of profiled queries. A value of `100` means sample every 100th fast query. ([Read more][PSMDB_RATELIMIT])
-
-        !!! caution alert alert-warning "Caution"
-            Smaller values improve accuracy but can adversely affect the performance of your server.
-
-=== "In MongoDB shell (temporary)"
-
-    This method enables profiling until the next server restart. Profiling must be enabled for **each** database you want to monitor. For example, to enable the profiler in the `testdb`, run this:
-
-    ```json
-    use testdb
-    db.setProfilingLevel(2, {slowms: 0})
-    ```
-
-!!! note alert alert-primary ""
-
-    If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
-
+      
 ## Add MongoDB service to PMM
 
 After configuring your database server, add a MongoDB service using either the user interface or the command line.
