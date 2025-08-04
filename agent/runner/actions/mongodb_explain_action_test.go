@@ -285,7 +285,7 @@ func TestMongoDBExplain(t *testing.T) {
 			"rejectedPlans": []interface{}{},
 			"winningPlan":   map[string]interface{}{"stage": "EOF"},
 		}
-		mongoDBVersion, isPercona := tests.MongoDBVersion(t, client)
+		mongoDBVersion, _ := tests.MongoDBVersion(t, client)
 
 		switch {
 		case mongoDBVersion.Major < 5:
@@ -294,7 +294,7 @@ func TestMongoDBExplain(t *testing.T) {
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
-			if mongoDBVersion.Major == 7 && !isPercona {
+			if mongoDBVersion.Major == 7 {
 				want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
 			}
 		case mongoDBVersion.Major == 8:
