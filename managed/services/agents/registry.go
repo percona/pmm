@@ -200,7 +200,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
 		}
 
-		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
+		l.Warningf("Failed to ping pmm-agent with ID %q: %w", agentMD.ID, err)
 		r.Kick(ctx, agentMD.ID)
 		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
 	}
@@ -288,7 +288,7 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
-// returns true if pong is received, false if there is no pong or error occurred.
+// Returns true if pong is received, false if there is no pong or error occurred.
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) (bool, error) {
 	l := logger.Get(ctx)
 	start := time.Now()
