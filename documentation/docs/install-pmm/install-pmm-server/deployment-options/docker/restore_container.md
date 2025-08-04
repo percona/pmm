@@ -74,7 +74,7 @@ Choose the restoration method that matches how your backup was created:
         docker volume create pmm-data
         
         # Copy directory backup to volume
-        docker run --rm -v $(pwd)/<backup-directory>/srv:/backup -v pmm-data:/srv alpine sh -c 'cp -r /backup/* /srv/'
+        docker run --rm -v $(pwd)/<backup-directory>:/backup -v pmm-data:/srv alpine sh -c 'cp -r /backup/* /srv/'
         ```
 
     4. Fix ownership of restored files:
