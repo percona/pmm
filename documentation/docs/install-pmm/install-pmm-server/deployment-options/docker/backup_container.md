@@ -27,7 +27,7 @@ Identify your deployment type and storage method since different PMM Server depl
 Run these commands to determine your deployment:
 
 ```sh
-# Detect PMM storage type
+# Detect PMM storage type for Docker deployments
 docker inspect pmm-server --format='{{"{{"}}range .Mounts{{"}}"}}Type: {{"{{"}}.Type{{"}}"}} | {{"{{"}}if eq .Type "volume"{{"}}"}}Volume: {{"{{"}}.Name{{"}}"}}{{"{{"}}else{{"}}"}}Host Path: {{"{{"}}.Source{{"}}"}}{{"{{"}}end{{"}}"}}{{"{{"}}"\n"{{"}}"}}{{"{{"}}end{{"}}"}}' 2>/dev/null
 
 # For Podman deployments - check SystemD service
