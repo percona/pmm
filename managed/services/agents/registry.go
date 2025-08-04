@@ -18,11 +18,12 @@ package agents
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -192,7 +193,8 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		//   2. pmm-agent detects broken connection and reconnects,
 		//      but pmm-managed still thinks that the previous connection is okay.
 		// If agent respond with pong new connection is not established,
-		// so we return AlreadyExists error.
+		// so we return AlreadyExists error. Otherwise we kick the previous connection
+		// and proceed with the new one.
 		pong, err := r.ping(ctx, currentAgent)
 		if pong {
 			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
@@ -200,6 +202,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 
 		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
 		r.Kick(ctx, agentMD.ID)
+		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
 	}
 	r.rw.Lock()
 	defer r.rw.Unlock()
@@ -225,7 +228,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 		if status.Code(err) == codes.NotFound {
 			return nil, status.Errorf(codes.PermissionDenied, "No Agent with ID %q.", md.ID)
 		}
-		return nil, errors.Wrap(err, "failed to find agent")
+		return nil, fmt.Errorf("failed to find agent: %w", err)
 	}
 
 	if agent.AgentType != models.PMMAgentType {
@@ -253,7 +256,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 
 	agent.Version = &md.Version
 	if err := q.Update(agent); err != nil {
-		return nil, errors.Wrap(err, "failed to update agent")
+		return nil, fmt.Errorf("failed to update agent: %w", err)
 	}
 
 	node, err := models.FindNodeByID(q, runsOnNodeID)
@@ -294,7 +297,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) (bool, error) 
 		return false, err
 	}
 	if resp == nil {
-		return false, nil
+		return false, errors.New("pong is not received, response is nil")
 	}
 	roundtrip := time.Since(start)
 	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
@@ -332,7 +335,7 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 				PushMetrics: true,
 			},
 		}); err != nil {
-			return errors.Wrapf(err, "Can't create 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
+			return fmt.Errorf("can't create 'vmAgent' for pmm-agent with ID %q: %w", pmmAgentID, err)
 		}
 	}
 	return nil
@@ -351,7 +354,7 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 			PMMAgentID: pmmAgentID,
 			NodeID:     runsOnNodeID,
 		}); err != nil {
-			return errors.Wrapf(err, "Can't create 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
+			return fmt.Errorf("can't create 'nomadClient' for pmm-agent with ID %q: %w", pmmAgentID, err)
 		}
 	}
 	return nil
