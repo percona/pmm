@@ -246,7 +246,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 		return nil, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
 	}
 
-	if err := r.addOrRemoveVMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
+	if err := r.addOrRemoveVMAgent(q, md.ID, runsOnNodeID); err != nil {
 		return nil, err
 	}
 
@@ -314,7 +314,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) (bool, error) 
 // addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent not exists yet,
 // otherwise ensures that vmAgent not exist for pmm-agent and pmm-agent's agents don't have push_metrics mode,
 // removes it if needed.
-func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
+func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
 	return r.addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
 }
 
