@@ -78,17 +78,6 @@ Identify your deployment type and storage method since different PMM Server depl
     active
     ```
 
-    **Alternative command to check Podman containers:**
-    ```sh
-    podman ps --format "table {{.Names}}\t{{.Status}}"
-    ```
-
-    **Expected output:**
-    ```
-    NAMES        STATUS
-    pmm-server   Up 2 hours
-    ```
-
 === "Kubernetes"
     Your PMM runs in a Kubernetes cluster. You'll use volume snapshots or persistent volume backups.
 
