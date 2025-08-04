@@ -33,7 +33,7 @@ Choose the restoration method that matches how your backup was created:
 
             # Restore from backup volume to new pmm-data volume
             docker volume create pmm-data
-            sudo docker run --rm -v <backup-volume-name>:/from -v pmm-data:/to alpine ash -c 'cd /from ; cp -av . /to'
+            sudo docker run --rm -v <backup-volume-name>:/from -v pmm-data:/to alpine ash -c 'cp -av /from/. /to'
             ```
         - Use backup volume directly:
             ```sh
