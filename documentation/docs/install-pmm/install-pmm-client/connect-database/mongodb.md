@@ -189,150 +189,150 @@ PMM offers two methods for collecting MongoDB queries. Use the comparison table 
 
 ### Using the MongoDB Diagnostic Log collector
   
-    Before setting up mongolog, ensure you have:
+Before setting up mongolog, ensure you have:
 
-    - MongoDB 5.0+ (tested with 5.0.20-17)
-    - MongoDB server must have write access to the configured log directory
-    - Diagnostic Log file is readable by the PMM Agent operating system user
+- MongoDB 5.0+ (tested with 5.0.20-17)
+- MongoDB server must have write access to the configured log directory
+- Diagnostic Log file is readable by the PMM Agent operating system user
 
-    To configure mongolog for MongoDB: 
-    {.power-number}
+To configure mongolog for MongoDB: 
+{.power-number}
 
-    1. Choose one of the following methods to configure MongoDB to log slow operations to the diagnostic log file:
+1. Choose one of the following methods to configure MongoDB to log slow operations to the diagnostic log file:
 
-        === "Config file (recommended)"
-            Edit your MongoDB configuration file (`mongod.conf`):
+    === "Config file (recommended)"
+        Edit your MongoDB configuration file (`mongod.conf`):
 
-            ```yaml
-            systemLog:
-              destination: file
-              path: /var/log/mongodb/mongod.log
-              logAppend: true
-              logRotate: reopen
+        ```yaml
+        systemLog:
+          destination: file
+          path: /var/log/mongodb/mongod.log
+          logAppend: true
+          logRotate: reopen
 
-            operationProfiling:
-              mode: off
-              slowOpThresholdMs: 100
-            ```
-
-            #### Configuration explained
-
-            - `destination: file` - ensures MongoDB logs to a file (required for mongolog)
-            - `path` - specifies the log file location that mongolog will read
-            - `logAppend: true` - appends to existing log file instead of overwriting
-            - `mode: off` - logs operations to file only (does NOT populate system.profile)
-            - `slowOpThresholdMs: 100` - set based on your requirements
-
-            Restart MongoDB after making changes:
-
-            ```sh
-            systemctl restart mongod
-            ```
-
-        === "Command-line flags"
-            Start `mongod` with these flags:
-
-            ```bash
-            mongod \
-              --dbpath /var/lib/mongo \
-              --logpath /var/log/mongodb/mongod.log \
-              --logappend \
-              --profile 0 \
-              --slowms 100
-            ```
-
-            #### Flag reference
-
-            | Flag | Purpose |
-            |----------------|--------------------------------------------------------|
-            | `--logpath` | Enables logging to a file (required by mongolog) |
-            | `--logappend` | Appends to the log file instead of overwriting |
-            | `--profile 0` | Enables logging of slow operations (not full profiling) |
-            | `--slowms 100` | Sets slow operation threshold (in milliseconds) |
-
-    2. Create a logrotate configuration file (e.g., `/etc/logrotate.d/mongodb`) to configure log rotation:
-
-        ```txt
-        /var/log/mongodb/mongod.log {
-           daily
-           rotate 7
-           compress
-           delaycompress
-           copytruncate
-           missingok
-           notifempty
-           create 640 mongod mongod
-           postrotate
-            /bin/kill -SIGUSR1 `cat /var/run/mongod.pid 2>/dev/null` >/dev/null 2>&1
-           endscript
-        }
+        operationProfiling:
+          mode: off
+          slowOpThresholdMs: 100
         ```
 
-        #### Critical requirements
+        #### Configuration explained
 
-        - Use `copytruncate` to preserve file handle for mongolog
-        - Avoid moving/renaming log files as this breaks mongolog's file tail
-        - Do not delete active log files during rotation
+        - `destination: file` - ensures MongoDB logs to a file (required for mongolog)
+        - `path` - specifies the log file location that mongolog will read
+        - `logAppend: true` - appends to existing log file instead of overwriting
+        - `mode: off` - logs operations to file only (does NOT populate system.profile)
+        - `slowOpThresholdMs: 100` - set based on your requirements
+
+        Restart MongoDB after making changes:
+
+        ```sh
+        systemctl restart mongod
+        ```
+
+    === "Command-line flags"
+        Start `mongod` with these flags:
+
+        ```bash
+        mongod \
+          --dbpath /var/lib/mongo \
+          --logpath /var/log/mongodb/mongod.log \
+          --logappend \
+          --profile 0 \
+          --slowms 100
+        ```
+
+        #### Flag reference
+
+        | Flag | Purpose |
+        |----------------|--------------------------------------------------------|
+        | `--logpath` | Enables logging to a file (required by mongolog) |
+        | `--logappend` | Appends to the log file instead of overwriting |
+        | `--profile 0` | Enables logging of slow operations (not full profiling) |
+        | `--slowms 100` | Sets slow operation threshold (in milliseconds) |
+
+2. Create a logrotate configuration file (e.g., `/etc/logrotate.d/mongodb`) to configure log rotation:
+
+    ```txt
+    /var/log/mongodb/mongod.log {
+       daily
+       rotate 7
+       compress
+       delaycompress
+       copytruncate
+       missingok
+       notifempty
+       create 640 mongod mongod
+       postrotate
+        /bin/kill -SIGUSR1 `cat /var/run/mongod.pid 2>/dev/null` >/dev/null 2>&1
+       endscript
+    }
+    ```
+
+    #### Critical requirements
+
+    - Use `copytruncate` to preserve file handle for mongolog
+    - Avoid moving/renaming log files as this breaks mongolog's file tail
+    - Do not delete active log files during rotation
 
 ### Using the MongoDB Profiler
 
-    Choose one of the following methods to enable the MongoDB Profiler: 
+Choose one of the following methods to enable the MongoDB Profiler: 
 
-    === "In MongoDB configuration file (Recommended)"
+=== "In MongoDB configuration file (Recommended)"
+
+    This method ensures your settings persist across server restarts and system reboots. It's the recommended approach for production environments:
+    {.power-number}
     
-        This method ensures your settings persist across server restarts and system reboots. It's the recommended approach for production environments:
-        {.power-number}
-        
-        1. Edit the configuration file (usually `/etc/mongod.conf`).
-        2. Add or modify the `operationProfiling` section in the configuration file. Pay close attention to indentation as YAML is whitespace-sensitive:
-    
-            ```yml
-            operationProfiling:
-                mode: all             
-                slowOpThresholdMs: 200
-                rateLimit: 100        
-            ```
-            These settings control the following:
-    
-            - `mode: all` - Collects data for all operations.
-            - `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as "slow."
-            - `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
-                    
-            For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
-    
-        3. Restart the `mongod` service using the appropriate command for your system. For example, for `systemd`:
-    
-            ```sh
-            systemctl restart mongod
-            ```
-    
-    === "On CLI"
-    
-        Use this method when starting the MongoDB server manually:
-    
+    1. Edit the configuration file (usually `/etc/mongod.conf`).
+    2. Add or modify the `operationProfiling` section in the configuration file. Pay close attention to indentation as YAML is whitespace-sensitive:
+
+        ```yml
+        operationProfiling:
+            mode: all             
+            slowOpThresholdMs: 200
+            rateLimit: 100        
+        ```
+        These settings control the following:
+
+        - `mode: all` - Collects data for all operations.
+        - `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as "slow."
+        - `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
+                
+        For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
+
+    3. Restart the `mongod` service using the appropriate command for your system. For example, for `systemd`:
+
         ```sh
-        mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
+        systemctl restart mongod
         ```
-    
-        - `--dbpath`: The path to database files (usually `/var/lib/mongo`).
-        - `--profile`: The MongoDB profiling level. A value of `2` tells the server to collect profiling data for *all* operations. To lower the load on the server, use a value of `1` to only record slow operations.
-        - `--slowms`: An operation is classified as *slow* if it runs for longer than this number of milliseconds.
-        - `--rateLimit`: (Only available with Percona Server for MongoDB.) The sample rate of profiled queries. A value of `100` means sample every 100th fast query. ([Read more][PSMDB_RATELIMIT])
-    
-            !!! caution alert alert-warning "Caution"
-                Smaller values improve accuracy but can adversely affect the performance of your server.
-    
-    === "In MongoDB shell (temporary)"
-    
-        This method enables profiling until the next server restart. Profiling must be enabled for **each** database you want to monitor. For example, to enable the profiler in the `testdb`, run this:
-    
-        ```json
-        use testdb
-        db.setProfilingLevel(2, {slowms: 0})
-        ```
-    
-        !!! note alert alert-primary ""
-            If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
+
+=== "On CLI"
+
+    Use this method when starting the MongoDB server manually:
+
+    ```sh
+    mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
+    ```
+
+    - `--dbpath`: The path to database files (usually `/var/lib/mongo`).
+    - `--profile`: The MongoDB profiling level. A value of `2` tells the server to collect profiling data for *all* operations. To lower the load on the server, use a value of `1` to only record slow operations.
+    - `--slowms`: An operation is classified as *slow* if it runs for longer than this number of milliseconds.
+    - `--rateLimit`: (Only available with Percona Server for MongoDB.) The sample rate of profiled queries. A value of `100` means sample every 100th fast query. ([Read more][PSMDB_RATELIMIT])
+
+        !!! caution alert alert-warning "Caution"
+            Smaller values improve accuracy but can adversely affect the performance of your server.
+
+=== "In MongoDB shell (temporary)"
+
+    This method enables profiling until the next server restart. Profiling must be enabled for **each** database you want to monitor. For example, to enable the profiler in the `testdb`, run this:
+
+    ```json
+    use testdb
+    db.setProfilingLevel(2, {slowms: 0})
+    ```
+
+    !!! note alert alert-primary ""
+        If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
 
 ## Add MongoDB service to PMM
 
@@ -349,7 +349,8 @@ After configuring your database server, add a MongoDB service using either the u
         ```sh
         pmm-admin add mongodb \
         --username=pmm \
-        --password=your_secure_password
+        --password=your_secure_password \
+        --enable-all-collectors
         ```
 
     === "Replica Set or Sharded cluster component"
@@ -357,7 +358,8 @@ After configuring your database server, add a MongoDB service using either the u
         pmm-admin add mongodb \
         --username=pmm \
         --password=your_secure_password \
-        --cluster=my_cluster_name
+        --cluster=my_cluster_name \
+        --enable-all-collectors        
         ```
 
     === "With mongolog query source"
@@ -366,7 +368,8 @@ After configuring your database server, add a MongoDB service using either the u
         --query-source=mongolog \
         --username=pmm \
         --password=your_secure_password \
-        --cluster=my_cluster_name
+        --cluster=my_cluster_name \
+        --enable-all-collectors        
         ```        
 
     === "SSL/TLS secured MongoDB"
@@ -380,14 +383,16 @@ After configuring your database server, add a MongoDB service using either the u
         --tls-ca-file=/path/to/ca.pem \
         --authentication-mechanism=MONGODB-X509 \
         --authentication-database=$external \
-        --cluster=my_cluster_name
+        --cluster=my_cluster_name \
+        --enable-all-collectors        
         ```
-
+    
     When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `--custom-labels` options to set tags for the service to help identify them.
 
     !!! hint alert alert-success "Tips"
         - When adding nodes to a sharded cluster, ensure to add each node using the same `--cluster mycluster` option. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard to populate correctly. 
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
+        - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin.md#advanced-options) section if you want to modify this behaviour. 
 
 === "Via web UI"
 
