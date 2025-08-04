@@ -68,7 +68,7 @@ Choose the appropriate backup method based on your PMM Server deployment:
     docker volume create $BACKUP_VOLUME 1> /dev/null
 
     # Copy data from current volume to backup volume
-    sudo docker run --rm -v pmm-data:/from -v $BACKUP_VOLUME:/to alpine ash -c 'cd /from ; cp -av . /to'
+    docker run --rm -v pmm-data:/from -v $BACKUP_VOLUME:/to alpine ash -c 'cd /from ; cp -av . /to'
 
     # Verify backup
     docker run --rm -v $BACKUP_VOLUME:/backup alpine ls -la /backup
