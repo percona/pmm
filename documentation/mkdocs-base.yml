@@ -252,7 +252,7 @@ nav:
           - alert/templates_list.md
           - alert/silence_alerts.md
           - alert/disable_alerts.md
-      - Backup and restore:
+      - Back up and restore:
           - backup/index.md
           - backup/prepare_storage_location.md
           - MongoDB backups:
