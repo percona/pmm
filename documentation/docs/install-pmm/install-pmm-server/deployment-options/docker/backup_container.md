@@ -22,12 +22,12 @@ Identify your deployment type and storage method since different PMM Server depl
 === "Docker with named volumes"
     Your PMM data is stored in a Docker-managed volume (like pmm-data). You'll need to copy this volume's contents to create a backup.
 
-    **Command to check mount configuration:**
+    **Command to check mount configuration**
     ```sh
     docker inspect pmm-server | grep -A 10 '"Mounts"'
     ```
 
-    **Expected output:**
+    **Expected output**
     ```json
     "Mounts": [
         {
@@ -46,12 +46,12 @@ Identify your deployment type and storage method since different PMM Server depl
 === "Docker with host directories"
     Your PMM data is stored in a directory on your host machine that's mounted into the container. You'll back up this directory using standard file system tools.
 
-    **Command to check mount configuration:**
+    **Command to check mount configuration**
     ```sh
     docker inspect pmm-server | grep -A 10 '"Mounts"'
     ```
 
-    **Expected output:**
+    **Expected output**
     ```json
     "Mounts": [
         {
@@ -68,12 +68,12 @@ Identify your deployment type and storage method since different PMM Server depl
 === "Podman with SystemD"
     Your PMM runs as a SystemD service using Podman. You'll need to stop the service, back up the volume, and restart the service.
 
-    **Command to check if PMM service is running:**
+    **Command to check if PMM service is running**
     ```sh
     systemctl --user is-active pmm-server
     ```
 
-    **Expected output:**
+    **Expected output**
     ```
     active
     ```
@@ -81,7 +81,7 @@ Identify your deployment type and storage method since different PMM Server depl
 === "Kubernetes"
     Your PMM runs in a Kubernetes cluster. You'll use volume snapshots or persistent volume backups.
 
-    **Command to check if PMM pods are running:**
+    **Command to check if PMM pods are running**
     ```sh
     kubectl get pods -l app.kubernetes.io/name=pmm
     ```
@@ -92,12 +92,12 @@ Identify your deployment type and storage method since different PMM Server depl
     pmm-0   1/1     Running   0          2d
     ```
 
-    **Command to check persistent volume claims:**
+    **Command to check persistent volume claims**
     ```sh
     kubectl get pvc -l app.kubernetes.io/name=pmm
     ```
 
-    **Expected output:**
+    **Expected output**
     ```
     NAME               STATUS   VOLUME                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
     pmm-storage-pmm-0  Bound    pvc-abc123-def4-5678-9012  8Gi        RWO            gp2            2d
