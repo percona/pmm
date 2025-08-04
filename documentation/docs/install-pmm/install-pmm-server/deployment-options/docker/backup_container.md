@@ -19,29 +19,100 @@ To back up your PMM Server container, follow the backup instructions for your de
 
 Identify your deployment type and storage method since different PMM Server deployments store data differently:
 
-- named volumes (like `pmm-data`) need volume-to-volume copying
-- host directories need file system backups
-- Podman services require service management
-- Kubernetes uses volume snapshots
+=== "Docker with named volumes"
+    Your PMM data is stored in a Docker-managed volume (like pmm-data). You'll need to copy this volume's contents to create a backup.
 
-Run these commands to determine your deployment:
+    **Command to check mount configuration:**
+    ```sh
+    docker inspect pmm-server | grep -A 10 '"Mounts"'
+    ```
 
-```sh
-# Detect PMM storage type for Docker deployments
-docker inspect pmm-server --format='{{"{{"}}range .Mounts{{"}}"}}Type: {{"{{"}}.Type{{"}}"}} | {{"{{"}}if eq .Type "volume"{{"}}"}}Volume: {{"{{"}}.Name{{"}}"}}{{"{{"}}else{{"}}"}}Host Path: {{"{{"}}.Source{{"}}"}}{{"{{"}}end{{"}}"}}{{"{{"}}"\n"{{"}}"}}{{"{{"}}end{{"}}"}}' 2>/dev/null
+    **Expected output:**
+    ```json
+    "Mounts": [
+        {
+            "Type": "volume",
+            "Name": "pmm-data",
+            "Source": "/var/lib/docker/volumes/pmm-data/_data",
+            "Destination": "/srv",
+            "Driver": "local",
+            "Mode": "",
+            "RW": true,
+            "Propagation": ""
+        }
+    ]
+    ```
 
-# For Podman deployments - check SystemD service
-systemctl --user is-active pmm-server 2>/dev/null && echo "Podman SystemD deployment detected"
+=== "Docker with host directories"
+    Your PMM data is stored in a directory on your host machine that's mounted into the container. You'll back up this directory using standard file system tools.
 
-# For Kubernetes deployments - check pods
-kubectl get pods -l app.kubernetes.io/name=pmm 2>/dev/null && echo "Kubernetes deployment detected"
-```
-#### Expected outputs
+    **Command to check mount configuration:**
+    ```sh
+    docker inspect pmm-server | grep -A 10 '"Mounts"'
+    ```
 
-- Docker with named volume: `Type: volume | Volume: pmm-data`
-- Docker with host directory: `Type: bind | Host Path: /home/user/srv`
-- Podman SystemD: `Podman SystemD deployment detected`
-- Kubernetes: Shows running PMM pods
+    **Expected output:**
+    ```json
+    "Mounts": [
+        {
+            "Type": "bind",
+            "Source": "/home/user/srv",
+            "Destination": "/srv",
+            "Mode": "",
+            "RW": true,
+            "Propagation": "rprivate"
+        }
+    ]
+    ```
+
+=== "Podman with SystemD"
+    Your PMM runs as a SystemD service using Podman. You'll need to stop the service, back up the volume, and restart the service.
+
+    **Command to check if PMM service is running:**
+    ```sh
+    systemctl --user is-active pmm-server
+    ```
+
+    **Expected output:**
+    ```
+    active
+    ```
+
+    **Alternative command to check Podman containers:**
+    ```sh
+    podman ps --format "table {{.Names}}\t{{.Status}}"
+    ```
+
+    **Expected output:**
+    ```
+    NAMES        STATUS
+    pmm-server   Up 2 hours
+    ```
+
+=== "Kubernetes"
+    Your PMM runs in a Kubernetes cluster. You'll use volume snapshots or persistent volume backups.
+
+    **Command to check if PMM pods are running:**
+    ```sh
+    kubectl get pods -l app.kubernetes.io/name=pmm
+    ```
+
+    **Expected output:**
+    ```
+    NAME    READY   STATUS    RESTARTS   AGE
+    pmm-0   1/1     Running   0          2d
+    ```
+
+    **Command to check persistent volume claims:**
+    ```sh
+    kubectl get pvc -l app.kubernetes.io/name=pmm
+    ```
+
+    **Expected output:**
+    ```
+    NAME               STATUS   VOLUME                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+    pmm-storage-pmm-0  Bound    pvc-abc123-def4-5678-9012  8Gi        RWO            gp2            2d
+    ```
 
 ### Step 2: Choose a backup method 
 Choose the appropriate backup method based on your PMM Server deployment:
