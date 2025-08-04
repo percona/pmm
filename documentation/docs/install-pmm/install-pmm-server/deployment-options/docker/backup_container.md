@@ -137,7 +137,7 @@ Choose the appropriate backup method based on your PMM Server deployment:
     podman volume create $BACKUP_VOLUME
 
     # Copy data from current volume to backup volume
-    podman run --rm -v pmm-server:/from -v $BACKUP_VOLUME:/to alpine ash -c 'cd /from ; cp -av . /to'
+    podman run --rm -v pmm-server:/from -v $BACKUP_VOLUME:/to alpine ash -c 'cp -av /from/. /to'
 
     # Verify backup
     podman run --rm -v $BACKUP_VOLUME:/backup alpine ls -la /backup
