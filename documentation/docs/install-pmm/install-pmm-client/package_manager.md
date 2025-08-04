@@ -8,7 +8,7 @@ Complete these essential steps before installation:
 
 1. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
-2. [Install and configure PMM Server](../install-pmm-server/index.md)as you'll its IP address or hostname to configure the Client.
+2. [Install and configure PMM Server](../install-pmm-server/index.md) as you'll its IP address or hostname to configure the Client.
 
 3. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
 
