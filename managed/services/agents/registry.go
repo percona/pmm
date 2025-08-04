@@ -193,14 +193,13 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		//      but pmm-managed still thinks that the previous connection is okay.
 		// If agent respond with pong new connection is not established,
 		// so we return AlreadyExists error.
-
 		pong, err := r.ping(ctx, currentAgent)
-		switch {
-		case err == nil:
-			l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
-		case pong:
+		if pong {
 			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
 		}
+
+		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
+		r.Kick(ctx, agentMD.ID)
 	}
 	r.rw.Lock()
 	defer r.rw.Unlock()
