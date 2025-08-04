@@ -213,7 +213,7 @@ Choose the appropriate backup method based on your PMM Server deployment:
     5. Verify the backup was created successfully:
 
         ```sh
-        ls -la srv/
+        ls -la .
         ```
 
     6. Create new container from original image:
