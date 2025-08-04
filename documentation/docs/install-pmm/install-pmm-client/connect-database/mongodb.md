@@ -331,8 +331,9 @@ Choose one of the following methods to enable the MongoDB Profiler:
     db.setProfilingLevel(2, {slowms: 0})
     ```
 
-    !!! note alert alert-primary ""
-        If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
+!!! note alert alert-primary ""
+
+    If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
 
 ## Add MongoDB service to PMM
 
@@ -350,6 +351,8 @@ After configuring your database server, add a MongoDB service using either the u
         pmm-admin add mongodb \
         --username=pmm \
         --password=your_secure_password \
+        --host=127.0.0.1 \
+        --port=27017 \
         --enable-all-collectors
         ```
 
@@ -358,18 +361,34 @@ After configuring your database server, add a MongoDB service using either the u
         pmm-admin add mongodb \
         --username=pmm \
         --password=your_secure_password \
+        --host=127.0.0.1 \
+        --port=27017 \        
         --cluster=my_cluster_name \
         --enable-all-collectors        
         ```
 
+    === "Ignoring insecure server certificate"
+        ```sh
+        pmm-admin add mongodb \
+        --username=pmm \
+        --password=your_secure_password \
+        --host=127.0.0.1 \
+        --port=27017 \        
+        --cluster=my_cluster_name \
+        --enable-all-collectors \      
+        --tls-skip-verify        
+        ```     
+        
     === "With mongolog query source"
         ```sh
         pmm-admin add mongodb \
-        --query-source=mongolog \
         --username=pmm \
         --password=your_secure_password \
+        --host=127.0.0.1 \
+        --port=27017 \        
         --cluster=my_cluster_name \
-        --enable-all-collectors        
+        --enable-all-collectors \      
+        --query-source=mongolog         
         ```        
 
     === "SSL/TLS secured MongoDB"
@@ -377,6 +396,8 @@ After configuring your database server, add a MongoDB service using either the u
         pmm-admin add mongodb \
         --username=pmm \
         --password=your_secure_password \
+        --host=fqdn_of_your_mongo_host \
+        --port=27017 \          
         --tls \
         --tls-certificate-key-file=/path/to/client.pem \
         --tls-certificate-key-file-password=cert_password \  # If needed
@@ -391,8 +412,9 @@ After configuring your database server, add a MongoDB service using either the u
 
     !!! hint alert alert-success "Tips"
         - When adding nodes to a sharded cluster, ensure to add each node using the same `--cluster mycluster` option. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard to populate correctly. 
-        - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
         - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin.md#advanced-options) section if you want to modify this behaviour. 
+        - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
+        
 
 === "Via web UI"
 
