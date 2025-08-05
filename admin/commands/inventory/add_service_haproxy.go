@@ -59,7 +59,7 @@ func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{

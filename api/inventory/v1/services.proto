@@ -45,6 +45,8 @@ message MySQLService {
   map<string, string> custom_labels = 10;
   // MySQL version.
   string version = 11;
+  // Extra parameters to be added to the DSN.
+  map<string, string> extra_dsn_params = 12;
 }
 
 // MongoDBService represents a generic MongoDB instance.
@@ -266,6 +268,8 @@ message AddMySQLServiceParams {
   string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 9;
+  // Extra parameters to be added to the DSN.
+  map<string, string> extra_dsn_params = 10;
 }
 
 // Add MongoDB
