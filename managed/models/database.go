@@ -956,6 +956,19 @@ var databaseSchema = [][]string{
 	88: {
 		`ALTER TABLE agents ADD COLUMN metrics_resolutions JSONB`,
 	},
+	89: {
+		`ALTER TABLE artifacts 
+		ADD COLUMN compression VARCHAR NOT NULL DEFAULT 'none'`,
+
+		`UPDATE artifacts 
+		SET compression = CASE 
+			WHEN vendor = 'mongodb' THEN 's2'
+			WHEN vendor = 'mysql' THEN 'quicklz'
+			ELSE 'none'
+		END`,
+
+		`ALTER TABLE artifacts ALTER COLUMN compression DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
