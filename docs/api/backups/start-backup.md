@@ -26,7 +26,8 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      "name": "Test Backup",
      "description": "Test Backup",
      "retry_interval": "60s",
-     "retries": 1
+     "retries": 1,
+     "compression": "ZSTD"
 }
 '
 ```
@@ -37,9 +38,28 @@ Also, you require the [service_id](ref:listservices) and [location_id](ref:listl
 
 You can defined a `name` and a `description` for each backup. You can also configure `retry_interval` and `retries` if required.
 
+### Compression Options
+
+The `compression` field allows you to specify the compression algorithm for the backup. Available options are:
+
+- `NONE` - No compression
+- `QUICKLZ` - QuickLZ compression
+- `ZSTD` - Zstandard compression
+- `LZ4` - LZ4 compression
+- `S2` - S2 compression
+- `GZIP` - Gzip compression
+- `SNAPPY` - Snappy compression
+- `PGZIP` - Parallel Gzip compression
+
+**Database-specific support:**
+
+- **MySQL**: QUICKLZ, ZSTD, LZ4, NONE
+- **MongoDB**: GZIP, SNAPPY, LZ4, S2, PGZIP, ZSTD, NONE
+
 ### Error messages
 
 The API call could return an error message in the details, containing a specific ErrorCode indicating the failure reason:
 - ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
 - ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
 - ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL to make a backup
+- ERROR_CODE_INVALID_COMPRESSION - invalid or unsupported compression type for the database
