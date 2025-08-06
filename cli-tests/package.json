@@ -19,7 +19,7 @@
     "playwright": "^1.51.1",
     "promise-retry": "^2.0.1",
     "shelljs": "^0.10.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@types/promise-retry": "^1.1.3",
