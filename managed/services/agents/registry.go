@@ -192,11 +192,11 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
 		//   2. pmm-agent detects broken connection and reconnects,
 		//      but pmm-managed still thinks that the previous connection is okay.
-		// If agent respond with pong new connection is not established,
+		// If agent respond with pong (no error) new connection is not established,
 		// so we return AlreadyExists error. Otherwise we kick the previous connection
 		// and proceed with the new one.
-		pong, err := r.ping(ctx, currentAgent)
-		if pong {
+		err := r.ping(ctx, currentAgent)
+		if err == nil {
 			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
 		}
 
@@ -289,15 +289,15 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
 // Returns true if pong is received, false if there is no pong or error occurred.
-func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) (bool, error) {
+func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
 	resp, err := agent.channel.SendAndWaitResponse(&agentv1.Ping{})
 	if err != nil {
-		return false, err
+		return err
 	}
 	if resp == nil {
-		return false, errors.New("pong is not received, response is nil")
+		return errors.New("pong is not received, response is nil")
 	}
 	roundtrip := time.Since(start)
 	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
@@ -308,7 +308,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) (bool, error) 
 	l.Debugf("Round-trip time: %s. Estimated clock drift: %s.", roundtrip, clockDrift)
 	r.mRoundTrip.Observe(roundtrip.Seconds())
 	r.mClockDrift.Observe(clockDrift.Seconds())
-	return true, nil
+	return nil
 }
 
 // addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent not exists yet,
