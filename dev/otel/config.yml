@@ -135,6 +135,36 @@ receivers:
         from: attributes.msg
         to: body
 
+  # File log receiver for PostgreSQL logs
+  filelog/postgres:
+    include: [/logs/postgresql/postgresql.log]
+    start_at: beginning
+    operators:
+      - type: regex_parser
+        regex: '^time="(?P<timestamp>[^\"]+)" process=(?P<pid>\d+) lineno=(?P<lineno>\d+) transaction=(?P<transaction>\w+) db=(?P<db>[^ ]*) user=(?P<user>[^ ]*) app=(?P<app>[^ ]*) client=(?P<client>[^ ]*) (?P<level>\w+):  (?P<msg>.*)$'
+        parse_from: body
+        parse_to: attributes
+      - type: time_parser
+        parse_from: attributes.timestamp
+        layout: '2006-01-02 15:04:05.000 MST'
+        layout_type: gotime
+      - type: severity_parser
+        parse_from: attributes.level
+        preset: none
+        mapping:
+          debug: debug
+          info: info
+          notice: info
+          warning: warn
+          warn: warn
+          error: error
+          fatal: fatal
+          panic: fatal
+          log: info
+      - type: move
+        from: attributes.msg
+        to: body
+
 processors:
   # Batch processor to optimize performance
   batch:
@@ -159,10 +189,13 @@ processors:
       - set(resource.attributes["service.version"], "11.6.1") where log.attributes["log_file"] == "grafana.log"
 
       - set(resource.attributes["service.name"], "pmm-managed") where log.attributes["log_file"] == "pmm-managed.log"
-      - set(resource.attributes["service.version"], "3.3.0") where log.attributes["log_file"] == "pmm-managed.log"
+      - set(resource.attributes["service.version"], "3.3.1") where log.attributes["log_file"] == "pmm-managed.log"
 
       - set(resource.attributes["service.name"], "pmm-agent") where log.attributes["log_file"] == "pmm-agent.log"
       - set(resource.attributes["service.version"], "2.42.0") where log.attributes["log_file"] == "pmm-agent.log"
+
+      - set(resource.attributes["service.name"], "postgres") where log.attributes["log_file"] == "postgresql.log"
+      - set(resource.attributes["service.version"], "17.2-1") where log.attributes["log_file"] == "postgresql.log"
 
   # Memory limiter to prevent OOM
   memory_limiter:
@@ -193,7 +226,7 @@ exporters:
 service:
   pipelines:
     logs:
-      receivers: [filelog/nginx_access, filelog/nginx_error, filelog/grafana, filelog/pmm_managed, filelog/pmm_agent]
+      receivers: [filelog/nginx_access, filelog/nginx_error, filelog/grafana, filelog/pmm_managed, filelog/pmm_agent, filelog/postgres]
       processors: [memory_limiter, transform, batch]
       exporters: [clickhouse, debug]
 

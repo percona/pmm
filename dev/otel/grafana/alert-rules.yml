@@ -171,3 +171,83 @@ groups:
           team: security
         notification_settings:
           receiver: email-log-alerts
+
+      - uid: postgres-shutdown
+        title: PostgreSQL Database System Shutdown
+        condition: C
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: clickhouse-logs
+            model:
+              # Query to detect PostgreSQL shutdown in logs
+              rawSql: |
+                SELECT
+                  Timestamp as time,
+                  toInt32(COUNT(*)) as value,
+                  ServiceName as service,
+                  Body as message
+                FROM logs
+                WHERE
+                  Timestamp >= now() - INTERVAL 5 MINUTE
+                  AND ServiceName = 'postgres'
+                  AND Body = 'database system is shut down'
+                GROUP BY time, service, message
+                ORDER BY Timestamp DESC
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            queryType: ""
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasource:
+              type: __expr__
+              uid: __expr__
+            model:
+              expression: A
+              reducer: last
+              type: reduce
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            queryType: ""
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasource:
+              type: __expr__
+              uid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [B]
+                  reducer:
+                    type: last
+                  type: query
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        noDataState: OK
+        execErrState: Alerting
+        for: 10s
+        annotations:
+          description: "PostgreSQL database system shutdown detected in logs."
+          summary: "PostgreSQL Shutdown"
+        labels:
+          severity: warning
+          team: dba
+        notification_settings:
+          receiver: email-log-alerts
