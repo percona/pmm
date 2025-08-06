@@ -55,44 +55,49 @@ func TestPTMySQLSummaryActionRunAndCancel(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestListFromMySqlParams(t *testing.T) {
+func TestBuildMyCnfConfig(t *testing.T) {
 	type testParams struct {
 		Params   *agentv1.StartActionRequest_PTMySQLSummaryParams
-		Expected []string
+		Expected string
+		WantErr  error
 	}
 
 	testCases := []testParams{
 		{
-			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "10", Username: "person", Password: "secret"},
-			Expected: []string{"--socket", "10", "--user", "person", "--password", "secret"},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "/tmp/foo.sock", Username: "person", Password: "secret"},
+			Expected: "[client]\n\n\nuser=person\npassword=secret\nsocket=/tmp/foo.sock\n",
 		},
 		{
 			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "", Username: "person", Password: "secret"},
-			Expected: []string{"--host", "10.20.30.40", "--port", "555", "--user", "person", "--password", "secret"},
+			Expected: "[client]\nhost=10.20.30.40\nport=555\nuser=person\npassword=secret\n\n",
 		},
 		{
-			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "10", Username: "person", Password: ""},
-			Expected: []string{"--socket", "10", "--user", "person"},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "/tmp/10.sock", Username: "person", Password: ""},
+			Expected: "[client]\n\n\nuser=person\n\nsocket=/tmp/10.sock\n",
 		},
 		{
 			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "", Username: "", Password: "secret"},
-			Expected: []string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"},
+			Expected: "[client]\nhost=10.20.30.40\nport=555\n\npassword=secret\n\n",
 		},
 		{
 			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 65536, Socket: "", Username: "", Password: "secret"},
-			Expected: []string{"--host", "10.20.30.40", "--password", "secret"},
+			Expected: "[client]\nhost=10.20.30.40\n\n\npassword=secret\n\n",
 		},
 		{
 			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 555, Socket: "", Username: "", Password: "secret"},
-			Expected: []string{"--port", "555", "--password", "secret"},
+			Expected: "[client]\n\nport=555\n\npassword=secret\n\n",
 		},
 		{
 			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "", Username: "", Password: ""},
-			Expected: []string{},
+			Expected: "[client]\n\n\n\n\n\n",
 		},
 		{
 			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "", Username: "王华", Password: `"`},
-			Expected: []string{"--user", "王华", "--password", `"`},
+			Expected: "[client]\n\n\nuser=王华\npassword=&#34;\n\n",
+		},
+		{
+			Params:  &agentv1.StartActionRequest_PTMySQLSummaryParams{Socket: "/tmp/mysqld.sock", Username: "test-user\r", Password: "test-password"},
+			WantErr: fmt.Errorf("invalid parameters: %w", ErrInvalidCharacter),
 		},
 	}
 
@@ -100,8 +105,15 @@ func TestListFromMySqlParams(t *testing.T) {
 		a := ptMySQLSummaryAction{
 			params: tc.Params,
 		}
-		t.Run(fmt.Sprintf("TestListFromMySqlParams %d", i), func(t *testing.T) {
-			assert.ElementsMatch(t, tc.Expected, a.ListFromMySQLParams())
+		t.Run(fmt.Sprintf(t.Name()+" %d", i), func(t *testing.T) {
+			s, err := a.buildMyCnfConfig()
+			if tc.WantErr != nil {
+				require.Error(t, err)
+				assert.Equal(t, tc.WantErr.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tc.Expected, s)
 		})
 	}
 }
