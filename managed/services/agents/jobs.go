@@ -486,6 +486,10 @@ func (s *JobsService) StartMongoDBBackupJob(
 		return err
 	}
 
+	if mongoDBReq.Compression, err = convertBackupCompression(compression); err != nil {
+		return err
+	}
+
 	switch {
 	case locationConfig.S3Config != nil:
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_S3Config{
@@ -547,18 +551,25 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 		return errors.Errorf("location config is not set")
 	}
 
+	mySQLReq := &agentpb.StartJobRequest_MySQLRestoreBackup{
+		ServiceId: serviceID,
+		Name:      name,
+		Folder:    folder,
+		LocationConfig: &agentpb.StartJobRequest_MySQLRestoreBackup_S3Config{
+			S3Config: convertS3ConfigModel(locationConfig.S3Config),
+		},
+	}
+
+	var err error
+	if mySQLReq.Compression, err = convertBackupCompression(compression); err != nil {
+		return err
+	}
+
 	req := &agentpb.StartJobRequest{
 		JobId:   jobID,
 		Timeout: durationpb.New(timeout),
 		Job: &agentpb.StartJobRequest_MysqlRestoreBackup{
-			MysqlRestoreBackup: &agentpb.StartJobRequest_MySQLRestoreBackup{
-				ServiceId: serviceID,
-				Name:      name,
-				Folder:    folder,
-				LocationConfig: &agentpb.StartJobRequest_MySQLRestoreBackup_S3Config{
-					S3Config: convertS3ConfigModel(locationConfig.S3Config),
-				},
-			},
+			MysqlRestoreBackup: mySQLReq,
 		},
 	}
 
@@ -642,6 +653,10 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		Address:  dbConfig.Address,
 		Port:     int32(dbConfig.Port),
 		Socket:   dbConfig.Socket,
+	}
+
+	if mongoDBReq.Compression, err = convertBackupCompression(compression); err != nil {
+		return err
 	}
 
 	switch {

@@ -220,18 +220,20 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	}
 
 	switch j.compression {
-	case backuppb.BackupCompression_NONE:
-		pbmArgs = append(pbmArgs, "--compression=none")
-	case backuppb.BackupCompression_QUICKLZ:
-		pbmArgs = append(pbmArgs, "--compression=quicklz")
-	case backuppb.BackupCompression_ZSTD:
-		pbmArgs = append(pbmArgs, "--compression=zstd")
+	case backuppb.BackupCompression_GZIP:
+		pbmArgs = append(pbmArgs, "--compression=gzip")
+	case backuppb.BackupCompression_SNAPPY:
+		pbmArgs = append(pbmArgs, "--compression=snappy")
 	case backuppb.BackupCompression_LZ4:
 		pbmArgs = append(pbmArgs, "--compression=lz4")
 	case backuppb.BackupCompression_S2:
 		pbmArgs = append(pbmArgs, "--compression=s2")
-	case backuppb.BackupCompression_GZIP:
-		pbmArgs = append(pbmArgs, "--compression=gzip")
+	case backuppb.BackupCompression_PGZIP:
+		pbmArgs = append(pbmArgs, "--compression=pgzip")
+	case backuppb.BackupCompression_ZSTD:
+		pbmArgs = append(pbmArgs, "--compression=zstd")
+	case backuppb.BackupCompression_NONE:
+		pbmArgs = append(pbmArgs, "--compression=none")
 	}
 
 	if err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...); err != nil {

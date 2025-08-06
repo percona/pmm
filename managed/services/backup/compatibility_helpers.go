@@ -41,9 +41,6 @@ var (
 	maxAlignedXtrabackupVersion = version.Must(version.NewVersion("9.0"))
 
 	pbmMinSupportedVersion = version.Must(version.NewVersion("2.0.1"))
-	// Starting from XtraBackup 8.0.34-29, qpress compression is no longer supported for compress operations
-	// and ZSTD becomes the default compression method
-	xtrabackupQpressDeprecatedVersion = version.Must(version.NewVersion("8.0.34-29"))
 )
 
 func init() {
