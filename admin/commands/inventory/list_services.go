@@ -30,9 +30,9 @@ import (
 var listServicesResultT = commands.ParseTemplate(`
 Services list.
 
-{{ printf "%-22s" "Service type" }} {{ printf "%-20s" "Service name" }} {{ printf "%-17s" "Address and Port" }} {{ "Service ID" }}
+{{ printf "%-22s" "Service type" }} {{ printf "%-30s" "Service name" }} {{ printf "%-30s" "Address and Port" }} {{ "Service ID" }}
 {{ range .Services }}
-{{- printf "%-22s" .HumanReadableServiceType }} {{ printf "%-20s" .ServiceName }} {{ printf "%-17s" .AddressPort }} {{ .ServiceID }}
+{{- printf "%-22s" .HumanReadableServiceType }} {{ printf "%-30s" .ServiceName }} {{ printf "%-30s" .AddressPort }} {{ .ServiceID }}
 {{ end }}
 `)
 
