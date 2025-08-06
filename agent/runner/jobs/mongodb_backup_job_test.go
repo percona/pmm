@@ -89,25 +89,53 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		compression backuppb.BackupCompression
 	}{
 		{
-			name:      "logical backup model",
-			dataModel: backuppb.DataModel_LOGICAL,
-			errMsg:    "",
+			name:        "logical backup model",
+			dataModel:   backuppb.DataModel_LOGICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_S2,
 		},
 		{
-			name:      "physical backup model",
-			dataModel: backuppb.DataModel_PHYSICAL,
-			errMsg:    "",
+			name:        "physical backup model",
+			dataModel:   backuppb.DataModel_PHYSICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_S2,
 		},
 		{
-			name:      "invalid backup model",
-			dataModel: backuppb.DataModel_DATA_MODEL_INVALID,
-			errMsg:    "'DATA_MODEL_INVALID' is not a supported data model for MongoDB backups",
+			name:        "invalid backup model",
+			dataModel:   backuppb.DataModel_DATA_MODEL_INVALID,
+			errMsg:      "'DATA_MODEL_INVALID' is not a supported data model for MongoDB backups",
+			compression: backuppb.BackupCompression_S2,
 		},
 		{
-			name:      "pitr fails for physical backups",
-			pitr:      true,
-			dataModel: backuppb.DataModel_PHYSICAL,
-			errMsg:    "PITR is only supported for logical backups",
+			name:        "pitr fails for physical backups",
+			pitr:        true,
+			dataModel:   backuppb.DataModel_PHYSICAL,
+			errMsg:      "PITR is only supported for logical backups",
+			compression: backuppb.BackupCompression_S2,
+		},
+		{
+			name:        "logical backup with LZ4 compression",
+			dataModel:   backuppb.DataModel_LOGICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_LZ4,
+		},
+		{
+			name:        "physical backup with ZSTD compression",
+			dataModel:   backuppb.DataModel_PHYSICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_ZSTD,
+		},
+		{
+			name:        "logical backup with PGZIP compression",
+			dataModel:   backuppb.DataModel_LOGICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_PGZIP,
+		},
+		{
+			name:        "physical backup with no compression",
+			dataModel:   backuppb.DataModel_PHYSICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_NONE,
 		},
 	}
 
@@ -120,6 +148,79 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 				assert.NoError(t, err)
 			} else {
 				assert.ErrorContains(t, err, tc.errMsg)
+			}
+		})
+	}
+}
+
+func TestMongoDBBackupJobCompression(t *testing.T) {
+	t.Parallel()
+	testJobDuration := 1 * time.Second
+
+	tests := []struct {
+		name        string
+		compression backuppb.BackupCompression
+		shouldError bool
+	}{
+		{
+			name:        "GZIP compression",
+			compression: backuppb.BackupCompression_GZIP,
+			shouldError: false,
+		},
+		{
+			name:        "Snappy compression",
+			compression: backuppb.BackupCompression_SNAPPY,
+			shouldError: false,
+		},
+		{
+			name:        "LZ4 compression",
+			compression: backuppb.BackupCompression_LZ4,
+			shouldError: false,
+		},
+		{
+			name:        "S2 compression",
+			compression: backuppb.BackupCompression_S2,
+			shouldError: false,
+		},
+		{
+			name:        "PGZIP compression",
+			compression: backuppb.BackupCompression_PGZIP,
+			shouldError: false,
+		},
+		{
+			name:        "ZSTD compression",
+			compression: backuppb.BackupCompression_ZSTD,
+			shouldError: false,
+		},
+		{
+			name:        "None compression",
+			compression: backuppb.BackupCompression_NONE,
+			shouldError: false,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			job, err := NewMongoDBBackupJob(
+				t.Name(),
+				testJobDuration,
+				t.Name(),
+				"",
+				BackupLocationConfig{},
+				false,
+				backuppb.DataModel_LOGICAL,
+				"artifact_folder",
+				tc.compression,
+			)
+			if tc.shouldError {
+				assert.Error(t, err)
+				assert.Nil(t, job)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, job)
+				assert.Equal(t, tc.compression, job.compression)
 			}
 		})
 	}

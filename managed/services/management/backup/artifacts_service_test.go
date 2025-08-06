@@ -81,13 +81,14 @@ func TestListPitrTimeranges(t *testing.T) {
 
 	t.Run("successfully lists PITR time ranges", func(t *testing.T) {
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "test_artifact",
-			Vendor:     "test_vendor",
-			LocationID: locationID,
-			ServiceID:  "test_service",
-			Mode:       models.PITR,
-			DataModel:  models.LogicalDataModel,
-			Status:     models.PendingBackupStatus,
+			Name:        "test_artifact",
+			Vendor:      "test_vendor",
+			LocationID:  locationID,
+			ServiceID:   "test_service",
+			Mode:        models.PITR,
+			DataModel:   models.LogicalDataModel,
+			Status:      models.PendingBackupStatus,
+			Compression: models.S2,
 		})
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
@@ -111,13 +112,14 @@ func TestListPitrTimeranges(t *testing.T) {
 
 	t.Run("fails for non-PITR artifact", func(t *testing.T) {
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "test_non_pitr_artifact",
-			Vendor:     "test_vendor",
-			LocationID: locationID,
-			ServiceID:  "test_service",
-			Mode:       models.Snapshot,
-			DataModel:  models.LogicalDataModel,
-			Status:     models.PendingBackupStatus,
+			Name:        "test_non_pitr_artifact",
+			Vendor:      "test_vendor",
+			LocationID:  locationID,
+			ServiceID:   "test_service",
+			Mode:        models.Snapshot,
+			DataModel:   models.LogicalDataModel,
+			Status:      models.PendingBackupStatus,
+			Compression: models.ZSTD,
 		})
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
@@ -129,6 +131,83 @@ func TestListPitrTimeranges(t *testing.T) {
 		assert.Nil(t, response)
 	})
 	mock.AssertExpectationsForObjects(t, mockedPbmPITRService)
+}
+
+func TestConvertBackupCompression(t *testing.T) {
+	tests := []struct {
+		name        string
+		compression models.BackupCompression
+		expected    backuppb.BackupCompression
+		shouldError bool
+	}{
+		{
+			name:        "QuickLZ compression",
+			compression: models.QuickLZ,
+			expected:    backuppb.BackupCompression_QUICKLZ,
+			shouldError: false,
+		},
+		{
+			name:        "ZSTD compression",
+			compression: models.ZSTD,
+			expected:    backuppb.BackupCompression_ZSTD,
+			shouldError: false,
+		},
+		{
+			name:        "LZ4 compression",
+			compression: models.LZ4,
+			expected:    backuppb.BackupCompression_LZ4,
+			shouldError: false,
+		},
+		{
+			name:        "S2 compression",
+			compression: models.S2,
+			expected:    backuppb.BackupCompression_S2,
+			shouldError: false,
+		},
+		{
+			name:        "GZIP compression",
+			compression: models.GZIP,
+			expected:    backuppb.BackupCompression_GZIP,
+			shouldError: false,
+		},
+		{
+			name:        "Snappy compression",
+			compression: models.Snappy,
+			expected:    backuppb.BackupCompression_SNAPPY,
+			shouldError: false,
+		},
+		{
+			name:        "PGZIP compression",
+			compression: models.PGZIP,
+			expected:    backuppb.BackupCompression_PGZIP,
+			shouldError: false,
+		},
+		{
+			name:        "None compression",
+			compression: models.None,
+			expected:    backuppb.BackupCompression_NONE,
+			shouldError: false,
+		},
+		{
+			name:        "invalid compression",
+			compression: "invalid",
+			expected:    0,
+			shouldError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := convertBackupCompression(tt.compression)
+			if tt.shouldError {
+				assert.Error(t, err)
+				assert.Equal(t, backuppb.BackupCompression_BACKUP_COMPRESSION_INVALID, result)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expected, result)
+			}
+		})
+	}
 }
 
 func TestArtifactMetadataListToProto(t *testing.T) {
@@ -155,13 +234,14 @@ func TestArtifactMetadataListToProto(t *testing.T) {
 	require.NotEmpty(t, loc.ID)
 
 	artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-		Name:       "test_artifact",
-		Vendor:     "test_vendor",
-		LocationID: loc.ID,
-		ServiceID:  "test_service",
-		Mode:       models.PITR,
-		DataModel:  models.LogicalDataModel,
-		Status:     models.PendingBackupStatus,
+		Name:        "test_artifact",
+		Vendor:      "test_vendor",
+		LocationID:  loc.ID,
+		ServiceID:   "test_service",
+		Mode:        models.PITR,
+		DataModel:   models.LogicalDataModel,
+		Status:      models.PendingBackupStatus,
+		Compression: models.S2,
 	})
 	assert.NoError(t, err)
 
