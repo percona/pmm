@@ -8,7 +8,7 @@ groups:
   - name: security-alerts
     orgId: 1
     folder: Security
-    interval: 1m
+    interval: 10s
     rules:
       - uid: admin-password-change
         title: Admin Password Change Alert
@@ -17,7 +17,7 @@ groups:
           - refId: A
             queryType: ""
             relativeTimeRange:
-              from: 300
+              from: 30
               to: 0
             datasourceUid: clickhouse-logs
             model:
@@ -30,7 +30,7 @@ groups:
                   Body as message
                 FROM logs
                 WHERE 
-                  Timestamp >= now() - INTERVAL 5 MINUTE
+                  Timestamp >= now() - INTERVAL 30 SECOND
                   AND ServiceName = 'grafana'
                   AND SeverityText = 'info'                  
                   AND Body = 'Admin password has been reset.'
@@ -43,7 +43,7 @@ groups:
             datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
-              from: 600
+              from: 30
               to: 0
             datasource:
               type: __expr__
@@ -57,7 +57,7 @@ groups:
             datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
-              from: 600
+              from: 30
               to: 0
             datasource:
               type: __expr__
@@ -81,7 +81,7 @@ groups:
               type: threshold
         noDataState: OK
         execErrState: Alerting
-        for: 10s
+        for: 0s
         annotations:
           description: "Admin password change detected in Grafana logs."
           summary: "Admin Password Change"
@@ -98,7 +98,7 @@ groups:
           - refId: A
             queryType: ""
             relativeTimeRange:
-              from: 300
+              from: 30
               to: 0
             datasourceUid: clickhouse-logs
             model:
@@ -111,7 +111,7 @@ groups:
                   Body as message
                 FROM logs 
                 WHERE 
-                  Timestamp >= now() - INTERVAL 5 MINUTE
+                  Timestamp >= now() - INTERVAL 30 SECOND
                   AND ServiceName = 'grafana'
                   AND SeverityText = 'error'
                   AND Body LIKE '%Failed to reset admin password%'
@@ -124,7 +124,7 @@ groups:
             datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
-              from: 600
+              from: 30
               to: 0
             datasource:
               type: __expr__
@@ -138,7 +138,7 @@ groups:
             datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
-              from: 600
+              from: 30
               to: 0
             datasource:
               type: __expr__
@@ -162,7 +162,7 @@ groups:
               type: threshold
         noDataState: OK
         execErrState: Alerting
-        for: 10s
+        for: 0s
         annotations:
           description: "Failed attempt to change admin password detected in Grafana logs."
           summary: "Admin Password Change Failed"
@@ -179,7 +179,7 @@ groups:
           - refId: A
             queryType: ""
             relativeTimeRange:
-              from: 300
+              from: 30
               to: 0
             datasourceUid: clickhouse-logs
             model:
@@ -192,7 +192,7 @@ groups:
                   Body as message
                 FROM logs
                 WHERE
-                  Timestamp >= now() - INTERVAL 5 MINUTE
+                  Timestamp >= now() - INTERVAL 30 SECOND
                   AND ServiceName = 'postgres'
                   AND Body = 'database system is shut down'
                 GROUP BY time, service, message
@@ -204,7 +204,7 @@ groups:
             datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
-              from: 600
+              from: 30
               to: 0
             datasource:
               type: __expr__
@@ -218,7 +218,7 @@ groups:
             datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
-              from: 600
+              from: 30
               to: 0
             datasource:
               type: __expr__
@@ -242,7 +242,7 @@ groups:
               type: threshold
         noDataState: OK
         execErrState: Alerting
-        for: 10s
+        for: 0s
         annotations:
           description: "PostgreSQL database system shutdown detected in logs."
           summary: "PostgreSQL Shutdown"
