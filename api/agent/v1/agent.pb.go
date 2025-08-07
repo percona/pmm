@@ -5291,6 +5291,8 @@ type StartJobRequest_MySQLBackup struct {
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
 	// Folder to store artifact on a storage.
 	Folder string `protobuf:"bytes,7,opt,name=folder,proto3" json:"folder,omitempty"`
+	// Compression
+	Compression v11.BackupCompression `protobuf:"varint,8,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	// Backup target location.
 	//
 	// Types that are valid to be assigned to LocationConfig:
@@ -5380,6 +5382,13 @@ func (x *StartJobRequest_MySQLBackup) GetFolder() string {
 	return ""
 }
 
+func (x *StartJobRequest_MySQLBackup) GetCompression() v11.BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return v11.BackupCompression(0)
+}
+
 func (x *StartJobRequest_MySQLBackup) GetLocationConfig() isStartJobRequest_MySQLBackup_LocationConfig {
 	if x != nil {
 		return x.LocationConfig
@@ -5415,6 +5424,8 @@ type StartJobRequest_MySQLRestoreBackup struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Folder to store artifact on a storage.
 	Folder string `protobuf:"bytes,3,opt,name=folder,proto3" json:"folder,omitempty"`
+	// Compression
+	Compression v11.BackupCompression `protobuf:"varint,4,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	// Where backup is stored.
 	//
 	// Types that are valid to be assigned to LocationConfig:
@@ -5476,6 +5487,13 @@ func (x *StartJobRequest_MySQLRestoreBackup) GetFolder() string {
 	return ""
 }
 
+func (x *StartJobRequest_MySQLRestoreBackup) GetCompression() v11.BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return v11.BackupCompression(0)
+}
+
 func (x *StartJobRequest_MySQLRestoreBackup) GetLocationConfig() isStartJobRequest_MySQLRestoreBackup_LocationConfig {
 	if x != nil {
 		return x.LocationConfig
@@ -5519,6 +5537,8 @@ type StartJobRequest_MongoDBBackup struct {
 	EnablePitr bool `protobuf:"varint,5,opt,name=enable_pitr,json=enablePitr,proto3" json:"enable_pitr,omitempty"`
 	// Backup data model (physical or logical).
 	DataModel v11.DataModel `protobuf:"varint,6,opt,name=data_model,json=dataModel,proto3,enum=backup.v1.DataModel" json:"data_model,omitempty"`
+	// Compression
+	Compression v11.BackupCompression `protobuf:"varint,7,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	// Backup target location.
 	//
 	// Types that are valid to be assigned to LocationConfig:
@@ -5602,6 +5622,13 @@ func (x *StartJobRequest_MongoDBBackup) GetDataModel() v11.DataModel {
 	return v11.DataModel(0)
 }
 
+func (x *StartJobRequest_MongoDBBackup) GetCompression() v11.BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return v11.BackupCompression(0)
+}
+
 func (x *StartJobRequest_MongoDBBackup) GetLocationConfig() isStartJobRequest_MongoDBBackup_LocationConfig {
 	if x != nil {
 		return x.LocationConfig
@@ -5660,6 +5687,8 @@ type StartJobRequest_MongoDBRestoreBackup struct {
 	PbmMetadata *v11.PbmMetadata `protobuf:"bytes,5,opt,name=pbm_metadata,json=pbmMetadata,proto3" json:"pbm_metadata,omitempty"`
 	// Point-in-Time recovery timestamp.
 	PitrTimestamp *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=pitr_timestamp,json=pitrTimestamp,proto3" json:"pitr_timestamp,omitempty"`
+	// Compression
+	Compression v11.BackupCompression `protobuf:"varint,7,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	// Where backup is stored.
 	//
 	// Types that are valid to be assigned to LocationConfig:
@@ -5741,6 +5770,13 @@ func (x *StartJobRequest_MongoDBRestoreBackup) GetPitrTimestamp() *timestamppb.T
 		return x.PitrTimestamp
 	}
 	return nil
+}
+
+func (x *StartJobRequest_MongoDBRestoreBackup) GetCompression() v11.BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return v11.BackupCompression(0)
 }
 
 func (x *StartJobRequest_MongoDBRestoreBackup) GetLocationConfig() isStartJobRequest_MongoDBRestoreBackup_LocationConfig {
@@ -6840,14 +6876,14 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"bucketName\x12#\n" +
 	"\rbucket_region\x18\x05 \x01(\tR\fbucketRegion\".\n" +
 	"\x18FilesystemLocationConfig\x12\x12\n" +
-	"\x04path\x18\x01 \x01(\tR\x04path\"\xd3\r\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\"\xd3\x0f\n" +
 	"\x0fStartJobRequest\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x123\n" +
 	"\atimeout\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x12J\n" +
 	"\fmysql_backup\x18\v \x01(\v2%.agent.v1.StartJobRequest.MySQLBackupH\x00R\vmysqlBackup\x12`\n" +
 	"\x14mysql_restore_backup\x18\f \x01(\v2,.agent.v1.StartJobRequest.MySQLRestoreBackupH\x00R\x12mysqlRestoreBackup\x12P\n" +
 	"\x0emongodb_backup\x18\r \x01(\v2'.agent.v1.StartJobRequest.MongoDBBackupH\x00R\rmongodbBackup\x12f\n" +
-	"\x16mongodb_restore_backup\x18\x0e \x01(\v2..agent.v1.StartJobRequest.MongoDBRestoreBackupH\x00R\x14mongodbRestoreBackup\x1a\x96\x02\n" +
+	"\x16mongodb_restore_backup\x18\x0e \x01(\v2..agent.v1.StartJobRequest.MongoDBRestoreBackupH\x00R\x14mongodbRestoreBackup\x1a\xd6\x02\n" +
 	"\vMySQLBackup\x12\x12\n" +
 	"\x04user\x18\x01 \x01(\tR\x04user\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x18\n" +
@@ -6855,18 +6891,20 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x04port\x18\x04 \x01(\x05R\x04port\x12\x16\n" +
 	"\x06socket\x18\x05 \x01(\tR\x06socket\x12\x12\n" +
 	"\x04name\x18\x06 \x01(\tR\x04name\x12\x16\n" +
-	"\x06folder\x18\a \x01(\tR\x06folder\x129\n" +
+	"\x06folder\x18\a \x01(\tR\x06folder\x12>\n" +
+	"\vcompression\x18\b \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\x129\n" +
 	"\ts3_config\x18\n" +
 	" \x01(\v2\x1a.agent.v1.S3LocationConfigH\x00R\bs3ConfigB\x11\n" +
-	"\x0flocation_configJ\x04\b\v\x10\fR\x11filesystem_config\x1a\xc6\x01\n" +
+	"\x0flocation_configJ\x04\b\v\x10\fR\x11filesystem_config\x1a\x86\x02\n" +
 	"\x12MySQLRestoreBackup\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
-	"\x06folder\x18\x03 \x01(\tR\x06folder\x129\n" +
+	"\x06folder\x18\x03 \x01(\tR\x06folder\x12>\n" +
+	"\vcompression\x18\x04 \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\x129\n" +
 	"\ts3_config\x18\n" +
 	" \x01(\v2\x1a.agent.v1.S3LocationConfigH\x00R\bs3ConfigB\x11\n" +
-	"\x0flocation_configJ\x04\b\v\x10\fR\x11filesystem_config\x1a\xf8\x02\n" +
+	"\x0flocation_configJ\x04\b\v\x10\fR\x11filesystem_config\x1a\xb8\x03\n" +
 	"\rMongoDBBackup\x12\x10\n" +
 	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
 	"\n" +
@@ -6876,11 +6914,12 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\venable_pitr\x18\x05 \x01(\bR\n" +
 	"enablePitr\x123\n" +
 	"\n" +
-	"data_model\x18\x06 \x01(\x0e2\x14.backup.v1.DataModelR\tdataModel\x129\n" +
+	"data_model\x18\x06 \x01(\x0e2\x14.backup.v1.DataModelR\tdataModel\x12>\n" +
+	"\vcompression\x18\a \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\x129\n" +
 	"\ts3_config\x18\n" +
 	" \x01(\v2\x1a.agent.v1.S3LocationConfigH\x00R\bs3Config\x12Q\n" +
 	"\x11filesystem_config\x18\v \x01(\v2\".agent.v1.FilesystemLocationConfigH\x00R\x10filesystemConfigB\x11\n" +
-	"\x0flocation_config\x1a\xa7\x03\n" +
+	"\x0flocation_config\x1a\xe7\x03\n" +
 	"\x14MongoDBRestoreBackup\x12\x10\n" +
 	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
 	"\n" +
@@ -6888,7 +6927,8 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x16\n" +
 	"\x06folder\x18\x04 \x01(\tR\x06folder\x129\n" +
 	"\fpbm_metadata\x18\x05 \x01(\v2\x16.backup.v1.PbmMetadataR\vpbmMetadata\x12A\n" +
-	"\x0epitr_timestamp\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\rpitrTimestamp\x129\n" +
+	"\x0epitr_timestamp\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\rpitrTimestamp\x12>\n" +
+	"\vcompression\x18\a \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\x129\n" +
 	"\ts3_config\x18\n" +
 	" \x01(\v2\x1a.agent.v1.S3LocationConfigH\x00R\bs3Config\x12Q\n" +
 	"\x11filesystem_config\x18\v \x01(\v2\".agent.v1.FilesystemLocationConfigH\x00R\x10filesystemConfigB\x11\n" +
@@ -7135,9 +7175,10 @@ var (
 		(v1.ServiceType)(0),                                            // 97: inventory.v1.ServiceType
 		(*status.Status)(nil),                                          // 98: google.rpc.Status
 		(v1.AgentType)(0),                                              // 99: inventory.v1.AgentType
-		(v11.DataModel)(0),                                             // 100: backup.v1.DataModel
-		(*v11.PbmMetadata)(nil),                                        // 101: backup.v1.PbmMetadata
-		(*v11.Metadata)(nil),                                           // 102: backup.v1.Metadata
+		(v11.BackupCompression)(0),                                     // 100: backup.v1.BackupCompression
+		(v11.DataModel)(0),                                             // 101: backup.v1.DataModel
+		(*v11.PbmMetadata)(nil),                                        // 102: backup.v1.PbmMetadata
+		(*v11.Metadata)(nil),                                           // 103: backup.v1.Metadata
 	}
 )
 
@@ -7263,32 +7304,36 @@ var file_agent_v1_agent_proto_depIdxs = []int32{
 	2,   // 118: agent.v1.StartActionRequest.MongoDBQueryReplSetGetStatusParams.text_files:type_name -> agent.v1.TextFiles
 	2,   // 119: agent.v1.StartActionRequest.MongoDBQueryGetDiagnosticDataParams.text_files:type_name -> agent.v1.TextFiles
 	1,   // 120: agent.v1.StartActionRequest.RestartSystemServiceParams.system_service:type_name -> agent.v1.StartActionRequest.RestartSystemServiceParams.SystemService
-	32,  // 121: agent.v1.StartJobRequest.MySQLBackup.s3_config:type_name -> agent.v1.S3LocationConfig
-	32,  // 122: agent.v1.StartJobRequest.MySQLRestoreBackup.s3_config:type_name -> agent.v1.S3LocationConfig
-	2,   // 123: agent.v1.StartJobRequest.MongoDBBackup.text_files:type_name -> agent.v1.TextFiles
-	100, // 124: agent.v1.StartJobRequest.MongoDBBackup.data_model:type_name -> backup.v1.DataModel
-	32,  // 125: agent.v1.StartJobRequest.MongoDBBackup.s3_config:type_name -> agent.v1.S3LocationConfig
-	33,  // 126: agent.v1.StartJobRequest.MongoDBBackup.filesystem_config:type_name -> agent.v1.FilesystemLocationConfig
-	2,   // 127: agent.v1.StartJobRequest.MongoDBRestoreBackup.text_files:type_name -> agent.v1.TextFiles
-	101, // 128: agent.v1.StartJobRequest.MongoDBRestoreBackup.pbm_metadata:type_name -> backup.v1.PbmMetadata
-	93,  // 129: agent.v1.StartJobRequest.MongoDBRestoreBackup.pitr_timestamp:type_name -> google.protobuf.Timestamp
-	32,  // 130: agent.v1.StartJobRequest.MongoDBRestoreBackup.s3_config:type_name -> agent.v1.S3LocationConfig
-	33,  // 131: agent.v1.StartJobRequest.MongoDBRestoreBackup.filesystem_config:type_name -> agent.v1.FilesystemLocationConfig
-	102, // 132: agent.v1.JobResult.MongoDBBackup.metadata:type_name -> backup.v1.Metadata
-	102, // 133: agent.v1.JobResult.MySQLBackup.metadata:type_name -> backup.v1.Metadata
-	85,  // 134: agent.v1.GetVersionsRequest.Software.mysqld:type_name -> agent.v1.GetVersionsRequest.MySQLd
-	86,  // 135: agent.v1.GetVersionsRequest.Software.xtrabackup:type_name -> agent.v1.GetVersionsRequest.Xtrabackup
-	87,  // 136: agent.v1.GetVersionsRequest.Software.xbcloud:type_name -> agent.v1.GetVersionsRequest.Xbcloud
-	88,  // 137: agent.v1.GetVersionsRequest.Software.qpress:type_name -> agent.v1.GetVersionsRequest.Qpress
-	89,  // 138: agent.v1.GetVersionsRequest.Software.mongod:type_name -> agent.v1.GetVersionsRequest.MongoDB
-	90,  // 139: agent.v1.GetVersionsRequest.Software.pbm:type_name -> agent.v1.GetVersionsRequest.PBM
-	42,  // 140: agent.v1.AgentService.Connect:input_type -> agent.v1.AgentMessage
-	43,  // 141: agent.v1.AgentService.Connect:output_type -> agent.v1.ServerMessage
-	141, // [141:142] is the sub-list for method output_type
-	140, // [140:141] is the sub-list for method input_type
-	140, // [140:140] is the sub-list for extension type_name
-	140, // [140:140] is the sub-list for extension extendee
-	0,   // [0:140] is the sub-list for field type_name
+	100, // 121: agent.v1.StartJobRequest.MySQLBackup.compression:type_name -> backup.v1.BackupCompression
+	32,  // 122: agent.v1.StartJobRequest.MySQLBackup.s3_config:type_name -> agent.v1.S3LocationConfig
+	100, // 123: agent.v1.StartJobRequest.MySQLRestoreBackup.compression:type_name -> backup.v1.BackupCompression
+	32,  // 124: agent.v1.StartJobRequest.MySQLRestoreBackup.s3_config:type_name -> agent.v1.S3LocationConfig
+	2,   // 125: agent.v1.StartJobRequest.MongoDBBackup.text_files:type_name -> agent.v1.TextFiles
+	101, // 126: agent.v1.StartJobRequest.MongoDBBackup.data_model:type_name -> backup.v1.DataModel
+	100, // 127: agent.v1.StartJobRequest.MongoDBBackup.compression:type_name -> backup.v1.BackupCompression
+	32,  // 128: agent.v1.StartJobRequest.MongoDBBackup.s3_config:type_name -> agent.v1.S3LocationConfig
+	33,  // 129: agent.v1.StartJobRequest.MongoDBBackup.filesystem_config:type_name -> agent.v1.FilesystemLocationConfig
+	2,   // 130: agent.v1.StartJobRequest.MongoDBRestoreBackup.text_files:type_name -> agent.v1.TextFiles
+	102, // 131: agent.v1.StartJobRequest.MongoDBRestoreBackup.pbm_metadata:type_name -> backup.v1.PbmMetadata
+	93,  // 132: agent.v1.StartJobRequest.MongoDBRestoreBackup.pitr_timestamp:type_name -> google.protobuf.Timestamp
+	100, // 133: agent.v1.StartJobRequest.MongoDBRestoreBackup.compression:type_name -> backup.v1.BackupCompression
+	32,  // 134: agent.v1.StartJobRequest.MongoDBRestoreBackup.s3_config:type_name -> agent.v1.S3LocationConfig
+	33,  // 135: agent.v1.StartJobRequest.MongoDBRestoreBackup.filesystem_config:type_name -> agent.v1.FilesystemLocationConfig
+	103, // 136: agent.v1.JobResult.MongoDBBackup.metadata:type_name -> backup.v1.Metadata
+	103, // 137: agent.v1.JobResult.MySQLBackup.metadata:type_name -> backup.v1.Metadata
+	85,  // 138: agent.v1.GetVersionsRequest.Software.mysqld:type_name -> agent.v1.GetVersionsRequest.MySQLd
+	86,  // 139: agent.v1.GetVersionsRequest.Software.xtrabackup:type_name -> agent.v1.GetVersionsRequest.Xtrabackup
+	87,  // 140: agent.v1.GetVersionsRequest.Software.xbcloud:type_name -> agent.v1.GetVersionsRequest.Xbcloud
+	88,  // 141: agent.v1.GetVersionsRequest.Software.qpress:type_name -> agent.v1.GetVersionsRequest.Qpress
+	89,  // 142: agent.v1.GetVersionsRequest.Software.mongod:type_name -> agent.v1.GetVersionsRequest.MongoDB
+	90,  // 143: agent.v1.GetVersionsRequest.Software.pbm:type_name -> agent.v1.GetVersionsRequest.PBM
+	42,  // 144: agent.v1.AgentService.Connect:input_type -> agent.v1.AgentMessage
+	43,  // 145: agent.v1.AgentService.Connect:output_type -> agent.v1.ServerMessage
+	145, // [145:146] is the sub-list for method output_type
+	144, // [144:145] is the sub-list for method input_type
+	144, // [144:144] is the sub-list for extension type_name
+	144, // [144:144] is the sub-list for extension extendee
+	0,   // [0:144] is the sub-list for field type_name
 }
 
 func init() { file_agent_v1_agent_proto_init() }

@@ -560,6 +560,10 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 
 	// List of artifact metadata.
 	MetadataList []*ListArtifactsOKBodyArtifactsItems0MetadataListItems0 `json:"metadata_list"`
+
+	// BackupCompression specifies compression
+	// Enum: ["BACKUP_COMPRESSION_INVALID","BACKUP_COMPRESSION_NONE","BACKUP_COMPRESSION_QUICKLZ","BACKUP_COMPRESSION_ZSTD","BACKUP_COMPRESSION_LZ4","BACKUP_COMPRESSION_S2","BACKUP_COMPRESSION_GZIP","BACKUP_COMPRESSION_SNAPPY","BACKUP_COMPRESSION_PGZIP"]
+	Compression *string `json:"compression,omitempty"`
 }
 
 // Validate validates this list artifacts OK body artifacts items0
@@ -583,6 +587,10 @@ func (o *ListArtifactsOKBodyArtifactsItems0) Validate(formats strfmt.Registry) e
 	}
 
 	if err := o.validateMetadataList(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCompression(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -781,6 +789,69 @@ func (o *ListArtifactsOKBodyArtifactsItems0) validateMetadataList(formats strfmt
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var listArtifactsOkBodyArtifactsItems0TypeCompressionPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["BACKUP_COMPRESSION_INVALID","BACKUP_COMPRESSION_NONE","BACKUP_COMPRESSION_QUICKLZ","BACKUP_COMPRESSION_ZSTD","BACKUP_COMPRESSION_LZ4","BACKUP_COMPRESSION_S2","BACKUP_COMPRESSION_GZIP","BACKUP_COMPRESSION_SNAPPY","BACKUP_COMPRESSION_PGZIP"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listArtifactsOkBodyArtifactsItems0TypeCompressionPropEnum = append(listArtifactsOkBodyArtifactsItems0TypeCompressionPropEnum, v)
+	}
+}
+
+const (
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONINVALID captures enum value "BACKUP_COMPRESSION_INVALID"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONINVALID string = "BACKUP_COMPRESSION_INVALID"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONNONE captures enum value "BACKUP_COMPRESSION_NONE"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONNONE string = "BACKUP_COMPRESSION_NONE"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONQUICKLZ captures enum value "BACKUP_COMPRESSION_QUICKLZ"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONQUICKLZ string = "BACKUP_COMPRESSION_QUICKLZ"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONZSTD captures enum value "BACKUP_COMPRESSION_ZSTD"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONZSTD string = "BACKUP_COMPRESSION_ZSTD"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONLZ4 captures enum value "BACKUP_COMPRESSION_LZ4"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONLZ4 string = "BACKUP_COMPRESSION_LZ4"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONS2 captures enum value "BACKUP_COMPRESSION_S2"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONS2 string = "BACKUP_COMPRESSION_S2"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONGZIP captures enum value "BACKUP_COMPRESSION_GZIP"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONGZIP string = "BACKUP_COMPRESSION_GZIP"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONSNAPPY captures enum value "BACKUP_COMPRESSION_SNAPPY"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONSNAPPY string = "BACKUP_COMPRESSION_SNAPPY"
+
+	// ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONPGZIP captures enum value "BACKUP_COMPRESSION_PGZIP"
+	ListArtifactsOKBodyArtifactsItems0CompressionBACKUPCOMPRESSIONPGZIP string = "BACKUP_COMPRESSION_PGZIP"
+)
+
+// prop value enum
+func (o *ListArtifactsOKBodyArtifactsItems0) validateCompressionEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listArtifactsOkBodyArtifactsItems0TypeCompressionPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListArtifactsOKBodyArtifactsItems0) validateCompression(formats strfmt.Registry) error {
+	if swag.IsZero(o.Compression) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateCompressionEnum("compression", "body", *o.Compression); err != nil {
+		return err
 	}
 
 	return nil

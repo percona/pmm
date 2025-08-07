@@ -15,17 +15,17 @@ type mockJobsService struct {
 	mock.Mock
 }
 
-// StartMongoDBBackupJob provides a mock function with given fields: service, jobID, pmmAgentID, timeout, name, mode, dataModel, locationConfig, folder
-func (_m *mockJobsService) StartMongoDBBackupJob(service *models.Service, jobID string, pmmAgentID string, timeout time.Duration, name string, mode models.BackupMode, dataModel models.DataModel, locationConfig *models.BackupLocationConfig, folder string) error {
-	ret := _m.Called(service, jobID, pmmAgentID, timeout, name, mode, dataModel, locationConfig, folder)
+// StartMongoDBBackupJob provides a mock function with given fields: service, jobID, pmmAgentID, timeout, name, mode, dataModel, locationConfig, folder, compression
+func (_m *mockJobsService) StartMongoDBBackupJob(service *models.Service, jobID string, pmmAgentID string, timeout time.Duration, name string, mode models.BackupMode, dataModel models.DataModel, locationConfig *models.BackupLocationConfig, folder string, compression models.BackupCompression) error {
+	ret := _m.Called(service, jobID, pmmAgentID, timeout, name, mode, dataModel, locationConfig, folder, compression)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartMongoDBBackupJob")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Service, string, string, time.Duration, string, models.BackupMode, models.DataModel, *models.BackupLocationConfig, string) error); ok {
-		r0 = rf(service, jobID, pmmAgentID, timeout, name, mode, dataModel, locationConfig, folder)
+	if rf, ok := ret.Get(0).(func(*models.Service, string, string, time.Duration, string, models.BackupMode, models.DataModel, *models.BackupLocationConfig, string, models.BackupCompression) error); ok {
+		r0 = rf(service, jobID, pmmAgentID, timeout, name, mode, dataModel, locationConfig, folder, compression)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -33,17 +33,17 @@ func (_m *mockJobsService) StartMongoDBBackupJob(service *models.Service, jobID 
 	return r0
 }
 
-// StartMongoDBRestoreBackupJob provides a mock function with given fields: service, jobID, pmmAgentID, timeout, name, pbmBackupName, dataModel, locationConfig, pitrTimestamp, folder
-func (_m *mockJobsService) StartMongoDBRestoreBackupJob(service *models.Service, jobID string, pmmAgentID string, timeout time.Duration, name string, pbmBackupName string, dataModel models.DataModel, locationConfig *models.BackupLocationConfig, pitrTimestamp time.Time, folder string) error {
-	ret := _m.Called(service, jobID, pmmAgentID, timeout, name, pbmBackupName, dataModel, locationConfig, pitrTimestamp, folder)
+// StartMongoDBRestoreBackupJob provides a mock function with given fields: service, jobID, pmmAgentID, timeout, name, pbmBackupName, dataModel, locationConfig, pitrTimestamp, folder, compression
+func (_m *mockJobsService) StartMongoDBRestoreBackupJob(service *models.Service, jobID string, pmmAgentID string, timeout time.Duration, name string, pbmBackupName string, dataModel models.DataModel, locationConfig *models.BackupLocationConfig, pitrTimestamp time.Time, folder string, compression models.BackupCompression) error {
+	ret := _m.Called(service, jobID, pmmAgentID, timeout, name, pbmBackupName, dataModel, locationConfig, pitrTimestamp, folder, compression)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartMongoDBRestoreBackupJob")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Service, string, string, time.Duration, string, string, models.DataModel, *models.BackupLocationConfig, time.Time, string) error); ok {
-		r0 = rf(service, jobID, pmmAgentID, timeout, name, pbmBackupName, dataModel, locationConfig, pitrTimestamp, folder)
+	if rf, ok := ret.Get(0).(func(*models.Service, string, string, time.Duration, string, string, models.DataModel, *models.BackupLocationConfig, time.Time, string, models.BackupCompression) error); ok {
+		r0 = rf(service, jobID, pmmAgentID, timeout, name, pbmBackupName, dataModel, locationConfig, pitrTimestamp, folder, compression)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -51,17 +51,17 @@ func (_m *mockJobsService) StartMongoDBRestoreBackupJob(service *models.Service,
 	return r0
 }
 
-// StartMySQLBackupJob provides a mock function with given fields: jobID, pmmAgentID, timeout, name, dbConfig, locationConfig, folder
-func (_m *mockJobsService) StartMySQLBackupJob(jobID string, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string) error {
-	ret := _m.Called(jobID, pmmAgentID, timeout, name, dbConfig, locationConfig, folder)
+// StartMySQLBackupJob provides a mock function with given fields: jobID, pmmAgentID, timeout, name, dbConfig, locationConfig, folder, compression
+func (_m *mockJobsService) StartMySQLBackupJob(jobID string, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string, compression models.BackupCompression) error {
+	ret := _m.Called(jobID, pmmAgentID, timeout, name, dbConfig, locationConfig, folder, compression)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartMySQLBackupJob")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, time.Duration, string, *models.DBConfig, *models.BackupLocationConfig, string) error); ok {
-		r0 = rf(jobID, pmmAgentID, timeout, name, dbConfig, locationConfig, folder)
+	if rf, ok := ret.Get(0).(func(string, string, time.Duration, string, *models.DBConfig, *models.BackupLocationConfig, string, models.BackupCompression) error); ok {
+		r0 = rf(jobID, pmmAgentID, timeout, name, dbConfig, locationConfig, folder, compression)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -69,17 +69,17 @@ func (_m *mockJobsService) StartMySQLBackupJob(jobID string, pmmAgentID string, 
 	return r0
 }
 
-// StartMySQLRestoreBackupJob provides a mock function with given fields: jobID, pmmAgentID, serviceID, timeout, name, locationConfig, folder
-func (_m *mockJobsService) StartMySQLRestoreBackupJob(jobID string, pmmAgentID string, serviceID string, timeout time.Duration, name string, locationConfig *models.BackupLocationConfig, folder string) error {
-	ret := _m.Called(jobID, pmmAgentID, serviceID, timeout, name, locationConfig, folder)
+// StartMySQLRestoreBackupJob provides a mock function with given fields: jobID, pmmAgentID, serviceID, timeout, name, locationConfig, folder, compression
+func (_m *mockJobsService) StartMySQLRestoreBackupJob(jobID string, pmmAgentID string, serviceID string, timeout time.Duration, name string, locationConfig *models.BackupLocationConfig, folder string, compression models.BackupCompression) error {
+	ret := _m.Called(jobID, pmmAgentID, serviceID, timeout, name, locationConfig, folder, compression)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartMySQLRestoreBackupJob")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, string, time.Duration, string, *models.BackupLocationConfig, string) error); ok {
-		r0 = rf(jobID, pmmAgentID, serviceID, timeout, name, locationConfig, folder)
+	if rf, ok := ret.Get(0).(func(string, string, string, time.Duration, string, *models.BackupLocationConfig, string, models.BackupCompression) error); ok {
+		r0 = rf(jobID, pmmAgentID, serviceID, timeout, name, locationConfig, folder, compression)
 	} else {
 		r0 = ret.Error(0)
 	}

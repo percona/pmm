@@ -46,10 +46,11 @@ type MySQLBackupJob struct {
 	connConf       DBConnConfig
 	locationConfig BackupLocationConfig
 	folder         string
+	compression    backuppb.BackupCompression
 }
 
 // NewMySQLBackupJob constructs new Job for MySQL backup.
-func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig, folder string) *MySQLBackupJob {
+func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig, folder string, compression backuppb.BackupCompression) *MySQLBackupJob {
 	return &MySQLBackupJob{
 		id:             id,
 		timeout:        timeout,
@@ -58,6 +59,7 @@ func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf D
 		connConf:       connConf,
 		locationConfig: locationConfig,
 		folder:         folder,
+		compression:    compression,
 	}
 }
 
@@ -119,8 +121,10 @@ func (j *MySQLBackupJob) binariesInstalled() error {
 		return errors.Wrapf(err, "lookpath: %s", xtrabackupBin)
 	}
 
-	if _, err := exec.LookPath(qpressBin); err != nil {
-		return errors.Wrapf(err, "lookpath: %s", qpressBin)
+	if j.compression == backuppb.BackupCompression_BACKUP_COMPRESSION_QUICKLZ {
+		if _, err := exec.LookPath(qpressBin); err != nil {
+			return errors.Wrapf(err, "lookpath: %s", qpressBin)
+		}
 	}
 
 	if j.locationConfig.Type == S3BackupLocationType {
@@ -149,11 +153,22 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 
 	xtrabackupCmd := exec.CommandContext(pipeCtx,
 		xtrabackupBin,
-		"--compress",
 		"--backup",
 		// Target dir is created, even though it's empty, because we are streaming it to cloud.
 		// https://jira.percona.com/browse/PXB-2602
 		"--target-dir="+tmpDir) // #nosec G204
+
+	switch j.compression {
+	case backuppb.BackupCompression_BACKUP_COMPRESSION_QUICKLZ:
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress=quicklz")
+	case backuppb.BackupCompression_BACKUP_COMPRESSION_ZSTD:
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress=zstd")
+	case backuppb.BackupCompression_BACKUP_COMPRESSION_LZ4:
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress=lz4")
+	case backuppb.BackupCompression_BACKUP_COMPRESSION_NONE:
+	default:
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress")
+	}
 
 	if j.connConf.User != "" {
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--user="+j.connConf.User)

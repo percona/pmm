@@ -122,7 +122,9 @@ type Artifact struct {
 	// Folder to store artifact on a storage.
 	Folder string `protobuf:"bytes,13,opt,name=folder,proto3" json:"folder,omitempty"`
 	// List of artifact metadata.
-	MetadataList  []*Metadata `protobuf:"bytes,14,rep,name=metadata_list,json=metadataList,proto3" json:"metadata_list,omitempty"`
+	MetadataList []*Metadata `protobuf:"bytes,14,rep,name=metadata_list,json=metadataList,proto3" json:"metadata_list,omitempty"`
+	// Compression
+	Compression   BackupCompression `protobuf:"varint,15,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -253,6 +255,13 @@ func (x *Artifact) GetMetadataList() []*Metadata {
 		return x.MetadataList
 	}
 	return nil
+}
+
+func (x *Artifact) GetCompression() BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return BackupCompression_BACKUP_COMPRESSION_INVALID
 }
 
 type ListArtifactsRequest struct {
@@ -572,7 +581,7 @@ var File_backup_v1_artifacts_proto protoreflect.FileDescriptor
 
 const file_backup_v1_artifacts_proto_rawDesc = "" +
 	"\n" +
-	"\x19backup/v1/artifacts.proto\x12\tbackup.v1\x1a\x16backup/v1/common.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17validate/validate.proto\"\xab\x04\n" +
+	"\x19backup/v1/artifacts.proto\x12\tbackup.v1\x1a\x16backup/v1/common.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17validate/validate.proto\"\xeb\x04\n" +
 	"\bArtifact\x12\x1f\n" +
 	"\vartifact_id\x18\x01 \x01(\tR\n" +
 	"artifactId\x12\x12\n" +
@@ -593,7 +602,8 @@ const file_backup_v1_artifacts_proto_rawDesc = "" +
 	"\x04mode\x18\v \x01(\x0e2\x15.backup.v1.BackupModeR\x04mode\x12,\n" +
 	"\x12is_sharded_cluster\x18\f \x01(\bR\x10isShardedCluster\x12\x16\n" +
 	"\x06folder\x18\r \x01(\tR\x06folder\x128\n" +
-	"\rmetadata_list\x18\x0e \x03(\v2\x13.backup.v1.MetadataR\fmetadataList\"\x16\n" +
+	"\rmetadata_list\x18\x0e \x03(\v2\x13.backup.v1.MetadataR\fmetadataList\x12>\n" +
+	"\vcompression\x18\x0f \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\"\x16\n" +
 	"\x14ListArtifactsRequest\"J\n" +
 	"\x15ListArtifactsResponse\x121\n" +
 	"\tartifacts\x18\x01 \x03(\v2\x13.backup.v1.ArtifactR\tartifacts\"d\n" +
@@ -654,6 +664,7 @@ var (
 		(*timestamppb.Timestamp)(nil),      // 10: google.protobuf.Timestamp
 		(BackupMode)(0),                    // 11: backup.v1.BackupMode
 		(*Metadata)(nil),                   // 12: backup.v1.Metadata
+		(BackupCompression)(0),             // 13: backup.v1.BackupCompression
 	}
 )
 
@@ -663,15 +674,16 @@ var file_backup_v1_artifacts_proto_depIdxs = []int32{
 	10, // 2: backup.v1.Artifact.created_at:type_name -> google.protobuf.Timestamp
 	11, // 3: backup.v1.Artifact.mode:type_name -> backup.v1.BackupMode
 	12, // 4: backup.v1.Artifact.metadata_list:type_name -> backup.v1.Metadata
-	1,  // 5: backup.v1.ListArtifactsResponse.artifacts:type_name -> backup.v1.Artifact
-	10, // 6: backup.v1.PitrTimerange.start_timestamp:type_name -> google.protobuf.Timestamp
-	10, // 7: backup.v1.PitrTimerange.end_timestamp:type_name -> google.protobuf.Timestamp
-	6,  // 8: backup.v1.ListPitrTimerangesResponse.timeranges:type_name -> backup.v1.PitrTimerange
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	13, // 5: backup.v1.Artifact.compression:type_name -> backup.v1.BackupCompression
+	1,  // 6: backup.v1.ListArtifactsResponse.artifacts:type_name -> backup.v1.Artifact
+	10, // 7: backup.v1.PitrTimerange.start_timestamp:type_name -> google.protobuf.Timestamp
+	10, // 8: backup.v1.PitrTimerange.end_timestamp:type_name -> google.protobuf.Timestamp
+	6,  // 9: backup.v1.ListPitrTimerangesResponse.timeranges:type_name -> backup.v1.PitrTimerange
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_backup_v1_artifacts_proto_init() }

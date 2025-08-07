@@ -46,7 +46,9 @@ type StartBackupRequest struct {
 	// DataModel represents the data model used for the backup.
 	DataModel DataModel `protobuf:"varint,7,opt,name=data_model,json=dataModel,proto3,enum=backup.v1.DataModel" json:"data_model,omitempty"`
 	// Folder on storage for artifact.
-	Folder        string `protobuf:"bytes,8,opt,name=folder,proto3" json:"folder,omitempty"`
+	Folder string `protobuf:"bytes,8,opt,name=folder,proto3" json:"folder,omitempty"`
+	// Compression
+	Compression   BackupCompression `protobuf:"varint,9,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -135,6 +137,13 @@ func (x *StartBackupRequest) GetFolder() string {
 		return x.Folder
 	}
 	return ""
+}
+
+func (x *StartBackupRequest) GetCompression() BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return BackupCompression_BACKUP_COMPRESSION_INVALID
 }
 
 type StartBackupResponse struct {
@@ -319,7 +328,9 @@ type ScheduledBackup struct {
 	// Next run.
 	NextRun *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=next_run,json=nextRun,proto3" json:"next_run,omitempty"`
 	// How many artifacts keep. 0 - unlimited.
-	Retention     uint32 `protobuf:"varint,19,opt,name=retention,proto3" json:"retention,omitempty"`
+	Retention uint32 `protobuf:"varint,19,opt,name=retention,proto3" json:"retention,omitempty"`
+	// Compression
+	Compression   BackupCompression `protobuf:"varint,20,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -487,6 +498,13 @@ func (x *ScheduledBackup) GetRetention() uint32 {
 	return 0
 }
 
+func (x *ScheduledBackup) GetCompression() BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return BackupCompression_BACKUP_COMPRESSION_INVALID
+}
+
 type ScheduleBackupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Service identifier where backup should be performed.
@@ -514,7 +532,9 @@ type ScheduleBackupRequest struct {
 	// Backup data model (physical or logical).
 	DataModel DataModel `protobuf:"varint,12,opt,name=data_model,json=dataModel,proto3,enum=backup.v1.DataModel" json:"data_model,omitempty"`
 	// How many artifacts keep. 0 - unlimited.
-	Retention     uint32 `protobuf:"varint,13,opt,name=retention,proto3" json:"retention,omitempty"`
+	Retention uint32 `protobuf:"varint,13,opt,name=retention,proto3" json:"retention,omitempty"`
+	// Compression
+	Compression   BackupCompression `protobuf:"varint,14,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -638,6 +658,13 @@ func (x *ScheduleBackupRequest) GetRetention() uint32 {
 		return x.Retention
 	}
 	return 0
+}
+
+func (x *ScheduleBackupRequest) GetCompression() BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return BackupCompression_BACKUP_COMPRESSION_INVALID
 }
 
 type ScheduleBackupResponse struct {
@@ -1111,7 +1138,7 @@ var File_backup_v1_backup_proto protoreflect.FileDescriptor
 
 const file_backup_v1_backup_proto_rawDesc = "" +
 	"\n" +
-	"\x16backup/v1/backup.proto\x12\tbackup.v1\x1a\x19backup/v1/artifacts.proto\x1a\x16backup/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xc5\x02\n" +
+	"\x16backup/v1/backup.proto\x12\tbackup.v1\x1a\x19backup/v1/artifacts.proto\x1a\x16backup/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x85\x03\n" +
 	"\x12StartBackupRequest\x12&\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12(\n" +
@@ -1123,7 +1150,8 @@ const file_backup_v1_backup_proto_rawDesc = "" +
 	"\aretries\x18\x06 \x01(\rR\aretries\x123\n" +
 	"\n" +
 	"data_model\x18\a \x01(\x0e2\x14.backup.v1.DataModelR\tdataModel\x12\x16\n" +
-	"\x06folder\x18\b \x01(\tR\x06folder\"6\n" +
+	"\x06folder\x18\b \x01(\tR\x06folder\x12>\n" +
+	"\vcompression\x18\t \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\"6\n" +
 	"\x13StartBackupResponse\x12\x1f\n" +
 	"\vartifact_id\x18\x01 \x01(\tR\n" +
 	"artifactId\"Q\n" +
@@ -1132,7 +1160,7 @@ const file_backup_v1_backup_proto_rawDesc = "" +
 	"artifactId\"\x92\x01\n" +
 	"&ListArtifactCompatibleServicesResponse\x120\n" +
 	"\x05mysql\x18\x01 \x03(\v2\x1a.inventory.v1.MySQLServiceR\x05mysql\x126\n" +
-	"\amongodb\x18\x02 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\"\xf5\x05\n" +
+	"\amongodb\x18\x02 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\"\xb5\x06\n" +
 	"\x0fScheduledBackup\x12.\n" +
 	"\x13scheduled_backup_id\x18\x01 \x01(\tR\x11scheduledBackupId\x12\x1d\n" +
 	"\n" +
@@ -1157,7 +1185,8 @@ const file_backup_v1_backup_proto_rawDesc = "" +
 	"\x06vendor\x18\x10 \x01(\tR\x06vendor\x125\n" +
 	"\blast_run\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\alastRun\x125\n" +
 	"\bnext_run\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\anextRun\x12\x1c\n" +
-	"\tretention\x18\x13 \x01(\rR\tretention\"\x98\x04\n" +
+	"\tretention\x18\x13 \x01(\rR\tretention\x12>\n" +
+	"\vcompression\x18\x14 \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\"\xd8\x04\n" +
 	"\x15ScheduleBackupRequest\x12&\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\x12(\n" +
@@ -1176,7 +1205,8 @@ const file_backup_v1_backup_proto_rawDesc = "" +
 	"\x04mode\x18\v \x01(\x0e2\x15.backup.v1.BackupModeR\x04mode\x123\n" +
 	"\n" +
 	"data_model\x18\f \x01(\x0e2\x14.backup.v1.DataModelR\tdataModel\x12\x1c\n" +
-	"\tretention\x18\r \x01(\rR\tretention\"H\n" +
+	"\tretention\x18\r \x01(\rR\tretention\x12>\n" +
+	"\vcompression\x18\x0e \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\"H\n" +
 	"\x16ScheduleBackupResponse\x12.\n" +
 	"\x13scheduled_backup_id\x18\x01 \x01(\tR\x11scheduledBackupId\"\x1d\n" +
 	"\x1bListScheduledBackupsRequest\"g\n" +
@@ -1263,64 +1293,68 @@ var (
 		(*GetLogsResponse)(nil),                        // 14: backup.v1.GetLogsResponse
 		(*durationpb.Duration)(nil),                    // 15: google.protobuf.Duration
 		(DataModel)(0),                                 // 16: backup.v1.DataModel
-		(*v1.MySQLService)(nil),                        // 17: inventory.v1.MySQLService
-		(*v1.MongoDBService)(nil),                      // 18: inventory.v1.MongoDBService
-		(*timestamppb.Timestamp)(nil),                  // 19: google.protobuf.Timestamp
-		(BackupMode)(0),                                // 20: backup.v1.BackupMode
-		(*LogChunk)(nil),                               // 21: backup.v1.LogChunk
-		(*ListArtifactsRequest)(nil),                   // 22: backup.v1.ListArtifactsRequest
-		(*DeleteArtifactRequest)(nil),                  // 23: backup.v1.DeleteArtifactRequest
-		(*ListPitrTimerangesRequest)(nil),              // 24: backup.v1.ListPitrTimerangesRequest
-		(*ListArtifactsResponse)(nil),                  // 25: backup.v1.ListArtifactsResponse
-		(*DeleteArtifactResponse)(nil),                 // 26: backup.v1.DeleteArtifactResponse
-		(*ListPitrTimerangesResponse)(nil),             // 27: backup.v1.ListPitrTimerangesResponse
+		(BackupCompression)(0),                         // 17: backup.v1.BackupCompression
+		(*v1.MySQLService)(nil),                        // 18: inventory.v1.MySQLService
+		(*v1.MongoDBService)(nil),                      // 19: inventory.v1.MongoDBService
+		(*timestamppb.Timestamp)(nil),                  // 20: google.protobuf.Timestamp
+		(BackupMode)(0),                                // 21: backup.v1.BackupMode
+		(*LogChunk)(nil),                               // 22: backup.v1.LogChunk
+		(*ListArtifactsRequest)(nil),                   // 23: backup.v1.ListArtifactsRequest
+		(*DeleteArtifactRequest)(nil),                  // 24: backup.v1.DeleteArtifactRequest
+		(*ListPitrTimerangesRequest)(nil),              // 25: backup.v1.ListPitrTimerangesRequest
+		(*ListArtifactsResponse)(nil),                  // 26: backup.v1.ListArtifactsResponse
+		(*DeleteArtifactResponse)(nil),                 // 27: backup.v1.DeleteArtifactResponse
+		(*ListPitrTimerangesResponse)(nil),             // 28: backup.v1.ListPitrTimerangesResponse
 	}
 )
 
 var file_backup_v1_backup_proto_depIdxs = []int32{
 	15, // 0: backup.v1.StartBackupRequest.retry_interval:type_name -> google.protobuf.Duration
 	16, // 1: backup.v1.StartBackupRequest.data_model:type_name -> backup.v1.DataModel
-	17, // 2: backup.v1.ListArtifactCompatibleServicesResponse.mysql:type_name -> inventory.v1.MySQLService
-	18, // 3: backup.v1.ListArtifactCompatibleServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	19, // 4: backup.v1.ScheduledBackup.start_time:type_name -> google.protobuf.Timestamp
-	15, // 5: backup.v1.ScheduledBackup.retry_interval:type_name -> google.protobuf.Duration
-	16, // 6: backup.v1.ScheduledBackup.data_model:type_name -> backup.v1.DataModel
-	20, // 7: backup.v1.ScheduledBackup.mode:type_name -> backup.v1.BackupMode
-	19, // 8: backup.v1.ScheduledBackup.last_run:type_name -> google.protobuf.Timestamp
-	19, // 9: backup.v1.ScheduledBackup.next_run:type_name -> google.protobuf.Timestamp
-	19, // 10: backup.v1.ScheduleBackupRequest.start_time:type_name -> google.protobuf.Timestamp
-	15, // 11: backup.v1.ScheduleBackupRequest.retry_interval:type_name -> google.protobuf.Duration
-	20, // 12: backup.v1.ScheduleBackupRequest.mode:type_name -> backup.v1.BackupMode
-	16, // 13: backup.v1.ScheduleBackupRequest.data_model:type_name -> backup.v1.DataModel
-	4,  // 14: backup.v1.ListScheduledBackupsResponse.scheduled_backups:type_name -> backup.v1.ScheduledBackup
-	19, // 15: backup.v1.ChangeScheduledBackupRequest.start_time:type_name -> google.protobuf.Timestamp
-	15, // 16: backup.v1.ChangeScheduledBackupRequest.retry_interval:type_name -> google.protobuf.Duration
-	21, // 17: backup.v1.GetLogsResponse.logs:type_name -> backup.v1.LogChunk
-	0,  // 18: backup.v1.BackupService.StartBackup:input_type -> backup.v1.StartBackupRequest
-	2,  // 19: backup.v1.BackupService.ListArtifactCompatibleServices:input_type -> backup.v1.ListArtifactCompatibleServicesRequest
-	5,  // 20: backup.v1.BackupService.ScheduleBackup:input_type -> backup.v1.ScheduleBackupRequest
-	7,  // 21: backup.v1.BackupService.ListScheduledBackups:input_type -> backup.v1.ListScheduledBackupsRequest
-	9,  // 22: backup.v1.BackupService.ChangeScheduledBackup:input_type -> backup.v1.ChangeScheduledBackupRequest
-	11, // 23: backup.v1.BackupService.RemoveScheduledBackup:input_type -> backup.v1.RemoveScheduledBackupRequest
-	13, // 24: backup.v1.BackupService.GetLogs:input_type -> backup.v1.GetLogsRequest
-	22, // 25: backup.v1.BackupService.ListArtifacts:input_type -> backup.v1.ListArtifactsRequest
-	23, // 26: backup.v1.BackupService.DeleteArtifact:input_type -> backup.v1.DeleteArtifactRequest
-	24, // 27: backup.v1.BackupService.ListPitrTimeranges:input_type -> backup.v1.ListPitrTimerangesRequest
-	1,  // 28: backup.v1.BackupService.StartBackup:output_type -> backup.v1.StartBackupResponse
-	3,  // 29: backup.v1.BackupService.ListArtifactCompatibleServices:output_type -> backup.v1.ListArtifactCompatibleServicesResponse
-	6,  // 30: backup.v1.BackupService.ScheduleBackup:output_type -> backup.v1.ScheduleBackupResponse
-	8,  // 31: backup.v1.BackupService.ListScheduledBackups:output_type -> backup.v1.ListScheduledBackupsResponse
-	10, // 32: backup.v1.BackupService.ChangeScheduledBackup:output_type -> backup.v1.ChangeScheduledBackupResponse
-	12, // 33: backup.v1.BackupService.RemoveScheduledBackup:output_type -> backup.v1.RemoveScheduledBackupResponse
-	14, // 34: backup.v1.BackupService.GetLogs:output_type -> backup.v1.GetLogsResponse
-	25, // 35: backup.v1.BackupService.ListArtifacts:output_type -> backup.v1.ListArtifactsResponse
-	26, // 36: backup.v1.BackupService.DeleteArtifact:output_type -> backup.v1.DeleteArtifactResponse
-	27, // 37: backup.v1.BackupService.ListPitrTimeranges:output_type -> backup.v1.ListPitrTimerangesResponse
-	28, // [28:38] is the sub-list for method output_type
-	18, // [18:28] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	17, // 2: backup.v1.StartBackupRequest.compression:type_name -> backup.v1.BackupCompression
+	18, // 3: backup.v1.ListArtifactCompatibleServicesResponse.mysql:type_name -> inventory.v1.MySQLService
+	19, // 4: backup.v1.ListArtifactCompatibleServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	20, // 5: backup.v1.ScheduledBackup.start_time:type_name -> google.protobuf.Timestamp
+	15, // 6: backup.v1.ScheduledBackup.retry_interval:type_name -> google.protobuf.Duration
+	16, // 7: backup.v1.ScheduledBackup.data_model:type_name -> backup.v1.DataModel
+	21, // 8: backup.v1.ScheduledBackup.mode:type_name -> backup.v1.BackupMode
+	20, // 9: backup.v1.ScheduledBackup.last_run:type_name -> google.protobuf.Timestamp
+	20, // 10: backup.v1.ScheduledBackup.next_run:type_name -> google.protobuf.Timestamp
+	17, // 11: backup.v1.ScheduledBackup.compression:type_name -> backup.v1.BackupCompression
+	20, // 12: backup.v1.ScheduleBackupRequest.start_time:type_name -> google.protobuf.Timestamp
+	15, // 13: backup.v1.ScheduleBackupRequest.retry_interval:type_name -> google.protobuf.Duration
+	21, // 14: backup.v1.ScheduleBackupRequest.mode:type_name -> backup.v1.BackupMode
+	16, // 15: backup.v1.ScheduleBackupRequest.data_model:type_name -> backup.v1.DataModel
+	17, // 16: backup.v1.ScheduleBackupRequest.compression:type_name -> backup.v1.BackupCompression
+	4,  // 17: backup.v1.ListScheduledBackupsResponse.scheduled_backups:type_name -> backup.v1.ScheduledBackup
+	20, // 18: backup.v1.ChangeScheduledBackupRequest.start_time:type_name -> google.protobuf.Timestamp
+	15, // 19: backup.v1.ChangeScheduledBackupRequest.retry_interval:type_name -> google.protobuf.Duration
+	22, // 20: backup.v1.GetLogsResponse.logs:type_name -> backup.v1.LogChunk
+	0,  // 21: backup.v1.BackupService.StartBackup:input_type -> backup.v1.StartBackupRequest
+	2,  // 22: backup.v1.BackupService.ListArtifactCompatibleServices:input_type -> backup.v1.ListArtifactCompatibleServicesRequest
+	5,  // 23: backup.v1.BackupService.ScheduleBackup:input_type -> backup.v1.ScheduleBackupRequest
+	7,  // 24: backup.v1.BackupService.ListScheduledBackups:input_type -> backup.v1.ListScheduledBackupsRequest
+	9,  // 25: backup.v1.BackupService.ChangeScheduledBackup:input_type -> backup.v1.ChangeScheduledBackupRequest
+	11, // 26: backup.v1.BackupService.RemoveScheduledBackup:input_type -> backup.v1.RemoveScheduledBackupRequest
+	13, // 27: backup.v1.BackupService.GetLogs:input_type -> backup.v1.GetLogsRequest
+	23, // 28: backup.v1.BackupService.ListArtifacts:input_type -> backup.v1.ListArtifactsRequest
+	24, // 29: backup.v1.BackupService.DeleteArtifact:input_type -> backup.v1.DeleteArtifactRequest
+	25, // 30: backup.v1.BackupService.ListPitrTimeranges:input_type -> backup.v1.ListPitrTimerangesRequest
+	1,  // 31: backup.v1.BackupService.StartBackup:output_type -> backup.v1.StartBackupResponse
+	3,  // 32: backup.v1.BackupService.ListArtifactCompatibleServices:output_type -> backup.v1.ListArtifactCompatibleServicesResponse
+	6,  // 33: backup.v1.BackupService.ScheduleBackup:output_type -> backup.v1.ScheduleBackupResponse
+	8,  // 34: backup.v1.BackupService.ListScheduledBackups:output_type -> backup.v1.ListScheduledBackupsResponse
+	10, // 35: backup.v1.BackupService.ChangeScheduledBackup:output_type -> backup.v1.ChangeScheduledBackupResponse
+	12, // 36: backup.v1.BackupService.RemoveScheduledBackup:output_type -> backup.v1.RemoveScheduledBackupResponse
+	14, // 37: backup.v1.BackupService.GetLogs:output_type -> backup.v1.GetLogsResponse
+	26, // 38: backup.v1.BackupService.ListArtifacts:output_type -> backup.v1.ListArtifactsResponse
+	27, // 39: backup.v1.BackupService.DeleteArtifact:output_type -> backup.v1.DeleteArtifactResponse
+	28, // 40: backup.v1.BackupService.ListPitrTimeranges:output_type -> backup.v1.ListPitrTimerangesResponse
+	31, // [31:41] is the sub-list for method output_type
+	21, // [21:31] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_backup_v1_backup_proto_init() }

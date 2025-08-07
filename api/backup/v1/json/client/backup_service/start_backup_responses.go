@@ -216,6 +216,10 @@ type StartBackupBody struct {
 
 	// Folder on storage for artifact.
 	Folder string `json:"folder,omitempty"`
+
+	// BackupCompression specifies compression
+	// Enum: ["BACKUP_COMPRESSION_INVALID","BACKUP_COMPRESSION_NONE","BACKUP_COMPRESSION_QUICKLZ","BACKUP_COMPRESSION_ZSTD","BACKUP_COMPRESSION_LZ4","BACKUP_COMPRESSION_S2","BACKUP_COMPRESSION_GZIP","BACKUP_COMPRESSION_SNAPPY","BACKUP_COMPRESSION_PGZIP"]
+	Compression *string `json:"compression,omitempty"`
 }
 
 // Validate validates this start backup body
@@ -223,6 +227,10 @@ func (o *StartBackupBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDataModel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCompression(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -271,6 +279,69 @@ func (o *StartBackupBody) validateDataModel(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateDataModelEnum("body"+"."+"data_model", "body", *o.DataModel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var startBackupBodyTypeCompressionPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["BACKUP_COMPRESSION_INVALID","BACKUP_COMPRESSION_NONE","BACKUP_COMPRESSION_QUICKLZ","BACKUP_COMPRESSION_ZSTD","BACKUP_COMPRESSION_LZ4","BACKUP_COMPRESSION_S2","BACKUP_COMPRESSION_GZIP","BACKUP_COMPRESSION_SNAPPY","BACKUP_COMPRESSION_PGZIP"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		startBackupBodyTypeCompressionPropEnum = append(startBackupBodyTypeCompressionPropEnum, v)
+	}
+}
+
+const (
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONINVALID captures enum value "BACKUP_COMPRESSION_INVALID"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONINVALID string = "BACKUP_COMPRESSION_INVALID"
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONNONE captures enum value "BACKUP_COMPRESSION_NONE"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONNONE string = "BACKUP_COMPRESSION_NONE"
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONQUICKLZ captures enum value "BACKUP_COMPRESSION_QUICKLZ"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONQUICKLZ string = "BACKUP_COMPRESSION_QUICKLZ"
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONZSTD captures enum value "BACKUP_COMPRESSION_ZSTD"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONZSTD string = "BACKUP_COMPRESSION_ZSTD"
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONLZ4 captures enum value "BACKUP_COMPRESSION_LZ4"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONLZ4 string = "BACKUP_COMPRESSION_LZ4"
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONS2 captures enum value "BACKUP_COMPRESSION_S2"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONS2 string = "BACKUP_COMPRESSION_S2"
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONGZIP captures enum value "BACKUP_COMPRESSION_GZIP"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONGZIP string = "BACKUP_COMPRESSION_GZIP"
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONSNAPPY captures enum value "BACKUP_COMPRESSION_SNAPPY"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONSNAPPY string = "BACKUP_COMPRESSION_SNAPPY"
+
+	// StartBackupBodyCompressionBACKUPCOMPRESSIONPGZIP captures enum value "BACKUP_COMPRESSION_PGZIP"
+	StartBackupBodyCompressionBACKUPCOMPRESSIONPGZIP string = "BACKUP_COMPRESSION_PGZIP"
+)
+
+// prop value enum
+func (o *StartBackupBody) validateCompressionEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, startBackupBodyTypeCompressionPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *StartBackupBody) validateCompression(formats strfmt.Registry) error {
+	if swag.IsZero(o.Compression) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateCompressionEnum("body"+"."+"compression", "body", *o.Compression); err != nil {
 		return err
 	}
 

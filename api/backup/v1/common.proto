@@ -20,6 +20,19 @@ enum BackupMode {
   BACKUP_MODE_PITR = 3;
 }
 
+// BackupCompression specifies compression
+enum BackupCompression {
+  BACKUP_COMPRESSION_INVALID = 0;
+  BACKUP_COMPRESSION_NONE = 1;
+  BACKUP_COMPRESSION_QUICKLZ = 2;
+  BACKUP_COMPRESSION_ZSTD = 3;
+  BACKUP_COMPRESSION_LZ4 = 4;
+  BACKUP_COMPRESSION_S2 = 5;
+  BACKUP_COMPRESSION_GZIP = 6;
+  BACKUP_COMPRESSION_SNAPPY = 7;
+  BACKUP_COMPRESSION_PGZIP = 8;
+}
+
 // File represents file or folder on a storage.
 message File {
   string name = 1 [(validate.rules).string.min_len = 1];

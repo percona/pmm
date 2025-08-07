@@ -54,6 +54,7 @@ type ScheduledTasksFilter struct {
 	ClusterName string
 	LocationID  string
 	Mode        BackupMode
+	Compression BackupCompression
 	Name        string
 	Folder      *string
 }
@@ -105,6 +106,12 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'mode' = "+q.Placeholder(idx))
 		args = append(args, filters.Mode)
+		idx++
+	}
+	if filters.Compression != "" {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'compression' = "+q.Placeholder(idx))
+		args = append(args, filters.Compression)
 		idx++
 	}
 	if filters.Name != "" {
@@ -363,6 +370,15 @@ func (s *ScheduledTask) Mode() (BackupMode, error) {
 		return "", err
 	}
 	return data.Mode, nil
+}
+
+// Compression returns backup compression.
+func (s *ScheduledTask) Compression() (BackupCompression, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.Compression, nil
 }
 
 // LocationID returns task location.

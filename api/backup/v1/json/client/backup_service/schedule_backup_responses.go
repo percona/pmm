@@ -234,6 +234,10 @@ type ScheduleBackupBody struct {
 
 	// How many artifacts keep. 0 - unlimited.
 	Retention int64 `json:"retention,omitempty"`
+
+	// BackupCompression specifies compression
+	// Enum: ["BACKUP_COMPRESSION_INVALID","BACKUP_COMPRESSION_NONE","BACKUP_COMPRESSION_QUICKLZ","BACKUP_COMPRESSION_ZSTD","BACKUP_COMPRESSION_LZ4","BACKUP_COMPRESSION_S2","BACKUP_COMPRESSION_GZIP","BACKUP_COMPRESSION_SNAPPY","BACKUP_COMPRESSION_PGZIP"]
+	Compression *string `json:"compression,omitempty"`
 }
 
 // Validate validates this schedule backup body
@@ -249,6 +253,10 @@ func (o *ScheduleBackupBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateDataModel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCompression(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -357,6 +365,69 @@ func (o *ScheduleBackupBody) validateDataModel(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateDataModelEnum("body"+"."+"data_model", "body", *o.DataModel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var scheduleBackupBodyTypeCompressionPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["BACKUP_COMPRESSION_INVALID","BACKUP_COMPRESSION_NONE","BACKUP_COMPRESSION_QUICKLZ","BACKUP_COMPRESSION_ZSTD","BACKUP_COMPRESSION_LZ4","BACKUP_COMPRESSION_S2","BACKUP_COMPRESSION_GZIP","BACKUP_COMPRESSION_SNAPPY","BACKUP_COMPRESSION_PGZIP"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		scheduleBackupBodyTypeCompressionPropEnum = append(scheduleBackupBodyTypeCompressionPropEnum, v)
+	}
+}
+
+const (
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONINVALID captures enum value "BACKUP_COMPRESSION_INVALID"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONINVALID string = "BACKUP_COMPRESSION_INVALID"
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONNONE captures enum value "BACKUP_COMPRESSION_NONE"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONNONE string = "BACKUP_COMPRESSION_NONE"
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONQUICKLZ captures enum value "BACKUP_COMPRESSION_QUICKLZ"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONQUICKLZ string = "BACKUP_COMPRESSION_QUICKLZ"
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONZSTD captures enum value "BACKUP_COMPRESSION_ZSTD"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONZSTD string = "BACKUP_COMPRESSION_ZSTD"
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONLZ4 captures enum value "BACKUP_COMPRESSION_LZ4"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONLZ4 string = "BACKUP_COMPRESSION_LZ4"
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONS2 captures enum value "BACKUP_COMPRESSION_S2"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONS2 string = "BACKUP_COMPRESSION_S2"
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONGZIP captures enum value "BACKUP_COMPRESSION_GZIP"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONGZIP string = "BACKUP_COMPRESSION_GZIP"
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONSNAPPY captures enum value "BACKUP_COMPRESSION_SNAPPY"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONSNAPPY string = "BACKUP_COMPRESSION_SNAPPY"
+
+	// ScheduleBackupBodyCompressionBACKUPCOMPRESSIONPGZIP captures enum value "BACKUP_COMPRESSION_PGZIP"
+	ScheduleBackupBodyCompressionBACKUPCOMPRESSIONPGZIP string = "BACKUP_COMPRESSION_PGZIP"
+)
+
+// prop value enum
+func (o *ScheduleBackupBody) validateCompressionEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, scheduleBackupBodyTypeCompressionPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ScheduleBackupBody) validateCompression(formats strfmt.Registry) error {
+	if swag.IsZero(o.Compression) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateCompressionEnum("body"+"."+"compression", "body", *o.Compression); err != nil {
 		return err
 	}
 

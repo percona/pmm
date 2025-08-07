@@ -108,6 +108,8 @@ type RestoreHistoryItem struct {
 	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	// PITR timestamp is filled for PITR restores, empty otherwise.
 	PitrTimestamp *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=pitr_timestamp,json=pitrTimestamp,proto3" json:"pitr_timestamp,omitempty"`
+	// Compression
+	Compression   BackupCompression `protobuf:"varint,14,opt,name=compression,proto3,enum=backup.v1.BackupCompression" json:"compression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -231,6 +233,13 @@ func (x *RestoreHistoryItem) GetPitrTimestamp() *timestamppb.Timestamp {
 		return x.PitrTimestamp
 	}
 	return nil
+}
+
+func (x *RestoreHistoryItem) GetCompression() BackupCompression {
+	if x != nil {
+		return x.Compression
+	}
+	return BackupCompression_BACKUP_COMPRESSION_INVALID
 }
 
 type ListRestoresRequest struct {
@@ -537,7 +546,7 @@ var File_backup_v1_restores_proto protoreflect.FileDescriptor
 
 const file_backup_v1_restores_proto_rawDesc = "" +
 	"\n" +
-	"\x18backup/v1/restores.proto\x12\tbackup.v1\x1a\x16backup/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xaa\x04\n" +
+	"\x18backup/v1/restores.proto\x12\tbackup.v1\x1a\x16backup/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xea\x04\n" +
 	"\x12RestoreHistoryItem\x12\x1d\n" +
 	"\n" +
 	"restore_id\x18\x01 \x01(\tR\trestoreId\x12\x1f\n" +
@@ -559,7 +568,8 @@ const file_backup_v1_restores_proto_rawDesc = "" +
 	"started_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
 	"\vfinished_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"finishedAt\x12A\n" +
-	"\x0epitr_timestamp\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\rpitrTimestamp\"\x15\n" +
+	"\x0epitr_timestamp\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\rpitrTimestamp\x12>\n" +
+	"\vcompression\x18\x0e \x01(\x0e2\x1c.backup.v1.BackupCompressionR\vcompression\"\x15\n" +
 	"\x13ListRestoresRequest\"K\n" +
 	"\x14ListRestoresResponse\x123\n" +
 	"\x05items\x18\x01 \x03(\v2\x1d.backup.v1.RestoreHistoryItemR\x05items\"t\n" +
@@ -622,7 +632,8 @@ var (
 		(*RestoreBackupResponse)(nil),         // 7: backup.v1.RestoreBackupResponse
 		(DataModel)(0),                        // 8: backup.v1.DataModel
 		(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
-		(*LogChunk)(nil),                      // 10: backup.v1.LogChunk
+		(BackupCompression)(0),                // 10: backup.v1.BackupCompression
+		(*LogChunk)(nil),                      // 11: backup.v1.LogChunk
 	}
 )
 
@@ -632,20 +643,21 @@ var file_backup_v1_restores_proto_depIdxs = []int32{
 	9,  // 2: backup.v1.RestoreHistoryItem.started_at:type_name -> google.protobuf.Timestamp
 	9,  // 3: backup.v1.RestoreHistoryItem.finished_at:type_name -> google.protobuf.Timestamp
 	9,  // 4: backup.v1.RestoreHistoryItem.pitr_timestamp:type_name -> google.protobuf.Timestamp
-	1,  // 5: backup.v1.ListRestoresResponse.items:type_name -> backup.v1.RestoreHistoryItem
-	10, // 6: backup.v1.RestoreServiceGetLogsResponse.logs:type_name -> backup.v1.LogChunk
-	9,  // 7: backup.v1.RestoreBackupRequest.pitr_timestamp:type_name -> google.protobuf.Timestamp
-	2,  // 8: backup.v1.RestoreService.ListRestores:input_type -> backup.v1.ListRestoresRequest
-	4,  // 9: backup.v1.RestoreService.GetLogs:input_type -> backup.v1.RestoreServiceGetLogsRequest
-	6,  // 10: backup.v1.RestoreService.RestoreBackup:input_type -> backup.v1.RestoreBackupRequest
-	3,  // 11: backup.v1.RestoreService.ListRestores:output_type -> backup.v1.ListRestoresResponse
-	5,  // 12: backup.v1.RestoreService.GetLogs:output_type -> backup.v1.RestoreServiceGetLogsResponse
-	7,  // 13: backup.v1.RestoreService.RestoreBackup:output_type -> backup.v1.RestoreBackupResponse
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	10, // 5: backup.v1.RestoreHistoryItem.compression:type_name -> backup.v1.BackupCompression
+	1,  // 6: backup.v1.ListRestoresResponse.items:type_name -> backup.v1.RestoreHistoryItem
+	11, // 7: backup.v1.RestoreServiceGetLogsResponse.logs:type_name -> backup.v1.LogChunk
+	9,  // 8: backup.v1.RestoreBackupRequest.pitr_timestamp:type_name -> google.protobuf.Timestamp
+	2,  // 9: backup.v1.RestoreService.ListRestores:input_type -> backup.v1.ListRestoresRequest
+	4,  // 10: backup.v1.RestoreService.GetLogs:input_type -> backup.v1.RestoreServiceGetLogsRequest
+	6,  // 11: backup.v1.RestoreService.RestoreBackup:input_type -> backup.v1.RestoreBackupRequest
+	3,  // 12: backup.v1.RestoreService.ListRestores:output_type -> backup.v1.ListRestoresResponse
+	5,  // 13: backup.v1.RestoreService.GetLogs:output_type -> backup.v1.RestoreServiceGetLogsResponse
+	7,  // 14: backup.v1.RestoreService.RestoreBackup:output_type -> backup.v1.RestoreBackupResponse
+	12, // [12:15] is the sub-list for method output_type
+	9,  // [9:12] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_backup_v1_restores_proto_init() }

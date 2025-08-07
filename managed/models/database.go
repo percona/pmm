@@ -1138,6 +1138,19 @@ var databaseSchema = [][]string{
 	109: {
 		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
 	},
+	110: {
+		`ALTER TABLE artifacts 
+		ADD COLUMN compression VARCHAR NOT NULL DEFAULT 'none'`,
+
+		`UPDATE artifacts 
+		SET compression = CASE 
+			WHEN vendor = 'mongodb' THEN 's2'
+			WHEN vendor = 'mysql' THEN 'quicklz'
+			ELSE 'none'
+		END`,
+
+		`ALTER TABLE artifacts ALTER COLUMN compression DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

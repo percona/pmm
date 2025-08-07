@@ -28,6 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	backupv1 "github.com/percona/pmm/api/backup/v1"
 )
 
 const (
@@ -48,6 +49,7 @@ type MongoDBRestoreJob struct {
 	jobLogger       *pbmJobLogger
 	folder          string
 	pbmBackupName   string
+	compression     backupv1.BackupCompression
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
@@ -61,6 +63,7 @@ func NewMongoDBRestoreJob(
 	restarter agentsRestarter,
 	folder string,
 	pbmBackupName string,
+	compression backupv1.BackupCompression,
 ) *MongoDBRestoreJob {
 	return &MongoDBRestoreJob{
 		id:              id,
@@ -74,6 +77,7 @@ func NewMongoDBRestoreJob(
 		jobLogger:       newPbmJobLogger(id, pbmRestoreJob, dbConfig),
 		folder:          folder,
 		pbmBackupName:   pbmBackupName,
+		compression:     compression,
 	}
 }
 

@@ -127,6 +127,74 @@ func (BackupMode) EnumDescriptor() ([]byte, []int) {
 	return file_backup_v1_common_proto_rawDescGZIP(), []int{1}
 }
 
+// BackupCompression specifies compression
+type BackupCompression int32
+
+const (
+	BackupCompression_BACKUP_COMPRESSION_INVALID BackupCompression = 0
+	BackupCompression_BACKUP_COMPRESSION_NONE    BackupCompression = 1
+	BackupCompression_BACKUP_COMPRESSION_QUICKLZ BackupCompression = 2
+	BackupCompression_BACKUP_COMPRESSION_ZSTD    BackupCompression = 3
+	BackupCompression_BACKUP_COMPRESSION_LZ4     BackupCompression = 4
+	BackupCompression_BACKUP_COMPRESSION_S2      BackupCompression = 5
+	BackupCompression_BACKUP_COMPRESSION_GZIP    BackupCompression = 6
+	BackupCompression_BACKUP_COMPRESSION_SNAPPY  BackupCompression = 7
+	BackupCompression_BACKUP_COMPRESSION_PGZIP   BackupCompression = 8
+)
+
+// Enum value maps for BackupCompression.
+var (
+	BackupCompression_name = map[int32]string{
+		0: "BACKUP_COMPRESSION_INVALID",
+		1: "BACKUP_COMPRESSION_NONE",
+		2: "BACKUP_COMPRESSION_QUICKLZ",
+		3: "BACKUP_COMPRESSION_ZSTD",
+		4: "BACKUP_COMPRESSION_LZ4",
+		5: "BACKUP_COMPRESSION_S2",
+		6: "BACKUP_COMPRESSION_GZIP",
+		7: "BACKUP_COMPRESSION_SNAPPY",
+		8: "BACKUP_COMPRESSION_PGZIP",
+	}
+	BackupCompression_value = map[string]int32{
+		"BACKUP_COMPRESSION_INVALID": 0,
+		"BACKUP_COMPRESSION_NONE":    1,
+		"BACKUP_COMPRESSION_QUICKLZ": 2,
+		"BACKUP_COMPRESSION_ZSTD":    3,
+		"BACKUP_COMPRESSION_LZ4":     4,
+		"BACKUP_COMPRESSION_S2":      5,
+		"BACKUP_COMPRESSION_GZIP":    6,
+		"BACKUP_COMPRESSION_SNAPPY":  7,
+		"BACKUP_COMPRESSION_PGZIP":   8,
+	}
+)
+
+func (x BackupCompression) Enum() *BackupCompression {
+	p := new(BackupCompression)
+	*p = x
+	return p
+}
+
+func (x BackupCompression) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BackupCompression) Descriptor() protoreflect.EnumDescriptor {
+	return file_backup_v1_common_proto_enumTypes[2].Descriptor()
+}
+
+func (BackupCompression) Type() protoreflect.EnumType {
+	return &file_backup_v1_common_proto_enumTypes[2]
+}
+
+func (x BackupCompression) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BackupCompression.Descriptor instead.
+func (BackupCompression) EnumDescriptor() ([]byte, []int) {
+	return file_backup_v1_common_proto_rawDescGZIP(), []int{2}
+}
+
 // File represents file or folder on a storage.
 type File struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -394,7 +462,17 @@ const file_backup_v1_common_proto_rawDesc = "" +
 	"\x17BACKUP_MODE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14BACKUP_MODE_SNAPSHOT\x10\x01\x12\x1b\n" +
 	"\x17BACKUP_MODE_INCREMENTAL\x10\x02\x12\x14\n" +
-	"\x10BACKUP_MODE_PITR\x10\x03B\x90\x01\n" +
+	"\x10BACKUP_MODE_PITR\x10\x03*\x9e\x02\n" +
+	"\x11BackupCompression\x12\x1e\n" +
+	"\x1aBACKUP_COMPRESSION_INVALID\x10\x00\x12\x1b\n" +
+	"\x17BACKUP_COMPRESSION_NONE\x10\x01\x12\x1e\n" +
+	"\x1aBACKUP_COMPRESSION_QUICKLZ\x10\x02\x12\x1b\n" +
+	"\x17BACKUP_COMPRESSION_ZSTD\x10\x03\x12\x1a\n" +
+	"\x16BACKUP_COMPRESSION_LZ4\x10\x04\x12\x19\n" +
+	"\x15BACKUP_COMPRESSION_S2\x10\x05\x12\x1b\n" +
+	"\x17BACKUP_COMPRESSION_GZIP\x10\x06\x12\x1d\n" +
+	"\x19BACKUP_COMPRESSION_SNAPPY\x10\a\x12\x1c\n" +
+	"\x18BACKUP_COMPRESSION_PGZIP\x10\bB\x90\x01\n" +
 	"\rcom.backup.v1B\vCommonProtoP\x01Z-github.com/percona/pmm/api/backup/v1;backupv1\xa2\x02\x03BXX\xaa\x02\tBackup.V1\xca\x02\tBackup\\V1\xe2\x02\x15Backup\\V1\\GPBMetadata\xea\x02\n" +
 	"Backup::V1b\x06proto3"
 
@@ -411,23 +489,24 @@ func file_backup_v1_common_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_backup_v1_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+	file_backup_v1_common_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 	file_backup_v1_common_proto_msgTypes  = make([]protoimpl.MessageInfo, 4)
 	file_backup_v1_common_proto_goTypes   = []any{
 		(DataModel)(0),                // 0: backup.v1.DataModel
 		(BackupMode)(0),               // 1: backup.v1.BackupMode
-		(*File)(nil),                  // 2: backup.v1.File
-		(*PbmMetadata)(nil),           // 3: backup.v1.PbmMetadata
-		(*Metadata)(nil),              // 4: backup.v1.Metadata
-		(*LogChunk)(nil),              // 5: backup.v1.LogChunk
-		(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+		(BackupCompression)(0),        // 2: backup.v1.BackupCompression
+		(*File)(nil),                  // 3: backup.v1.File
+		(*PbmMetadata)(nil),           // 4: backup.v1.PbmMetadata
+		(*Metadata)(nil),              // 5: backup.v1.Metadata
+		(*LogChunk)(nil),              // 6: backup.v1.LogChunk
+		(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
 	}
 )
 
 var file_backup_v1_common_proto_depIdxs = []int32{
-	2, // 0: backup.v1.Metadata.file_list:type_name -> backup.v1.File
-	6, // 1: backup.v1.Metadata.restore_to:type_name -> google.protobuf.Timestamp
-	3, // 2: backup.v1.Metadata.pbm_metadata:type_name -> backup.v1.PbmMetadata
+	3, // 0: backup.v1.Metadata.file_list:type_name -> backup.v1.File
+	7, // 1: backup.v1.Metadata.restore_to:type_name -> google.protobuf.Timestamp
+	4, // 2: backup.v1.Metadata.pbm_metadata:type_name -> backup.v1.PbmMetadata
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -448,7 +527,7 @@ func file_backup_v1_common_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_backup_v1_common_proto_rawDesc), len(file_backup_v1_common_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
