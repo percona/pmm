@@ -9771,6 +9771,11 @@
                           "type": "string"
                         },
                         "x-order": 6
+                      },
+                      "instance_id": {
+                        "description": "AWS instance ID.",
+                        "type": "string",
+                        "x-order": 7
                       }
                     }
                   },
@@ -10306,6 +10311,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "instance_id": {
+                      "description": "AWS instance ID.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 3
@@ -10616,6 +10626,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "instance_id": {
+                      "description": "AWS instance ID.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 3

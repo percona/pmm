@@ -244,6 +244,9 @@ type RegisterNodeBody struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// AWS instance ID.
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this register node body

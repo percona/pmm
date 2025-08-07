@@ -6581,6 +6581,9 @@ type AddServiceOKBodyRDSNode struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID.
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this add service OK body RDS node

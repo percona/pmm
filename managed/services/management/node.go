@@ -54,7 +54,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			return err
 		}
 
-		node, err = models.CheckUniqueNodeInstanceRegion(tx.Querier, req.Address, &req.Region)
+		node, err = models.CheckUniqueNodeAddressRegion(tx.Querier, req.Address, &req.Region)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			// nothing
@@ -81,6 +81,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			ContainerID:   pointer.ToStringOrNil(req.ContainerId),
 			ContainerName: pointer.ToStringOrNil(req.ContainerName),
 			CustomLabels:  req.CustomLabels,
+			InstanceId:    req.InstanceId,
 			Address:       req.Address,
 			Region:        pointer.ToStringOrNil(req.Region),
 		})

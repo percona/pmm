@@ -246,8 +246,10 @@ type RegisterNodeRequest struct {
 	AgentPassword string `protobuf:"bytes,15,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,16,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// AWS instance ID.
+	InstanceId    string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RegisterNodeRequest) Reset() {
@@ -390,6 +392,13 @@ func (x *RegisterNodeRequest) GetExposeExporter() bool {
 		return x.ExposeExporter
 	}
 	return false
+}
+
+func (x *RegisterNodeRequest) GetInstanceId() string {
+	if x != nil {
+		return x.InstanceId
+	}
+	return ""
 }
 
 type RegisterNodeResponse struct {
@@ -1093,7 +1102,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	" \x03(\v2..management.v1.AddNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcc\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xed\x05\n" +
 	"\x13RegisterNodeRequest\x123\n" +
 	"\tnode_type\x18\x01 \x01(\x0e2\x16.inventory.v1.NodeTypeR\bnodeType\x12$\n" +
 	"\tnode_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12\x18\n" +
@@ -1115,7 +1124,9 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\fmetrics_mode\x18\r \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12-\n" +
 	"\x12disable_collectors\x18\x0e \x03(\tR\x11disableCollectors\x12%\n" +
 	"\x0eagent_password\x18\x0f \x01(\tR\ragentPassword\x12'\n" +
-	"\x0fexpose_exporter\x18\x10 \x01(\bR\x0eexposeExporter\x1a?\n" +
+	"\x0fexpose_exporter\x18\x10 \x01(\bR\x0eexposeExporter\x12\x1f\n" +
+	"\vinstance_id\x18\x11 \x01(\tR\n" +
+	"instanceId\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfd\x01\n" +
