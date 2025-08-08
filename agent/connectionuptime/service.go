@@ -28,7 +28,7 @@ const periodForRunningDeletingOldEvents = time.Minute
 // Service calculates connection uptime between agent and server
 // based on the connection events.
 type Service struct {
-	mx           sync.Mutex
+	mx           sync.RWMutex
 	events       []connectionEvent
 	windowPeriod time.Duration
 	l            *logrus.Entry
@@ -141,8 +141,8 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 //
 //	time_between(f1, now) - total time between first event (f1) and current moment
 func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
-	c.mx.Lock()
-	defer c.mx.Unlock()
+	c.mx.RLock()
+	defer c.mx.RUnlock()
 
 	c.l.Debug("Calculate connection uptime")
 	if len(c.events) == 0 {

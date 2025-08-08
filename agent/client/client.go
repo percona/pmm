@@ -164,6 +164,8 @@ func (c *Client) Run(ctx context.Context) error {
 		return ctx.Err()
 	}
 
+	c.backoff.Reset()
+
 	defer func() {
 		if err := dialResult.conn.Close(); err != nil {
 			c.l.Errorf("Connection closed: %s.", err)
