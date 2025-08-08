@@ -34,34 +34,6 @@ func (_m *mockGrafanaClient) CreateAlertRule(ctx context.Context, folderUID stri
 	return r0
 }
 
-// GetDatasourceUIDByID provides a mock function with given fields: ctx, id
-func (_m *mockGrafanaClient) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
-	ret := _m.Called(ctx, id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetDatasourceUIDByID")
-	}
-
-	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int64) (string, error)); ok {
-		return rf(ctx, id)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, int64) string); ok {
-		r0 = rf(ctx, id)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
-		r1 = rf(ctx, id)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetFolderByUID provides a mock function with given fields: ctx, uid
 func (_m *mockGrafanaClient) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
 	ret := _m.Called(ctx, uid)
