@@ -2,7 +2,7 @@
 
 %global repo            pmm-dump
 %global provider        github.com/percona/%{repo}
-%global commit          93057635fd4890c5751e5c99f9a51e5246fc1f8a
+%global commit          56cc93fe8bf811ee69ab39c0d1b22398e126a8a2
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         1
@@ -24,7 +24,7 @@ Source0:	https://%{provider}/archive/%{commit}.tar.gz
 %setup -q -n %{repo}-%{commit}
 
 %build
-make build
+make build BRANCH="main" COMMIT="%{shortcommit}" VERSION="%{version}"
 
 %install
 install -d -p %{buildroot}%{_sbindir}
