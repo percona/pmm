@@ -27,7 +27,6 @@ const (
 	AgentTypeMySQLdExporter                  = "AGENT_TYPE_MYSQLD_EXPORTER"
 	AgentTypeMongoDBExporter                 = "AGENT_TYPE_MONGODB_EXPORTER"
 	AgentTypePostgresExporter                = "AGENT_TYPE_POSTGRES_EXPORTER"
-	AgentTypeValkeyExporter                  = "AGENT_TYPE_VALKEY_EXPORTER"
 	AgentTypeProxySQLExporter                = "AGENT_TYPE_PROXYSQL_EXPORTER"
 	AgentTypeQANMySQLPerfSchemaAgent         = "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT"
 	AgentTypeQANMySQLSlowlogAgent            = "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT"
@@ -49,7 +48,6 @@ var agentTypeNames = map[string]string{
 	AgentTypeMySQLdExporter:                  "mysqld_exporter",
 	AgentTypeMongoDBExporter:                 "mongodb_exporter",
 	AgentTypePostgresExporter:                "postgres_exporter",
-	AgentTypeValkeyExporter:                  "valkey_exporter",
 	AgentTypeProxySQLExporter:                "proxysql_exporter",
 	AgentTypeQANMySQLPerfSchemaAgent:         "mysql_perfschema_agent",
 	AgentTypeQANMySQLSlowlogAgent:            "mysql_slowlog_agent",

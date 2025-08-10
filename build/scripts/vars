@@ -6,6 +6,9 @@ root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
 root_dir=${ROOT_DIR:-$root_dir_tmp}
 tmp_dir=${root_dir}/tmp
 
+BUILD_TYPE=${BUILD_TYPE:-static}
+OS_VARIANT=${OS_VARIANT:-ol8}
+
 # In VERSION file we can have numeric value like '2.0.0' as well as
 # alphanumeric value like '2.0.0-alpha3' which can not be used entirely
 # e.g. in Version directive in spec files. So we define:
@@ -43,6 +46,10 @@ unset new_pmm_release
 echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}\n\n\n"
 
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
+# Support for Hetzner-based builds
+if [ "${USE_HETZNER_BUILD}" = "1" ]; then
+    rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-perconalab/rpmbuild:3-hetzner}
+fi
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
 rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
 rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
@@ -56,6 +63,7 @@ docker_tarball=${root_dir}/results/docker/pmm-server-${pmm_version}.docker
 docker_client_tarball=${root_dir}/results/docker/pmm-client-${pmm_version}.docker
 source_tarball=${root_dir}/results/source_tarball/pmm-client-${pmm_version}.tar.gz
 binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz
+dynamic_binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}-${BUILD_TYPE}-${OS_VARIANT}.tar.gz
 
 # https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.114.0
 vmagent_commit_hash=a5e3c6d4492db765800363dfae48a04b4d7888be
