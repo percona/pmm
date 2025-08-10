@@ -1142,12 +1142,7 @@ var databaseSchema = [][]string{
 		`ALTER TABLE artifacts 
 		ADD COLUMN compression VARCHAR NOT NULL DEFAULT 'none'`,
 
-		`UPDATE artifacts 
-		SET compression = CASE 
-			WHEN vendor = 'mongodb' THEN 's2'
-			WHEN vendor = 'mysql' THEN 'quicklz'
-			ELSE 'none'
-		END`,
+		`UPDATE artifacts SET compression = 'default' WHERE compression = 'none'`,
 
 		`ALTER TABLE artifacts ALTER COLUMN compression DROP DEFAULT`,
 	},

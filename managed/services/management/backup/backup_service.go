@@ -116,6 +116,10 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backupv1.StartBack
 		return nil, err
 	}
 
+	if err := compression.ValidateForServiceType(svc.ServiceType); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Compression validation failed: %v", err)
+	}
+
 	if svc.ServiceType == models.MongoDBServiceType {
 		if svc.Cluster == "" {
 			return nil, status.Errorf(codes.FailedPrecondition, "Service %s must be a member of a cluster", svc.ServiceName)
@@ -186,6 +190,10 @@ func (s *BackupService) ScheduleBackup(ctx context.Context, req *backupv1.Schedu
 		compression, err := convertCompressionToBackupCompression(req.Compression)
 		if err != nil {
 			return status.Errorf(codes.InvalidArgument, "Invalid compression: %s", req.Compression.String())
+		}
+
+		if err := compression.ValidateForServiceType(svc.ServiceType); err != nil {
+			return status.Errorf(codes.InvalidArgument, "Compression validation failed: %v", err)
 		}
 
 		backupParams := &scheduler.BackupTaskParams{
@@ -638,6 +646,32 @@ func (s *BackupService) ListPitrTimeranges(ctx context.Context, req *backupv1.Li
 	}, nil
 }
 
+// ListServiceCompression returns available compression methods for a service.
+func (s *BackupService) ListServiceCompression(ctx context.Context, req *backupv1.ListServiceCompressionRequest) (*backupv1.ListServiceCompressionResponse, error) {
+	svc, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	supportedCompressions := models.GetSupportedCompressions(svc.ServiceType)
+	if supportedCompressions == nil {
+		return nil, status.Errorf(codes.Unimplemented, "backup compression is not yet supported for service type: %s", svc.ServiceType)
+	}
+
+	compressionMethods := make([]backupv1.BackupCompression, 0, len(supportedCompressions))
+	for _, compression := range supportedCompressions {
+		protoCompression, err := convertBackupCompression(compression)
+		if err != nil {
+			return nil, err
+		}
+		compressionMethods = append(compressionMethods, protoCompression)
+	}
+
+	return &backupv1.ListServiceCompressionResponse{
+		CompressionMethods: compressionMethods,
+	}, nil
+}
+
 func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	services map[string]*models.Service,
 	locationModels map[string]*models.BackupLocation,
@@ -759,6 +793,8 @@ func convertCompressionToBackupCompression(compression backupv1.BackupCompressio
 		return models.PGZIP, nil
 	case backupv1.BackupCompression_BACKUP_COMPRESSION_NONE:
 		return models.None, nil
+	case backupv1.BackupCompression_BACKUP_COMPRESSION_DEFAULT:
+		return models.Default, nil
 	default:
 		return "", errors.Errorf("unknown backup compression: %s", compression)
 	}
@@ -899,6 +935,8 @@ func convertBackupCompression(compression models.BackupCompression) (backupv1.Ba
 		return backupv1.BackupCompression_BACKUP_COMPRESSION_SNAPPY, nil
 	case models.PGZIP:
 		return backupv1.BackupCompression_BACKUP_COMPRESSION_PGZIP, nil
+	case models.Default:
+		return backupv1.BackupCompression_BACKUP_COMPRESSION_DEFAULT, nil
 	case models.None:
 		return backupv1.BackupCompression_BACKUP_COMPRESSION_NONE, nil
 	default:

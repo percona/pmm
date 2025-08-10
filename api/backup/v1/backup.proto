@@ -170,6 +170,16 @@ message GetLogsResponse {
   bool end = 2;
 }
 
+message ListServiceCompressionRequest {
+  // Service identifier.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message ListServiceCompressionResponse {
+  // Available compression methods for the service.
+  repeated BackupCompression compression_methods = 1;
+}
+
 // Backups service handles backup operations to DB.
 service BackupService {
   // StartBackup request backup specified service to location.
@@ -260,6 +270,15 @@ service BackupService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List PITR Timeranges"
       description: "Return a list of available MongoDB point-in-time-recovery timeranges."
+    };
+  }
+
+  // ListServiceCompression returns available compression methods for a service.
+  rpc ListServiceCompression(ListServiceCompressionRequest) returns (ListServiceCompressionResponse) {
+    option (google.api.http) = {get: "/v1/backups/services/{service_id}/compression"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Service Compression"
+      description: "Return a list of available compression methods for a service."
     };
   }
 }

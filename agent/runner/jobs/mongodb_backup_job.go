@@ -220,6 +220,7 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	}
 
 	switch j.compression {
+	case backuppb.BackupCompression_BACKUP_COMPRESSION_DEFAULT:
 	case backuppb.BackupCompression_BACKUP_COMPRESSION_GZIP:
 		pbmArgs = append(pbmArgs, "--compression=gzip")
 	case backuppb.BackupCompression_BACKUP_COMPRESSION_SNAPPY:
@@ -234,6 +235,8 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 		pbmArgs = append(pbmArgs, "--compression=zstd")
 	case backuppb.BackupCompression_BACKUP_COMPRESSION_NONE:
 		pbmArgs = append(pbmArgs, "--compression=none")
+	default:
+		return nil, errors.Errorf("unknown compression: %s", j.compression)
 	}
 
 	if err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...); err != nil {

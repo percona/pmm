@@ -159,6 +159,8 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		"--target-dir="+tmpDir) // #nosec G204
 
 	switch j.compression {
+	case backuppb.BackupCompression_BACKUP_COMPRESSION_DEFAULT:
+		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress")
 	case backuppb.BackupCompression_BACKUP_COMPRESSION_QUICKLZ:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress=quicklz")
 	case backuppb.BackupCompression_BACKUP_COMPRESSION_ZSTD:
@@ -167,7 +169,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress=lz4")
 	case backuppb.BackupCompression_BACKUP_COMPRESSION_NONE:
 	default:
-		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--compress")
+		return errors.Errorf("unknown compression: %s", j.compression)
 	}
 
 	if j.connConf.User != "" {

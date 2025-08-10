@@ -2163,3 +2163,220 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLogsResponseValidationError{}
+
+// Validate checks the field values on ListServiceCompressionRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListServiceCompressionRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListServiceCompressionRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ListServiceCompressionRequestMultiError, or nil if none found.
+func (m *ListServiceCompressionRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListServiceCompressionRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := ListServiceCompressionRequestValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ListServiceCompressionRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListServiceCompressionRequestMultiError is an error wrapping multiple
+// validation errors returned by ListServiceCompressionRequest.ValidateAll()
+// if the designated constraints aren't met.
+type ListServiceCompressionRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListServiceCompressionRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListServiceCompressionRequestMultiError) AllErrors() []error { return m }
+
+// ListServiceCompressionRequestValidationError is the validation error
+// returned by ListServiceCompressionRequest.Validate if the designated
+// constraints aren't met.
+type ListServiceCompressionRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListServiceCompressionRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListServiceCompressionRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListServiceCompressionRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListServiceCompressionRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListServiceCompressionRequestValidationError) ErrorName() string {
+	return "ListServiceCompressionRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListServiceCompressionRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListServiceCompressionRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListServiceCompressionRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListServiceCompressionRequestValidationError{}
+
+// Validate checks the field values on ListServiceCompressionResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListServiceCompressionResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListServiceCompressionResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ListServiceCompressionResponseMultiError, or nil if none found.
+func (m *ListServiceCompressionResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListServiceCompressionResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListServiceCompressionResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListServiceCompressionResponseMultiError is an error wrapping multiple
+// validation errors returned by ListServiceCompressionResponse.ValidateAll()
+// if the designated constraints aren't met.
+type ListServiceCompressionResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListServiceCompressionResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListServiceCompressionResponseMultiError) AllErrors() []error { return m }
+
+// ListServiceCompressionResponseValidationError is the validation error
+// returned by ListServiceCompressionResponse.Validate if the designated
+// constraints aren't met.
+type ListServiceCompressionResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListServiceCompressionResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListServiceCompressionResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListServiceCompressionResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListServiceCompressionResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListServiceCompressionResponseValidationError) ErrorName() string {
+	return "ListServiceCompressionResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListServiceCompressionResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListServiceCompressionResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListServiceCompressionResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListServiceCompressionResponseValidationError{}

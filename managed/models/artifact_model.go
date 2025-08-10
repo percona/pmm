@@ -123,6 +123,7 @@ type BackupCompression string
 
 // BackupCompression types.
 const (
+	Default BackupCompression = "default"
 	None    BackupCompression = "none"
 	QuickLZ BackupCompression = "quicklz"
 	ZSTD    BackupCompression = "zstd"
@@ -133,9 +134,39 @@ const (
 	PGZIP   BackupCompression = "pgzip"
 )
 
+// compressionSupport defines which compression methods are supported by each service type
+var compressionSupport = map[ServiceType][]BackupCompression{
+	MySQLServiceType: {
+		Default,
+		QuickLZ,
+		ZSTD,
+		LZ4,
+		None,
+	},
+	MongoDBServiceType: {
+		Default,
+		GZIP,
+		Snappy,
+		LZ4,
+		S2,
+		PGZIP,
+		ZSTD,
+		None,
+	},
+}
+
+// GetSupportedCompressions returns the list of compression methods supported by a service type
+func GetSupportedCompressions(serviceType ServiceType) []BackupCompression {
+	if compressions, exists := compressionSupport[serviceType]; exists {
+		return compressions
+	}
+	return nil
+}
+
 // Validate validates compression.
 func (c BackupCompression) Validate() error {
 	switch c {
+	case Default:
 	case QuickLZ:
 	case LZ4:
 	case ZSTD:
@@ -151,6 +182,26 @@ func (c BackupCompression) Validate() error {
 	}
 
 	return nil
+}
+
+// ValidateForServiceType validates compression for a specific service type.
+func (c BackupCompression) ValidateForServiceType(serviceType ServiceType) error {
+	if err := c.Validate(); err != nil {
+		return err
+	}
+
+	supported := GetSupportedCompressions(serviceType)
+	if supported == nil {
+		return NewInvalidArgumentError("compression is not yet supported for service type '%s'", serviceType)
+	}
+
+	for _, supportedCompression := range supported {
+		if supportedCompression == c {
+			return nil
+		}
+	}
+
+	return NewInvalidArgumentError("compression '%s' is not supported for service type '%s'", c, serviceType)
 }
 
 // File represents file or directory.

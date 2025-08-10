@@ -132,39 +132,42 @@ type BackupCompression int32
 
 const (
 	BackupCompression_BACKUP_COMPRESSION_INVALID BackupCompression = 0
-	BackupCompression_BACKUP_COMPRESSION_NONE    BackupCompression = 1
-	BackupCompression_BACKUP_COMPRESSION_QUICKLZ BackupCompression = 2
-	BackupCompression_BACKUP_COMPRESSION_ZSTD    BackupCompression = 3
-	BackupCompression_BACKUP_COMPRESSION_LZ4     BackupCompression = 4
-	BackupCompression_BACKUP_COMPRESSION_S2      BackupCompression = 5
-	BackupCompression_BACKUP_COMPRESSION_GZIP    BackupCompression = 6
-	BackupCompression_BACKUP_COMPRESSION_SNAPPY  BackupCompression = 7
-	BackupCompression_BACKUP_COMPRESSION_PGZIP   BackupCompression = 8
+	BackupCompression_BACKUP_COMPRESSION_DEFAULT BackupCompression = 1
+	BackupCompression_BACKUP_COMPRESSION_NONE    BackupCompression = 2
+	BackupCompression_BACKUP_COMPRESSION_QUICKLZ BackupCompression = 3
+	BackupCompression_BACKUP_COMPRESSION_ZSTD    BackupCompression = 4
+	BackupCompression_BACKUP_COMPRESSION_LZ4     BackupCompression = 5
+	BackupCompression_BACKUP_COMPRESSION_S2      BackupCompression = 6
+	BackupCompression_BACKUP_COMPRESSION_GZIP    BackupCompression = 7
+	BackupCompression_BACKUP_COMPRESSION_SNAPPY  BackupCompression = 8
+	BackupCompression_BACKUP_COMPRESSION_PGZIP   BackupCompression = 9
 )
 
 // Enum value maps for BackupCompression.
 var (
 	BackupCompression_name = map[int32]string{
 		0: "BACKUP_COMPRESSION_INVALID",
-		1: "BACKUP_COMPRESSION_NONE",
-		2: "BACKUP_COMPRESSION_QUICKLZ",
-		3: "BACKUP_COMPRESSION_ZSTD",
-		4: "BACKUP_COMPRESSION_LZ4",
-		5: "BACKUP_COMPRESSION_S2",
-		6: "BACKUP_COMPRESSION_GZIP",
-		7: "BACKUP_COMPRESSION_SNAPPY",
-		8: "BACKUP_COMPRESSION_PGZIP",
+		1: "BACKUP_COMPRESSION_DEFAULT",
+		2: "BACKUP_COMPRESSION_NONE",
+		3: "BACKUP_COMPRESSION_QUICKLZ",
+		4: "BACKUP_COMPRESSION_ZSTD",
+		5: "BACKUP_COMPRESSION_LZ4",
+		6: "BACKUP_COMPRESSION_S2",
+		7: "BACKUP_COMPRESSION_GZIP",
+		8: "BACKUP_COMPRESSION_SNAPPY",
+		9: "BACKUP_COMPRESSION_PGZIP",
 	}
 	BackupCompression_value = map[string]int32{
 		"BACKUP_COMPRESSION_INVALID": 0,
-		"BACKUP_COMPRESSION_NONE":    1,
-		"BACKUP_COMPRESSION_QUICKLZ": 2,
-		"BACKUP_COMPRESSION_ZSTD":    3,
-		"BACKUP_COMPRESSION_LZ4":     4,
-		"BACKUP_COMPRESSION_S2":      5,
-		"BACKUP_COMPRESSION_GZIP":    6,
-		"BACKUP_COMPRESSION_SNAPPY":  7,
-		"BACKUP_COMPRESSION_PGZIP":   8,
+		"BACKUP_COMPRESSION_DEFAULT": 1,
+		"BACKUP_COMPRESSION_NONE":    2,
+		"BACKUP_COMPRESSION_QUICKLZ": 3,
+		"BACKUP_COMPRESSION_ZSTD":    4,
+		"BACKUP_COMPRESSION_LZ4":     5,
+		"BACKUP_COMPRESSION_S2":      6,
+		"BACKUP_COMPRESSION_GZIP":    7,
+		"BACKUP_COMPRESSION_SNAPPY":  8,
+		"BACKUP_COMPRESSION_PGZIP":   9,
 	}
 )
 
@@ -462,17 +465,18 @@ const file_backup_v1_common_proto_rawDesc = "" +
 	"\x17BACKUP_MODE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14BACKUP_MODE_SNAPSHOT\x10\x01\x12\x1b\n" +
 	"\x17BACKUP_MODE_INCREMENTAL\x10\x02\x12\x14\n" +
-	"\x10BACKUP_MODE_PITR\x10\x03*\x9e\x02\n" +
+	"\x10BACKUP_MODE_PITR\x10\x03*\xbe\x02\n" +
 	"\x11BackupCompression\x12\x1e\n" +
-	"\x1aBACKUP_COMPRESSION_INVALID\x10\x00\x12\x1b\n" +
-	"\x17BACKUP_COMPRESSION_NONE\x10\x01\x12\x1e\n" +
-	"\x1aBACKUP_COMPRESSION_QUICKLZ\x10\x02\x12\x1b\n" +
-	"\x17BACKUP_COMPRESSION_ZSTD\x10\x03\x12\x1a\n" +
-	"\x16BACKUP_COMPRESSION_LZ4\x10\x04\x12\x19\n" +
-	"\x15BACKUP_COMPRESSION_S2\x10\x05\x12\x1b\n" +
-	"\x17BACKUP_COMPRESSION_GZIP\x10\x06\x12\x1d\n" +
-	"\x19BACKUP_COMPRESSION_SNAPPY\x10\a\x12\x1c\n" +
-	"\x18BACKUP_COMPRESSION_PGZIP\x10\bB\x90\x01\n" +
+	"\x1aBACKUP_COMPRESSION_INVALID\x10\x00\x12\x1e\n" +
+	"\x1aBACKUP_COMPRESSION_DEFAULT\x10\x01\x12\x1b\n" +
+	"\x17BACKUP_COMPRESSION_NONE\x10\x02\x12\x1e\n" +
+	"\x1aBACKUP_COMPRESSION_QUICKLZ\x10\x03\x12\x1b\n" +
+	"\x17BACKUP_COMPRESSION_ZSTD\x10\x04\x12\x1a\n" +
+	"\x16BACKUP_COMPRESSION_LZ4\x10\x05\x12\x19\n" +
+	"\x15BACKUP_COMPRESSION_S2\x10\x06\x12\x1b\n" +
+	"\x17BACKUP_COMPRESSION_GZIP\x10\a\x12\x1d\n" +
+	"\x19BACKUP_COMPRESSION_SNAPPY\x10\b\x12\x1c\n" +
+	"\x18BACKUP_COMPRESSION_PGZIP\x10\tB\x90\x01\n" +
 	"\rcom.backup.v1B\vCommonProtoP\x01Z-github.com/percona/pmm/api/backup/v1;backupv1\xa2\x02\x03BXX\xaa\x02\tBackup.V1\xca\x02\tBackup\\V1\xe2\x02\x15Backup\\V1\\GPBMetadata\xea\x02\n" +
 	"Backup::V1b\x06proto3"
 

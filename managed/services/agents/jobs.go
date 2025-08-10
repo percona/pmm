@@ -831,6 +831,8 @@ func convertBackupCompression(compression models.BackupCompression) (backuppb.Ba
 		return backuppb.BackupCompression_BACKUP_COMPRESSION_PGZIP, nil
 	case models.None:
 		return backuppb.BackupCompression_BACKUP_COMPRESSION_NONE, nil
+	case models.Default:
+		return backuppb.BackupCompression_BACKUP_COMPRESSION_DEFAULT, nil
 	default:
 		return 0, errors.Errorf("invalid compression '%s'", compression)
 	}

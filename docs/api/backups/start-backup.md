@@ -26,7 +26,7 @@ curl --insecure -X POST \
      "description": "Test Backup",
      "retry_interval": "60s",
      "retries": 1,
-     "compression": "ZSTD"
+     "compression": "BACKUP_COMPRESSION_ZSTD"
 }
 '
 ```
@@ -41,14 +41,15 @@ You can defined a `name` and a `description` for each backup. You can also confi
 
 The `compression` field allows you to specify the compression algorithm for the backup. Available options are:
 
-- `NONE` - No compression
-- `QUICKLZ` - QuickLZ compression
-- `ZSTD` - Zstandard compression
-- `LZ4` - LZ4 compression
-- `S2` - S2 compression
-- `GZIP` - Gzip compression
-- `SNAPPY` - Snappy compression
-- `PGZIP` - Parallel Gzip compression
+- `BACKUP_COMPRESSION_DEFAULT` - Default compression on service backup tool
+- `BACKUP_COMPRESSION_NONE` - No compression
+- `BACKUP_COMPRESSION_QUICKLZ` - QuickLZ compression
+- `BACKUP_COMPRESSION_ZSTD` - Zstandard compression
+- `BACKUP_COMPRESSION_LZ4` - LZ4 compression
+- `BACKUP_COMPRESSION_S2` - S2 compression
+- `BACKUP_COMPRESSION_GZIP` - Gzip compression
+- `BACKUP_COMPRESSION_SNAPPY` - Snappy compression
+- `BACKUP_COMPRESSION_PGZIP` - Parallel Gzip compression
 
 **Database-specific support:**
 
