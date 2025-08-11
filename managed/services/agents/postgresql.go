@@ -130,7 +130,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	// On AWS and Azure, we need to have a higher value for DialTimeout to avoid connection issues
 
 	// TODO: refactor with https://perconadev.atlassian.net/browse/PMM-12832
-	if exporter.AWSOptions.AWSAccessKey != "" && exporter.AWSOptions.AWSSecretKey != "" {
+	if node.NodeType == models.RemoteRDSNodeType {
 		dsnParams.DialTimeout = 5 * time.Second
 	}
 
