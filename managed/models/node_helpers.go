@@ -71,7 +71,7 @@ func CheckUniqueNodeAddressRegion(q *reform.Querier, address string, region *str
 	}
 
 	if address == "" {
-		return nil, status.Error(codes.InvalidArgument, "Empty Node instance.")
+		return nil, status.Error(codes.InvalidArgument, "Empty Node address.")
 	}
 
 	var node Node

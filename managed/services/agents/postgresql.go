@@ -32,11 +32,10 @@ import (
 )
 
 var (
-	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
-	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
-	postgresSSLSniVersion                = version.MustParse("2.41.0-0")
-	postgresExporterCollectorsVersion    = version.MustParse("2.41.0-0")
-	postgresMaxExporterConnsVersion      = version.MustParse("2.41.2-0")
+	postgresExporterWebConfigVersion  = version.MustParse("2.30.99")
+	postgresSSLSniVersion             = version.MustParse("2.41.0-0")
+	postgresExporterCollectorsVersion = version.MustParse("2.41.0-0")
+	postgresMaxExporterConnsVersion   = version.MustParse("2.41.2-0")
 )
 
 var defaultPostgresExporterCollectors = []string{
@@ -87,16 +86,14 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	}
 
 	autoDiscovery := false
-	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
-		switch {
-		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == nil:
-			autoDiscovery = true
-		case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) == 0: // server defined
-			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= defaultAutoDiscoveryDatabaseLimit
-		case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) < 0: // always disabled
-		default:
-			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit)
-		}
+	switch {
+	case exporter.PostgreSQLOptions.AutoDiscoveryLimit == nil:
+		autoDiscovery = true
+	case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) == 0: // server defined
+		autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= defaultAutoDiscoveryDatabaseLimit
+	case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) < 0: // always disabled
+	default:
+		autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit)
 	}
 	if autoDiscovery {
 		args = append(args,
@@ -124,14 +121,21 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 
 	sort.Strings(args)
 
-	dnsParams := models.DSNParams{
+	dsnParams := models.DSNParams{
 		DialTimeout:              1 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
+	// On AWS and Azure, we need to have a higher value for DialTimeout to avoid connection issues
+
+	// TODO: refactor with https://perconadev.atlassian.net/browse/PMM-12832
+	if exporter.AWSOptions.AWSAccessKey != "" && exporter.AWSOptions.AWSSecretKey != "" {
+		dsnParams.DialTimeout = 5 * time.Second
+	}
+
 	if exporter.AzureOptions.ClientID != "" {
-		dnsParams.DialTimeout = 5 * time.Second
+		dsnParams.DialTimeout = 5 * time.Second
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -140,7 +144,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dnsParams, nil, pmmAgentVersion)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dsnParams, nil, pmmAgentVersion)),
 		},
 		TextFiles: exporter.Files(),
 	}

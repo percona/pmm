@@ -70,9 +70,6 @@ var (
 )
 
 // discoverRDSRegion returns a list of RDS instances from a single region.
-// Returned error is wrapped with a stack trace, but unchanged otherwise.
-//
-//nolint:interfacer
 func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]types.DBInstance, error) {
 	var res []types.DBInstance
 	client := rds.NewFromConfig(cfg, func(o *rds.Options) {
@@ -187,7 +184,6 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
 	for _, region := range listRegions(settings.AWSPartitions) {
-		region := region
 		wg.Go(func() error {
 			regInstances, err := discoverRDSRegion(ctx, cfg, region)
 			if err != nil {
@@ -464,7 +460,6 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
-
 				PostgreSQLOptions: models.PostgreSQLOptions{
 					AutoDiscoveryLimit:     pointer.ToInt32(req.AutoDiscoveryLimit),
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
