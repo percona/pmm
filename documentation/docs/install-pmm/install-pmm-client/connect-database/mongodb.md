@@ -222,7 +222,7 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
         db.setProfilingLevel(2, {slowms: 0})
         ```
 
-    If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
+    If you have already [added a service](#step-3-add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
 
 === "Diagnostic Log (Recommended for scale)"
      Choose this method for production environments with 100+ databases, when experiencing connection pool issues, or when monitoring mongos routers.

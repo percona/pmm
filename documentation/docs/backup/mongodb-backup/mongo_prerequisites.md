@@ -15,7 +15,7 @@ Services that do not specify a cluster name should be removed and re-added using
    query-source=profiler <mark>--cluster=mycluster</mark></code></pre>
 
 7. Check that MongoDB nodes are members of replica set.
-8. Check that you set the [required permissions for creating and restoring MongoDB backups](../../install-pmm/install-pmm-client/connect-database/mongodb.md#create-pmm-account-and-set-permissions).
+8. Check that you set the [required permissions for creating and restoring MongoDB backups](../../install-pmm/install-pmm-client/connect-database/mongodb.md#create-user-and-assign-created-role).
 9. Verify the [MongoDB supported configurations and limitations](mongodb_limitations.md).
 
 !!! caution alert alert-warning "Important"
