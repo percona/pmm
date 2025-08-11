@@ -16,7 +16,10 @@ Get your MySQL instance connected to PMM in just a few steps:
     FLUSH PRIVILEGES;
     ```
 
-2. Register your MySQL instance with PMM:
+   **Note:**
+   If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user.
+
+3. Register your MySQL instance with PMM:
 
     ```sh
     # Add MySQL service to PMM
@@ -30,7 +33,7 @@ Get your MySQL instance connected to PMM in just a few steps:
       MySQL-Primary
     ```
 
-3. Verify the connection is working:
+4. Verify the connection is working:
 
     ```sh
     pmm-admin status
