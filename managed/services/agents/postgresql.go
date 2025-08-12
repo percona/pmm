@@ -32,10 +32,11 @@ import (
 )
 
 var (
-	postgresExporterWebConfigVersion  = version.MustParse("2.30.99")
-	postgresSSLSniVersion             = version.MustParse("2.41.0-0")
-	postgresExporterCollectorsVersion = version.MustParse("2.41.0-0")
-	postgresMaxExporterConnsVersion   = version.MustParse("2.41.2-0")
+	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
+	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
+	postgresSSLSniVersion                = version.MustParse("2.41.0-0")
+	postgresExporterCollectorsVersion    = version.MustParse("2.41.0-0")
+	postgresMaxExporterConnsVersion      = version.MustParse("2.41.2-0")
 )
 
 var defaultPostgresExporterCollectors = []string{
@@ -86,14 +87,16 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	}
 
 	autoDiscovery := false
-	switch {
-	case exporter.PostgreSQLOptions.AutoDiscoveryLimit == nil:
-		autoDiscovery = true
-	case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) == 0: // server defined
-		autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= defaultAutoDiscoveryDatabaseLimit
-	case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) < 0: // always disabled
-	default:
-		autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit)
+	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
+		switch {
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == nil:
+			autoDiscovery = true
+		case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) == 0: // server defined
+			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= defaultAutoDiscoveryDatabaseLimit
+		case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) < 0: // always disabled
+		default:
+			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit)
+		}
 	}
 	if autoDiscovery {
 		args = append(args,
