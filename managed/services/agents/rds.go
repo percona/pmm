@@ -79,7 +79,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 
 		config.Instances = append(config.Instances, rdsInstance{
 			Region:                 pointer.GetString(node.Region),
-			Instance:               node.Address,
+			Instance:               node.InstanceId,
 			AWSAccessKey:           exporter.AWSOptions.AWSAccessKey,
 			AWSSecretKey:           exporter.AWSOptions.AWSSecretKey,
 			Labels:                 labels,
