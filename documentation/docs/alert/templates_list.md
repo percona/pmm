@@ -56,6 +56,7 @@ To access the customer-only templates, you must be a Percona customer and [conne
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
 | PBM | **MongoDB PBM Agent down** | Monitors the status of Percona Backup for MongoDB (PBM) Agents and alerts when an Agent becomes unresponsive. This indicates potential issues with the host system or with the PBM Agent itself. |All users | MongoDB |
+| PBM | **MongoDB PBM backup has failed** | Monitors the status of a running backup and alerts if it fails. |All users | MongoDB |
 | PBM | **MongoDB PBM backup duration** |Monitors the time taken to complete a backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent. |All users | MongoDB |
 | PBM | **MongoDB PBM backup size** | Monitors the amount of disk space taken by a completed backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent. |All users | MongoDB |
 
