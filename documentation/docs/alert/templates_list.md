@@ -33,7 +33,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
-| MongoDB | **MongoDB down** | Detects when a MongoDB instance becomes unavailable, enabling rapid response to maintain database accessibility. When monitoring MongoDB sharded clusters, alerts using this template detect outages in any cluster component (configuration servers, Mongos routers, data-bearing nodes, and arbiters). | All users | MongoDB |
+| MongoDB | **MongoDB down** | Detects when a MongoDB instance becomes unavailable, enabling rapid response to maintain database accessibility. When monitoring MongoDB sharded clusters, alerts using this template detect outages in any cluster component (configuration servers, Mongos routers, data-bearing nodes, and arbiters). | MongoDB |
 | MongoDB | **MongoDB restarted** | Detects recent MongoDB restarts, alerting if an instance has been restarted within the last 5 minutes (default threshold). Facilitates investigation of unexpected downtime and potential issues.  | MongoDB |
 | MongoDB | **MongoDB DBPath disk space utilization** | Monitors disk space usage in MongoDB's data directory and alerts when it exceeds set thresholds. Helps prevent storage-related issues and ensures adequate space for database operations.  | MongoDB |
 | MongoDB | **MongoDB host SSL certificate expiry** | Tracks SSL certificate expiration dates for MongoDB hosts and alerts when certificates are approaching expiry. Enables timely certificate renewal to maintain secure connections.  | MongoDB |
