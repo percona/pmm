@@ -115,7 +115,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 
 	// include both service names and node names in the instances flag
 	// that way, pmm-dump is able to export both OS metrics and QAN metrics.
-	instances := make([]string, 0, len(params.ServiceNames)*2)
+	instances := make([]string, 0, len(params.ServiceNames))
 	nodeNames := make(map[string]struct{})
 	for _, serviceName := range params.ServiceNames {
 		service, err := models.FindServiceByName(s.db.Querier, serviceName)
