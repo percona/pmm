@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -233,11 +232,11 @@ const myCnfTemplate = `[client]
 {{if .EnableClearTextPassword}}enable-cleartext-plugin{{end}}
 `
 
-// BuildMyCnfConfig builds my.cnf configuration for MySQL connection.
+// buildMyCnfConfig builds my.cnf configuration for MySQL connection.
 func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string) (string, error) {
 	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse my.cnf template")
+		return "", fmt.Errorf("failed to parse myCnf template: %w", err)
 	}
 	tdp := agent.TemplateDelimiters(service)
 
@@ -280,7 +279,7 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		}
 	}
 	if err = tmpl.Execute(&configBuffer, myCnfParams); err != nil {
-		return "", errors.Wrap(err, "Failed to execute myCnf template")
+		return "", fmt.Errorf("failed to execute myCnf template: %w", err)
 	}
 
 	return configBuffer.String(), nil
