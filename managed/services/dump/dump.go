@@ -113,7 +113,9 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	s.cancel = cancel
 	s.rw.Unlock()
 
-	nodeNames := make([]string, 0, len(params.ServiceNames))
+	// include both service names and node names in the instances flag
+	// that way, pmm-dump is able to export both OS metrics and QAN metrics.
+	instances := make([]string, 0, len(params.ServiceNames)*2)
 	for _, serviceName := range params.ServiceNames {
 		service, err := models.FindServiceByName(s.db.Querier, serviceName)
 		if err != nil {
@@ -125,7 +127,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 			s.running.Store(false)
 			return "", errors.Wrapf(err, "failed to find node for service %s", serviceName)
 		}
-		nodeNames = append(nodeNames, node.NodeName)
+		instances = append(instances, serviceName, node.NodeName)
 	}
 
 	pmmDumpCmd := exec.CommandContext(ctx, //nolint:gosec
@@ -149,8 +151,8 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-pass=%s`, params.Password))
 	}
 
-	for _, nodeName := range nodeNames {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", nodeName))
+	for _, instance := range instances {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", instance))
 	}
 
 	if params.StartTime != nil {
