@@ -474,7 +474,7 @@ func TestTemplatesAPI(t *testing.T) {
 
 			// list rules, so they are all on the first page
 			listAllTemplates, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				PageSize:  pointer.ToInt32(37),
+				PageSize:  pointer.ToInt32(38),
 				PageIndex: pointer.ToInt32(0),
 				Context:   pmmapitests.Context,
 			})
