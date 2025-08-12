@@ -39,7 +39,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		Region:     pointer.ToString("us-east-1"),
 		AZ:         "us-east-1c",
 		Address:    "rds-mysql56",
-		InstanceId: "rds-mysql56",
+		InstanceID: "rds-mysql56",
 	}
 	err := node1.SetCustomLabels(map[string]string{
 		"foo": "bar",
@@ -64,7 +64,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		Region:     pointer.ToString("us-east-1"),
 		AZ:         "us-east-1c",
 		Address:    "rds-mysql57",
-		InstanceId: "rds-mysql57",
+		InstanceID: "rds-mysql57",
 	}
 	err = node2.SetCustomLabels(map[string]string{
 		"baz": "qux",

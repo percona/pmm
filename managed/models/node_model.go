@@ -58,7 +58,7 @@ type Node struct {
 	// For RemoteRDS Nodes it contains the Service address (not DbiResourceId, DBInstanceIdentifier, not endpoint).
 	Address string `reform:"address"`
 	// For RemoteRDS Nodes it contains the DBInstanceIdentifier.
-	InstanceId string `reform:"instance_id"` //nolint:revive,stylecheck
+	InstanceID string `reform:"instance_id"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`

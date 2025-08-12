@@ -85,7 +85,7 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 			Az:           node.AZ,
 			CustomLabels: labels,
 			Address:      node.Address,
-			InstanceId:   node.InstanceId,
+			InstanceId:   node.InstanceID,
 		}, nil
 
 	case models.RemoteAzureDatabaseNodeType:
