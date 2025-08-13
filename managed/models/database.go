@@ -1139,6 +1139,7 @@ var databaseSchema = [][]string{
 	},
 	110: {
 		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
+		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
 	},
 }
 
