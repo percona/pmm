@@ -48,18 +48,16 @@ const (
 	rdsEndpointsID     = "rds"
 )
 
-var (
-	// See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
+// See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
-	rdsEngines = map[string]managementv1.DiscoverRDSEngine{
-		"aurora-mysql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL, // MySQL 5.7-compatible Aurora
-		"mariadb":      managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
-		"mysql":        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+var rdsEngines = map[string]managementv1.DiscoverRDSEngine{
+	"aurora-mysql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL, // MySQL 5.7-compatible Aurora
+	"mariadb":      managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+	"mysql":        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 
-		"aurora-postgresql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
-		"postgres":          managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
-	}
-)
+	"aurora-postgresql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+	"postgres":          managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+}
 
 // discoverRDSRegion returns a list of RDS instances from a single region.
 func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]types.DBInstance, error) {
