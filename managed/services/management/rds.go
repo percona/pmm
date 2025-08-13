@@ -59,14 +59,6 @@ var (
 		"aurora-postgresql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 		"postgres":          managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 	}
-	rdsEnginesKeys = []*string{
-		pointer.ToString("aurora-mysql"),
-		pointer.ToString("mariadb"),
-		pointer.ToString("mysql"),
-
-		pointer.ToString("aurora-postgresql"),
-		pointer.ToString("postgres"),
-	}
 )
 
 // discoverRDSRegion returns a list of RDS instances from a single region.
@@ -80,7 +72,7 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 		Filters: []types.Filter{
 			{
 				Name:   aws.String("engine"),
-				Values: []string{"postgres", "mysql", "aurora-mysql", "aurora-postgresql"},
+				Values: []string{"postgres", "mysql", "mariadb", "aurora-mysql", "aurora-postgresql"},
 			},
 		},
 	}
