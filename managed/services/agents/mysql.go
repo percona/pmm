@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -232,25 +231,24 @@ const myCnfTemplate = `[client]
 {{if .KeyFile}}ssl-key={{ .KeyFile }}{{end}}
 `
 
-// BuildMyCnfConfig builds my.cnf configuration for MySQL connection.
+// buildMyCnfConfig builds my.cnf configuration for MySQL connection.
 func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string) (string, error) {
 	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse my.cnf template")
+		return "", fmt.Errorf("failed to parse myCnf template: %w", err)
 	}
 	tdp := agent.TemplateDelimiters(service)
 
 	var configBuffer bytes.Buffer
 	myCnfParams := struct {
-		User      string
-		Password  string
-		Socket    string
-		Host      string
-		Port      int
-		CaFile    string
-		CertFile  string
-		KeyFile   string
-		MyCnfPath string
+		User     string
+		Password string
+		Socket   string
+		Host     string
+		Port     int
+		CaFile   string
+		CertFile string
+		KeyFile  string
 	}{
 		User:     pointer.GetString(agent.Username),
 		Password: pointer.GetString(agent.Password),
@@ -273,7 +271,7 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 	}
 
 	if err = tmpl.Execute(&configBuffer, myCnfParams); err != nil {
-		return "", errors.Wrap(err, "Failed to execute myCnf template")
+		return "", fmt.Errorf("failed to execute myCnf template: %w", err)
 	}
 
 	return configBuffer.String(), nil
