@@ -91,6 +91,7 @@ linters:
     rules:
       - linters:
           - contextcheck     # not critical, too many things to disable
+          - errcheck         # not critical, too many things to disable
           - exhaustivestruct # very annoying
           - forcetypeassert  # for tests' brevity sake 
           - funlen           # tests may be long
