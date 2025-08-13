@@ -110,7 +110,7 @@ jobs:
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.64.8 # Version should match specified in Makefile
+          golangci_lint_version: v2.3.0 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
