@@ -107,18 +107,6 @@ linters:
       - linters:
           - recvcheck
         path: managed/models/
-      - path: (.+)\.go$
-        text: 'G104: Errors unhandled'
-      - path: (.+)\.go$
-        text: exported method `.+` should have comment or be unexported
-      - path: (.+)\.go$
-        text: comment on exported method `.+` should be of the form `.+ ...`
-      - path: (.+)\.go$
-        text: exported method .+ returns unexported type .+, which can be annoying to use
-      - path: (.+)\.go$
-        text: 'buildssa: failed to load package'
-      - path: (.+)\.go$
-        text: could not load export data
     paths:
       - agent/agents/mongodb/internal/
       - qan-api2/migrations/
