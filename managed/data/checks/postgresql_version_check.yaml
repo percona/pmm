@@ -1,0 +1,148 @@
+---
+checks:
+  - version: 2
+    name: postgresql_version_check
+    summary: Check for newer version of PostgreSQL
+    description: Checks to see if the currently installed version is outdated for it's release level
+    #author: Jorge Torralba
+    advisor: configuration_version
+    interval: standard
+    family: POSTGRESQL
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: "setting, (setting::int / 10000) major, extract(epoch FROM NOW())::int AS today  FROM pg_settings WHERE name = 'server_version_num' "
+    script: |
+      latest_versions = {
+          "9.0": 90023,
+          "9.1": 90124,
+          "9.2": 90224,
+          "9.3": 90325,
+          "9.4": 90426,
+          "9.5": 90525,
+          "9.6": 90624,
+          "10": 100023,
+          "11": 110022,
+          "12": 120022,
+          "13": 130020,
+          "14": 140017,
+          "15": 150012,
+          "16": 160008,
+          "17": 170004,
+      }
+
+      version_expires = {
+          "9.0": 1444361785,
+          "9.1": 1477625785,
+          "9.2": 1510288585,
+          "9.3": 1541738185,
+          "9.4": 1581321600,
+          "9.5": 1613030400,
+          "9.6": 1636617600,
+          "10": 1668067200,
+          "11": 1699516800,
+          "12": 1731571200,
+          "13": 1763020800,
+          "14": 1794470400,
+          "15": 1825920000,
+          "16": 1857409199,
+          "17": 1886140800,
+      }
+
+      minver = 9
+
+      latestpg = 170004
+      latest_and_greatest = "17.4"
+
+      def days_left(major,today):
+          expires = version_expires[str(major)]
+          daysleft = expires - int(today)
+          daysleft = int(daysleft) // 86400
+
+          if daysleft <= 0:
+             daysleft = daysleft * -1
+             return "WARNING: The version currently installed expired {} days ago".format(daysleft)
+
+          if daysleft > 0:
+             return "NOTE: Support for current version will end in {} days.".format(daysleft)
+
+
+      def format_version(major, ver):
+          if major >= 10:
+             minor = int(ver) % 100
+             fmt_version = "{}.{}".format(major, minor)
+
+          if major <= 9:
+             minor = int(ver) // 100  % 100
+             patch = int(ver) % 100
+             fmt_version = "{}.{}.{}".format(major, minor, patch)
+
+          return fmt_version
+
+
+      def check_context(rows, context):
+           #fail(rows)
+           results = []
+           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           description = ""
+           daysleft = ""
+           minoroutdated = False
+           majoroutdated = False
+           for row in rows[0]:
+               ver, major, today = row["setting"], row["major"], row["today"]
+
+               major = int(major)
+
+               #hard code for testing
+               #ver = 90022
+               #major = 9
+
+               if str(major) == "" or int(major) < minver :
+                  results.append({
+                      "summary": "Could not determine version information",
+                      "description": "Unknown version",
+                      "read_more_url": "",
+                      "severity": "warning",
+                      "labels": {},
+                  })
+                  return results
+
+               if major >= 10:
+                   current_version = format_version(major, ver)
+                   latest_for_current = latest_versions[str(major)]
+                   daysleft = days_left(major,today)
+                   if int(ver) < latest_for_current:
+                      latest_current = format_version(major, latest_for_current)
+                      description = "There is a newer minor version ({}) available. ".format(latest_current)
+                      description = description + daysleft
+                      minoroutdated = True
+
+               if major < 10:
+                   minor = int(ver) // 100  % 100
+                   realmajor = "{}.{}".format(major, minor)
+                   current_version = format_version(major, ver)
+                   latest_for_current = latest_versions[str(realmajor)]
+                   daysleft = days_left(realmajor,today)
+                   if int(ver) < latest_for_current:
+                      latest_current = format_version(major, latest_for_current)
+                      description = "There is a newer minor version ({}) available.".format(latest_current)
+                      description = description + daysleft
+                      minoroutdated = True
+
+               if int(ver) < int(latestpg) and minoroutdated == False:
+                      majoroutdated = True
+                      description = "Version ({}) is the latest release for this major/minor version.  However, there is a newer major verion ({}) available. ".format(current_version, latest_and_greatest)
+                      description = description + daysleft
+
+               results.append({
+                   "summary": "Currently installed version is ({})".format(current_version),
+                   "description": description,
+                   "read_more_url":read_url.format("postgresql-version-check"),
+                   "severity": "warning",
+                   "labels": {},
+               })
+
+
+           if minoroutdated == False and majoroutdated == False:
+              return []
+
+           return results

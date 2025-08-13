@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 1
+    name: postgresql_stale_replication_slot_1
+    summary: PostgreSQL Stale Replication Slot
+    description: This check returns a warning if there is a stale replication slot. Stale replication slots will lead to WAL file accumulation and can result in a DB server outage.
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    #author: Sergey Kuzmichev
+    advisor: performance_replication
+    interval: standard
+    query: slot_name, pg_current_wal_insert_lsn()-restart_lsn stale_bytes, (SELECT setting FROM pg_settings WHERE name = 'max_wal_size') max_wal_size FROM pg_replication_slots WHERE active = FALSE AND temporary = FALSE AND restart_lsn IS NOT NULL
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+      def check_context(rows, context):
+          # This check returns a warning if there is a stale replication slot.
+
+          slots = []
+          for row in rows:
+              if int(row["stale_bytes"]) > int(row["max_wal_size"])*1024*1024:
+                  slots.append(row["slot_name"])
+          count = len(slots)
+          if count:
+              desc = "1 slot"
+              if count > 1:
+                  desc = "{} slots".format(count)
+              return [{
+                  "summary": "Stale replication slots found",
+                  "description": "{} - {}. Stale replication slots will lead to WAL file accumulation and can result in a DB server outage.".format(desc, slots),
+                  "read_more_url": read_url.format("performance-pg-stale-replication-slot"),
+                  "severity": "warning"
+              }]
+          return []

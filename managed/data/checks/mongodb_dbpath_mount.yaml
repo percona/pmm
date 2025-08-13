@@ -1,0 +1,50 @@
+---
+checks:
+  - version: 2
+    name: mongodb_dbpath_mount
+    summary: MongoDB - separate mount point other than "/" partition for dbpath.
+    description: This check returns a warning if dbpath does not have a dedicated mount point.
+    interval: rare
+    family: MONGODB
+    advisor: configuration_resources
+    #author: Parag Bhayani
+    queries:
+      - type: MONGODB_GETCMDLINEOPTS
+      - type: METRICS_INSTANT
+        query: avg by (fstype,mountpoint,node_name) (node_filesystem_files{node_name=~"{{.NodeName}}"})
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          info = docs[0]
+          mount_cnt = 0
+          results = []
+
+          #Gather DBPATH details.
+          for row in info:
+              parsed = row["parsed"]
+              if "storage" in parsed: // Check if key exists
+                  storage = parsed["storage"] // We already know that it's exists, so we can just take the value
+                  if "dbPath" in storage: // Check if key exists
+                      dbpath = storage["dbPath"] // Same thing, we already know that key exists
+              if not parsed.get("storage", {}):
+                  return results
+
+          #Gather DBPATH mount point details and it's disk usage percentage.
+          for type in docs[1]:
+              mount = type["metric"]["mountpoint"]
+
+              #count how many mount path startswith for DBPATH
+              if dbpath.startswith(mount):
+                  dbpath_mount = mount
+                  mount_cnt = int(mount_cnt) + 1
+
+          #Evaluating if mount point is "/" partition.
+          if mount_cnt == 1:
+              results.append({
+                  "summary": "The DBPATH mount point is using root partition.",
+                  "description": "The dbPath for this instance is not using a separate dedicated mount point that is not the root partition. It is best practice to use a dedicated mount point such as /data. Below are the details: DBPATH - {}, MOUNT - {}".format(dbpath, dbpath_mount),
+                  "read_more_url": read_url.format("mongodb-dbpath-mount"),
+                  "severity": "warning",
+              })
+          return results
