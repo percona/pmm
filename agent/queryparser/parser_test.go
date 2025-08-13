@@ -96,6 +96,13 @@ func TestMySQLComments(t *testing.T) {
 			Comments: make(map[string]string),
 		},
 		{
+			Name:  "Comment",
+			Query: `SELECT /* key_1='value1' */ 200;`,
+			Comments: map[string]string{
+				"key_1": "value1",
+			},
+		},
+		{
 			Name:  "Dash comment",
 			Query: `SELECT * FROM people -- web-framework='Django', controller='unknown'`,
 			Comments: map[string]string{
@@ -110,11 +117,11 @@ func TestMySQLComments(t *testing.T) {
 		},
 		{
 			Name: "Hash comment",
-			Query: `SELECT * FROM people # framework='Django'
+			Query: `SELECT * FROM people # -framework='Django'
 			WHERE name = 'John'
 			`,
 			Comments: map[string]string{
-				"framework": "Django",
+				"-framework": "Django",
 			},
 		},
 		{
@@ -174,24 +181,24 @@ func TestPostgreSQLComments(t *testing.T) {
 		},
 		{
 			Name: "Multiline comment with new line",
-			Query: `SELECT * FROM people /* framework='Django', 
+			Query: `SELECT * FROM people /* -framework='Django', 
 			controller='unknown' */`,
 			Comments: map[string]string{
-				"framework":  "Django",
+				"-framework": "Django",
 				"controller": "unknown",
 			},
 		},
 		{
 			Name: "Multicomment case with new line",
 			Query: `SELECT * FROM people /*
-				framework='Django',
+				framework_used='Django',
 				controller='unknown'
 				 */ WHERE name = 'John' -- os='unix'
 				 AND name != 'Doe'`,
 			Comments: map[string]string{
-				"framework":  "Django",
-				"controller": "unknown",
-				"os":         "unix",
+				"framework_used": "Django",
+				"controller":     "unknown",
+				"os":             "unix",
 			},
 		},
 	}

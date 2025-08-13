@@ -25,7 +25,7 @@ var (
 	mySQLCommentRegexp = regexp.MustCompile(`(?m)--.*$|#.*$|(?s)/\*.*?\*/`)
 	pgQuotedRegexp     = regexp.MustCompile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|\$\$.*?\$\$`)
 	pgCommentRegexp    = regexp.MustCompile(`(?m)--.*$|(?s)/\*.*?\*/`)
-	keyValueRegexp     = regexp.MustCompile(`(?s)([a-zA-Z-\d]+='.+?')`)
+	keyValueRegexp     = regexp.MustCompile(`(?s)([^'",\s]+=\'[^']*?\')`)
 )
 
 func parseMySQLComments(query string) (map[string]bool, error) {
