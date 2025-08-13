@@ -38,7 +38,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		NodeModel:  "db.t2.micro",
 		Region:     pointer.ToString("us-east-1"),
 		AZ:         "us-east-1c",
-		Address:    "rds-mysql56",
+		Address:    "rds-mysql56.xyzzy.us-east-1.rds.amazonaws.com",
 		InstanceID: "rds-mysql56",
 	}
 	err := node1.SetCustomLabels(map[string]string{
