@@ -28,6 +28,7 @@ import (
 // GetValkeyTLSConfig returns TLS config for Valkey connections.
 func GetValkeyTLSConfig(files *agentv1.TextFiles, useTLS, tlsSkipVerify bool) ([]redis.DialOption, error) {
 	var opts []redis.DialOption
+
 	if !isEmptyTLSFiles(files) {
 		ca := x509.NewCertPool()
 		cert, err := tls.X509KeyPair([]byte(files.Files["tlsCert"]), []byte(files.Files["tlsKey"]))
@@ -43,6 +44,7 @@ func GetValkeyTLSConfig(files *agentv1.TextFiles, useTLS, tlsSkipVerify bool) ([
 			Certificates:       []tls.Certificate{cert},
 			RootCAs:            ca,
 		}
+
 		opts = append(opts, redis.DialUseTLS(useTLS))
 		opts = append(opts, redis.DialTLSSkipVerify(tlsSkipVerify))
 		opts = append(opts, redis.DialTLSConfig(tlsConfig))
