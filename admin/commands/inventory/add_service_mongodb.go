@@ -62,7 +62,7 @@ type AddServiceMongoDBCommand struct {
 
 // RunCmd executes the AddServiceMongoDBCommand and returns the result.
 func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
