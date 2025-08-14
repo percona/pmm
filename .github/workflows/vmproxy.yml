@@ -16,7 +16,6 @@ on:
       - "admin/**"
       - "agent/**"
       - "api-tests/**"
-      - "cli-tests/**"
       - "docs/**"
       - "documentation/**"
       - "managed/**"

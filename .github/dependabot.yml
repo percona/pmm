@@ -50,14 +50,6 @@ updates:
     schedule:
       interval: "daily"
 
-  - package-ecosystem: "npm"
-    directory: "/cli-tests"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
-
 # V3 branch
   - package-ecosystem: "gomod"
     directory: "/"
@@ -115,12 +107,3 @@ updates:
     target-branch: "v3"
     schedule:
       interval: "daily"
-
-  - package-ecosystem: "npm"
-    directory: "/cli-tests"
-    target-branch: "v3"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]

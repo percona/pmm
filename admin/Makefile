@@ -32,15 +32,12 @@ clean:                          ## Remove generated files
 
 release:                        ## Build pmm-admin release binary
 	CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
-	CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm ./cmd/pmm/
 
 install:                        ## Install pmm & pmm-admin binary
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
-	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm ./cmd/pmm/
 
 install-race:                   ## Install pmm & pmm-admin binary with race detector
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
-	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm ./cmd/pmm/
 
 TEST_FLAGS ?= -timeout=20s
 
