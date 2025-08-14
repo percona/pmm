@@ -15,7 +15,6 @@ on:
     paths-ignore:
       - "admin/**"
       - "api-tests/**"
-      - "cli-tests/**"
       - "docs/**"
       - "documentation/**"
       - "managed/**"
