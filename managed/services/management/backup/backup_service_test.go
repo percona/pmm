@@ -850,7 +850,7 @@ func TestListServiceCompression(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			supportedCompressions := models.GetSupportedCompressions(tt.serviceType)
-			
+
 			if tt.expectedError {
 				assert.Nil(t, supportedCompressions)
 			} else {
@@ -923,8 +923,6 @@ func TestCompressionValidation(t *testing.T) {
 		})
 	}
 }
-
-
 
 func TestArtifactMetadataListToProto(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
