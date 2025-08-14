@@ -1138,6 +1138,10 @@ var databaseSchema = [][]string{
 	109: {
 		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
 	},
+	110: {
+		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
+		`UPDATE agents SET valkey_options = '{}'::jsonb`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

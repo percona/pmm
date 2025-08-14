@@ -50,6 +50,8 @@ message UniversalAgent {
     int32 max_exporter_connections = 3;
   }
 
+  message ValkeyOptions {}
+
   // Unique agent identifier.
   string agent_id = 1;
   // True if the agent password is set.
@@ -132,6 +134,8 @@ message UniversalAgent {
   bool is_connected = 39;
   // True if an exporter agent is exposed on all host addresses.
   bool expose_exporter = 40;
+  // Options for connecting to Valkey.
+  ValkeyOptions valkey_options = 41;
 }
 
 message ListAgentsRequest {

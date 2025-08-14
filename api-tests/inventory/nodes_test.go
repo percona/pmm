@@ -438,6 +438,7 @@ func TestRemoveNode(t *testing.T) {
 			Proxysql:   make([]*services.ListServicesOKBodyProxysqlItems0, 0),
 			Haproxy:    make([]*services.ListServicesOKBodyHaproxyItems0, 0),
 			External:   make([]*services.ListServicesOKBodyExternalItems0, 0),
+			Valkey:     make([]*services.ListServicesOKBodyValkeyItems0, 0),
 		}, listAgentsOK.Payload)
 	})
 

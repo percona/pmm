@@ -630,6 +630,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// True if an exporter agent is exposed on all host addresses.
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// valkey options
+	ValkeyOptions interface{} `json:"valkey_options,omitempty"`
+
 	// azure options
 	AzureOptions *ListAgentsOKBodyAgentsItems0AzureOptions `json:"azure_options,omitempty"`
 

@@ -35,6 +35,7 @@ const (
 	ServiceType_SERVICE_TYPE_MYSQL_SERVICE      ServiceType = 1
 	ServiceType_SERVICE_TYPE_MONGODB_SERVICE    ServiceType = 2
 	ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE ServiceType = 3
+	ServiceType_SERVICE_TYPE_VALKEY_SERVICE     ServiceType = 7
 	ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE   ServiceType = 4
 	ServiceType_SERVICE_TYPE_HAPROXY_SERVICE    ServiceType = 6
 	ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE   ServiceType = 5
@@ -47,6 +48,7 @@ var (
 		1: "SERVICE_TYPE_MYSQL_SERVICE",
 		2: "SERVICE_TYPE_MONGODB_SERVICE",
 		3: "SERVICE_TYPE_POSTGRESQL_SERVICE",
+		7: "SERVICE_TYPE_VALKEY_SERVICE",
 		4: "SERVICE_TYPE_PROXYSQL_SERVICE",
 		6: "SERVICE_TYPE_HAPROXY_SERVICE",
 		5: "SERVICE_TYPE_EXTERNAL_SERVICE",
@@ -56,6 +58,7 @@ var (
 		"SERVICE_TYPE_MYSQL_SERVICE":      1,
 		"SERVICE_TYPE_MONGODB_SERVICE":    2,
 		"SERVICE_TYPE_POSTGRESQL_SERVICE": 3,
+		"SERVICE_TYPE_VALKEY_SERVICE":     7,
 		"SERVICE_TYPE_PROXYSQL_SERVICE":   4,
 		"SERVICE_TYPE_HAPROXY_SERVICE":    6,
 		"SERVICE_TYPE_EXTERNAL_SERVICE":   5,
@@ -524,6 +527,145 @@ func (x *PostgreSQLService) GetAutoDiscoveryLimit() int32 {
 	return 0
 }
 
+// ValkeyService represents a generic Valkey instance.
+type ValkeyService struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique randomly generated instance identifier.
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Unique across all Services user-defined name.
+	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Node identifier where this instance runs.
+	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
+	// Access port.
+	// Port is required when the address present.
+	Port uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `protobuf:"bytes,6,opt,name=socket,proto3" json:"socket,omitempty"`
+	// Environment name.
+	Environment string `protobuf:"bytes,7,opt,name=environment,proto3" json:"environment,omitempty"`
+	// Cluster name.
+	Cluster string `protobuf:"bytes,8,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	// Replication set name.
+	ReplicationSet string `protobuf:"bytes,9,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Valkey version.
+	Version       string `protobuf:"bytes,11,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValkeyService) Reset() {
+	*x = ValkeyService{}
+	mi := &file_inventory_v1_services_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValkeyService) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValkeyService) ProtoMessage() {}
+
+func (x *ValkeyService) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_services_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValkeyService.ProtoReflect.Descriptor instead.
+func (*ValkeyService) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ValkeyService) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *ValkeyService) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *ValkeyService) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *ValkeyService) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *ValkeyService) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *ValkeyService) GetSocket() string {
+	if x != nil {
+		return x.Socket
+	}
+	return ""
+}
+
+func (x *ValkeyService) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *ValkeyService) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
+}
+
+func (x *ValkeyService) GetReplicationSet() string {
+	if x != nil {
+		return x.ReplicationSet
+	}
+	return ""
+}
+
+func (x *ValkeyService) GetCustomLabels() map[string]string {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *ValkeyService) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
 // ProxySQLService represents a generic ProxySQL instance.
 type ProxySQLService struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -558,7 +700,7 @@ type ProxySQLService struct {
 
 func (x *ProxySQLService) Reset() {
 	*x = ProxySQLService{}
-	mi := &file_inventory_v1_services_proto_msgTypes[3]
+	mi := &file_inventory_v1_services_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -570,7 +712,7 @@ func (x *ProxySQLService) String() string {
 func (*ProxySQLService) ProtoMessage() {}
 
 func (x *ProxySQLService) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[3]
+	mi := &file_inventory_v1_services_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -583,7 +725,7 @@ func (x *ProxySQLService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProxySQLService.ProtoReflect.Descriptor instead.
 func (*ProxySQLService) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{3}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ProxySQLService) GetServiceId() string {
@@ -686,7 +828,7 @@ type HAProxyService struct {
 
 func (x *HAProxyService) Reset() {
 	*x = HAProxyService{}
-	mi := &file_inventory_v1_services_proto_msgTypes[4]
+	mi := &file_inventory_v1_services_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -698,7 +840,7 @@ func (x *HAProxyService) String() string {
 func (*HAProxyService) ProtoMessage() {}
 
 func (x *HAProxyService) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[4]
+	mi := &file_inventory_v1_services_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -711,7 +853,7 @@ func (x *HAProxyService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HAProxyService.ProtoReflect.Descriptor instead.
 func (*HAProxyService) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{4}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *HAProxyService) GetServiceId() string {
@@ -788,7 +930,7 @@ type ExternalService struct {
 
 func (x *ExternalService) Reset() {
 	*x = ExternalService{}
-	mi := &file_inventory_v1_services_proto_msgTypes[5]
+	mi := &file_inventory_v1_services_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -800,7 +942,7 @@ func (x *ExternalService) String() string {
 func (*ExternalService) ProtoMessage() {}
 
 func (x *ExternalService) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[5]
+	mi := &file_inventory_v1_services_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +955,7 @@ func (x *ExternalService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalService.ProtoReflect.Descriptor instead.
 func (*ExternalService) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{5}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ExternalService) GetServiceId() string {
@@ -886,7 +1028,7 @@ type ListServicesRequest struct {
 
 func (x *ListServicesRequest) Reset() {
 	*x = ListServicesRequest{}
-	mi := &file_inventory_v1_services_proto_msgTypes[6]
+	mi := &file_inventory_v1_services_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -898,7 +1040,7 @@ func (x *ListServicesRequest) String() string {
 func (*ListServicesRequest) ProtoMessage() {}
 
 func (x *ListServicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[6]
+	mi := &file_inventory_v1_services_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -911,7 +1053,7 @@ func (x *ListServicesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServicesRequest.ProtoReflect.Descriptor instead.
 func (*ListServicesRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{6}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListServicesRequest) GetNodeId() string {
@@ -943,13 +1085,14 @@ type ListServicesResponse struct {
 	Proxysql      []*ProxySQLService     `protobuf:"bytes,4,rep,name=proxysql,proto3" json:"proxysql,omitempty"`
 	Haproxy       []*HAProxyService      `protobuf:"bytes,5,rep,name=haproxy,proto3" json:"haproxy,omitempty"`
 	External      []*ExternalService     `protobuf:"bytes,6,rep,name=external,proto3" json:"external,omitempty"`
+	Valkey        []*ValkeyService       `protobuf:"bytes,7,rep,name=valkey,proto3" json:"valkey,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListServicesResponse) Reset() {
 	*x = ListServicesResponse{}
-	mi := &file_inventory_v1_services_proto_msgTypes[7]
+	mi := &file_inventory_v1_services_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -961,7 +1104,7 @@ func (x *ListServicesResponse) String() string {
 func (*ListServicesResponse) ProtoMessage() {}
 
 func (x *ListServicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[7]
+	mi := &file_inventory_v1_services_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -974,7 +1117,7 @@ func (x *ListServicesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServicesResponse.ProtoReflect.Descriptor instead.
 func (*ListServicesResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{7}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListServicesResponse) GetMysql() []*MySQLService {
@@ -1019,6 +1162,13 @@ func (x *ListServicesResponse) GetExternal() []*ExternalService {
 	return nil
 }
 
+func (x *ListServicesResponse) GetValkey() []*ValkeyService {
+	if x != nil {
+		return x.Valkey
+	}
+	return nil
+}
+
 type ListActiveServiceTypesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1027,7 +1177,7 @@ type ListActiveServiceTypesRequest struct {
 
 func (x *ListActiveServiceTypesRequest) Reset() {
 	*x = ListActiveServiceTypesRequest{}
-	mi := &file_inventory_v1_services_proto_msgTypes[8]
+	mi := &file_inventory_v1_services_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1039,7 +1189,7 @@ func (x *ListActiveServiceTypesRequest) String() string {
 func (*ListActiveServiceTypesRequest) ProtoMessage() {}
 
 func (x *ListActiveServiceTypesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[8]
+	mi := &file_inventory_v1_services_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1052,7 +1202,7 @@ func (x *ListActiveServiceTypesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListActiveServiceTypesRequest.ProtoReflect.Descriptor instead.
 func (*ListActiveServiceTypesRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{8}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{9}
 }
 
 type ListActiveServiceTypesResponse struct {
@@ -1064,7 +1214,7 @@ type ListActiveServiceTypesResponse struct {
 
 func (x *ListActiveServiceTypesResponse) Reset() {
 	*x = ListActiveServiceTypesResponse{}
-	mi := &file_inventory_v1_services_proto_msgTypes[9]
+	mi := &file_inventory_v1_services_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1076,7 +1226,7 @@ func (x *ListActiveServiceTypesResponse) String() string {
 func (*ListActiveServiceTypesResponse) ProtoMessage() {}
 
 func (x *ListActiveServiceTypesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[9]
+	mi := &file_inventory_v1_services_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1089,7 +1239,7 @@ func (x *ListActiveServiceTypesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListActiveServiceTypesResponse.ProtoReflect.Descriptor instead.
 func (*ListActiveServiceTypesResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{9}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListActiveServiceTypesResponse) GetServiceTypes() []ServiceType {
@@ -1109,7 +1259,7 @@ type GetServiceRequest struct {
 
 func (x *GetServiceRequest) Reset() {
 	*x = GetServiceRequest{}
-	mi := &file_inventory_v1_services_proto_msgTypes[10]
+	mi := &file_inventory_v1_services_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1121,7 +1271,7 @@ func (x *GetServiceRequest) String() string {
 func (*GetServiceRequest) ProtoMessage() {}
 
 func (x *GetServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[10]
+	mi := &file_inventory_v1_services_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1134,7 +1284,7 @@ func (x *GetServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServiceRequest.ProtoReflect.Descriptor instead.
 func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{10}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetServiceRequest) GetServiceId() string {
@@ -1154,6 +1304,7 @@ type GetServiceResponse struct {
 	//	*GetServiceResponse_Proxysql
 	//	*GetServiceResponse_Haproxy
 	//	*GetServiceResponse_External
+	//	*GetServiceResponse_Valkey
 	Service       isGetServiceResponse_Service `protobuf_oneof:"service"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1161,7 +1312,7 @@ type GetServiceResponse struct {
 
 func (x *GetServiceResponse) Reset() {
 	*x = GetServiceResponse{}
-	mi := &file_inventory_v1_services_proto_msgTypes[11]
+	mi := &file_inventory_v1_services_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1173,7 +1324,7 @@ func (x *GetServiceResponse) String() string {
 func (*GetServiceResponse) ProtoMessage() {}
 
 func (x *GetServiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[11]
+	mi := &file_inventory_v1_services_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1186,7 +1337,7 @@ func (x *GetServiceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServiceResponse.ProtoReflect.Descriptor instead.
 func (*GetServiceResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{11}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetServiceResponse) GetService() isGetServiceResponse_Service {
@@ -1250,6 +1401,15 @@ func (x *GetServiceResponse) GetExternal() *ExternalService {
 	return nil
 }
 
+func (x *GetServiceResponse) GetValkey() *ValkeyService {
+	if x != nil {
+		if x, ok := x.Service.(*GetServiceResponse_Valkey); ok {
+			return x.Valkey
+		}
+	}
+	return nil
+}
+
 type isGetServiceResponse_Service interface {
 	isGetServiceResponse_Service()
 }
@@ -1278,6 +1438,10 @@ type GetServiceResponse_External struct {
 	External *ExternalService `protobuf:"bytes,6,opt,name=external,proto3,oneof"`
 }
 
+type GetServiceResponse_Valkey struct {
+	Valkey *ValkeyService `protobuf:"bytes,7,opt,name=valkey,proto3,oneof"`
+}
+
 func (*GetServiceResponse_Mysql) isGetServiceResponse_Service() {}
 
 func (*GetServiceResponse_Mongodb) isGetServiceResponse_Service() {}
@@ -1290,6 +1454,8 @@ func (*GetServiceResponse_Haproxy) isGetServiceResponse_Service() {}
 
 func (*GetServiceResponse_External) isGetServiceResponse_Service() {}
 
+func (*GetServiceResponse_Valkey) isGetServiceResponse_Service() {}
+
 type AddServiceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Service:
@@ -1300,6 +1466,7 @@ type AddServiceRequest struct {
 	//	*AddServiceRequest_Proxysql
 	//	*AddServiceRequest_Haproxy
 	//	*AddServiceRequest_External
+	//	*AddServiceRequest_Valkey
 	Service       isAddServiceRequest_Service `protobuf_oneof:"service"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1307,7 +1474,7 @@ type AddServiceRequest struct {
 
 func (x *AddServiceRequest) Reset() {
 	*x = AddServiceRequest{}
-	mi := &file_inventory_v1_services_proto_msgTypes[12]
+	mi := &file_inventory_v1_services_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1319,7 +1486,7 @@ func (x *AddServiceRequest) String() string {
 func (*AddServiceRequest) ProtoMessage() {}
 
 func (x *AddServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[12]
+	mi := &file_inventory_v1_services_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1332,7 +1499,7 @@ func (x *AddServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddServiceRequest.ProtoReflect.Descriptor instead.
 func (*AddServiceRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{12}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AddServiceRequest) GetService() isAddServiceRequest_Service {
@@ -1396,6 +1563,15 @@ func (x *AddServiceRequest) GetExternal() *AddExternalServiceParams {
 	return nil
 }
 
+func (x *AddServiceRequest) GetValkey() *AddValkeyServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*AddServiceRequest_Valkey); ok {
+			return x.Valkey
+		}
+	}
+	return nil
+}
+
 type isAddServiceRequest_Service interface {
 	isAddServiceRequest_Service()
 }
@@ -1424,6 +1600,10 @@ type AddServiceRequest_External struct {
 	External *AddExternalServiceParams `protobuf:"bytes,6,opt,name=external,proto3,oneof"`
 }
 
+type AddServiceRequest_Valkey struct {
+	Valkey *AddValkeyServiceParams `protobuf:"bytes,7,opt,name=valkey,proto3,oneof"`
+}
+
 func (*AddServiceRequest_Mysql) isAddServiceRequest_Service() {}
 
 func (*AddServiceRequest_Mongodb) isAddServiceRequest_Service() {}
@@ -1436,6 +1616,8 @@ func (*AddServiceRequest_Haproxy) isAddServiceRequest_Service() {}
 
 func (*AddServiceRequest_External) isAddServiceRequest_Service() {}
 
+func (*AddServiceRequest_Valkey) isAddServiceRequest_Service() {}
+
 type AddServiceResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Service:
@@ -1446,6 +1628,7 @@ type AddServiceResponse struct {
 	//	*AddServiceResponse_Proxysql
 	//	*AddServiceResponse_Haproxy
 	//	*AddServiceResponse_External
+	//	*AddServiceResponse_Valkey
 	Service       isAddServiceResponse_Service `protobuf_oneof:"service"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1453,7 +1636,7 @@ type AddServiceResponse struct {
 
 func (x *AddServiceResponse) Reset() {
 	*x = AddServiceResponse{}
-	mi := &file_inventory_v1_services_proto_msgTypes[13]
+	mi := &file_inventory_v1_services_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1465,7 +1648,7 @@ func (x *AddServiceResponse) String() string {
 func (*AddServiceResponse) ProtoMessage() {}
 
 func (x *AddServiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[13]
+	mi := &file_inventory_v1_services_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1478,7 +1661,7 @@ func (x *AddServiceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddServiceResponse.ProtoReflect.Descriptor instead.
 func (*AddServiceResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{13}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *AddServiceResponse) GetService() isAddServiceResponse_Service {
@@ -1542,6 +1725,15 @@ func (x *AddServiceResponse) GetExternal() *ExternalService {
 	return nil
 }
 
+func (x *AddServiceResponse) GetValkey() *ValkeyService {
+	if x != nil {
+		if x, ok := x.Service.(*AddServiceResponse_Valkey); ok {
+			return x.Valkey
+		}
+	}
+	return nil
+}
+
 type isAddServiceResponse_Service interface {
 	isAddServiceResponse_Service()
 }
@@ -1570,6 +1762,10 @@ type AddServiceResponse_External struct {
 	External *ExternalService `protobuf:"bytes,6,opt,name=external,proto3,oneof"`
 }
 
+type AddServiceResponse_Valkey struct {
+	Valkey *ValkeyService `protobuf:"bytes,7,opt,name=valkey,proto3,oneof"`
+}
+
 func (*AddServiceResponse_Mysql) isAddServiceResponse_Service() {}
 
 func (*AddServiceResponse_Mongodb) isAddServiceResponse_Service() {}
@@ -1581,6 +1777,8 @@ func (*AddServiceResponse_Proxysql) isAddServiceResponse_Service() {}
 func (*AddServiceResponse_Haproxy) isAddServiceResponse_Service() {}
 
 func (*AddServiceResponse_External) isAddServiceResponse_Service() {}
+
+func (*AddServiceResponse_Valkey) isAddServiceResponse_Service() {}
 
 type AddMySQLServiceParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1611,7 +1809,7 @@ type AddMySQLServiceParams struct {
 
 func (x *AddMySQLServiceParams) Reset() {
 	*x = AddMySQLServiceParams{}
-	mi := &file_inventory_v1_services_proto_msgTypes[14]
+	mi := &file_inventory_v1_services_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1623,7 +1821,7 @@ func (x *AddMySQLServiceParams) String() string {
 func (*AddMySQLServiceParams) ProtoMessage() {}
 
 func (x *AddMySQLServiceParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[14]
+	mi := &file_inventory_v1_services_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1636,7 +1834,7 @@ func (x *AddMySQLServiceParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddMySQLServiceParams.ProtoReflect.Descriptor instead.
 func (*AddMySQLServiceParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{14}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *AddMySQLServiceParams) GetServiceName() string {
@@ -1731,7 +1929,7 @@ type AddMongoDBServiceParams struct {
 
 func (x *AddMongoDBServiceParams) Reset() {
 	*x = AddMongoDBServiceParams{}
-	mi := &file_inventory_v1_services_proto_msgTypes[15]
+	mi := &file_inventory_v1_services_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1743,7 +1941,7 @@ func (x *AddMongoDBServiceParams) String() string {
 func (*AddMongoDBServiceParams) ProtoMessage() {}
 
 func (x *AddMongoDBServiceParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[15]
+	mi := &file_inventory_v1_services_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1756,7 +1954,7 @@ func (x *AddMongoDBServiceParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddMongoDBServiceParams.ProtoReflect.Descriptor instead.
 func (*AddMongoDBServiceParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{15}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AddMongoDBServiceParams) GetServiceName() string {
@@ -1853,7 +2051,7 @@ type AddPostgreSQLServiceParams struct {
 
 func (x *AddPostgreSQLServiceParams) Reset() {
 	*x = AddPostgreSQLServiceParams{}
-	mi := &file_inventory_v1_services_proto_msgTypes[16]
+	mi := &file_inventory_v1_services_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1865,7 +2063,7 @@ func (x *AddPostgreSQLServiceParams) String() string {
 func (*AddPostgreSQLServiceParams) ProtoMessage() {}
 
 func (x *AddPostgreSQLServiceParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[16]
+	mi := &file_inventory_v1_services_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1878,7 +2076,7 @@ func (x *AddPostgreSQLServiceParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddPostgreSQLServiceParams.ProtoReflect.Descriptor instead.
 func (*AddPostgreSQLServiceParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{16}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AddPostgreSQLServiceParams) GetServiceName() string {
@@ -1951,6 +2149,126 @@ func (x *AddPostgreSQLServiceParams) GetAutoDiscoveryLimit() int32 {
 	return 0
 }
 
+type AddValkeyServiceParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique across all Services user-defined name. Required.
+	ServiceName string `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Node identifier where this instance runs. Required.
+	NodeId string `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	// Access port.
+	// Port is required when the address present.
+	Port uint32 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `protobuf:"bytes,5,opt,name=socket,proto3" json:"socket,omitempty"`
+	// Environment name.
+	Environment string `protobuf:"bytes,6,opt,name=environment,proto3" json:"environment,omitempty"`
+	// Cluster name.
+	Cluster string `protobuf:"bytes,7,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	// Replication set name.
+	ReplicationSet string `protobuf:"bytes,8,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels  map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddValkeyServiceParams) Reset() {
+	*x = AddValkeyServiceParams{}
+	mi := &file_inventory_v1_services_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddValkeyServiceParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddValkeyServiceParams) ProtoMessage() {}
+
+func (x *AddValkeyServiceParams) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_services_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddValkeyServiceParams.ProtoReflect.Descriptor instead.
+func (*AddValkeyServiceParams) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *AddValkeyServiceParams) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *AddValkeyServiceParams) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *AddValkeyServiceParams) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *AddValkeyServiceParams) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *AddValkeyServiceParams) GetSocket() string {
+	if x != nil {
+		return x.Socket
+	}
+	return ""
+}
+
+func (x *AddValkeyServiceParams) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *AddValkeyServiceParams) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
+}
+
+func (x *AddValkeyServiceParams) GetReplicationSet() string {
+	if x != nil {
+		return x.ReplicationSet
+	}
+	return ""
+}
+
+func (x *AddValkeyServiceParams) GetCustomLabels() map[string]string {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
 type AddProxySQLServiceParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique across all Services user-defined name. Required.
@@ -1980,7 +2298,7 @@ type AddProxySQLServiceParams struct {
 
 func (x *AddProxySQLServiceParams) Reset() {
 	*x = AddProxySQLServiceParams{}
-	mi := &file_inventory_v1_services_proto_msgTypes[17]
+	mi := &file_inventory_v1_services_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1992,7 +2310,7 @@ func (x *AddProxySQLServiceParams) String() string {
 func (*AddProxySQLServiceParams) ProtoMessage() {}
 
 func (x *AddProxySQLServiceParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[17]
+	mi := &file_inventory_v1_services_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2005,7 +2323,7 @@ func (x *AddProxySQLServiceParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddProxySQLServiceParams.ProtoReflect.Descriptor instead.
 func (*AddProxySQLServiceParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{17}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *AddProxySQLServiceParams) GetServiceName() string {
@@ -2091,7 +2409,7 @@ type AddHAProxyServiceParams struct {
 
 func (x *AddHAProxyServiceParams) Reset() {
 	*x = AddHAProxyServiceParams{}
-	mi := &file_inventory_v1_services_proto_msgTypes[18]
+	mi := &file_inventory_v1_services_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2103,7 +2421,7 @@ func (x *AddHAProxyServiceParams) String() string {
 func (*AddHAProxyServiceParams) ProtoMessage() {}
 
 func (x *AddHAProxyServiceParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[18]
+	mi := &file_inventory_v1_services_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2116,7 +2434,7 @@ func (x *AddHAProxyServiceParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddHAProxyServiceParams.ProtoReflect.Descriptor instead.
 func (*AddHAProxyServiceParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{18}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *AddHAProxyServiceParams) GetServiceName() string {
@@ -2183,7 +2501,7 @@ type AddExternalServiceParams struct {
 
 func (x *AddExternalServiceParams) Reset() {
 	*x = AddExternalServiceParams{}
-	mi := &file_inventory_v1_services_proto_msgTypes[19]
+	mi := &file_inventory_v1_services_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2195,7 +2513,7 @@ func (x *AddExternalServiceParams) String() string {
 func (*AddExternalServiceParams) ProtoMessage() {}
 
 func (x *AddExternalServiceParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[19]
+	mi := &file_inventory_v1_services_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2208,7 +2526,7 @@ func (x *AddExternalServiceParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddExternalServiceParams.ProtoReflect.Descriptor instead.
 func (*AddExternalServiceParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{19}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *AddExternalServiceParams) GetServiceName() string {
@@ -2272,7 +2590,7 @@ type RemoveServiceRequest struct {
 
 func (x *RemoveServiceRequest) Reset() {
 	*x = RemoveServiceRequest{}
-	mi := &file_inventory_v1_services_proto_msgTypes[20]
+	mi := &file_inventory_v1_services_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2284,7 +2602,7 @@ func (x *RemoveServiceRequest) String() string {
 func (*RemoveServiceRequest) ProtoMessage() {}
 
 func (x *RemoveServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[20]
+	mi := &file_inventory_v1_services_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2297,7 +2615,7 @@ func (x *RemoveServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveServiceRequest.ProtoReflect.Descriptor instead.
 func (*RemoveServiceRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{20}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RemoveServiceRequest) GetServiceId() string {
@@ -2322,7 +2640,7 @@ type RemoveServiceResponse struct {
 
 func (x *RemoveServiceResponse) Reset() {
 	*x = RemoveServiceResponse{}
-	mi := &file_inventory_v1_services_proto_msgTypes[21]
+	mi := &file_inventory_v1_services_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2334,7 +2652,7 @@ func (x *RemoveServiceResponse) String() string {
 func (*RemoveServiceResponse) ProtoMessage() {}
 
 func (x *RemoveServiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[21]
+	mi := &file_inventory_v1_services_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2347,7 +2665,7 @@ func (x *RemoveServiceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveServiceResponse.ProtoReflect.Descriptor instead.
 func (*RemoveServiceResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{21}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{23}
 }
 
 type ChangeServiceRequest struct {
@@ -2365,7 +2683,7 @@ type ChangeServiceRequest struct {
 
 func (x *ChangeServiceRequest) Reset() {
 	*x = ChangeServiceRequest{}
-	mi := &file_inventory_v1_services_proto_msgTypes[22]
+	mi := &file_inventory_v1_services_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2377,7 +2695,7 @@ func (x *ChangeServiceRequest) String() string {
 func (*ChangeServiceRequest) ProtoMessage() {}
 
 func (x *ChangeServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[22]
+	mi := &file_inventory_v1_services_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2390,7 +2708,7 @@ func (x *ChangeServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeServiceRequest.ProtoReflect.Descriptor instead.
 func (*ChangeServiceRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{22}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ChangeServiceRequest) GetServiceId() string {
@@ -2445,6 +2763,7 @@ type ChangeServiceResponse struct {
 	//	*ChangeServiceResponse_Proxysql
 	//	*ChangeServiceResponse_Haproxy
 	//	*ChangeServiceResponse_External
+	//	*ChangeServiceResponse_Valkey
 	Service       isChangeServiceResponse_Service `protobuf_oneof:"service"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2452,7 +2771,7 @@ type ChangeServiceResponse struct {
 
 func (x *ChangeServiceResponse) Reset() {
 	*x = ChangeServiceResponse{}
-	mi := &file_inventory_v1_services_proto_msgTypes[23]
+	mi := &file_inventory_v1_services_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2464,7 +2783,7 @@ func (x *ChangeServiceResponse) String() string {
 func (*ChangeServiceResponse) ProtoMessage() {}
 
 func (x *ChangeServiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_services_proto_msgTypes[23]
+	mi := &file_inventory_v1_services_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2477,7 +2796,7 @@ func (x *ChangeServiceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeServiceResponse.ProtoReflect.Descriptor instead.
 func (*ChangeServiceResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_services_proto_rawDescGZIP(), []int{23}
+	return file_inventory_v1_services_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ChangeServiceResponse) GetService() isChangeServiceResponse_Service {
@@ -2541,6 +2860,15 @@ func (x *ChangeServiceResponse) GetExternal() *ExternalService {
 	return nil
 }
 
+func (x *ChangeServiceResponse) GetValkey() *ValkeyService {
+	if x != nil {
+		if x, ok := x.Service.(*ChangeServiceResponse_Valkey); ok {
+			return x.Valkey
+		}
+	}
+	return nil
+}
+
 type isChangeServiceResponse_Service interface {
 	isChangeServiceResponse_Service()
 }
@@ -2569,6 +2897,10 @@ type ChangeServiceResponse_External struct {
 	External *ExternalService `protobuf:"bytes,6,opt,name=external,proto3,oneof"`
 }
 
+type ChangeServiceResponse_Valkey struct {
+	Valkey *ValkeyService `protobuf:"bytes,7,opt,name=valkey,proto3,oneof"`
+}
+
 func (*ChangeServiceResponse_Mysql) isChangeServiceResponse_Service() {}
 
 func (*ChangeServiceResponse_Mongodb) isChangeServiceResponse_Service() {}
@@ -2580,6 +2912,8 @@ func (*ChangeServiceResponse_Proxysql) isChangeServiceResponse_Service() {}
 func (*ChangeServiceResponse_Haproxy) isChangeServiceResponse_Service() {}
 
 func (*ChangeServiceResponse_External) isChangeServiceResponse_Service() {}
+
+func (*ChangeServiceResponse_Valkey) isChangeServiceResponse_Service() {}
 
 var File_inventory_v1_services_proto protoreflect.FileDescriptor
 
@@ -2638,6 +2972,23 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\x14auto_discovery_limit\x18\r \x01(\x05R\x12autoDiscoveryLimit\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc4\x03\n" +
+	"\rValkeyService\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
+	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x12\x17\n" +
+	"\anode_id\x18\x03 \x01(\tR\x06nodeId\x12\x18\n" +
+	"\aaddress\x18\x04 \x01(\tR\aaddress\x12\x12\n" +
+	"\x04port\x18\x05 \x01(\rR\x04port\x12\x16\n" +
+	"\x06socket\x18\x06 \x01(\tR\x06socket\x12 \n" +
+	"\venvironment\x18\a \x01(\tR\venvironment\x12\x18\n" +
+	"\acluster\x18\b \x01(\tR\acluster\x12'\n" +
+	"\x0freplication_set\x18\t \x01(\tR\x0ereplicationSet\x12R\n" +
+	"\rcustom_labels\x18\n" +
+	" \x03(\v2-.inventory.v1.ValkeyService.CustomLabelsEntryR\fcustomLabels\x12\x18\n" +
+	"\aversion\x18\v \x01(\tR\aversion\x1a?\n" +
+	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc8\x03\n" +
 	"\x0fProxySQLService\x12\x1d\n" +
 	"\n" +
@@ -2684,7 +3035,7 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\x13ListServicesRequest\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12<\n" +
 	"\fservice_type\x18\x02 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\x12%\n" +
-	"\x0eexternal_group\x18\x03 \x01(\tR\rexternalGroup\"\xef\x02\n" +
+	"\x0eexternal_group\x18\x03 \x01(\tR\rexternalGroup\"\xa4\x03\n" +
 	"\x14ListServicesResponse\x120\n" +
 	"\x05mysql\x18\x01 \x03(\v2\x1a.inventory.v1.MySQLServiceR\x05mysql\x126\n" +
 	"\amongodb\x18\x02 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\x12?\n" +
@@ -2693,13 +3044,14 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"postgresql\x129\n" +
 	"\bproxysql\x18\x04 \x03(\v2\x1d.inventory.v1.ProxySQLServiceR\bproxysql\x126\n" +
 	"\ahaproxy\x18\x05 \x03(\v2\x1c.inventory.v1.HAProxyServiceR\ahaproxy\x129\n" +
-	"\bexternal\x18\x06 \x03(\v2\x1d.inventory.v1.ExternalServiceR\bexternal\"\x1f\n" +
+	"\bexternal\x18\x06 \x03(\v2\x1d.inventory.v1.ExternalServiceR\bexternal\x123\n" +
+	"\x06valkey\x18\a \x03(\v2\x1b.inventory.v1.ValkeyServiceR\x06valkey\"\x1f\n" +
 	"\x1dListActiveServiceTypesRequest\"`\n" +
 	"\x1eListActiveServiceTypesResponse\x12>\n" +
 	"\rservice_types\x18\x01 \x03(\x0e2\x19.inventory.v1.ServiceTypeR\fserviceTypes\";\n" +
 	"\x11GetServiceRequest\x12&\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"\x84\x03\n" +
+	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"\xbb\x03\n" +
 	"\x12GetServiceResponse\x122\n" +
 	"\x05mysql\x18\x01 \x01(\v2\x1a.inventory.v1.MySQLServiceH\x00R\x05mysql\x128\n" +
 	"\amongodb\x18\x02 \x01(\v2\x1c.inventory.v1.MongoDBServiceH\x00R\amongodb\x12A\n" +
@@ -2708,8 +3060,9 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"postgresql\x12;\n" +
 	"\bproxysql\x18\x04 \x01(\v2\x1d.inventory.v1.ProxySQLServiceH\x00R\bproxysql\x128\n" +
 	"\ahaproxy\x18\x05 \x01(\v2\x1c.inventory.v1.HAProxyServiceH\x00R\ahaproxy\x12;\n" +
-	"\bexternal\x18\x06 \x01(\v2\x1d.inventory.v1.ExternalServiceH\x00R\bexternalB\t\n" +
-	"\aservice\"\xb9\x03\n" +
+	"\bexternal\x18\x06 \x01(\v2\x1d.inventory.v1.ExternalServiceH\x00R\bexternal\x125\n" +
+	"\x06valkey\x18\a \x01(\v2\x1b.inventory.v1.ValkeyServiceH\x00R\x06valkeyB\t\n" +
+	"\aservice\"\xf9\x03\n" +
 	"\x11AddServiceRequest\x12;\n" +
 	"\x05mysql\x18\x01 \x01(\v2#.inventory.v1.AddMySQLServiceParamsH\x00R\x05mysql\x12A\n" +
 	"\amongodb\x18\x02 \x01(\v2%.inventory.v1.AddMongoDBServiceParamsH\x00R\amongodb\x12J\n" +
@@ -2718,8 +3071,9 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"postgresql\x12D\n" +
 	"\bproxysql\x18\x04 \x01(\v2&.inventory.v1.AddProxySQLServiceParamsH\x00R\bproxysql\x12A\n" +
 	"\ahaproxy\x18\x05 \x01(\v2%.inventory.v1.AddHAProxyServiceParamsH\x00R\ahaproxy\x12D\n" +
-	"\bexternal\x18\x06 \x01(\v2&.inventory.v1.AddExternalServiceParamsH\x00R\bexternalB\t\n" +
-	"\aservice\"\x84\x03\n" +
+	"\bexternal\x18\x06 \x01(\v2&.inventory.v1.AddExternalServiceParamsH\x00R\bexternal\x12>\n" +
+	"\x06valkey\x18\a \x01(\v2$.inventory.v1.AddValkeyServiceParamsH\x00R\x06valkeyB\t\n" +
+	"\aservice\"\xbb\x03\n" +
 	"\x12AddServiceResponse\x122\n" +
 	"\x05mysql\x18\x01 \x01(\v2\x1a.inventory.v1.MySQLServiceH\x00R\x05mysql\x128\n" +
 	"\amongodb\x18\x02 \x01(\v2\x1c.inventory.v1.MongoDBServiceH\x00R\amongodb\x12A\n" +
@@ -2728,7 +3082,8 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"postgresql\x12;\n" +
 	"\bproxysql\x18\x04 \x01(\v2\x1d.inventory.v1.ProxySQLServiceH\x00R\bproxysql\x128\n" +
 	"\ahaproxy\x18\x05 \x01(\v2\x1c.inventory.v1.HAProxyServiceH\x00R\ahaproxy\x12;\n" +
-	"\bexternal\x18\x06 \x01(\v2\x1d.inventory.v1.ExternalServiceH\x00R\bexternalB\t\n" +
+	"\bexternal\x18\x06 \x01(\v2\x1d.inventory.v1.ExternalServiceH\x00R\bexternal\x125\n" +
+	"\x06valkey\x18\a \x01(\v2\x1b.inventory.v1.ValkeyServiceH\x00R\x06valkeyB\t\n" +
 	"\aservice\"\xad\x03\n" +
 	"\x15AddMySQLServiceParams\x12*\n" +
 	"\fservice_name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vserviceName\x12 \n" +
@@ -2768,6 +3123,19 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\rcustom_labels\x18\t \x03(\v2:.inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntryR\fcustomLabels\x120\n" +
 	"\x14auto_discovery_limit\x18\n" +
 	" \x01(\x05R\x12autoDiscoveryLimit\x1a?\n" +
+	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaf\x03\n" +
+	"\x16AddValkeyServiceParams\x12*\n" +
+	"\fservice_name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vserviceName\x12 \n" +
+	"\anode_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x18\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x12\n" +
+	"\x04port\x18\x04 \x01(\rR\x04port\x12\x16\n" +
+	"\x06socket\x18\x05 \x01(\tR\x06socket\x12 \n" +
+	"\venvironment\x18\x06 \x01(\tR\venvironment\x12\x18\n" +
+	"\acluster\x18\a \x01(\tR\acluster\x12'\n" +
+	"\x0freplication_set\x18\b \x01(\tR\x0ereplicationSet\x12[\n" +
+	"\rcustom_labels\x18\t \x03(\v26.inventory.v1.AddValkeyServiceParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb3\x03\n" +
@@ -2823,7 +3191,7 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\b_clusterB\x12\n" +
 	"\x10_replication_setB\x11\n" +
 	"\x0f_external_groupB\x10\n" +
-	"\x0e_custom_labels\"\x87\x03\n" +
+	"\x0e_custom_labels\"\xbe\x03\n" +
 	"\x15ChangeServiceResponse\x122\n" +
 	"\x05mysql\x18\x01 \x01(\v2\x1a.inventory.v1.MySQLServiceH\x00R\x05mysql\x128\n" +
 	"\amongodb\x18\x02 \x01(\v2\x1c.inventory.v1.MongoDBServiceH\x00R\amongodb\x12A\n" +
@@ -2832,13 +3200,15 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"postgresql\x12;\n" +
 	"\bproxysql\x18\x04 \x01(\v2\x1d.inventory.v1.ProxySQLServiceH\x00R\bproxysql\x128\n" +
 	"\ahaproxy\x18\x05 \x01(\v2\x1c.inventory.v1.HAProxyServiceH\x00R\ahaproxy\x12;\n" +
-	"\bexternal\x18\x06 \x01(\v2\x1d.inventory.v1.ExternalServiceH\x00R\bexternalB\t\n" +
-	"\aservice*\xfa\x01\n" +
+	"\bexternal\x18\x06 \x01(\v2\x1d.inventory.v1.ExternalServiceH\x00R\bexternal\x125\n" +
+	"\x06valkey\x18\a \x01(\v2\x1b.inventory.v1.ValkeyServiceH\x00R\x06valkeyB\t\n" +
+	"\aservice*\x9b\x02\n" +
 	"\vServiceType\x12\x1c\n" +
 	"\x18SERVICE_TYPE_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aSERVICE_TYPE_MYSQL_SERVICE\x10\x01\x12 \n" +
 	"\x1cSERVICE_TYPE_MONGODB_SERVICE\x10\x02\x12#\n" +
-	"\x1fSERVICE_TYPE_POSTGRESQL_SERVICE\x10\x03\x12!\n" +
+	"\x1fSERVICE_TYPE_POSTGRESQL_SERVICE\x10\x03\x12\x1f\n" +
+	"\x1bSERVICE_TYPE_VALKEY_SERVICE\x10\a\x12!\n" +
 	"\x1dSERVICE_TYPE_PROXYSQL_SERVICE\x10\x04\x12 \n" +
 	"\x1cSERVICE_TYPE_HAPROXY_SERVICE\x10\x06\x12!\n" +
 	"\x1dSERVICE_TYPE_EXTERNAL_SERVICE\x10\x052\x88\n" +
@@ -2868,112 +3238,123 @@ func file_inventory_v1_services_proto_rawDescGZIP() []byte {
 
 var (
 	file_inventory_v1_services_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventory_v1_services_proto_msgTypes  = make([]protoimpl.MessageInfo, 36)
+	file_inventory_v1_services_proto_msgTypes  = make([]protoimpl.MessageInfo, 40)
 	file_inventory_v1_services_proto_goTypes   = []any{
 		(ServiceType)(0),                       // 0: inventory.v1.ServiceType
 		(*MySQLService)(nil),                   // 1: inventory.v1.MySQLService
 		(*MongoDBService)(nil),                 // 2: inventory.v1.MongoDBService
 		(*PostgreSQLService)(nil),              // 3: inventory.v1.PostgreSQLService
-		(*ProxySQLService)(nil),                // 4: inventory.v1.ProxySQLService
-		(*HAProxyService)(nil),                 // 5: inventory.v1.HAProxyService
-		(*ExternalService)(nil),                // 6: inventory.v1.ExternalService
-		(*ListServicesRequest)(nil),            // 7: inventory.v1.ListServicesRequest
-		(*ListServicesResponse)(nil),           // 8: inventory.v1.ListServicesResponse
-		(*ListActiveServiceTypesRequest)(nil),  // 9: inventory.v1.ListActiveServiceTypesRequest
-		(*ListActiveServiceTypesResponse)(nil), // 10: inventory.v1.ListActiveServiceTypesResponse
-		(*GetServiceRequest)(nil),              // 11: inventory.v1.GetServiceRequest
-		(*GetServiceResponse)(nil),             // 12: inventory.v1.GetServiceResponse
-		(*AddServiceRequest)(nil),              // 13: inventory.v1.AddServiceRequest
-		(*AddServiceResponse)(nil),             // 14: inventory.v1.AddServiceResponse
-		(*AddMySQLServiceParams)(nil),          // 15: inventory.v1.AddMySQLServiceParams
-		(*AddMongoDBServiceParams)(nil),        // 16: inventory.v1.AddMongoDBServiceParams
-		(*AddPostgreSQLServiceParams)(nil),     // 17: inventory.v1.AddPostgreSQLServiceParams
-		(*AddProxySQLServiceParams)(nil),       // 18: inventory.v1.AddProxySQLServiceParams
-		(*AddHAProxyServiceParams)(nil),        // 19: inventory.v1.AddHAProxyServiceParams
-		(*AddExternalServiceParams)(nil),       // 20: inventory.v1.AddExternalServiceParams
-		(*RemoveServiceRequest)(nil),           // 21: inventory.v1.RemoveServiceRequest
-		(*RemoveServiceResponse)(nil),          // 22: inventory.v1.RemoveServiceResponse
-		(*ChangeServiceRequest)(nil),           // 23: inventory.v1.ChangeServiceRequest
-		(*ChangeServiceResponse)(nil),          // 24: inventory.v1.ChangeServiceResponse
-		nil,                                    // 25: inventory.v1.MySQLService.CustomLabelsEntry
-		nil,                                    // 26: inventory.v1.MongoDBService.CustomLabelsEntry
-		nil,                                    // 27: inventory.v1.PostgreSQLService.CustomLabelsEntry
-		nil,                                    // 28: inventory.v1.ProxySQLService.CustomLabelsEntry
-		nil,                                    // 29: inventory.v1.HAProxyService.CustomLabelsEntry
-		nil,                                    // 30: inventory.v1.ExternalService.CustomLabelsEntry
-		nil,                                    // 31: inventory.v1.AddMySQLServiceParams.CustomLabelsEntry
-		nil,                                    // 32: inventory.v1.AddMongoDBServiceParams.CustomLabelsEntry
-		nil,                                    // 33: inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
-		nil,                                    // 34: inventory.v1.AddProxySQLServiceParams.CustomLabelsEntry
-		nil,                                    // 35: inventory.v1.AddHAProxyServiceParams.CustomLabelsEntry
-		nil,                                    // 36: inventory.v1.AddExternalServiceParams.CustomLabelsEntry
-		(*common.StringMap)(nil),               // 37: common.StringMap
+		(*ValkeyService)(nil),                  // 4: inventory.v1.ValkeyService
+		(*ProxySQLService)(nil),                // 5: inventory.v1.ProxySQLService
+		(*HAProxyService)(nil),                 // 6: inventory.v1.HAProxyService
+		(*ExternalService)(nil),                // 7: inventory.v1.ExternalService
+		(*ListServicesRequest)(nil),            // 8: inventory.v1.ListServicesRequest
+		(*ListServicesResponse)(nil),           // 9: inventory.v1.ListServicesResponse
+		(*ListActiveServiceTypesRequest)(nil),  // 10: inventory.v1.ListActiveServiceTypesRequest
+		(*ListActiveServiceTypesResponse)(nil), // 11: inventory.v1.ListActiveServiceTypesResponse
+		(*GetServiceRequest)(nil),              // 12: inventory.v1.GetServiceRequest
+		(*GetServiceResponse)(nil),             // 13: inventory.v1.GetServiceResponse
+		(*AddServiceRequest)(nil),              // 14: inventory.v1.AddServiceRequest
+		(*AddServiceResponse)(nil),             // 15: inventory.v1.AddServiceResponse
+		(*AddMySQLServiceParams)(nil),          // 16: inventory.v1.AddMySQLServiceParams
+		(*AddMongoDBServiceParams)(nil),        // 17: inventory.v1.AddMongoDBServiceParams
+		(*AddPostgreSQLServiceParams)(nil),     // 18: inventory.v1.AddPostgreSQLServiceParams
+		(*AddValkeyServiceParams)(nil),         // 19: inventory.v1.AddValkeyServiceParams
+		(*AddProxySQLServiceParams)(nil),       // 20: inventory.v1.AddProxySQLServiceParams
+		(*AddHAProxyServiceParams)(nil),        // 21: inventory.v1.AddHAProxyServiceParams
+		(*AddExternalServiceParams)(nil),       // 22: inventory.v1.AddExternalServiceParams
+		(*RemoveServiceRequest)(nil),           // 23: inventory.v1.RemoveServiceRequest
+		(*RemoveServiceResponse)(nil),          // 24: inventory.v1.RemoveServiceResponse
+		(*ChangeServiceRequest)(nil),           // 25: inventory.v1.ChangeServiceRequest
+		(*ChangeServiceResponse)(nil),          // 26: inventory.v1.ChangeServiceResponse
+		nil,                                    // 27: inventory.v1.MySQLService.CustomLabelsEntry
+		nil,                                    // 28: inventory.v1.MongoDBService.CustomLabelsEntry
+		nil,                                    // 29: inventory.v1.PostgreSQLService.CustomLabelsEntry
+		nil,                                    // 30: inventory.v1.ValkeyService.CustomLabelsEntry
+		nil,                                    // 31: inventory.v1.ProxySQLService.CustomLabelsEntry
+		nil,                                    // 32: inventory.v1.HAProxyService.CustomLabelsEntry
+		nil,                                    // 33: inventory.v1.ExternalService.CustomLabelsEntry
+		nil,                                    // 34: inventory.v1.AddMySQLServiceParams.CustomLabelsEntry
+		nil,                                    // 35: inventory.v1.AddMongoDBServiceParams.CustomLabelsEntry
+		nil,                                    // 36: inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
+		nil,                                    // 37: inventory.v1.AddValkeyServiceParams.CustomLabelsEntry
+		nil,                                    // 38: inventory.v1.AddProxySQLServiceParams.CustomLabelsEntry
+		nil,                                    // 39: inventory.v1.AddHAProxyServiceParams.CustomLabelsEntry
+		nil,                                    // 40: inventory.v1.AddExternalServiceParams.CustomLabelsEntry
+		(*common.StringMap)(nil),               // 41: common.StringMap
 	}
 )
 
 var file_inventory_v1_services_proto_depIdxs = []int32{
-	25, // 0: inventory.v1.MySQLService.custom_labels:type_name -> inventory.v1.MySQLService.CustomLabelsEntry
-	26, // 1: inventory.v1.MongoDBService.custom_labels:type_name -> inventory.v1.MongoDBService.CustomLabelsEntry
-	27, // 2: inventory.v1.PostgreSQLService.custom_labels:type_name -> inventory.v1.PostgreSQLService.CustomLabelsEntry
-	28, // 3: inventory.v1.ProxySQLService.custom_labels:type_name -> inventory.v1.ProxySQLService.CustomLabelsEntry
-	29, // 4: inventory.v1.HAProxyService.custom_labels:type_name -> inventory.v1.HAProxyService.CustomLabelsEntry
-	30, // 5: inventory.v1.ExternalService.custom_labels:type_name -> inventory.v1.ExternalService.CustomLabelsEntry
-	0,  // 6: inventory.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
-	1,  // 7: inventory.v1.ListServicesResponse.mysql:type_name -> inventory.v1.MySQLService
-	2,  // 8: inventory.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	3,  // 9: inventory.v1.ListServicesResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
-	4,  // 10: inventory.v1.ListServicesResponse.proxysql:type_name -> inventory.v1.ProxySQLService
-	5,  // 11: inventory.v1.ListServicesResponse.haproxy:type_name -> inventory.v1.HAProxyService
-	6,  // 12: inventory.v1.ListServicesResponse.external:type_name -> inventory.v1.ExternalService
-	0,  // 13: inventory.v1.ListActiveServiceTypesResponse.service_types:type_name -> inventory.v1.ServiceType
-	1,  // 14: inventory.v1.GetServiceResponse.mysql:type_name -> inventory.v1.MySQLService
-	2,  // 15: inventory.v1.GetServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	3,  // 16: inventory.v1.GetServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
-	4,  // 17: inventory.v1.GetServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
-	5,  // 18: inventory.v1.GetServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
-	6,  // 19: inventory.v1.GetServiceResponse.external:type_name -> inventory.v1.ExternalService
-	15, // 20: inventory.v1.AddServiceRequest.mysql:type_name -> inventory.v1.AddMySQLServiceParams
-	16, // 21: inventory.v1.AddServiceRequest.mongodb:type_name -> inventory.v1.AddMongoDBServiceParams
-	17, // 22: inventory.v1.AddServiceRequest.postgresql:type_name -> inventory.v1.AddPostgreSQLServiceParams
-	18, // 23: inventory.v1.AddServiceRequest.proxysql:type_name -> inventory.v1.AddProxySQLServiceParams
-	19, // 24: inventory.v1.AddServiceRequest.haproxy:type_name -> inventory.v1.AddHAProxyServiceParams
-	20, // 25: inventory.v1.AddServiceRequest.external:type_name -> inventory.v1.AddExternalServiceParams
-	1,  // 26: inventory.v1.AddServiceResponse.mysql:type_name -> inventory.v1.MySQLService
-	2,  // 27: inventory.v1.AddServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	3,  // 28: inventory.v1.AddServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
-	4,  // 29: inventory.v1.AddServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
-	5,  // 30: inventory.v1.AddServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
-	6,  // 31: inventory.v1.AddServiceResponse.external:type_name -> inventory.v1.ExternalService
-	31, // 32: inventory.v1.AddMySQLServiceParams.custom_labels:type_name -> inventory.v1.AddMySQLServiceParams.CustomLabelsEntry
-	32, // 33: inventory.v1.AddMongoDBServiceParams.custom_labels:type_name -> inventory.v1.AddMongoDBServiceParams.CustomLabelsEntry
-	33, // 34: inventory.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
-	34, // 35: inventory.v1.AddProxySQLServiceParams.custom_labels:type_name -> inventory.v1.AddProxySQLServiceParams.CustomLabelsEntry
-	35, // 36: inventory.v1.AddHAProxyServiceParams.custom_labels:type_name -> inventory.v1.AddHAProxyServiceParams.CustomLabelsEntry
-	36, // 37: inventory.v1.AddExternalServiceParams.custom_labels:type_name -> inventory.v1.AddExternalServiceParams.CustomLabelsEntry
-	37, // 38: inventory.v1.ChangeServiceRequest.custom_labels:type_name -> common.StringMap
-	1,  // 39: inventory.v1.ChangeServiceResponse.mysql:type_name -> inventory.v1.MySQLService
-	2,  // 40: inventory.v1.ChangeServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	3,  // 41: inventory.v1.ChangeServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
-	4,  // 42: inventory.v1.ChangeServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
-	5,  // 43: inventory.v1.ChangeServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
-	6,  // 44: inventory.v1.ChangeServiceResponse.external:type_name -> inventory.v1.ExternalService
-	7,  // 45: inventory.v1.ServicesService.ListServices:input_type -> inventory.v1.ListServicesRequest
-	9,  // 46: inventory.v1.ServicesService.ListActiveServiceTypes:input_type -> inventory.v1.ListActiveServiceTypesRequest
-	11, // 47: inventory.v1.ServicesService.GetService:input_type -> inventory.v1.GetServiceRequest
-	13, // 48: inventory.v1.ServicesService.AddService:input_type -> inventory.v1.AddServiceRequest
-	21, // 49: inventory.v1.ServicesService.RemoveService:input_type -> inventory.v1.RemoveServiceRequest
-	23, // 50: inventory.v1.ServicesService.ChangeService:input_type -> inventory.v1.ChangeServiceRequest
-	8,  // 51: inventory.v1.ServicesService.ListServices:output_type -> inventory.v1.ListServicesResponse
-	10, // 52: inventory.v1.ServicesService.ListActiveServiceTypes:output_type -> inventory.v1.ListActiveServiceTypesResponse
-	12, // 53: inventory.v1.ServicesService.GetService:output_type -> inventory.v1.GetServiceResponse
-	14, // 54: inventory.v1.ServicesService.AddService:output_type -> inventory.v1.AddServiceResponse
-	22, // 55: inventory.v1.ServicesService.RemoveService:output_type -> inventory.v1.RemoveServiceResponse
-	24, // 56: inventory.v1.ServicesService.ChangeService:output_type -> inventory.v1.ChangeServiceResponse
-	51, // [51:57] is the sub-list for method output_type
-	45, // [45:51] is the sub-list for method input_type
-	45, // [45:45] is the sub-list for extension type_name
-	45, // [45:45] is the sub-list for extension extendee
-	0,  // [0:45] is the sub-list for field type_name
+	27, // 0: inventory.v1.MySQLService.custom_labels:type_name -> inventory.v1.MySQLService.CustomLabelsEntry
+	28, // 1: inventory.v1.MongoDBService.custom_labels:type_name -> inventory.v1.MongoDBService.CustomLabelsEntry
+	29, // 2: inventory.v1.PostgreSQLService.custom_labels:type_name -> inventory.v1.PostgreSQLService.CustomLabelsEntry
+	30, // 3: inventory.v1.ValkeyService.custom_labels:type_name -> inventory.v1.ValkeyService.CustomLabelsEntry
+	31, // 4: inventory.v1.ProxySQLService.custom_labels:type_name -> inventory.v1.ProxySQLService.CustomLabelsEntry
+	32, // 5: inventory.v1.HAProxyService.custom_labels:type_name -> inventory.v1.HAProxyService.CustomLabelsEntry
+	33, // 6: inventory.v1.ExternalService.custom_labels:type_name -> inventory.v1.ExternalService.CustomLabelsEntry
+	0,  // 7: inventory.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
+	1,  // 8: inventory.v1.ListServicesResponse.mysql:type_name -> inventory.v1.MySQLService
+	2,  // 9: inventory.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	3,  // 10: inventory.v1.ListServicesResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
+	5,  // 11: inventory.v1.ListServicesResponse.proxysql:type_name -> inventory.v1.ProxySQLService
+	6,  // 12: inventory.v1.ListServicesResponse.haproxy:type_name -> inventory.v1.HAProxyService
+	7,  // 13: inventory.v1.ListServicesResponse.external:type_name -> inventory.v1.ExternalService
+	4,  // 14: inventory.v1.ListServicesResponse.valkey:type_name -> inventory.v1.ValkeyService
+	0,  // 15: inventory.v1.ListActiveServiceTypesResponse.service_types:type_name -> inventory.v1.ServiceType
+	1,  // 16: inventory.v1.GetServiceResponse.mysql:type_name -> inventory.v1.MySQLService
+	2,  // 17: inventory.v1.GetServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	3,  // 18: inventory.v1.GetServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
+	5,  // 19: inventory.v1.GetServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
+	6,  // 20: inventory.v1.GetServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
+	7,  // 21: inventory.v1.GetServiceResponse.external:type_name -> inventory.v1.ExternalService
+	4,  // 22: inventory.v1.GetServiceResponse.valkey:type_name -> inventory.v1.ValkeyService
+	16, // 23: inventory.v1.AddServiceRequest.mysql:type_name -> inventory.v1.AddMySQLServiceParams
+	17, // 24: inventory.v1.AddServiceRequest.mongodb:type_name -> inventory.v1.AddMongoDBServiceParams
+	18, // 25: inventory.v1.AddServiceRequest.postgresql:type_name -> inventory.v1.AddPostgreSQLServiceParams
+	20, // 26: inventory.v1.AddServiceRequest.proxysql:type_name -> inventory.v1.AddProxySQLServiceParams
+	21, // 27: inventory.v1.AddServiceRequest.haproxy:type_name -> inventory.v1.AddHAProxyServiceParams
+	22, // 28: inventory.v1.AddServiceRequest.external:type_name -> inventory.v1.AddExternalServiceParams
+	19, // 29: inventory.v1.AddServiceRequest.valkey:type_name -> inventory.v1.AddValkeyServiceParams
+	1,  // 30: inventory.v1.AddServiceResponse.mysql:type_name -> inventory.v1.MySQLService
+	2,  // 31: inventory.v1.AddServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	3,  // 32: inventory.v1.AddServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
+	5,  // 33: inventory.v1.AddServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
+	6,  // 34: inventory.v1.AddServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
+	7,  // 35: inventory.v1.AddServiceResponse.external:type_name -> inventory.v1.ExternalService
+	4,  // 36: inventory.v1.AddServiceResponse.valkey:type_name -> inventory.v1.ValkeyService
+	34, // 37: inventory.v1.AddMySQLServiceParams.custom_labels:type_name -> inventory.v1.AddMySQLServiceParams.CustomLabelsEntry
+	35, // 38: inventory.v1.AddMongoDBServiceParams.custom_labels:type_name -> inventory.v1.AddMongoDBServiceParams.CustomLabelsEntry
+	36, // 39: inventory.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> inventory.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
+	37, // 40: inventory.v1.AddValkeyServiceParams.custom_labels:type_name -> inventory.v1.AddValkeyServiceParams.CustomLabelsEntry
+	38, // 41: inventory.v1.AddProxySQLServiceParams.custom_labels:type_name -> inventory.v1.AddProxySQLServiceParams.CustomLabelsEntry
+	39, // 42: inventory.v1.AddHAProxyServiceParams.custom_labels:type_name -> inventory.v1.AddHAProxyServiceParams.CustomLabelsEntry
+	40, // 43: inventory.v1.AddExternalServiceParams.custom_labels:type_name -> inventory.v1.AddExternalServiceParams.CustomLabelsEntry
+	41, // 44: inventory.v1.ChangeServiceRequest.custom_labels:type_name -> common.StringMap
+	1,  // 45: inventory.v1.ChangeServiceResponse.mysql:type_name -> inventory.v1.MySQLService
+	2,  // 46: inventory.v1.ChangeServiceResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	3,  // 47: inventory.v1.ChangeServiceResponse.postgresql:type_name -> inventory.v1.PostgreSQLService
+	5,  // 48: inventory.v1.ChangeServiceResponse.proxysql:type_name -> inventory.v1.ProxySQLService
+	6,  // 49: inventory.v1.ChangeServiceResponse.haproxy:type_name -> inventory.v1.HAProxyService
+	7,  // 50: inventory.v1.ChangeServiceResponse.external:type_name -> inventory.v1.ExternalService
+	4,  // 51: inventory.v1.ChangeServiceResponse.valkey:type_name -> inventory.v1.ValkeyService
+	8,  // 52: inventory.v1.ServicesService.ListServices:input_type -> inventory.v1.ListServicesRequest
+	10, // 53: inventory.v1.ServicesService.ListActiveServiceTypes:input_type -> inventory.v1.ListActiveServiceTypesRequest
+	12, // 54: inventory.v1.ServicesService.GetService:input_type -> inventory.v1.GetServiceRequest
+	14, // 55: inventory.v1.ServicesService.AddService:input_type -> inventory.v1.AddServiceRequest
+	23, // 56: inventory.v1.ServicesService.RemoveService:input_type -> inventory.v1.RemoveServiceRequest
+	25, // 57: inventory.v1.ServicesService.ChangeService:input_type -> inventory.v1.ChangeServiceRequest
+	9,  // 58: inventory.v1.ServicesService.ListServices:output_type -> inventory.v1.ListServicesResponse
+	11, // 59: inventory.v1.ServicesService.ListActiveServiceTypes:output_type -> inventory.v1.ListActiveServiceTypesResponse
+	13, // 60: inventory.v1.ServicesService.GetService:output_type -> inventory.v1.GetServiceResponse
+	15, // 61: inventory.v1.ServicesService.AddService:output_type -> inventory.v1.AddServiceResponse
+	24, // 62: inventory.v1.ServicesService.RemoveService:output_type -> inventory.v1.RemoveServiceResponse
+	26, // 63: inventory.v1.ServicesService.ChangeService:output_type -> inventory.v1.ChangeServiceResponse
+	58, // [58:64] is the sub-list for method output_type
+	52, // [52:58] is the sub-list for method input_type
+	52, // [52:52] is the sub-list for extension type_name
+	52, // [52:52] is the sub-list for extension extendee
+	0,  // [0:52] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_services_proto_init() }
@@ -2981,38 +3362,42 @@ func file_inventory_v1_services_proto_init() {
 	if File_inventory_v1_services_proto != nil {
 		return
 	}
-	file_inventory_v1_services_proto_msgTypes[11].OneofWrappers = []any{
+	file_inventory_v1_services_proto_msgTypes[12].OneofWrappers = []any{
 		(*GetServiceResponse_Mysql)(nil),
 		(*GetServiceResponse_Mongodb)(nil),
 		(*GetServiceResponse_Postgresql)(nil),
 		(*GetServiceResponse_Proxysql)(nil),
 		(*GetServiceResponse_Haproxy)(nil),
 		(*GetServiceResponse_External)(nil),
+		(*GetServiceResponse_Valkey)(nil),
 	}
-	file_inventory_v1_services_proto_msgTypes[12].OneofWrappers = []any{
+	file_inventory_v1_services_proto_msgTypes[13].OneofWrappers = []any{
 		(*AddServiceRequest_Mysql)(nil),
 		(*AddServiceRequest_Mongodb)(nil),
 		(*AddServiceRequest_Postgresql)(nil),
 		(*AddServiceRequest_Proxysql)(nil),
 		(*AddServiceRequest_Haproxy)(nil),
 		(*AddServiceRequest_External)(nil),
+		(*AddServiceRequest_Valkey)(nil),
 	}
-	file_inventory_v1_services_proto_msgTypes[13].OneofWrappers = []any{
+	file_inventory_v1_services_proto_msgTypes[14].OneofWrappers = []any{
 		(*AddServiceResponse_Mysql)(nil),
 		(*AddServiceResponse_Mongodb)(nil),
 		(*AddServiceResponse_Postgresql)(nil),
 		(*AddServiceResponse_Proxysql)(nil),
 		(*AddServiceResponse_Haproxy)(nil),
 		(*AddServiceResponse_External)(nil),
+		(*AddServiceResponse_Valkey)(nil),
 	}
-	file_inventory_v1_services_proto_msgTypes[22].OneofWrappers = []any{}
-	file_inventory_v1_services_proto_msgTypes[23].OneofWrappers = []any{
+	file_inventory_v1_services_proto_msgTypes[24].OneofWrappers = []any{}
+	file_inventory_v1_services_proto_msgTypes[25].OneofWrappers = []any{
 		(*ChangeServiceResponse_Mysql)(nil),
 		(*ChangeServiceResponse_Mongodb)(nil),
 		(*ChangeServiceResponse_Postgresql)(nil),
 		(*ChangeServiceResponse_Proxysql)(nil),
 		(*ChangeServiceResponse_Haproxy)(nil),
 		(*ChangeServiceResponse_External)(nil),
+		(*ChangeServiceResponse_Valkey)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -3020,7 +3405,7 @@ func file_inventory_v1_services_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_v1_services_proto_rawDesc), len(file_inventory_v1_services_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   36,
+			NumMessages:   40,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
