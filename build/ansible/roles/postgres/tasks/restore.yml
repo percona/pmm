@@ -32,7 +32,7 @@
     become_method: su
 
   - name: Run Postgres database without supervisor
-    command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres
+    command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
     become: true
     become_user: pmm
     become_method: su
