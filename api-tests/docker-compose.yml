@@ -1,6 +1,4 @@
 ---
-version: '3.7'
-
 services:
   pmm-server:
     image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
@@ -50,7 +48,7 @@ services:
       - ./testdata/mysql:/mysql
 
   mongo:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6}
     container_name: pmm-agent_mongo
     command: --profile 2
     environment:
@@ -58,7 +56,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=root-password
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres:11}
+    image: ${POSTGRES_IMAGE:-postgres:14}
     container_name: pmm-agent_postgres
     command: >
       -c shared_preload_libraries=pg_stat_statements
@@ -75,7 +73,7 @@ services:
 
 
   pmm-client-mysql:
-    image: percona/pmm-client:2
+    image: percona/pmm-client:3
     platform: "linux/amd64"
     container_name: pmm-client-mysql
     depends_on:
