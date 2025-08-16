@@ -69,34 +69,11 @@ func GetMySQLFingerprintFromExplainFingerprint(explainFingerprint string) string
 // Multi comments support should be dropped in future MySQL versions.
 // Doc: https://dev.mysql.com/doc/refman/8.0/en/comments.html
 func MySQLComments(query string) (map[string]string, error) {
-	comments, err := parseMySQLComments(query)
-	if err != nil {
-		return nil, err
-	}
-
-	return commentsIntoMap(comments), nil
+	return parseMySQLComments(query)
 }
 
 // PostgreSQLComments parse query and return its comments. Can parse multi comments.
 // Doc: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-COMMENTS
 func PostgreSQLComments(query string) (map[string]string, error) {
-	comments, err := parsePGComments(query)
-	if err != nil {
-		return nil, err
-	}
-
-	return commentsIntoMap(comments), nil
-}
-
-func commentsIntoMap(comments map[string]bool) map[string]string {
-	res := make(map[string]string)
-	for c := range comments {
-		split := strings.Split(c, "=")
-		if len(split) < 2 {
-			continue
-		}
-		res[split[0]] = strings.ReplaceAll(split[1], "'", "")
-	}
-
-	return res
+	return parsePGComments(query)
 }

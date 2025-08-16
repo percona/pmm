@@ -25,27 +25,27 @@ var (
 	mySQLCommentRegexp = regexp.MustCompile(`(?m)--.*$|#.*$|(?s)/\*.*?\*/`)
 	pgQuotedRegexp     = regexp.MustCompile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|\$\$.*?\$\$`)
 	pgCommentRegexp    = regexp.MustCompile(`(?m)--.*$|(?s)/\*.*?\*/`)
-	keyValueRegexp     = regexp.MustCompile(`(?s)([^'",\s]+=\'[^']*?\')`)
+	keyValueRegexp     = regexp.MustCompile(`(?s)([^'",\s]+)\s*=\s*'([^']*?)'`)
 )
 
-func parseMySQLComments(query string) (map[string]bool, error) {
+func parseMySQLComments(query string) (map[string]string, error) {
 	return parseComments(query, mySQLQuotedRegexp, mySQLCommentRegexp)
 }
 
-func parsePGComments(query string) (map[string]bool, error) {
+func parsePGComments(query string) (map[string]string, error) {
 	return parseComments(query, pgQuotedRegexp, pgCommentRegexp)
 }
 
-func parseComments(query string, quotedRegexp *regexp.Regexp, commentRegexp *regexp.Regexp) (map[string]bool, error) {
-	result := make(map[string]bool)
+func parseComments(query string, quotedRegexp *regexp.Regexp, commentRegexp *regexp.Regexp) (map[string]string, error) {
+	result := make(map[string]string)
 	comments := extractComments(query, quotedRegexp, commentRegexp)
 	for _, c := range comments {
 		parsed, err := parseKeyValueFromComment(c)
 		if err != nil {
 			continue
 		}
-		for k := range parsed {
-			result[k] = true
+		for k, v := range parsed {
+			result[k] = v
 		}
 	}
 
@@ -76,14 +76,14 @@ func extractComments(query string, quotedRegexp, commentRegexp *regexp.Regexp) [
 	return comments
 }
 
-func parseKeyValueFromComment(s string) (map[string]bool, error) {
-	res := make(map[string]bool)
+func parseKeyValueFromComment(s string) (map[string]string, error) {
+	res := make(map[string]string)
 	matches := keyValueRegexp.FindAllStringSubmatch(s, -1)
 	for _, v := range matches {
-		if len(v) < 2 {
+		if len(v) < 3 {
 			continue
 		}
-		res[v[1]] = true
+		res[v[1]] = v[2]
 	}
 
 	return res, nil

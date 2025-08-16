@@ -97,14 +97,14 @@ func TestMySQLComments(t *testing.T) {
 		},
 		{
 			Name:  "Comment",
-			Query: `SELECT /* key_1='value1' */ 200;`,
+			Query: `SELECT /* key_1= 'value1' */ 200;`,
 			Comments: map[string]string{
 				"key_1": "value1",
 			},
 		},
 		{
 			Name:  "Dash comment",
-			Query: `SELECT * FROM people -- web-framework='Django', controller='unknown'`,
+			Query: `SELECT * FROM people -- web-framework = 'Django', controller= 'unknown'`,
 			Comments: map[string]string{
 				"web-framework": "Django",
 				"controller":    "unknown",
@@ -173,7 +173,7 @@ func TestPostgreSQLComments(t *testing.T) {
 		},
 		{
 			Name:  "Dash comment",
-			Query: `SELECT * FROM people -- framework='Django', controller='unknown'`,
+			Query: `SELECT * FROM people -- framework = 'Django', controller='unknown'`,
 			Comments: map[string]string{
 				"framework":  "Django",
 				"controller": "unknown",
@@ -191,8 +191,8 @@ func TestPostgreSQLComments(t *testing.T) {
 		{
 			Name: "Multicomment case with new line",
 			Query: `SELECT * FROM people /*
-				framework_used='Django',
-				controller='unknown'
+				framework_used ='Django',
+				controller= 'unknown'
 				 */ WHERE name = 'John' -- os='unix'
 				 AND name != 'Doe'`,
 			Comments: map[string]string{
