@@ -40,11 +40,7 @@ func parseComments(query string, quotedRegexp *regexp.Regexp, commentRegexp *reg
 	result := make(map[string]string)
 	comments := extractComments(query, quotedRegexp, commentRegexp)
 	for _, c := range comments {
-		parsed, err := parseKeyValueFromComment(c)
-		if err != nil {
-			continue
-		}
-		for k, v := range parsed {
+		for k, v := range parseKeyValueFromComment(c) {
 			result[k] = v
 		}
 	}
@@ -76,7 +72,7 @@ func extractComments(query string, quotedRegexp, commentRegexp *regexp.Regexp) [
 	return comments
 }
 
-func parseKeyValueFromComment(s string) (map[string]string, error) {
+func parseKeyValueFromComment(s string) map[string]string {
 	res := make(map[string]string)
 	matches := keyValueRegexp.FindAllStringSubmatch(s, -1)
 	for _, v := range matches {
@@ -86,5 +82,5 @@ func parseKeyValueFromComment(s string) (map[string]string, error) {
 		res[v[1]] = v[2]
 	}
 
-	return res, nil
+	return res
 }
