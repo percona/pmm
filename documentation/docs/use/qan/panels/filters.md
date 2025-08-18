@@ -49,7 +49,7 @@ These filter groups are available for all database types:
 
 ## Custom filter groups
 
-Filter queries using custom key='value' pairs from query comments. This feature is disabled by default.
+Filter queries using custom `key='value'` pairs from query comments. Only genuine comments are parsed, not quoted string that contain comment-like characters. This feature is disabled by default.
 
 ### Supported technologies and agents
 
