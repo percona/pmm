@@ -122,147 +122,108 @@ Select the appropriate instructions based on your access level:
         ```sh
         sudo pmm-agent --config-file=${PMM_DIR}/config/pmm-agent.yaml
         ```
-    11. Register your nodes to be monitored by PMM Server using the PMM Client:
 
-        ```sh
-        sudo pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
-        ```
+ ## Register the node
 
-        where: 
+After installing PMM Client, register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.
 
-        - `X.X.X.X` is the address of your PMM Server
-        - `443` is the default port number
-        - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
+Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the node: secure service account tokens and standard username/password credentials.
 
-        !!! caution alert alert-warning "HTTPS connection required"
-            Nodes *must* be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.
+=== "Using Service accounts (Recommended)"
+    [Service accounts](../../api/authentication.md) provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.
 
-        ??? info "Registration example"
-
-            Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:
-
-            ```sh
-            sudo pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
-            ```
-    12. Verify the installation in a new terminal:
-
-        ```sh
-        sudo pmm-admin status
-        ```
-
-=== "Without root permissions"
-
-    Follow these steps for environments where you don't have root access:
+    To register with service accounts, create a service account, generate an authentication token, then use it to register the PMM Client:
     {.power-number}
 
-    1. Download the PMM Client package for your architecture:
+    1. Log into your PMM Server web interface.
+    2. Navigate to **Administration > Users and access > Service Accounts**.
+    3. Click **Add Service account**.
+    4. Enter a descriptive name (e.g., `pmm-client-prod-db01`). Keep in mind that PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
+    5. Select a role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md): 
 
-        === "For x86_64 (AMD64)"
-            ```sh
-            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz
-            ```
+        - **Editor** (minimum required): Can view and edit dashboards, create visualizations, work with alerts, and manage specific configurations. Required for normal PMM Client operations.
+        - **Admin**: Has access to all PMM resources including users, teams, data sources, dashboards, and server settings. Only needed if managing other service accounts or server configurations.
+        - **Viewer**: Read-only access to monitoring data and dashboards. Cannot push metrics or modify configurations, making it insufficient for PMM Client operations.
 
-        === "For ARM64 (aarch64)"
-            ```sh
-            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz
-            ```
+    6. Click **Create**.
+    7. Click **Add service account token**.
+    8. (Optional) Name your token or leave blank for auto-generated name.
+    9. (Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
+    10. Click **Generate Token**.
+    11. **Save your token immediately**. It starts with `glsa_` and won't be shown again!
+    12. Register using the token:
 
-    2. Download the corresponding checksum file to verify integrity:
-
-        === "For x86_64 (AMD64)"
-            ```sh
-            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz.sha256sum
-            ```
-
-        === "For ARM64 (aarch64)"
-            ```sh
-            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz.sha256sum
-            ```
-
-    3. Verify the download:
-
-        === "For x86_64 (AMD64)"
-            ```sh
-            sha256sum -c pmm-client-{{release}}-x86_64.tar.gz.sha256sum
-            ```
-            
-        === "For ARM64 (aarch64)"
-            ```sh
-            sha256sum -c pmm-client-{{release}}-aarch64.tar.gz.sha256sum
-            ```
-
-    4. Unpack the package and move into the directory:
-
-        === "For x86_64 (AMD64)"
-            ```sh
-            tar xfz pmm-client-{{release}}-x86_64.tar.gz && cd pmm-client-{{release}}
-            ```
-
-        === "For ARM64 (aarch64)"
-            ```sh
-            tar xfz pmm-client-{{release}}-aarch64.tar.gz && cd pmm-client-{{release}}
-            ```
-    
-    5. Set the installation directory:
-
-        ```sh
-        export PMM_DIR=YOURPATH
+        ```bash
+        pmm-admin config --server-insecure-tls \
+            --server-url=https://YOUR_PMM_SERVER:443 \
+            --server-username=service_token \
+            --server-password=YOUR_GLSA_TOKEN
         ```
 
-        Replace YOURPATH with a path where you have required access.
+        **Parameters explained:**
 
-    6. Run the installer:
+        - `--server-insecure-tls` - Skip certificate validation (remove for production with valid certificates)
+        - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
+        - `service_token` - Use this exact string as the username (not a placeholder!)
+        - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
 
-        ```sh
-        ./install_tarball
-        ```
-
-    7. Update your PATH:
-
-        ```sh
-        PATH=$PATH:$PMM_DIR/bin
-        ```
-
-    8. Set up the agent:
-
-        ```sh
-        pmm-agent setup --config-file=${PMM_DIR}/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin --paths-tempdir=${PMM_DIR}/tmp --paths-base=${PMM_DIR}
-        ```
-
-    9. Run the agent:
-
-        ```sh
-        pmm-agent --config-file=${PMM_DIR}/config/pmm-agent.yaml
-        ```
-    10. Register your nodes to be monitored by PMM Server using the PMM Client:
-
-        ```sh
-        pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
-        ```
-
-        where: 
-
-        - `X.X.X.X` is the address of your PMM Server
-        - `443` is the default port number
-        - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
-
-        !!! caution alert alert-warning "HTTPS connection required"
-            Nodes *must* be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.
-
-        ??? info "Registration example"
-
-            Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:
-
-            ```sh
-            pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
+        ??? example "Full example with node details"
+            ```bash
+            pmm-admin config --server-insecure-tls \
+                --server-url=https://192.168.33.14:443 \
+                --server-username=service_token \
+                --server-password=glsa_aBc123XyZ456... \
+                192.168.33.23 generic prod-db01
             ```
+            This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
 
-    11. Open a new terminal and verify the installation:
+=== "Standard authentication (Not recommended)"
 
-        ```sh
-        pmm-admin status
+    !!! warning "Security risk"
+        This method exposes credentials in command history, process lists, and logs. Use only for testing or migration scenarios.
+
+        ```bash
+        pmm-admin config --server-insecure-tls \
+        --server-url=https://admin:admin@YOUR_PMM_SERVER:443
         ```
-        
+
+    **Parameters:**
+
+       - `YOUR_PMM_SERVER`- Your PMM Server's IP address or hostname
+       - `443` - Default HTTPS port
+       - `admin`/`admin` - Default PMM username and password (change this immediately after first login)
+
+    ??? example "Registration with node details"
+        Register a node with IP address `192.168.33.23`, type `generic`, and name `mynode`:
+
+        ```bash
+        pmm-admin config --server-insecure-tls \
+        --server-url=https://admin:admin@192.168.33.14:443 \
+        192.168.33.23 generic mynode
+        ```
+    To migrate to [service accounts](../../api/authentication.md):
+    {.power-number}
+
+    1. Create service accounts while still using standard authentication.
+    2. Test service account tokens on non-critical nodes.
+    3. Gradually migrate all nodes to token authentication.
+    4. Change the admin password from default.
+    5. Consider restricting or disabling direct admin account usage for node registration.
+
+    !!! info "HTTPS requirement"
+        PMM requires HTTPS connections (port `443` by default). HTTP URLs automatically redirect to HTTPS. For connection errors, verify:
+
+        - Port `443` is accessible
+        - Firewall rules allow HTTPS traffic
+        - TLS certificates are valid (or use `--server-insecure-tls`)
+
+## Verify the connection
+
+Check that PMM Client is properly connected and registered:
+
+```sh
+pmm-admin status
+```
 
 ## Related topics
 

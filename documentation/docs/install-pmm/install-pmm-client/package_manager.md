@@ -107,10 +107,10 @@ pmm-admin --version
 
 After installing PMM Client, register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.
 
-Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the: secure service account tokens (recommended for production) and standard username/password credentials (for testing only).
+Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the node: secure service account tokens and standard username/password credentials.
 
 === "Using Service accounts (Recommended)"
-    Service accounts provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.
+    [Service accounts](../../api/authentication.md) provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.
 
     To register with service accounts, create a service account, generate an authentication token, then use it to register the PMM Client:
     {.power-number}
@@ -128,11 +128,7 @@ Registration requires authentication to verify that your PMM Client has permissi
     6. Click **Create**.
     7. Click **Add service account token**.
     8. (Optional) Name your token or leave blank for auto-generated name.
-    9. (Optional) Set expiration date for enhanced security. 
-    
-    !!! warning
-        Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
-
+    9. (Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
     10. Click **Generate Token**.
     11. **Save your token immediately**. It starts with `glsa_` and won't be shown again!
     12. Register using the token:
@@ -144,169 +140,38 @@ Registration requires authentication to verify that your PMM Client has permissi
             --server-password=YOUR_GLSA_TOKEN
         ```
 
-**Parameters explained:**
+        **Parameters explained:**
 
-- `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
-- `service_token` - Use this exact string as the username (not a placeholder!)
-- `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
-- `--server-insecure-tls` - Skip certificate validation (remove for production with valid certificates)
+        - `--server-insecure-tls` - Skip certificate validation (remove for production with valid certificates)
+        - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
+        - `service_token` - Use this exact string as the username (not a placeholder!)
+        - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
 
-??? example "Full example with node details"
-    ```bash
-    pmm-admin config --server-insecure-tls \
-        --server-url=https://192.168.33.14:443 \
-        --server-username=service_token \
-        --server-password=glsa_aBc123XyZ456... \
-        192.168.33.23 generic prod-db01
-    ```
-    This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
-
-#### Best practices for token management
-
-=== "Security recommendations"
-    - **Separate accounts per environment**: Use different service accounts for dev, staging, and production
-    - **Rotate regularly**: Even permanent tokens should be rotated every 90 days
-    - **Set expiration dates**: Consider 90-day expiration for automated rotation reminders
-    - **Use descriptive names**: Include environment and purpose (e.g., `prod-mysql-monitoring`)
-
-=== "Secure storage methods"
-    **Environment variables** (recommended for automation):
-    ```bash
-    export PMM_TOKEN="glsa_xxxxxxxxxxxxxxx"
-    pmm-admin config --server-insecure-tls \
-        --server-url=https://pmm.example.com:443 \
-        --server-username=service_token \
-        --server-password="$PMM_TOKEN"
-    ```
-
-    **Secrets file** (for persistent storage):
-    ```bash
-    # Create file with restricted permissions
-    echo "glsa_xxxxxxxxxxxxxxx" > /etc/pmm-token
-    chmod 600 /etc/pmm-token
-    
-    # Use in registration
-    pmm-admin config --server-insecure-tls \
-        --server-url=https://pmm.example.com:443 \
-        --server-username=service_token \
-        --server-password="$(cat /etc/pmm-token)"
-    ```
-
-=== "Multiple tokens per account"
-    You can create multiple tokens for the same service account when you need:
-
-    - Separate tokens for different servers in the same environment
-    - Individual audit trails for each node
-    - Gradual token rotation without downtime
-    
-    Each token has the same permissions but can be revoked independently.
-
-
-
-
-    Service accounts provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.
-
-    To register with service accounts,  create a Service account, generate an authentication token then use tem tp register the PMM Client:
-    {.power-number}
-
-    1. Log into your PMM Server web interface.
-    2. Navigate to **Administration > Users and access > Service Accounts**.
-    3. Click **Add Service account**.
-    4. Enter a descriptive name (e.g., `pmm-client-prod-db01`). PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
-
-    5. Select a role from the dropdown and  [list of role capabilities](../../admin/roles/index.md#default-role-assignment)
-
-        - **Editor** (minimum required) - For normal PMM Client operations
-        - **Admin** - Only if managing other service accounts or server settings
-        - **Viewer** - Insufficient for PMM Client (read-only access)
-
-    6. Click **Create**.
-    7. Click **Add service account token**.
-    8. (Optional) Name your token or leave blank for auto-generated name.
-    9. (Optional) Set expiration date for enhanced security. Keep in mind that e xpired tokens require manual rotation. Permanent tokens remain valid until revoked.
-
-    10. Click **Generate Token**.
-    11. Save your token immeditely. It starts with `glsa_` and won't be shown again!
-    12.  Register using the token:
-
-    ```bash
-    pmm-admin config --server-insecure-tls \
-    --server-url=https://YOUR_PMM_SERVER:443 \
-    --server-username=service_token \
-    --server-password=YOUR_GLSA_TOKEN
-    ```
-
-    **Parameters explained:**
-    - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
-    - `service_token` - Use this exact string as the username (not a placeholder!)
-    - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
-    - `--server-insecure-tls` - Skip certificate validation (remove for production with valid certificates)
-
-    ??? example "Full example with node details"
-        ```bash
-        pmm-admin config --server-insecure-tls \
-        --server-url=https://192.168.33.14:443 \
-        --server-username=service_token \
-        --server-password=glsa_aBc123XyZ456... \
-        192.168.33.23 generic prod-db01
-        ```
-        This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
-
-    #### Best practices for token management
-
-    === "Security recommendations"
-        - **Separate accounts per environment**: Use different service accounts for dev, staging, and production
-        - **Rotate regularly**: Even permanent tokens should be rotated every 90 days
-        - **Set expiration dates**: Consider 90-day expiration for automated rotation reminders
-        - **Use descriptive names**: Include environment and purpose (e.g., `prod-mysql-monitoring`)
-
-    === "Secure storage methods"
-        **Environment variables** (recommended for automation):
-        ```bash
-        export PMM_TOKEN="glsa_xxxxxxxxxxxxxxx"
-        pmm-admin config --server-insecure-tls \
-        --server-url=https://pmm.example.com:443 \
-        --server-username=service_token \
-        --server-password="$PMM_TOKEN"
-        ```
-
-        **Secrets file** (for persistent storage):
-        ```bash
-        # Create file with restricted permissions
-        echo "glsa_xxxxxxxxxxxxxxx" > /etc/pmm-token
-        chmod 600 /etc/pmm-token
-        
-        # Use in registration
-        pmm-admin config --server-insecure-tls \
-        --server-url=https://pmm.example.com:443 \
-        --server-username=service_token \
-        --server-password="$(cat /etc/pmm-token)"
-        ```
-
-    === "Multiple tokens per account"
-        You can create multiple tokens for the same service account when you need:
-
-        - Separate tokens for different servers in the same environment
-        - Individual audit trails for each node
-        - Gradual token rotation without downtime
-        
-        Each token has the same permissions but can be revoked independently.
+        ??? example "Full example with node details"
+            ```bash
+            pmm-admin config --server-insecure-tls \
+                --server-url=https://192.168.33.14:443 \
+                --server-username=service_token \
+                --server-password=glsa_aBc123XyZ456... \
+                192.168.33.23 generic prod-db01
+            ```
+            This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
 
 === "Standard authentication (Not recommended)"
-  !!! warning "Security risk"
-    This method exposes credentials in command history, process lists, and logs. Use only for testing or migration scenarios.
 
-    ```bash
-    pmm-admin config --server-insecure-tls \
-    --server-url=https://admin:admin@YOUR_PMM_SERVER:443
-    ```
+    !!! warning "Security risk"
+        This method exposes credentials in command history, process lists, and logs. Use only for testing or migration scenarios.
+
+        ```bash
+        pmm-admin config --server-insecure-tls \
+        --server-url=https://admin:admin@YOUR_PMM_SERVER:443
+        ```
 
     **Parameters:**
 
-    - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
-    - `443` - Default HTTPS port
-    - `admin`/`admin` - Default PMM username and password (change this immediately after first login)
-    - This uses the same account you use to log into the PMM web interface
+       - `YOUR_PMM_SERVER`- Your PMM Server's IP address or hostname
+       - `443` - Default HTTPS port
+       - `admin`/`admin` - Default PMM username and password (change this immediately after first login)
 
     ??? example "Registration with node details"
         Register a node with IP address `192.168.33.23`, type `generic`, and name `mynode`:
@@ -316,21 +181,21 @@ Registration requires authentication to verify that your PMM Client has permissi
         --server-url=https://admin:admin@192.168.33.14:443 \
         192.168.33.23 generic mynode
         ```
-    **Migration path to service accounts**
+    To migrate to [service accounts](../../api/authentication.md):
+    {.power-number}
 
-    1. Create service accounts while still using standard auth
-    2. Test service account tokens on non-critical nodes
-    3. Gradually migrate all nodes to token authentication
-    4. Change the admin password from default
-    5. Consider restricting or disabling direct admin account usage for node registration
+    1. Create service accounts while still using standard authentication.
+    2. Test service account tokens on non-critical nodes.
+    3. Gradually migrate all nodes to token authentication.
+    4. Change the admin password from default.
+    5. Consider restricting or disabling direct admin account usage for node registration.
 
     !!! info "HTTPS requirement"
-    PMM requires HTTPS connections (port 443 by default). HTTP URLs automatically redirect to HTTPS. For connection errors, verify:
+        PMM requires HTTPS connections (port `443` by default). HTTP URLs automatically redirect to HTTPS. For connection errors, verify:
 
-        - Port 443 is accessible
+        - Port `443` is accessible
         - Firewall rules allow HTTPS traffic
-        - TLS certificates are valid (or use --server-insecure-tls)
-
+        - TLS certificates are valid (or use `--server-insecure-tls`)
 
 ### Step 5: Verify the connection
 
