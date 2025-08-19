@@ -73,27 +73,17 @@ Choose your preferred method to configure the Percona repositories:
     The installation commands below require root privileges. Use `sudo` if you're not running as root.
 
 === "From repository"
-    === "Debian-based"
+    - Debian-based: 
         ```sh
         sudo apt update
         sudo apt install -y pmm-client
         ```
-
-    === "Red Hat-based"
-        ```sh
-        yum install -y pmm-client
-        ```
+    - Red Hat-based: `yum install -y pmm-client`
 
 === "From downloaded package"
-    === "Debian-based"
-        ```sh
-        sudo dpkg -i pmm-client_*.deb
-        ```
+    - Debian-based: `sudo dpkg -i pmm-client_*.deb`
+    - Red Hat-based: `sudo dnf localinstall pmm-client-*.rpm`
 
-    === "Red Hat-based"
-        ```sh
-        sudo dnf localinstall pmm-client-*.rpm
-        ```
 
 ### Step 3: Verify installation
 
@@ -118,7 +108,7 @@ Registration requires authentication to verify that your PMM Client has permissi
     1. Log into your PMM Server web interface.
     2. Navigate to **Administration > Users and access > Service Accounts**.
     3. Click **Add Service account**.
-    4. Enter a descriptive name (e.g., `pmm-client-prod-db01`). Keep in mind that PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
+    4. Enter a descriptive name (e.g.`pmm-client-prod-db01`). PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
     5. Select a role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md): 
 
         - **Editor** (minimum required): Can view and edit dashboards, create visualizations, work with alerts, and manage specific configurations. Required for normal PMM Client operations.

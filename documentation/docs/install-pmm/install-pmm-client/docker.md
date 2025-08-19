@@ -13,7 +13,7 @@ Using the Docker container approach offers several advantages:
 Complete these essential steps before installation:
 {.power-number}
 
-1. Install [Docker Engine](https://docs.docker.com/get-docker/)
+1. Install [Docker Engine](https://docs.docker.com/get-docker/).
 
 2. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
@@ -27,6 +27,7 @@ Complete these essential steps before installation:
 
 ## Installation and setup
 
+### Deploy PMM Client 
 Follow these steps to deploy PMM Client using Docker:
 {.power-number}
 
@@ -65,17 +66,17 @@ Follow these steps to deploy PMM Client using Docker:
 
 4. Start the [pmm-agent](../../use/commands/pmm-agent.md) in normal mode:
 
-    ```bash
-    docker run \
-      --detach \
-      --name pmm-client \
-      -e PMM_AGENT_SETUP=0 \
-      -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-      -v pmm-client-data:/usr/local/percona/pmm/tmp \
-      percona/pmm-client:3
-    ```
+```bash
+docker run \
+    --detach \
+    --name pmm-client \
+    -e PMM_AGENT_SETUP=0 \
+    -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
+    -v pmm-client-data:/usr/local/percona/pmm/tmp \
+    percona/pmm-client:3
+```
 
-## Register the node
+### Register the node
 
 After installing PMM Client, register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.
 
@@ -130,9 +131,7 @@ Registration requires authentication to verify that your PMM Client has permissi
             This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
 
 === "Standard authentication (Not recommended)"
-
-    !!! warning "Security risk"
-        This method exposes credentials in command history, process lists, and logs. Use only for testing or migration scenarios.
+    This method exposes credentials in command history, process lists, and logs! Use only for testing or migration scenarios:
 
         ```bash
         pmm-admin config --server-insecure-tls \
@@ -173,9 +172,9 @@ Registration requires authentication to verify that your PMM Client has permissi
 
 Check that PMM Client is properly connected and registered. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
 
-    ```bash
+```bash
     docker exec -t pmm-client pmm-admin status
-    ```
+```
 
 ## Add monitoring services
 
@@ -188,7 +187,8 @@ When running PMM in Docker, prefix all pmm-admin commands with `docker exec pmm-
     - Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](../../troubleshoot/checklist.md).
     - If you need assistance with PMM Client, run: `docker run --rm percona/pmm-client:3 --help`.
 
-## View your monitored node
+### View your monitored node
+
 To confirm your node is being monitored:
 {.power-number}
 
