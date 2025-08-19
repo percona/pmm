@@ -177,6 +177,8 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for ExtraDsnParams
+
 	if len(errors) > 0 {
 		return AddMySQLServiceParamsMultiError(errors)
 	}
