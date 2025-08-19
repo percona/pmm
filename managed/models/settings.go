@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
 // Default values for settings. These values are used when settings are not set.
@@ -33,6 +32,7 @@ const (
 	VictoriaMetricsCacheEnabledDefault = false
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
+	awsPartitionID                     = "aws"
 )
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
@@ -216,7 +216,7 @@ func (s *Settings) fillDefaults() {
 	}
 
 	if len(s.AWSPartitions) == 0 {
-		s.AWSPartitions = []string{endpoints.AwsPartitionID}
+		s.AWSPartitions = []string{awsPartitionID}
 	}
 
 	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
