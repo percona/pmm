@@ -121,7 +121,11 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
       <ListItem disablePadding>
         <ListItemButton
           disableGutters
-          sx={[styles.listItemButton, styles.leafItem, level === 0 && styles.navItemRoot]}
+          sx={[
+            styles.listItemButton,
+            styles.leafItem,
+            level === 0 && styles.navItemRoot,
+          ]}
           selected={active}
           {...linkProps}
           data-testid={dataTestid}
@@ -135,7 +139,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
           {drawerOpen && (
             <ListItemText
               primary={item.text}
-              primaryTypographyProps={level > 0 ? { style: styles.text } : {}}
+              className="navitem-primary-text"
             />
           )}
         </ListItemButton>

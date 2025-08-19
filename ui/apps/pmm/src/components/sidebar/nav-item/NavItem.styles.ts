@@ -61,7 +61,4 @@ export const getStyles = (
   divider: {
     flex: 1,
   },
-  text: {
-    whiteSpace: 'normal',
-  },
 });
