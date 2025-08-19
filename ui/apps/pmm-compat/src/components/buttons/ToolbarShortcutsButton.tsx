@@ -10,6 +10,7 @@ const ToolbarShortcutsButton = () => (
       icon="keyboard"
       onClick={() => triggerShortcut('view-shortcuts')}
       data-testid="pmm-toolbar-shortcuts-button"
+      tooltip="View shortcuts"
     />
   </ThemeProvider>
 );

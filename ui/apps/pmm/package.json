@@ -16,7 +16,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@pmm/shared": "*",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@fontsource/poppins": "^5.0.15",
@@ -27,6 +26,7 @@
     "@mui/x-date-pickers": "^7.5.0",
     "@percona/design": "^1.0.0",
     "@percona/ui-lib": "^1.0.0",
+    "@pmm/shared": "*",
     "@tanstack/react-query": "^5.45.1",
     "axios": "^1.7.4",
     "axios-case-converter": "^1.1.1",
@@ -36,7 +36,8 @@
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.23.1",
     "rehype-raw": "^7.0.0",
-    "remark-gfm": "^4.0.0"
+    "remark-gfm": "^4.0.0",
+    "vite-plugin-svgr": "^4.3.0"
   },
   "devDependencies": {
     "@percona/eslint-config-react": "^1.0.0",
