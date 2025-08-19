@@ -133,10 +133,10 @@ Registration requires authentication to verify that your PMM Client has permissi
 === "Standard authentication (Not recommended)"
     This method exposes credentials in command history, process lists, and logs! Use only for testing or migration scenarios:
 
-        ```bash
-        pmm-admin config --server-insecure-tls \
-        --server-url=https://admin:admin@YOUR_PMM_SERVER:443
-        ```
+    ```bash
+    pmm-admin config --server-insecure-tls \
+    --server-url=https://admin:admin@YOUR_PMM_SERVER:443
+    ```
 
     **Parameters:**
 
@@ -173,7 +173,7 @@ Registration requires authentication to verify that your PMM Client has permissi
 Check that PMM Client is properly connected and registered. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
 
 ```bash
-    docker exec -t pmm-client pmm-admin status
+docker exec -t pmm-client pmm-admin status
 ```
 
 ## Add monitoring services
