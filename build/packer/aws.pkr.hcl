@@ -112,10 +112,11 @@ build {
   provisioner "ansible" {
     use_proxy              = false
     user                   = "ec2-user"
-    ansible_env_vars       = ["ANSIBLE_NOCOLOR=True"]
+    ansible_env_vars       = ["ANSIBLE_NOCOLOR=True", "CLOUD_PROVIDER=aws"]
     extra_arguments = [
-      "--ssh-extra-args", "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null", "-vvv"
+      "--ssh-extra-args", "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null", "-vvv",
+      "-e", "cloud_provider=aws"
     ]
-    playbook_file          = "./ansible/agent-aws.yml"
+    playbook_file          = "./ansible/agent-aws-hetzner.yml"
   }
 }

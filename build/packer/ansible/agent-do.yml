@@ -145,33 +145,33 @@
 
     - name: Install virtual box (only for Digital Ocean)
       block:
-        - name: Add base repository for VirtualBox
-          yum_repository:
-            name: virtualbox
-            description: VirtualBox
-            baseurl: "http://download.virtualbox.org/virtualbox/rpm/el/$releasever/$basearch"
-            gpgcheck: true
-            gpgkey: https://www.virtualbox.org/download/oracle_vbox_2016.asc
-            enabled: true
+        - name: Import VirtualBox GPG key
+          rpm_key:
             state: present
+            key: https://www.virtualbox.org/download/oracle_vbox_2016.asc
 
-        ##- name: Add base repository for Hashicorp
-        ##  yum_repository:
-        ##    name: hashicorp
-        ##    description: HashiCorp Repository
-        ##    baseurl: "https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable"
-        ##    gpgcheck: true
-        ##    gpgkey: https://rpm.releases.hashicorp.com/gpg
-        ##    enabled: true
-        ##    state: present
+        - name: Download VirtualBox RPM directly
+          get_url:
+            url: "https://download.virtualbox.org/virtualbox/7.0.26/VirtualBox-7.0-7.0.26_168464_el9-1.x86_64.rpm"
+            dest: "/tmp/VirtualBox-7.0.rpm"
+            checksum: "sha256:9e7447ad09d0cf8cb2004533fd520c9d29d50851f5fb62ee5a4aadf3f81bd5c3"
+            timeout: 300
 
-        - name: Install packages for virtualization
+        - name: Install VirtualBox from downloaded RPM
           dnf:
+            name: "/tmp/VirtualBox-7.0.rpm"
             state: present
-            name: "{{ item }}"
-          loop:
-            - VirtualBox-7.0
-            - vagrant
+            disable_gpg_check: no
+
+        - name: Install vagrant from Hashicorp repo
+          dnf:
+            name: vagrant
+            state: present
+
+        - name: Clean up VirtualBox RPM
+          file:
+            path: "/tmp/VirtualBox-7.0.rpm"
+            state: absent
 
         - name: Reboot to the latest kernel
           reboot:
