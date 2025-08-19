@@ -121,7 +121,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
       <ListItem disablePadding>
         <ListItemButton
           disableGutters
-          sx={[styles.listItemButton, level === 0 && styles.navItemRoot]}
+          sx={[styles.listItemButton, styles.leafItem, level === 0 && styles.navItemRoot]}
           selected={active}
           {...linkProps}
           data-testid={dataTestid}

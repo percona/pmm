@@ -11,6 +11,9 @@ export const getStyles = (
   navItemRoot: {
     borderRadius: 0,
   },
+  leafItem: {
+    mr: drawerOpen && level > 0 ? 1 : 0,
+  },
   navItemRootCollapsible: {
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
