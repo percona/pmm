@@ -85,26 +85,25 @@ Registration requires authentication to verify that your PMM Client has permissi
 === "Using Service accounts (Recommended)"
     [Service accounts](../../api/authentication.md) provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.
 
-    To register with service accounts, create a service account, generate an authentication token, then use it to register the PMM Client:
+    To register with service accounts, create a service account then generate an authentication token that you can use to register the PMM Client:
     {.power-number}
 
-    1. Log into your PMM Server web interface.
+    1. Log into PMM web interface.
     2. Navigate to **Administration > Users and access > Service Accounts**.
     3. Click **Add Service account**.
-    4. Enter a descriptive name (e.g., `pmm-client-prod-db01`). Keep in mind that PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
+    4. Enter a descriptive name (e.g.: `pmm-client-prod-db01`). Keep in mind that PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
     5. Select a role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md): 
 
         - **Editor** (minimum required): Can view and edit dashboards, create visualizations, work with alerts, and manage specific configurations. Required for normal PMM Client operations.
         - **Admin**: Has access to all PMM resources including users, teams, data sources, dashboards, and server settings. Only needed if managing other service accounts or server configurations.
         - **Viewer**: Read-only access to monitoring data and dashboards. Cannot push metrics or modify configurations, making it insufficient for PMM Client operations.
 
-    6. Click **Create**.
-    7. Click **Add service account token**.
-    8. (Optional) Name your token or leave blank for auto-generated name.
-    9. (Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
-    10. Click **Generate Token**.
-    11. **Save your token immediately**. It starts with `glsa_` and won't be shown again!
-    12. Register using the token:
+    6. Click **Creat > Add service account token**.
+    7. (Optional) Name your token or leave blank for auto-generated name.
+    8. (Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
+    9. Click **Generate Token**.
+    10. **Save your token immediately**. It starts with `glsa_` and won't be shown again!
+    10. Register using the token:
 
         ```bash
         pmm-admin config --server-insecure-tls \
@@ -138,7 +137,7 @@ Registration requires authentication to verify that your PMM Client has permissi
     --server-url=https://admin:admin@YOUR_PMM_SERVER:443
     ```
 
-    **Parameters:**
+    **Parameters explained:**
 
        - `YOUR_PMM_SERVER`- Your PMM Server's IP address or hostname
        - `443` - Default HTTPS port
