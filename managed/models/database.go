@@ -1138,6 +1138,9 @@ var databaseSchema = [][]string{
 	109: {
 		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
 	},
+	111: {
+		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1506,6 +1509,9 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
+
+	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
+	ap.Disabled = true
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
