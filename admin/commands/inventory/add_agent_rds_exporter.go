@@ -62,7 +62,7 @@ type AddAgentRDSExporterCommand struct {
 
 // RunCmd executes the AddAgentRDSExporterCommand and returns the result.
 func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{

@@ -1322,6 +1322,9 @@ swagger:model ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions
 type ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions struct {
 	// True if TLS key is set.
 	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0 mysql options
