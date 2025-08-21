@@ -1516,6 +1516,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

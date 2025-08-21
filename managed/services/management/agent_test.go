@@ -178,6 +178,7 @@ func TestAgentService(t *testing.T) {
 					Status:                  "AGENT_STATUS_UNKNOWN",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
+					Disabled:                true,
 				},
 				{
 					AgentId:      models.PMMServerAgentID,
