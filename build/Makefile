@@ -12,7 +12,7 @@ fetch:
 		|| curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant -o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 
-	# Add the box using Vagrant
+	# Add the box using vagrant
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
 		|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version ${BOX_VERSION} --provider virtualbox
 
