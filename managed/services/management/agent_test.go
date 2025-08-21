@@ -175,7 +175,7 @@ func TestAgentService(t *testing.T) {
 						IsSslKeySet: false,
 					},
 					ServiceId:               "00000000-0000-4000-8000-000000000002",
-					Status:                  "AGENT_STATUS_UNKNOWN",
+					Status:                  "AGENT_STATUS_DONE",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
 					Disabled:                true,
