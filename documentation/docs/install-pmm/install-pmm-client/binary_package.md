@@ -227,12 +227,7 @@ Registration requires authentication to verify that your PMM Client has permissi
     2. Navigate to **Administration > Users and access > Service Accounts**.
     3. Click **Add Service account**.
     4. Enter a descriptive name (e.g.: `pmm-client-prod-db01`). Keep in mind that PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
-    5. Select a role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md): 
-
-        - **Editor** (minimum required): Can view and edit dashboards, create visualizations, work with alerts, and manage specific configurations. Required for normal PMM Client operations.
-        - **Admin**: Has access to all PMM resources including users, teams, data sources, dashboards, and server settings. Only needed if managing other service accounts or server configurations.
-        - **Viewer**: Read-only access to monitoring data and dashboards. Cannot push metrics or modify configurations, making it insufficient for PMM Client operations.
-
+    5. Select the **Editor** role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md).
     6. Click **Create > Add service account token**.
     7. (Optional) Name your token or leave blank for auto-generated name.
     8. (Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
