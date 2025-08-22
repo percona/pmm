@@ -48,7 +48,7 @@ const (
 	caFilePlaceholder             = "caFilePlaceholder"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
-	// agentStatusDone indicates thay the agent has either been stopped or disabled.
+	// AgentStatusDone indicates thay the agent has either been stopped or disabled.
 	agentStatusDone = "AGENT_STATUS_DONE"
 	tcp             = "tcp"
 	trueStr         = "true"
