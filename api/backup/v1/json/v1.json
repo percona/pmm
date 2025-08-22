@@ -177,9 +177,9 @@
                       "compression": {
                         "type": "string",
                         "title": "BackupCompression specifies compression",
-                        "default": "BACKUP_COMPRESSION_INVALID",
+                        "default": "BACKUP_COMPRESSION_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_COMPRESSION_INVALID",
+                          "BACKUP_COMPRESSION_UNSPECIFIED",
                           "BACKUP_COMPRESSION_DEFAULT",
                           "BACKUP_COMPRESSION_NONE",
                           "BACKUP_COMPRESSION_QUICKLZ",
@@ -969,9 +969,9 @@
                       "compression": {
                         "type": "string",
                         "title": "BackupCompression specifies compression",
-                        "default": "BACKUP_COMPRESSION_INVALID",
+                        "default": "BACKUP_COMPRESSION_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_COMPRESSION_INVALID",
+                          "BACKUP_COMPRESSION_UNSPECIFIED",
                           "BACKUP_COMPRESSION_DEFAULT",
                           "BACKUP_COMPRESSION_NONE",
                           "BACKUP_COMPRESSION_QUICKLZ",
@@ -1339,9 +1339,9 @@
                       "compression": {
                         "type": "string",
                         "title": "BackupCompression specifies compression",
-                        "default": "BACKUP_COMPRESSION_INVALID",
+                        "default": "BACKUP_COMPRESSION_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_COMPRESSION_INVALID",
+                          "BACKUP_COMPRESSION_UNSPECIFIED",
                           "BACKUP_COMPRESSION_DEFAULT",
                           "BACKUP_COMPRESSION_NONE",
                           "BACKUP_COMPRESSION_QUICKLZ",
@@ -1424,9 +1424,9 @@
                   "items": {
                     "type": "string",
                     "title": "BackupCompression specifies compression",
-                    "default": "BACKUP_COMPRESSION_INVALID",
+                    "default": "BACKUP_COMPRESSION_UNSPECIFIED",
                     "enum": [
-                      "BACKUP_COMPRESSION_INVALID",
+                      "BACKUP_COMPRESSION_UNSPECIFIED",
                       "BACKUP_COMPRESSION_DEFAULT",
                       "BACKUP_COMPRESSION_NONE",
                       "BACKUP_COMPRESSION_QUICKLZ",
@@ -2038,9 +2038,9 @@
                 "compression": {
                   "type": "string",
                   "title": "BackupCompression specifies compression",
-                  "default": "BACKUP_COMPRESSION_INVALID",
+                  "default": "BACKUP_COMPRESSION_UNSPECIFIED",
                   "enum": [
-                    "BACKUP_COMPRESSION_INVALID",
+                    "BACKUP_COMPRESSION_UNSPECIFIED",
                     "BACKUP_COMPRESSION_DEFAULT",
                     "BACKUP_COMPRESSION_NONE",
                     "BACKUP_COMPRESSION_QUICKLZ",
@@ -2170,9 +2170,9 @@
                 "compression": {
                   "type": "string",
                   "title": "BackupCompression specifies compression",
-                  "default": "BACKUP_COMPRESSION_INVALID",
+                  "default": "BACKUP_COMPRESSION_UNSPECIFIED",
                   "enum": [
-                    "BACKUP_COMPRESSION_INVALID",
+                    "BACKUP_COMPRESSION_UNSPECIFIED",
                     "BACKUP_COMPRESSION_DEFAULT",
                     "BACKUP_COMPRESSION_NONE",
                     "BACKUP_COMPRESSION_QUICKLZ",

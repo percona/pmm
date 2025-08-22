@@ -143,7 +143,7 @@ func (x *StartBackupRequest) GetCompression() BackupCompression {
 	if x != nil {
 		return x.Compression
 	}
-	return BackupCompression_BACKUP_COMPRESSION_INVALID
+	return BackupCompression_BACKUP_COMPRESSION_UNSPECIFIED
 }
 
 type StartBackupResponse struct {
@@ -502,7 +502,7 @@ func (x *ScheduledBackup) GetCompression() BackupCompression {
 	if x != nil {
 		return x.Compression
 	}
-	return BackupCompression_BACKUP_COMPRESSION_INVALID
+	return BackupCompression_BACKUP_COMPRESSION_UNSPECIFIED
 }
 
 type ScheduleBackupRequest struct {
@@ -664,7 +664,7 @@ func (x *ScheduleBackupRequest) GetCompression() BackupCompression {
 	if x != nil {
 		return x.Compression
 	}
-	return BackupCompression_BACKUP_COMPRESSION_INVALID
+	return BackupCompression_BACKUP_COMPRESSION_UNSPECIFIED
 }
 
 type ScheduleBackupResponse struct {

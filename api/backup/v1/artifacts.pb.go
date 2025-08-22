@@ -261,7 +261,7 @@ func (x *Artifact) GetCompression() BackupCompression {
 	if x != nil {
 		return x.Compression
 	}
-	return BackupCompression_BACKUP_COMPRESSION_INVALID
+	return BackupCompression_BACKUP_COMPRESSION_UNSPECIFIED
 }
 
 type ListArtifactsRequest struct {

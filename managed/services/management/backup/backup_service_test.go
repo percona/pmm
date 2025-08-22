@@ -802,7 +802,7 @@ func TestConvertBackupCompression(t *testing.T) {
 			result, err := convertBackupCompression(tt.compression)
 			if tt.shouldError {
 				assert.Error(t, err)
-				assert.Equal(t, backupv1.BackupCompression_BACKUP_COMPRESSION_INVALID, result)
+				assert.Equal(t, backupv1.BackupCompression_BACKUP_COMPRESSION_UNSPECIFIED, result)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expected, result)
@@ -1060,7 +1060,7 @@ func TestConvertCompressionToBackupCompression(t *testing.T) {
 		},
 		{
 			name:        "invalid compression",
-			compression: backupv1.BackupCompression_BACKUP_COMPRESSION_INVALID,
+			compression: backupv1.BackupCompression_BACKUP_COMPRESSION_UNSPECIFIED,
 			expected:    models.BackupCompression(""),
 			shouldError: true,
 		},

@@ -22,7 +22,7 @@ enum BackupMode {
 
 // BackupCompression specifies compression
 enum BackupCompression {
-  BACKUP_COMPRESSION_INVALID = 0;
+  BACKUP_COMPRESSION_UNSPECIFIED = 0;
   BACKUP_COMPRESSION_DEFAULT = 1;
   BACKUP_COMPRESSION_NONE = 2;
   BACKUP_COMPRESSION_QUICKLZ = 3;
