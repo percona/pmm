@@ -98,3 +98,6 @@ PMM Agent includes a configurable **Performance Schema Refresh Rate** that can h
 If you're still missing some query examples, consider [using the slow query log (`slowlog`)](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
 The `slowlog` retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.
 
+## MySQL Digest Length
+
+If you notice that MySQL query digests are being truncated (which can happen with very long queries), you may need to increase the values of [max_digest_length](https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_max_digest_length) and [performance_schema_max_digest_length](https://dev.mysql.com/doc/refman/8.4/en/performance-schema-system-variables.html#sysvar_performance_schema_max_digest_length). By default, both are set to 1024 bytes.
