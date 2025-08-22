@@ -37,7 +37,7 @@ const (
 	AgentStatus_AGENT_STATUS_WAITING AgentStatus = 3
 	// Agent is stopping.
 	AgentStatus_AGENT_STATUS_STOPPING AgentStatus = 4
-	// Agent finished.
+	// Agent has been stopped or disabled.
 	AgentStatus_AGENT_STATUS_DONE AgentStatus = 5
 	// Agent is not connected, we don't know anything about it's state.
 	AgentStatus_AGENT_STATUS_UNKNOWN AgentStatus = 6
