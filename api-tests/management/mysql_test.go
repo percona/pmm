@@ -76,12 +76,13 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:    serviceID,
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         3306,
-				CustomLabels: map[string]string{},
+				ServiceID:      serviceID,
+				NodeID:         nodeID,
+				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           3306,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -102,6 +103,7 @@ func TestAddMySQL(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{},
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.MysqldExporter)
@@ -154,12 +156,13 @@ func TestAddMySQL(t *testing.T) {
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:    serviceID,
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         3306,
-				CustomLabels: map[string]string{},
+				ServiceID:      serviceID,
+				NodeID:         nodeID,
+				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           3306,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -185,6 +188,7 @@ func TestAddMySQL(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{},
 				DisabledCollectors:        make([]string, 0),
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
@@ -200,6 +204,7 @@ func TestAddMySQL(t *testing.T) {
 				MaxSlowlogFileSize: "1073741824",
 				Status:             &AgentStatusUnknown,
 				CustomLabels:       map[string]string{},
+				ExtraDsnParams:     map[string]string{},
 				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.QANMysqlSlowlogAgent)

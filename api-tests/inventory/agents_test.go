@@ -36,6 +36,9 @@ import (
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
 var AgentStatusUnknown = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)]
 
+// AgentStatusDone means the agent has either been stopped or disabled.
+var AgentStatusDone = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_DONE)]
+
 func TestAgents(t *testing.T) {
 	t.Parallel()
 	t.Run("List", func(t *testing.T) {
@@ -557,7 +560,7 @@ func TestQanAgentExporter(t *testing.T) {
 					Username:     "username",
 					PMMAgentID:   pmmAgentID,
 					Disabled:     true,
-					Status:       &AgentStatusUnknown,
+					Status:       &AgentStatusDone,
 					CustomLabels: map[string]string{},
 					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
@@ -591,7 +594,7 @@ func TestQanAgentExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status:   &AgentStatusUnknown,
+					Status:   &AgentStatusDone,
 					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
@@ -816,7 +819,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					Username:     "username",
 					PMMAgentID:   pmmAgentID,
 					Disabled:     true,
-					Status:       &AgentStatusUnknown,
+					Status:       &AgentStatusDone,
 					CustomLabels: map[string]string{},
 					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
@@ -850,7 +853,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatementsAgent",
 					},
-					Status:   &AgentStatusUnknown,
+					Status:   &AgentStatusDone,
 					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
@@ -1075,7 +1078,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					Username:     "username",
 					PMMAgentID:   pmmAgentID,
 					Disabled:     true,
-					Status:       &AgentStatusUnknown,
+					Status:       &AgentStatusDone,
 					CustomLabels: map[string]string{},
 					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
@@ -1109,7 +1112,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
-					Status:   &AgentStatusUnknown,
+					Status:   &AgentStatusDone,
 					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
