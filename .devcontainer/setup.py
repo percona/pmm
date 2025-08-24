@@ -24,16 +24,13 @@ def install_packages():
     """Installs required and useful RPM packages."""
 
     run_commands([
-        "dnf install -y gcc git make pkgconfig \
+        "dnf install -y --enablerepo=ol9_codeready_builder \
+            gcc git make pkgconfig ansible-lint glibc-static \
             vim \
-            mc psmisc procps lsof which iproute diffutils \
+            mc psmisc procps lsof diffutils \
             man man-pages \
             openssl-devel \
-            wget \
-            krb5-devel",
-        
-        "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
-
+            krb5-devel"
     ])
 
 
