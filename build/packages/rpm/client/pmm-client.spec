@@ -62,7 +62,7 @@ if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml.bak ]; then
 
     if ! getent passwd pmm-agent > /dev/null 2>&1; then
        /usr/sbin/groupadd -r pmm-agent
-       /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /bin/false -c "PMM Agent User" pmm-agent
+       /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /sbin/nologin -c "PMM Agent User" pmm-agent
        chown -R pmm-agent:pmm-agent /usr/local/percona/pmm
     fi
     /usr/bin/systemctl enable pmm-agent >/dev/null 2>&1 || :
@@ -135,7 +135,7 @@ rm -rf $RPM_BUILD_ROOT
 if [ $1 -eq 1 ]; then
   if ! getent passwd pmm-agent > /dev/null 2>&1; then
     /usr/sbin/groupadd -r pmm-agent
-    /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /bin/false -c pmm-agent pmm-agent > /dev/null 2>&1
+    /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /sbin/nologin -c pmm-agent pmm-agent > /dev/null 2>&1
   fi
 fi
 if [ $1 -eq 2 ]; then
