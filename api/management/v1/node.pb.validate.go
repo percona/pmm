@@ -897,6 +897,8 @@ func (m *UniversalNode) validate(all bool) error {
 
 	}
 
+	// no validation rules for InstanceId
+
 	if len(errors) > 0 {
 		return UniversalNodeMultiError(errors)
 	}

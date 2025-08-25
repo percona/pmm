@@ -18901,6 +18901,11 @@
                           }
                         },
                         "x-order": 16
+                      },
+                      "instance_id": {
+                        "description": "Instance ID for cloud providers (e.g. AWS RDS).",
+                        "type": "string",
+                        "x-order": 17
                       }
                     }
                   },
@@ -19438,6 +19443,11 @@
                         }
                       },
                       "x-order": 16
+                    },
+                    "instance_id": {
+                      "description": "Instance ID for cloud providers (e.g. AWS RDS).",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0

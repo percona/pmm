@@ -613,7 +613,9 @@ type UniversalNode struct {
 	// List of agents related to this node.
 	Agents []*UniversalNode_Agent `protobuf:"bytes,16,rep,name=agents,proto3" json:"agents,omitempty"`
 	// List of services running on this node.
-	Services      []*UniversalNode_Service `protobuf:"bytes,17,rep,name=services,proto3" json:"services,omitempty"`
+	Services []*UniversalNode_Service `protobuf:"bytes,17,rep,name=services,proto3" json:"services,omitempty"`
+	// Instance ID for cloud providers (e.g. AWS RDS).
+	InstanceId    string `protobuf:"bytes,18,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -765,6 +767,13 @@ func (x *UniversalNode) GetServices() []*UniversalNode_Service {
 		return x.Services
 	}
 	return nil
+}
+
+func (x *UniversalNode) GetInstanceId() string {
+	if x != nil {
+		return x.InstanceId
+	}
+	return ""
 }
 
 type ListNodesRequest struct {
@@ -1140,7 +1149,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"2\n" +
 	"\x16UnregisterNodeResponse\x12\x18\n" +
-	"\awarning\x18\x01 \x01(\tR\awarning\"\xcf\b\n" +
+	"\awarning\x18\x01 \x01(\tR\awarning\"\xf0\b\n" +
 	"\rUniversalNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_type\x18\x02 \x01(\tR\bnodeType\x12\x1b\n" +
@@ -1163,7 +1172,9 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"updated_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12;\n" +
 	"\x06status\x18\x0f \x01(\x0e2#.management.v1.UniversalNode.StatusR\x06status\x12:\n" +
 	"\x06agents\x18\x10 \x03(\v2\".management.v1.UniversalNode.AgentR\x06agents\x12@\n" +
-	"\bservices\x18\x11 \x03(\v2$.management.v1.UniversalNode.ServiceR\bservices\x1an\n" +
+	"\bservices\x18\x11 \x03(\v2$.management.v1.UniversalNode.ServiceR\bservices\x12\x1f\n" +
+	"\vinstance_id\x18\x12 \x01(\tR\n" +
+	"instanceId\x1an\n" +
 	"\aService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +

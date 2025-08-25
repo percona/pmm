@@ -324,6 +324,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			NodeModel:     node.NodeModel,
 			Region:        pointer.GetString(node.Region),
 			UpdatedAt:     timestamppb.New(node.UpdatedAt),
+			InstanceId:    node.InstanceID,
 		}
 
 		if metric, ok := metrics[node.NodeID]; ok {
