@@ -25,10 +25,11 @@ def install_packages():
 
     run_commands([
         "dnf install -y --enablerepo=ol9_codeready_builder \
-            gcc git make pkgconfig ansible-lint glibc-static \
+            gcc git make pkgconfig \
             vim \
-            mc psmisc procps lsof diffutils \
+            psmisc procps lsof diffutils \
             man man-pages \
+            ansible-lint glibc-static \
             openssl-devel \
             krb5-devel"
     ])
