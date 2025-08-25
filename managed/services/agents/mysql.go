@@ -229,6 +229,7 @@ const myCnfTemplate = `[client]
 {{if .CaFile}}ssl-ca={{ .CaFile }}{{end}}
 {{if .CertFile}}ssl-cert={{ .CertFile }}{{end}}
 {{if .KeyFile}}ssl-key={{ .KeyFile }}{{end}}
+{{if .EnableClearTextPassword}}enable-cleartext-plugin{{end}}
 `
 
 // buildMyCnfConfig builds my.cnf configuration for MySQL connection.
@@ -241,14 +242,16 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 
 	var configBuffer bytes.Buffer
 	myCnfParams := struct {
-		User     string
-		Password string
-		Socket   string
-		Host     string
-		Port     int
-		CaFile   string
-		CertFile string
-		KeyFile  string
+		User                    string
+		Password                string
+		Socket                  string
+		Host                    string
+		Port                    int
+		CaFile                  string
+		CertFile                string
+		KeyFile                 string
+		EnableClearTextPassword bool
+		MyCnfPath               string
 	}{
 		User:     pointer.GetString(agent.Username),
 		Password: pointer.GetString(agent.Password),
@@ -270,6 +273,11 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		myCnfParams.Socket = *service.Socket
 	}
 
+	if agent.MySQLOptions.ExtraDSNParams != nil {
+		if val, ok := agent.MySQLOptions.ExtraDSNParams["allowCleartextPasswords"]; ok && (val == "1" || val == "true") {
+			myCnfParams.EnableClearTextPassword = true
+		}
+	}
 	if err = tmpl.Execute(&configBuffer, myCnfParams); err != nil {
 		return "", fmt.Errorf("failed to execute myCnf template: %w", err)
 	}

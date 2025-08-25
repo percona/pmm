@@ -181,6 +181,8 @@ message MySQLdExporter {
   bool expose_exporter = 25;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 26;
+  // Extra DSN parameters for MySQL connection.
+  map<string, string> extra_dsn_params = 27;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -358,6 +360,9 @@ message QANMySQLPerfSchemaAgent {
   string process_exec_path = 21;
   // Log level for exporter.
   LogLevel log_level = 22;
+
+  // Extra DSN parameters for MySQL connection.
+  map<string, string> extra_dsn_params = 23;
 }
 
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -403,6 +408,9 @@ message QANMySQLSlowlogAgent {
   string process_exec_path = 21;
   // Log level for exporter.
   LogLevel log_level = 22;
+
+  // Extra DSN parameters for MySQL connection.
+  map<string, string> extra_dsn_params = 23;
 }
 
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -917,6 +925,8 @@ message AddMySQLdExporterParams {
   LogLevel log_level = 16;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 17;
+  // Extra DSN parameters for MySQL connection.
+  map<string, string> extra_dsn_params = 18;
 }
 
 message ChangeMySQLdExporterParams {
@@ -1116,6 +1126,8 @@ message AddQANMySQLPerfSchemaAgentParams {
   bool disable_comments_parsing = 14;
   // Log level for exporter.
   LogLevel log_level = 15;
+  // Extra DSN parameters for MySQL connection.
+  map<string, string> extra_dsn_params = 16;
 }
 
 message ChangeQANMySQLPerfSchemaAgentParams {
@@ -1165,6 +1177,8 @@ message AddQANMySQLSlowlogAgentParams {
   bool disable_comments_parsing = 15;
   // Log level for exporter.
   LogLevel log_level = 16;
+  // Extra DSN parameters for MySQL connection.
+  map<string, string> extra_dsn_params = 17;
 }
 
 message ChangeQANMySQLSlowlogAgentParams {
