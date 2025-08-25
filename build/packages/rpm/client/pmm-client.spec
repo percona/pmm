@@ -151,7 +151,7 @@ done
 %systemd_post pmm-agent.service
 if [ $1 -eq 1 ]; then
     if [ ! -f /usr/local/percona/pmm/config/pmm-agent.yaml ]; then
-        install -d -m 0755 /usr/local/percona/pmm/config
+        install -d -m 0755 -o pmm-agent -g pmm-agent /usr/local/percona/pmm/config
         install -m 0660 -o pmm-agent -g pmm-agent /dev/null /usr/local/percona/pmm/config/pmm-agent.yaml
     fi
     /usr/bin/systemctl enable pmm-agent >/dev/null 2>&1 || :
@@ -214,6 +214,9 @@ fi
 %attr(-,pmm-agent,pmm-agent) /usr/local/percona/pmm
 
 %changelog
+* Mon Aug 25 2025 Alex Demidoff <alexander.demidoff@percona.com>
+- PMM-12362 rootless systemd user
+
 * Fri Nov 8 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com>
 - PMM-13399 include nomad into pmm client
 
