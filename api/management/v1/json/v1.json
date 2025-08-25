@@ -227,6 +227,14 @@
                             "description": "True if TLS key is set.",
                             "type": "boolean",
                             "x-order": 0
+                          },
+                          "extra_dsn_params": {
+                            "description": "Extra DSN parameters for MySQL connection.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 1
                           }
                         },
                         "x-order": 17
@@ -1721,6 +1729,14 @@
                                   "description": "True if TLS key is set.",
                                   "type": "boolean",
                                   "x-order": 0
+                                },
+                                "extra_dsn_params": {
+                                  "description": "Extra DSN parameters for MySQL connection.",
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": "string"
+                                  },
+                                  "x-order": 1
                                 }
                               },
                               "x-order": 17
@@ -2184,6 +2200,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 31
+                    },
+                    "extra_dsn_params": {
+                      "description": "extra DSN parameters to be used for connecting to MySQL.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 32
                     }
                   },
                   "x-order": 0
@@ -3525,6 +3549,14 @@
                           "description": "MySQL version.",
                           "type": "string",
                           "x-order": 10
+                        },
+                        "extra_dsn_params": {
+                          "description": "Extra parameters to be added to the DSN.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 11
                         }
                       },
                       "x-order": 0
@@ -3689,6 +3721,14 @@
                             }
                           },
                           "x-order": 21
+                        },
+                        "extra_dsn_params": {
+                          "description": "Extra DSN parameters for MySQL connection.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 22
                         }
                       },
                       "x-order": 1
@@ -3806,6 +3846,14 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 16
+                        },
+                        "extra_dsn_params": {
+                          "description": "Extra DSN parameters for MySQL connection.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 17
                         }
                       },
                       "x-order": 2
@@ -3929,6 +3977,14 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 17
+                        },
+                        "extra_dsn_params": {
+                          "description": "Extra DSN parameters for MySQL connection.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 18
                         }
                       },
                       "x-order": 3
@@ -5512,6 +5568,14 @@
                           "description": "MySQL version.",
                           "type": "string",
                           "x-order": 10
+                        },
+                        "extra_dsn_params": {
+                          "description": "Extra parameters to be added to the DSN.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 11
                         }
                       },
                       "x-order": 2
@@ -5676,6 +5740,14 @@
                             }
                           },
                           "x-order": 21
+                        },
+                        "extra_dsn_params": {
+                          "description": "Extra DSN parameters for MySQL connection.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 22
                         }
                       },
                       "x-order": 3
@@ -5793,6 +5865,14 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 16
+                        },
+                        "extra_dsn_params": {
+                          "description": "Extra DSN parameters for MySQL connection.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 17
                         }
                       },
                       "x-order": 4
