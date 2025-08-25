@@ -81,10 +81,11 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 	testJobDuration := 1 * time.Second
 
 	tests := []struct {
-		name      string
-		dataModel backuppb.DataModel
-		pitr      bool
-		errMsg    string
+		name        string
+		dataModel   backuppb.DataModel
+		pitr        bool
+		errMsg      string
+		compression backuppb.BackupCompression
 	}{
 		{
 			name:      "logical backup model",
@@ -107,16 +108,113 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 			dataModel: backuppb.DataModel_DATA_MODEL_PHYSICAL,
 			errMsg:    "PITR is only supported for logical backups",
 		},
+		{
+			name:        "logical backup with LZ4 compression",
+			dataModel:   backuppb.DataModel_DATA_MODEL_LOGICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_LZ4,
+		},
+		{
+			name:        "physical backup with ZSTD compression",
+			dataModel:   backuppb.DataModel_DATA_MODEL_LOGICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_ZSTD,
+		},
+		{
+			name:        "logical backup with PGZIP compression",
+			dataModel:   backuppb.DataModel_DATA_MODEL_LOGICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_PGZIP,
+		},
+		{
+			name:        "physical backup with no compression",
+			dataModel:   backuppb.DataModel_DATA_MODEL_LOGICAL,
+			errMsg:      "",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_NONE,
+		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), "", BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
+			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), "", BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder", tc.compression)
 			if tc.errMsg == "" {
 				assert.NoError(t, err)
 			} else {
 				assert.ErrorContains(t, err, tc.errMsg)
+			}
+		})
+	}
+}
+
+func TestMongoDBBackupJobCompression(t *testing.T) {
+	t.Parallel()
+	testJobDuration := 1 * time.Second
+
+	tests := []struct {
+		name        string
+		compression backuppb.BackupCompression
+		shouldError bool
+	}{
+		{
+			name:        "GZIP compression",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_GZIP,
+			shouldError: false,
+		},
+		{
+			name:        "Snappy compression",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_SNAPPY,
+			shouldError: false,
+		},
+		{
+			name:        "LZ4 compression",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_LZ4,
+			shouldError: false,
+		},
+		{
+			name:        "S2 compression",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_S2,
+			shouldError: false,
+		},
+		{
+			name:        "PGZIP compression",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_PGZIP,
+			shouldError: false,
+		},
+		{
+			name:        "ZSTD compression",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_ZSTD,
+			shouldError: false,
+		},
+		{
+			name:        "None compression",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_NONE,
+			shouldError: false,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			job, err := NewMongoDBBackupJob(
+				t.Name(),
+				testJobDuration,
+				t.Name(),
+				"",
+				BackupLocationConfig{},
+				false,
+				backuppb.DataModel_DATA_MODEL_LOGICAL,
+				"artifact_folder",
+				tc.compression,
+			)
+			if tc.shouldError {
+				assert.Error(t, err)
+				assert.Nil(t, job)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, job)
+				assert.Equal(t, tc.compression, job.compression)
 			}
 		})
 	}
