@@ -267,6 +267,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:                  inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:            agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions:        ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+			ExtraDsnParams:            agent.MySQLOptions.ExtraDSNParams,
 		}, nil
 
 	case models.MongoDBExporterType:
