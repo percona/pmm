@@ -474,24 +474,10 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--extra-dsn=<key=value>`
         : Additional DSN (Data Source Name) parameters for MySQL connection configuration.
         Allows passing custom connection parameters as `key=value` pairs to configure 
-        how PMM connects to your MySQL instance.
-    
-            **Common parameters**
-                
-            • charset=utf8mb4 - Set character encoding
-
-            • parseTime=true - Parse time values to time
-
-            • timeout=30s - Set connection timeout
-
-            • `allowCleartextPasswords=1` - Enable cleartext password authentication for PAM, LDAP, or external authentication plugins. 
-        
-            **Examples**
+        how PMM connects to your MySQL instance. Use `allowCleartextPasswords=1` when connecting to MySQL instances that require cleartext password authentication (such as PAM authentication): 
 
             - PAM authentication: `--extra-dsn="allowCleartextPasswords=1"`
-
-            - multiple parameters:`--extra-dsn="allowCleartextPasswords=1&charset=utf8mb4&timeout=30s"`       
-
+            
             !!! caution "Security warning"
                 Cleartext authentication transmits password without encryption. Use this parameter only when connections are secured with TLS/SSL or over trusted internal networks.
                 
