@@ -65,6 +65,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
+//   - PMM_ALLOW_DOWNGRADE is a boolean flag to allow downgrades (handled by pmm-managed-init);
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
@@ -96,6 +97,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			continue
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
+			continue
+		case "PMM_ALLOW_DOWNGRADE":
+			// skip downgrade override environment variable handled by pmm-managed-init
 			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
