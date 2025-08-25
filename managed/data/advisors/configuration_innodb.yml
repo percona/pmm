@@ -5,3 +5,4 @@ advisors:
     summary: InnoDB Configuration
     description: Advises on configuring InnoDB optimization for high performance.
     category: configuration
+    tiers: [paid]

@@ -60,8 +60,8 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
-cp -pa ./managed/data/advisors/*.yaml %{buildroot}/usr/local/percona/pmm/advisors/
-cp -pa ./managed/data/checks/*.yaml %{buildroot}/usr/local/percona/pmm/checks/
+cp -pa ./managed/data/advisors/*.yml %{buildroot}/usr/local/percona/pmm/advisors/
+cp -pa ./managed/data/checks/*.yml %{buildroot}/usr/local/percona/pmm/checks/
 
 %files
 %license src/%{provider}/LICENSE
@@ -72,8 +72,8 @@ cp -pa ./managed/data/checks/*.yaml %{buildroot}/usr/local/percona/pmm/checks/
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
 %{_datadir}/pmm-ui
-/usr/local/percona/pmm/advisors/*.yaml
-/usr/local/percona/pmm/checks/*.yaml
+/usr/local/percona/pmm/advisors/*.yml
+/usr/local/percona/pmm/checks/*.yml
 
 %changelog
 * Wed Jun 11 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1

@@ -5,3 +5,4 @@ advisors:
     summary: Generic Configuration
     description: Provides basic recommendations for improving your database configuration.
     category: configuration
+    tiers: [anonymous, registered, paid]

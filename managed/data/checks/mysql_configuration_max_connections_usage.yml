@@ -6,6 +6,7 @@ checks:
     description: Checks for MySQL max_connections configuration option for maximum utilization
     interval: standard
     advisor: configuration_connection
+    #tiers: [registered, paid]
     #subcategory: connection
     #author:Kedar Vaijanapurkar
     family: MYSQL

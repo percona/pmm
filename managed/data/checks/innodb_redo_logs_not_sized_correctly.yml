@@ -9,6 +9,7 @@ checks:
     #subcategory: configuration
     #author: Kedar Vaijanapurkar
     advisor: configuration_innodb
+    #tiers: [anonymous]
     interval: standard
     queries:
       - type: MYSQL_SELECT

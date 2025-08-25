@@ -5,3 +5,4 @@ advisors:
     summary: Vacuum Configuration
     description: Provides recommendations on optimizing Vacuum configuration.
     category: configuration
+    tiers: [paid]

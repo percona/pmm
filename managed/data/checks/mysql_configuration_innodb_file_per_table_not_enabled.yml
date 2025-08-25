@@ -5,6 +5,7 @@ checks:
     summary: innodb_file_per_table not enabled
     description: innodb_file_per_table not enabled
     interval: standard
+    #tiers: [paid]
     advisor: configuration_innodb
     #subcategory: performance
     #author:Kedar Vaijanapurkar

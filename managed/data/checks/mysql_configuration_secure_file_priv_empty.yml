@@ -6,6 +6,7 @@ checks:
     description: The secure_file_priv when empty allows users with FILE privilege to create files at any location where MySQL server has write permission.
     interval: standard
     advisor: security_configuration
+    #tiers: [registered, paid]
     #subcategory: security
     #author:Kedar Vaijanapurkar
     family: MYSQL

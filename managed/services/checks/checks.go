@@ -1367,7 +1367,7 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 	defer s.refreshChecksInMemoryMetric()
 
 	if s.customCheckFile != "" {
-		s.l.Warnf("Using local test checks file: %s.", s.customCheckFile)
+		s.l.Infof("Using local test checks file: %s.", s.customCheckFile)
 		checks, err := s.loadCustomChecks(s.customCheckFile)
 		if err != nil {
 			s.l.Errorf("Failed to load local checks file: %s.", err)
@@ -1383,7 +1383,7 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 			Checks:      checks,
 		})
 	} else {
-		s.l.Warnf("Using builtin test checks file: %s.", builtinAdvisorsPath)
+		s.l.Infof("Using builtin test checks file: %s", builtinAdvisorsPath)
 		advisors, err = s.loadBuiltinAdvisors(ctx)
 		if err != nil {
 			s.l.Errorf("Failed to load built-in advisors: %s.", err)
@@ -1423,24 +1423,24 @@ func (s *Service) loadCustomChecks(file string) ([]check.Check, error) {
 // loadBuiltinAdvisors loads builtin advisors.
 func (s *Service) loadBuiltinAdvisors(_ context.Context) ([]check.Advisor, error) {
 	s.l.Infof("Loading advisors from dir=%s", builtinAdvisorsPath)
-	matches, err := filepath.Glob(filepath.Join(builtinAdvisorsPath, "*.yaml"))
+	advisorFiles, err := filepath.Glob(filepath.Join(builtinAdvisorsPath, "*.yml"))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to find advisor files")
 	}
 
-	advisors, err := s.loadAdvisorsFromFiles(matches)
+	advisors, err := s.loadAdvisorsFromFiles(advisorFiles)
 	if err != nil {
 		return nil, err
 	}
 
 	s.l.Infof("Loading checks from dir=%s", builtinChecksPath)
 
-	matches, err = filepath.Glob(filepath.Join(builtinChecksPath, "*.yaml"))
+	checkFiles, err := filepath.Glob(filepath.Join(builtinChecksPath, "*.yml"))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to find check files")
 	}
 
-	checks, err := s.loadChecksFromFiles(matches)
+	checks, err := s.loadChecksFromFiles(checkFiles)
 	if err != nil {
 		return nil, err
 	}
@@ -1451,7 +1451,6 @@ func (s *Service) loadBuiltinAdvisors(_ context.Context) ([]check.Advisor, error
 		if !ok {
 			return nil, errors.Errorf("check '%s' refers to an unknown advisor '%s'", c.Name, c.Advisor)
 		}
-		c.Category = a.Category // Inherit category form advisor for backward compatibility
 		a.Checks = append(a.Checks, c)
 	}
 

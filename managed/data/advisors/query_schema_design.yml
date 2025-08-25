@@ -5,3 +5,4 @@ advisors:
     summary: Schema Design Query
     description: Helps create efficient database schemas by analyzing queries and offering suggestions for optimization.
     category: query
+    tiers: [registered, paid]

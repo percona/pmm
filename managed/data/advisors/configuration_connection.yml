@@ -5,3 +5,4 @@ advisors:
     summary: Connection Configuration
     description: Provides recommendations on configuring database connection parameters for improving database performance.
     category: configuration
+    tiers: [anonymous, registered, paid]
