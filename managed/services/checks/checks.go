@@ -56,8 +56,8 @@ const (
 	// Environment variables that affect checks service; only for testing.
 	envCheckFile         = "PMM_DEV_ADVISOR_CHECKS_FILE"
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
-	builtinAdvisorsPath  = "/usr/local/percona/pmm/advisors"
-	builtinChecksPath    = "/usr/local/percona/pmm/checks"
+	builtinAdvisorsPath  = "/srv/advisors"
+	builtinChecksPath    = "/srv/checks"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
@@ -1485,7 +1485,7 @@ func (s *Service) loadChecksFromFiles(files []string) ([]check.Check, error) {
 		c := checks[0]
 
 		_, fileName := filepath.Split(file)
-		if c.Name != strings.TrimSuffix(fileName, ".yaml") {
+		if c.Name != strings.TrimSuffix(fileName, ".yml") {
 			return nil, errors.Errorf("check name does not match file name %s", file)
 		}
 
@@ -1519,7 +1519,7 @@ func (s *Service) loadAdvisorsFromFiles(files []string) (map[string]*check.Advis
 		a := advisors[0]
 
 		_, fileName := filepath.Split(file)
-		if a.Name != strings.TrimSuffix(fileName, ".yaml") {
+		if a.Name != strings.TrimSuffix(fileName, ".yml") {
 			return nil, errors.Errorf("advisor name does not match file name %s", file)
 		}
 

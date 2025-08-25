@@ -50,8 +50,8 @@ install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
 install -d -p %{buildroot}%{_datadir}/pmm-ui
-install -d -p %{buildroot}/usr/local/percona/pmm/advisors
-install -d -p %{buildroot}/usr/local/percona/pmm/checks
+install -d -p %{buildroot}/srv/advisors
+install -d -p %{buildroot}/srv/checks
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
