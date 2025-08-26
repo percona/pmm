@@ -1,0 +1,37 @@
+---
+checks:
+  - version: 2
+    name: postgresql_expiring_passwd_check
+    summary: Check for password expiration
+    description: Check for passwords which are expiring and displays the time left beofre it expires
+    #author: Jorge Torralba
+    #advisor: version_check
+    advisor: security_configuration
+    interval: standard
+    family: POSTGRESQL
+    category: configuration
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: "rolname, rolvaliduntil::timestamp(0)::text, floor((extract(epoch from rolvaliduntil) - extract(epoch from now())) / 86400)::int AS expires FROM pg_roles WHERE rolvaliduntil IS NOT NULL"
+    script: |
+      def check_context(rows, context):
+           results = []
+           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           description = ""
+           sev="warning"
+           for row in rows[0]:
+               rolname, rolvaliduntil, expires = row["rolname"], row["rolvaliduntil"], row["expires"]
+
+               if expires <= 10:
+                   sev = "warning"
+
+                   results.append({
+                       "summary": "Checking for expiring passwords",
+                       "description": "Password for {} will expire in {} days".format( rolname, expires ),
+                       "read_more_url":read_url.format("postgresql-expiring-passwd"),
+                       "severity": sev,
+                       "labels": {},
+                   })
+
+
+           return results

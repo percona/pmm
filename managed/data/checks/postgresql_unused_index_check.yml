@@ -1,0 +1,33 @@
+---
+checks:
+  - version: 2
+    name: postgresql_unused_index_check
+    summary: Check for relations thathave unused indexes
+    description: This check will list relations with indexes that have not been used since statisttics where last reset
+    interval: standard
+    family: POSTGRESQL
+    advisor: query_index
+    queries:
+      - type: POSTGRESQL_SELECT
+        # Using this syntax (CURRENT_TIMESTAMP(0)::TIMESTAMP WITHOUT TIME ZONE)::text since PMM does not respect date formatting. Thus converting to a string
+        query: " TO_CHAR(d.stats_reset::date, 'YYYY-MM-DD') AS stats_reset, current_database() AS datname, ui.relname, (CURRENT_TIMESTAMP(0)::TIMESTAMP WITHOUT TIME ZONE)::text AS rundate FROM pg_stat_database d, pg_stat_user_indexes ui WHERE d.datname = current_database() AND current_database() NOT IN ('postgres', 'template0', 'template1') AND ui.idx_scan = 0 GROUP BY 1,2,3"
+        parameters:
+          all_dbs: true
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check_context(tuple, context):
+          results = []
+          for checkedDB, rows in tuple[0].items():
+              for row in rows:
+                stats_reset = row["stats_reset"]
+                datname = row["datname"]
+                relname = row["relname"]
+                rundate = row["rundate"]
+                results.append({
+                    "summary": "Relations with unused indexes",
+                    "description": "The relation {}.{} has unused indexes as of the last statistics reset on {}. This check was last executed on {}".format(datname, relname, stats_reset, rundate),
+                    "read_more_url":read_url.format("postgresql-unused-index-check"),
+                    "severity": "warning",
+                })
+
+          return results

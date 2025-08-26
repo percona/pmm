@@ -1,0 +1,63 @@
+---
+checks:
+  - version: 1
+    name: mysql_configuration_log_verbosity
+    summary: Check log verbosity
+    description: Checks that warnings are being printed on the log
+    #family: MYSQL
+    #author: Carlos
+    advisor: configuration_generic
+    interval: standard
+    type: MYSQL_SHOW
+    query: VARIABLES
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check(rows):
+          return check_context(rows, {})
+      def check_log_error_verbosity(log_error_verbosity):
+              if log_error_verbosity < 2:
+                  return {
+                      "summary": "Warnings are not printed on the error log",
+                      "description": "Variable log_error_verbosity has a value of {} and should be 2 or larger".format(log_error_verbosity),
+                      "severity": "warning",
+                      "read_more_url":read_url.format("mysql-warnings-not-being-logged")
+                  }
+      def check_log_warnings(log_warnings):
+              if log_warnings < 2:
+                  return {
+                      "summary": "Warnings are not printed on the error log",
+                      "description": "Variable log_warnings has a value of {} and should be 2 or larger".format(log_warnings),
+                      "severity": "warning",
+                      "read_more_url":read_url.format("mysql-warnings-not-being-logged")
+                  }
+
+      def check_context(rows, context):
+          # var initialization
+          expire_logs_days = 0
+          log_error_verbosity = 0
+          log_warnings = 0
+          is_percona_server, is_community, is_mariadb = False, False, False
+          # collect the results from running this advisor
+          results = []
+          for row in rows:
+              name, value = row["Variable_name"], row["Value"]
+              if name == "version_comment":
+                  value = value.lower()
+                  is_percona_server = 'percona' in value
+                  is_community = 'community' in value
+                  is_mariadb = 'mariadb' in value
+              if name == "expire_logs_days":
+                  expire_logs_days = int(value)
+              if name == "log_error_verbosity":
+                  log_error_verbosity = int(value)
+              if name == "log_warnings":
+                  log_warnings = int(value)
+
+          if is_percona_server or is_community:
+              verbosity_result = check_log_error_verbosity(log_error_verbosity)
+          if is_mariadb:
+              verbosity_result = check_log_warnings(log_warnings)
+          if verbosity_result:
+              results.append(verbosity_result)
+
+          return results

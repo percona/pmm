@@ -1,0 +1,32 @@
+---
+checks:
+  - version: 2
+    name: postgresql_table_bloat_bytes
+    summary: Check amount of bloat in tables if greater tahn 250MB
+    description: Checks check verifies the size of the table bloat in bytes accross all databases and alert accordingly
+    advisor: performance_vacuum
+    interval: standard
+    family: POSTGRESQL
+    queries:
+      - type: POSTGRESQL_SELECT
+        parameters:
+          all_dbs: true
+        query: " * FROM ( WITH a AS ( SELECT current_database(), schemaname, tblname, tblpages as pages,est_tblpages as est_pages ,est_tblpages_ff as est_pages_ff, bs*tblpages AS cur_size_byte, (tblpages-est_tblpages)*bs AS free_bytes, CASE WHEN tblpages - est_tblpages > 0 THEN 100 * (tblpages - est_tblpages)/tblpages::float ELSE 0 END AS extra_pages_pct, fillfactor, CASE WHEN tblpages - est_tblpages_ff > 0 THEN (tblpages-est_tblpages_ff)*bs ELSE 0 END AS bloatsize_byte, CASE WHEN tblpages - est_tblpages_ff > 0 THEN 100 * (tblpages - est_tblpages_ff)/tblpages::float ELSE 0 END AS bloat_pct, is_na AS stats_missing FROM ( SELECT ceil( reltuples / ( (bs-page_hdr)/tpl_size) ) + ceil( toasttuples / 4 ) AS est_tblpages, ceil( reltuples / ( (bs-page_hdr)*fillfactor/(tpl_size*100) ) ) + ceil( toasttuples / 4 ) AS est_tblpages_ff, tblpages, fillfactor, bs, tblid, schemaname, tblname, heappages, toastpages, is_na FROM ( SELECT ( 4 + tpl_hdr_size + tpl_data_size + (2*ma) - CASE WHEN tpl_hdr_size%ma = 0 THEN ma ELSE tpl_hdr_size%ma END - CASE WHEN ceil(tpl_data_size)::int%ma = 0 THEN ma ELSE ceil(tpl_data_size)::int%ma END) AS tpl_size, bs - page_hdr AS size_per_block, (heappages + toastpages) AS tblpages, heappages, toastpages, reltuples, toasttuples, bs, page_hdr, tblid, schemaname, tblname, fillfactor, is_na FROM ( SELECT tbl.oid AS tblid, ns.nspname AS schemaname, tbl.relname AS tblname, tbl.reltuples, tbl.relpages AS heappages, coalesce(toast.relpages, 0) AS toastpages, coalesce(toast.reltuples, 0) AS toasttuples, coalesce(substring( array_to_string(tbl.reloptions, ' ') FROM 'fillfactor=([0-9]+)')::smallint, 100) AS fillfactor, current_setting('block_size')::numeric AS bs, CASE WHEN version()~'mingw32' OR version()~'64-bit|x86_64|ppc64|ia64|amd64' THEN 8 ELSE 4 END AS ma, 24 AS page_hdr, 23 + CASE WHEN MAX(coalesce(s.null_frac,0)) > 0 THEN ( 7 + count(s.attname) ) / 8 ELSE 0::int END + CASE WHEN bool_or(att.attname = 'oid' and att.attnum < 0) THEN 4 ELSE 0 END AS tpl_hdr_size, sum( (1-coalesce(s.null_frac, 0)) * coalesce(s.avg_width, 0) ) AS tpl_data_size, bool_or(att.atttypid = 'pg_catalog.name'::regtype) OR sum(CASE WHEN att.attnum > 0 THEN 1 ELSE 0 END) <> count(s.attname) AS is_na FROM pg_attribute AS att JOIN pg_class AS tbl ON att.attrelid = tbl.oid JOIN pg_namespace AS ns ON ns.oid = tbl.relnamespace AND ns.nspname NOT IN ('pg_catalog', 'information_schema') LEFT JOIN pg_stats AS s ON s.schemaname=ns.nspname AND s.tablename = tbl.relname AND s.inherited=false AND s.attname=att.attname LEFT JOIN pg_class AS toast ON tbl.reltoastrelid = toast.oid WHERE NOT att.attisdropped AND tbl.relkind in ('r','m') GROUP BY 1,2,3,4,5,6,7,8,9,10 ORDER BY 2,3) AS s) AS s2) AS s3 ORDER BY schemaname, tblname) SELECT  current_database, schemaname, tblname, cur_size_byte real_size, pg_size_pretty(cur_size_byte::numeric) real_size_pretty, free_bytes, bloatsize_byte bloat_size_byte, pg_size_pretty(bloatsize_byte::numeric) bloat_size_byte_pretty FROM a WHERE schemaname != 'pg_catalog' AND bloatsize_byte > 250000000 ORDER BY cur_size_byte DESC) x"
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(tuples, context):
+          results = []
+          for dbName, rows in tuples[0].items():
+              for row in rows:
+                  current_database, schemaname, tblname = row["current_database"], row["schemaname"], row["tblname"]
+                  real_size, real_size_pretty = int(row["real_size"]), row["real_size_pretty"]
+                  bloat_size_byte, bloat_size_byte_pretty = int(row["bloat_size_byte"]), row["bloat_size_byte_pretty"]
+                  if bloat_size_byte >= int(real_size*0.2):
+                      results.append({
+                          "summary": "Table Bloat size in bytes is high",
+                          "description": "Table {}.{} in database {} has a bloat of {} bytes ({}) from total size of {}".format(schemaname, tblname, current_database, bloat_size_byte, bloat_size_byte_pretty, real_size_pretty),
+                          "read_more_url": read_url.format("postgresql-table-bloat-in-bytes"),
+                          "severity": "warning"
+                      })
+          return results

@@ -18,7 +18,6 @@ package checks
 import (
 	"context"
 	"database/sql"
-	"os"
 	"testing"
 	"time"
 
@@ -36,16 +35,12 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/version"
 )
 
 const (
-	devPlatformAddress   = "https://check-dev.percona.com"
-	devPlatformPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
-	testChecksFile       = "../../testdata/checks/checks.yml"
-	issuerURL            = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
+	testChecksFile = "../../testdata/checks/checks.yml"
 )
 
 var (
@@ -53,12 +48,7 @@ var (
 	clickhouseDB *sql.DB
 )
 
-func TestDownloadAdvisors(t *testing.T) {
-	clientID, clientSecret := os.Getenv("PMM_DEV_OAUTH_CLIENT_ID"), os.Getenv("PMM_DEV_OAUTH_CLIENT_SECRET")
-	if clientID == "" || clientSecret == "" {
-		t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")
-	}
-
+func TestLoadBuiltinAdvisors(t *testing.T) {
 	setupClients(t)
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -66,21 +56,8 @@ func TestDownloadAdvisors(t *testing.T) {
 	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-	platformClient, err := platform.NewClient(db, devPlatformAddress)
-	require.NoError(t, err)
 
-	s := New(db, platformClient, nil, vmClient, clickhouseDB)
-	s.platformPublicKeys = []string{devPlatformPublicKey}
-	require.NoError(t, err)
-
-	insertSSODetails := &models.PerconaSSODetailsInsert{
-		IssuerURL:              issuerURL,
-		PMMManagedClientID:     clientID,
-		PMMManagedClientSecret: clientSecret,
-		Scope:                  "percona",
-	}
-	err = models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
-	require.NoError(t, err)
+	s := New(db, nil, vmClient, clickhouseDB)
 
 	t.Run("normal", func(t *testing.T) {
 		checks, err := s.GetAdvisors()
@@ -89,16 +66,18 @@ func TestDownloadAdvisors(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.downloadAdvisors(ctx)
+		dChecks, err := s.loadBuiltinAdvisors(ctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
+
+		s.CollectAdvisors(ctx)
 
 		checks, err = s.GetAdvisors()
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 	})
 
-	t.Run("disabled telemetry", func(t *testing.T) {
+	t.Run("advisors are loaded with telemetry disabled", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
 			EnableTelemetry: pointer.ToBool(false),
 		})
@@ -107,20 +86,20 @@ func TestDownloadAdvisors(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.downloadAdvisors(ctx)
+		dChecks, err := s.loadBuiltinAdvisors(ctx)
 		require.NoError(t, err)
-		assert.Empty(t, dChecks)
+		assert.NotEmpty(t, dChecks)
 
 		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
-		assert.Empty(t, checks)
+		assert.NotEmpty(t, checks)
 	})
 }
 
 func TestLoadLocalChecks(t *testing.T) {
-	s := New(nil, nil, nil, vmClient, clickhouseDB)
+	s := New(nil, nil, vmClient, clickhouseDB)
 
-	checks, err := s.loadLocalChecks(testChecksFile)
+	checks, err := s.loadCustomChecks(testChecksFile)
 	require.NoError(t, err)
 	require.Len(t, checks, 5)
 
@@ -160,12 +139,9 @@ func TestCollectAdvisors(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	platformClient, err := platform.NewClient(db, devPlatformAddress)
-	require.NoError(t, err)
-
 	t.Run("collect local checks", func(t *testing.T) {
-		s := New(db, platformClient, nil, vmClient, clickhouseDB)
-		s.localChecksFile = testChecksFile
+		s := New(db, nil, vmClient, clickhouseDB)
+		s.customCheckFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
 
@@ -195,8 +171,7 @@ func TestCollectAdvisors(t *testing.T) {
 	})
 
 	t.Run("download checks", func(t *testing.T) {
-		s := New(db, platformClient, nil, vmClient, clickhouseDB)
-		s.platformPublicKeys = []string{devPlatformPublicKey}
+		s := New(db, nil, vmClient, clickhouseDB)
 
 		s.CollectAdvisors(context.Background())
 
@@ -228,8 +203,8 @@ func TestDisableChecks(t *testing.T) {
 
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-		s.localChecksFile = testChecksFile
+		s := New(db, nil, vmClient, clickhouseDB)
+		s.customCheckFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
 
@@ -257,8 +232,8 @@ func TestDisableChecks(t *testing.T) {
 
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-		s.localChecksFile = testChecksFile
+		s := New(db, nil, vmClient, clickhouseDB)
+		s.customCheckFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
 
@@ -289,8 +264,8 @@ func TestDisableChecks(t *testing.T) {
 
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-		s.localChecksFile = testChecksFile
+		s := New(db, nil, vmClient, clickhouseDB)
+		s.customCheckFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
 
@@ -312,8 +287,8 @@ func TestEnableChecks(t *testing.T) {
 
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-		s.localChecksFile = testChecksFile
+		s := New(db, nil, vmClient, clickhouseDB)
+		s.customCheckFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
 
@@ -345,8 +320,8 @@ func TestChangeInterval(t *testing.T) {
 
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-		s.localChecksFile = testChecksFile
+		s := New(db, nil, vmClient, clickhouseDB)
+		s.customCheckFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
 
@@ -391,17 +366,17 @@ func TestStartChecks(t *testing.T) {
 	setupClients(t)
 
 	t.Run("unknown interval", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-		s.localChecksFile = testChecksFile
+		s := New(db, nil, vmClient, clickhouseDB)
+		s.customCheckFile = testChecksFile
 
-		err := s.runChecksGroup(context.Background(), check.Interval("unknown"))
+		err := s.runChecksGroup(context.Background(), "unknown")
 		assert.EqualError(t, err, "unknown check interval: unknown")
 	})
 
 	t.Run("advisors enabled", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, vmClient, clickhouseDB)
 
-		s.localChecksFile = testChecksFile
+		s.customCheckFile = testChecksFile
 		s.CollectAdvisors(context.Background())
 		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
@@ -411,7 +386,7 @@ func TestStartChecks(t *testing.T) {
 	})
 
 	t.Run("advisors disabled", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
@@ -434,7 +409,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "MySQL advisor",
 			Description: "Test mySQL advisor",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Anonymous},
 			Checks: []check.Check{
 				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
 				{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
@@ -446,7 +420,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "PostgreSQL advisor",
 			Description: "Test postgreSQL advisor",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Anonymous, common.Registered},
 			Checks: []check.Check{
 				{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
 				{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
@@ -458,7 +431,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "MongoDB advisor",
 			Description: "Test mongoDB advisor",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Paid},
 			Checks: []check.Check{
 				{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
 				{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
@@ -476,7 +448,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "Completely invalid advisor",
 			Description: "Test advisor that contains only unsupported checks",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Anonymous},
 			Checks: []check.Check{
 				{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
 				{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
@@ -487,7 +458,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "Partially invalid advisor",
 			Description: "Test advisor that contains some unsupported checks",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Anonymous},
 			Checks: []check.Check{
 				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
 				{Name: "missing type", Version: 1},
@@ -501,7 +471,7 @@ func TestFilterChecks(t *testing.T) {
 	partiallyValidAdvisor.Checks = partiallyValidAdvisor.Checks[0:1] // remove invalid check
 	expected := append(valid, partiallyValidAdvisor)                 //nolint:gocritic
 
-	s := New(nil, nil, nil, vmClient, clickhouseDB)
+	s := New(nil, nil, vmClient, clickhouseDB)
 	actual := s.filterSupportedChecks(checks)
 	assert.ElementsMatch(t, expected, actual)
 }
@@ -526,7 +496,7 @@ func TestMinPMMAgents(t *testing.T) {
 		{name: "PostgreSQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
 	}
 
-	s := New(nil, nil, nil, vmClient, clickhouseDB)
+	s := New(nil, nil, vmClient, clickhouseDB)
 
 	for _, test := range tests {
 		test := test
@@ -587,7 +557,7 @@ func TestFindTargets(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	s := New(db, nil, nil, vmClient, clickhouseDB)
+	s := New(db, nil, vmClient, clickhouseDB)
 
 	t.Run("unknown service", func(t *testing.T) {
 		t.Parallel()
@@ -640,7 +610,7 @@ func TestFindTargets(t *testing.T) {
 
 func TestFilterChecksByInterval(t *testing.T) {
 	t.Parallel()
-	s := New(nil, nil, nil, vmClient, clickhouseDB)
+	s := New(nil, nil, vmClient, clickhouseDB)
 
 	rareCheck := check.Check{Name: "rareCheck", Interval: check.Rare}
 	standardCheck := check.Check{Name: "standardCheck", Interval: check.Standard}
@@ -673,7 +643,7 @@ func TestGetFailedChecks(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("no failed check for service", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, vmClient, clickhouseDB)
 
 		results, err := s.GetChecksResults(context.Background(), "test_svc")
 		assert.Empty(t, results)
@@ -724,7 +694,7 @@ func TestGetFailedChecks(t *testing.T) {
 			},
 		}
 
-		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, vmClient, clickhouseDB)
 		s.alertsRegistry.set(checkResults)
 
 		response, err := s.GetChecksResults(context.Background(), "")
@@ -776,7 +746,7 @@ func TestGetFailedChecks(t *testing.T) {
 			},
 		}
 
-		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, vmClient, clickhouseDB)
 		s.alertsRegistry.set(checkResults)
 
 		response, err := s.GetChecksResults(context.Background(), "test_svc1")
@@ -786,7 +756,7 @@ func TestGetFailedChecks(t *testing.T) {
 	})
 
 	t.Run("Advisors disabled", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
