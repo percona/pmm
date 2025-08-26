@@ -5,4 +5,3 @@ advisors:
     summary: Index Query
     description: Provides query and index optimization strategies for peak database performance.
     category: query
-    tiers: [anonymous, registered, paid]

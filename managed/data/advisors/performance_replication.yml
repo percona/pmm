@@ -5,4 +5,3 @@ advisors:
     summary: Replication Performance
     description: Checks efficient replication usage of your database.
     category: performance
-    tiers: [registered, paid]

@@ -5,4 +5,3 @@ advisors:
     summary: Configuration Security
     description: Checks your database configuration to ensure that security best practices are correctly implemented.
     category: security
-    tiers: [anonymous, registered, paid]

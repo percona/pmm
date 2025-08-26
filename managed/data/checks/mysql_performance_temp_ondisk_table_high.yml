@@ -7,7 +7,6 @@ checks:
     family: MYSQL
     category: configuration
     advisor: query_index
-    #tiers: [registered, paid]
     #subcategory: index
     #author: Kedar Vaijanapurkar
     interval: standard

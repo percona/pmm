@@ -5,4 +5,3 @@ advisors:
     summary: Version Configuration
     description: Notifies of newly released database versions to streamline database maintenance and ensure the most up-to-date performance.
     category: configuration
-    tiers: [anonymous, registered, paid]

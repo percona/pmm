@@ -5,4 +5,3 @@ advisors:
     summary: CVE Security
     description: Informs you of any database versions affected by CVE.
     category: security
-    tiers: [anonymous, registered, paid]

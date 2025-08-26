@@ -5,4 +5,3 @@ advisors:
     summary: Generic Performance
     description: Provides basic database configuration recommendations for high-performance query execution.
     category: performance
-    tiers: [registered, paid]

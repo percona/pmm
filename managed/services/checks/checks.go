@@ -1499,7 +1499,7 @@ func (s *Service) loadChecksFromFiles(files []string) ([]check.Check, error) {
 func (s *Service) loadAdvisorsFromFiles(files []string) (map[string]*check.Advisor, error) {
 	res := make(map[string]*check.Advisor, len(files))
 	for _, file := range files {
-		s.l.Infof("Loading advisor file=%s", file)
+		s.l.Debugf("Loading advisor file=%s", file)
 
 		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {

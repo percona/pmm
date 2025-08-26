@@ -5,4 +5,3 @@ advisors:
     summary: Authentication Security
     description: Ensures that all database authentication parameters are configured securely.
     category: security
-    tiers: [anonymous, registered, paid]
