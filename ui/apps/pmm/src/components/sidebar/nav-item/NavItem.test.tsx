@@ -12,6 +12,11 @@ const TEST_NAV_TREE: NavTreeItem = {
   url: '/0',
   children: [
     {
+      id: 'level-10',
+      text: 'level-10',
+      url: '/0/10',
+    },
+    {
       id: 'level-1',
       text: 'level-1',
       url: '/0/1',
@@ -22,11 +27,6 @@ const TEST_NAV_TREE: NavTreeItem = {
           url: '/0/1/2',
         },
       ],
-    },
-    {
-      id: 'level-11',
-      text: 'level-11',
-      url: '/0/11',
     },
   ],
 };
@@ -83,20 +83,16 @@ describe('NavItem', () => {
     expect(level1Collapse).not.toHaveClass(collapseClasses.hidden);
   });
 
-  it('renders only root nav item when sidebar is closed', () => {
+  it('collapses root items when sidebar is closed', () => {
     renderNavItem({ drawerOpen: false });
 
-    const level0 = screen.queryByTestId('navitem-level-0');
-    const level1 = screen.queryByTestId('navitem-level-1');
-    const level2 = screen.queryByTestId('navitem-level-2');
+    const level0Collapse = screen.queryByTestId('navitem-level-0-collapse');
 
-    expect(level0).toBeInTheDocument();
-    expect(level1).not.toBeInTheDocument();
-    expect(level2).not.toBeInTheDocument();
+    expect(level0Collapse).toHaveClass(collapseClasses.hidden);
   });
 
   it('opens root if child is active', () => {
-    renderNavItem({}, { initialEntries: ['/0/11'] });
+    renderNavItem({}, { initialEntries: ['/0/10'] });
 
     const level0Collapse = screen.queryByTestId('navitem-level-0-collapse');
     const level1Collapse = screen.queryByTestId('navitem-level-1-collapse');
