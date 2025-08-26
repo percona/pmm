@@ -1,6 +1,6 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
 import { isActive } from 'lib/utils/navigation.utils';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -18,6 +18,7 @@ import Divider from '@mui/material/Divider';
 import NavItemIcon from './nav-item-icon/NavItemIcon';
 import IconButton from '@mui/material/IconButton';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
+import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 
 const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const location = useLocation();
@@ -31,26 +32,45 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const dataTestid = `navitem-${item.id}`;
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (active && drawerOpen) {
+      setIsOpen(true);
+    } else if (level === 0) {
+      setIsOpen(false);
+    }
+  }, [level, drawerOpen, active]);
+
   const handleToggle = useCallback(() => {
+    if (!drawerOpen) {
+      return;
+    }
+
     setIsOpen((open) => !open);
-  }, []);
+  }, [drawerOpen]);
 
   const handleOpenCollapsible = () => {
     const firstChild = (item.children || [])[0];
-    setIsOpen(true);
+
+    // prevent opening when sidebar collapsed
+    if (drawerOpen) {
+      setIsOpen(true);
+    }
 
     if (firstChild?.url) {
       navigate(firstChild.url);
     }
   };
 
-  if (children?.length && drawerOpen) {
+  if (children?.length) {
     return (
       <>
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="space-between"
+          sx={{
+            width: level === 0 ? DRAWER_WIDTH : undefined,
+          }}
         >
           <ListItemButton
             color="primary.main"
@@ -70,27 +90,34 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
             )}
             <ListItemText
               primary={item.text}
-              primaryTypographyProps={level > 0 ? { style: styles.text } : {}}
+              className="navitem-primary-text"
+              sx={styles.text}
             />
           </ListItemButton>
-          <IconButton
-            data-testid={`${dataTestid}-toggle`}
-            onClick={handleToggle}
-            sx={{
-              mr: 1,
-            }}
-          >
-            <KeyboardArrowDownIcon
-              sx={(theme) => ({
-                rotate: open ? '180deg' : 0,
-                transition: theme.transitions.create('rotate'),
-              })}
-            />
-          </IconButton>
+          {drawerOpen && (
+            <IconButton
+              data-testid={`${dataTestid}-toggle`}
+              onClick={handleToggle}
+              sx={{
+                mr: 1,
+              }}
+            >
+              <KeyboardArrowDownIcon
+                sx={(theme) => ({
+                  rotate: open ? '180deg' : 0,
+                  transition: theme.transitions.create('rotate'),
+                })}
+              />
+            </IconButton>
+          )}
         </Stack>
         <Collapse
           in={open}
-          timeout="auto"
+          timeout={
+            drawerOpen
+              ? theme.transitions.duration.leavingScreen
+              : theme.transitions.duration.enteringScreen
+          }
           data-testid={`${dataTestid}-collapse`}
         >
           <List component="div" disablePadding sx={styles.listCollapsible}>
@@ -118,7 +145,12 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
 
   return (
     <NavItemTooltip key={item.url} drawerOpen={drawerOpen} item={item}>
-      <ListItem disablePadding>
+      <ListItem
+        disablePadding
+        sx={{
+          width: level === 0 ? DRAWER_WIDTH : undefined,
+        }}
+      >
         <ListItemButton
           disableGutters
           sx={[
@@ -136,12 +168,11 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
               <NavItemIcon icon={item.icon} />
             </ListItemIcon>
           )}
-          {drawerOpen && (
-            <ListItemText
-              primary={item.text}
-              className="navitem-primary-text"
-            />
-          )}
+          <ListItemText
+            primary={item.text}
+            className="navitem-primary-text"
+            sx={styles.text}
+          />
         </ListItemButton>
       </ListItem>
     </NavItemTooltip>

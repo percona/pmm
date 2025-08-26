@@ -18,3 +18,10 @@ export const closedMixin = (theme: Theme): CSSObject => ({
   overflowX: 'hidden',
   width: DRAWER_CLOSED_WIDTH,
 });
+
+export const logoMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create('left', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+});

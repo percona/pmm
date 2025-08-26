@@ -4,25 +4,23 @@ import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { NavItem } from './nav-item';
 import List from '@mui/material/List';
-import { useTheme } from '@mui/material/styles';
 
 export const Sidebar: FC = () => {
-  const theme = useTheme();
   const { navTree } = useNavigation();
   const [open, setIsOpen] = useState(true);
   const [animating, setAnimating] = useState(false);
 
   const toggleSidebar = useCallback(() => {
-    const { enteringScreen, leavingScreen } = theme.transitions.duration;
-
     setIsOpen((prev) => !prev);
 
     setAnimating(true);
-    setTimeout(
-      () => setAnimating(false),
-      open ? leavingScreen : enteringScreen
-    );
-  }, [open, theme.transitions.duration]);
+
+    const timeoutId = setTimeout(() => setAnimating(false), 2000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [open]);
 
   return (
     <Drawer

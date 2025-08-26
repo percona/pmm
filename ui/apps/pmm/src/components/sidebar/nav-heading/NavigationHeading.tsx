@@ -5,18 +5,27 @@ import { FC, memo } from 'react';
 import { NavigationHeadingProps } from './NavigationHeading.types';
 import { Icon } from 'components/icon';
 import IconButton from '@mui/material/IconButton';
+import { logoMixin } from '../drawer/Drawer.styles';
 
 const NavigationHeading: FC<NavigationHeadingProps> = memo(
   ({ sidebarOpen, onToggleSidebar }) => (
     <Stack
       direction="row"
-      justifyContent={sidebarOpen ? 'space-between' : 'center'}
+      justifyContent={sidebarOpen ? 'space-between' : 'flex-start'}
       alignItems="center"
-      sx={{
-        p: sidebarOpen ? 2 : 1,
-        pl: sidebarOpen ? 0 : 1,
-        position: 'relative',
-      }}
+      sx={[
+        {
+          position: 'relative',
+        },
+        sidebarOpen
+          ? {
+              p: 2,
+            }
+          : {
+              px: 1,
+              py: 2,
+            },
+      ]}
     >
       <Stack
         sx={[
@@ -37,31 +46,23 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
                 display: 'none',
               },
               '.shown-on-hover': {
-                inset: 0,
+                left: 8,
               },
             },
           },
         ]}
       >
-        {sidebarOpen ? (
-          <Icon
-            name="pmm-titled"
-            className="hidden-on-hover"
-            sx={{
-              height: '40px',
-              width: 'auto',
-            }}
-          />
-        ) : (
-          <Icon
-            name="pmm-rounded"
-            className="hidden-on-hover"
-            sx={{
-              height: '40px',
-              width: '40px',
-            }}
-          />
-        )}
+        <Icon
+          name="pmm-titled"
+          className="hidden-on-hover"
+          sx={(theme) => ({
+            left: sidebarOpen ? 16 : 8,
+            height: '40px',
+            width: 'auto',
+            position: 'absolute',
+            ...logoMixin(theme),
+          })}
+        />
         {!sidebarOpen && (
           <Stack
             className="shown-on-hover"

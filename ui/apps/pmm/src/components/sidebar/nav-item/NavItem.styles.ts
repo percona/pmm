@@ -11,15 +11,20 @@ export const getStyles = (
   navItemRoot: {
     borderRadius: 0,
   },
-  leafItem: {
-    mr: drawerOpen && level > 0 ? 1 : 0,
-  },
+  leafItem: drawerOpen
+    ? {
+        mr: level > 0 ? 1 : 0,
+      }
+    : {
+        py: 1.5,
+      },
   navItemRootCollapsible: {
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
   },
   listItemButton: {
     px: 2,
+    height: 48,
     borderRadius: 50,
     justifyContent: drawerOpen ? undefined : 'center',
 
@@ -53,12 +58,14 @@ export const getStyles = (
         : {},
   listItemIcon: {
     minWidth: 'auto',
-    pr: drawerOpen ? 1 : 0,
   },
   listItemDivider: {
     px: drawerOpen ? 2 : 1,
   },
   divider: {
     flex: 1,
+  },
+  text: {
+    pl: 2,
   },
 });
