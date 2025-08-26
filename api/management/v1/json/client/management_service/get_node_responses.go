@@ -564,6 +564,9 @@ type GetNodeOKBodyNode struct {
 
 	// List of services running on this node.
 	Services []*GetNodeOKBodyNodeServicesItems0 `json:"services"`
+
+	// Instance ID for cloud providers (e.g. AWS RDS).
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this get node OK body node
