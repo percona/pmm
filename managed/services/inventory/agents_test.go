@@ -120,7 +120,7 @@ func TestAgents(t *testing.T) {
 				AgentId:    "00000000-0000-4000-8000-000000000006",
 				PmmAgentId: "00000000-0000-4000-8000-000000000005",
 				Disabled:   true,
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Status:     inventoryv1.AgentStatus_AGENT_STATUS_DONE,
 				MetricsResolutions: &common.MetricsResolutions{
 					Hr: durationpb.New(10 * time.Second),
 				},

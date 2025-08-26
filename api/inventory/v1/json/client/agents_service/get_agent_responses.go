@@ -1334,7 +1334,7 @@ type GetAgentOKBodyAzureDatabaseExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -1823,7 +1823,7 @@ type GetAgentOKBodyMongodbExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2166,7 +2166,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2476,7 +2476,7 @@ type GetAgentOKBodyNodeExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2771,7 +2771,7 @@ type GetAgentOKBodyNomadAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2971,7 +2971,7 @@ type GetAgentOKBodyPostgresExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3293,7 +3293,7 @@ type GetAgentOKBodyProxysqlExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3606,7 +3606,7 @@ type GetAgentOKBodyQANMongodbMongologAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3815,7 +3815,7 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4039,7 +4039,7 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4269,7 +4269,7 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4484,7 +4484,7 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4699,7 +4699,7 @@ type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4899,7 +4899,7 @@ type GetAgentOKBodyRDSExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -5202,7 +5202,7 @@ type GetAgentOKBodyVmagent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
