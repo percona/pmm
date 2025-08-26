@@ -297,16 +297,8 @@ func tableTemplates(templates map[string]alert.Template, flavor flavor) (string,
 		_, _ = fmt.Fprintf(w, "\t----\t-----\t-----------\t\n")
 	}
 
-	for _, template := range templates {
-		tiers := make([]string, len(template.Tiers))
-		for i, t := range template.Tiers {
-			tiers[i] = string(t)
-		}
-
-		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\t\n", template.Name, strings.Join(tiers, ", "), template.Summary)
-	}
-
-	if err := w.Flush(); err != nil {
+	err := w.Flush()
+	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil

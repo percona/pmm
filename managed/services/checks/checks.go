@@ -56,8 +56,8 @@ const (
 	// Environment variables that affect checks service; only for testing.
 	envCheckFile         = "PMM_DEV_ADVISOR_CHECKS_FILE"
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
-	builtinAdvisorsPath  = "/srv/advisors"
-	builtinChecksPath    = "/srv/checks"
+	builtinAdvisorsPath  = "/usr/local/percona/pmm/advisors"
+	builtinChecksPath    = "/usr/local/percona/pmm/checks"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
@@ -170,7 +170,7 @@ func (s *Service) Run(ctx context.Context) {
 	s.l.Info("Starting...")
 	defer s.l.Info("Done.")
 
-	s.CollectAdvisors(ctx)
+	s.UpdateAdvisorsList(ctx)
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to get settings: %+v.", err)
@@ -260,7 +260,7 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 		return services.ErrAdvisorsDisabled
 	}
 
-	s.CollectAdvisors(ctx)
+	s.UpdateAdvisorsList(ctx)
 	return s.run(ctx, intervalGroup, nil)
 }
 
@@ -278,7 +278,7 @@ func (s *Service) StartChecks(checkNames []string) error {
 
 	go func() {
 		ctx := context.Background()
-		s.CollectAdvisors(ctx)
+		s.UpdateAdvisorsList(ctx)
 		if err := s.run(ctx, "", checkNames); err != nil {
 			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
 		}
@@ -437,7 +437,7 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 		}
 
 		// since we re-run checks at regular intervals using a call
-		// to s.runChecksGroup which in turn calls s.CollectAdvisors
+		// to s.runChecksGroup which in turn calls s.UpdateAdvisorsList
 		// to load/download checks, we must persist any changes
 		// to check intervals in the DB so that they can be re-applied
 		// once the checks have been re-loaded on restarts.
@@ -1359,16 +1359,23 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	return targets, nil
 }
 
-// CollectAdvisors loads advisors from builtin-in advisors directory or user-defined file, and stores versions this pmm-managed version can handle.
-func (s *Service) CollectAdvisors(ctx context.Context) {
+// UpdateAdvisorsList loads advisors from builtin-in advisors directory or user-defined file, and stores versions supported by this pmm-managed version.
+func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error
 
 	defer s.refreshChecksInMemoryMetric()
 
+	s.l.Infof("Using builtin test checks file: %s", builtinAdvisorsPath)
+	advisors, err = s.loadBuiltinAdvisors(ctx)
+	if err != nil {
+		s.l.Errorf("Failed to load built-in advisors: %s.", err)
+		return // keep previously downloaded advisors
+	}
+	// if custom check file is provided, load it and append to the list of advisors
 	if s.customCheckFile != "" {
 		s.l.Infof("Using local test checks file: %s.", s.customCheckFile)
-		checks, err := s.loadCustomChecks(s.customCheckFile)
+		checks, err := s.loadChecksFromFiles([]string{s.customCheckFile})
 		if err != nil {
 			s.l.Errorf("Failed to load local checks file: %s.", err)
 			return // keep previously loaded advisors
@@ -1382,42 +1389,9 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 			Category:    "development",
 			Checks:      checks,
 		})
-	} else {
-		s.l.Infof("Using builtin test checks file: %s", builtinAdvisorsPath)
-		advisors, err = s.loadBuiltinAdvisors(ctx)
-		if err != nil {
-			s.l.Errorf("Failed to load built-in advisors: %s.", err)
-			return // keep previously downloaded advisors
-		}
 	}
 
 	s.updateAdvisors(s.filterSupportedChecks(advisors))
-}
-
-// loadLocalCheck loads checks from a local, user-defined file.
-func (s *Service) loadCustomChecks(file string) ([]check.Check, error) {
-	data, err := os.ReadFile(file) //nolint:gosec
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read test checks file")
-	}
-
-	// be strict about local files
-	params := &check.ParseParams{
-		DisallowUnknownFields: true,
-		DisallowInvalidChecks: true,
-	}
-	checks, err := check.ParseChecks(bytes.NewReader(data), params)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse test checks file")
-	}
-
-	for _, c := range checks {
-		if c.Advisor != "dev" {
-			return nil, errors.Errorf("Local checks are supposed to be linked to the 'dev' advisor.") //nolint:revive
-		}
-	}
-
-	return checks, nil
 }
 
 // loadBuiltinAdvisors loads builtin advisors.

@@ -50,8 +50,8 @@ install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
 install -d -p %{buildroot}%{_datadir}/pmm-ui
-install -d -p %{buildroot}/srv/advisors
-install -d -p %{buildroot}/srv/checks
+install -d -p %{buildroot}/usr/local/percona/pmm/advisors
+install -d -p %{buildroot}/usr/local/percona/pmm/checks
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
@@ -60,8 +60,8 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
-cp -pa ./managed/data/advisors/*.yml %{buildroot}/srv/advisors/
-cp -pa ./managed/data/checks/*.yml %{buildroot}/srv/checks/
+cp -pa ./managed/data/advisors/*.yml %{buildroot}/usr/local/percona/pmm/advisors/
+cp -pa ./managed/data/checks/*.yml %{buildroot}/usr/local/percona/pmm/checks/
 
 %files
 %license src/%{provider}/LICENSE
@@ -72,8 +72,8 @@ cp -pa ./managed/data/checks/*.yml %{buildroot}/srv/checks/
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
 %{_datadir}/pmm-ui
-/srv/advisors/*.yml
-/srv/checks/*.yml
+/usr/local/percona/pmm/advisors/*.yml
+/usr/local/percona/pmm/checks/*.yml
 
 %changelog
 * Wed Jun 11 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1

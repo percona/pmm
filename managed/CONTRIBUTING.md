@@ -82,13 +82,13 @@ go test -timeout=30s -p 1 ./...
 
 - Setup the devcontainer using `make env-up` and run your changes inside by running `make env` and then `make run`.
 - Follow the steps described in [Add Instances for Monitoring](#add-instances-for-monitoring) to set up instances for monitoring.
-- TODO(idoqo): describe how advisors are executed (frequency, automatically, triggering manual runs, etc.)
+- Follow the guide in the [Developing Advisors](https://docs.percona.com/percona-monitoring-and-management/3/advisors/develop-advisor-checks.html) page in the PMM documentation.
 - Any failed Advisor checks will produce check results on the dashboard.
 
 ## Contributing to Advisors
 
 Advisors are located in the `data/advisors` folder. If you want to change Advisor names and descriptions, please make changes to the files in this folder and submit a pull request.
-You can read more about the [Advisors file format in our documentation](https://docs.percona.com/percona-monitoring-and-management/details/develop-checks/index.html) (TODO (idoqo): fix link).
+You can read more about the [Advisors file format in our documentation](https://docs.percona.com/percona-monitoring-and-management/3/advisors/develop-advisor-checks.html).
 
 If there is a need to change the logic of Advisor checks (actual logic executed in advisors), then it's in the `checks` folder in `data/checks`. Please make changes to the files in this folder and submit a pull request.
 
@@ -122,10 +122,10 @@ Please note, there might be several results[] in one check file.
 
 Please go through the Percona Alerting section in our [user documentation](https://docs.percona.com/percona-monitoring-and-management/get-started/alerting.html).
 
-## Contributing to Percona Alerting Templates
+### Contributing to Percona Alerting Templates
 
 Alert Templates are located in the `data/templates` folder. If you want to contribute to this section, please make changes to the files in this folder and submit a pull request.
-You can read more about the [Alert Templates format in our documentation](https://docs.percona.com/percona-monitoring-and-management/details/develop-checks/index.html) (TODO (idoqo): fix link)A
+You can read more about the [Alert Templates format in our documentation]https://docs.percona.com/percona-monitoring-and-management/3/alert/alert_rules.html#add-an-alert-rule-based-on-a-template).
 
 
 # Internals

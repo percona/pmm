@@ -70,7 +70,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
 
-		s.CollectAdvisors(ctx)
+		s.UpdateAdvisorsList(ctx)
 
 		checks, err = s.GetAdvisors()
 		require.NoError(t, err)
@@ -143,7 +143,7 @@ func TestCollectAdvisors(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.CollectAdvisors(context.Background())
+		s.UpdateAdvisorsList(context.Background())
 
 		advisors, err := s.GetAdvisors()
 		require.NoError(t, err)
@@ -173,7 +173,7 @@ func TestCollectAdvisors(t *testing.T) {
 	t.Run("download checks", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 
-		s.CollectAdvisors(context.Background())
+		s.UpdateAdvisorsList(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -206,7 +206,7 @@ func TestDisableChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.CollectAdvisors(context.Background())
+		s.UpdateAdvisorsList(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -235,7 +235,7 @@ func TestDisableChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.CollectAdvisors(context.Background())
+		s.UpdateAdvisorsList(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -267,7 +267,7 @@ func TestDisableChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.CollectAdvisors(context.Background())
+		s.UpdateAdvisorsList(context.Background())
 
 		err := s.DisableChecks([]string{"unknown_check"})
 		require.Error(t, err)
@@ -290,7 +290,7 @@ func TestEnableChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.CollectAdvisors(context.Background())
+		s.UpdateAdvisorsList(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -323,7 +323,7 @@ func TestChangeInterval(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.CollectAdvisors(context.Background())
+		s.UpdateAdvisorsList(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -377,7 +377,7 @@ func TestStartChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 
 		s.customCheckFile = testChecksFile
-		s.CollectAdvisors(context.Background())
+		s.UpdateAdvisorsList(context.Background())
 		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
 
