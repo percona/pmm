@@ -11,7 +11,7 @@ require (
 	github.com/bufbuild/buf v1.50.0
 	github.com/daixiang0/gci v0.13.0
 	github.com/envoyproxy/protoc-gen-validate v1.1.0
-	github.com/go-delve/delve v1.24.0
+	github.com/go-delve/delve v1.25.1
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-swagger/go-swagger v0.29.0
@@ -208,9 +208,9 @@ require (
 	github.com/skeema/knownhosts v1.3.0 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
-	github.com/spf13/cobra v1.8.1 // indirect
+	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spf13/viper v1.15.0 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
