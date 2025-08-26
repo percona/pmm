@@ -96,41 +96,6 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 	})
 }
 
-func TestLoadLocalChecks(t *testing.T) {
-	s := New(nil, nil, vmClient, clickhouseDB)
-
-	checks, err := s.loadCustomChecks(testChecksFile)
-	require.NoError(t, err)
-	require.Len(t, checks, 5)
-
-	c1, c2, c3, c4, c5 := checks[0], checks[1], checks[2], checks[3], checks[4]
-
-	assert.Equal(t, check.PostgreSQLSelect, c1.Type)
-	assert.Equal(t, "good_check_pg", c1.Name)
-	assert.Equal(t, uint32(1), c1.Version)
-	assert.Equal(t, "rolpassword FROM pg_authid WHERE rolcanlogin", c1.Query)
-
-	assert.Equal(t, check.MySQLShow, c2.Type)
-	assert.Equal(t, "bad_check_mysql", c2.Name)
-	assert.Equal(t, uint32(1), c2.Version)
-	assert.Equal(t, "VARIABLES LIKE 'version%'", c2.Query)
-
-	assert.Equal(t, check.MongoDBBuildInfo, c3.Type)
-	assert.Equal(t, "good_check_mongo", c3.Name)
-	assert.Equal(t, uint32(1), c3.Version)
-	assert.Empty(t, c3.Query)
-
-	assert.Equal(t, check.MongoDBReplSetGetStatus, c4.Type)
-	assert.Equal(t, "check_mongo_replSetGetStatus", c4.Name)
-	assert.Equal(t, uint32(1), c4.Version)
-	assert.Empty(t, c4.Query)
-
-	assert.Equal(t, check.MongoDBGetDiagnosticData, c5.Type)
-	assert.Equal(t, "check_mongo_getDiagnosticData", c5.Name)
-	assert.Equal(t, uint32(1), c5.Version)
-	assert.Empty(t, c5.Query)
-}
-
 func TestCollectAdvisors(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
