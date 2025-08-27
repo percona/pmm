@@ -133,22 +133,22 @@ Registration requires authentication to verify that your PMM Client has permissi
         --server-password=YOUR_GLSA_TOKEN
     ```
 
-        **Parameters explained:**
+    **Parameters explained:**
 
-        - `--server-insecure-tls` - Skip certificate validation (remove for production with valid certificates)
-        - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
-        - `service_token` - Use this exact string as the username (not a placeholder!)
-        - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
+    - `--server-insecure-tls` - Skip certificate validation (remove for production with valid certificates)
+    - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
+    - `service_token` - Use this exact string as the username (not a placeholder!)
+    - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
 
-        ??? example "Full example with node details"
-            ```bash
-            pmm-admin config --server-insecure-tls \
-                --server-url=https://192.168.33.14:443 \
-                --server-username=service_token \
-                --server-password=glsa_aBc123XyZ456... \
-                192.168.33.23 generic prod-db01
+    ??? example "Full example with node details"
+        ```bash
+        pmm-admin config --server-insecure-tls \
+            --server-url=https://192.168.33.14:443 \
+            --server-username=service_token \
+            --server-password=glsa_aBc123XyZ456... \
+            192.168.33.23 generic prod-db01
             ```
-            This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
+        This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
 
 === "Standard authentication (Not recommended)"
 
