@@ -85,12 +85,11 @@ services:
       - otel
 
   postgres:
-    image: postgres:17.2-pgss
+    image: percona/percona-distribution-postgresql:17
     platform: ${PLATFORM:-linux/amd64}
     container_name: postgres
     hostname: postgres
     restart: unless-stopped
-    # command: ["-c", "config_file=/etc/postgresql/postgresql.conf"]
     command: |
       postgres
       -c config_file=/etc/postgresql/postgresql.conf
@@ -99,10 +98,6 @@ services:
       -c pg_stat_monitor.pgsm_enable_query_plan=1
       -c pg_stat_monitor.pgsm_enable_pgsm_query_id=1
       -c pg_stat_monitor.pgsm_normalized_query=1
-    # -c pg_stat_statements.max=10000
-    # -c pg_stat_statements.track=all
-    # -c pg_stat_statements.save=off
-    # -c fsync=off
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pmm-password}
     volumes:
