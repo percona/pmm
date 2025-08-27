@@ -399,12 +399,13 @@ func TestRemoveNode(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, []*services.ListServicesOKBodyMysqlItems0{
 			{
-				NodeID:       node.Generic.NodeID,
-				ServiceID:    serviceID,
-				Address:      "localhost",
-				Port:         3306,
-				ServiceName:  serviceName,
-				CustomLabels: map[string]string{},
+				NodeID:         node.Generic.NodeID,
+				ServiceID:      serviceID,
+				Address:        "localhost",
+				Port:           3306,
+				ServiceName:    serviceName,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, listAgentsOK.Payload.Mysql)
 
