@@ -4,8 +4,7 @@ After=time-sync.target network.target
 
 [Service]
 User=pmm-agent
-# We intentionally let systemd assign a default value to Group in order
-# to prevent pmm-agent from being unable to access certain system resources.
+# We intentionally let pmm-agent run with systemd's default group so it can access important system metrics.
 # Group=root
 Type=simple
 ExecStart=/usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml
