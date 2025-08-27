@@ -239,7 +239,9 @@ Registration requires authentication to verify that your PMM Client has permissi
         pmm-admin config --server-insecure-tls \
             --server-url=https://YOUR_PMM_SERVER:443 \
             --server-username=service_token \
-            --server-password=YOUR_GLSA_TOKEN
+            --server-password=YOUR_GLSA_TOKEN \
+            [NODE_ADDRESS] [NODE_TYPE] [NODE_NAME]
+
         ```
 
         **Parameters explained:**
@@ -248,6 +250,10 @@ Registration requires authentication to verify that your PMM Client has permissi
         - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
         - `service_token` - Use this exact string as the username (not a placeholder!)
         - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
+        - `[NODE_ADDRESS]` - (Optional) IP address of the node being registered
+        - `[NODE_TYPE]` - (Optional) Node type: `generic`, `container`, etc.
+        - `[NODE_NAME]` - (Optional) Descriptive name for the node.
+
 
         ??? example "Full example with node details"
             ```bash

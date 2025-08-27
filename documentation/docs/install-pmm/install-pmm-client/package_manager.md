@@ -78,11 +78,20 @@ Choose your preferred method to configure the Percona repositories:
         sudo apt update
         sudo apt install -y pmm-client
         ```
-    - Red Hat-based: `yum install -y pmm-client`
+    - Red Hat-based: 
+        ```sh
+        yum install -y pmm-client
+        ```
 
 === "From downloaded package"
-    - Debian-based: `sudo dpkg -i pmm-client_*.deb`
-    - Red Hat-based: `sudo dnf localinstall pmm-client-*.rpm`
+    - Debian-based: 
+        ```sh
+        sudo dpkg -i pmm-client_*.deb
+        ```
+    - Red Hat-based: 
+        ```sh
+        sudo dnf localinstall pmm-client-*.rpm
+        ```
 
 
 ### Step 3: Verify installation
@@ -117,12 +126,12 @@ Registration requires authentication to verify that your PMM Client has permissi
     10. **Save your token immediately**. It starts with `glsa_` and won't be shown again!
     11. Register using the token:
 
-        ```bash
-        pmm-admin config --server-insecure-tls \
-            --server-url=https://YOUR_PMM_SERVER:443 \
-            --server-username=service_token \
-            --server-password=YOUR_GLSA_TOKEN
-        ```
+    ```bash
+    pmm-admin config --server-insecure-tls \
+        --server-url=https://YOUR_PMM_SERVER:443 \
+        --server-username=service_token \
+        --server-password=YOUR_GLSA_TOKEN
+    ```
 
         **Parameters explained:**
 
