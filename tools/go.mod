@@ -63,7 +63,7 @@ require (
 	github.com/bufbuild/protoplugin v0.0.0-20250218205857-750e09ce93e1 // indirect
 	github.com/chigopher/pathlib v0.19.1 // indirect
 	github.com/cilium/ebpf v0.16.0 // indirect
-	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.17.0 // indirect
@@ -106,7 +106,7 @@ require (
 	github.com/go-toolsmith/astinfo v1.0.0 // indirect
 	github.com/go-toolsmith/pkgload v1.0.2-0.20220101231613-e814995d17c5 // indirect
 	github.com/go-toolsmith/typep v1.0.2 // indirect
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
