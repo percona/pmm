@@ -1,0 +1,32 @@
+name: 'Percona Intelligence'
+on:
+  push:
+    branches:
+      - v3
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+    paths:
+      - 'managed/data/iatemplates/**'
+      - 'managed/data/advisors/**'
+      - 'managed/data/checks/**'
+  pull_request:
+    paths:
+      - 'managed/data/iatemplates/**'
+      - 'managed/data/advisors/**'
+      - 'managed/data/checks/**'
+jobs:
+  validate:
+    name: Validate PI files
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
+      - name: Validate PI files
+        run: make -C managed pi-validate
