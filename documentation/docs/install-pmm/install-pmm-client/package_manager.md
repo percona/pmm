@@ -73,27 +73,26 @@ Choose your preferred method to configure the Percona repositories:
     The installation commands below require root privileges. Use `sudo` if you're not running as root.
 
 === "From repository"
-    === "Debian-based"
+    - Debian-based: 
         ```sh
         sudo apt update
         sudo apt install -y pmm-client
         ```
-
-    === "Red Hat-based"
+    - Red Hat-based: 
         ```sh
         yum install -y pmm-client
         ```
 
 === "From downloaded package"
-    === "Debian-based"
+    - Debian-based: 
         ```sh
         sudo dpkg -i pmm-client_*.deb
         ```
-
-    === "Red Hat-based"
+    - Red Hat-based: 
         ```sh
         sudo dnf localinstall pmm-client-*.rpm
         ```
+
 
 ### Step 3: Verify installation
 
