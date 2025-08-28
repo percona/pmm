@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// package main provides an entrypoint for the pi-validator tool.
 package main
 
 import (
@@ -64,6 +65,9 @@ func validateAdvisorsAndChecks(advisorsDir, checksDir string) error {
 		return err
 	}
 	checks, err := loadAndValidateChecks(checksDir)
+	if err != nil {
+		return err
+	}
 
 	for _, c := range checks {
 		a, ok := advisors[c.Advisor]
@@ -83,6 +87,7 @@ func loadAndValidateAdvisors(dir string) (map[string]*check.Advisor, error) {
 	}
 
 	var matches []string
+
 	for _, pattern := range patterns {
 		files, err := filepath.Glob(pattern)
 		if err != nil {
@@ -103,7 +108,7 @@ func loadAndValidateAdvisors(dir string) (map[string]*check.Advisor, error) {
 		var validationErrors []error
 		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {
-			validationErrors = append(validationErrors, fmt.Errorf("failed to read check file %s: %+v", fileName, err))
+			validationErrors = append(validationErrors, fmt.Errorf("failed to read check file %s: %w", fileName, err))
 		}
 		body := strings.TrimSpace(string(b))
 		if !strings.HasPrefix(body, "---") {
@@ -118,7 +123,7 @@ func loadAndValidateAdvisors(dir string) (map[string]*check.Advisor, error) {
 			DisallowInvalidChecks: true,
 		})
 		if err != nil {
-			validationErrors = append(validationErrors, fmt.Errorf("failed to parse advisors file %s: %+v", fileName, err))
+			validationErrors = append(validationErrors, fmt.Errorf("failed to parse advisors file %s: %w", fileName, err))
 		}
 
 		if len(advisors) != 1 {
@@ -150,6 +155,7 @@ func loadAndValidateChecks(dir string) (map[string]check.Check, error) {
 	}
 
 	var matches []string
+
 	for _, pattern := range patterns {
 		files, err := filepath.Glob(pattern)
 		if err != nil {
@@ -158,8 +164,7 @@ func loadAndValidateChecks(dir string) (map[string]check.Check, error) {
 		matches = append(matches, files...)
 	}
 	if len(matches) == 0 {
-		log.Printf("no check files found in %s", dir)
-		return nil, nil
+		return nil, fmt.Errorf("no check files found in %s", dir)
 	}
 
 	var validationErrors []error
@@ -170,7 +175,7 @@ func loadAndValidateChecks(dir string) (map[string]check.Check, error) {
 
 		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {
-			validationErrors = append(validationErrors, fmt.Errorf("failed to read check file %s: %+v", fileName, err))
+			validationErrors = append(validationErrors, fmt.Errorf("failed to read check file %s: %w", fileName, err))
 		}
 		body := strings.TrimSpace(string(b))
 		if !strings.HasPrefix(body, "---") {
@@ -182,26 +187,24 @@ func loadAndValidateChecks(dir string) (map[string]check.Check, error) {
 			DisallowInvalidChecks: true,
 		})
 		if err != nil {
-			validationErrors = append(validationErrors, fmt.Errorf("failed to parse checks file %s: %+v", fileName, err))
+			validationErrors = append(validationErrors, fmt.Errorf("failed to parse checks file %s: %w", fileName, err))
 		}
 
 		if len(checks) != 1 {
 			validationErrors = append(validationErrors, fmt.Errorf("expected exactly one check in %s", fileName))
-			log.Fatalf("expected exactly one check in %s.", file)
 		}
 		c := checks[0]
 
 		if c.Name != strings.TrimSuffix(strings.TrimSuffix(fileName, ".example"), ".yml") {
 			validationErrors = append(validationErrors, fmt.Errorf("check name does not match file name %s", file))
-			log.Fatalf("check name does not match file name %s.", file)
 		}
 
 		if _, ok := res[c.Name]; ok {
 			validationErrors = append(validationErrors, fmt.Errorf("check name collision detected for: %s", c.Name))
-			log.Fatalf("check name collision detected for: %s", c.Name)
 		}
 
 		res[c.Name] = c
+
 		if len(validationErrors) != 0 {
 			return nil, errors.Join(validationErrors...)
 		}
@@ -217,6 +220,7 @@ func validateTemplates(dir string) error {
 	}
 
 	var matches []string
+
 	for _, pattern := range patterns {
 		files, err := filepath.Glob(pattern)
 		if err != nil {
@@ -241,14 +245,14 @@ func validateTemplates(dir string) error {
 
 		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {
-			validationErrors = append(validationErrors, fmt.Errorf("failed to read template file %s: %+v", file, err))
+			validationErrors = append(validationErrors, fmt.Errorf("failed to read template file %s: %w", file, err))
 		}
 		templates, err := alert.Parse(bytes.NewReader(b), &alert.ParseParams{
 			DisallowUnknownFields:    true,
 			DisallowInvalidTemplates: true,
 		})
 		if err != nil {
-			validationErrors = append(validationErrors, fmt.Errorf("failed to parse templates file %s: %+v", file, err))
+			validationErrors = append(validationErrors, fmt.Errorf("failed to parse templates file %s: %w", file, err))
 		}
 
 		if len(templates) != 1 {
@@ -266,6 +270,7 @@ func validateTemplates(dir string) error {
 		}
 
 		res[r.Name] = r
+
 		if len(validationErrors) != 0 {
 			return errors.Join(validationErrors...)
 		}
@@ -286,7 +291,7 @@ const (
 )
 
 // tableTemplates returns a Confluence markup or Markdown table with templates.
-func tableTemplates(templates map[string]alert.Template, flavor flavor) (string, error) {
+func tableTemplates(_ map[string]alert.Template, flavor flavor) (string, error) {
 	// (ab)use tabwriter to generate Confluence markup or Markdown tableChecks
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
