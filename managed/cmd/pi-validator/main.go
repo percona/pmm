@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// package main provides an entrypoint for the pi-validator tool.
+// Package main provides an entrypoint for the pi-validator tool.
 package main
 
 import (
@@ -96,8 +96,7 @@ func loadAndValidateAdvisors(dir string) (map[string]*check.Advisor, error) {
 		matches = append(matches, files...)
 	}
 	if len(matches) == 0 {
-		log.Printf("no advisor files found in %s", dir)
-		return nil, nil
+		return nil, fmt.Errorf("no advisor files found in %s", dir)
 	}
 
 	res := make(map[string]*check.Advisor, len(matches))
@@ -140,6 +139,7 @@ func loadAndValidateAdvisors(dir string) (map[string]*check.Advisor, error) {
 		}
 
 		res[a.Name] = &a
+
 		if len(validationErrors) != 0 {
 			return nil, errors.Join(validationErrors...)
 		}
