@@ -19,13 +19,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/alecthomas/kong"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/tabwriter"
 
+	"github.com/alecthomas/kong"
 	"github.com/percona/saas/pkg/alert"
 	"github.com/percona/saas/pkg/check"
 )

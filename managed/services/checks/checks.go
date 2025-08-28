@@ -56,8 +56,8 @@ const (
 	// Environment variables that affect checks service; only for testing.
 	envCheckFile         = "PMM_DEV_ADVISOR_CHECKS_FILE"
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
-	builtinAdvisorsPath  = "/usr/local/percona/pmm/advisors"
-	builtinChecksPath    = "/usr/local/percona/pmm/checks"
+	builtinAdvisorsPath  = "/usr/local/percona/advisors"
+	builtinChecksPath    = "/usr/local/percona/checks"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
