@@ -160,7 +160,7 @@ receivers:
           error: error
           fatal: fatal
           panic: fatal
-          log: info
+          LOG: info
       - type: move
         from: attributes.msg
         to: body

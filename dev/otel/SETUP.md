@@ -181,7 +181,7 @@ SELECT ServiceName AS service, COUNT(*) as count FROM "otel"."logs" WHERE ( time
 Panel Description: Nginx Status by Severity
 ```sql
 SELECT
-CASE WHEN LogAttributes['status'] = '' THEN 'N/A' ELSE LogAttributes['status'] END AS mapping, COUNT(*) as count
+CASE WHEN LogAttributes['status'] = '' THEN 'N/A' ELSE LogAttributes['status'] END AS mapping, COUNT(*) AS count
 FROM otel.logs
 WHERE ( Timestamp >= $__fromTime AND Timestamp <= $__toTime ) AND ServiceName = 'nginx'
 GROUP BY LogAttributes['status'], SeverityNumber

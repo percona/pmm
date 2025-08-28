@@ -10,53 +10,28 @@ SELECT
     SeverityNumber,
     LogAttributes['status'] as status,
     LogAttributes['request_method'] as method,
-    LogAttributes['request_uri'] as uri,
+    LogAttributes['request'] as uri,
     Body
 FROM otel.logs 
 WHERE ServiceName = 'nginx'
 ORDER BY Timestamp DESC 
 LIMIT 10;
 
--- 2. Access log metrics by status code
-SELECT 
-    ServiceName,
-    LogAttributes['status'] as status_code,
-    count() as request_count,
-    avg(toFloat64OrZero(LogAttributes['request_time'])) as avg_response_time
-FROM otel.logs 
-WHERE LogAttributes['status'] != ''
-  AND toUInt16OrZero(LogAttributes['status']) > 0
-GROUP BY ServiceName, status_code
-ORDER BY request_count DESC;
-
--- 3. Error analysis by severity level
+-- 2. Error analysis by severity level
 SELECT 
     Timestamp,
     ServiceName,
     SeverityText,
     SeverityNumber,
-    LogAttributes['message'] as error_message,
-    LogAttributes['client_ip'] as client_ip,
-    LogAttributes['pid'] as process_id
+    LogAttributes['status'] as status,
+    LogAttributes['remote_addr'] as client_ip,
+    LogAttributes['request'] as request_uri
 FROM otel.logs 
-WHERE SeverityText IN ('ERROR', 'FATAL', 'WARN')
+WHERE ServiceName = 'nginx' AND SeverityText IN ('error', 'fatal', 'warn')
 ORDER BY Timestamp DESC 
-LIMIT 20;
+LIMIT 100;
 
--- 4. Top requested URIs (access logs only)
-SELECT 
-    LogAttributes['request_uri'] as uri,
-    LogAttributes['request_method'] as method,
-    count() as request_count,
-    countIf(toUInt16OrZero(LogAttributes['status']) >= 400) as error_count,
-    avg(toFloat64OrZero(LogAttributes['request_time'])) as avg_response_time
-FROM otel.logs 
-WHERE LogAttributes['request_uri'] != ''
-GROUP BY uri, method
-ORDER BY request_count DESC 
-LIMIT 10;
-
--- 5. Service overview by severity
+-- 3. Service overview by severity
 SELECT 
     ServiceName,
     ResourceAttributes['service.version'] as service_version,
@@ -69,34 +44,7 @@ FROM otel.logs
 GROUP BY ServiceName, service_version, environment, SeverityText
 ORDER BY log_count DESC;
 
--- 6. Real-time monitoring query using severity
-SELECT 
-    toStartOfMinute(Timestamp) as minute,
-    ServiceName,
-    countIf(SeverityText = 'INFO') as info_logs,
-    countIf(SeverityText = 'WARN') as warn_logs,
-    countIf(SeverityText = 'ERROR') as error_logs,
-    countIf(SeverityText = 'FATAL') as fatal_logs,
-    countIf(toUInt16OrZero(LogAttributes['status']) >= 400) as http_errors,
-    avg(toFloat64OrZero(LogAttributes['request_time'])) as avg_response_time
-FROM otel.logs 
-WHERE Timestamp >= now() - INTERVAL 1 HOUR
-GROUP BY minute, ServiceName
-ORDER BY minute DESC;
-
--- 7. Severity distribution
-SELECT 
-    SeverityText,
-    SeverityNumber,
-    count() as log_count,
-    round(log_count * 100.0 / sum(log_count) OVER (), 2) as percentage
-FROM otel.logs 
-WHERE Timestamp >= now() - INTERVAL 24 HOUR
-GROUP BY SeverityText, SeverityNumber
-ORDER BY SeverityNumber;
-
-
--- 8. Log volume over time (last 24 hours, grouped by hour)
+-- 4. Log volume over time (last 24 hours, grouped by hour)
 SELECT 
     toStartOfHour(Timestamp) as hour,
     SeverityText,
@@ -106,7 +54,22 @@ WHERE Timestamp >= now() - INTERVAL 24 HOUR
 GROUP BY hour, SeverityText
 ORDER BY hour DESC, SeverityText;
 
--- 9. Error rates (4xx and 5xx responses)
+-- 5. Real-time monitoring query using severity
+SELECT 
+    toStartOfHour(Timestamp) as hour,
+    ServiceName,
+    countIf(SeverityText = 'info') as info_logs,
+    countIf(SeverityText = 'warn') as warn_logs,
+    countIf(SeverityText = 'error') as error_logs,
+    countIf(SeverityText = 'fatal') as fatal_logs,
+    countIf(toUInt16OrZero(LogAttributes['status']) >= 400) as http_errors,
+    avg(toFloat64OrZero(LogAttributes['request_time'])) as avg_response_time
+FROM otel.logs 
+WHERE Timestamp >= now() - INTERVAL 1 HOUR
+GROUP BY hour, ServiceName
+ORDER BY hour DESC;
+
+-- 6. Error rates (4xx and 5xx responses)
 SELECT 
     toStartOfHour(Timestamp) as hour,
     CASE 
@@ -126,10 +89,11 @@ FROM otel.logs
 WHERE LogAttributes['status'] != ''
     AND toUInt16OrZero(LogAttributes['status']) >= 400 
     AND Timestamp >= now() - INTERVAL 24 HOUR
+    AND ServiceName = 'nginx'
 GROUP BY hour, error_category
 ORDER BY hour DESC, error_category;
 
--- 10. Successful request rates (2xx and 3xx responses)
+-- 7. Successful request rates (2xx and 3xx responses)
 SELECT 
     toStartOfHour(Timestamp) as hour,
     CASE 
@@ -141,13 +105,15 @@ SELECT
         SELECT count() 
         FROM otel.logs 
         WHERE LogAttributes['status'] != ''
-        AND toUInt16OrZero(LogAttributes['status']) > 0 
-        AND Timestamp >= now() - INTERVAL 24 HOUR
+          AND toUInt16OrZero(LogAttributes['status']) > 0 
+          AND Timestamp >= now() - INTERVAL 24 HOUR
+          AND ServiceName = 'nginx'
     ), 2) as success_percentage
 FROM otel.logs 
 WHERE LogAttributes['status'] != ''
     AND toUInt16OrZero(LogAttributes['status']) BETWEEN 200 AND 399
     AND Timestamp >= now() - INTERVAL 24 HOUR
+    AND ServiceName = 'nginx'
 GROUP BY hour, success_category
 ORDER BY hour DESC, success_category;
 
@@ -163,18 +129,20 @@ SELECT
 FROM otel.logs 
 WHERE LogAttributes['status'] != ''
     AND toUInt16OrZero(LogAttributes['status']) > 0 
+    AND ServiceName = 'nginx'
     AND Timestamp >= now() - INTERVAL 24 HOUR;
 
 -- 12. Top requested URIs
 SELECT 
-    LogAttributes['request_uri'] as request_uri,
+    LogAttributes['request'] as request_uri,
     count() as request_count,
     countIf(toUInt16OrZero(LogAttributes['status']) BETWEEN 200 AND 299) as success_count,
     countIf(toUInt16OrZero(LogAttributes['status']) >= 400) as error_count,
     round(avg(toFloat64OrZero(LogAttributes['request_time'])), 3) as avg_response_time
 FROM otel.logs 
-WHERE LogAttributes['request_uri'] != ''
+WHERE LogAttributes['request'] != ''
     AND Timestamp >= now() - INTERVAL 24 HOUR
+    AND ServiceName = 'nginx'
 GROUP BY request_uri
 ORDER BY request_count DESC
 LIMIT 10;
@@ -189,5 +157,6 @@ SELECT
 FROM otel.logs 
 WHERE SeverityText IN ('ERROR', 'FATAL', 'WARN') 
     AND Timestamp >= now() - INTERVAL 24 HOUR
+    AND ServiceName = 'nginx'
 GROUP BY hour, SeverityText, log_level
 ORDER BY hour DESC, SeverityText;
