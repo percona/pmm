@@ -88,7 +88,7 @@ type Xbcloud struct{}
 
 func (*Xbcloud) isSoftware() {}
 
-// Name returns the software name for Qpress.
+// Name returns the software name for xbcloud.
 func (*Xbcloud) Name() models.SoftwareName { return models.XbcloudSoftwareName }
 
 // GetVersionRequest constructs a request for Xbcloud software.
@@ -145,7 +145,7 @@ func (*PBM) GetVersionRequest() *agentv1.GetVersionsRequest_Software {
 
 // getMysqlSoftwareList returns list of software required for MySQL backups.
 func getMysqlSoftwareList() []Software {
-	return []Software{&Mysqld{}, &Xtrabackup{}, &Xbcloud{}, &Qpress{}}
+	return []Software{&Mysqld{}, &Xtrabackup{}, &Xbcloud{}}
 }
 
 // getMongodbSoftwareList returns list of software required for MongoDB backups.
