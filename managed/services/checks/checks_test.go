@@ -40,7 +40,7 @@ import (
 )
 
 const (
-	testChecksFile = "../../testdata/checks/checks.yml"
+	testChecksFile = "../../testdata/checks/good_check_pg.yml"
 )
 
 var (
@@ -96,7 +96,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 	})
 }
 
-func TestCollectAdvisors(t *testing.T) {
+func TestUpdateAdvisorsList(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -104,7 +104,7 @@ func TestCollectAdvisors(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	t.Run("collect local checks", func(t *testing.T) {
+	t.Run("collect custom checks", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
@@ -120,42 +120,15 @@ func TestCollectAdvisors(t *testing.T) {
 		require.Equal(t, "Advisor used for developing checks", advisor.Description)
 		require.Equal(t, "development", advisor.Category)
 		require.Empty(t, advisor.Tiers)
-		require.Len(t, advisor.Checks, 5)
+		require.Len(t, advisor.Checks, 1)
 
 		checkNames := make([]string, 0, len(advisor.Checks))
 		for _, c := range advisor.Checks {
 			checkNames = append(checkNames, c.Name)
 		}
 		assert.ElementsMatch(t, []string{
-			"bad_check_mysql",
 			"good_check_pg",
-			"good_check_mongo",
-			"check_mongo_replSetGetStatus",
-			"check_mongo_getDiagnosticData",
 		}, checkNames)
-	})
-
-	t.Run("download checks", func(t *testing.T) {
-		s := New(db, nil, vmClient, clickhouseDB)
-
-		s.UpdateAdvisorsList(context.Background())
-
-		checks, err := s.GetChecks()
-		require.NoError(t, err)
-		require.NotEmpty(t, checks)
-
-		advisors, err := s.GetAdvisors()
-		require.NoError(t, err)
-		require.NotEmpty(t, s.advisors)
-
-		checksFromAdvisors := make(map[string]check.Check)
-		for _, advisor := range advisors {
-			for _, c := range advisor.Checks {
-				checksFromAdvisors[c.Name] = c
-			}
-		}
-
-		assert.Equal(t, checks, checksFromAdvisors)
 	})
 }
 

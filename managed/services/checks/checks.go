@@ -1382,7 +1382,7 @@ func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 		}
 
 		advisors = append(advisors, check.Advisor{
-			Version:     1,
+			Version:     2,
 			Name:        "dev",
 			Summary:     "Dev Advisor",
 			Description: "Advisor used for developing checks",
