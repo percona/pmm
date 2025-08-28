@@ -276,7 +276,7 @@ func validateTemplates(dir string) error {
 		}
 	}
 
-	templates, err := tableTemplates(res, markdown)
+	templates, err := tableTemplates(res)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -284,24 +284,14 @@ func validateTemplates(dir string) error {
 	return nil
 }
 
-type flavor int
-
-const (
-	markdown flavor = iota
-)
-
 // tableTemplates returns a Confluence markup or Markdown table with templates.
-func tableTemplates(_ map[string]alert.Template, flavor flavor) (string, error) {
+func tableTemplates(_ map[string]alert.Template) (string, error) {
 	// (ab)use tabwriter to generate Confluence markup or Markdown tableChecks
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
 	_, _ = fmt.Fprintf(w, "\tName\tTiers\tDescription\t\n")
 
-	// that's the only thing that should be skipped for "Confluence wiki" markup to work
-	if flavor == markdown {
-		_, _ = fmt.Fprintf(w, "\t----\t-----\t-----------\t\n")
-	}
-
+	_, _ = fmt.Fprintf(w, "\t----\t-----\t-----------\t\n")
 	err := w.Flush()
 	if err != nil {
 		return "", err
