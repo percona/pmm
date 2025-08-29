@@ -15025,6 +15025,11 @@
                           "type": "string"
                         },
                         "x-order": 6
+                      },
+                      "instance_id": {
+                        "description": "AWS instance ID.",
+                        "type": "string",
+                        "x-order": 7
                       }
                     }
                   },
@@ -15560,6 +15565,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "instance_id": {
+                      "description": "AWS instance ID.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 3
@@ -15870,6 +15880,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "instance_id": {
+                      "description": "AWS instance ID.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 3
@@ -19062,6 +19077,11 @@
                           }
                         },
                         "x-order": 16
+                      },
+                      "instance_id": {
+                        "description": "Instance ID for cloud providers (e.g. AWS RDS).",
+                        "type": "string",
+                        "x-order": 17
                       }
                     }
                   },
@@ -19218,6 +19238,11 @@
                   "type": "boolean",
                   "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 15
+                },
+                "instance_id": {
+                  "description": "AWS instance ID.",
+                  "type": "string",
+                  "x-order": 16
                 }
               }
             }
@@ -19594,6 +19619,11 @@
                         }
                       },
                       "x-order": 16
+                    },
+                    "instance_id": {
+                      "description": "Instance ID for cloud providers (e.g. AWS RDS).",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -23672,6 +23702,11 @@
                             "type": "string"
                           },
                           "x-order": 6
+                        },
+                        "instance_id": {
+                          "description": "AWS instance ID.",
+                          "type": "string",
+                          "x-order": 7
                         }
                       },
                       "x-order": 0

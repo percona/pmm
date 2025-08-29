@@ -573,6 +573,9 @@ type ListNodesOKBodyNodesItems0 struct {
 
 	// List of services running on this node.
 	Services []*ListNodesOKBodyNodesItems0ServicesItems0 `json:"services"`
+
+	// Instance ID for cloud providers (e.g. AWS RDS).
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this list nodes OK body nodes items0

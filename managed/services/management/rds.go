@@ -48,31 +48,18 @@ const (
 	rdsEndpointsID     = "rds"
 )
 
-var (
-	// See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
+// See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
-	rdsEngines = map[string]managementv1.DiscoverRDSEngine{
-		"aurora-mysql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL, // MySQL 5.7-compatible Aurora
-		"mariadb":      managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
-		"mysql":        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+var rdsEngines = map[string]managementv1.DiscoverRDSEngine{
+	"aurora-mysql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL, // MySQL 5.7-compatible Aurora
+	"mariadb":      managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+	"mysql":        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 
-		"aurora-postgresql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
-		"postgres":          managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
-	}
-	rdsEnginesKeys = []*string{
-		pointer.ToString("aurora-mysql"),
-		pointer.ToString("mariadb"),
-		pointer.ToString("mysql"),
-
-		pointer.ToString("aurora-postgresql"),
-		pointer.ToString("postgres"),
-	}
-)
+	"aurora-postgresql": managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+	"postgres":          managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+}
 
 // discoverRDSRegion returns a list of RDS instances from a single region.
-// Returned error is wrapped with a stack trace, but unchanged otherwise.
-//
-//nolint:interfacer
 func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]types.DBInstance, error) {
 	var res []types.DBInstance
 	client := rds.NewFromConfig(cfg, func(o *rds.Options) {
@@ -83,7 +70,7 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 		Filters: []types.Filter{
 			{
 				Name:   aws.String("engine"),
-				Values: []string{"postgres", "mysql", "aurora-mysql", "aurora-postgresql"},
+				Values: []string{"postgres", "mysql", "mariadb", "aurora-mysql", "aurora-postgresql"},
 			},
 		},
 	}
@@ -187,7 +174,6 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
 	for _, region := range listRegions(settings.AWSPartitions) {
-		region := region
 		wg.Go(func() error {
 			regInstances, err := discoverRDSRegion(ctx, cfg, region)
 			if err != nil {
@@ -303,7 +289,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			NodeName:     req.NodeName,
 			NodeModel:    req.NodeModel,
 			AZ:           req.Az,
-			Address:      req.InstanceId,
+			InstanceID:   req.InstanceId,
+			Address:      req.Address,
 			Region:       &req.Region,
 			CustomLabels: req.CustomLabels,
 		})
@@ -463,7 +450,6 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
-
 				PostgreSQLOptions: models.PostgreSQLOptions{
 					AutoDiscoveryLimit:     pointer.ToInt32(req.AutoDiscoveryLimit),
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,

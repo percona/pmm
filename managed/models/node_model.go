@@ -16,6 +16,7 @@
 package models
 
 import (
+	"maps"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -53,9 +54,11 @@ type Node struct {
 	AZ           string   `reform:"az"`
 	CustomLabels []byte   `reform:"custom_labels"`
 
-	// Node address. Used to construct endpoint for node_exporter.
-	// For RemoteRDS Nodes contains DBInstanceIdentifier (not DbiResourceId; not endpoint - that's Service address).
+	// Node address. Used to construct the endpoint for node_exporter.
+	// For RemoteRDS Nodes it contains the Service address (not DbiResourceId, DBInstanceIdentifier, not endpoint).
 	Address string `reform:"address"`
+	// For RemoteRDS Nodes it contains the DBInstanceIdentifier.
+	InstanceID string `reform:"instance_id"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
@@ -124,9 +127,7 @@ func (s *Node) UnifiedLabels() (map[string]string, error) {
 		"region":         pointer.GetString(s.Region),
 		"az":             s.AZ,
 	}
-	for name, value := range custom {
-		res[name] = value
-	}
+	maps.Copy(res, custom)
 
 	if err = prepareLabels(res, true); err != nil {
 		return nil, err
