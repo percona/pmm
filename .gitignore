@@ -40,3 +40,5 @@ api-tests/pmm-api-tests-junit-report.xml
 
 packer.log
 encryption.key
+
+/tmp/
