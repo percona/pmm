@@ -750,6 +750,7 @@ type CreateAgentParams struct {
 	TLS               bool
 	TLSSkipVerify     bool
 	LogLevel          string
+	Disabled          bool
 	ExporterOptions   ExporterOptions
 	QANOptions        QANOptions
 	AWSOptions        AWSOptions
@@ -893,6 +894,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MySQLOptions:      params.MySQLOptions,
 		PostgreSQLOptions: params.PostgreSQLOptions,
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
+		Disabled:          params.Disabled,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
