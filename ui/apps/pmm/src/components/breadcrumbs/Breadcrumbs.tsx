@@ -6,7 +6,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { KeyboardArrowRight } from '@mui/icons-material';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { Messages } from './Breadcrumbs.messages';
 import { HomeLink } from 'components/home-link';
 

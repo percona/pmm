@@ -1,18 +1,26 @@
 import { AxiosError } from 'axios';
-import { OrgRole, User, GetUserResponse } from 'types/user.types';
+import { OrgRole, User, GetUserResponse, UserOrg } from 'types/user.types';
 
 export const getPerconaUser = (
   user: GetUserResponse,
+  orgs: UserOrg[],
   isAuthorized: boolean
-): User => ({
-  id: user.id,
-  isPMMAdmin: isPMMAdmin(user),
-  isAuthorized,
-  orgRole: user.orgRole,
-});
+): User => {
+  const orgRole = orgs.find((org) => org.orgId === user.orgId)?.role || '';
+
+  return {
+    id: user.id,
+    isAuthorized,
+    name: user.name,
+    login: user.login,
+    orgs,
+    orgRole,
+    orgId: user.orgId,
+    isViewer: orgRole === OrgRole.Viewer,
+    isEditor: orgRole === OrgRole.Editor || orgRole === OrgRole.Admin,
+    isPMMAdmin: user.isGrafanaAdmin || orgRole === OrgRole.Admin,
+  };
+};
 
 export const isAuthorized = (error?: Error | null) =>
   !error || (error as AxiosError).response?.status !== 401;
-
-export const isPMMAdmin = (user: GetUserResponse): boolean =>
-  user.isGrafanaAdmin || user.orgRole === OrgRole.Admin;

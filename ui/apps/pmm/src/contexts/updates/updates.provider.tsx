@@ -4,16 +4,16 @@ import { UpdateStatus } from 'types/updates.types';
 import { useCheckUpdates } from 'hooks/api/useUpdates';
 import { useAgentVersions } from 'hooks/api/useAgents';
 import * as utils from './updates.utils';
-import { useFrontendSettings } from 'hooks/api/useSettings';
+import { useSettings } from 'contexts/settings';
 
 export const UpdatesProvider: FC<PropsWithChildren> = ({ children }) => {
-  const settings = useFrontendSettings();
+  const { settings } = useSettings();
   const [status, setStatus] = useState(UpdateStatus.Pending);
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates({
-    enabled: !settings.data?.anonymousEnabled,
+    enabled: !settings?.frontend?.anonymousEnabled,
   });
   const { data: clients } = useAgentVersions({
-    enabled: !settings.data?.anonymousEnabled,
+    enabled: !settings?.frontend?.anonymousEnabled,
   });
   const inProgress = useMemo(() => utils.isUpdateInProgress(status), [status]);
   const areClientsUpToDate = useMemo(
