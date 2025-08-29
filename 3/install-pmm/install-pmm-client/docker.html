@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
     
     
       
@@ -2193,6 +2193,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Installation and setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy-pmm-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy PMM Client
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#register-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      Register the node
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the connection
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2202,14 +2235,20 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Add monitoring services">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#view-your-monitored-node" class="md-nav__link">
     <span class="md-ellipsis">
       View your monitored node
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -9001,6 +9040,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Installation and setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy-pmm-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy PMM Client
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#register-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      Register the node
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the connection
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -9010,14 +9082,20 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Add monitoring services">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#view-your-monitored-node" class="md-nav__link">
     <span class="md-ellipsis">
       View your monitored node
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -9081,7 +9159,7 @@
 <p class="power-number">Complete these essential steps before installation:</p>
 <ol>
 <li>
-<p>Install <a href="https://docs.docker.com/get-docker/">Docker Engine</a></p>
+<p>Install <a href="https://docs.docker.com/get-docker/">Docker Engine</a>.</p>
 </li>
 <li>
 <p>Check <a href="prerequisites.html">system requirements</a> to ensure your environment meets the minimum criteria.</p>
@@ -9100,6 +9178,7 @@
 </li>
 </ol>
 <h2 id="installation-and-setup">Installation and setup<a class="headerlink" href="#installation-and-setup" title="Permanent link">&para;</a></h2>
+<h3 id="deploy-pmm-client">Deploy PMM Client<a class="headerlink" href="#deploy-pmm-client" title="Permanent link">&para;</a></h3>
 <p class="power-number">Follow these steps to deploy PMM Client using Docker:</p>
 <ol>
 <li>
@@ -9136,43 +9215,110 @@
 </div>
 </li>
 <li>
-<p>After the setup is complete, start the <a href="../../use/commands/pmm-agent.html">pmm-agent</a> in normal mode:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--detach<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-v<span class="w"> </span>pmm-client-data:/usr/local/percona/pmm/tmp<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>percona/pmm-client:3
-</code></pre></div>
-</li>
-<li>
-<p>Register your nodes to be monitored by PMM Server using the PMM Client:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-url<span class="o">=</span>https://admin:admin@X.X.X.X:443
-</code></pre></div>
-<p>where: </p>
-<ul>
-<li><code>X.X.X.X</code> is the address of your PMM Server</li>
-<li><code>443</code> is the default port number</li>
-<li><code>admin</code>/<code>admin</code> is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.</li>
-</ul>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">HTTPS connection required</p>
-<p>Nodes <em>must</em> be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.</p>
-</div>
-<details class="info">
-<summary>Registration example</summary>
-<p>Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-url<span class="o">=</span>https://admin:admin@192.168.33.14:443<span class="w"> </span><span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>mynode
-</code></pre></div>
-</details>
-</li>
-<li>
-<p>Verify the PMM Client status. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>status
-</code></pre></div>
+<p>Start the <a href="../../use/commands/pmm-agent.html">pmm-agent</a> in normal mode:</p>
 </li>
 </ol>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--detach<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>pmm-client-data:/usr/local/percona/pmm/tmp<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>percona/pmm-client:3
+</code></pre></div>
+<h3 id="register-the-node">Register the node<a class="headerlink" href="#register-the-node" title="Permanent link">&para;</a></h3>
+<p>After installing PMM Client, register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.</p>
+<p>Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the node: secure service account tokens and standard username/password credentials.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Using Service accounts (Recommended)</label><label for="__tabbed_1_2">Standard authentication (Not recommended)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><a href="../../api/authentication.html">Service accounts</a> provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.</p>
+<p class="power-number">To register with service accounts, create a service account then generate an authentication token that you can use to register the PMM Client:</p>
+<ol>
+<li>Log into PMM web interface.</li>
+<li>Navigate to <strong>Administration &gt; Users and access &gt; Service Accounts</strong>.</li>
+<li>Click <strong>Add Service account</strong>.</li>
+<li>Enter a descriptive name (e.g.: <code>pmm-client-prod-db01</code>). Keep in mind that PMM automatically shortens names exceeding 200 characters using a <code>{prefix}_{hash}</code> pattern.</li>
+<li>Select the <strong>Editor</strong> role from the drop-down. For detailed information about what each role can do, see <a href="../../admin/roles/index.html">Role types in PMM</a>.</li>
+<li>Click <strong>Create &gt; Add service account token</strong>.</li>
+<li>(Optional) Name your token or leave blank for auto-generated name.</li>
+<li>(Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.</li>
+<li>Click <strong>Generate Token</strong>.</li>
+<li><strong>Save your token immediately</strong>. It starts with <code>glsa_</code> and won&rsquo;t be shown again!</li>
+<li>
+<p>Register using the token:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-url<span class="o">=</span>https://YOUR_PMM_SERVER:443<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-username<span class="o">=</span>service_token<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-password<span class="o">=</span>YOUR_GLSA_TOKEN<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">[</span>NODE_ADDRESS<span class="o">]</span><span class="w"> </span><span class="o">[</span>NODE_TYPE<span class="o">]</span><span class="w"> </span><span class="o">[</span>NODE_NAME<span class="o">]</span>
+</code></pre></div>
+<p><strong>Parameters explained:</strong></p>
+<ul>
+<li><code>--server-insecure-tls</code> - Skip certificate validation (remove for production with valid certificates)</li>
+<li><code>YOUR_PMM_SERVER</code> - Your PMM Server&rsquo;s IP address or hostname</li>
+<li><code>service_token</code> - Use this exact string as the username (not a placeholder!)</li>
+<li><code>YOUR_GLSA_TOKEN</code> - The token you copied (starts with <code>glsa_</code>)</li>
+<li><code>[NODE_ADDRESS]</code> - (Optional) IP address of the node being registered</li>
+<li><code>[NODE_TYPE]</code> - (Optional) Node type: <code>generic</code>, <code>container</code>, etc.</li>
+<li><code>[NODE_NAME]</code> - (Optional) Descriptive name for the node</li>
+</ul>
+<details class="example">
+<summary>Full example with node details</summary>
+<p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-url<span class="o">=</span>https://192.168.33.14:443<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-username<span class="o">=</span>service_token<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-password<span class="o">=</span>glsa_aBc123XyZ456...<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>prod-db01
+</code></pre></div>
+This registers node <code>192.168.33.23</code> with type <code>generic</code> and name <code>prod-db01</code>.</p>
+</details>
+</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<p>This method exposes credentials in command history, process lists, and logs! Use only for testing or migration scenarios:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
+--server-url<span class="o">=</span>https://admin:admin@YOUR_PMM_SERVER:443
+</code></pre></div>
+<p><strong>Parameters explained:</strong></p>
+<ul>
+<li><code>YOUR_PMM_SERVER</code>- Your PMM Server&rsquo;s IP address or hostname</li>
+<li><code>443</code> - Default HTTPS port</li>
+<li><code>admin</code>/<code>admin</code> - Default PMM username and password (change this immediately after first login)</li>
+</ul>
+<details class="example">
+<summary>Registration with node details</summary>
+<p>Register a node with IP address <code>192.168.33.23</code>, type <code>generic</code>, and name <code>mynode</code>:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
+--server-url<span class="o">=</span>https://admin:admin@192.168.33.14:443<span class="w"> </span><span class="se">\</span>
+<span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>mynode
+</code></pre></div>
+</details>
+<p class="power-number">To migrate to <a href="../../api/authentication.html">service accounts</a>:</p>
+<ol>
+<li>Create service accounts while still using standard authentication.</li>
+<li>Test service account tokens on non-critical nodes.</li>
+<li>Gradually migrate all nodes to token authentication.</li>
+<li>Change the admin password from default.</li>
+<li>Consider restricting or disabling direct admin account usage for node registration.</li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">HTTPS requirement</p>
+<p>PMM requires HTTPS connections (port <code>443</code> by default). HTTP URLs automatically redirect to HTTPS. For connection errors, verify:</p>
+<ul>
+<li>Port <code>443</code> is accessible</li>
+<li>Firewall rules allow HTTPS traffic</li>
+<li>TLS certificates are valid (or use <code>--server-insecure-tls</code>)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<h2 id="verify-the-connection">Verify the connection<a class="headerlink" href="#verify-the-connection" title="Permanent link">&para;</a></h2>
+<p>Check that PMM Client is properly connected and registered. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>status
+</code></pre></div>
 <h2 id="add-monitoring-services">Add monitoring services<a class="headerlink" href="#add-monitoring-services" title="Permanent link">&para;</a></h2>
 <p>After installing PMM Client, you can add database services to monitor with <a href="../../use/commands/pmm-admin.html"><code>pmm-admin</code></a>. </p>
 <p>When running PMM in Docker, prefix all pmm-admin commands with <code>docker exec pmm-client</code>.</p>
@@ -9183,7 +9329,7 @@
 <li>If you need assistance with PMM Client, run: <code>docker run --rm percona/pmm-client:3 --help</code>.</li>
 </ul>
 </div>
-<h2 id="view-your-monitored-node">View your monitored node<a class="headerlink" href="#view-your-monitored-node" title="Permanent link">&para;</a></h2>
+<h3 id="view-your-monitored-node">View your monitored node<a class="headerlink" href="#view-your-monitored-node" title="Permanent link">&para;</a></h3>
 <p class="power-number">To confirm your node is being monitored:</p>
 <ol>
 <li>
@@ -9220,7 +9366,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-07-14
+    2025-08-29
   </span>
 
     

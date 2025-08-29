@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
     
     
       
@@ -2164,9 +2164,42 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#choose-your-installation-path" class="md-nav__link">
+  <a href="#installation-and-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      Choose your installation path
+      Installation and setup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation and setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-pmm-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install PMM Client
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#register-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      Register the node
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the connection
     </span>
   </a>
   
@@ -8986,9 +9019,42 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#choose-your-installation-path" class="md-nav__link">
+  <a href="#installation-and-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      Choose your installation path
+      Installation and setup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation and setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-pmm-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install PMM Client
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#register-the-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      Register the node
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the connection
     </span>
   </a>
   
@@ -9091,7 +9157,9 @@
 <p class="admonition-title">Version information</p>
 <p>The commands below are for the latest PMM release. If you want to install a different release, make sure to update the commands with your required version number.</p>
 </div>
-<h2 id="choose-your-installation-path">Choose your installation path<a class="headerlink" href="#choose-your-installation-path" title="Permanent link">&para;</a></h2>
+<h2 id="installation-and-setup">Installation and setup<a class="headerlink" href="#installation-and-setup" title="Permanent link">&para;</a></h2>
+<p>Binary installation adapts to your environment&rsquo;s permission model. Complete the installation first, then register your node for monitoring.</p>
+<h3 id="install-pmm-client">Install PMM Client<a class="headerlink" href="#install-pmm-client" title="Permanent link">&para;</a></h3>
 <p>Select the appropriate instructions based on your access level:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">With root permissions</label><label for="__tabbed_1_2">Without root permissions</label></div>
 <div class="tabbed-content">
@@ -9189,32 +9257,6 @@ sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>
 <div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>pmm-agent<span class="w"> </span>--config-file<span class="o">=</span><span class="si">${</span><span class="nv">PMM_DIR</span><span class="si">}</span>/config/pmm-agent.yaml
 </code></pre></div>
 </li>
-<li>
-<p>Register your nodes to be monitored by PMM Server using the PMM Client:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-url<span class="o">=</span>https://admin:admin@X.X.X.X:443
-</code></pre></div>
-<p>where: </p>
-<ul>
-<li><code>X.X.X.X</code> is the address of your PMM Server</li>
-<li><code>443</code> is the default port number</li>
-<li><code>admin</code>/<code>admin</code> is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.</li>
-</ul>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">HTTPS connection required</p>
-<p>Nodes <em>must</em> be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.</p>
-</div>
-<details class="info">
-<summary>Registration example</summary>
-<p>Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-url<span class="o">=</span>https://admin:admin@192.168.33.14:443<span class="w"> </span><span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>mynode
-</code></pre></div>
-</details>
-</li>
-<li>
-<p>Verify the installation in a new terminal:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>pmm-admin<span class="w"> </span>status
-</code></pre></div>
-</li>
 </ol>
 </div>
 <div class="tabbed-block">
@@ -9306,36 +9348,103 @@ sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>
 <div class="highlight"><pre><span></span><code>pmm-agent<span class="w"> </span>--config-file<span class="o">=</span><span class="si">${</span><span class="nv">PMM_DIR</span><span class="si">}</span>/config/pmm-agent.yaml
 </code></pre></div>
 </li>
-<li>
-<p>Register your nodes to be monitored by PMM Server using the PMM Client:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-url<span class="o">=</span>https://admin:admin@X.X.X.X:443
-</code></pre></div>
-<p>where: </p>
-<ul>
-<li><code>X.X.X.X</code> is the address of your PMM Server</li>
-<li><code>443</code> is the default port number</li>
-<li><code>admin</code>/<code>admin</code> is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.</li>
-</ul>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">HTTPS connection required</p>
-<p>Nodes <em>must</em> be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.</p>
-</div>
-<details class="info">
-<summary>Registration example</summary>
-<p>Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-url<span class="o">=</span>https://admin:admin@192.168.33.14:443<span class="w"> </span><span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>mynode
-</code></pre></div>
-</details>
-</li>
-<li>
-<p>Open a new terminal and verify the installation:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>status
-</code></pre></div>
-</li>
 </ol>
 </div>
 </div>
 </div>
+<h3 id="register-the-node">Register the node<a class="headerlink" href="#register-the-node" title="Permanent link">&para;</a></h3>
+<p>After installing PMM Client, register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.</p>
+<p>Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the node: secure service account tokens and standard username/password credentials.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="10:2"><input checked="checked" id="__tabbed_10_1" name="__tabbed_10" type="radio" /><input id="__tabbed_10_2" name="__tabbed_10" type="radio" /><div class="tabbed-labels"><label for="__tabbed_10_1">Using Service accounts (Recommended)</label><label for="__tabbed_10_2">Standard authentication (Not recommended)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><a href="../../api/authentication.html">Service accounts</a> provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.</p>
+<p class="power-number">To register with service accounts, create a service account then generate an authentication token that you can use to register the PMM Client:</p>
+<ol>
+<li>Log into PMM web interface.</li>
+<li>Navigate to <strong>Administration &gt; Users and access &gt; Service Accounts</strong>.</li>
+<li>Click <strong>Add Service account</strong>.</li>
+<li>Enter a descriptive name (e.g.: <code>pmm-client-prod-db01</code>). Keep in mind that PMM automatically shortens names exceeding 200 characters using a <code>{prefix}_{hash}</code> pattern.</li>
+<li>Select the <strong>Editor</strong> role from the drop-down. For detailed information about what each role can do, see <a href="../../admin/roles/index.html">Role types in PMM</a>.</li>
+<li>Click <strong>Create &gt; Add service account token</strong>.</li>
+<li>(Optional) Name your token or leave blank for auto-generated name.</li>
+<li>(Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.</li>
+<li>Click <strong>Generate Token</strong>.</li>
+<li><strong>Save your token immediately</strong>. It starts with <code>glsa_</code> and won&rsquo;t be shown again!</li>
+<li>
+<p>Register using the token:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-url<span class="o">=</span>https://YOUR_PMM_SERVER:443<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-username<span class="o">=</span>service_token<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-password<span class="o">=</span>YOUR_GLSA_TOKEN<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">[</span>NODE_ADDRESS<span class="o">]</span><span class="w"> </span><span class="o">[</span>NODE_TYPE<span class="o">]</span><span class="w"> </span><span class="o">[</span>NODE_NAME<span class="o">]</span>
+</code></pre></div>
+<p><strong>Parameters explained:</strong></p>
+<ul>
+<li><code>--server-insecure-tls</code> - Skip certificate validation (remove for production with valid certificates)</li>
+<li><code>YOUR_PMM_SERVER</code> - Your PMM Server&rsquo;s IP address or hostname</li>
+<li><code>service_token</code> - Use this exact string as the username (not a placeholder!)</li>
+<li><code>YOUR_GLSA_TOKEN</code> - The token you copied (starts with <code>glsa_</code>)</li>
+<li><code>[NODE_ADDRESS]</code> - (Optional) IP address of the node being registered</li>
+<li><code>[NODE_TYPE]</code> - (Optional) Node type: <code>generic</code>, <code>container</code>, etc.</li>
+<li><code>[NODE_NAME]</code> - (Optional) Descriptive name for the node.</li>
+</ul>
+<details class="example">
+<summary>Full example with node details</summary>
+<p><div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-url<span class="o">=</span>https://192.168.33.14:443<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-username<span class="o">=</span>service_token<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server-password<span class="o">=</span>glsa_aBc123XyZ456...<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>prod-db01
+</code></pre></div>
+This registers node <code>192.168.33.23</code> with type <code>generic</code> and name <code>prod-db01</code>.</p>
+</details>
+</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<p>This method exposes credentials in command history, process lists, and logs. Use only for testing or migration scenarios.</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
+--server-url<span class="o">=</span>https://admin:admin@YOUR_PMM_SERVER:443
+</code></pre></div>
+<p><strong>Parameters explained:</strong></p>
+<ul>
+<li><code>YOUR_PMM_SERVER</code>- Your PMM Server&rsquo;s IP address or hostname</li>
+<li><code>443</code> - Default HTTPS port</li>
+<li><code>admin</code>/<code>admin</code> - Default PMM username and password (change this immediately after first login)</li>
+</ul>
+<details class="example">
+<summary>Registration with node details</summary>
+<p>Register a node with IP address <code>192.168.33.23</code>, type <code>generic</code>, and name <code>mynode</code>:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
+--server-url<span class="o">=</span>https://admin:admin@192.168.33.14:443<span class="w"> </span><span class="se">\</span>
+<span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>mynode
+</code></pre></div>
+</details>
+<p class="power-number">To migrate to <a href="../../api/authentication.html">service accounts</a>:</p>
+<ol>
+<li>Create service accounts while still using standard authentication.</li>
+<li>Test service account tokens on non-critical nodes.</li>
+<li>Gradually migrate all nodes to token authentication.</li>
+<li>Change the admin password from default.</li>
+<li>Consider restricting or disabling direct admin account usage for node registration.</li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">HTTPS requirement</p>
+<p>PMM requires HTTPS connections (port <code>443</code> by default). HTTP URLs automatically redirect to HTTPS. For connection errors, verify:</p>
+<ul>
+<li>Port <code>443</code> is accessible</li>
+<li>Firewall rules allow HTTPS traffic</li>
+<li>TLS certificates are valid (or use <code>--server-insecure-tls</code>)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<h2 id="verify-the-connection">Verify the connection<a class="headerlink" href="#verify-the-connection" title="Permanent link">&para;</a></h2>
+<p>Check that PMM Client is properly connected and registered:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>status
+</code></pre></div>
 <h2 id="related-topics">Related topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="prerequisites.html">Prerequisites for PMM Client</a></li>
@@ -9364,7 +9473,7 @@ sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-07-14
+    2025-08-29
   </span>
 
     
