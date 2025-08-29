@@ -41,7 +41,7 @@ export const CARDS_DATA: HelpCard[] = [
       {
         text: 'Contact Support',
         target: '_blank',
-        url: 'https://per.co.na/pmm_support',
+        url: 'https://www.percona.com/about/contact?utm_campaign=7075599-Product%20Documentation%20Contact%20Us%20Clicks&utm_source=PMM-Support',
       },
     ],
     adminOnly: false,
