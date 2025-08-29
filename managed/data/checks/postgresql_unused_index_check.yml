@@ -2,8 +2,8 @@
 checks:
   - version: 2
     name: postgresql_unused_index_check
-    summary: Check for relations thathave unused indexes
-    description: This check will list relations with indexes that have not been used since statisttics where last reset
+    summary: Check for relations that have unused indexes
+    description: This check will list relations with indexes that have not been used since statistics where last reset
     interval: standard
     family: POSTGRESQL
     advisor: query_index

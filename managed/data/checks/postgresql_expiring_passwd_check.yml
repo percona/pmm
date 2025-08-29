@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: postgresql_expiring_passwd_check
     summary: Check for password expiration
-    description: Check for passwords which are expiring and displays the time left beofre it expires
+    description: Check for passwords which are expiring and displays the time left before it expires
     #author: Jorge Torralba
     #advisor: version_check
     advisor: security_configuration

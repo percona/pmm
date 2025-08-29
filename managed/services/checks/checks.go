@@ -71,7 +71,7 @@ const (
 )
 
 // pmm-agent versions with known changes in Query Actions.
-// To match all pre-release versions, add '-0' suffix to the specified version.
+// To match all pre-release versions, add a '-0' suffix to the specified version.
 var (
 	pmmAgent2_6_0   = version.MustParse("2.6.0")
 	pmmAgent2_7_0   = version.MustParse("2.7.0")
@@ -190,7 +190,7 @@ func (s *Service) Run(ctx context.Context) {
 	startCtx, startCancel := context.WithTimeout(ctx, s.startDelay)
 	<-startCtx.Done()
 	startCancel()
-	if ctx.Err() != nil { // check the main context, not startCtx
+	if ctx.Err() != nil { // check the main context, not the startCtx
 		return
 	}
 
@@ -1359,7 +1359,7 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	return targets, nil
 }
 
-// UpdateAdvisorsList loads advisors from builtin-in advisors directory or user-defined file, and stores versions supported by this pmm-managed version.
+// UpdateAdvisorsList loads advisors from built-in advisors directory or user-defined file, and stores versions supported by this pmm-managed version.
 func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error

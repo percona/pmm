@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: postgresql_logging_recommendation_checks
     summary: Check for minimal logging
-    description: Checks to see if recommended minimum logging features are enabled."
+    description: Checks to see if recommended minimum logging features are enabled.
     advisor: configuration_generic
     #Author: Jorge Torralba
     interval: standard
@@ -52,7 +52,7 @@ checks:
                      description = description + "log_min_duration_statement is disabled. " + nl
 
                   if int(log_min_duration_statement) == 0:
-                      description = description + "log_min_duration_statement is set to log all statements. This could lead to excessive loggin IO. " + nl
+                      description = description + "log_min_duration_statement is set to log all statements. This could lead to excessive logging IO. " + nl
 
 
               if int(log_autovacuum_min_duration) < 0:

@@ -20,7 +20,7 @@ checks:
              db, tempfiles, tempbytes, age = row["datname"], row["temp_files"], row["temp_bytes"], row["age"]
              if tempfiles > 100:
                  results.append({
-                     "summary": "temporary file statististics",
+                     "summary": "temporary file statistics",
                      "read_more_url":read_url.format("postgresql-tmpfiles-check"),
                      "description": "Database {} has generated {} temporary files. This has resulted in {} written to disk over the past  {}.".format(db, tempfiles, tempbytes, age),
                      "severity": "warning",
