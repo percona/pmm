@@ -3,7 +3,6 @@ templates:
     - name: test_template
       version: 1
       summary: Test template
-      tiers: [anonymous, registered]
       expr: |-
         [[ .param2 ]] * 100 > [[ .param1 ]]
       params:
