@@ -235,6 +235,7 @@ nav:
               - Annotate: use/dashboards-panels/annotate/annotate.md
       - Query Analytics:
           - use/qan/index.md
+          - use/qan/mysql.md
           - use/qan/qan_mongo.md
           - use/qan/share_link.md
           - Panels on QAN dashboard:
