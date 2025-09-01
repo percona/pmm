@@ -46,6 +46,12 @@
     - "conf.d/pmm-ssl.conf"
     - "conf.d/pmm.conf"
 
+- name: Check nginx configuration
+  command: nginx -t
+  register: nginx_check
+  failed_when: nginx_check.rc != 0
+  changed_when: False
+
 - name: Find the default nginx config files
   find:
     paths: /etc/nginx
