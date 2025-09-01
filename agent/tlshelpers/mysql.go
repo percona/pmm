@@ -42,7 +42,7 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 		}
 		certs = append(certs, cert)
 	}
-	if len(certs) > 0 {
+	if len(certs) != 0 {
 		tlsConfig.Certificates = certs
 	}
 
