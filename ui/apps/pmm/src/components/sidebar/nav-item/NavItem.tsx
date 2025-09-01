@@ -64,53 +64,60 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   if (children?.length) {
     return (
       <>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            width: level === 0 ? DRAWER_WIDTH : undefined,
-          }}
+        <NavItemTooltip
+          key={item.url}
+          drawerOpen={drawerOpen}
+          item={item}
+          level={level}
         >
-          <ListItemButton
-            color="primary.main"
-            disableGutters
-            sx={[
-              styles.listItemButton,
-              level === 0 && styles.navItemRootCollapsible,
-            ]}
-            onClick={handleOpenCollapsible}
-            data-testid={dataTestid}
-            data-navlevel={level}
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{
+              width: level === 0 ? DRAWER_WIDTH : undefined,
+            }}
           >
-            {item.icon && (
-              <ListItemIcon sx={styles.listItemIcon}>
-                <NavItemIcon icon={item.icon} />
-              </ListItemIcon>
-            )}
-            <ListItemText
-              primary={item.text}
-              className="navitem-primary-text"
-              sx={styles.text}
-            />
-          </ListItemButton>
-          {drawerOpen && (
-            <IconButton
-              data-testid={`${dataTestid}-toggle`}
-              onClick={handleToggle}
-              sx={{
-                mr: 1,
-              }}
+            <ListItemButton
+              color="primary.main"
+              disableGutters
+              sx={[
+                styles.listItemButton,
+                level === 0 && styles.navItemRootCollapsible,
+              ]}
+              onClick={handleOpenCollapsible}
+              data-testid={dataTestid}
+              data-navlevel={level}
             >
-              <KeyboardArrowDownIcon
-                sx={(theme) => ({
-                  rotate: open ? '180deg' : 0,
-                  transition: theme.transitions.create('rotate'),
-                })}
+              {item.icon && (
+                <ListItemIcon sx={styles.listItemIcon}>
+                  <NavItemIcon icon={item.icon} />
+                </ListItemIcon>
+              )}
+              <ListItemText
+                primary={item.text}
+                className="navitem-primary-text"
+                sx={styles.text}
               />
-            </IconButton>
-          )}
-        </Stack>
+            </ListItemButton>
+            {drawerOpen && (
+              <IconButton
+                data-testid={`${dataTestid}-toggle`}
+                onClick={handleToggle}
+                sx={{
+                  mr: 1,
+                }}
+              >
+                <KeyboardArrowDownIcon
+                  sx={(theme) => ({
+                    rotate: open ? '180deg' : 0,
+                    transition: theme.transitions.create('rotate'),
+                  })}
+                />
+              </IconButton>
+            )}
+          </Stack>
+        </NavItemTooltip>
         <Collapse
           in={open}
           timeout={
@@ -144,7 +151,12 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   }
 
   return (
-    <NavItemTooltip key={item.url} drawerOpen={drawerOpen} item={item}>
+    <NavItemTooltip
+      key={item.url}
+      drawerOpen={drawerOpen}
+      item={item}
+      level={level}
+    >
       <ListItem
         disablePadding
         sx={{
