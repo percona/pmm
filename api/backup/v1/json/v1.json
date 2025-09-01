@@ -1564,6 +1564,14 @@
                         "description": "MySQL version.",
                         "type": "string",
                         "x-order": 10
+                      },
+                      "extra_dsn_params": {
+                        "description": "Extra parameters to be added to the DSN.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 11
                       }
                     }
                   },
