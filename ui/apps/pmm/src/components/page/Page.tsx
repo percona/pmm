@@ -14,7 +14,7 @@ import { PMM_HOME_URL } from 'lib/constants';
 import { Footer } from 'components/footer';
 import { updateDocumentTitle } from 'lib/utils/document.utils';
 
-export const Page: FC<PageProps> = ({ title, footer, children }) => {
+export const Page: FC<PageProps> = ({ title, topBar, footer, children }) => {
   const { user } = useUser();
   updateDocumentTitle(title);
 
@@ -35,11 +35,12 @@ export const Page: FC<PageProps> = ({ title, footer, children }) => {
         mt: 1,
       })}
     >
+      {topBar}
       {!!title && <Typography variant="h2">{title}</Typography>}
       {user?.isAuthorized ? (
         children
       ) : (
-        <Card sx={{ p: 2 }}>
+        <Card variant="outlined" sx={{ p: 2 }}>
           <Alert severity="error" sx={{ mb: 1 }}>
             {Messages.noAcccess}
           </Alert>

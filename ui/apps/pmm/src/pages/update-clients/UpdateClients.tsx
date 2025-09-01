@@ -67,7 +67,7 @@ export const UpdateClients: FC = () => {
 
   return (
     <Page title={Messages.pageTitle}>
-      <Card>
+      <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>
             {isUpToDate && (

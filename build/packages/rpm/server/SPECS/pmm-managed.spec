@@ -69,8 +69,8 @@ cp -pa ./ui/apps/pmm-compat/dist/. %{buildroot}%{_datadir}/percona-dashboards/pa
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
-%{_datadir}/pmm-ui
-%{_datadir}/percona-dashboards/panels/pmm-compat-app
+%attr(-, pmm, pmm) %{_datadir}/pmm-ui
+%attr(-, pmm, pmm) %{_datadir}/percona-dashboards/panels/pmm-compat-app
 
 %changelog
 * Thu Apr 24 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 3.2.0-1
