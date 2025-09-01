@@ -647,7 +647,7 @@ func (s *BackupService) ListPitrTimeranges(ctx context.Context, req *backupv1.Li
 }
 
 // ListServiceCompression returns available compression methods for a service.
-func (s *BackupService) ListServiceCompression(ctx context.Context, req *backupv1.ListServiceCompressionRequest) (*backupv1.ListServiceCompressionResponse, error) {
+func (s *BackupService) ListServiceCompression(_ context.Context, req *backupv1.ListServiceCompressionRequest) (*backupv1.ListServiceCompressionResponse, error) {
 	svc, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
 	if err != nil {
 		return nil, err

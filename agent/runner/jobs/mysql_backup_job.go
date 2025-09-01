@@ -50,7 +50,15 @@ type MySQLBackupJob struct {
 }
 
 // NewMySQLBackupJob constructs new Job for MySQL backup.
-func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig, folder string, compression backuppb.BackupCompression) *MySQLBackupJob {
+func NewMySQLBackupJob(
+	id string,
+	timeout time.Duration,
+	name string,
+	connConf DBConnConfig,
+	locationConfig BackupLocationConfig,
+	folder string,
+	compression backuppb.BackupCompression,
+) *MySQLBackupJob {
 	return &MySQLBackupJob{
 		id:             id,
 		timeout:        timeout,

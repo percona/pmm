@@ -17,6 +17,7 @@ package models
 
 import (
 	"database/sql/driver"
+	"slices"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -195,10 +196,8 @@ func (c BackupCompression) ValidateForServiceType(serviceType ServiceType) error
 		return NewInvalidArgumentError("compression is not yet supported for service type '%s'", serviceType)
 	}
 
-	for _, supportedCompression := range supported {
-		if supportedCompression == c {
-			return nil
-		}
+	if slices.Contains(supported, c) {
+		return nil
 	}
 
 	return NewInvalidArgumentError("compression '%s' is not supported for service type '%s'", c, serviceType)

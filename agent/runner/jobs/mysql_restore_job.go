@@ -58,7 +58,14 @@ type MySQLRestoreJob struct {
 }
 
 // NewMySQLRestoreJob constructs new Job for MySQL backup restore.
-func NewMySQLRestoreJob(id string, timeout time.Duration, name string, locationConfig BackupLocationConfig, folder string, compression backupv1.BackupCompression) *MySQLRestoreJob {
+func NewMySQLRestoreJob(
+	id string,
+	timeout time.Duration,
+	name string,
+	locationConfig BackupLocationConfig,
+	folder string,
+	compression backupv1.BackupCompression,
+) *MySQLRestoreJob {
 	return &MySQLRestoreJob{
 		id:             id,
 		timeout:        timeout,

@@ -18,6 +18,7 @@ package backup
 import (
 	"context"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -903,15 +904,7 @@ func TestCompressionValidation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			supported := models.GetSupportedCompressions(tt.serviceType)
-			isSupported := false
-			if supported != nil {
-				for _, c := range supported {
-					if c == tt.compression {
-						isSupported = true
-						break
-					}
-				}
-			}
+			isSupported := slices.Contains(supported, tt.compression)
 			assert.Equal(t, tt.expectedValid, isSupported)
 
 			err := tt.compression.ValidateForServiceType(tt.serviceType)
