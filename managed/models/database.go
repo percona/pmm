@@ -105,7 +105,6 @@ var databaseSchema = [][]string{
 			container_name VARCHAR CHECK (container_name <> ''),
 
 			-- RemoteAmazonRDS
-			-- RDS instance is stored in address
 			region VARCHAR CHECK (region <> ''),
 
 			PRIMARY KEY (node_id),
@@ -1138,9 +1137,13 @@ var databaseSchema = [][]string{
 	109: {
 		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
 	},
+	110: {
+		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
+		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
+	},
 	111: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
-	},
+  },
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

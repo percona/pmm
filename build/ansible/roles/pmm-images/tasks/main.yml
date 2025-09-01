@@ -31,6 +31,7 @@
       - python3-pip
       - rsync
       - iproute
+      - nss_wrapper
     state: latest
 
 - name: Create groups
@@ -52,21 +53,31 @@
     shell: "{{ item.shell }}"
     group: "{{ item.group }}"
   loop:
-    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
+    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: root, }
     - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
     - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
 
-- name: Create directories (mask 022)
+- name: Create directories with permissive mode for OpenShift compatibility
   file: 
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: pmm
+    group: root
+    mode: 0775
   loop:
     - /srv # otherwise it's owned by root
     - /srv/prometheus/rules
     - /etc/grafana
     - /srv/clickhouse
+
+- name: Create pmm-server directory with write access for any user
+  file:
+    path: /usr/share/pmm-server
+    state: directory
+    owner: pmm
+    group: root
+    mode: 0775
+    recurse: yes
 
 # Note a special mode required mainly by nginx
 - name: Create a directory for logs
@@ -74,7 +85,7 @@
     path: /srv/logs
     state: directory
     owner: pmm
-    group: pmm
+    group: root
     mode: 0775
 
 - name: Create dirs
@@ -127,7 +138,7 @@
     path: /srv/backup
     state: directory
     owner: pmm
-    group: pmm
+    group: root
     mode: 0775
 
 - name: Create a working directory for VictoriaMetrics
@@ -135,14 +146,16 @@
     path: /srv/victoriametrics/data
     state: directory
     owner: pmm
-    group: pmm
+    group: root
+    mode: 0775
 
 - name: Create an empty configuration file for VictoriaMetrics
   file:
     path: /etc/victoriametrics-promscrape.yml
     state: touch
     owner: pmm
-    group: pmm
+    group: root
+    mode: 0664
 
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config
