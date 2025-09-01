@@ -29,9 +29,11 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 		return nil
 	}
 
-	ca := x509.NewCertPool()
-	var certs []tls.Certificate
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: tlsSkipVerify, // #nosec G402
+	}
 
+	var certs []tls.Certificate
 	// Only load client cert/key if both are provided
 	if files["tlsCert"] != "" && files["tlsKey"] != "" {
 		cert, err := tls.X509KeyPair([]byte(files["tlsCert"]), []byte(files["tlsKey"]))
@@ -40,19 +42,18 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 		}
 		certs = append(certs, cert)
 	}
+	if len(certs) > 0 {
+		tlsConfig.Certificates = certs
+	}
 
+	ca := x509.NewCertPool()
 	if ok := ca.AppendCertsFromPEM([]byte(files["tlsCa"])); ok {
-		tlsConfig := &tls.Config{
-			RootCAs:            ca,
-			InsecureSkipVerify: tlsSkipVerify, // #nosec G402
-		}
-		if len(certs) > 0 {
-			tlsConfig.Certificates = certs
-		}
-		err := mysql.RegisterTLSConfig("custom", tlsConfig)
-		if err != nil {
-			return errors.Wrap(err, "register MySQL CA cert failed")
-		}
+		tlsConfig.RootCAs = ca
+	}
+
+	err := mysql.RegisterTLSConfig("custom", tlsConfig)
+	if err != nil {
+		return errors.Wrap(err, "register MySQL CA cert failed")
 	}
 
 	return nil
