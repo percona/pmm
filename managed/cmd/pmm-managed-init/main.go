@@ -86,7 +86,7 @@ func checkForDowngrade() error {
 
 	// Check for downgrade: if current version is newer than image version, fail
 	if imageVersion.Less(&currentVersion) {
-		return errors.Errorf("Downgrade detected: current version %s is newer than image version %s. "+
+		return fmt.Errorf("Downgrade detected: current version %s is newer than image version %s. "+
 			"Downgrades are not supported and could cause data corruption or system instability.",
 			currentVersion.String(), imageVersion.String())
 	}
