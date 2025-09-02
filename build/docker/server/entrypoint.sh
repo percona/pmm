@@ -109,6 +109,12 @@ bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
 # Ensure /srv/postgres14 has the correct permissions
 chmod 750 /srv/postgres14 || true
 
+echo "Checking nginx configuration..."
+if ! nginx -t; then
+    echo "Nginx configuration test failed, exiting..."
+    exit 1
+fi
+
 # pmm-managed-init validates environment variables.
 pmm-managed-init
 
