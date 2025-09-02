@@ -1143,7 +1143,7 @@ var databaseSchema = [][]string{
 	},
 	111: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
-  },
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
