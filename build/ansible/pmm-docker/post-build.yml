@@ -129,4 +129,11 @@
         group: root
         state: file
 
+    - name: Set ownership for pmm-agent config file
+      file:
+        path: /usr/local/percona/pmm/config/pmm-agent.yaml
+        owner: pmm
+        group: root
+        state: file
+
 
