@@ -32,7 +32,7 @@ Install PMM Client using one of the following deployment methods:
 | **Production** environments on supported Linux distributions | **[Package Manager →](package_manager.md)** |
 | Unsupported Linux distributions or **non-root** installation | **[Binary Package →](binary_package.md)** |
 | **Containerized** environments or testing | **[Docker →](docker.md)** |
-| **Kubernetes** environment | **[Kubernetes →](sidecar.md)** |
+| **Kubernetes** environment | **[Kubernetes →](kubernetes.md)** |
 
 ## Connect services
 
