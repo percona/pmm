@@ -19,3 +19,5 @@ COPY ./Makefile.devcontainer ./Makefile
 
 RUN python ./.devcontainer/setup.py
 RUN mv -f $GOPATH/src/github.com/percona/pmm/bin/* $GOPATH/bin/
+
+USER pmm
