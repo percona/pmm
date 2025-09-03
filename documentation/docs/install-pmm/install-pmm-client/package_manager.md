@@ -128,9 +128,7 @@ Registration requires authentication to verify that your PMM Client has permissi
 
     ```bash
     pmm-admin config --server-insecure-tls \
-        --server-url=https://YOUR_PMM_SERVER:443 \
-        --server-username=service_token \
-        --server-password=YOUR_GLSA_TOKEN
+        --server-url=https://service_token:YOUR_GLSA_TOKEN@YOUR_PMM_SERVER:443 \
     ```
 
     **Parameters explained:**
@@ -143,9 +141,7 @@ Registration requires authentication to verify that your PMM Client has permissi
     ??? example "Full example with node details"
         ```bash
         pmm-admin config --server-insecure-tls \
-            --server-url=https://192.168.33.14:443 \
-            --server-username=service_token \
-            --server-password=glsa_aBc123XyZ456... \
+            --server-url=https://service_token:glsa_aBc123XyZ456...@192.168.33.14:443 \
             192.168.33.23 generic prod-db01
             ```
         This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
