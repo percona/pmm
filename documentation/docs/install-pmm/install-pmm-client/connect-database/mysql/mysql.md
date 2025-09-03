@@ -13,7 +13,6 @@ Get your MySQL instance connected to PMM in just a few steps:
     -- Create PMM user with required permissions
     CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword123!' WITH MAX_USER_CONNECTIONS 10;
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
-    FLUSH PRIVILEGES;
     ```
 
    **Note:**
@@ -108,7 +107,7 @@ This example creates a pmm user account that has just enough access to collect m
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
     ```
 
-=== "On MySQL 8.0"
+=== "On MySQL 8.x"
 
     ```sql
     CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<your_strong_password>' WITH MAX_USER_CONNECTIONS 10;
@@ -134,13 +133,13 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 
 #### Version-specific recommendations
 
-| Database server          | Versions       | Recommended source |
-|--------------------------|----------------|--------------------|
-| MySQL                    | 5.1-5.5        | Slow query log     |
-| MySQL                    | 5.6+           | Performance Schema |
-| MariaDB                  | 10.0+          | Performance Schema |
-| Percona Server for MySQL | 5.7, 8.0       | Slow query log     |
-| Percona XtraDB Cluster   | 5.6, 5.7, 8.0  | Slow query log     |
+| Database server          | Versions           | Recommended source |
+|--------------------------|--------------------|--------------------|
+| MySQL                    | 5.1-5.5            | Slow query log     |
+| MySQL                    | 5.6+               | Performance Schema |
+| MariaDB                  | 10.0+              | Performance Schema |
+| Percona Server for MySQL | 5.7, 8.0, 8.4      | Slow query log     |
+| Percona XtraDB Cluster   | 5.6, 5.7, 8.0, 8.4 | Slow query log     |
 
 ### Configure data source
 
@@ -189,7 +188,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
     
     === "Extended configuration (Percona Server/XtraDB)"
     
-        For Percona Server for MySQL (5.7+, 8.0+) and Percona XtraDB Cluster, add these additional settings:
+        For Percona Server for MySQL (5.7+, 8.x) and Percona XtraDB Cluster, add these additional settings:
         
         | Variable | Value | Description |
         |----------|-------|-------------|
@@ -250,8 +249,8 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
     
     #### Applicable versions
     
-    - **Percona Server for MySQL**: 5.6, 5.7, 8.0
-    - **Percona XtraDB Cluster**: 5.6, 5.7, 8.0
+    - **Percona Server for MySQL**: 5.6, 5.7, 8.0, 8.4
+    - **Percona XtraDB Cluster**: 5.6, 5.7, 8.0, 8.4
     - **MariaDB**: [10.3+][mariadb_perfschema_instr_table]
     
     PMM's [MySQL Performance Schema Details dashboard](../../../../reference/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
@@ -320,11 +319,11 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 #### Supported versions
 
 - **Percona Server for MySQL**: 5.7 (available through Post-EOL support program)
-- **NOT** available in Percona Server for MySQL 8.0 ([removed features][PS_FEATURES_REMOVED])
+- **NOT** available in Percona Server for MySQL 8.x ([removed features][PS_FEATURES_REMOVED])
 - **MariaDB**: 10.0.4
 
 !!! warning "Limited version support"   
-    This feature is not available in current Percona Server 8.0. Use this information only if you are using Percona Server 5.7 through our Post-EOL support program, where it remains actively supported.
+    This feature is not available in current Percona Server 8.x. Use this information only if you are using Percona Server 5.7 through our Post-EOL support program, where it remains actively supported.
 
 ### Required variable
 
@@ -373,8 +372,8 @@ You can change the limit [when configuring MySQL performance improvements](../my
 
 User activity, individual table and index access details are shown on the [MySQL User Details][DASH_MYSQLUSERDETAILS] dashboard when the `userstat` variable is set:
 
-- Percona Server for MySQL: 5.6, 5.7, 8.0
-- Percona XtraDB Cluster: 5.6, 5.7, 8.0
+- Percona Server for MySQL: 5.6, 5.7, 8.0, 8.4
+- Percona XtraDB Cluster: 5.6, 5.7, 8.0, 8.4
 - MariaDB: 5.2.0+
 
 ??? info "MySQL user statistics configuration examples"
