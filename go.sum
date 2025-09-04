@@ -98,8 +98,8 @@ github.com/aws/aws-sdk-go-v2/service/ssooidc v1.33.2 h1:pd9G9HQaM6UZAZh19pYOkpKS
 github.com/aws/aws-sdk-go-v2/service/ssooidc v1.33.2/go.mod h1:eknndR9rU8UpE/OmFpqU78V1EcXPKFTTm5l/buZYgvM=
 github.com/aws/aws-sdk-go-v2/service/sts v1.38.0 h1:iV1Ko4Em/lkJIsoKyGfc0nQySi+v0Udxr6Igq+y9JZc=
 github.com/aws/aws-sdk-go-v2/service/sts v1.38.0/go.mod h1:bEPcjW7IbolPfK67G1nilqWyoxYMSPrDiIQ3RdIdKgo=
-github.com/aws/smithy-go v1.22.5 h1:P9ATCXPMb2mPjYBgueqJNCA5S9UfktsW0tTxi+a7eqw=
-github.com/aws/smithy-go v1.22.5/go.mod h1:t1ufH5HMublsJYulve2RKmHDC15xu1f26kHCp/HgceI=
+github.com/aws/smithy-go v1.23.0 h1:8n6I3gXzWJB2DxBDnfxgBaSX6oe0d/t10qGz7OKqMCE=
+github.com/aws/smithy-go v1.23.0/go.mod h1:t1ufH5HMublsJYulve2RKmHDC15xu1f26kHCp/HgceI=
 github.com/bboreham/go-loser v0.0.0-20230920113527-fcc2c21820a3 h1:6df1vn4bBlDDo4tARvBm7l6KA9iVMnE3NWizDeWSrps=
 github.com/bboreham/go-loser v0.0.0-20230920113527-fcc2c21820a3/go.mod h1:CIWtjkly68+yqLPbvwwR/fjNJA/idrtULjZWh2v1ys0=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
