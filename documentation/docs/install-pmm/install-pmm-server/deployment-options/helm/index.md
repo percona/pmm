@@ -118,7 +118,6 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
       # OpenShift-specific pod security settings
       podSecurityContext:
         runAsNonRoot: true
-        runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       EOF
