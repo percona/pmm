@@ -939,7 +939,7 @@ func main() { //nolint:maintidx,cyclop
 	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
-	alertingService, err := alerting.NewService(db, platformClient, grafanaClient)
+	alertingService, err := alerting.NewService(db, grafanaClient)
 	if err != nil {
 		l.Fatalf("Could not create alerting service: %s", err)
 	}

@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -43,18 +42,14 @@ import (
 
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
-	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/managed/utils/platform"
-	"github.com/percona/pmm/managed/utils/signatures"
 )
 
 const (
-	templatesDir              = "/srv/alerting/templates"
-	portalRequestTimeout      = 2 * time.Minute // time limit to get templates list from the portal
+	builtinTemplatesDir       = "/usr/local/percona/alerting-templates"
+	userTemplatesDir          = "/srv/alerting/templates"
 	defaultEvaluationInterval = time.Minute
 
 	dirPerm = os.FileMode(0o775)
@@ -62,12 +57,10 @@ const (
 
 // Service is responsible alerting templates and rules creation from them.
 type Service struct {
-	db                 *reform.DB
-	l                  *logrus.Entry
-	platformClient     *platform.Client
-	grafanaClient      grafanaClient
-	userTemplatesPath  string
-	platformPublicKeys []string
+	db                *reform.DB
+	l                 *logrus.Entry
+	grafanaClient     grafanaClient
+	userTemplatesPath string
 
 	rw        sync.RWMutex
 	templates map[string]models.Template
@@ -76,28 +69,20 @@ type Service struct {
 }
 
 // NewService creates a new Service.
-func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam
+func NewService(db *reform.DB, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam
 	l := logrus.WithField("component", "management/alerting")
 
-	err := dir.CreateDataDir(templatesDir, dirPerm)
+	err := dir.CreateDataDir(userTemplatesDir, dirPerm)
 	if err != nil {
 		l.Error(err)
 	}
 
-	var platformPublicKeys []string
-	if k := envvars.GetPlatformPublicKeys(); k != nil {
-		l.Warnf("Percona Platform public keys changed to %q.", k)
-		platformPublicKeys = k
-	}
-
 	s := &Service{
-		db:                 db,
-		l:                  l,
-		platformClient:     platformClient,
-		grafanaClient:      grafanaClient,
-		userTemplatesPath:  templatesDir,
-		platformPublicKeys: platformPublicKeys,
-		templates:          make(map[string]models.Template),
+		db:                db,
+		l:                 l,
+		grafanaClient:     grafanaClient,
+		userTemplatesPath: userTemplatesDir,
+		templates:         make(map[string]models.Template),
 	}
 
 	return s, nil
@@ -127,12 +112,11 @@ func (s *Service) GetTemplates() map[string]models.Template {
 
 // CollectTemplates collects Percona Alerting rule templates from various sources like:
 // builtin templates: read from the generated variable of type embed.FS
-// SaaS templates: templates downloaded from checks service.
 // User file templates: read from yaml files created by the user in `/srv/alerting/templates`.
 // User API templates: in the DB created using the API.
 func (s *Service) CollectTemplates(ctx context.Context) {
 	var templates []*models.Template
-	builtInTemplates, err := s.loadTemplatesFromAssets(ctx)
+	builtInTemplates, err := s.loadBuiltinTemplates()
 	if err != nil {
 		s.l.Errorf("Failed to load built-in rule templates: %s.", err)
 		return
@@ -153,14 +137,6 @@ func (s *Service) CollectTemplates(ctx context.Context) {
 	}
 	templates = append(templates, dbTemplates...)
 
-	saasTemplates, err := s.downloadTemplates(ctx)
-	if err != nil {
-		// just log the error and don't return, if the user is not connected to SaaS
-		// we should still collect and show the Built-In templates.
-		s.l.Errorf("Failed to download rule templates from SaaS: %s.", err)
-	}
-	templates = append(templates, saasTemplates...)
-
 	// replace previously stored templates with newly collected ones.
 	s.rw.Lock()
 	defer s.rw.Unlock()
@@ -170,72 +146,57 @@ func (s *Service) CollectTemplates(ctx context.Context) {
 	}
 }
 
-// loadTemplatesFromAssets loads built-in alerting rule templates from pmm-managed binary's assets.
-func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]*models.Template, error) {
+// loadBuiltinTemplates loads built-in alerting rule templates.
+func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
+	s.l.Infof("Loading alerting templates from dir=%s", builtinTemplatesDir)
+	templateFiles, err := filepath.Glob(filepath.Join(builtinTemplatesDir, "*.yml"))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to list rule template assets")
+	}
+
 	var res []*models.Template
-	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
+	for _, file := range templateFiles {
+		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {
-			return errors.Wrapf(err, "error occurred while traversing templates folder: %s", path)
+			return nil, errors.Wrapf(err, "failed to read rule template asset: %s", file)
 		}
-
-		if ctx.Err() != nil {
-			return ctx.Err()
-		}
-
-		if d.IsDir() {
-			return nil
-		}
-
-		data, err := fs.ReadFile(data.AlertRuleTemplates, path)
-		if err != nil {
-			return errors.Wrapf(err, "failed to read rule template asset: %s", path)
-		}
-
 		// be strict about built-in templates
 		params := &alert.ParseParams{
 			DisallowUnknownFields:    true,
 			DisallowInvalidTemplates: true,
 		}
-		templates, err := alert.Parse(bytes.NewReader(data), params)
+		templates, err := alert.Parse(bytes.NewReader(b), params)
 		if err != nil {
-			return errors.Wrapf(err, "failed to parse rule template asset: %s", path)
+			return nil, errors.Wrapf(err, "failed to parse rule template asset: %s", file)
 		}
 
-		// built-in-specific validations
-		// TODO move to some better / common place
-
 		if l := len(templates); l != 1 {
-			return errors.Errorf("%q should contain exactly one template, got %d", path, l)
+			return nil, errors.Errorf("%q should contain exactly one template, got %d", file, l)
 		}
 
 		t := templates[0]
 
-		filename := filepath.Base(path)
+		filename := filepath.Base(file)
 		if strings.HasPrefix(filename, "pmm_") {
-			return errors.Errorf("%q file name should not start with 'pmm_' prefix", path)
+			return nil, errors.Errorf("%q file name should not start with 'pmm_' prefix", file)
 		}
 		if !strings.HasPrefix(t.Name, "pmm_") {
-			return errors.Errorf("%s %q: template name should start with 'pmm_' prefix", path, t.Name)
+			return nil, errors.Errorf("%s %q: template name should start with 'pmm_' prefix", file, t.Name)
 		}
 		if expected := strings.TrimPrefix(t.Name, "pmm_") + ".yml"; filename != expected {
-			return errors.Errorf("template file name %q should be %q", filename, expected)
+			return nil, errors.Errorf("template file name %q should be %q", filename, expected)
 		}
 		if len(t.Annotations) != 2 || t.Annotations["summary"] == "" || t.Annotations["description"] == "" {
-			return errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", path, t.Name)
+			return nil, errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", file, t.Name)
 		}
 
 		tm, err := models.ConvertTemplate(&t, models.BuiltInSource)
 		if err != nil {
-			return errors.Wrap(err, "failed to convert alert rule template")
+			return nil, errors.Wrap(err, "failed to convert alert rule template")
 		}
-
 		res = append(res, tm)
-		return nil
 	}
-	err := fs.WalkDir(data.AlertRuleTemplates, ".", walkDirFunc)
-	if err != nil {
-		return nil, err
-	}
+
 	return res, nil
 }
 
@@ -298,52 +259,6 @@ func (s *Service) loadTemplatesFromDB() ([]*models.Template, error) {
 	}
 
 	return templates, nil
-}
-
-// downloadTemplates downloads Percona Alerting templates from Percona Portal.
-func (s *Service) downloadTemplates(ctx context.Context) ([]*models.Template, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsTelemetryEnabled() {
-		s.l.Debug("Alert templates downloading skipped due to disabled telemetry.")
-		return nil, nil
-	}
-
-	nCtx, cancel := context.WithTimeout(ctx, portalRequestTimeout)
-	defer cancel()
-
-	resp, err := s.platformClient.GetTemplates(nCtx)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.platformPublicKeys); err != nil {
-		return nil, err
-	}
-
-	// be liberal about files from SaaS for smooth transition to future versions
-	params := &alert.ParseParams{
-		DisallowUnknownFields:    false,
-		DisallowInvalidTemplates: false,
-	}
-	templates, err := alert.Parse(strings.NewReader(resp.File), params)
-	if err != nil {
-		return nil, err
-	}
-
-	res := make([]*models.Template, 0, len(templates))
-	for _, t := range templates {
-		tm, err := models.ConvertTemplate(&t, models.SAASSource)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to convert alert rule template")
-		}
-		res = append(res, tm)
-	}
-
-	return res, nil
 }
 
 // validateUserTemplate validates user-provided template (API or file).
@@ -702,7 +617,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	template, ok := s.GetTemplates()[req.TemplateName]
+	sourceTemplate, ok := s.GetTemplates()[req.TemplateName]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
 	}
@@ -712,16 +627,16 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	if err := validateParameters(template.Params, paramsValues); err != nil {
+	if err := validateParameters(sourceTemplate.Params, paramsValues); err != nil {
 		return nil, err
 	}
 
-	forDuration := template.For
+	forDuration := sourceTemplate.For
 	if req.For != nil {
 		forDuration = req.For.AsDuration()
 	}
 
-	expr, err := fillExprWithParams(template.Expr, paramsValues.AsStringMap())
+	expr, err := fillExprWithParams(sourceTemplate.Expr, paramsValues.AsStringMap())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fill rule expression with parameters")
 	}
@@ -737,7 +652,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		}
 	}
 
-	ta, err := template.GetAnnotations()
+	ta, err := sourceTemplate.GetAnnotations()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get template annotations")
 	}
@@ -754,7 +669,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, errors.Wrap(err, "failed to fill rule labels placeholders")
 	}
 
-	tl, err := template.GetLabels()
+	tl, err := sourceTemplate.GetLabels()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get template labels")
 	}
