@@ -7,15 +7,14 @@ Deploy PMM Server on Kubernetes using Helm for scalable, orchestrated monitoring
 ## Prerequisites
 
   - [Helm v3](https://docs.helm.sh/using_helm/#installing-helm)
-  - Kubernetes cluster running a [supported version](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [Supported Helm](https://helm.sh/docs/topics/version_skew/) versions
+  - Kubernetes cluster running a [supported version](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [supported Helm](https://helm.sh/docs/topics/version_skew/) versions
   - Storage driver with snapshot support (for backups)
   - `kubectl` configured to communicate with your cluster
 
 ### OpenShift-specific requirements
 For OpenShift deployments, you'll also need:
 
-- OpenShift Container Platform 4.15. Other versions will likely work but they haven't been tested
-- Administrative access for `SecurityContextConstraints` (SCC)
+- OpenShift Container Platform 4.16. Other versions will likely work but they haven't been tested
 - `oc` CLI tool configured
 - Permissions to create Routes and manage RBAC policies
 
@@ -42,10 +41,8 @@ For optimal monitoring in production environments:
 
 3.  Openshift considerations:   
 
-    - configure appropriate Security Context Constraints before deployment
     - use OpenShift Routes for external access instead of Kubernetes Ingress
     - consider resource quotas and limits as OpenShift projects often have stricter defaults
-
 
 ## Install PMM Server on your Kubernetes cluster/Openshift clusters
 
@@ -67,56 +64,21 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     # encode some password: `echo -n "admin" | base64`
       PMM_ADMIN_PASSWORD: YWRtaW4=
     EOF
-    ```
+    ```x
 
 2. Verify the secret was created and retrieve the password if needed:
 
     ```bash
     kubectl get secret pmm-secret -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode
     ```
-3. (OpenShift only) For OpenShift deployments, configure `SecurityContextConstraints`:
 
-    ```bash
-    # Create custom SCC for PMM
-        cat <<EOF | oc create -f -
-        apiVersion: security.openshift.io/v1
-        kind: SecurityContextConstraints
-        metadata:
-        name: pmm-scc
-        allowHostDirVolumePlugin: false
-        allowHostIPC: false
-        allowHostNetwork: false
-        allowHostPID: false
-        allowHostPorts: false
-        allowPrivilegedContainer: false
-        fsGroup:
-        type: RunAsAny
-        runAsUser:
-        type: MustRunAsNonRoot
-        seLinuxContext:
-        type: MustRunAs
-        supplementalGroups:
-        type: RunAsAny
-        volumes:
-        - configMap
-        - downwardAPI
-        - emptyDir
-        - persistentVolumeClaim
-        - projected
-        - secret
-        EOF
-        
-        # Grant the SCC to the PMM service account
-        oc adm policy add-scc-to-user pmm-scc -z pmm-sa -n <your-namespace>
-    ```
-
-4. Add the Percona repository and check available PMM versions:
+3. Add the Percona repository and check available PMM versions:
 
     ```bash
     helm repo add percona [https://percona.github.io/percona-helm-charts/](https://percona.github.io/percona-helm-charts/)
     helm repo update
     ```
-5. Choose your PMM version by checking available chart versions:
+4. Choose your PMM version by checking available chart versions:
 
     ```bash
     helm search repo percona/pmm --versions
@@ -132,7 +94,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
         percona/pmm 1.3.21          2.44.0      A Helm chart for Percona Monitoring and Managem...
         ```
 
-6. Deploy PMM Server with your chosen version and secret:
+5. Deploy PMM Server with your chosen version and secret:
 
 === "For Kubernetes"
     ```bash
@@ -146,6 +108,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 === "For OpenShift"
     
     - Create a custom values file for OpenShift:
+
       ```bash
       cat <<EOF > openshift-values.yaml
       secret:
@@ -169,13 +132,13 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
       percona/pmm
       ```
 
-7. Verify the deployment:
+6. Verify the deployment:
     ```bash
     helm list
     kubectl get pods -l app.kubernetes.io/name=pmm
     ```
 
-8. Access PMM Server:
+7. Access PMM Server:
 
 === "Kubernetes" 
     ```bash
@@ -197,7 +160,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     # Or use port-forwarding for testing
     oc port-forward svc/pmm-service 443:443
     ```
-9. (Openshift only) Create a network policy to allow PMM communication:
+8. (Optional) Create a network policy to allow PMM communication:
 
   ```yaml
   apiVersion: networking.k8s.io/v1
@@ -219,18 +182,6 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     egress:
     - to: []
   ```
-
-10. (OpenShift only) Ensure adequate resources: 
-
-    ```yaml
-    resources:
-      requests:
-        memory: "2Gi"
-        cpu: "1000m"
-      limits:
-        memory: "4Gi"
-        cpu: "2000m"
-    ```
 
 ### Configure PMM Server
 
