@@ -53,7 +53,7 @@ jobs:
           docker logs pmm-server
 
       - name: Mark the root directory of pmm as safe
-        run: docker exec -i pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
+        run: docker exec -i -u root pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Pull the cache image and inject cache to PMM Server
         continue-on-error: true
