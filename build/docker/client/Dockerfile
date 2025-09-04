@@ -1,4 +1,4 @@
-FROM redhat/ubi9 AS builder
+FROM redhat/ubi10 AS builder
 
 RUN dnf install -y shadow-utils jq tar https://repo.percona.com/yum/percona-release-latest.noarch.rpm \
     && percona-release enable ps-80 \
@@ -30,7 +30,7 @@ RUN cd /tmp/pmm-client* \
     && cd /tmp \
     && rm -rf /tmp/pmm-client*
 
-FROM redhat/ubi9-micro
+FROM redhat/ubi10-micro
 
 ARG VERSION
 ARG RELEASE
