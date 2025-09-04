@@ -101,7 +101,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     helm install pmm \
     --set secret.create=false \
     --set secret.name=pmm-secret \
-    --version 1.4.3 \
+    --version 1.4.8 \
     percona/pmm
     ```
 
