@@ -17,66 +17,43 @@ package alerting
 
 import (
 	"context"
-	"os"
-	"testing"
-	"time"
-
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+	"testing"
 
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 const (
-	devPlatformAddress   = "https://check-dev.percona.com"
-	devPlatformPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
-	testBadTemplates     = "../../../testdata/alerting/bad"
-	testTemplates        = "../../../testdata/alerting/user2"
-	testTemplates2       = "../../../testdata/alerting/user"
-	issuerURL            = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
+	testBadTemplates = "../../../testdata/alerting/bad"
+	testTemplates    = "../../../testdata/alerting/user2"
+	testTemplates2   = "../../../testdata/alerting/user"
 )
 
 func TestCollect(t *testing.T) {
 	t.Parallel()
-	clientID, clientSecret := os.Getenv("PMM_DEV_OAUTH_CLIENT_ID"), os.Getenv("PMM_DEV_OAUTH_CLIENT_SECRET")
-	if clientID == "" || clientSecret == "" {
-		t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")
-	}
 
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	platformClient, err := platform.NewClient(db, devPlatformAddress)
-	require.NoError(t, err)
-
-	insertSSODetails := &models.PerconaSSODetailsInsert{
-		IssuerURL:              issuerURL,
-		PMMManagedClientID:     clientID,
-		PMMManagedClientSecret: clientSecret,
-		Scope:                  "percona",
-	}
-	err = models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
-	require.NoError(t, err)
 
 	t.Run("builtin are valid", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewService(db, platformClient, nil)
+		svc, err := NewService(db, nil)
 		require.NoError(t, err)
-		_, err = svc.loadTemplatesFromAssets(ctx)
+		_, err = svc.loadBuiltinTemplates()
 		require.NoError(t, err)
 	})
 
 	t.Run("bad template paths", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewService(db, platformClient, nil)
+		svc, err := NewService(db, nil)
 		require.NoError(t, err)
 		svc.userTemplatesPath = testBadTemplates
 		templates, err := svc.loadTemplatesFromUserFiles(ctx)
@@ -87,7 +64,7 @@ func TestCollect(t *testing.T) {
 	t.Run("valid template paths", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewService(db, platformClient, nil)
+		svc, err := NewService(db, nil)
 		require.NoError(t, err)
 		svc.userTemplatesPath = testTemplates2
 		svc.CollectTemplates(ctx)
@@ -110,64 +87,11 @@ func TestCollect(t *testing.T) {
 	})
 }
 
-func TestDownloadTemplates(t *testing.T) {
-	clientID, clientSecret := os.Getenv("PMM_DEV_OAUTH_CLIENT_ID"), os.Getenv("PMM_DEV_OAUTH_CLIENT_SECRET")
-	if clientID == "" || clientSecret == "" {
-		t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")
-	}
-
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	platformClient, err := platform.NewClient(db, devPlatformAddress)
-	require.NoError(t, err)
-
-	svc, err := NewService(db, platformClient, nil)
-	svc.platformPublicKeys = []string{devPlatformPublicKey}
-	require.NoError(t, err)
-
-	insertSSODetails := &models.PerconaSSODetailsInsert{
-		IssuerURL:              issuerURL,
-		PMMManagedClientID:     clientID,
-		PMMManagedClientSecret: clientSecret,
-		Scope:                  "percona",
-	}
-	err = models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
-	require.NoError(t, err)
-
-	t.Run("normal", func(t *testing.T) {
-		assert.Empty(t, svc.GetTemplates())
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		templates, err := svc.downloadTemplates(ctx)
-		require.NoError(t, err)
-		assert.NotEmpty(t, templates)
-		assert.NotEmpty(t, svc.GetTemplates())
-	})
-
-	t.Run("with disabled telemetry", func(t *testing.T) {
-		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-			EnableTelemetry: pointer.ToBool(false),
-		})
-		require.NoError(t, err)
-
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		templates, err := svc.downloadTemplates(ctx)
-		require.NoError(t, err)
-		assert.Empty(t, templates)
-		assert.Empty(t, svc.GetTemplates())
-	})
-}
-
 func TestTemplateValidation(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	platformClient, err := platform.NewClient(db, devPlatformAddress)
-	require.NoError(t, err)
 
 	t.Run("create a template with missing param", func(t *testing.T) {
 		t.Parallel()
@@ -208,7 +132,7 @@ templates:
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
 
-		svc, err := NewService(db, platformClient, nil)
+		svc, err := NewService(db, nil)
 		require.NoError(t, err)
 		resp, err := svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{
 			Yaml: templateWithMissingParam,
@@ -299,7 +223,7 @@ templates:
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
 
-		svc, err := NewService(db, platformClient, nil)
+		svc, err := NewService(db, nil)
 		require.NoError(t, err)
 		createResp, err := svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{
 			Yaml: validTemplate,
