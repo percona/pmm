@@ -50,7 +50,7 @@ func (s *services) Add(service LeaderService) error {
 
 	id := service.ID()
 	if _, ok := s.all[id]; ok {
-		return fmt.Errorf("service with id %s is already exist", id)
+		return fmt.Errorf("service with id %s already exists", id)
 	}
 	s.all[id] = service
 	select {
