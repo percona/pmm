@@ -41,6 +41,7 @@ jobs:
       PMM_DEV_OAUTH_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       PMM_DEV_OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
       BUILD_CACHE: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'v3' }} # change to `main` once v3 goes GA
+      PMM_CONTAINER: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code
