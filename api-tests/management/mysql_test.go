@@ -920,7 +920,7 @@ func TestRemoveMySQL(t *testing.T) {
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Mysql.Service)
 		serviceID = addMySQLOK.Payload.Mysql.Service.ServiceID
-		return //nolint:nakedret
+		return nodeID, pmmAgentID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {
