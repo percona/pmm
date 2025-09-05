@@ -159,7 +159,7 @@ build_rpm(){
 
 build_source_deb(){
   apt-get update
-  apt-get -y install git lsb-release devscripts dh-make dh-systemd
+  apt-get -y install git lsb-release devscripts dh-make
 
   rm -rf pmm-client*
   rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
@@ -195,6 +195,7 @@ build_source_deb(){
   mv queries-mysqld-group-replication.yml ../"${NAME}-${VERSION}"_all/distro/
   mv example-queries-postgres.yml ../"${NAME}-${VERSION}"_all/distro/
   mv queries-postgres-uptime.yml ../"${NAME}-${VERSION}"_all/distro/
+  mv queries-hr.yaml ../"${NAME}-${VERSION}"_all/distro/
   mv queries-mr.yaml ../"${NAME}-${VERSION}"_all/distro/
   mv queries-lr.yaml ../"${NAME}-${VERSION}"_all/distro/
   mv debian ../"${NAME}-${VERSION}"_all/

@@ -3,7 +3,7 @@
 . "$(dirname "$0")/vars"
 
 main() {
-  local IMAGE=${1:-ubuntu:focal}
+  local IMAGE=${1:-ubuntu:jammy}
   docker run --rm \
     -e DEBIAN_FRONTEND=noninteractive \
     -e PMM_VERSION="${pmm_version}" \
