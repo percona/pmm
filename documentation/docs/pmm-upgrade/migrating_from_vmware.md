@@ -10,6 +10,7 @@ Before starting the migration:
 - Check for sufficient storage space for backups (at least 2x your current `/srv` directory size)
 - Note your current PMM Server IP address and configuration
 - Plan a maintenance window for the migration (typically 2-4 hours depending on data size)
+- For OpenShift migrations, verify you have cluster-admin privileges and appropriate security context constraints (SCCs)
 
 To migrate from VMware:
 {.power-number}
@@ -59,7 +60,7 @@ To migrate from VMware:
 
     === "Migrate to VirtualBox (minimal changes)"
 
-    Best if you prefer virtual machine deployments.
+    Best if you prefer virtual machine deployments with minimal infrastructure changes.
     {.power-number}
 
     1. Export VM configuration from VMware via **File > Export to OVF**.
@@ -156,7 +157,7 @@ To migrate from VMware:
     ```
     === "Migrate to Podman"
 
-    Best for environments that need rootless containers and enhanced security.
+    Best for environments that need rootless containers and enhanced security without Docker dependencies.
     {.power-number}
 
     1. Install Podman:
@@ -197,7 +198,7 @@ To migrate from VMware:
 
     === "Migrate to Kubernetes with Helm"
 
-    Best for cloud-native environments with orchestration requirements.
+    Best for cloud-native environments with orchestration requirements and standard Kubernetes clusters.
     {.power-number}
 
     1. Create Kubernetes namespace and secret
@@ -250,8 +251,71 @@ To migrate from VMware:
         kubectl exec -n pmm $PMM_POD -- sh -c "cd / && tar -xzf /tmp/pmm-backup-*.tar.gz"
         kubectl exec -n pmm $PMM_POD -- supervisorctl start all
     ```
+    
+    === "Migrate to OpenShift with Helm"
 
-## Post-migration tasks
+    Best for enterprise OpenShift environments with enhanced security policies and integrated developer tools.
+    {.power-number}
+
+    1. Create OpenShift project and secret: 
+    ```bash
+    oc new-project pmm
+
+    # Create secret with admin password
+    oc create secret generic pmm-secret \
+    --from-literal=PMM_ADMIN_PASSWORD=<your-password> \
+    -n pmm
+    ```
+
+    2. Add Percona Helm repository:
+    ```bash
+    helm repo add percona https://percona.github.io/percona-helm-charts/
+    helm repo update
+    ```
+
+    3. Create OpenShift-specific values file:
+    ```yaml    
+    # openshift-values.yaml
+    storage:
+      size: 100Gi
+      storageClass: "gp2"  # Adjust to your OpenShift storage class
+
+    service:
+      type: ClusterIP  # Use Routes instead of LoadBalancer
+
+    secret:
+      create: false
+      name: pmm-secret
+    # OpenShift-specific pod security settings
+    podSecurityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    ```
+    4. Deploy PMM with OpenShift configuration:
+    ```bash
+    helm install pmm percona/pmm \
+    -f openshift-values.yaml \
+    -n pmm
+    ```
+    5. Create Route to expose PMM:
+    ```bash
+    oc expose svc/pmm-service --port=443
+    ```
+    6. Restore backup to OpenShift:
+    # Get the PMM pod name
+    PMM_POD=$(oc get pods -n pmm -l app.kubernetes.io/name=pmm -o jsonpath='{.items[0].metadata.name}')
+
+    # Copy backup to pod
+    oc cp pmm-backup-*.tar.gz pmm/$PMM_POD:/tmp/
+
+    # Stop services and restore
+    oc exec -n pmm $PMM_POD -- supervisorctl stop all
+    oc exec -n pmm $PMM_POD -- sh -c "cd / && tar -xzf /tmp/pmm-backup-*.tar.gz"
+    oc exec -n pmm $PMM_POD -- supervisorctl start all
+    ```
+
+## Post-migration checks
 Verify that all components are functioning correctly before decommissioning the old VMware instance. This ensures data integrity, restores custom configurations, and updates all connected systems to use the new PMM server.
 {.power-number}
 
