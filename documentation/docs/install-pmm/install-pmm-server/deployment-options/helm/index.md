@@ -62,7 +62,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 3. Add the Percona repository and check available PMM versions:
 
     ```bash
-    helm repo add percona [https://percona.github.io/percona-helm-charts/](https://percona.github.io/percona-helm-charts/)
+    helm repo add percona https://percona.github.io/percona-helm-charts
     helm repo update
     ```
 
