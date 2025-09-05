@@ -1,0 +1,64 @@
+---
+checks:
+  - version: 2
+    name: mongodb_oplog_size_recommendation
+    summary: MongoDB - Oplog Recovery Window is low. Please consider resizing your oplog according to the provided recommendation.
+    description: This check returns a warning if the oplog window is below a 24 hour period and offers a recommended oplog size based on your instance.
+    interval: standard
+    family: MONGODB
+    advisor: performance_replication
+    #author: Parag Bhayani
+    queries:
+      - type: MONGODB_GETDIAGNOSTICDATA
+      - type: METRICS_RANGE
+        query: avg by(cluster,node_name) ((mongodb_mongod_replset_oplog_head_timestamp{node_name=~"{{.NodeName}}"} - mongodb_mongod_replset_oplog_tail_timestamp{node_name=~"{{.NodeName}}"}) / 3600)
+        parameters:
+          range: 24h
+          step: 15m
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check(docs):
+          info = docs[0]
+          results = []
+          window = []
+          window_sum = 0
+          window_total = 0
+
+          for row in info:
+              #Calculate the configured Oplog size(GB), 95% of configured Oplog size(GB) & current Oplog size(GB)
+              oplog_size = row["data"]["local.oplog.rs.stats"]["maxSize"]
+              oplog_size_GB = float(float(oplog_size) / (1024*1024*1024))
+              oplog_size_GB_95per = float(oplog_size_GB * 0.95)
+              oplog_curr_size = row["data"]["local.oplog.rs.stats"]["size"]
+              oplog_curr_size_GB = float(float(oplog_curr_size) / (1024*1024*1024))
+
+          for type in docs[1][0]["values"]:
+              window.append(type[1])
+              print(repr(window))
+              window_sum = float(window_sum) + float(type[1])
+              window_total = int(window_total) + 1
+
+          #Calculate the average Oplog Window for last 8hrs with 5m step
+          window_avg = float(float(window_sum) / int(window_total))
+
+          #Calculate the average Oplog GB/Hr for last 8hrs
+          oplog_rate_avg = float(oplog_size_GB) / float(window_avg)
+
+          if float(oplog_curr_size_GB) > float(oplog_size_GB_95per) and float(window_avg) < 24:
+              oplog_recomm_size_24 = float(oplog_rate_avg) * 24
+              oplog_recomm_size_48 = float(oplog_rate_avg) * 48
+
+              return({
+                  "summary": "The current average Oplog window is less than 24hrs. Please reconfigure your oplog according to the recommendation provided in the description.",
+                  "description": "Your current Oplog size is {} GB. It does not meet the minimum recommended Recovery Window of 24 hours. Best practice calls for a 48 hour window. Below are the calculations to maintain an Oplog that supports a 24 to 48 hour window. It is strongly recommended to reconfigure the Oplog size. For more information on Oplog sizing, please check the Read More documentation. For 24 hrs, min. Oplog Size - {} GB. For 48 hrs, min. Oplog Size - {} GB.".format(oplog_curr_size_GB, oplog_recomm_size_24, oplog_recomm_size_48),
+                  "read_more_url": read_url.format("mongodb-oplog-sizing"),
+                  "severity": "warning",
+              })
+
+      def check_context(docs, context):
+          results = []
+          check_result = check(docs)
+          if check_result:
+              results.append(check_result)
+          return results

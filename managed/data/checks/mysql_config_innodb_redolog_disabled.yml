@@ -1,0 +1,42 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_innodb_redolog_disabled
+    summary: Redo log is disabled in this instance
+    description: The MySQL InnoDB Redo log, is one of the core components to fulfil the ACID paradigm in MySQL. This element is currently OFF, the setting is highly insecure.
+    interval: standard
+    advisor: configuration_innodb
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service/*!80021 ,(select variable_value from performance_schema.global_status where lower(variable_name) = 'innodb_redo_log_enabled') as redolog */;"
+    script: |
+      def innodb_redolog_disabled(doc,read_url):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            redolog = row["redolog"]
+
+            if redolog == "OFF":
+               return {
+                 "summary": "Redo log is disabled in this instance",
+                 "description": "The MySQL InnoDB Redo log, is one of the core components to fulfil the ACID paradigm in MySQL. This element is currently OFF, the setting is highly insecure. Current settings = {} ;".format(redolog),
+                 "severity": "error",
+                 "read_more_url": read_url.format("mysql-innodb-redolog-disabled"),
+                 "labels": {
+                    "mysql_version": "{}".format(version),
+                     "service": "{}".format(service),
+                    }
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = innodb_redolog_disabled(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

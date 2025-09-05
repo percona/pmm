@@ -1,0 +1,36 @@
+---
+checks:
+  - version: 2
+    name: postgresql_number_of_index_check
+    summary: Check for relations have high number of indexes
+    description: This check will list relations with more than 10 indexes
+    interval: standard
+    family: POSTGRESQL
+    advisor: query_index
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: " current_database() AS datname, relname, count(*) AS idxcount FROM pg_stat_user_indexes GROUP BY 1,2 ORDER BY 3 DESC "
+        parameters:
+          all_dbs: true
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check_context(tuple, context):
+          results = []
+          for checkedDB, rows in tuple[0].items():
+              for row in rows:
+                datname = row["datname"]
+                relname = row["relname"]
+                idxcount = row["idxcount"]
+
+                # Cant get rid of decimal point without formatting to index
+                idxcount = int(idxcount)
+
+                if int(idxcount) >= 10:
+                    results.append({
+                        "summary": "Relations with more than 10 indexes",
+                        "description": "The relation {}.{} has {} indexes".format(datname, relname, idxcount),
+                        "read_more_url":read_url.format("postgresql-high-number-of-indexes-check"),
+                        "severity": "warning",
+                    })
+
+          return results

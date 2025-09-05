@@ -1,0 +1,79 @@
+---
+checks:
+  - version: 1
+    name: postgresql_archiver_failing_1
+    summary: PostgreSQL Archiver is failing
+    description: This check verify if the archiver has failed.
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    #author: David Gonzales
+    advisor: configuration_generic
+    interval: standard
+    query: |
+      archived_count,
+      last_archived_wal,
+      to_char(last_archived_time AT TIME ZONE 'UTC','Mon, DD YYYY - HH24:MI:SS')::text AS last_archived_time,
+      coalesce(trunc(extract(EPOCH FROM (now() - last_archived_time))::numeric,0),0) AS sec_since_last_arch,
+      failed_count,
+      last_failed_wal,
+      to_char(last_failed_time AT TIME ZONE 'UTC','Mon, DD YYYY - HH24:MI:SS')::text AS last_failed_time,
+      coalesce(trunc(extract(EPOCH FROM (now() - last_failed_time))::numeric,0),0) AS sec_since_last_fail,
+      to_char(stats_reset AT TIME ZONE 'UTC','Mon, DD YYYY - HH24:MI:SS')::text AS stats_reset,
+      trunc(extract(EPOCH FROM (now() - stats_reset))::numeric,0) AS sec_since_stats_reset
+      FROM pg_stat_archiver
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      # threshold 24 hours = 86400 seconds
+      check_threshold = {
+          "seconds": 86400,
+          "hours": 24
+      }
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+      def check_context(rows, context):
+          # `rows` is a frozen (deeply immutable) list of dicts where each dict represents a single row in SQL result.
+          # `context` is a dict with additional functions.
+          #
+          # Global `print` and `fail` functions are available.
+          #
+          # `check_context` function is expected to return a list of dicts that are then converted to alerts;
+          # in particular, that list can be empty.
+          # Any other value (for example, string) is treated as script execution failure
+          # (Starlark does not support Python exceptions);
+          # it is recommended to use global function `fail` for that instead.
+          """
+          This check verifies the archiver stats and alerts if it has had failed execution within the last 24 hours.
+          There is no need to run this command more than once per database cluster.
+          This check returns error if the archiver is failing since the last succesful run.
+          This check returns warning if the archiver is currently working but has failed in the last 24 hours.
+          Error is returned if for any reason there are no results from query.
+          """
+          results = []
+          # extract information from variables
+          for row in rows:
+              failed, last_failed, last_fail_time, sec_since_last_fail = int(row["failed_count"]), row["last_failed_wal"], row["last_failed_time"], int(row["sec_since_last_fail"])
+              archived, last_archived, last_arch_time, sec_since_last_arch = int(row["archived_count"]), row["last_archived_wal"], row["last_archived_time"], int(row["sec_since_last_arch"])
+              if failed > 0:
+                  if sec_since_last_fail < sec_since_last_arch:
+                      results.append({
+                          "summary": "WAL archiver is failing",
+                          "description": "Last failing WAL is {} at {} UTC, the last sucessful archived was at {} UTC".format(last_failed, last_fail_time, last_arch_time),
+                          "read_more_url": read_url.format("performance-pg-archiver-failing"),
+                          "severity": "error"
+                      })
+                  elif sec_since_last_fail < check_threshold["seconds"]:
+                      results.append({
+                          "summary": "WAL archiver has failed in the last {} hours".format(check_threshold["hours"]),
+                          "description": "The last archiver failure was at {} UTC".format(last_fail_time),
+                          "read_more_url": read_url.format("performance-pg-archiver-failing"),
+                          "severity": "warning"
+                      })
+          return results
