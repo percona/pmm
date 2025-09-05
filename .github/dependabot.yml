@@ -3,6 +3,7 @@ version: 2
 updates:
   - package-ecosystem: "gomod"
     directory: "/"
+    target-branch: "main"
     schedule:
       interval: "daily"
     ignore:
@@ -11,6 +12,7 @@ updates:
 
   - package-ecosystem: "gomod"
     directory: "/tools"
+    target-branch: "main"
     schedule:
       interval: "daily"
     ignore:
@@ -19,6 +21,7 @@ updates:
 
   - package-ecosystem: "gomod"
     directory: "/api-tests/tools"
+    target-branch: "main"
     schedule:
       interval: "daily"
     ignore:
@@ -27,26 +30,31 @@ updates:
 
   - package-ecosystem: "docker"
     directory: "/"
+    target-branch: "main"
     schedule:
       interval: "daily"
       
   - package-ecosystem: "docker"
     directory: "/build/docker/client"
+    target-branch: "main"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "docker"
     directory: "/build/docker/rpmbuild"
+    target-branch: "main"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "docker"
     directory: "/build/docker/server"
+    target-branch: "main"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "github-actions"
     directory: "/"
+    target-branch: "main"
     schedule:
       interval: "daily"
 
