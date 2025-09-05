@@ -102,7 +102,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					PMMAgentID:                  pmmAgentID,
 					AzureDatabaseSubscriptionID: "azure_subscription_id",
 					Disabled:                    true,
-					Status:                      &AgentStatusUnknown,
+					Status:                      &AgentStatusDone,
 					LogLevel:                    pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 					CustomLabels:                map[string]string{},
 				},
@@ -136,7 +136,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					CustomLabels: map[string]string{
 						"new_label": "azure_database_exporter",
 					},
-					Status:   &AgentStatusUnknown,
+					Status:   &AgentStatusDone,
 					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
