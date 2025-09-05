@@ -74,15 +74,16 @@ func (s *ManagementService) addHAProxy(ctx context.Context, req *managementv1.Ad
 		}
 
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID: nodeID,
-			ServiceID:    service.ServiceID,
-			Username:     req.Username,
-			Password:     req.Password,
-			Scheme:       req.Scheme,
-			MetricsPath:  req.MetricsPath,
-			ListenPort:   req.ListenPort,
-			CustomLabels: req.CustomLabels,
-			PushMetrics:  isPushMode(req.MetricsMode),
+			RunsOnNodeID:  nodeID,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			Scheme:        req.Scheme,
+			MetricsPath:   req.MetricsPath,
+			ListenPort:    req.ListenPort,
+			CustomLabels:  req.CustomLabels,
+			PushMetrics:   isPushMode(req.MetricsMode),
+			TLSSkipVerify: req.TlsSkipVerify,
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

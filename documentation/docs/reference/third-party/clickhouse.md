@@ -10,7 +10,7 @@ PMM predefines certain flags that allow you to use ClickHouse parameters as envi
 To use ClickHouse as an external database instance, provide the following environment variables: 
  
 `PMM_CLICKHOUSE_ADDR` -> hostname:port
-:   Hostname and port of the external ClickHouse database.
+:   Name of the host and port of the external ClickHouse database instance. 
 
 `PMM_CLICKHOUSE_HOST` -> hostname
 :   Hostname of the external ClickHouse database.
@@ -31,7 +31,7 @@ To use ClickHouse as an external database instance, provide the following enviro
 
 `PMM_CLICKHOUSE_DATABASE` -> database name
 :   Database name of the external ClickHouse database instance.
-
+ 
 **Example**
 
 To use ClickHouse as an external database instance, run PMM in docker or podman with the specified variables for external ClickHouse:

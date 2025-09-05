@@ -27,6 +27,8 @@ import (
 const (
 	// MongodbQuerySourceProfiler defines available source name for profiler.
 	MongodbQuerySourceProfiler = "profiler"
+	// MongodbQuerySourceMongolog defines available source name for profiler.
+	MongodbQuerySourceMongolog = "mongolog"
 	// MongodbQuerySourceNone defines available source name for profiler.
 	MongodbQuerySourceNone = "none"
 )
@@ -69,7 +71,7 @@ type AddMongoDBCommand struct {
 	SkipConnectionCheck           bool              `help:"Skip connection check"`
 	MaxQueryLength                int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	TLS                           bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify                 bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify                 bool              `help:"Skip TLS certificate verification"`
 	TLSCertificateKeyFile         string            `help:"Path to TLS certificate PEM file"`
 	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
 	TLSCaFile                     string            `help:"Path to certificate authority file"`
@@ -122,7 +124,7 @@ func (cmd *AddMongoDBCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -175,6 +177,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				AgentPassword:  cmd.AgentPassword,
 
 				QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,
+				QANMongodbMongolog: cmd.QuerySource == MongodbQuerySourceMongolog,
 
 				CustomLabels:                  customLabels,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,

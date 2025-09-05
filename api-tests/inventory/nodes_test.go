@@ -399,12 +399,13 @@ func TestRemoveNode(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, []*services.ListServicesOKBodyMysqlItems0{
 			{
-				NodeID:       node.Generic.NodeID,
-				ServiceID:    serviceID,
-				Address:      "localhost",
-				Port:         3306,
-				ServiceName:  serviceName,
-				CustomLabels: map[string]string{},
+				NodeID:         node.Generic.NodeID,
+				ServiceID:      serviceID,
+				Address:        "localhost",
+				Port:           3306,
+				ServiceName:    serviceName,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, listAgentsOK.Payload.Mysql)
 
@@ -435,7 +436,6 @@ func TestRemoveNode(t *testing.T) {
 			Mysql:      make([]*services.ListServicesOKBodyMysqlItems0, 0),
 			Mongodb:    make([]*services.ListServicesOKBodyMongodbItems0, 0),
 			Postgresql: make([]*services.ListServicesOKBodyPostgresqlItems0, 0),
-			Valkey:     make([]*services.ListServicesOKBodyValkeyItems0, 0),
 			Proxysql:   make([]*services.ListServicesOKBodyProxysqlItems0, 0),
 			Haproxy:    make([]*services.ListServicesOKBodyHaproxyItems0, 0),
 			External:   make([]*services.ListServicesOKBodyExternalItems0, 0),

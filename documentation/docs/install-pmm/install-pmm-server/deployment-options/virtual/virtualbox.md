@@ -135,4 +135,3 @@ After successfully importing and starting the PMM Server VM:
 
 - Open a web browser and navigate to `https://<vm-ip-address>`
 - [Complete initial login and setup](login_UI.md)
-- [Register PMM Clients](../../../register-client-node/index.md) to begin monitoring

@@ -34,8 +34,15 @@ release:                        ## Build static pmm-agent release binary (Linux 
 	$(PMM_RELEASE_PATH)/pmm-agent --version
 	ldd $(PMM_RELEASE_PATH)/pmm-agent 2>&1 | grep -Fq 'not a dynamic executable'
 
+release-gssapi:                 ## Build dynamic pmm-agent release binary (for GSSAPI support)
+	CGO_ENABLED=1 go build -v -ldflags "$(VERSION_FLAGS)" -tags 'osusergo netgo gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent
+	$(PMM_RELEASE_PATH)/pmm-agent --version
+
 release-dev:
 	CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
+
+release-dev-gssapi:
+	CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -tags 'gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent-gssapi
 
 gen: clean                      ## Generate files
 	go generate ./...
@@ -109,9 +116,12 @@ _run:
 ENV_UP_FLAGS ?= --force-recreate --renew-anon-volumes --remove-orphans
 
 env-up:                         ## Start development environment
-	# to make slowlog rotation tests work
 	rm -fr testdata
+	# to make slowlog rotation tests work
 	mkdir -p testdata/mysql/slowlogs
+	# to make mongolog tests work
+	mkdir -p testdata/mongo/var/log/mongodb
+	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
 	chmod -R 0777 testdata
 
 	docker compose up $(ENV_UP_FLAGS)

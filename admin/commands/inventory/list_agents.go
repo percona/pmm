@@ -31,9 +31,9 @@ import (
 var listAgentsResultT = commands.ParseTemplate(`
 Agents list.
 
-{{ printf "%-29s" "Agent type" }} {{ printf "%-15s" "Status" }} {{ printf "%-39s" "Agent ID" }} {{ printf "%-39s" "PMM-Agent ID" }} {{ printf "%-38s" "Service ID" }} {{ printf "%-20s" "Port" }}
+{{ printf "%-30s" "Agent type" }} {{ printf "%-15s" "Status" }} {{ printf "%-39s" "Agent ID" }} {{ printf "%-39s" "PMM-Agent ID" }} {{ printf "%-38s" "Service ID" }} {{ printf "%-20s" "Port" }}
 {{ range .Agents }}
-{{- printf "%-29s" .HumanReadableAgentType }} {{ printf "%-15s" .NiceAgentStatus }} {{ printf "%-38s" .AgentID }}  {{ printf "%-38s" .PMMAgentID }}  {{ printf "%-38s" .ServiceID }} {{ .Port }}
+{{- printf "%-30s" .HumanReadableAgentType }} {{ printf "%-15s" .NiceAgentStatus }} {{ printf "%-38s" .AgentID }}  {{ printf "%-38s" .PMMAgentID }}  {{ printf "%-38s" .ServiceID }} {{ .Port }}
 {{ end }}
 `)
 
@@ -47,6 +47,7 @@ var acceptableAgentTypes = map[string][]string{
 	types.AgentTypeQANMySQLPerfSchemaAgent:         {types.AgentTypeName(types.AgentTypeQANMySQLPerfSchemaAgent), "qan-mysql-perfschema-agent"},
 	types.AgentTypeQANMySQLSlowlogAgent:            {types.AgentTypeName(types.AgentTypeQANMySQLSlowlogAgent), "qan-mysql-slowlog-agent"},
 	types.AgentTypeQANMongoDBProfilerAgent:         {types.AgentTypeName(types.AgentTypeQANMongoDBProfilerAgent), "qan-mongodb-profiler-agent"},
+	types.AgentTypeQANMongoDBMongologAgent:         {types.AgentTypeName(types.AgentTypeQANMongoDBMongologAgent), "qan-mongodb-mongolog-agent"},
 	types.AgentTypeQANPostgreSQLPgStatementsAgent:  {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatementsAgent), "qan-postgresql-pgstatements-agent"},
 	types.AgentTypeQANPostgreSQLPgStatMonitorAgent: {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatMonitorAgent), "qan-postgresql-pgstatmonitor-agent"},
 	types.AgentTypeRDSExporter:                     {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},

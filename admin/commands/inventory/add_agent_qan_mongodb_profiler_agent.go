@@ -56,7 +56,7 @@ type AddAgentQANMongoDBProfilerAgentCommand struct {
 	MaxQueryLength                int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples          bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                           bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify                 bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify                 bool              `help:"Skip TLS certificate verification"`
 	TLSCertificateKeyFile         string            `help:"Path to TLS certificate PEM file"`
 	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
 	TLSCaFile                     string            `help:"Path to certificate authority file"`
@@ -67,7 +67,7 @@ type AddAgentQANMongoDBProfilerAgentCommand struct {
 
 // RunCmd executes the AddAgentQANMongoDBProfilerAgentCommand and returns the result.
 func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {

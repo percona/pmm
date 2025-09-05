@@ -110,6 +110,9 @@ func (s *Service) Run(ctx context.Context) error {
 	}()
 
 	if !s.params.Enabled {
+		s.l.Infoln("High availability is disabled")
+		s.services.Wait()
+		s.wg.Wait()
 		return nil
 	}
 

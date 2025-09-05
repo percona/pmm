@@ -56,7 +56,7 @@ type AddAgentMongodbExporterCommand struct {
 	CustomLabels                  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck           bool              `help:"Skip connection check"`
 	TLS                           bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify                 bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify                 bool              `help:"Skip TLS certificate verification"`
 	TLSCertificateKeyFile         string            `help:"Path to TLS certificate PEM file"`
 	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
 	TLSCaFile                     string            `help:"Path to certificate authority file"`
@@ -71,7 +71,7 @@ type AddAgentMongodbExporterCommand struct {
 
 // RunCmd executes the AddAgentMongodbExporterCommand and returns the result.
 func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {

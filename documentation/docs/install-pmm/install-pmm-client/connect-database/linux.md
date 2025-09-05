@@ -1,32 +1,21 @@
 # Connect Linux databases to PMM
 
-
-## Supported Linux Distributions
+## Supported Linux distributions
 
 PMM Client supports collecting system metrics from various Linux distributions:
 
 - Red Hat/CentOS/Oracle Linux 8 and 9
 - Amazon Linux 2023 (native support added in PMM 3.2.0)
 - Debian 11 (Bullseye) and 12 (Bookworm)
-- Ubuntu 20.04 (Focal), 22.04 (Jammy), and 24.04 (Noble)
+- Ubuntu 22.04 (Jammy) and 24.04 (Noble)
 
 ## Add Linux monitoring
 
 When you register a node using the PMM Client, system metrics collection is enabled by default:
 
-=== "Via command line"
-    ```bash
-    pmm-admin config --server-url=https://admin:admin@pmm-server-ip:443
-    ```
-
-=== "Via web UI"
-    To configure monitoring via the web user interface:
-    {.power-number}
-
-    1. Navigate to **PMM Configuration > PMM Inventory > Add Service**.
-    2. Select **Linux > Add a new Linux instance**.
-    3. Complete the required fields.
-    4. Click **Add Service**.
+```bash
+pmm-admin config --server-url=https://admin:admin@pmm-server-ip:443
+```
 
 ## Viewing Linux metrics
 
@@ -48,6 +37,5 @@ To view collected Linux metrics:
 ## Related topics
 
 - [Install PMM Client](../../install-pmm-client/index.md)
-- [Register a PMM Client](../connect-database/../../register-client-node/index.md)
 - [Operating System dashboard reference](../../../reference/dashboards/dashboard-node-summary.md)
 - [Troubleshooting PMM](../../../troubleshoot/index.md)

@@ -36,9 +36,9 @@ func (*ProxySQLExporter) sealedAgent()                {}
 func (*QANMySQLPerfSchemaAgent) sealedAgent()         {}
 func (*QANMySQLSlowlogAgent) sealedAgent()            {}
 func (*QANMongoDBProfilerAgent) sealedAgent()         {}
+func (*QANMongoDBMongologAgent) sealedAgent()         {}
 func (*QANPostgreSQLPgStatementsAgent) sealedAgent()  {}
 func (*QANPostgreSQLPgStatMonitorAgent) sealedAgent() {}
 func (*RDSExporter) sealedAgent()                     {}
 func (*ExternalExporter) sealedAgent()                {}
 func (*AzureDatabaseExporter) sealedAgent()           {}
-func (*ValkeyExporter) sealedAgent()                  {}

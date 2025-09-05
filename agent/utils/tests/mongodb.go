@@ -56,7 +56,7 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv
 		tb.Skip("-short flag is passed, skipping test with real database.")
 	}
 
-	dsn := "mongodb://localhost:27018/admin/?ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
+	dsn := "mongodb://localhost:27018/admin/?tls=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
 
 	caFile, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "ca.crt")) //nolint:gosec
 	require.NoError(tb, err)
@@ -82,7 +82,7 @@ func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (strin
 		tb.Skip("-short flag is passed, skipping test with real database.")
 	}
 
-	dsn := "mongodb://localhost:27022,localhost:27023/admin/?ssl=true&tlsCaFile=" +
+	dsn := "mongodb://localhost:27022,localhost:27023/admin/?tls=true&tlsCaFile=" +
 		"{{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
 
 	caFile, err := os.ReadFile(filepath.Join(filepath.Clean(pathToRoot), "utils/tests/testdata/", "mongodb/", "ca.crt"))

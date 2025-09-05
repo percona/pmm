@@ -57,7 +57,7 @@ type AddProxySQLCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
@@ -102,7 +102,7 @@ func (cmd *AddProxySQLCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)

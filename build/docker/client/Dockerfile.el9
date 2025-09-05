@@ -6,20 +6,18 @@ RUN dnf install -y shadow-utils jq tar https://repo.percona.com/yum/percona-rele
 
 # Install required dependencies into the installation root
 RUN dnf install -y \
-  perl-core \
-  perl-DBD-MySQL \
-  perl-DBI \
-  perl-Digest-MD5 \
-  perl-English \
-  perl-FindBin \
-  perl-IO-Socket-SSL \
-  perl-Sys-Hostname \
-  perl-TermReadKey \
-  perl-Time-HiRes \
-  perl-sigtrap \
-  && rm -rf /var/cache/*
-  
-RUN ls -R /usr/bin  
+    perl-core \
+    perl-DBD-MySQL \
+    perl-DBI \
+    perl-Digest-MD5 \
+    perl-English \
+    perl-FindBin \
+    perl-IO-Socket-SSL \
+    perl-Sys-Hostname \
+    perl-TermReadKey \
+    perl-Time-HiRes \
+    perl-sigtrap \
+    && rm -rf /var/cache/*
 
 RUN groupadd -g 1002 pmm-agent && \
     useradd -u 1002 -r -g pmm-agent -s /sbin/nologin \

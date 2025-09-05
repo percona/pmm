@@ -57,6 +57,10 @@ gen:            ## Generate PMM API
 		platform/v1/json/v1.json
 	../bin/swagger validate swagger/swagger.json
 
+	# It looks like the order is already correct, so no need to run this
+	# TODO: check if swagger-order can be removed
+	# ../bin/swagger-order --output=swagger/swagger.json swagger/swagger.json
+
 	# generate API spec with all PMM Server APIs (omit agentlocal)
 	../bin/swagger mixin --output=swagger/swagger-dev.json \
 		swagger/header-dev.json \
@@ -74,6 +78,9 @@ gen:            ## Generate PMM API
 		platform/v1/json/v1.json
 
 	../bin/swagger validate swagger/swagger-dev.json
+
+	# It looks like the order is already correct, so no need to run this
+	# ../bin/swagger-order --output=swagger/swagger-dev.json swagger/swagger-dev.json
 
 format:               ## Format API definitions
 	../bin/buf format . -w

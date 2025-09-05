@@ -268,7 +268,10 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 	var row *models.Agent
 	var agent *inventoryv1.MySQLdExporter
 
-	mysqlOptions := models.MySQLOptionsFromRequest(p)
+	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
+	if err != nil {
+		return nil, err
+	}
 	mysqlOptions.TableCountTablestatsGroupLimit = p.TablestatsGroupTableLimit
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -443,6 +446,10 @@ func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, agentID stri
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANMySQLPerfSchemaAgent
+	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
+	if err != nil {
+		return nil, err
+	}
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:    p.PmmAgentId,
@@ -457,7 +464,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 				QueryExamplesDisabled:   p.DisableQueryExamples,
 				CommentsParsingDisabled: p.DisableCommentsParsing,
 			},
-			MySQLOptions: models.MySQLOptionsFromRequest(p),
+			MySQLOptions: mysqlOptions,
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
@@ -523,6 +530,10 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, agen
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
 func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANMySQLSlowlogAgent
+	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
+	if err != nil {
+		return nil, err
+	}
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
 		maxSlowlogFileSize := p.MaxSlowlogFileSize
@@ -544,7 +555,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 				CommentsParsingDisabled: p.DisableCommentsParsing,
 				MaxQueryLogSize:         maxSlowlogFileSize,
 			},
-			MySQLOptions: models.MySQLOptionsFromRequest(p),
+			MySQLOptions: mysqlOptions,
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)
@@ -769,6 +780,88 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, agen
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_QanMongodbProfilerAgent{
 			QanMongodbProfilerAgent: agent,
+		},
+	}
+	return res, nil
+}
+
+// AddQANMongoDBMongologAgent adds MongoDB Mongolog QAN Agent.
+func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBMongologAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.QANMongoDBMongologAgent
+
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			QANOptions: models.QANOptions{
+				MaxQueryLength: p.MaxQueryLength,
+				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
+			},
+			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
+			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		}
+		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBMongologAgentType, params)
+		if err != nil {
+			return err
+		}
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+		}
+
+		aa, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		agent = aa.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_QanMongodbMongologAgent{
+			QanMongodbMongologAgent: agent,
+		},
+	}
+
+	return res, e
+}
+
+// ChangeQANMongoDBMongologAgent updates MongoDB Mongolog QAN Agent with given parameters.
+//
+//nolint:lll,dupl
+func (as *AgentsService) ChangeQANMongoDBMongologAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMongoDBMongologAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	common := &commonAgentParams{
+		Enable:             p.Enable,
+		EnablePushMetrics:  p.EnablePushMetrics,
+		CustomLabels:       p.CustomLabels,
+		MetricsResolutions: p.MetricsResolutions,
+	}
+	ag, err := as.changeAgent(ctx, agentID, common)
+	if err != nil {
+		return nil, err
+	}
+
+	agent := ag.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanMongodbMongologAgent{
+			QanMongodbMongologAgent: agent,
 		},
 	}
 	return res, nil
@@ -1099,15 +1192,16 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 	)
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID: p.RunsOnNodeId,
-			ServiceID:    p.ServiceId,
-			Username:     p.Username,
-			Password:     p.Password,
-			Scheme:       p.Scheme,
-			MetricsPath:  p.MetricsPath,
-			ListenPort:   p.ListenPort,
-			CustomLabels: p.CustomLabels,
-			PushMetrics:  p.PushMetrics,
+			RunsOnNodeID:  p.RunsOnNodeId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			Scheme:        p.Scheme,
+			MetricsPath:   p.MetricsPath,
+			ListenPort:    p.ListenPort,
+			CustomLabels:  p.CustomLabels,
+			PushMetrics:   p.PushMetrics,
+			TLSSkipVerify: p.TlsSkipVerify,
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

@@ -114,6 +114,7 @@ func TestExternalExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_external_exporter": "external_exporter",
 				},
+				TLSSkipVerify: true,
 			},
 		})
 		agentID := ExternalExporter.ExternalExporter.AgentID
@@ -136,6 +137,7 @@ func TestExternalExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_external_exporter": "external_exporter",
 				},
+				TLSSkipVerify: true,
 			},
 		}, getAgentRes.Payload)
 
@@ -154,15 +156,16 @@ func TestExternalExporter(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
-				AgentID:      agentID,
-				ServiceID:    serviceID,
-				RunsOnNodeID: genericNodeID,
-				Username:     "username",
-				Scheme:       "https",
-				MetricsPath:  "/metrics-hr",
-				ListenPort:   12345,
-				Disabled:     true,
-				CustomLabels: map[string]string{},
+				AgentID:       agentID,
+				ServiceID:     serviceID,
+				RunsOnNodeID:  genericNodeID,
+				Username:      "username",
+				Scheme:        "https",
+				MetricsPath:   "/metrics-hr",
+				ListenPort:    12345,
+				Disabled:      true,
+				CustomLabels:  map[string]string{},
+				TLSSkipVerify: true,
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -195,6 +198,7 @@ func TestExternalExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"new_label": "external_exporter",
 				},
+				TLSSkipVerify: true,
 			},
 		}, changeExternalExporterOK.Payload)
 	})

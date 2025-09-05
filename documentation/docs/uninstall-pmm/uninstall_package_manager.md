@@ -1,6 +1,19 @@
-# Uninstall PMM client using package manager
+# Uninstall PMM Client using package manager
 
-To uninstall PMM client with package manager, do the following steps:
+This removes PMM Client installed via system package managers (APT, YUM, etc.).
+
+!!! warning "Data loss warning"
+    This permanently removes PMM Server and all monitoring data. Ensure you have backed up any important data before uninstalling.
+
+
+## Prerequisites
+
+- [Unregister PMM Client](unregister_client.md) from PMM Server
+- Root or sudo access to the system
+
+## Uninstall steps
+
+To uninstall PMM client with package manager:
 
 === "Debian-based distributions"
 
@@ -10,13 +23,13 @@ To uninstall PMM client with package manager, do the following steps:
     1. Uninstall the PMM Client package.
 
         ```sh
-        apt remove -y pmm-client
+        sudo apt remove -y pmm-client
         ```
 
     2. Remove the Percona repository
 
         ```sh
-        dpkg -r percona-release
+        sudo dpkg -r percona-release
         ```
 
 === "Red Hat-based distributions"
@@ -27,11 +40,11 @@ To uninstall PMM client with package manager, do the following steps:
     1. Uninstall the PMM Client package.
 
         ```sh
-        yum remove -y pmm-client
+        sudo yum remove -y pmm-client
         ```
 
     2. Remove the Percona repository
 
         ```sh
-        yum remove -y percona-release
+        sudo yum remove -y percona-release
         ```

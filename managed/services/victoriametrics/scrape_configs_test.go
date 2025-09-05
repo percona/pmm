@@ -1345,6 +1345,7 @@ func TestScrapeConfig(t *testing.T) {
 					MetricsPath:   "/some-metric-path",
 					MetricsScheme: "https",
 				},
+				TLSSkipVerify: true,
 			}
 
 			expected := []*config.ScrapeConfig{{
@@ -1357,6 +1358,9 @@ func TestScrapeConfig(t *testing.T) {
 					BasicAuth: &config.BasicAuth{
 						Username: "username",
 						Password: "password",
+					},
+					TLSConfig: config.TLSConfig{
+						InsecureSkipVerify: true,
 					},
 				},
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{

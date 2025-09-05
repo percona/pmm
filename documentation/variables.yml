@@ -1,6 +1,6 @@
 # PMM Version for HTML
 # See also mkdocs.yml plugins.with-pdf.cover_subtitle and output_path
 
-release: '3.2.0'
-version: '3.2.0'
-release_date: 2025-05-29
+release: '3.3.0'
+version: '3.3.0'
+release_date: 2025-07-09

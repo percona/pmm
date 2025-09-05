@@ -99,5 +99,4 @@ After restoration, you'll have multiple PVCs in your cluster:
 ## Next steps
 
 - [Verify monitoring data](../../../../use/dashboard-inventory.md) in the restored PMM Server
-- [Reconnect PMM Clients](../../../register-client-node/index.md) if needed
 - [Configure backup schedule](backup_container_helm.md) for your restored environment

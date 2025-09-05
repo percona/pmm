@@ -41,7 +41,7 @@ LABEL org.opencontainers.image.version=${VERSION}
 LABEL org.opencontainers.image.source=https://github.com/percona/pmm/blob/v3/build/docker/server/Dockerfile.el9
 LABEL org.opencontainers.image.docs=https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/baremetal/docker/index.html
 
-USER pmm
+USER 1000
 
 VOLUME [ "/srv" ]
 

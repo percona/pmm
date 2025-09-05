@@ -23,6 +23,8 @@ import (
 	"time"
 
 	"github.com/percona/go-mysql/log"
+
+	"github.com/percona/pmm/agent/utils/filereader"
 )
 
 // Regular expressions to match important lines in slow log.
@@ -47,7 +49,7 @@ func isHeader(s string) bool {
 
 // A SlowLogParser parses a MySQL slow log.
 type SlowLogParser struct {
-	r    Reader
+	r    filereader.Reader
 	opts log.Options
 
 	stopErr     error
@@ -63,7 +65,7 @@ type SlowLogParser struct {
 }
 
 // NewSlowLogParser returns a new SlowLogParser that reads from the given reader.
-func NewSlowLogParser(r Reader, opts log.Options) *SlowLogParser {
+func NewSlowLogParser(r filereader.Reader, opts log.Options) *SlowLogParser {
 	if opts.StartOffset != 0 {
 		panic("StartOffset is not supported")
 	}

@@ -222,15 +222,13 @@ To develop custom checks for PMM:
 1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#).
 2. Run PMM Server with special environment variables:
 
-    - `PERCONA_TEST_CHECKS_FILE=/srv/custom-checks.yml` to use checks from the local files instead of downloading them from Percona Platform.
-    - `PERCONA_TEST_CHECKS_DISABLE_START_DELAY=true` to disable the default check execution start delay. This is currently set to one minute, so that checks run upon system start.
-    - `PERCONA_TEST_CHECKS_RESEND_INTERVAL=2s` to define the frequency for sending the SA-based alerts to Alertmanager.
+    - `PMM_DEV_ADVISOR_CHECKS_FILE=/srv/custom-checks.yml` to use checks from the local files instead of downloading them from Percona Platform.
+    - `PMM_ADVISORS_CHECKS_DISABLE_START_DELAY=true` to disable the default check execution start delay. This is currently set to one minute, so that checks run upon system start.
 
     ```sh
     docker run -p 443:8443 --name pmm-server \
-    -e PERCONA_TEST_CHECKS_FILE=/srv/custom-checks.yml \
-    -e PERCONA_TEST_CHECKS_DISABLE_START_DELAY=true \
-    -e PERCONA_TEST_CHECKS_RESEND_INTERVAL=2s \
+    -e PMM_DEV_ADVISOR_CHECKS_FILE=/srv/custom-checks.yml \
+    -e PMM_ADVISORS_CHECKS_DISABLE_START_DELAY=true \
     perconalab/pmm-server:3-dev-container
     ```
 
@@ -242,11 +240,11 @@ To develop custom checks for PMM:
 
 6. The checks will run according to the time interval defined on the UI. You can see the result of running the check on the home dashboard:
 
-    ![!](../images/HomeDashboard.png)
+    ![Home dashboard](../images/HomeDashboard.png)
 
 7. Click on the number of failed checks to open the Failed Checks dashboard:
 
-    ![!](../images/FailedChecks.png)
+    ![Failed advisor checks](../images/FailedChecks.png)
 
 8. Check out pmm-managed logs:
     ```sh

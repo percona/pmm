@@ -589,12 +589,13 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 	}
 
 	if pointer.GetString(params.agent.Username) != "" {
-		cfg.HTTPClientConfig = config.HTTPClientConfig{
-			BasicAuth: &config.BasicAuth{
-				Username: pointer.GetString(params.agent.Username),
-				Password: pointer.GetString(params.agent.Password),
-			},
+		cfg.HTTPClientConfig.BasicAuth = &config.BasicAuth{
+			Username: pointer.GetString(params.agent.Username),
+			Password: pointer.GetString(params.agent.Password),
 		}
+	}
+	if params.agent.TLSSkipVerify {
+		cfg.HTTPClientConfig.TLSConfig.InsecureSkipVerify = true
 	}
 
 	port := int(*params.agent.ListenPort)

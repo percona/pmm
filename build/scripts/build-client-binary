@@ -22,7 +22,7 @@ gobuild_component() {
   local result_file=${5:-bin/$(basename "${component_path:-$extract_path}")}
   local src_dir=/home/builder/build/source/pmm-client-${pmm_version}
   local bin_dir=/home/builder/build/binary/pmm-client-${pmm_version}
-  local archive build_command target pmm_release_fullcommit git_dir
+  local archive build_command target pmm_release_fullcommit git_dir gssapi
   local volume_mounts="-v ${build_dir}:/home/builder/build"
   volume_mounts+=" -v pmm-submodules:/app"
   volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
@@ -49,10 +49,16 @@ gobuild_component() {
     return
   fi
 
-  if [[ "${component}" =~ pmm-admin|pmm-agent ]]; then
+  if [ "${BUILD_TYPE}" = "dynamic" ]; then
+    gssapi="-gssapi"
+  fi
+
+  if [ "${component}" = pmm-admin ]; then
     build_command="NO_VCS=1 make -C /app/${git_dir}/${component_path} release"
+  elif [ "${component}" = pmm-agent ]; then
+    build_command="NO_VCS=1 make -C /app/${git_dir}/${component_path} release${gssapi:-}"
   elif [ "${component}" = mongodb_exporter ]; then
-    build_command="make -C /app/${git_dir} build"
+    build_command="make -C /app/${git_dir} build${gssapi:-}"
   elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
     build_command="make -C /app/${git_dir} release"
   elif [ "${component}" = percona-toolkit ]; then
@@ -152,6 +158,7 @@ main() {
   copy_component "mysqld_exporter" "queries-mysqld-group-replication.yml"
   copy_component "postgres_exporter" "example-queries-postgres.yml"
   copy_component "postgres_exporter" "queries-postgres-uptime.yml"
+  copy_component "postgres_exporter" "queries-hr.yaml"
   copy_component "postgres_exporter" "queries-mr.yaml"
   copy_component "postgres_exporter" "queries-lr.yaml"
   copy_component "percona-toolkit" "bin/pt-summary"
@@ -186,6 +193,16 @@ main() {
       echo -n "${s3_tarball_url}" > "${build_dir}/S3_TARBALL_URL"
     fi
   fi
+
+  # if [ "${BUILD_TYPE}" = "dynamic" ]; then
+  #     rm -f "${dynamic_binary_tarball}"
+  #     mkdir -p "$(dirname ${dynamic_binary_tarball})" || :
+  #     tar -C "$(dirname ${binary_dir})" -zcpf "${dynamic_binary_tarball}" "$(basename ${binary_dir})"
+  # else
+  #     rm -rf "${binary_tarball}"
+  #     mkdir -p "$(dirname ${binary_tarball})" || :
+  #     tar -C "$(dirname ${binary_dir})" -zcpf "${binary_tarball}" "$(basename ${binary_dir})"
+  # fi  
 }
 
 main

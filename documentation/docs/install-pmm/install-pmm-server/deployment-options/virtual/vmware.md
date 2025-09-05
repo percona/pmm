@@ -15,7 +15,7 @@ Import the PMM Server OVA file into VMware products including ESXi, vSphere, Wor
     To import downloaded file using the command-line interface:
     {.power-number}
 
-    1. Install [`ovftool`][OVFTool]. (You need to register.)
+    1. Install [`ovftool`][OVFTool]. You will need to register.
     2. Import and convert the OVA file using one of these methods:
 
         * To download and import the OVA file directly:
@@ -112,7 +112,6 @@ After successfully importing and starting the PMM Server VM:
 
 - Open a web browser and navigate to `https://<vm-ip-address>`
 - [Complete initial login and setup](login_UI.md)
-- [Register PMM Clients](../../../register-client-node/index.md) to begin monitoring
 
 !!! tip "Bookmarking"
     Save the PMM Server IP address or add it to your bookmarks for easy access. For production environments, consider configuring a static IP address or DNS name.
@@ -121,4 +120,4 @@ After successfully importing and starting the PMM Server VM:
 [OVF]: https://wikipedia.org/wiki/Open_Virtualization_Format
 [VirtualBox]: https://www.virtualbox.org/
 [VMware]: https://www.vmware.com/products/
-[OVFTool]: https://code.vmware.com/tool/ovf
+[OVFTool]: https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest

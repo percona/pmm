@@ -100,8 +100,6 @@ func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]invent
 			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE) //nolint:nosnakecase
 		case models.PostgreSQLServiceType:
 			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE) //nolint:nosnakecase
-		case models.ValkeyServiceType:
-			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE) //nolint:nosnakecase
 		case models.ProxySQLServiceType:
 			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE) //nolint:nosnakecase
 		case models.HAProxyServiceType:

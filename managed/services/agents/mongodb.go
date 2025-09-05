@@ -123,7 +123,7 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			}
 		}
 
-		collstatsLimit := int32(200) //nolint:gomnd // default limit
+		collstatsLimit := int32(200) //nolint:mnd // default limit
 		if exporter.MongoDBOptions.CollectionsLimit != -1 {
 			collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
 		}
@@ -162,6 +162,23 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent,
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
+		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
+		TextFiles: &agentv1.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+	}
+}
+
+// qanMongoDBMongologAgentConfig returns desired configuration of qan-mongodb-mongolog-agent built-in agent.
+func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
+
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,

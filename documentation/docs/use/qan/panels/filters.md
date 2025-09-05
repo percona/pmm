@@ -2,12 +2,12 @@
 
 The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.md) helps you narrow down query data to focus on specific metrics, database instances, or performance issues.
 
-
 ![!image](../../../images/PMM_Query_Analytics_Panels_Filters.jpg)
 
 ## Understanding filters
 
 - The **Filter** panel lists the filters grouped by category. It also shows the percentage of the main metrics (explained below). If you select a different metric, the percentages on the left panel will change as per this metric. When you select a metric, it reduces the overview list as per the matching filter.
+- When [label-based access control (LBAC)](../../../admin/roles/access-control/intro.md) is enabled, filter options are automatically limited to match your role's permissions. You will only see databases, services, and environments you have access to.
 - The first five of each category are shown. If there are more, the list is expanded by clicking **Show all** beside the category name, and collapsed again with **Show top 5**.
 - Applying a filter may make other filters inapplicable. These become grayed out and inactive.
 - Click the chart symbol <i class="uil uil-graph-bar"></i> to navigate directly to an item's associated dashboard.
@@ -49,15 +49,20 @@ These filter groups are available for all database types:
 
 ## Custom filter groups
 
-!!! caution alert alert-warning "Important/Caution"
-    This feature is still in [Technical Preview](../../../reference/glossary.md#technical-preview) and is subject to change. We recommend that early adopters use this feature for testing purposes only.
-
-Filter queries using custom key=value pairs from query comments. This feature is disabled by default.
+Filter queries using custom `key='value'` pairs from query comments. Only genuine comments are parsed, not quoted string that contain comment-like characters. This feature is disabled by default.
 
 ### Supported technologies and agents
 
-- MySQL (`perfschema`, `slowlog`),
-- PostgreSQL (`pg_stat_statements`, `pg_stat_monitor`)
+- MySQL (`perfschema`),
+- PostgreSQL (`pg_stat_monitor`)
+
+**Supported formats**
+```sh
+key='value'
+key = 'value'
+key ='value'
+key= 'value'
+```
 
 **Example**
 

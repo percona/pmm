@@ -55,6 +55,7 @@ type AddAgentCommand struct {
 	ProxysqlExporter AddAgentProxysqlExporterCommand `cmd:"" help:"Add proxysql_exporter to inventory"`
 
 	QANMongoDBProfilerAgent         AddAgentQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Add QAN MongoDB profiler agent to inventory"`
+	QANMongoDBMongologAgent         AddAgentQANMongoDBMongologAgentCommand         `cmd:"" name:"qan-mongodb-mongolog-agent" help:"Add QAN MongoDB mongolog agent to inventory"`
 	QANMySQLPerfSchemaAgent         AddAgentQANMySQLPerfSchemaAgentCommand         `cmd:"" name:"qan-mysql-perfschema-agent" help:"Add QAN MySQL perf schema agent to inventory"`
 	QANMySQLSlowlogAgent            AddAgentQANMySQLSlowlogAgentCommand            `cmd:"" name:"qan-mysql-slowlog-agent" help:"Add QAN MySQL slowlog agent to inventory"`
 	QANPostgreSQLPgStatementsAgent  AddAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Add QAN PostgreSQL Stat Statements Agent to inventory"`
