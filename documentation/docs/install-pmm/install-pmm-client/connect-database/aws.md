@@ -144,7 +144,7 @@ Create the `pmm` user with the following privileges on the Amazon RDS instance t
 CREATE USER 'pmm'@'%' IDENTIFIED BY 'pass';
 GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%';
 ALTER USER 'pmm'@'%' WITH MAX_USER_CONNECTIONS 10;
-GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
+GRANT SELECT ON performance_schema.* TO 'pmm'@'%';
 ```
 
 ## Adding an Amazon RDS, Aurora or Remote Instance
