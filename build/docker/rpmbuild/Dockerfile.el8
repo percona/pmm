@@ -26,7 +26,7 @@ RUN dnf update -y && \
     dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
 
 # keep that format for easier search
-ENV GO_VERSION=1.24.3
+ENV GO_VERSION=1.25.1
 ENV GO_RELEASER_VERSION=2.9.0
 
 RUN if [ `uname -m` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
