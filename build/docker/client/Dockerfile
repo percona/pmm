@@ -93,10 +93,12 @@ COPY --from=builder --chown=0:0 /usr/lib64/libnghttp2.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libresolv.so* /usr/lib64/
 
 # Install dependencies of grep and awk
-COPY --from=builder --chown=0:0 /lib64/libpcre.so.1 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libpcre2-8.so.0 /usr/lib64/
 COPY --from=builder --chown=0:0 /lib64/libsigsegv.so.2 /usr/lib64/
 COPY --from=builder --chown=0:0 /lib64/libgmp.so.10 /usr/lib64/
 COPY --from=builder --chown=0:0 /lib64/libmpfr.so.6 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libm.so.6 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libtinfo.so.6 /usr/lib64/
 
 # Install pmm-client
 RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
