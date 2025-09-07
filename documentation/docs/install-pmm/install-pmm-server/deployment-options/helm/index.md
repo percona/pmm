@@ -148,7 +148,7 @@ Add [environment variables](../docker/env_var.md) for advanced operations (like 
 
 ```yaml
 pmmEnv:
-  PMM_ENABLE_UPDATES: "1"
+  PMM_ENABLE_UPDATES: "0"
 ```
 
 ### SSL certificates
