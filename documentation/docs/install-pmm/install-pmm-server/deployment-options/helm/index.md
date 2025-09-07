@@ -103,10 +103,10 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
     ```bash
     # If using ClusterIP (default)
-    kubectl port-forward svc/pmm-service 443:443
+    kubectl port-forward svc/monitoring-service 443:443
 
     # If using NodePort
-    kubectl get svc pmm-service -o jsonpath='{.spec.ports[0].nodePort}'
+    kubectl get svc monitoring-service -o jsonpath='{.spec.ports[0].nodePort}'
     ```
   
 ### Configure PMM Server
@@ -125,8 +125,9 @@ Configure PMM Server using either command-line arguments or a YAML file:
  - using command-line arguments: 
     ```sh
     helm install pmm \
-    --set secret.create=false --set secret.name=pmm-secret \
-    --set service.type="NodePort" \
+        --set secret.create=false \
+        --set secret.name=pmm-secret \
+        --set service.type="NodePort" \
         percona/pmm
     ```
 - using a .yaml configuration file: 
@@ -147,7 +148,7 @@ Add [environment variables](../docker/env_var.md) for advanced operations (like 
 
 ```yaml
 pmmEnv:
-PMM_ENABLE_UPDATES: "1"
+  PMM_ENABLE_UPDATES: "1"
 ```
 
 ### SSL certificates
