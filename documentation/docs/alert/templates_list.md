@@ -1,6 +1,6 @@
 # List of available alert templates
 
-The table below lists all the alert templates available in Percona Monitoring and Management (PMM). 
+The table below lists all the alert templates available in Percona Monitoring and Management (PMM).
 
 ## Template catalog
 
@@ -27,6 +27,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
 | PMM | **PMM agent down** | Monitors PMM Agent status and alerts when an agent becomes unreachable, indicating potential host or agent issues. | MySQL, MongoDB, PostgreSQL, ProxySQL |
+| PMM | **Backup failed [Technical Preview]** | Monitors backup processes and raises alerts on failures. Provides details about the failed backup artifact and affected service to ensure data safety and recovery readiness. This template is currently in [Technical Preview](../reference/glossary.md) and is intended for testing purposes only, as it is subject to change. | MySQL, MongoDB, PostgreSQL, ProxySQL |
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates
@@ -54,6 +55,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 | PBM | **MongoDB PBM backup has failed** | Monitors the status of backups and alerts if they fail.  | MongoDB |
 | PBM | **MongoDB PBM backup duration** |Monitors the time taken to complete a backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent.  | MongoDB |
 | PBM | **MongoDB PBM backup size** | Monitors the amount of disk space taken by a completed backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent.  | MongoDB |
+| PBM | **MongoDB Stale PBM backup** | Monitors the time of the last successful backup. If it is older than the configured threshold, it sends an alert. | MongoDB | 
 
 <a id="mysql_alerts"></a>
 ### MySQL templates
