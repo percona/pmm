@@ -24,7 +24,7 @@ export const Sidebar: FC = () => {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [open]);
+  }, [open, setIsOpen]);
 
   return (
     <Drawer
