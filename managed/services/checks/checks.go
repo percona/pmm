@@ -1613,7 +1613,7 @@ func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLCheck
 		}
 	}
 
-	return
+	return mySQLChecks, postgreSQLChecks, mongoDBChecks
 }
 
 // check interfaces.

@@ -887,7 +887,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 		require.NotNil(t, addPostgreSQLOK)
 		require.NotNil(t, addPostgreSQLOK.Payload.Postgresql.Service)
 		serviceID = addPostgreSQLOK.Payload.Postgresql.Service.ServiceID
-		return
+		return nodeID, pmmAgentID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {
