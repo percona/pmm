@@ -103,7 +103,7 @@ This example creates a pmm user account that has just enough access to collect m
 === "On MySQL 5.7/MariaDB 10.x"
 
     ```sql
-    CREATE USER 'pmm'@'127.0.0.1' IDENTIFIED BY '<your_strong_password>' WITH MAX_USER_CONNECTIONS 10;
+    CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<your_strong_password>' WITH MAX_USER_CONNECTIONS 10;
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
     ```
 
