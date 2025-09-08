@@ -76,7 +76,7 @@ ${INSTALL_COMMAND} -m 0755 queries-mr.yaml "${PMM_DIR}"/collectors/custom-querie
 ${INSTALL_COMMAND} -m 0755 queries-lr.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/low-resolution
 ${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution
 
-for FILE in "${PWD}"/bin/*; do
+for FILE in $(ls ${PWD}/bin); do
     if [ "${FILE}" = "pmm-admin" ] || [ "${FILE}" = "pmm-agent" ] || [ "${FILE}" = "pmm-agent-entrypoint" ]; then
         ${INSTALL_COMMAND} -m 0755 "${PWD}/bin/${FILE}" "${PMM_DIR}/bin"
     elif [[ "${FILE}" =~ pt-summary|pt-mysql-summary|pt-pg-summary|pt-mongodb-summary|nomad ]]; then
