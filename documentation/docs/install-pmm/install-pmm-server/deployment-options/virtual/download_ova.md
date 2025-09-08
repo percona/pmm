@@ -6,9 +6,9 @@ Download the Virtual Appliance (OVA) file to deploy PMM Server as a virtual mach
 
 The PMM Server OVA works with:
 
-- VMware products (ESXi, Workstation, Fusion)
 - Oracle VirtualBox
 - Other OVF-compatible virtualization platforms
+- VMware products (ESXi, Workstation, Fusion) -- **[Deprecated, will be removed in PMM 3.6.0]**
 
 ## Download options
 
