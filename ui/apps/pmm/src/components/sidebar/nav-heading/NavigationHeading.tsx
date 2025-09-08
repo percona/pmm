@@ -43,7 +43,7 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
 
             '&:hover, &:focus-within': {
               '.hidden-on-hover': {
-                display: 'none',
+                visibility: 'hidden',
               },
               '.shown-on-hover': {
                 left: 8,

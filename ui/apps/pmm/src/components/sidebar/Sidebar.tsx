@@ -4,14 +4,18 @@ import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { NavItem } from './nav-item';
 import List from '@mui/material/List';
+import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 
 export const Sidebar: FC = () => {
   const { navTree } = useNavigation();
-  const [open, setIsOpen] = useState(true);
+  const [open, setIsOpen] = useLocalStorage<boolean>(
+    'pmm-ui.sidebar.expanded',
+    true
+  );
   const [animating, setAnimating] = useState(false);
 
   const toggleSidebar = useCallback(() => {
-    setIsOpen((prev) => !prev);
+    setIsOpen(!open);
 
     setAnimating(true);
 
@@ -20,7 +24,7 @@ export const Sidebar: FC = () => {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, []);
+  }, [open]);
 
   return (
     <Drawer
