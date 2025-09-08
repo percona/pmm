@@ -80,7 +80,7 @@ cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/al
 
 %changelog
 * Thur Sep 4 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
-- PMM-14009 bundle alerting templates with PMM.
+- PMM-14013 bundle alerting templates with PMM.
 
 * Wed Jun 11 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
 - PMM-14009 bundle advisors with PMM.
