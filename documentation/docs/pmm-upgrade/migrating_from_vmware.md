@@ -47,20 +47,21 @@ To migrate from VMware:
         ```
 
 4.  Export custom configurations: 
-    - dashboards: go to custom dashboard, click the share icon and select **Export > Save to file**.
-    - alert rules: go to **Alerting > Alert rules** and copy the configuration or take screenshots of each rule. Alternatively, export all rules via the PMM API:
+    - Dashboards: go to custom dashboard, click the share icon and select **Export > Save to file**.
+    - Alert rules: go to **Alerting > Alert rules** and copy the configuration or take screenshots of each rule. Alternatively, export all rules via the PMM API:
         ```bash
         curl -k -u admin: https:///graph/api/ruler/grafana/api/v1/rules > alert-rules-backup.json
         ```
-    - service accounts: record service names and roles under **Configuration > PMM Settings > Administration > Users and Access > Service Accounts**. 
-    - external database connections: check **Configuration > PMM Settings** and custom configurations under **Advanced Settings**.
-    - other settings: Go to PMM Configuration and record **SSH Key**, data retention **Advanced Settings > Data retention**, **Advanced Settings > Telemetry**, and backup locations (**Backup > Storage Locations**).
+    - Service accounts: record service names and roles under **Configuration > PMM Settings > Administration > Users and Access > Service Accounts**. 
+    - External database connections: check **Configuration > PMM Settings** and custom configurations under **Advanced Settings**.
+    - Other settings: Go to PMM Configuration and record **SSH Key**, data retention **Advanced Settings > Data retention**, **Advanced Settings > Telemetry**, and backup locations (**Backup > Storage Locations**).
 
 5. Choose your migration target:
 
-=== "Migrate to VirtualBox (minimal changes)"
+=== "Migrate to VirtualBox"
 
     Best if you prefer virtual machine deployments with minimal infrastructure changes.
+    {.power-number}
 
     1. Export VM configuration from VMware via **File > Export to OVF**.
     2. Download PMM OVA: `wget https://downloads.percona.com/downloads/pmm/3.3.1/ova/pmm-server-3.3.1.ova`
@@ -106,10 +107,10 @@ To migrate from VMware:
         sudo supervisorctl start all
         ```
 
-=== "Migrate to Docker (Recommended)"
-
-    Best for modern containerized infrastructure with easier updates and better resource efficiency.
-
+=== "To Docker"
+    **Recommended for most users:** Replace VM complexity with containerized simplicity for automatic updates, better performance and easier scaling.    
+    {.power-number}
+    
     1. Install Docker on target host:
         ```bash
         # Install Docker if not already installed
@@ -150,9 +151,10 @@ To migrate from VMware:
         percona/pmm-server:3
         ```
 
-=== "Migrate to Podman"
+=== "To Podman"
 
     Best for environments that need rootless containers and enhanced security without Docker dependencies.
+    {.power-number}
 
     1. Install Podman:
         ```bash
@@ -187,9 +189,10 @@ To migrate from VMware:
         percona/pmm-server:3
         ```
 
-=== "Migrate to Kubernetes with Helm"
+=== "To Kubernetes with Helm"
 
     Best for cloud-native environments with orchestration requirements and standard Kubernetes clusters.
+    {.power-number}
 
     1. Create Kubernetes namespace and secret
         ```bash
@@ -238,9 +241,10 @@ To migrate from VMware:
         kubectl exec -n pmm $PMM_POD -- supervisorctl start all
         ```
         
-=== "Migrate to OpenShift with Helm"
+=== "To OpenShift with Helm"
 
     Best for enterprise OpenShift environments with enhanced security policies and integrated developer tools.
+    {.power-number}
 
     1. Create OpenShift project and secret: 
         ```bash
@@ -298,7 +302,7 @@ To migrate from VMware:
         oc exec -n pmm $PMM_POD -- sh -c "cd / && tar -xzf /tmp/pmm-backup-*.tar.gz"
         oc exec -n pmm $PMM_POD -- supervisorctl start all
         ```
-        
+
 ## Post-migration checks
 Verify that all components are functioning correctly before decommissioning the old VMware instance. This ensures data integrity, restores custom configurations, and updates all connected systems to use the new PMM server.
 {.power-number}
@@ -313,16 +317,16 @@ Verify that all components are functioning correctly before decommissioning the 
 
 3. Verify data integrity:
 
-    - Check that historical metrics are present
-    - Verify all services appear in Configuration → PMM Inventory → Services
-    - Confirm Query Analytics (QAN) data is available
-    - Test alerting functionality
+    - Check that historical metrics are present.
+    - Verify all services appear in **Configuration > PMM Inventory > Services**.
+    - Confirm Query Analytics (QAN) data is available.
+    - Test alerting functionality.
 
 4. Update DNS/network configuration: 
 
-    - **Update DNS**: point your PMM DNS name to the new server IP
-    - **IP Swap**: assign the old VMware IP to the new server
-    - **Load Balancer**: update backend pool to point to new server
+    - **Update DNS**: point your PMM DNS name to the new server IP.
+    - **IP Swap**: assign the old VMware IP to the new server.
+    - **Load Balancer**: update backend pool to point to new server.
 
 5. Go to **Dashboards > Browse > Import** and upload previously exported dashboard JSON files. 
 
