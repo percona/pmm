@@ -922,7 +922,7 @@ func TestRemoveMongoDB(t *testing.T) {
 		require.NotNil(t, addMongoDBOK)
 		require.NotNil(t, addMongoDBOK.Payload.Mongodb.Service)
 		serviceID = addMongoDBOK.Payload.Mongodb.Service.ServiceID
-		return
+		return nodeID, pmmAgentID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {

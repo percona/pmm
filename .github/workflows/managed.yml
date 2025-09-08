@@ -41,6 +41,7 @@ jobs:
       PMM_DEV_OAUTH_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       PMM_DEV_OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
       BUILD_CACHE: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'v3' }} # change to `main` once v3 goes GA
+      PMM_CONTAINER: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code
@@ -53,7 +54,7 @@ jobs:
           docker logs pmm-server
 
       - name: Mark the root directory of pmm as safe
-        run: docker exec -i pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
+        run: docker exec -i -u root pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Pull the cache image and inject cache to PMM Server
         continue-on-error: true
@@ -69,17 +70,17 @@ jobs:
         run: docker image rm ${{ env.PMM_CACHE_IMAGE }}
 
       - name: Rebuild the binaries
-        run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy run-qan
+        run: docker exec -i -u root pmm-server make run-managed-ci run-agent run-vmproxy run-qan
 
       - name: Check the status of components
         continue-on-error: true
         run: docker exec -t pmm-server supervisorctl status
 
-      - name: Refresh yum cache for tests
-        run: docker exec -i pmm-server yum --verbose info updates pmm-managed || echo '1'
+      - name: Refresh dnf cache for tests
+        run: docker exec -i -u root pmm-server dnf --verbose info updates pmm-managed || echo '1'
 
       - name: Run tests
-        run: docker exec -i pmm-server make -C managed test-cover
+        run: docker exec -i -u root pmm-server make -C managed test-cover
 
       - name: Upload coverage results
         uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
@@ -93,7 +94,7 @@ jobs:
       - name: Run PMM Server update test
         run: |
           echo "PMM Server update test will be refactored once we have a new update mechanism."
-          # docker exec -i pmm-server make -C managed test-update
+          # docker exec -i -u root pmm-server make -C managed test-update
 
       - name: Save PMM Go module and build cache as an image
         if: ${{ fromJSON(env.BUILD_CACHE) }}
