@@ -27,6 +27,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
 | PMM | **PMM agent down** | Monitors PMM Agent status and alerts when an agent becomes unreachable, indicating potential host or agent issues. | MySQL, MongoDB, PostgreSQL, ProxySQL |
+| PMM | **Backup failed [Technical Preview]** | Monitors backup processes and raises alerts on failures. Provides details about the failed backup artifact and affected service to ensure data safety and recovery readiness. This template is currently in [Technical Preview](../reference/glossary.md) and is intended for testing purposes only, as it is subject to change. | MySQL, MongoDB, PostgreSQL, ProxySQL |
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates
