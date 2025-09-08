@@ -22,7 +22,7 @@
     extra_opts: [--strip-components=1]
 
 - name: Install the client
-  command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm-client/install_tarball
+  command: env PMM_USER=pmm PMM_GROUP=root /tmp/pmm-client/install_tarball
 
 - name: Remove the temporary directory
   file:

@@ -441,7 +441,7 @@ func TestRemoveExternal(t *testing.T) {
 		require.NotNil(t, addExternalOK)
 		require.NotNil(t, addExternalOK.Payload.External.Service)
 		serviceID = addExternalOK.Payload.External.Service.ServiceID
-		return
+		return nodeID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {

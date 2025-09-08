@@ -866,11 +866,11 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	var resp agentv1.ServerResponsePayload
 	resp, err = channel.SendAndWaitResponse(&agentv1.Ping{})
 	if err != nil {
-		return
+		return latency, clockDrift, err
 	}
 	if resp == nil {
 		err = channel.Wait()
-		return
+		return latency, clockDrift, err
 	}
 	roundtrip := time.Since(start)
 	currentTime := resp.(*agentv1.Pong).CurrentTime //nolint:forcetypeassert
@@ -878,11 +878,11 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	err = currentTime.CheckValid()
 	if err != nil {
 		err = errors.Wrap(err, "Failed to decode Ping")
-		return
+		return latency, clockDrift, err
 	}
 	latency = roundtrip / 2
 	clockDrift = serverTime.Sub(start) - latency
-	return
+	return latency, clockDrift, err
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
@@ -892,11 +892,11 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 	c.rw.RUnlock()
 	if channel == nil {
 		err = errors.New("not connected")
-		return
+		return latency, clockDrift, err
 	}
 
 	latency, clockDrift, err = getNetworkInformation(channel)
-	return
+	return latency, clockDrift, err
 }
 
 // GetServerConnectMetadata returns current server's metadata, or nil.
