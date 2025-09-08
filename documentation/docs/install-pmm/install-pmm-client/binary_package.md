@@ -227,7 +227,7 @@ Registration requires authentication to verify that your PMM Client has permissi
     2. Navigate to **Administration > Users and access > Service Accounts**.
     3. Click **Add Service account**.
     4. Enter a descriptive name (e.g.: `pmm-client-prod-db01`). Keep in mind that PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
-    5. Select the **Editor** role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md).
+    5. Select the **Admin** role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md).
     6. Click **Create > Add service account token**.
     7. (Optional) Name your token or leave blank for auto-generated name.
     8. (Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
