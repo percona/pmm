@@ -94,7 +94,6 @@ COPY --from=builder --chown=0:0 /usr/lib64/libresolv.so* /usr/lib64/
 
 # Install dependencies of grep and awk
 COPY --from=builder --chown=0:0 /lib64/libpcre2-8.so.0 /usr/lib64/
-COPY --from=builder --chown=0:0 /lib64/libsigsegv.so.2 /usr/lib64/
 COPY --from=builder --chown=0:0 /lib64/libgmp.so.10 /usr/lib64/
 COPY --from=builder --chown=0:0 /lib64/libmpfr.so.6 /usr/lib64/
 COPY --from=builder --chown=0:0 /lib64/libm.so.6 /usr/lib64/
