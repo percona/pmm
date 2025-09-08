@@ -311,8 +311,8 @@ Verify that all components are functioning correctly before decommissioning the 
 2. Update all PMM Clients to point to the new server:
 
     ```bash
-        # On each client node
-        pmm-admin config --server-url=https://admin:<password>@<new-pmm-ip>:443 --force
+    # On each client node
+    pmm-admin config --server-url=https://admin:<password>@<new-pmm-ip>:443 --force
     ```
 
 3. Verify data integrity:
