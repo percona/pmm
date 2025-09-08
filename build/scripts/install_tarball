@@ -104,8 +104,6 @@ else
   ${INSTALL_COMMAND} -m 0660 /dev/null "${PMM_DIR}"/config/pmm-agent.yaml
 fi
 
-if [ $? -eq 0 ]; then
-  echo "Successfully installed PMM Client to ${PMM_DIR}"
-fi
+echo "Successfully installed PMM Client to ${PMM_DIR}"
 
 cd "${CURRENT_DIR}" || true
