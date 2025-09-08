@@ -5,7 +5,7 @@ export const useLocalStorage = <T>(
   initialValue?: T
 ): [T, (value: T) => void] => {
   const [state, setState] = useState(
-    !!localStorage.getItem(key)
+    localStorage.getItem(key)
       ? (JSON.parse(localStorage.getItem(key) || '') as T)
       : initialValue
   );
