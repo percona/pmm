@@ -1,5 +1,4 @@
 ---
-# version: '3.7' // Deprecated: see https://docs.docker.com/compose/compose-file/04-version-and-name/
 services:
   pmm-server:
     profiles:
@@ -96,9 +95,9 @@ services:
       - root-cache:/root/.cache
       - srv:/srv
       # grafana
-#      - "../grafana:/workspace"
-#      - "../grafana/public:/usr/share/grafana/public"
-#      - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
+    #  - "../grafana:/workspace"
+    #  - "../grafana/public:/usr/share/grafana/public"
+    #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
     # command: >
     #   bash -c "
     #     rm -rf /tmp/certs
@@ -127,15 +126,15 @@ services:
     image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
     container_name: watchtower
     environment:
-        - WATCHTOWER_HTTP_LISTEN_PORT=8080
-        - WATCHTOWER_HTTP_API_UPDATE=1
-        - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
-        - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
+      - WATCHTOWER_HTTP_LISTEN_PORT=8080
+      - WATCHTOWER_HTTP_API_UPDATE=1
+      - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
+      - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
     hostname: watchtower
     networks:
       - ${NETWORK:-default}
     volumes:
-        - ${DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+      - ${DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
 
 volumes:
   go-modules:
