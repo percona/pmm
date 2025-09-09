@@ -72,7 +72,7 @@ func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer)
 		require.NoError(t, <-serveError)
 	}
 
-	return
+	return port, teardown
 }
 
 func TestClient(t *testing.T) {
