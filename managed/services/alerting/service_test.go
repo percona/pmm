@@ -17,11 +17,12 @@ package alerting
 
 import (
 	"context"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-	"testing"
 
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/models"
