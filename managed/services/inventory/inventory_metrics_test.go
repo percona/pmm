@@ -88,20 +88,23 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		metricsMock.On("GetNodeMetrics", mock.Anything).Return(nodeMetrics, nil)
 		metricsMock.On("GetServiceMetrics", mock.Anything).Return(serviceMetrics, nil)
 
-		const expectedAgentMetrics = `# HELP pmm_managed_inventory_agents Inventory Agent
-# TYPE pmm_managed_inventory_agents gauge
-pmm_managed_inventory_agents{agent_id="A1",agent_type="pmm-agent",disabled="1",node_id="N1",node_name="NN1",pmm_agent_id="PA1",service_id="S1",version="V1"} 1
-`
+		const expectedAgentMetrics = `
+			# HELP pmm_managed_inventory_agents Inventory Agent
+			# TYPE pmm_managed_inventory_agents gauge
+			pmm_managed_inventory_agents{agent_id="A1",agent_type="pmm-agent",disabled="1",node_id="N1",node_name="NN1",pmm_agent_id="PA1",service_id="S1",version="V1"} 1
+		`
 
-		const expectedNodeMetrics = `# HELP pmm_managed_inventory_nodes Inventory Node
-# TYPE pmm_managed_inventory_nodes gauge
-pmm_managed_inventory_nodes{container_name="C1",node_id="N1",node_name="N1",node_type="generic"} 1
-`
+		const expectedNodeMetrics = `
+			# HELP pmm_managed_inventory_nodes Inventory Node
+			# TYPE pmm_managed_inventory_nodes gauge
+			pmm_managed_inventory_nodes{container_name="C1",node_id="N1",node_name="N1",node_type="generic"} 1
+		`
 
-		const expectedServiceMetrics = `# HELP pmm_managed_inventory_services Inventory Service
-# TYPE pmm_managed_inventory_services gauge
-pmm_managed_inventory_services{node_id="N1",service_id="C1",service_type="proxysql"} 1
-`
+		const expectedServiceMetrics = `
+			# HELP pmm_managed_inventory_services Inventory Service
+			# TYPE pmm_managed_inventory_services gauge
+			pmm_managed_inventory_services{node_id="N1",service_id="C1",service_type="proxysql"} 1
+		`
 
 		if err := testutil.CollectAndCompare(
 			inventoryCollector,
