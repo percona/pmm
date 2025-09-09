@@ -256,6 +256,16 @@ update() {
     "$RPMBUILD_DOCKER_IMAGE" \
     rsync -a --delete --chown=builder:builder /submodules/ /app/
 
+  echo
+  echo "Syncing the build scripts with pmm-submodules docker volume..."
+  docker run --rm \
+    --platform="$PLATFORM" \
+    --user root \
+    -v "$CURDIR/build:/build" \
+    -v pmm-submodules:/app \
+    "$RPMBUILD_DOCKER_IMAGE" \
+    rsync -a --delete --chown=builder:builder /build/ /app/sources/pmm/src/github.com/percona/pmm/build/
+
   if [ "$UPDATE_ONLY" -eq 1 ]; then
     exit 0
   fi
