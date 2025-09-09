@@ -71,8 +71,16 @@ class Builder():
         if yaml_config.is_file():
             logging.warning('File {} already exists!'.format(target))
             sys.exit(1)
-        with open(target, 'w') as f:
-            yaml.dump(self.config, f, sort_keys=False)
+
+        try:
+            with open(target, 'w') as f:
+                yaml.dump(self.config, f, sort_keys=False)
+        except PermissionError as e:
+            logging.error(f'Permission denied when trying to write to {target}: {e}')
+            cwd = os.getcwd()
+            permissions = oct(os.stat(cwd).st_mode)[-3:]
+            logging.info(f'The directory {cwd} has permissions: {permissions}')
+            sys.exit(1)
         sys.exit(0)          
 
     def validate_config(self):
