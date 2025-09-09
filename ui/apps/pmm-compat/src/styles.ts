@@ -8,6 +8,7 @@ export const applyCustomStyles = () => {
     ${LOCATORS.menuToggle},
     ${LOCATORS.helpButton},
     ${LOCATORS.searchButton},
+    ${LOCATORS.toolbarSignIn},
     ${LOCATORS.profileButton} {
       display: none;
     }

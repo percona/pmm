@@ -1,6 +1,7 @@
 import { TestWrapper } from 'utils/testWrapper';
 import { MainWithNav } from './MainWithNav';
 import { render, screen } from '@testing-library/react';
+import { wrapWithGrafana } from 'utils/testUtils';
 
 const setup = ({
   isLoading = false,
@@ -12,13 +13,8 @@ const setup = ({
   kioskModeActive?: boolean;
 }) =>
   render(
-    <TestWrapper
-      authContext={{ isLoading, isLoggedIn }}
-      routerProps={{
-        initialEntries: kioskModeActive ? ['?kiosk=true'] : ['/'],
-      }}
-    >
-      <MainWithNav />
+    <TestWrapper authContext={{ isLoading, isLoggedIn }}>
+      {wrapWithGrafana(<MainWithNav />, { isFullScreen: kioskModeActive })}
     </TestWrapper>
   );
 

@@ -1,3 +1,4 @@
+import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { HelpCard } from './help-center-card/HelpCenterCard.types';
 
 export const CARD_IDS = {
@@ -7,6 +8,7 @@ export const CARD_IDS = {
   pmmDump: 'pmm-dump',
   pmmLogs: 'pmm-logs',
   tips: 'tips',
+  nextChapter: 'next-chapter',
 };
 
 export const START_ICON = {
@@ -39,7 +41,7 @@ export const CARDS_DATA: HelpCard[] = [
       {
         text: 'Contact Support',
         target: '_blank',
-        url: 'https://per.co.na/pmm_support',
+        url: 'https://www.percona.com/about/contact?utm_campaign=7075599-Product%20Documentation%20Contact%20Us%20Clicks&utm_source=PMM-Support',
       },
     ],
     adminOnly: false,
@@ -68,7 +70,7 @@ export const CARDS_DATA: HelpCard[] = [
     buttons: [
       {
         text: 'Manage datasets',
-        url: '/graph/pmm-dump',
+        to: `${PMM_NEW_NAV_GRAFANA_PATH}/pmm-dump`,
       },
     ],
     adminOnly: true,
@@ -93,16 +95,27 @@ export const CARDS_DATA: HelpCard[] = [
     id: CARD_IDS.tips,
     title: 'Useful Tips',
     description:
-      'Need a refresher? Access the onboarding tour tips or the keyboard shortcuts.',
+      'Need a refresher? Start the onboarding tour again for useful tips.',
     adminOnly: false,
     buttons: [
       {
         text: 'Start PMM tour',
         startIconName: START_ICON.map,
       },
+    ],
+  },
+  {
+    id: CARD_IDS.nextChapter,
+    title: 'Help Shape PMM’s Next Chapter',
+    description:
+      "We'd love your thoughts on PMM 3 to guide its future development. This is a short survey with 4 questions (Google Form) that will help us drive the next wave of improvements.",
+    adminOnly: false,
+    buttons: [
       {
-        text: 'Shortcuts',
-        url: 'https://per.co.na/pmm_documentation',
+        text: 'Share your thoughts',
+        target: '_blank',
+        // TODO: add survey url
+        url: '',
       },
     ],
   },

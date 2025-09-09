@@ -18,7 +18,7 @@ import { useCheckUpdates, useStartUpdate } from 'hooks/api/useUpdates';
 import { formatVersion } from './UpdateCard.utils';
 import { enqueueSnackbar } from 'notistack';
 import { UpdateStatus } from 'types/updates.types';
-import { KeyboardDoubleArrowUp } from '@mui/icons-material';
+import KeyboardDoubleArrowUp from '@mui/icons-material/KeyboardDoubleArrowUp';
 import { UpdateInfo } from '../update-info';
 import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useUpdates } from 'contexts/updates';
@@ -55,7 +55,7 @@ export const UpdateCard: FC = () => {
 
   if (isLoading)
     return (
-      <Card>
+      <Card variant="outlined">
         <CardContent>
           <Stack spacing={1}>
             <Skeleton />
@@ -67,7 +67,7 @@ export const UpdateCard: FC = () => {
 
   if (!data || error) {
     return (
-      <Card>
+      <Card variant="outlined">
         <CardContent>
           <Alert severity="error">{Messages.fetchError}</Alert>
         </CardContent>
@@ -86,7 +86,7 @@ export const UpdateCard: FC = () => {
   }
 
   return (
-    <Card sx={{ p: 1 }}>
+    <Card variant="outlined" sx={{ p: 1 }}>
       <CardContent>
         {status === UpdateStatus.UpToDate && (
           <Alert

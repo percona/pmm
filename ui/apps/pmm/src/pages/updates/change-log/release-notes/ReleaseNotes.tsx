@@ -3,7 +3,7 @@ import Markdown from 'react-markdown';
 import { ReleaseNotesProps } from './ReleaseNotes.types';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import { Stack } from '@mui/material';
+import { Link, Stack } from '@mui/material';
 import { CodeBlock } from '../code-block';
 import { IconMap } from './ReleaseNotes.constants';
 
@@ -70,6 +70,8 @@ export const ReleaseNotes: FC<ReleaseNotesProps> = ({ content }) => {
       <Markdown
         rehypePlugins={[rehypeRaw, remarkGfm]}
         components={{
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          a: ({ ref, ...props }) => <Link {...props} />,
           i: ({ className }) => (className ? IconMap[className] || null : null),
           code: ({ children }) => <CodeBlock>{children}</CodeBlock>,
         }}

@@ -1,5 +1,6 @@
 export const Messages = {
   title: 'Welcome',
+  titleNewUI: 'Updates',
   welcome: {
     title: 'Welcome to the future PMM',
     description:

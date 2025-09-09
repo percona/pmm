@@ -12,7 +12,7 @@ import { constructUrl } from 'lib/utils/link.utils';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-export const useLinkWithVariables = (url: string) => {
+export const useLinkWithVariables = (url?: string) => {
   const [link, setLink] = useState(url);
   const location = useLocation();
 
@@ -35,7 +35,7 @@ export const useLinkWithVariables = (url: string) => {
   };
 
   useEffect(() => {
-    if (!url.includes('/d/')) {
+    if (!url || !url.includes('/d/')) {
       return;
     }
 
