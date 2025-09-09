@@ -51,11 +51,12 @@ Property names are shared between API calls, database columns, and label values 
 - `az` (optional) Node's AWS Availability Zone.
 - `custom_labels` (optional) Custom map of labels (key/value pairs) provided by the user.
 
-**RemoteAmazonRDSNode** represents a Remote Node for Amazon RDS. Agents can't run on Remote RDS Nodes. Properties:
+**RemoteRDSNode** represents a Remote Node for Amazon RDS. Agents can't run on Remote RDS Nodes. Properties:
 
 - `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `node_name` (required, label). User-defined name, unique across all Nodes, can be changed.
 - `address` (required). Node DNS hostname or IP address.
+- `instance_id` (optional). Instance identifier.
 - `node_model` (optional). String containing an extra description for the node type, like "db.t2.medium"
 - `region` (required, label). Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
 - `az` (optional) Node's AWS Availability Zone.

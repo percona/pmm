@@ -92,10 +92,10 @@ func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
 
-	if err := dir.CreateDataDir(victoriametricsDir, "pmm", "pmm", dirPerm); err != nil {
+	if err := dir.CreateDataDir(victoriametricsDir, dirPerm); err != nil {
 		svc.l.Error(err)
 	}
-	if err := dir.CreateDataDir(victoriametricsDataDir, "pmm", "pmm", dirPerm); err != nil {
+	if err := dir.CreateDataDir(victoriametricsDataDir, dirPerm); err != nil {
 		svc.l.Error(err)
 	}
 
