@@ -6,12 +6,10 @@ prepare_tarball() {
   local repo_name=$1
   local commit=$2
   local repo_url=$3
-  local git_dir=
-  local repo_var=$(echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[:lower:]' '[:upper:]')
+  local git_dir repo_var
   local tarball=${source_dir}/${repo_name}-${commit::7}.tar.gz
   
-  # Remove old tarballs for the same repo
-  find "${source_dir}" -name "${repo_name}-*.tar.gz" -type f -not -name "${tarball}" -exec rm -f {} \;
+  repo_var=$(echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[:lower:]' '[:upper:]')
 
   if [ -z "$commit" ]; then
     git_dir=$(git -C "${root_dir}" config -f .gitmodules "submodule.${repo_name}.path")
@@ -19,9 +17,12 @@ prepare_tarball() {
     tarball=${source_dir}/${repo_name}-${commit}.tar.gz
   fi
 
+  # Remove old tarballs for the same repo
+  find "${source_dir}" -name "${repo_name}-*.tar.gz" -type f -not -name "$(basename "${tarball}")" -exec rm -f {} \;  
   echo "${repo_var}=${commit::7}" >> "${client_properties}"
 
   if [ -f "${tarball}" ]; then
+    echo
     echo "Info: ${tarball} already exists, skip creating the tarball..."
     return
   fi
@@ -46,8 +47,8 @@ main() {
   rm -rf "${source_tarball}"
   mkdir -p "${source_dir}/" "$(dirname "${source_tarball}")" || :
 
-  prepare_tarball vmagent ${vmagent_commit_hash} https://github.com/VictoriaMetrics/VictoriaMetrics
-  prepare_tarball nomad ${nomad_commit_hash} https://github.com/hashicorp/nomad
+  prepare_tarball vmagent "${vmagent_commit_hash}" https://github.com/VictoriaMetrics/VictoriaMetrics
+  prepare_tarball nomad "${nomad_commit_hash}" https://github.com/hashicorp/nomad
   prepare_tarball pmm
   prepare_tarball mongodb_exporter
   prepare_tarball mysqld_exporter

@@ -256,16 +256,6 @@ update() {
     "$RPMBUILD_DOCKER_IMAGE" \
     rsync -a --delete --chown=builder:builder /submodules/ /app/
 
-  echo
-  echo "Syncing the build scripts with pmm-submodules docker volume..."
-  docker run --rm \
-    --platform="$PLATFORM" \
-    --user root \
-    -v "$CURDIR/build:/build" \
-    -v pmm-submodules:/app \
-    "$RPMBUILD_DOCKER_IMAGE" \
-    rsync -a --delete --chown=builder:builder /build/ /app/sources/pmm/src/github.com/percona/pmm/build/
-
   if [ "$UPDATE_ONLY" -eq 1 ]; then
     exit 0
   fi
@@ -311,8 +301,10 @@ run_build_script() {
   if [ "$#" -gt 1 ]; then
     shift
     script_name="${script_name}:($1)"
+    echo "Executing $script_name ..."
     $script "$@"
   else
+    echo "Executing $script ..."
     $script
   fi
   end_time=$(date +%s)
@@ -360,6 +352,10 @@ purge_files() {
 
 copy_build_scripts() {
   local SCRIPTS_DIR="build"
+  local CURDIR="$PWD"
+
+  # This is needed to speed up testing this very script.
+  [ -n "${CI:-}" ] && return 0
 
   if [ ! -d "$SCRIPTS_DIR" ]; then
     print_error "could not find the '$SCRIPTS_DIR' directory, exiting..."
@@ -367,8 +363,18 @@ copy_build_scripts() {
   fi
 
   echo
-  echo "Copying build scripts to $SUBMODULES ..."
-  rsync -a --delete "$SCRIPTS_DIR/" "$SUBMODULES/sources/pmm/src/github.com/percona/pmm/build/"
+  echo "Syncing the build scripts with pmm-submodules docker volume..."
+  docker run --rm \
+    --platform="$PLATFORM" \
+    --user root \
+    -v "$CURDIR/build:/build" \
+    -v pmm-submodules:/app \
+    "$RPMBUILD_DOCKER_IMAGE" \
+    rsync -v -a --delete --chown=builder:builder /build/ /app/sources/pmm/src/github.com/percona/pmm/build/
+
+  echo
+  echo "Copying build scripts to $SUBMODULES..."
+  rsync -v -a --delete "$SCRIPTS_DIR/" "$SUBMODULES/sources/pmm/src/github.com/percona/pmm/build/"
 }
 
 check_volumes() {
