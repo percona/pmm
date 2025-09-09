@@ -52,18 +52,20 @@ parse_params() {
 
   if ! cat .modules &> /dev/null; then
     local TMPDIR
-    TMPDIR=$(mktemp -d)
+    TMPDIR=$(mktemp "$HOME/pmm.XXXXXXXX" -d)
     echo -n "$TMPDIR" > .modules
     SUBMODULES="$TMPDIR"
   else
-    SUBMODULES=$(cat .modules)
+    SUBMODULES=$(< .modules)
   fi
 
   # Exported variables
   export USE_S3_CACHE=0
   export DEBUG_MODE=0
-  export RPMBUILD_DOCKER_IMAGE
-  RPMBUILD_DOCKER_IMAGE=$([ -n "${CI:-}" ] && echo "public.ecr.aws/e7j3v3n0/rpmbuild:3" || echo "perconalab/rpmbuild:3")
+  export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
+  if [ -n "${CI:-}" ]; then
+    RPMBUILD_DOCKER_IMAGE="public.ecr.aws/e7j3v3n0/rpmbuild:3"
+  fi
   # This replaces the old `RPM_EPOCH=1`, which was used for feature builds
   export RELEASE_BUILD=0
   export BUILD_SUMMARY=""
@@ -188,14 +190,20 @@ check_files() {
   if [ "$RELEASE_BUILD" -eq 0 ]; then
     local FB_COMMIT
     FB_COMMIT=$(git rev-parse HEAD)
+
     local PR_NUMBER
     PR_NUMBER=$(git ls-remote origin 'refs/pull/*/head' | grep "${FB_COMMIT}" | awk -F'/' '{print $3}')
+    if [ -z "$PR_NUMBER" ]; then
+      PR_NUMBER=$(echo "$BRANCH_NAME" | sed -E "s/^(PMM-[0-9]{1,5})(.*)/\1/i")
+    fi
+
     local TAG
     if [ -n "$PR_NUMBER" ]; then
       TAG="PR-${PR_NUMBER}-${FB_COMMIT:0:7}"
     else
       TAG="FB-${FB_COMMIT:0:7}"
     fi
+
     echo -n "$PR_NUMBER" > "$DIR/build/PR_NUMBER"
     export DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${TAG}
     export DOCKER_TAG=perconalab/pmm-server-fb:${TAG}
@@ -226,21 +234,17 @@ update() {
     "$RPMBUILD_DOCKER_IMAGE"
 
   if [ ! -s "$SUBMODULES/build/build.json" ]; then
-    print_error "could not find '$SUBMODULES/build/build.json' file, which means that the build failed, exiting..."
+    print_error "could not find '$SUBMODULES/build/build.json' file, exiting..."
     exit 1
   fi
 
-  cd "$SUBMODULES"
-
   echo
   echo "Printing git status..."
-  git status --short
+  git -C "$SUBMODULES" status --short
 
   echo
   echo "Printing git submodule status..."
-  git submodule status
-
-  cd "$CURDIR" > /dev/null
+  git -C "$SUBMODULES" submodule status
 
   echo
   echo "Syncing PMM source code with pmm-submodules docker volume..."
@@ -251,6 +255,16 @@ update() {
     -v pmm-submodules:/app \
     "$RPMBUILD_DOCKER_IMAGE" \
     rsync -a --delete --chown=builder:builder /submodules/ /app/
+
+  echo
+  echo "Syncing the build scripts with pmm-submodules docker volume..."
+  docker run --rm \
+    --platform="$PLATFORM" \
+    --user root \
+    -v "$CURDIR/build:/build" \
+    -v pmm-submodules:/app \
+    "$RPMBUILD_DOCKER_IMAGE" \
+    rsync -a --delete --chown=builder:builder /build/ /app/sources/pmm/src/github.com/percona/pmm/build/
 
   if [ "$UPDATE_ONLY" -eq 1 ]; then
     exit 0
@@ -342,6 +356,19 @@ purge_files() {
   fi
   
   cd "$CURDIR"
+}
+
+copy_build_scripts() {
+  local SCRIPTS_DIR="build"
+
+  if [ ! -d "$SCRIPTS_DIR" ]; then
+    print_error "could not find the '$SCRIPTS_DIR' directory, exiting..."
+    exit 1
+  fi
+
+  echo
+  echo "Copying build scripts to $SUBMODULES ..."
+  rsync -a --delete "$SCRIPTS_DIR/" "$SUBMODULES/sources/pmm/src/github.com/percona/pmm/build/"
 }
 
 check_volumes() {
@@ -476,6 +503,8 @@ main() {
   update
 
   purge_files
+
+  copy_build_scripts
 
   if [ "$DEBUG_MODE" -eq 1 ]; then
     set -o xtrace
