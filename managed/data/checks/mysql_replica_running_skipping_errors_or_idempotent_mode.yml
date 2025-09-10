@@ -1,7 +1,7 @@
 ---
 checks:
   - version: 2
-    name: replica_running_skipping_errors_or_idempotent_mode
+    name: mysql_replica_running_skipping_errors_or_idempotent_mode
     summary: Checks if replica configured is skipping errors or slave_exec_mode is idempotent.
     description: This check reviews replication status to review if it is configured to skip errors or if the slave_exec_mode is configured to be idempotent.
     family: MYSQL

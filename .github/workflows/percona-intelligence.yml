@@ -6,12 +6,12 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
     paths:
-      - 'managed/data/iatemplates/**'
+      - 'managed/data/alerting-templates/**'
       - 'managed/data/advisors/**'
       - 'managed/data/checks/**'
   pull_request:
     paths:
-      - 'managed/data/iatemplates/**'
+      - 'managed/data/alerting-templates/**'
       - 'managed/data/advisors/**'
       - 'managed/data/checks/**'
 jobs:

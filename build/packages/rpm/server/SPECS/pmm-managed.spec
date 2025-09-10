@@ -52,6 +52,7 @@ install -d -p %{buildroot}%{_datadir}/%{name}
 install -d -p %{buildroot}%{_datadir}/pmm-ui
 install -d -p %{buildroot}/usr/local/percona/advisors
 install -d -p %{buildroot}/usr/local/percona/checks
+install -d -p %{buildroot}/usr/local/percona/alerting-templates
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
@@ -62,6 +63,7 @@ cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 cp -pa ./managed/data/advisors/*.yml %{buildroot}/usr/local/percona/advisors/
 cp -pa ./managed/data/checks/*.yml %{buildroot}/usr/local/percona/checks/
+cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/alerting-templates/
 
 %files
 %license src/%{provider}/LICENSE
@@ -74,8 +76,12 @@ cp -pa ./managed/data/checks/*.yml %{buildroot}/usr/local/percona/checks/
 %{_datadir}/pmm-ui
 /usr/local/percona/advisors/*.yml
 /usr/local/percona/checks/*.yml
+/usr/local/percona/alerting-templates/*.yml
 
 %changelog
+* Thu Sep 4 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
+- PMM-14013 bundle alerting templates with PMM.
+
 * Wed Jun 11 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
 - PMM-14009 bundle advisors with PMM.
 
