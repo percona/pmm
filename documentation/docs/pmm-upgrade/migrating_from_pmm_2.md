@@ -6,6 +6,11 @@ PMM 3 delivers significant architectural changes that require a gradual transiti
 
 We recommend beginning your evaluation of PMM 3 in a test environment for a smooth transition. To gradually migrate to PMM 3:
 
+## Step 1: Create a backup before any changes
+
+Migration involves significant architectural changes that cannot be reversed without a backup. 
+Before proceeding with migration, you must [create a complete backup](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md) of your current PMM 2 deployment. 
+
 ## Step 1: Upgrade PMM 2 Server to the latest version
 
 Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest version:

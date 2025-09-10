@@ -3429,6 +3429,9 @@ type AddServiceOKBodyMysqlMysqldExporter struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMysqlMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -3750,6 +3753,9 @@ type AddServiceOKBodyMysqlQANMysqlPerfschema struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this add service OK body mysql QAN mysql perfschema
@@ -3977,6 +3983,9 @@ type AddServiceOKBodyMysqlQANMysqlSlowlog struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this add service OK body mysql QAN mysql slowlog
@@ -4174,6 +4183,9 @@ type AddServiceOKBodyMysqlService struct {
 
 	// MySQL version.
 	Version string `json:"version,omitempty"`
+
+	// Extra parameters to be added to the DSN.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this add service OK body mysql service
@@ -6290,6 +6302,9 @@ type AddServiceOKBodyRDSMysql struct {
 
 	// MySQL version.
 	Version string `json:"version,omitempty"`
+
+	// Extra parameters to be added to the DSN.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this add service OK body RDS mysql
@@ -6401,6 +6416,9 @@ type AddServiceOKBodyRDSMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -6681,6 +6699,9 @@ type AddServiceOKBodyRDSNode struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID.
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this add service OK body RDS node
@@ -7176,6 +7197,9 @@ type AddServiceOKBodyRDSQANMysqlPerfschema struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this add service OK body RDS QAN mysql perfschema
@@ -9537,6 +9561,9 @@ type AddServiceParamsBodyMysql struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// extra DSN parameters to be used for connecting to MySQL.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMysqlAddNode `json:"add_node,omitempty"`

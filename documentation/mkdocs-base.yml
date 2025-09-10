@@ -19,9 +19,6 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  icon:
-    edit: material/file-edit-outline
-    view: material/file-eye-outline
 
   palette:
     - media: "(prefers-color-scheme)"
@@ -51,7 +48,7 @@ theme:
     - content.code.copy
     - navigation.tracking
     - content.action.edit
-    - content.action.view
+#    - content.action.view
 
 extra_css:
   - https://unicons.iconscout.com/release/v4.0.8/css/line.css
@@ -252,7 +249,7 @@ nav:
           - alert/templates_list.md
           - alert/silence_alerts.md
           - alert/disable_alerts.md
-      - Backup and restore:
+      - Back up and restore:
           - backup/index.md
           - backup/prepare_storage_location.md
           - MongoDB backups:

@@ -76,12 +76,13 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:    serviceID,
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         3306,
-				CustomLabels: map[string]string{},
+				ServiceID:      serviceID,
+				NodeID:         nodeID,
+				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           3306,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -102,6 +103,7 @@ func TestAddMySQL(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{},
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.MysqldExporter)
@@ -154,12 +156,13 @@ func TestAddMySQL(t *testing.T) {
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:    serviceID,
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         3306,
-				CustomLabels: map[string]string{},
+				ServiceID:      serviceID,
+				NodeID:         nodeID,
+				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           3306,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -185,6 +188,7 @@ func TestAddMySQL(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{},
 				DisabledCollectors:        make([]string, 0),
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
@@ -200,19 +204,21 @@ func TestAddMySQL(t *testing.T) {
 				MaxSlowlogFileSize: "1073741824",
 				Status:             &AgentStatusUnknown,
 				CustomLabels:       map[string]string{},
+				ExtraDsnParams:     map[string]string{},
 				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.QANMysqlSlowlogAgent)
 
 		assert.Equal(t, []*agents.ListAgentsOKBodyQANMysqlPerfschemaAgentItems0{
 			{
-				AgentID:      listAgents.Payload.QANMysqlPerfschemaAgent[0].AgentID,
-				ServiceID:    serviceID,
-				PMMAgentID:   pmmAgentID,
-				Username:     "username",
-				Status:       &AgentStatusUnknown,
-				CustomLabels: map[string]string{},
-				LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:        listAgents.Payload.QANMysqlPerfschemaAgent[0].AgentID,
+				ServiceID:      serviceID,
+				PMMAgentID:     pmmAgentID,
+				Username:       "username",
+				Status:         &AgentStatusUnknown,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
+				LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.QANMysqlPerfschemaAgent)
 	})
@@ -274,6 +280,7 @@ func TestAddMySQL(t *testing.T) {
 				Cluster:        "cluster-name",
 				ReplicationSet: "replication-set",
 				CustomLabels:   map[string]string{"bar": "foo"},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 	})
@@ -423,12 +430,13 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:    serviceID,
-				NodeID:       newNodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         27017,
-				CustomLabels: map[string]string{},
+				ServiceID:      serviceID,
+				NodeID:         newNodeID,
+				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           27017,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -448,6 +456,7 @@ func TestAddMySQL(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{},
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				DisabledCollectors:        make([]string, 0),
 			},
@@ -692,12 +701,13 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:    serviceID,
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         3306,
-				CustomLabels: map[string]string{},
+				ServiceID:      serviceID,
+				NodeID:         nodeID,
+				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           3306,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -717,6 +727,7 @@ func TestAddMySQL(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{},
 				DisabledCollectors:        make([]string, 0),
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
@@ -767,12 +778,13 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:    serviceID,
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         3306,
-				CustomLabels: map[string]string{},
+				ServiceID:      serviceID,
+				NodeID:         nodeID,
+				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           3306,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -791,6 +803,7 @@ func TestAddMySQL(t *testing.T) {
 				TablestatsGroupTableLimit: 1000,
 				Status:                    &AgentStatusUnknown,
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{},
 				DisabledCollectors:        make([]string, 0),
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
@@ -841,12 +854,13 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:    serviceID,
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         3306,
-				CustomLabels: map[string]string{},
+				ServiceID:      serviceID,
+				NodeID:         nodeID,
+				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           3306,
+				CustomLabels:   map[string]string{},
+				ExtraDsnParams: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -866,6 +880,7 @@ func TestAddMySQL(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{},
 				DisabledCollectors:        make([]string, 0),
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
@@ -905,7 +920,7 @@ func TestRemoveMySQL(t *testing.T) {
 		require.NotNil(t, addMySQLOK)
 		require.NotNil(t, addMySQLOK.Payload.Mysql.Service)
 		serviceID = addMySQLOK.Payload.Mysql.Service.ServiceID
-		return //nolint:nakedret
+		return nodeID, pmmAgentID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {

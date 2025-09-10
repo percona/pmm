@@ -79,6 +79,8 @@ func (m *MySQLService) validate(all bool) error {
 
 	// no validation rules for Version
 
+	// no validation rules for ExtraDsnParams
+
 	if len(errors) > 0 {
 		return MySQLServiceMultiError(errors)
 	}
@@ -2886,6 +2888,8 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 	// no validation rules for ReplicationSet
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for ExtraDsnParams
 
 	if len(errors) > 0 {
 		return AddMySQLServiceParamsMultiError(errors)
