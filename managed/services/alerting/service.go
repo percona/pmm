@@ -154,7 +154,7 @@ func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
 		return nil, errors.Wrap(err, "failed to list rule template assets")
 	}
 
-	var res = make([]*models.Template, 0, len(templateFiles))
+	res := make([]*models.Template, 0, len(templateFiles))
 	for _, file := range templateFiles {
 		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {
