@@ -12,63 +12,62 @@ Before starting the migration:
 - plan a maintenance window for the migration (typically 2-4 hours depending on data size).
 
 ### Platform-specific prerequisites
-=== "Docker/Podman"
+
+=== " For Docker/Podman"
     - Confirm Docker/Podman installation and sufficient disk space
     - Ensure port `443` availability
 
-=== "Kubernetes"
+=== "For Kubernetes"
     - Ensure kubectl access and sufficient cluster resources
     - Verify persistent volume availability
 
-=== "OpenShift"
+=== "For OpenShift"
     - Verify `cluster-admin`privileges
     - Confirm appropriate security context constraints (SCCs) are configured
 
-
+## Migration steps 
 To migrate away from VMware:
 {.power-number}
 
-1. SSH into your VMware PMM Server:
-```bash
-ssh admin@<your-pmm-ip>
-```
+1.  SSH into your VMware PMM Server:
+    ```bash
+    ssh admin@<your-pmm-ip>
+    ```
 
-2. Check the size of your data to estimate backup time and storage needs:
+2.  Check the size of your data to estimate backup time and storage needs:
+    ```bash
+    sudo du -sh /srv
+    # Also check available space for backup
+    df -h /tmp
+    ```
 
-```bash
-sudo du -sh /srv
-# Also check available space for backup
-df -h /tmp
-```
-
-3. Create a full backup of the `/srv` directory so that all metrics, settings, and database files can be restored on the new platform:
-
-    -  Stop PMM services to ensure data consistency:
+3.  Create a full backup of the `/srv` directory so that all metrics, settings, and database files can be restored on the new platform:
+    -   Stop PMM services to ensure data consistency:
         ```bash
         sudo supervisorctl stop all
         ```
-    - Create a backup of the PMM data directory:
+    -   Create a backup of the PMM data directory:
         ```bash
         sudo tar -czf /tmp/pmm-backup-$(date +%Y%m%d-%H%M%S).tar.gz /srv
         ```
-    - Note the backup filename and verify it was created:
+    -   Note the backup filename and verify it was created:
         ```bash
         ls -lh /tmp/pmm-backup*.tar.gz
         ```
-    - Restart services (if continuing to use the VMware instance temporarily:
+    -   Restart services (if continuing to use the VMware instance temporarily):
         ```bash
         sudo supervisorctl start all
         ```
 
-4.  Export custom configurations to save them before migration: 
+4.  Export custom configurations to save them before migration:
 
-    - Dashboards: navigate to each custom dashboards, click the share icon and select **Export > Save to file**.
-    - Alert rules: go to **Alerting > Alert rules** and copy the configuration details or take screenshots of each rule. Alternatively, export all rules via the PMM API:
+    - **Dashboards**: navigate to each custom dashboards, click the share icon and select **Export > Save to file**.
+    - **Alert rules**: go to **Alerting > Alert rules** and copy the configuration details or take screenshots of each rule. Alternatively, export all rules via the PMM API:
         ```bash
-        curl -k -u admin: https:///graph/api/ruler/grafana/api/v1/rules > alert-rules-backup.json
+        curl -k -u admin: https://<your-pmm-ip>/graph/api/ruler/grafana/api/v1/rules
         ```
-    - Service accounts: note service names and roles from **Configuration > PMM Settings > Administration > Users and Access > Service Accounts**. 
-    - External database connections: check **Configuration > PMM Settings** and custom configurations from **Advanced Settings**.
+    - **Service accounts**: note service names and roles from **Configuration > PMM Settings > Administration > Users and Access > Service Accounts**. 
+    - **External database connections**: check **Configuration > PMM Settings** and custom configurations from **Advanced Settings**.
 
 5. Choose your migration target and deploy new PMM:
 
@@ -234,10 +233,10 @@ Verify that all components are functioning correctly before decommissioning the 
 3. Verify data integrity:
 
     - **Historical metrics**: Open any dashboard, set time range to **Last 7 days**, and verify graphs show continuous data without gaps.
-    - **Service inventory**: Check **Configuration > PMM Inventory > Services** for all monitored services
-    - **QAN**: Go to **Query Analytics**, set time range to **Last 7 days**, and verify past SQL queries appear with execution times
-    - **Custom dashboards**: Verify imported dashboards display correctly
-    - **Alert functionality**: Test alert rule triggers and notifications
+    - **Service inventory**: Check **Configuration > PMM Inventory > Services** for all monitored services.
+    - **QAN**: Go to **Query Analytics**, set time range to **Last 7 days**, and verify past SQL queries appear with execution times.
+    - **Custom dashboards**: Verify imported dashboards display correctly.
+    - **Alert functionality**: Test alert rule triggers and notifications.
 
 4. Update DNS/network configuration: 
 
@@ -254,13 +253,13 @@ Verify that all components are functioning correctly before decommissioning the 
 
 6. Restore custom configurations: 
 
-  - **import dashboards**: Go to **Dashboards > Browse > Import** and upload previously exported dashboard JSON files. 
-  - **recreate custom alert rules**: Go to **Alerting > Alert Rules** and recreate custom rules.
-  - **reconfigure services**: Restore backup schedules and custom settings, then update service account configurations. 
+    - **import dashboards**: Go to **Dashboards > Browse > Import** and upload previously exported dashboard JSON files. 
+    - **recreate custom alert rules**: Go to **Alerting > Alert Rules** and recreate custom rules.
+    - **reconfigure services**: Restore backup schedules and custom settings, then update service account configurations. 
 
 7. Decommission VMware instance once you've verified the migration is successful:
 
- - keep the VMware instance offline but available for 1-2 weeks as a fallback.
- - take a final VM snapshot/backup for archiving.
+    - keep the VMware instance offline but available for 1-2 weeks as a fallback.
+    - take a final VM snapshot/backup for archiving.
 
 8. Select the VM in VMWare and Power off the instance then click **Remove > Delete** all files.
