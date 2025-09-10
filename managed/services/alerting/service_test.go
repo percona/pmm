@@ -36,10 +36,11 @@ const (
 )
 
 func TestCollect(t *testing.T) {
-	t.Parallel()
-
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("builtin are valid", func(t *testing.T) {
@@ -92,6 +93,9 @@ func TestTemplateValidation(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	svc, err := NewService(db, nil)
