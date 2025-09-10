@@ -72,11 +72,7 @@ To migrate away from VMware:
 5. Choose your migration target and deploy new PMM:
 
 === "Migrate to Docker (recommended)"
-    **Benefits:**
-
-    - Simplified deployment and updates
-    - Better resource utilization
-    - Easy scaling and backup management 
+    **Benefits:** simplified deployment and updates, better resource utilization and easy scaling and backup management. 
 
     To migrate to Docker:
     {.power-number}
@@ -110,11 +106,7 @@ To migrate away from VMware:
         ```
 === "Migrate to VirtualBox"
 
-    **Benefits:**
-
-    - Familiar VM management interface
-    - Easy snapshots and rollback capabilities
-    - Minimal learning curve from VMware
+    **Benefits:** familiar VM management interface, easy snapshots and rollback capabilities, minimal learning curve from VMware.
 
     To migrate to VirtualBox:
     {.power-number}
@@ -139,11 +131,7 @@ To migrate away from VMware:
 
 === "Migrate to Podman"
 
-    **Benefits:**
-
-    - Rootless container execution
-    - No daemon dependency
-    - Enhanced security model
+    **Benefits**: rootless container execution, no daemon dependency and enhanced security model.
 
     To migrate to Podman:
     {.power-number}
@@ -181,11 +169,7 @@ To migrate away from VMware:
             ```
 
 === "Migrate to Kubernetes/OpenShift with Helm"
-    **Benefits:**
-
-    - Simplified deployment and updates
-    - Better resource utilization
-    - Easy scaling and backup management
+    **Benefits:** simplified deployment and updates, better resource utilization, easy scaling and backup management.
 
     To migrate to Kubernetes/Openshift:
     {.power-number}
