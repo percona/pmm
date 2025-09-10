@@ -6,10 +6,10 @@ Migrate your PMM Server deployment from VMware to supported platforms before VMw
 
 Before starting the migration:
 
-- check if your VMware PMM instance is running PMM 3.x. [Upgrade from PMM2 if needed](../pmm-upgrade/migrating_from_pmm_2.md).
-- check for sufficient storage space for backups (at least 2x your current `/srv` directory size).
-- note your current PMM Server IP address and configuration.
-- plan a maintenance window for the migration (typically 2-4 hours depending on data size).
+- Check if your VMware PMM instance is running PMM 3.x. [Upgrade from PMM2 if needed](../pmm-upgrade/migrating_from_pmm_2.md).
+- Check for sufficient storage space for backups (at least 2x your current `/srv` directory size).
+- Note your current PMM Server IP address and configuration.
+- Plan a maintenance window for the migration (typically 2-4 hours depending on data size).
 
 ### Platform-specific prerequisites
 
@@ -237,13 +237,13 @@ Verify that all components are functioning correctly before decommissioning the 
 
 6. Restore custom configurations: 
 
-    - **import dashboards**: Go to **Dashboards > Browse > Import** and upload previously exported dashboard JSON files. 
-    - **recreate custom alert rules**: Go to **Alerting > Alert Rules** and recreate custom rules.
-    - **reconfigure services**: Restore backup schedules and custom settings, then update service account configurations. 
+    - **Import dashboards**: Go to **Dashboards > Browse > Import** and upload previously exported dashboard JSON files. 
+    - **Recreate custom alert rules**: Go to **Alerting > Alert Rules** and recreate custom rules.
+    - **Reconfigure services**: Restore backup schedules and custom settings, then update service account configurations. 
 
 7. Decommission VMware instance once you've verified the migration is successful:
 
-    - keep the VMware instance offline but available for 1-2 weeks as a fallback.
-    - take a final VM snapshot/backup for archiving.
+    - Keep the VMware instance offline but available for 1-2 weeks as a fallback.
+    - Take a final VM snapshot/backup for archiving.
 
 8. Select the VM in VMWare and Power off the instance then click **Remove > Delete** all files.
