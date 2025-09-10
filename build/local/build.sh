@@ -311,10 +311,10 @@ run_build_script() {
   if [ "$#" -gt 1 ]; then
     shift
     script_name="${script_name}:($1)"
-    echo "Executing $script_name ..."
+    echo "Executing script $script_name ..."
     $script "$@"
   else
-    echo "Executing $script ..."
+    echo "Executing script $script ..."
     $script
   fi
   end_time=$(date +%s)
@@ -380,11 +380,11 @@ copy_build_scripts() {
     -v "$CURDIR/build:/build" \
     -v pmm-submodules:/app \
     "$RPMBUILD_DOCKER_IMAGE" \
-    rsync -v -a --delete --chown=builder:builder /build/ /app/sources/pmm/src/github.com/percona/pmm/build/
+    rsync -a --delete --chown=builder:builder /build/ /app/sources/pmm/src/github.com/percona/pmm/build/
 
   echo
   echo "Copying build scripts to $SUBMODULES..."
-  rsync -v -a --delete "$SCRIPTS_DIR/" "$SUBMODULES/sources/pmm/src/github.com/percona/pmm/build/"
+  rsync -a --delete "$SCRIPTS_DIR/" "$SUBMODULES/sources/pmm/src/github.com/percona/pmm/build/"
 }
 
 check_volumes() {
