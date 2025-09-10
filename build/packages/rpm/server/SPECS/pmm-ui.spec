@@ -35,7 +35,7 @@ install -d -p %{buildroot}%{_datadir}/%{name}
 cp -pa ui/dist/. %{buildroot}%{_datadir}/%{name}
 
 %files
-%license ui/LICENSE
+%license ui/../LICENSE
 %doc ui/README.md
 %{_datadir}/%{name}
 

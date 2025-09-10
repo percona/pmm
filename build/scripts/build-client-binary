@@ -124,13 +124,14 @@ copy_component() {
 }
 
 main() {
-  local pmm_commit=$(git -C "${bin_dir}" rev-parse --short HEAD)
+  local pmm_commit
   local noxattrs
 
   echo -----------------------------------------
   echo "Building PMM Client binary files..."
   echo -----------------------------------------
 
+  pmm_commit=$(git -C "${bin_dir}" rev-parse --short HEAD)
   extract_source_tarball
 
   # gobuild_component(component, parent_component, extract_path, component_path)
