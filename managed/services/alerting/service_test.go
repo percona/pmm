@@ -30,9 +30,9 @@ import (
 )
 
 const (
-	testBadTemplates = "../../../testdata/alerting-templates/bad"
-	testTemplates    = "../../../testdata/alerting-templates/user2"
-	testTemplates2   = "../../../testdata/alerting-templates/user"
+	testBadTemplates = "../../testdata/alerting-templates/bad"
+	testTemplates    = "../../testdata/alerting-templates/user2"
+	testTemplates2   = "../../testdata/alerting-templates/user"
 )
 
 func TestCollect(t *testing.T) {
@@ -94,6 +94,9 @@ func TestTemplateValidation(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	svc, err := NewService(db, nil)
+	require.NoError(t, err)
+
 	t.Run("create a template with missing param", func(t *testing.T) {
 		t.Parallel()
 
@@ -132,9 +135,6 @@ templates:
         LABELS: {{ $labels }}
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
-
-		svc, err := NewService(db, nil)
-		require.NoError(t, err)
 		resp, err := svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{
 			Yaml: templateWithMissingParam,
 		})
@@ -223,9 +223,6 @@ templates:
         LABELS: {{ $labels }}
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
-
-		svc, err := NewService(db, nil)
-		require.NoError(t, err)
 		createResp, err := svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{
 			Yaml: validTemplate,
 		})
