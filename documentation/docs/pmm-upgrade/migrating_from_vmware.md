@@ -9,25 +9,39 @@ Before starting the migration:
 - check if your VMware PMM instance is running PMM 3.x. [Upgrade from PMM2 if needed](../pmm-upgrade/migrating_from_pmm_2.md).
 - check for sufficient storage space for backups (at least 2x your current `/srv` directory size).
 - note your current PMM Server IP address and configuration.
-- for OpenShift migrations, verify you have cluster-admin privileges and appropriate security context constraints (SCCs).
 - plan a maintenance window for the migration (typically 2-4 hours depending on data size).
 
-To migrate from VMware:
+### Platform-specific prerequisites
+=== "Docker/Podman"
+    - Confirm Docker/Podman installation and sufficient disk space
+    - Ensure port `443` availability
+
+=== "Kubernetes"
+    - Ensure kubectl access and sufficient cluster resources
+    - Verify persistent volume availability
+
+=== "OpenShift"
+    - Verify `cluster-admin`privileges
+    - Confirm appropriate security context constraints (SCCs) are configured
+
+
+To migrate away from VMware:
 {.power-number}
 
 1. SSH into your VMware PMM Server:
-   ```bash
-   ssh admin@<your-pmm-ip>
-   ```
+```bash
+ssh admin@<your-pmm-ip>
+```
 
 2. Check the size of your data to estimate backup time and storage needs:
-   ```bash
-    sudo du -sh /srv
-    # Also check available space for backup
-    df -h /tmp
-    ```
 
-3. Create a full of the `/srv` directory so that all metrics, settings, and database files can be restored on the new platform:
+```bash
+sudo du -sh /srv
+# Also check available space for backup
+df -h /tmp
+```
+
+3. Create a full backup of the `/srv` directory so that all metrics, settings, and database files can be restored on the new platform:
 
     -  Stop PMM services to ensure data consistency:
         ```bash
@@ -41,193 +55,144 @@ To migrate from VMware:
         ```bash
         ls -lh /tmp/pmm-backup*.tar.gz
         ```
-    - Restart services (if continuing to use the VMware instance temporarily):
+    - Restart services (if continuing to use the VMware instance temporarily:
         ```bash
         sudo supervisorctl start all
         ```
 
-4.  Export custom configurations: 
-    - Dashboards: go to custom dashboard, click the share icon and select **Export > Save to file**.
-    - Alert rules: go to **Alerting > Alert rules** and copy the configuration or take screenshots of each rule. Alternatively, export all rules via the PMM API:
+4.  Export custom configurations to save them before migration: 
+
+    - Dashboards: navigate to each custom dashboards, click the share icon and select **Export > Save to file**.
+    - Alert rules: go to **Alerting > Alert rules** and copy the configuration details or take screenshots of each rule. Alternatively, export all rules via the PMM API:
         ```bash
         curl -k -u admin: https:///graph/api/ruler/grafana/api/v1/rules > alert-rules-backup.json
         ```
-    - Service accounts: record service names and roles under **Configuration > PMM Settings > Administration > Users and Access > Service Accounts**. 
-    - External database connections: check **Configuration > PMM Settings** and custom configurations under **Advanced Settings**.
-    - Other settings: Go to PMM Configuration and record **SSH Key**, data retention **Advanced Settings > Data retention**, **Advanced Settings > Telemetry**, and backup locations (**Backup > Storage Locations**).
+    - Service accounts: note service names and roles from **Configuration > PMM Settings > Administration > Users and Access > Service Accounts**. 
+    - External database connections: check **Configuration > PMM Settings** and custom configurations from **Advanced Settings**.
 
-5. Choose your migration target:
+5. Choose your migration target and deploy new PMM:
 
-=== "Migrate to VirtualBox"
+=== "Migrate to Docker (recommended)"
+    **Benefits:**
 
-    Best if you prefer virtual machine deployments with minimal infrastructure changes.
+    - Simplified deployment and updates
+    - Better resource utilization
+    - Easy scaling and backup management 
+
+    To migrate to Docker:
     {.power-number}
 
-    1. Export VM configuration from VMware via **File > Export to OVF**.
-    2. Download PMM OVA: `wget https://downloads.percona.com/downloads/pmm/3.3.1/ova/pmm-server-3.3.1.ova`
-    3. Import PMM OVA to VirtualBox: 
+    1. [Install PMM Server with Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) to set up your environment.
+
+    2. Create PMM data volume and restore backup:
         ```bash
-        VBoxManage import pmm-server-3.3.1.ova \
-                --vsys 0 \
-                --vmname "PMM Server" \
-                --cpus 4 \
-                --memory 8192
+        docker volume create pmm-data
+        
+        # Start temporary container
+        docker run -d --name pmm-temp -v pmm-data:/srv busybox sleep 3600
+        
+        # Copy and extract backup
+        scp admin@<vmware-pmm-ip>:/tmp/pmm-backup-*.tar.gz .
+        docker cp pmm-backup-*.tar.gz pmm-temp:/tmp/
+        docker exec pmm-temp sh -c "cd / && tar -xzf /tmp/pmm-backup-*.tar.gz"
+
+        # Clean up temporary container
+        docker rm -f pmm-temp
         ```
-    4. Configure network:
+    
+    3. Launch PMM Server with the restored data:
         ```bash
-        # Set bridged networking for direct access
-        VBoxManage modifyvm "PMM Server" --nic1 bridged --bridgeadapter1 eth0
+        docker run -d \
+            --restart always \
+            --publish 443:8443 \
+            --volume pmm-data:/srv \
+            --name pmm-server \
+            percona/pmm-server:3
         ```
-    5. Start the VM:
+=== "Migrate to VirtualBox"
+
+    **Benefits:**
+
+    - Familiar VM management interface
+    - Easy snapshots and rollback capabilities
+    - Minimal learning curve from VMware
+
+    To migrate to VirtualBox:
+    {.power-number}
+    
+    1. [Deploy PMM Server on VirtualBox](../install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md) to import and configure your new PMM instance.
+
+    2. Transfer and restore backup:
         ```bash
-        VBoxManage startvm "PMM Server" --type headless
-        ```
-    6. Transfer and restore backup:
-        ```bash
-        # Get the new VM's IP
+        # Get the new VM IP
         VBoxManage guestproperty get "PMM Server" "/VirtualBox/GuestInfo/Net/0/V4/IP"
 
         # Copy backup to new VM
         scp /tmp/pmm-backup-*.tar.gz admin@<new-vm-ip>:/tmp/
 
-        # SSH to new VM
+        # SSH to new VM and restore
         ssh admin@<new-vm-ip>
-
-        # Stop services
         sudo supervisorctl stop all
-
-        # Backup existing data
         sudo mv /srv /srv.original
-
-        # Extract backup
-        cd /
-        sudo tar -xzf /tmp/pmm-backup-*.tar.gz
-
-        # Start services
+        cd / && sudo tar -xzf /tmp/pmm-backup-*.tar.gz
         sudo supervisorctl start all
         ```
 
-=== "To Docker"
-    **Recommended for most users:** Replace VM complexity with containerized simplicity for automatic updates, better performance and easier scaling.    
-    {.power-number}
-    
-    1. Install Docker on target host:
-        ```bash
-        # Install Docker if not already installed
-        curl -fsSL [https://get.docker.com](https://get.docker.com) | bash
-        ```
-    2. Create PMM data volume: 
-        ```bash
-        docker volume create pmm-data
-        ```
-    3. Start temporary container to restore data: 
-        ```bash
-        # Start a temporary container with the volume mounted
-        docker run -d --name pmm-temp \
-        -v pmm-data:/srv \
-        busybox sleep 3600
-        ```
-    4. Copy and extract backup: 
-        ```bash
-        # Copy backup from VMware instance to Docker host
-        scp admin@<vmware-pmm-ip>:/tmp/pmm-backup-*.tar.gz .
+=== "Migrate to Podman"
 
-        # Copy backup into container volume
-        docker cp pmm-backup-*.tar.gz pmm-temp:/tmp/
+    **Benefits:**
 
-        # Extract backup in the volume
-        docker exec pmm-temp sh -c "cd / && tar -xzf /tmp/pmm-backup-*.tar.gz"
+    - Rootless container execution
+    - No daemon dependency
+    - Enhanced security model
 
-        # Remove temporary container
-        docker rm -f pmm-temp
-        ```
-    5. Start PMM Server container: 
-        ```bash
-        docker run -d \
-        --restart always \
-        --publish 443:8443 \
-        --volume pmm-data:/srv \
-        --name pmm-server \
-        percona/pmm-server:3
-        ```
-
-=== "To Podman"
-
-    Best for environments that need rootless containers and enhanced security without Docker dependencies.
+    To migrate to Podman:
     {.power-number}
 
-    1. Install Podman:
-        ```bash
-        # On RHEL/CentOS/Fedora
-        sudo dnf install podman
-
-        # On Ubuntu/Debian
-        sudo apt-get install podman
-        ```
+    1. [Install PMM Server with Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) to set up your new environment.
     2. Create storage and restore data:
         ```bash
-        # Create volume
+        # Create volume (if not already created during installation)
         podman volume create pmm-data
 
         # Start temporary container
-        podman run -d --name pmm-temp \
-        -v pmm-data:/srv \
-        busybox sleep 3600
+        podman run -d --name pmm-temp -v pmm-data:/srv busybox sleep 3600
 
-        # Copy and extract backup (similar to Docker steps)
+        # Copy and extract backup
         podman cp pmm-backup-*.tar.gz pmm-temp:/tmp/
         podman exec pmm-temp sh -c "cd / && tar -xzf /tmp/pmm-backup-*.tar.gz"
         podman rm -f pmm-temp
         ```
-    3. Run PMM with Podman (rootless): 
-        ```bash
-        podman run -d \
-        --restart always \
-        --publish 443:8443 \
-        --volume pmm-data:/srv \
-        --name pmm-server \
-        percona/pmm-server:3
-        ```
+    3. Start PMM Server with your restored data:
 
-=== "To Kubernetes with Helm"
+        - For systemd integration (with UI updates):
+            ```bash
+            # Ensure systemd service files exist, then:
+            systemctl --user enable --now pmm-server
+            ```
+        
+        - For basic container (no UI updates):
+            ```bash
+            podman run -d \
+                --restart always \
+                --publish 443:8443 \
+                --volume pmm-data:/srv \
+                --name pmm-server \
+                percona/pmm-server:3
+            ```
 
-    Best for cloud-native environments with orchestration requirements and standard Kubernetes clusters.
+=== "Migrate to Kubernetes/OpenShift with Helm"
+    **Benefits:**
+
+    - Simplified deployment and updates
+    - Better resource utilization
+    - Easy scaling and backup management
+
+    To migrate to Kubernetes/Openshift:
     {.power-number}
 
-    1. Create Kubernetes namespace and secret
-        ```bash
-        kubectl create namespace pmm
-
-        # Create secret with admin password
-        kubectl create secret generic pmm-secret \
-        --from-literal=PMM_ADMIN_PASSWORD=<your-password> \
-        -n pmm
-        ```
-    2. Add Percona Helm Repository: 
-        ```bash
-        helm repo add percona [https://percona.github.io/percona-helm-charts/](https://percona.github.io/percona-helm-charts/)
-        helm repo update
-        ```
-    3. Deploy PMM with persistent storage: 
-        ```yaml
-        # values.yaml
-        storage:
-          size: 100Gi
-          storageClass: "standard"  # Adjust to your storage class
-
-        service:
-          type: LoadBalancer  # or NodePort/ClusterIP based on your needs
-
-        secret:
-          create: false
-          name: pmm-secret
-        ```
-        ```bash
-        helm install pmm percona/pmm \
-        -f values.yaml \
-        -n pmm
-        ```
-    4. Restore backup to Kubernetes: 
+    1. [Deploy PMM Server on your Kubernetes or Openshift cluster](../install-pmm/install-pmm-server/deployment-options/helm/index.md).
+    2. Restore backup to Kubernetes:
         ```bash
         # Get the PMM pod name
         PMM_POD=$(kubectl get pods -n pmm -l app.kubernetes.io/name=pmm -o jsonpath='{.items[0].metadata.name}')
@@ -235,92 +200,44 @@ To migrate from VMware:
         # Copy backup to pod
         kubectl cp pmm-backup-*.tar.gz pmm/$PMM_POD:/tmp/
 
-        # Stop services and restore
+        # Stop services, backup existing /srv, restore data, and restart services
         kubectl exec -n pmm $PMM_POD -- supervisorctl stop all
+        kubectl exec -n pmm $PMM_POD -- mv /srv /srv.original
         kubectl exec -n pmm $PMM_POD -- sh -c "cd / && tar -xzf /tmp/pmm-backup-*.tar.gz"
         kubectl exec -n pmm $PMM_POD -- supervisorctl start all
         ```
-        
-=== "To OpenShift with Helm"
-
-    Best for enterprise OpenShift environments with enhanced security policies and integrated developer tools.
-    {.power-number}
-
-    1. Create OpenShift project and secret: 
-        ```bash
-        oc new-project pmm
-
-        # Create secret with admin password
-        oc create secret generic pmm-secret \
-        --from-literal=PMM_ADMIN_PASSWORD=<your-password> \
-        -n pmm
-        ```
-    2. Add Percona Helm repository:
-        ```bash
-        helm repo add percona [https://percona.github.io/percona-helm-charts/](https://percona.github.io/percona-helm-charts/)
-        helm repo update
-        ```
-    3. Create OpenShift-specific values file:
-        ```yaml    
-        # openshift-values.yaml
-        storage:
-          size: 100Gi
-          storageClass: "gp2"  # Adjust to your OpenShift storage class
-
-        service:
-          type: ClusterIP  # Use Routes instead of LoadBalancer
-
-        secret:
-          create: false
-          name: pmm-secret
-        # OpenShift-specific pod security settings
-        podSecurityContext:
-          runAsNonRoot: true
-          seccompProfile:
-            type: RuntimeDefault
-        ```
-    4. Deploy PMM with OpenShift configuration:
-        ```bash
-        helm install pmm percona/pmm \
-        -f openshift-values.yaml \
-        -n pmm
-        ```
-    5. Create Route to expose PMM:
-        ```bash
-        oc expose svc/pmm-service --port=443
-        ```
-    6. Restore backup to OpenShift:
-        ```bash
-        # Get the PMM pod name
-        PMM_POD=$(oc get pods -n pmm -l app.kubernetes.io/name=pmm -o jsonpath='{.items[0].metadata.name}')
-
-        # Copy backup to pod
-        oc cp pmm-backup-*.tar.gz pmm/$PMM_POD:/tmp/
-
-        # Stop services and restore
-        oc exec -n pmm $PMM_POD -- supervisorctl stop all
-        oc exec -n pmm $PMM_POD -- sh -c "cd / && tar -xzf /tmp/pmm-backup-*.tar.gz"
-        oc exec -n pmm $PMM_POD -- supervisorctl start all
-        ```
 
 ## Post-migration checks
-Verify that all components are functioning correctly before decommissioning the old VMware instance. This ensures data integrity, restores custom configurations, and updates all connected systems to use the new PMM server.
+Verify that all components are functioning correctly before decommissioning the old VMware instance. This restores custom configurations and updates all connected systems to use the new PMM server.
 {.power-number}
 
-1. Verify PMM Server access from `https://<new-pmm-ip>` and check PMM version under **Configuration > Updates**. 
-2. Update all PMM Clients to point to the new server:
+1. Access new PMM Server from `https://<new-pmm-ip>` and check PMM version under **Configuration > Updates**. 
+2. Update all PMM Clients to connect the new server.
+    - **If clients use IP addresses:** Update each client individually:
+      ```bash
+      # Edit the PMM Agent configuration file
+      sudo nano /usr/local/percona/pmm2/config/pmm-agent.yaml
 
-    ```bash
-    # On each client node
-    pmm-admin config --server-url=https://admin:<password>@<new-pmm-ip>:443 --force
-    ```
+      # Find the "server_address" line and update it to your new PMM Server IP.
+      # Example: server_address: "192.168.1.100:443"
+
+      # Save the file and exit the editor
+      
+      # Restart the PMM Agent service to apply changes
+      sudo systemctl restart pmm-agent
+
+      # Verify the connection status
+      pmm-admin status
+      ```
+    - **If clients use DNS hostnames**: skip updating individual clients and update DNS records instead. See step 4.
 
 3. Verify data integrity:
 
-    - Check that historical metrics are present.
-    - Verify all services appear in **Configuration > PMM Inventory > Services**.
-    - Confirm Query Analytics (QAN) data is available.
-    - Test alerting functionality.
+    - **Historical metrics**: Open any dashboard, set time range to **Last 7 days**, and verify graphs show continuous data without gaps.
+    - **Service inventory**: Check **Configuration > PMM Inventory > Services** for all monitored services
+    - **QAN**: Go to **Query Analytics**, set time range to **Last 7 days**, and verify past SQL queries appear with execution times
+    - **Custom dashboards**: Verify imported dashboards display correctly
+    - **Alert functionality**: Test alert rule triggers and notifications
 
 4. Update DNS/network configuration: 
 
@@ -328,13 +245,22 @@ Verify that all components are functioning correctly before decommissioning the 
     - **IP Swap**: assign the old VMware IP to the new server.
     - **Load Balancer**: update backend pool to point to new server.
 
-5. Go to **Dashboards > Browse > Import** and upload previously exported dashboard JSON files. 
+5. (DNS-based only) If you skipped step 2 because your clients use DNS hostnames, restart pmm-agent after updating DNS in step 4:
 
-6. Recreate any custom alert rules in **Alerting > Alert Rules** and reconfigure backup schedules.
+    ```bash
+    # On each DNS-configured client after DNS update
+    sudo systemctl restart pmm-agent
+    ```
+
+6. Restore custom configurations: 
+
+  - **import dashboards**: Go to **Dashboards > Browse > Import** and upload previously exported dashboard JSON files. 
+  - **recreate custom alert rules**: Go to **Alerting > Alert Rules** and recreate custom rules.
+  - **reconfigure services**: Restore backup schedules and custom settings, then update service account configurations. 
 
 7. Decommission VMware instance once you've verified the migration is successful:
 
  - keep the VMware instance offline but available for 1-2 weeks as a fallback.
- - take a final VM snapshot/backup for archival purposes.
+ - take a final VM snapshot/backup for archiving.
 
-8. Select the VM in VMWare and Power Off the instance then click **Remove > Delete** all files.
+8. Select the VM in VMWare and Power off the instance then click **Remove > Delete** all files.

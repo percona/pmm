@@ -51,7 +51,4 @@ You should see output confirming the file is OK:
 `PMM-Server-X.Y.Z.ova: OK`
 
 ## Next steps
-After downloading the OVA file, proceed to deployment:
-
-- [Deploy on VMware](../virtual/vmware.md)
-- [Deploy on VirtualBox](../virtual/virtualbox.md)
+After downloading the OVA file, [Deploy on VirtualBox](../virtual/virtualbox.md).
