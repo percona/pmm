@@ -422,7 +422,7 @@ func TestRemoveValkey(t *testing.T) {
 		require.NotNil(t, addValkeyOK)
 		require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
 		serviceID = addValkeyOK.Payload.Valkey.Service.ServiceID
-		return
+		return nodeID, pmmAgentID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {

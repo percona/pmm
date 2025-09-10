@@ -72,7 +72,7 @@ type AddAgentValkeyExporterCommand struct {
 
 // RunCmd executes the AddAgentValkeyExporterCommand and returns the result.
 func (cmd *AddAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	var (
 		err                    error
