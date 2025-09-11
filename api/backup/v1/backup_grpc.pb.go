@@ -30,6 +30,7 @@ const (
 	BackupService_ListArtifacts_FullMethodName                  = "/backup.v1.BackupService/ListArtifacts"
 	BackupService_DeleteArtifact_FullMethodName                 = "/backup.v1.BackupService/DeleteArtifact"
 	BackupService_ListPitrTimeranges_FullMethodName             = "/backup.v1.BackupService/ListPitrTimeranges"
+	BackupService_ListServiceCompression_FullMethodName         = "/backup.v1.BackupService/ListServiceCompression"
 )
 
 // BackupServiceClient is the client API for BackupService service.
@@ -58,6 +59,8 @@ type BackupServiceClient interface {
 	DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error)
 	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
 	ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error)
+	// ListServiceCompression returns available compression methods for a service.
+	ListServiceCompression(ctx context.Context, in *ListServiceCompressionRequest, opts ...grpc.CallOption) (*ListServiceCompressionResponse, error)
 }
 
 type backupServiceClient struct {
@@ -168,6 +171,16 @@ func (c *backupServiceClient) ListPitrTimeranges(ctx context.Context, in *ListPi
 	return out, nil
 }
 
+func (c *backupServiceClient) ListServiceCompression(ctx context.Context, in *ListServiceCompressionRequest, opts ...grpc.CallOption) (*ListServiceCompressionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListServiceCompressionResponse)
+	err := c.cc.Invoke(ctx, BackupService_ListServiceCompression_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BackupServiceServer is the server API for BackupService service.
 // All implementations must embed UnimplementedBackupServiceServer
 // for forward compatibility.
@@ -194,6 +207,8 @@ type BackupServiceServer interface {
 	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error)
 	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
 	ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error)
+	// ListServiceCompression returns available compression methods for a service.
+	ListServiceCompression(context.Context, *ListServiceCompressionRequest) (*ListServiceCompressionResponse, error)
 	mustEmbedUnimplementedBackupServiceServer()
 }
 
@@ -242,6 +257,10 @@ func (UnimplementedBackupServiceServer) DeleteArtifact(context.Context, *DeleteA
 
 func (UnimplementedBackupServiceServer) ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPitrTimeranges not implemented")
+}
+
+func (UnimplementedBackupServiceServer) ListServiceCompression(context.Context, *ListServiceCompressionRequest) (*ListServiceCompressionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListServiceCompression not implemented")
 }
 func (UnimplementedBackupServiceServer) mustEmbedUnimplementedBackupServiceServer() {}
 func (UnimplementedBackupServiceServer) testEmbeddedByValue()                       {}
@@ -444,6 +463,24 @@ func _BackupService_ListPitrTimeranges_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BackupService_ListServiceCompression_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListServiceCompressionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BackupServiceServer).ListServiceCompression(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BackupService_ListServiceCompression_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BackupServiceServer).ListServiceCompression(ctx, req.(*ListServiceCompressionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BackupService_ServiceDesc is the grpc.ServiceDesc for BackupService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -490,6 +527,10 @@ var BackupService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListPitrTimeranges",
 			Handler:    _BackupService_ListPitrTimeranges_Handler,
+		},
+		{
+			MethodName: "ListServiceCompression",
+			Handler:    _BackupService_ListServiceCompression_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
