@@ -62,7 +62,7 @@ if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml.bak ]; then
 
     if ! getent passwd pmm-agent > /dev/null 2>&1; then
        /usr/sbin/groupadd -r pmm-agent
-       /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /bin/false -c "PMM Agent User" pmm-agent
+       /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /sbin/nologin -c "PMM Agent User" pmm-agent
        chown -R pmm-agent:pmm-agent /usr/local/percona/pmm
     fi
     /usr/bin/systemctl enable pmm-agent >/dev/null 2>&1 || :
@@ -135,7 +135,7 @@ rm -rf $RPM_BUILD_ROOT
 if [ $1 -eq 1 ]; then
   if ! getent passwd pmm-agent > /dev/null 2>&1; then
     /usr/sbin/groupadd -r pmm-agent
-    /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /bin/false -c pmm-agent pmm-agent > /dev/null 2>&1
+    /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /sbin/nologin -c pmm-agent pmm-agent > /dev/null 2>&1
   fi
 fi
 if [ $1 -eq 2 ]; then
@@ -151,7 +151,7 @@ done
 %systemd_post pmm-agent.service
 if [ $1 -eq 1 ]; then
     if [ ! -f /usr/local/percona/pmm/config/pmm-agent.yaml ]; then
-        install -d -m 0755 /usr/local/percona/pmm/config
+        install -d -m 0755 -o pmm-agent -g pmm-agent /usr/local/percona/pmm/config
         install -m 0660 -o pmm-agent -g pmm-agent /dev/null /usr/local/percona/pmm/config/pmm-agent.yaml
     fi
     /usr/bin/systemctl enable pmm-agent >/dev/null 2>&1 || :
@@ -214,6 +214,9 @@ fi
 %attr(-,pmm-agent,pmm-agent) /usr/local/percona/pmm
 
 %changelog
+* Mon Aug 25 2025 Alex Demidoff <alexander.demidoff@percona.com>
+- PMM-12362 rootless systemd user
+
 * Fri Nov 8 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com>
 - PMM-13399 include nomad into pmm client
 

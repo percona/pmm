@@ -260,7 +260,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 		if cfg.Paths.TempDir == "" {
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
-			l.Infof("Temporary directory is not configured and will be set to %s", cfg.Paths.TempDir)
+			l.Infof("Temporary directory will default to %s", cfg.Paths.TempDir)
 		}
 
 		if cfg.Paths.NomadDataDir == "" {

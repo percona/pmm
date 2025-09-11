@@ -3,6 +3,9 @@ Description=pmm-agent
 After=time-sync.target network.target
 
 [Service]
+User=pmm-agent
+# We intentionally let pmm-agent run with systemd's default group so it can access important system metrics.
+# Group=root
 Type=simple
 ExecStart=/usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml
 Restart=always
