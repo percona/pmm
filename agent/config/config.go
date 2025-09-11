@@ -89,7 +89,7 @@ func (s *Server) FilteredURL() string {
 	return strings.ReplaceAll(u.String(), ":%2A%2A%2A@", ":***@")
 }
 
-// Paths represent binaries paths configuration.
+// Paths represents binary paths configuration.
 type Paths struct {
 	PathsBase        string `yaml:"paths_base"`
 	ExportersBase    string `yaml:"exporters_base"`
