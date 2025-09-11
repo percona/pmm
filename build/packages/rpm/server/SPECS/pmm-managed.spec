@@ -46,11 +46,11 @@ cd ../ui
 make release
 
 %install
-install -d -p %{buildroot}%{_bindir}
-install -d -p %{buildroot}%{_sbindir}
-install -d -p %{buildroot}%{_datadir}/%{name}
-install -d -p %{buildroot}%{_datadir}/pmm-ui
-install -d -p -o pmm -g root %{buildroot}/usr/local/percona/{advisors,checks,alerting-templates}
+install -d %{buildroot}%{_bindir}
+install -d %{buildroot}%{_sbindir}
+install -d %{buildroot}%{_datadir}/%{name}
+install -d %{buildroot}%{_datadir}/pmm-ui
+install -d -o pmm -g root %{buildroot}/usr/local/percona/{advisors,checks,alerting-templates}
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
