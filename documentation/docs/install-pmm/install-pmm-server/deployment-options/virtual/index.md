@@ -14,7 +14,7 @@ Deploy PMM Server as a pre-configured virtual machine when you need a standalone
 When working with the PMM Server virtual appliance, it's helpful to understand these terms:
 
 - **Host**: The desktop or server machine running the hypervisor
-- **Hypervisor**: Software (e.g., VirtualBox, VMware) that runs the guest OS as a virtual machine
+- **Hypervisor**: Software (e.g., VirtualBox) that runs the guest OS as a virtual machine
 - **Guest VM**: Virtual machine running PMM Server (Oracle Linux 9.3)
 
 ## OVA file details
@@ -62,12 +62,18 @@ For optimal performance, we recommend:
 
 ## Hypervisor compatibility
 
-The PMM Server OVA is compatible with:
+The PMM Server OVA is compatible with VirtualBox 6.0 and later. 
 
-- VMware ESXi 6.0 and later
+### Deprecated (support ends January 2026)
+
+VMware platforms are deprecated and will lose support in PMM 3.6.0.
+ Migrate to VirtualBox or consider alternative deployment methods like Docker or Kubernetes. 
+ 
+ For details, see [Migrate from VMware to alternative platforms](../../../../pmm-upgrade/migrating_from_vmware.md).
+
 - VMware Workstation 12.0 and later
 - VMware Fusion 10.0 and later
-- VirtualBox 6.0 and later
+- VMware ESXi 6.0 and later 
 
 ## Network requirements
 
@@ -94,5 +100,4 @@ Change these default passwords to strong, unique passwords during your first log
 After reviewing the requirements:
 
 - [Download the PMM Server OVA file](download_ova.md)
-- [Deploy on VMware](vmware.md)
 - [Deploy on VirtualBox](virtualbox.md)
