@@ -14,7 +14,7 @@ Using the Docker container approach offers several advantages:
 Complete these essential steps before installation:
 {.power-number}
 
-1. Install [Docker Engine](https://docs.docker.com/get-docker/)
+1. Install [Docker Engine](https://docs.docker.com/get-docker/).
 
 2. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
@@ -28,6 +28,7 @@ Complete these essential steps before installation:
 
 ## Installation and setup
 
+### Deploy PMM Client 
 Follow these steps to deploy PMM Client using Docker:
 {.power-number}
 
@@ -64,46 +65,115 @@ Follow these steps to deploy PMM Client using Docker:
          - You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
          -   If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
 
-4. After the setup is complete, start the [pmm-agent](../../use/commands/pmm-agent.md) in normal mode:
+4. Start the [pmm-agent](../../use/commands/pmm-agent.md) in normal mode:
 
-    ```bash
-    docker run \
-      --detach \
-      --name pmm-client \
-      -e PMM_AGENT_SETUP=0 \
-      -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-      -v pmm-client-data:/usr/local/percona/pmm/tmp \
-      percona/pmm-client:3
-    ```
-    
-5. Register your nodes to be monitored by PMM Server using the PMM Client:
+```bash
+docker run \
+    --detach \
+    --name pmm-client \
+    -e PMM_AGENT_SETUP=0 \
+    -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
+    -v pmm-client-data:/usr/local/percona/pmm/tmp \
+    percona/pmm-client:3
+```
 
-    ```sh
-    docker exec pmm-client pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
-    ```
+### Register the node
 
-    where: 
+After installing PMM Client, register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.
 
-    - `X.X.X.X` is the address of your PMM Server
-    - `443` is the default port number
-    - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
+Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the node: secure service account tokens and standard username/password credentials.
 
-    !!! caution alert alert-warning "HTTPS connection required"
-        Nodes *must* be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.
+=== "Using Service accounts (Recommended)"
+    [Service accounts](../../api/authentication.md) provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.
 
-    ??? info "Registration example"
+    To register with service accounts, create a service account then generate an authentication token that you can use to register the PMM Client:
+    {.power-number}
 
-        Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:
+    1. Log into PMM web interface.
+    2. Navigate to **Administration > Users and access > Service Accounts**.
+    3. Click **Add Service account**.
+    4. Enter a descriptive name (e.g.: `pmm-client-prod-db01`). Keep in mind that PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
+    5. Select the **Editor** role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md).
+    6. Click **Create > Add service account token**.
+    7. (Optional) Name your token or leave blank for auto-generated name.
+    8. (Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
+    9. Click **Generate Token**.
+    10. **Save your token immediately**. It starts with `glsa_` and won't be shown again!
+    11. Register using the token:
 
-        ```sh
-        docker exec pmm-client pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
+        ```bash
+        docker exec -it pmm-client pmm-admin config --server-insecure-tls \
+            --server-url=https://YOUR_PMM_SERVER:443 \
+            --server-username=service_token \
+            --server-password=YOUR_GLSA_TOKEN \
+            [NODE_ADDRESS] [NODE_TYPE] [NODE_NAME]
         ```
 
-6. Verify the PMM Client status. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
+        **Parameters explained:**
+
+        - `--server-insecure-tls` - Skip certificate validation (remove for production with valid certificates)
+        - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
+        - `service_token` - Use this exact string as the username (not a placeholder!)
+        - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
+        - `[NODE_ADDRESS]` - (Optional) IP address of the node being registered
+        - `[NODE_TYPE]` - (Optional) Node type: `generic`, `container`, etc.
+        - `[NODE_NAME]` - (Optional) Descriptive name for the node
+
+        ??? example "Full example with node details"
+            ```bash
+            docker exec -it pmm-client pmm-admin config --server-insecure-tls \
+                --server-url=https://192.168.33.14:443 \
+                --server-username=service_token \
+                --server-password=glsa_aBc123XyZ456... \
+                192.168.33.23 generic prod-db01
+            ```
+            This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
+
+=== "Standard authentication (Not recommended)"
+    This method exposes credentials in command history, process lists, and logs! Use only for testing or migration scenarios:
 
     ```bash
-    docker exec -t pmm-client pmm-admin status
+    pmm-admin config --server-insecure-tls \
+    --server-url=https://admin:admin@YOUR_PMM_SERVER:443
     ```
+
+    **Parameters explained:**
+
+       - `YOUR_PMM_SERVER`- Your PMM Server's IP address or hostname
+       - `443` - Default HTTPS port
+       - `admin`/`admin` - Default PMM username and password (change this immediately after first login)
+
+    ??? example "Registration with node details"
+        Register a node with IP address `192.168.33.23`, type `generic`, and name `mynode`:
+
+        ```bash
+        pmm-admin config --server-insecure-tls \
+        --server-url=https://admin:admin@192.168.33.14:443 \
+        192.168.33.23 generic mynode
+        ```
+    To migrate to [service accounts](../../api/authentication.md):
+    {.power-number}
+
+    1. Create service accounts while still using standard authentication.
+    2. Test service account tokens on non-critical nodes.
+    3. Gradually migrate all nodes to token authentication.
+    4. Change the admin password from default.
+    5. Consider restricting or disabling direct admin account usage for node registration.
+
+    !!! info "HTTPS requirement"
+        PMM requires HTTPS connections (port `443` by default). HTTP URLs automatically redirect to HTTPS. For connection errors, verify:
+
+        - Port `443` is accessible
+        - Firewall rules allow HTTPS traffic
+        - TLS certificates are valid (or use `--server-insecure-tls`)
+
+## Verify the connection
+
+Check that PMM Client is properly connected and registered. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
+
+```bash
+docker exec -t pmm-client pmm-admin status
+```
 
 ## Add monitoring services
 
@@ -116,7 +186,8 @@ When running PMM in Docker, prefix all pmm-admin commands with `docker exec pmm-
     - Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](../../troubleshoot/checklist.md).
     - If you need assistance with PMM Client, run: `docker run --rm percona/pmm-client:3 --help`.
 
-## View your monitored node
+### View your monitored node
+
 To confirm your node is being monitored:
 {.power-number}
 
