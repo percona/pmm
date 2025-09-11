@@ -50,9 +50,7 @@ install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
 install -d -p %{buildroot}%{_datadir}/pmm-ui
-install -d -p %{buildroot}/usr/local/percona/advisors
-install -d -p %{buildroot}/usr/local/percona/checks
-install -d -p %{buildroot}/usr/local/percona/alerting-templates
+install -d -p -o pmm -g root %{buildroot}/usr/local/percona/{advisors,checks,alerting-templates}
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
@@ -74,9 +72,9 @@ cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/al
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
 %{_datadir}/pmm-ui
-/usr/local/percona/advisors/*.yml
-/usr/local/percona/checks/*.yml
-/usr/local/percona/alerting-templates/*.yml
+%attr(0644, pmm, root) /usr/local/percona/advisors/*.yml
+%attr(0644, pmm, root) /usr/local/percona/checks/*.yml
+%attr(0644, pmm, root) /usr/local/percona/alerting-templates/*.yml
 
 %changelog
 * Thu Sep 4 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
