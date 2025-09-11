@@ -87,7 +87,7 @@ func TestNodeExporter(t *testing.T) {
 					AgentID:            agentID,
 					PMMAgentID:         pmmAgentID,
 					Disabled:           true,
-					Status:             &AgentStatusUnknown,
+					Status:             &AgentStatusDone,
 					CustomLabels:       map[string]string{},
 					DisabledCollectors: make([]string, 0),
 					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
@@ -120,7 +120,7 @@ func TestNodeExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "node_exporter",
 					},
-					Status:             &AgentStatusUnknown,
+					Status:             &AgentStatusDone,
 					DisabledCollectors: make([]string, 0),
 					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
