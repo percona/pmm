@@ -1,7 +1,7 @@
 ---
 checks:
   - version: 2
-    name: mongo_cache_size
+    name: mongodb_cache_size
     summary: Mongo Storage Cache
     description: Mongo wiredtiger cache size is greater then default 50%
     interval: standard
