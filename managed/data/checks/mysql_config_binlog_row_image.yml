@@ -1,0 +1,42 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_binlog_row_image
+    summary: Binlogs raw image is not set to FULL
+    description: Please consider setting binlog_row_image=FULL.
+    interval: standard
+    advisor: configuration_generic
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, IF(@@global.binlog_row_image='MINIMAL', 1, 0) AS binlog_row_image, @@global.binlog_row_image as RI_NAME;"
+    script: |
+      def check_binlog_row_image(doc,read_url):
+          for row in doc:
+             binlog_row_image = row["binlog_row_image"]
+             binlog_row_image_name = row["RI_NAME"]
+             version = row["version"]
+             service = row["service"]
+          if binlog_row_image != 0:
+              return {
+                  "summary": "Binlogs raw image is not set to FULL",
+                  "description": "Please consider setting binlog_row_image=FULL while this will increase the binlog size, you will have better option to recover data in case of data corruption. Current settings = {};".format(binlog_row_image_name),
+                  "severity": "warning",
+                  "read_more_url": read_url.format("binlog-row-image"),
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  }
+              }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          in_result = check_binlog_row_image(docs[0],read_url)
+          if in_result:
+            results.append(in_result)
+
+          return results

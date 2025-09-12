@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: configuration_vacuum
+    summary: Vacuum Configuration
+    description: Provides recommendations on optimizing Vacuum configuration.
+    category: configuration

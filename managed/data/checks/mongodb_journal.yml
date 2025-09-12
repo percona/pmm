@@ -1,0 +1,40 @@
+---
+### MongoDB Platform Advisors Journal Check
+checks:
+  - version: 1
+    name: mongodb_journal
+    summary: MongoDB Journal
+    description: This check returns warnings if journal is disabled.
+    type: MONGODB_GETCMDLINEOPTS
+    #family: mongodb
+    #author: Corrado Pandiani
+    advisor: configuration_generic
+    interval: standard
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+      def check_context(docs, context):
+          """
+          This check returns warnings if MongoDB journal is disabled.
+          """
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+          results = []
+          parsed = docs[0]["parsed"]
+          print(repr(parsed))
+          storage_journal = parsed.get("storage.journal", {})
+          journal_enabled = (storage_journal.get("enabled") == "true")
+          if not journal_enabled:
+              results.append({
+                  "summary": "MongoDB journaling is disabled",
+                  "description": "Journaling should not be disabled on production systems. This presents a risk to data durability in the event of a failure. See the following for further details.",
+                  "read_more_url": read_url.format("mongodb-journal"),
+                  "severity": "warning",
+              })
+          return results
