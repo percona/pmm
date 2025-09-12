@@ -1,18 +1,20 @@
 #!/bin/bash
+
+. "$(dirname "$0")/vars"
+
 set -o errexit
 set -o xtrace
 
-. $(dirname $0)/vars
-
 # 1st-party
-${bin_dir}/build-server-rpm percona-dashboards grafana-dashboards
-${bin_dir}/build-server-rpm pmm-managed pmm
-${bin_dir}/build-server-rpm percona-qan-api2 pmm
-${bin_dir}/build-server-rpm pmm-dump
-${bin_dir}/build-server-rpm vmproxy pmm
+"${bin_dir}"/build-server-rpm percona-dashboards grafana-dashboards
+"${bin_dir}"/build-server-rpm pmm-managed pmm
+"${bin_dir}"/build-server-rpm pmm-ui pmm
+"${bin_dir}"/build-server-rpm pmm-qan-api pmm
+"${bin_dir}"/build-server-rpm pmm-dump
+"${bin_dir}"/build-server-rpm pmm-vmproxy pmm
 
 # 3rd-party
-${bin_dir}/build-server-rpm victoriametrics
-${bin_dir}/build-server-rpm grafana
+"${bin_dir}"/build-server-rpm victoriametrics
+"${bin_dir}"/build-server-rpm grafana
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2

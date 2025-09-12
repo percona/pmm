@@ -127,10 +127,10 @@
     - name: Install Goreleaser
       dnf:
         name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
-        state: present
         disable_gpg_check: yes
+        state: present
 
-    - name: install latest YQ (YAML processor)
+    - name: Install latest YQ (YAML processor) 
       get_url:
         url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         dest: /usr/bin/yq
@@ -144,9 +144,9 @@
         name: "{{ item }}"
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==24.7.0
-        - GitPython==3.1.43
-        - PyGithub==2.3.0
+        - pyaml==25.1.0
+        - GitPython==3.1.44
+        - PyGithub==2.6.1
         - python-digitalocean==1.17.0
         - docker==7.1.0
         - linode-cli==5.50.0

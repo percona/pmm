@@ -62,6 +62,7 @@
         - /var/lib/pgsql
         - /var/cache/dnf
         - /var/cache/yum
+        - /etc/yum.repos.d/percona-pmm2-client-release.repo
         - /srv/pmm-encryption.key
         - /srv/pmm-agent/tmp
 

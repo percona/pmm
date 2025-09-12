@@ -1,39 +1,43 @@
 #!/bin/bash
 
-set -o errexit
-set -o xtrace
-
 . $(dirname $0)/vars
 
-if [ -f "${docker_client_tarball}" ]; then
-    echo skip docker build
-    exit 0
-fi
+main() {
+  echo -----------------------------------------
+  echo "Building docker image for PMM Client..."
+  echo -----------------------------------------
 
-DOCKER_FILE_LOCATION=tmp/source/pmm/build/docker/client # relative to `root_dir`
-cp "${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz" "${root_dir}/${DOCKER_FILE_LOCATION}/pmm-client.tar.gz"
+  local DOCKER_CONTEXT_DIR="${build_dir}/docker"
+  local DOCKERFILE_DIR="${pmm_build_dir}/docker/client"
+  local BUILD_DATE=$(date -u +'%F %T%z' | sed 's@^.\{22\}@&:@')
+  
+  mkdir -p "$DOCKER_CONTEXT_DIR"
+  cp "${build_dir}"/tarball/pmm-client-*.tar.gz "${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz"
+  cp "$DOCKERFILE_DIR/"* "${DOCKER_CONTEXT_DIR}"
 
-if [ -z "${DOCKER_CLIENT_TAG}" ]; then
-    DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${full_pmm_version}
-fi
+  if [ -z "${DOCKER_CLIENT_TAG}" ]; then
+    DOCKER_CLIENT_TAG="perconalab/pmm-client-fb:${shortcommit}"
+  fi
 
-docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
-             --build-arg VERSION=$(cat VERSION) \
-             --build-arg RELEASE=$(date +%s) \
-             --squash \
-             --no-cache \
-             -f ${DOCKER_FILE_LOCATION}/${docker_file} \
-             -t ${DOCKER_CLIENT_TAG} \
-             ${DOCKER_FILE_LOCATION}
+  local CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`
 
-if [ -n "${PUSH_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_client_tag_file})
-    echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
-    docker push ${DOCKER_CLIENT_TAG}
-fi
-if [ -n "${SAVE_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_client_tarball})
-    docker save ${DOCKER_CLIENT_TAG} | xz > ${docker_client_tarball}
-fi
+  docker buildx build \
+    --build-arg BUILD_DATE="$BUILD_DATE" \
+    --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
+    --build-arg RELEASE=$(date +%s) \
+    --progress plain \
+    -f ${DOCKER_CONTEXT_DIR}/${docker_file} \
+    -t ${DOCKER_CLIENT_TAG} \
+    ${DOCKER_CONTEXT_DIR}
 
-# vim: expandtab shiftwidth=4 tabstop=4
+  echo -n ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
+  rm -f "${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz"
+
+  echo
+  echo "Finished building PMM Client docker image: $DOCKER_CLIENT_TAG"
+  echo  
+}
+
+main
+
+# vim: expandtab shiftwidth=2 tabstop=2

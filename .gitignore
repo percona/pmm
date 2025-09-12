@@ -1,19 +1,29 @@
-/.idea/
-/.vscode/
-*.iml
-
-/api/nginx/*.pem
-bin/
-!/documentation/resources/bin/
+.idea/
+.vscode/
 
 # System Files
 .DS_Store
+*.sw[o,p]
 
-cover.out
-crosscover.out
+# development
+.modules
+bin/
+!/documentation/resources/bin/
+dist/
+.env
+.netrc
+pmm-agent-dev.yaml
+compose.yml
+ci.yml
+sbom.json
+*.log
+encryption.key
+
+api/nginx/*.pem
+api-tests/pmm-api-tests-output.txt
+api-tests/pmm-api-tests-junit-report.xml
 
 agent/testdata/
-
 agent/agents/mysql/slowlog/parser/corpus/
 agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
@@ -38,8 +48,7 @@ compose.yml
 build.log
 ci.yml
 
-api-tests/pmm-api-tests-output.txt
-api-tests/pmm-api-tests-junit-report.xml
+qan-api2/logs/
 
 packer.log
 encryption.key

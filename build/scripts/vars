@@ -1,71 +1,91 @@
-bin_dir=$(cd $(dirname $0); pwd -P)
-# TODO: refactor to pass ${WORKSPACE} as ROOT_DIR from either Jenkins or, if relevant, from GH actions
-# NOTE: in most cases, this evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
-# Example: /home/ec2-user/workspace/ol9-build-server/, see how it's used in ol9-build-server.groovy
-root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
-root_dir=${ROOT_DIR:-$root_dir_tmp}
-tmp_dir=${root_dir}/tmp
+# The variables in this file are global. Every script located in this
+# directory needs to have them available in its scope to function properly.
+# shellcheck disable=SC2034
+
+# `bin_dir` is the directory where the build scripts are located.
+bin_dir=$(dirname "$(realpath "$0")")
+# `root_dir` must always point to the root of [pmm-submodules](https://github.com/percona-lab/pmm-submodules).
+top_level=$(git rev-parse --show-toplevel 2>/dev/null)
+root_dir=${ROOT_DIR:-$(git rev-parse --show-superproject-working-tree)}
+root_dir=${root_dir:-$top_level}
+build_dir="${root_dir}/build"
+pmm_build_dir=$(realpath "${bin_dir}"/..)
+s3_cache_dir=PR-BUILDS
+if [ "${RELEASE_BUILD:-}" = 1 ]; then
+  s3_cache_dir=RELEASE
+fi
 
 BUILD_TYPE=${BUILD_TYPE:-static}
 OS_VARIANT=${OS_VARIANT:-ol8}
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
-# alphanumeric value like '2.0.0-alpha3' which can not be used entirely
-# e.g. in Version directive in spec files. So we define:
-# * full_pmm_version to contain full version and build metadata: '2.0.0-alpha3-PMM-1234-fb-branch-123abc';
-# * pmm_version to contain only MAJOR.MINOR.PATCH: '2.0.0';
-# * pmm_release to contain only pre-release part (can be empty): 'alpha3'.
+# alphanumeric value like '2.0.0-alpha3' which can not be used entirely,
+# e.g. as in Version directive of RPM spec files. So we define the following:
+# 'full_pmm_version' - must contain full version and build metadata: '2.0.0-alpha3-PMM-1234-fb-branch-abc123de'
+# 'pmm_version'      - must contain only MAJOR.MINOR.PATCH: '2.0.0'
+# 'pmm_release'      - can contain only pre-release part (but can also be empty): 'alpha3'
 pmm_branch=$(git rev-parse --abbrev-ref HEAD)
+pmm_base_version=$(< "${root_dir}/VERSION")
 
-pmm_base_version=$(cat ${root_dir}/VERSION)
-full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
+shortcommit=$(git rev-parse --short HEAD)
+full_pmm_version=${pmm_base_version}-${pmm_branch}-${shortcommit}
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 
-# TODO Maybe it makes sense to use variable from job here
-if [[ ${pmm_branch} =~ release-* || \
-      ${pmm_branch} =~ pmm-3.* || \
-      ${pmm_branch} == v3 || \
-      ${pmm_branch} == "main" ]]; then
-    full_pmm_version=${pmm_base_version}
+if [[ "${pmm_branch}" =~ ^pmm-3.|^v3$|^main$ ]]; then
+  full_pmm_version=${pmm_base_version}
 fi
 
-new_pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
-new_pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
+pmm_version=$(awk -F'-' '{print $1}' < "${root_dir}/VERSION")
+pmm_release=$(awk -F'-' '{print $2}' < "${root_dir}/VERSION")
 
-# Failsafe during refactoring - check that we did not redefine pmm_version in some other script
-if [ -n "${pmm_version}" ] && [ "${new_pmm_version}" != "${pmm_version}" ]; then
-    echo "pmm_version is already defined: ${pmm_version}"
-    exit 1
+if [ -z "$pmm_release" ]; then
+  pmm_release=${PMM_RELEASE:-1}
 fi
 
-pmm_version=${new_pmm_version}
-pmm_release=${new_pmm_release}
-unset new_pmm_version
-unset new_pmm_release
-echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}\n\n\n"
+echo "---"
+echo "--- full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}"
+echo "---"
 
-rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
+platform=${PLATFORM:-linux/amd64}
+
+default_rpmbuild_docker_image=perconalab/rpmbuild:3
+if [ -n "$CI" ]; then
+  default_rpmbuild_docker_image=public.ecr.aws/e7j3v3n0/rpmbuild:3
+fi
+rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-$default_rpmbuild_docker_image}
 # Support for Hetzner-based builds
 if [ "${USE_HETZNER_BUILD}" = "1" ]; then
     rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-perconalab/rpmbuild:3-hetzner}
 fi
-rpms_dir=${root_dir}/tmp/pmm-server/RPMS
-rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
-rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
-source_dir=${root_dir}/tmp/source/pmm-client-${pmm_version}
-binary_dir=${root_dir}/tmp/binary/pmm-client-${pmm_version}
-client_properties=${root_dir}/results/pmm-client.properties
+
+arch=$(docker run --rm --platform="${platform}" "${rpmbuild_docker_image}" uname -m 2>/dev/null)
+if [ "${arch}" = "arm64" ] && uname -s | grep -qi "Darwin"; then
+  arch=aarch64
+fi
+
+rpms_dir=${build_dir}/pmm-server/RPMS
+rpmbuild_dir=${build_dir}/pmm-server/BUILD
+rpmspec_dir=${pmm_build_dir}/packages/rpm/server/SPECS
+rpmbuild_dist=${RPMBUILD_DIST:-el9}
+source_dir=${build_dir}/source/pmm-client-${pmm_version}
+binary_dir=${build_dir}/binary/pmm-client-${pmm_version}
+client_properties=${build_dir}/pmm-client.properties
 docker_file=${DOCKERFILE:-Dockerfile.el9}
-docker_tag_file=${root_dir}/results/docker/TAG
-docker_client_tag_file=${root_dir}/results/docker/CLIENT_TAG
-docker_tarball=${root_dir}/results/docker/pmm-server-${pmm_version}.docker
-docker_client_tarball=${root_dir}/results/docker/pmm-client-${pmm_version}.docker
-source_tarball=${root_dir}/results/source_tarball/pmm-client-${pmm_version}.tar.gz
-binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz
+docker_tag_file=${build_dir}/docker/TAG
+docker_client_tag_file=${build_dir}/docker/CLIENT_TAG
+source_tarball=${build_dir}/source_tarball/pmm-client-${pmm_version}.tar.gz
+binary_tarball=${build_dir}/tarball/pmm-client-${pmm_version}.tar.gz
 dynamic_binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}-${BUILD_TYPE}-${OS_VARIANT}.tar.gz
 
 # https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.114.0
 vmagent_commit_hash=a5e3c6d4492db765800363dfae48a04b4d7888be
-# https://github.com/hashicorp/nomad/releases/tag/v1.10.2
-nomad_commit_hash=df4c764f6703e99e4df6f4d6c46c916d97ef8f84
+# https://github.com/hashicorp/nomad/releases/tag/v1.10.4
+nomad_commit_hash=62b195aaa535b2159d215eaf89e6f4a455d6f686
+
+set -o errexit
+if [ "${DEBUG_MODE:-0}" -eq 1 ] || [ -n "${CI:-}" ]; then
+  set -o xtrace
+else
+  set +o xtrace
+fi

@@ -1,40 +1,30 @@
 #!/bin/bash
 
-. $(dirname $0)/vars
-
-set -o errexit
-set -o xtrace
-
-bin_dir=$(cd $(dirname $0); pwd -P)
-tmp_dir=${root_dir}/tmp
+. "$(dirname "$0")/vars"
 
 main() {
-    local IMAGE=${1:-ubuntu:jammy}
-    docker run --rm -e DEBIAN_FRONTEND=noninteractive \
-                    -v ${bin_dir}:/home/builder/bin \
-                    -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
-        set -o errexit
-        set -o xtrace
+  local IMAGE=${1:-ubuntu:jammy}
+  docker run --rm \
+    -e DEBIAN_FRONTEND=noninteractive \
+    -e PMM_VERSION="${pmm_version}" \
+    -e PMM_RELEASE="${pmm_release}" \
+    -v "${bin_dir}":/home/builder/bin \
+    -v "${build_dir}":/home/builder/build \
+    -w /home/builder/build \
+    --entrypoint="/home/builder/bin/build-client-entrypoint" \
+    "${IMAGE}" --build_source_deb
 
-        export pmm_release=$pmm_release
-        OS_VERSION=\$(cat /etc/os-release | grep VERSION_ID | awk -F'\"' '{print \$2}')
-
-        apt-get update
-        case "\$OS_VERSION" in
-            11 | 12 | 22.04 | 24.04) apt-get -y install git lsb-release devscripts dh-make;;
-            *) apt-get -y install git lsb-release devscripts dh-make dh-systemd;;
-        esac
-        mkdir -p /tmp/pmm
-        cd /home/builder/results
-            bash /home/builder/bin/build-client-packages \
-                --builddir=/tmp/pmm \
-                --build_deb=1
-        cd -
-        chown -R $(id -u):$(id -g) /home/builder/results/deb
-    "
+  docker run --rm \
+    -e DEBIAN_FRONTEND=noninteractive \
+    -e PMM_VERSION="${pmm_version}" \
+    -e PMM_RELEASE="${pmm_release}" \
+    -v "${bin_dir}":/home/builder/bin \
+    -v "${build_dir}":/home/builder/build \
+    -w /home/builder/build \
+    --entrypoint="/home/builder/bin/build-client-entrypoint" \
+    "${IMAGE}" --build_deb
 }
 
-main $*
-exit 0
+main "$*"
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2

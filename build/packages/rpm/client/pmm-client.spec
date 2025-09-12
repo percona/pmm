@@ -1,3 +1,4 @@
+%global _missing_build_ids_terminate_build 0
 %define debug_package %{nil}
 
 Name:           pmm-client
@@ -124,8 +125,8 @@ install -m 0660 queries-postgres-uptime.yml $RPM_BUILD_ROOT/usr/local/percona/pm
 install -m 0660 queries-hr.yml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
 install -m 0660 queries-mr.yaml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/medium-resolution/
 install -m 0660 queries-lr.yaml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/low-resolution/
-install -m 0755 -d $RPM_BUILD_ROOT/%{_unitdir}
-install -m 0644 config/pmm-agent.service %{buildroot}/%{_unitdir}/pmm-agent.service
+install -m 0755 -d $RPM_BUILD_ROOT%{_unitdir}
+install -m 0644 config/pmm-agent.service %{buildroot}%{_unitdir}/pmm-agent.service
 
 
 %clean

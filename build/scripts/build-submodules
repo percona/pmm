@@ -8,30 +8,23 @@ if [ -s ci.yml ]; then
     python3 ci.py
     cat .git-sources
     . ./.git-sources
-    echo $pmm_commit > apiCommitSha
-    echo $pmm_branch > apiBranch
-    echo $pmm_url > apiURL
-    echo $pmm_qa_branch > pmmQABranch
-    echo $pmm_qa_commit > pmmQACommitSha
-    echo $pmm_ui_tests_branch > pmmUITestBranch
-    echo $pmm_ui_tests_commit > pmmUITestsCommitSha
 else
-    # Define variables using git queries, i.e. w/o python
-    pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
-    echo $pmm_commit > apiCommitSha
+    # Define variables
+    pmm_commit=$(git -C $(git config -f .gitmodules submodule.pmm.path) rev-parse HEAD)
     pmm_branch=$(git config -f .gitmodules submodule.pmm.branch)
-    echo $pmm_branch > apiBranch
     pmm_url=$(git config -f .gitmodules submodule.pmm.url)
-    echo $pmm_url > apiURL
     pmm_qa_branch=$(git config -f .gitmodules submodule.pmm-qa.branch)
-    echo $pmm_qa_branch > pmmQABranch
-    pmm_qa_commit=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
-    echo $pmm_qa_commit > pmmQACommitSha
+    pmm_qa_commit=$(git -C $(git config -f .gitmodules submodule.pmm-qa.path) rev-parse HEAD)
     pmm_ui_tests_branch=$(git config -f .gitmodules submodule.pmm-ui-tests.branch)
-    echo $pmm_ui_tests_branch > pmmUITestBranch
-    pmm_ui_tests_commit=$(git submodule status | grep 'pmm-ui-tests' | awk -F ' ' '{print $1}')
-    echo $pmm_ui_tests_commit > pmmUITestsCommitSha
+    pmm_ui_tests_commit=$(git -C $(git config -f .gitmodules submodule.pmm-ui-tests.path) rev-parse HEAD)
 fi
 
 fb_commit_sha=$(git rev-parse HEAD)
 echo $fb_commit_sha > fbCommitSha
+echo $pmm_commit > apiCommitSha
+echo $pmm_branch > apiBranch
+echo $pmm_url > apiURL
+echo $pmm_qa_branch > pmmQABranch
+echo $pmm_qa_commit > pmmQACommitSha
+echo $pmm_ui_tests_branch > pmmUITestBranch
+echo $pmm_ui_tests_commit > pmmUITestsCommitSha

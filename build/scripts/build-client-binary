@@ -1,187 +1,211 @@
 #!/bin/bash
 
-set -o errexit
-set -o xtrace
+. "$(dirname "$0")/vars"
 
-. $(dirname $0)/vars
+# Important: `bin_dir` and `binary_dir` are different directories. `bin_dir` defines the directory for binary files 
+# inside the container, while `binary_dir` defines the directory for binary files outside the container.
 
 extract_source_tarball() {
-    if [ ! -d "${source_dir}" ]; then
-        mkdir -p $(dirname ${source_dir})
-        tar -C $(dirname ${source_dir}) -zxpf ${source_tarball}
-    fi
+  if [ ! -d "${source_dir}" ]; then
+    mkdir -p "$(dirname "${source_dir}")"
+    tar -C "$(dirname "${source_dir}")" -zxpf "${source_tarball}"
+  fi
 }
 
+# gobuild_component() builds a specific PMM component in docker using the provided build command
+# and saves it into the binary directory `bin_dir`.
 gobuild_component() {
-    local component=$1
-    local parent_component=${2:-$component}
-    local extract_path=${3:-"github.com/percona/$parent_component"}
-    local component_path=$4
-    local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
+  local component=$1
+  local parent_component=${2:-$component}
+  local extract_path=${3:-"github.com/percona/$parent_component"}
+  local component_path=$4
+  local result_file=${5:-bin/$(basename "${component_path:-$extract_path}")}
+  local src_dir=/home/builder/build/source/pmm-client-${pmm_version}
+  local bin_dir=/home/builder/build/binary/pmm-client-${pmm_version}
+  local archive build_command target pmm_release_fullcommit git_dir gssapi
+  local volume_mounts="-v ${build_dir}:/home/builder/build"
+  volume_mounts+=" -v pmm-submodules:/app"
+  volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
+  volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
+  volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
-    local volume_mounts="-v ${tmp_dir}:/home/builder/tmp -v ${tmp_dir}/go:/tmp/go"
-    volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
-    volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
-    volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
+  # shellcheck disable=SC2012
+  archive=$(basename "$(ls -t -1 "${source_dir}/${parent_component}"-*.tar.gz | head -n1)")
+  git_dir=$(git -C "${root_dir}" config -f .gitmodules "submodule.${parent_component}.path" || true)
 
-    # Set target for Nomad accordingly
-    local target
-    case "$(uname -m)" in
-        x86_64)
-            target="linux_amd64"
-            ;;
-        aarch64)
-            target="linux_arm64"
-            ;;
-        *)
-            echo "Unsupported architecture: $(uname -m)"
-            exit 1
-            ;;
-    esac
+  # Set target for Nomad
+  case "$platform" in
+    linux/amd64) target="linux_amd64" ;;
+    linux/arm64) target="linux_arm64" ;;
+    *) echo "Unsupported platform: $platform"; exit 1 ;;
+  esac
 
-    if [ ${component} = 'azure_metrics_exporter' ]; then
-        result_file=${result_file/_metrics/}
-    fi
+  if [ "${component}" = azure_metrics_exporter ]; then
+    result_file=${result_file/_metrics/}
+  fi
 
-    if [ -x "${binary_dir}/${result_file}" ]; then
-        echo skip build
-        return
-    fi
+  if [ -x "${binary_dir}/${result_file}" ]; then
+    echo "The binary ${result_file} was found, skipping the build ..."
+    return
+  fi
 
-    if [ ${component} = 'pmm-admin' ]; then
-        build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release"
-    elif [ ${component} = 'pmm-agent' ]; then
-        if [ "${BUILD_TYPE}" = "dynamic" ]; then
-            build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release-gssapi"
-        else
-            build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release"
-        fi
-    elif [ ${component} = 'mongodb_exporter' ]; then
-        if [ "${BUILD_TYPE}" = "dynamic" ]; then
-            build_command="cd /tmp/go/src/${extract_path} && make build-gssapi"
-        else
-            build_command="cd /tmp/go/src/${extract_path} && make build"
-        fi
-    elif [ ${component} = 'node_exporter' ] || [ ${component} = 'mysqld_exporter' ] || \
-         [ ${component} = 'proxysql_exporter' ] || [ ${component} = 'rds_exporter' ] || \
-         [ ${component} = 'postgres_exporter' ] || [ ${component} = 'azure_metrics_exporter' ]; then
-        build_command="cd /tmp/go/src/${extract_path} && make release"
-    elif [ ${component} = 'percona-toolkit' ]; then
-        build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o \${binary_dir}/${result_file} ."
-    elif [ ${component} = 'nomad' ]; then
-        build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release"
-    else
-        build_command="go build -o \${binary_dir}/${result_file} ./src/${extract_path}/${component_path}"
-    fi
-    docker run --rm ${volume_mounts} ${rpmbuild_docker_image} sh -c "
-        set -o errexit
-        set -o xtrace
-        export GOOS=${GOOS:-linux}
-        export GOARCH=${GOARCH:-amd64}
-        export CGO_ENABLED=0
-        export GO111MODULE=auto
+  if [ "${BUILD_TYPE}" = "dynamic" ]; then
+    gssapi="-gssapi"
+  fi
 
-        # for 'make release'
-        export PMM_RELEASE_VERSION=${full_pmm_version}
-        export PMM_RELEASE_TIMESTAMP=$(date '+%s')
-        export PMM_RELEASE_FULLCOMMIT=$(cd sources/${parent_component}/src/${extract_path} && git rev-parse HEAD)
-        export COMPONENT_VERSION=$(cd sources/${parent_component}/src/${extract_path} && git describe --abbrev=0 --always)
-        export COMPONENT_BRANCH=$(cd sources/${parent_component}/src/${extract_path} && git describe --always --contains --all)
-        export PMM_RELEASE_BRANCH=""
-        sudo chown -R builder:builder /home/builder/tmp
+  if [ "${component}" = pmm-admin ]; then
+    build_command="NO_VCS=1 make -C /app/${git_dir}/${component_path} release"
+  elif [ "${component}" = pmm-agent ]; then
+    build_command="NO_VCS=1 make -C /app/${git_dir}/${component_path} release${gssapi:-}"
+  elif [ "${component}" = mongodb_exporter ]; then
+    build_command="make -C /app/${git_dir} build${gssapi:-}"
+  elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
+    build_command="make -C /app/${git_dir} release"
+  elif [ "${component}" = percona-toolkit ]; then
+    build_command="go build -C /app/${git_dir}/${component_path} -o ${bin_dir}/${result_file} ."
+  elif [ "${component}" = nomad ]; then
+    build_command="ls -lah /tmp/go/src/${extract_path}; "
+    build_command="TARGETS=${target} make -C /tmp/go/src/${extract_path} deps release;"
+    build_command+=" cp /tmp/go/src/${extract_path}/pkg/linux_*/nomad ${bin_dir}/bin/nomad"
+  elif [ "${component}" = vmagent ]; then
+    build_command="go build -C /tmp/go/src/${extract_path}/${component_path} -o ${bin_dir}/${result_file} ."
+  else
+    build_command="go build -C /app/${git_dir} -o ${bin_dir}/${result_file} ."
+  fi
 
-        source_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
-        binary_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
-        export PMM_RELEASE_PATH=\${binary_dir}/bin
+  if [ "${component}" = vmagent ]; then
+    pmm_release_fullcommit=${vmagent_commit_hash}
+  elif [ "${component}" = nomad ]; then
+    echo 'Skipping PMM_RELEASE_FULLCOMMIT for nomad...'
+  else
+    pmm_release_fullcommit=$(git -C "${root_dir}/${git_dir}" rev-parse HEAD)
+  fi
 
-        mkdir -p \$binary_dir/bin
+  # Note: the variables used in the script below do not need to be passed via `-e` flag.
+  # shellcheck disable=SC2086
+  docker run --rm \
+    --platform="${platform}" \
+    -e CGO_ENABLED=0 \
+    -e GO111MODULE=auto \
+    -e PMM_RELEASE_VERSION="${full_pmm_version}" \
+    -e PMM_RELEASE_TIMESTAMP="$(date '+%s')" \
+    -e PMM_RELEASE_PATH="${bin_dir}/bin" \
+    -e PMM_RELEASE_FULLCOMMIT="${pmm_release_fullcommit}" \
+    ${volume_mounts} \
+    "${rpmbuild_docker_image}" sh -c "
+      # IMPORTANT: do NOT use double quotes inside this CMD script.
+      set -o errexit
+      set -o xtrace
 
+      sudo chown -R builder:builder /home/builder/build
+
+      mkdir -p ${bin_dir}/bin
+
+      if [[ ${component} =~ nomad|vmagent ]]; then
         mkdir -p /tmp/go/src/${extract_path}
-        archive=$(ls ${source_dir} | grep -e "${parent_component}-\w*\.tar\.gz")
-        tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf \${source_dir}/\$archive
-        pushd /tmp/go
-            export GOPATH=\$(pwd -P)
-            export PATH=$PATH:\$(go env GOPATH)/bin
-            ${build_command}
-        popd
-        sudo chown -R $(id -u):$(id -g) /home/builder/tmp
-    "
+        tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
+      fi
+
+      ${build_command}
+  "
 }
 
 copy_component() {
-    local component=$1
-    local component_path=$2
-    local component_dest=${3:-$component_path}
-    local component_dir=${tmp_dir}/source/${component}
-    local archive=$(ls ${source_dir}/${component}-*.tar.gz | head -n1) # temporary hack for pmm repo
+  local component=$1
+  local component_path=$2
+  local component_dest=${3:-$component_path}
+  local component_dir
+  component_dir=$(git config -f .gitmodules "submodule.${component}.path")
+  if [ ! -d "$component_dir" ]; then
+    echo "Error: could not locate the component directory for $component."
+    exit 1
+  fi
 
-    if [ ! -d "${component_dir}" ]; then
-        mkdir -p ${component_dir}
-        tar \
-            -C ${component_dir} \
-            --strip-components=1 \
-            -zxpf "$archive"
-    fi
-
-    cp -r ${component_dir}/${component_path} ${binary_dir}/${component_dest}
+  cp -r "${component_dir}/${component_path}" "${binary_dir}/${component_dest}"
 }
 
 main() {
-    rm -rf "${binary_dir}"
-    extract_source_tarball
+  local pmm_commit=$(git -C "${bin_dir}" rev-parse --short HEAD)
+  local noxattrs
 
-    gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
-    gobuild_component "nomad" "" "github.com/hashicorp/nomad"
-    gobuild_component "node_exporter" "" "github.com/prometheus/node_exporter"
-    gobuild_component "mysqld_exporter"
-    gobuild_component "postgres_exporter" "" "" "cmd/postgres_exporter"
-    gobuild_component "mongodb_exporter"
-    gobuild_component "proxysql_exporter"
-    gobuild_component "rds_exporter"
-    gobuild_component "azure_metrics_exporter"
+  echo -----------------------------------------
+  echo "Building PMM Client binary files..."
+  echo -----------------------------------------
 
-    gobuild_component "pmm-admin" "pmm" "" "admin"
-    gobuild_component "pmm-agent" "pmm" "" "agent"
+  extract_source_tarball
 
-    echo ${pmm_version} > ${binary_dir}/VERSION
+  # gobuild_component(component, parent_component, extract_path, component_path)
+  gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
+  gobuild_component "nomad" "" "github.com/hashicorp/nomad"
+  gobuild_component "node_exporter" "" "github.com/prometheus/node_exporter"
+  gobuild_component "mysqld_exporter"
+  gobuild_component "postgres_exporter" "" "" "cmd/postgres_exporter"
+  gobuild_component "mongodb_exporter"
+  gobuild_component "proxysql_exporter"
+  gobuild_component "rds_exporter"
+  gobuild_component "azure_metrics_exporter"
+  gobuild_component "pmm-admin" "pmm" "" "admin"
+  gobuild_component "pmm-agent" "pmm" "" "agent"
 
-    copy_component "pmm" "build/packages/rpm/client" "rpm"
-    copy_component "pmm" "build/packages/config" "config"
-    copy_component "pmm" "build/packages/deb" "debian"
-    copy_component "pmm" "build/scripts/install_tarball" "install_tarball"
-    copy_component "node_exporter" "example.prom"
-    copy_component "mysqld_exporter" "queries-mysqld.yml"
-    copy_component "mysqld_exporter" "queries-mysqld-group-replication.yml"
-    copy_component "postgres_exporter" "example-queries-postgres.yml"
-    copy_component "postgres_exporter" "queries-postgres-uptime.yml"
-    copy_component "postgres_exporter" "queries-hr.yml"
-    copy_component "postgres_exporter" "queries-mr.yaml"
-    copy_component "postgres_exporter" "queries-lr.yaml"
+  echo "${pmm_version}" > "${binary_dir}/VERSION"
 
-    copy_component "percona-toolkit" "bin/pt-summary"
-    copy_component "percona-toolkit" "bin/pt-mysql-summary"
-    gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-mongodb-summary"
-    gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-pg-summary"
+  # copy_component(component, path_in_submodules, path_in_binary_dir)
+  copy_component "pmm" "build/packages/rpm/client" "rpm"
+  copy_component "pmm" "build/packages/config" "config"
+  copy_component "pmm" "build/packages/deb" "debian"
+  copy_component "pmm" "build/scripts/install_tarball" "install_tarball"
+  copy_component "node_exporter" "example.prom"
+  copy_component "mysqld_exporter" "queries-mysqld.yml"
+  copy_component "mysqld_exporter" "queries-mysqld-group-replication.yml"
+  copy_component "postgres_exporter" "example-queries-postgres.yml"
+  copy_component "postgres_exporter" "queries-postgres-uptime.yml"
+  copy_component "postgres_exporter" "queries-hr.yaml"
+  copy_component "postgres_exporter" "queries-mr.yaml"
+  copy_component "postgres_exporter" "queries-lr.yaml"
+  copy_component "percona-toolkit" "bin/pt-summary"
+  copy_component "percona-toolkit" "bin/pt-mysql-summary"
 
-    cp -r ${tmp_dir}/go/src/github.com/hashicorp/nomad/pkg/linux_*/nomad ${binary_dir}/bin/nomad
-    
-    # Removes pmm binary in case this is not a PR build - such as RC/GA build
-    if [[ "$(basename ${root_dir})" != pmm-submodules_PR-* ]]; then
-        rm -f "${binary_dir}/bin/pmm"
+  gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-mongodb-summary"
+  gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-pg-summary"
+
+  rm -rf "${binary_tarball}"
+  mkdir -p "$(dirname "${binary_tarball}")"
+
+  # Removes pmm binary (aka CLI) in case this is not a feature build - such as RC/GA build
+  if [[ "$(basename "${root_dir}")" != pmm-submodules_PR-* ]]; then
+    rm -f "${binary_dir}/bin/pmm"
+  fi
+  
+  noxattrs=$(uname -s | grep -qi "Darwin" && echo "--no-xattrs" || echo "")
+  tar -C "$(dirname "${binary_dir}")" "${noxattrs}" -zcpf "${binary_tarball}" "$(basename "${binary_dir}")"
+
+  local s3_tarball_name="pmm-build-cache/${s3_cache_dir}/pmm-client/pmm-client-${pmm_version}-${pmm_commit}.tar.gz"
+  local s3_tarball_url="https://s3.us-east-2.amazonaws.com/${s3_tarball_name}"
+
+  if command -v aws &> /dev/null && [ -n "${CI:-}" ]; then
+    if aws s3 cp \
+      --region us-east-2 \
+      --acl public-read \
+      --no-progress \
+      "${binary_tarball}" \
+      "s3://${s3_tarball_name}"; then
+
+      echo "Uploaded the binary tarball to: ${s3_tarball_url}"
+      echo -n "${s3_tarball_url}" > "${build_dir}/S3_TARBALL_URL"
     fi
+  fi
 
-    if [[ "${BUILD_TYPE}" = "dynamic" ]]; then
-        rm -f ${dynamic_binary_tarball}
-        mkdir -p $(dirname ${dynamic_binary_tarball}) || :
-        tar -C $(dirname ${binary_dir}) -zcpf ${dynamic_binary_tarball} $(basename ${binary_dir})
-    else
-        rm -rf ${binary_tarball}
-        mkdir -p $(dirname ${binary_tarball}) || :
-        tar -C $(dirname ${binary_dir}) -zcpf ${binary_tarball} $(basename ${binary_dir})
-    fi
+  # if [ "${BUILD_TYPE}" = "dynamic" ]; then
+  #     rm -f "${dynamic_binary_tarball}"
+  #     mkdir -p "$(dirname ${dynamic_binary_tarball})" || :
+  #     tar -C "$(dirname ${binary_dir})" -zcpf "${dynamic_binary_tarball}" "$(basename ${binary_dir})"
+  # else
+  #     rm -rf "${binary_tarball}"
+  #     mkdir -p "$(dirname ${binary_tarball})" || :
+  #     tar -C "$(dirname ${binary_dir})" -zcpf "${binary_tarball}" "$(basename ${binary_dir})"
+  # fi  
 }
 
 main
-exit 0
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2

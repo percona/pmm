@@ -43,7 +43,7 @@ run-vmproxy: release-vmproxy
 
 run-qan: release-qan
 	supervisorctl stop qan-api2
-	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
+	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/pmm-qan-api
 	echo -n > /srv/logs/qan-api2.log
 	supervisorctl start qan-api2
 
