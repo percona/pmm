@@ -225,7 +225,7 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 	return &service, nil
 }
 
-// AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB, External) Services.
+// AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB, External, and Valkey) Services.
 type AddDBMSServiceParams struct {
 	ServiceName    string
 	NodeID         string
@@ -244,7 +244,7 @@ type AddDBMSServiceParams struct {
 // Must be performed in transaction.
 func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSServiceParams) (*Service, error) {
 	switch serviceType {
-	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType:
+	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType, ValkeyServiceType:
 		if err := validateDBConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
 			return nil, err
 		}
