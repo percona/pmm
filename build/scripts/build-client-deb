@@ -19,7 +19,7 @@ main() {
         export pmm_release=$pmm_release
 
         apt-get update
-        apt-get -y install git lsb-release devscripts dh-make;;
+        apt-get -y install git lsb-release devscripts dh-make
         mkdir -p /tmp/pmm
         cd /home/builder/results
             bash /home/builder/bin/build-client-packages \
