@@ -81,10 +81,8 @@ type AddValkeyServiceParams struct {
 	TlsCert string `protobuf:"bytes,22,opt,name=tls_cert,json=tlsCert,proto3" json:"tls_cert,omitempty"`
 	// TLS Certificate Key.
 	TlsKey string `protobuf:"bytes,23,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
-	// List of collector names to disable in this exporter.
-	DisableCollectors []string `protobuf:"bytes,24,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 	// Custom password for exporter endpoint /metrics.
-	AgentPassword string `protobuf:"bytes,25,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
+	AgentPassword string `protobuf:"bytes,24,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -280,13 +278,6 @@ func (x *AddValkeyServiceParams) GetTlsKey() string {
 	return ""
 }
 
-func (x *AddValkeyServiceParams) GetDisableCollectors() []string {
-	if x != nil {
-		return x.DisableCollectors
-	}
-	return nil
-}
-
 func (x *AddValkeyServiceParams) GetAgentPassword() string {
 	if x != nil {
 		return x.AgentPassword
@@ -350,7 +341,7 @@ var File_management_v1_valkey_proto protoreflect.FileDescriptor
 
 const file_management_v1_valkey_proto_rawDesc = "" +
 	"\n" +
-	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xa4\b\n" +
+	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xf5\a\n" +
 	"\x16AddValkeyServiceParams\x12#\n" +
 	"\anode_id\x18\x01 \x01(\tB\n" +
 	"\xfaB\ar\x05\x10\x01\xd0\x01\x01R\x06nodeId\x12'\n" +
@@ -378,9 +369,8 @@ const file_management_v1_valkey_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x12\x15\n" +
 	"\x06tls_ca\x18\x15 \x01(\tR\x05tlsCa\x12\x19\n" +
 	"\btls_cert\x18\x16 \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\x17 \x01(\tR\x06tlsKey\x12-\n" +
-	"\x12disable_collectors\x18\x18 \x03(\tR\x11disableCollectors\x12%\n" +
-	"\x0eagent_password\x18\x19 \x01(\tR\ragentPassword\x1a?\n" +
+	"\atls_key\x18\x17 \x01(\tR\x06tlsKey\x12%\n" +
+	"\x0eagent_password\x18\x18 \x01(\tR\ragentPassword\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x93\x01\n" +

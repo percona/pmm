@@ -59,12 +59,10 @@ type AddValkeyCommand struct {
 	TLSCaFile           string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile         string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile          string            `name:"tls-key" help:"Path to client key file"`
-	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
-	flags.CommentsParsingFlags
 	flags.LogLevelNoFatalFlags
 }
 
@@ -151,14 +149,13 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 
-				TLS:               cmd.TLS,
-				TLSSkipVerify:     cmd.TLSSkipVerify,
-				TLSCa:             tlsCa,
-				TLSCert:           tlsCert,
-				TLSKey:            tlsKey,
-				MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
-				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:          cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				TLS:           cmd.TLS,
+				TLSSkipVerify: cmd.TLSSkipVerify,
+				TLSCa:         tlsCa,
+				TLSCert:       tlsCert,
+				TLSKey:        tlsKey,
+				MetricsMode:   cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				LogLevel:      cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,
