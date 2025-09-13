@@ -42,7 +42,9 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 	dnsParams := models.DSNParams{
 		DialTimeout: 3 * time.Second,
 	}
+
 	args = append(args, "--redis.addr="+exporter.DSN(service, dnsParams, nil, pmmAgentVersion))
+	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 	sort.Strings(args)
 
 	res := &agentv1.SetStateRequest_AgentProcess{

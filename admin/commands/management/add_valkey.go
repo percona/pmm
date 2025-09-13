@@ -158,6 +158,7 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				TLSKey:            tlsKey,
 				MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:          cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,
