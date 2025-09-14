@@ -100,14 +100,15 @@ func TestEnsureRetention(t *testing.T) {
 
 		createArtifact := func() {
 			_, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-				Name:       gofakeit.Name(),
-				Vendor:     "MongoDB",
-				LocationID: locationRes.ID,
-				ServiceID:  *agent.ServiceID,
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.Snapshot,
-				Status:     models.SuccessBackupStatus,
-				ScheduleID: task.ID,
+				Name:        gofakeit.Name(),
+				Vendor:      "MongoDB",
+				LocationID:  locationRes.ID,
+				ServiceID:   *agent.ServiceID,
+				DataModel:   models.PhysicalDataModel,
+				Mode:        models.Snapshot,
+				Status:      models.SuccessBackupStatus,
+				ScheduleID:  task.ID,
+				Compression: models.Default,
 			})
 			require.NoError(t, err)
 		}
@@ -190,14 +191,15 @@ func TestEnsureRetention(t *testing.T) {
 
 		t.Run("successful", func(t *testing.T) {
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-				Name:       gofakeit.Name(),
-				Vendor:     "MongoDB",
-				LocationID: locationRes.ID,
-				ServiceID:  *agent.ServiceID,
-				DataModel:  models.LogicalDataModel,
-				Mode:       models.PITR,
-				Status:     models.SuccessBackupStatus,
-				ScheduleID: task.ID,
+				Name:        gofakeit.Name(),
+				Vendor:      "MongoDB",
+				LocationID:  locationRes.ID,
+				ServiceID:   *agent.ServiceID,
+				DataModel:   models.LogicalDataModel,
+				Mode:        models.PITR,
+				Status:      models.SuccessBackupStatus,
+				ScheduleID:  task.ID,
+				Compression: models.Default,
 			})
 			require.NoError(t, err)
 
@@ -224,14 +226,15 @@ func TestEnsureRetention(t *testing.T) {
 
 		t.Run("more than one pitr artifact", func(t *testing.T) {
 			_, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-				Name:       gofakeit.Name(),
-				Vendor:     "MongoDB",
-				LocationID: locationRes.ID,
-				ServiceID:  *agent.ServiceID,
-				DataModel:  models.LogicalDataModel,
-				Mode:       models.PITR,
-				Status:     models.SuccessBackupStatus,
-				ScheduleID: task.ID,
+				Name:        gofakeit.Name(),
+				Vendor:      "MongoDB",
+				LocationID:  locationRes.ID,
+				ServiceID:   *agent.ServiceID,
+				DataModel:   models.LogicalDataModel,
+				Mode:        models.PITR,
+				Status:      models.SuccessBackupStatus,
+				ScheduleID:  task.ID,
+				Compression: models.Default,
 			})
 			require.NoError(t, err)
 

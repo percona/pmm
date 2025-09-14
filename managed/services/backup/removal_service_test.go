@@ -71,13 +71,14 @@ func TestDeleteArtifact(t *testing.T) {
 
 	createArtifact := func(status models.BackupStatus) *models.Artifact {
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "artifact_name",
-			Vendor:     "MySQL",
-			LocationID: locationRes.ID,
-			ServiceID:  *agent.ServiceID,
-			DataModel:  models.PhysicalDataModel,
-			Mode:       models.Snapshot,
-			Status:     status,
+			Name:        "artifact_name",
+			Vendor:      "MySQL",
+			LocationID:  locationRes.ID,
+			ServiceID:   *agent.ServiceID,
+			DataModel:   models.PhysicalDataModel,
+			Mode:        models.Snapshot,
+			Status:      status,
+			Compression: models.Default,
 		})
 		require.NoError(t, err)
 		return artifact
@@ -182,14 +183,15 @@ func TestDeleteArtifact(t *testing.T) {
 		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service2")
 
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "artifact_name",
-			Vendor:     "mongodb",
-			LocationID: locationRes.ID,
-			ServiceID:  *agent.ServiceID,
-			DataModel:  models.LogicalDataModel,
-			Mode:       models.PITR,
-			Status:     models.SuccessBackupStatus,
-			Folder:     "artifact_folder",
+			Name:        "artifact_name",
+			Vendor:      "mongodb",
+			LocationID:  locationRes.ID,
+			ServiceID:   *agent.ServiceID,
+			DataModel:   models.LogicalDataModel,
+			Mode:        models.PITR,
+			Status:      models.SuccessBackupStatus,
+			Folder:      "artifact_folder",
+			Compression: models.Default,
 		})
 		require.NoError(t, err)
 
@@ -270,14 +272,15 @@ func TestTrimPITRArtifact(t *testing.T) {
 	require.NoError(t, err)
 
 	artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-		Name:       "artifact_name",
-		Vendor:     "MongoDB",
-		LocationID: locationRes.ID,
-		ServiceID:  *agent.ServiceID,
-		DataModel:  models.LogicalDataModel,
-		Mode:       models.PITR,
-		Status:     models.PendingBackupStatus,
-		Folder:     "artifact_folder",
+		Name:        "artifact_name",
+		Vendor:      "MongoDB",
+		LocationID:  locationRes.ID,
+		ServiceID:   *agent.ServiceID,
+		DataModel:   models.LogicalDataModel,
+		Mode:        models.PITR,
+		Status:      models.PendingBackupStatus,
+		Folder:      "artifact_folder",
+		Compression: models.Default,
 	})
 	require.NoError(t, err)
 
@@ -397,14 +400,15 @@ func TestLockArtifact(t *testing.T) {
 	require.NoError(t, err)
 
 	artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-		Name:       "artifact_name",
-		Vendor:     "MongoDB",
-		LocationID: locationRes.ID,
-		ServiceID:  *agent.ServiceID,
-		DataModel:  models.LogicalDataModel,
-		Mode:       models.PITR,
-		Status:     models.PendingBackupStatus,
-		Folder:     "artifact_folder",
+		Name:        "artifact_name",
+		Vendor:      "MongoDB",
+		LocationID:  locationRes.ID,
+		ServiceID:   *agent.ServiceID,
+		DataModel:   models.LogicalDataModel,
+		Mode:        models.PITR,
+		Status:      models.PendingBackupStatus,
+		Folder:      "artifact_folder",
+		Compression: models.Default,
 	})
 	require.NoError(t, err)
 
@@ -493,14 +497,15 @@ func TestReleaseArtifact(t *testing.T) {
 	require.NoError(t, err)
 
 	artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-		Name:       "artifact_name",
-		Vendor:     "MongoDB",
-		LocationID: locationRes.ID,
-		ServiceID:  *agent.ServiceID,
-		DataModel:  models.LogicalDataModel,
-		Mode:       models.PITR,
-		Status:     models.DeletingBackupStatus,
-		Folder:     "artifact_folder",
+		Name:        "artifact_name",
+		Vendor:      "MongoDB",
+		LocationID:  locationRes.ID,
+		ServiceID:   *agent.ServiceID,
+		DataModel:   models.LogicalDataModel,
+		Mode:        models.PITR,
+		Status:      models.DeletingBackupStatus,
+		Folder:      "artifact_folder",
+		Compression: models.Default,
 	})
 	require.NoError(t, err)
 
