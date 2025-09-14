@@ -6478,6 +6478,7 @@ func (x *GetVersionsRequest_Software) GetXbcloud() *GetVersionsRequest_Xbcloud {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in agent/v1/agent.proto.
 func (x *GetVersionsRequest_Software) GetQpress() *GetVersionsRequest_Qpress {
 	if x != nil {
 		if x, ok := x.Software.(*GetVersionsRequest_Software_Qpress); ok {
@@ -6522,6 +6523,7 @@ type GetVersionsRequest_Software_Xbcloud struct {
 }
 
 type GetVersionsRequest_Software_Qpress struct {
+	// Deprecated: Marked as deprecated in agent/v1/agent.proto.
 	Qpress *GetVersionsRequest_Qpress `protobuf:"bytes,4,opt,name=qpress,proto3,oneof"`
 }
 
@@ -6970,7 +6972,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\bchunk_id\x18\x01 \x01(\rR\achunkId\x12\x12\n" +
 	"\x04data\x18\x02 \x01(\tR\x04data\x12\x12\n" +
 	"\x04done\x18\x03 \x01(\bR\x04doneB\b\n" +
-	"\x06result\"\xb2\x04\n" +
+	"\x06result\"\xb6\x04\n" +
 	"\x12GetVersionsRequest\x12C\n" +
 	"\tsoftwares\x18\x01 \x03(\v2%.agent.v1.GetVersionsRequest.SoftwareR\tsoftwares\x1a\b\n" +
 	"\x06MySQLd\x1a\f\n" +
@@ -6979,14 +6981,14 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\aXbcloud\x1a\b\n" +
 	"\x06Qpress\x1a\t\n" +
 	"\aMongoDB\x1a\x05\n" +
-	"\x03PBM\x1a\x97\x03\n" +
+	"\x03PBM\x1a\x9b\x03\n" +
 	"\bSoftware\x12=\n" +
 	"\x06mysqld\x18\x01 \x01(\v2#.agent.v1.GetVersionsRequest.MySQLdH\x00R\x06mysqld\x12I\n" +
 	"\n" +
 	"xtrabackup\x18\x02 \x01(\v2'.agent.v1.GetVersionsRequest.XtrabackupH\x00R\n" +
 	"xtrabackup\x12@\n" +
-	"\axbcloud\x18\x03 \x01(\v2$.agent.v1.GetVersionsRequest.XbcloudH\x00R\axbcloud\x12=\n" +
-	"\x06qpress\x18\x04 \x01(\v2#.agent.v1.GetVersionsRequest.QpressH\x00R\x06qpress\x12>\n" +
+	"\axbcloud\x18\x03 \x01(\v2$.agent.v1.GetVersionsRequest.XbcloudH\x00R\axbcloud\x12A\n" +
+	"\x06qpress\x18\x04 \x01(\v2#.agent.v1.GetVersionsRequest.QpressB\x02\x18\x01H\x00R\x06qpress\x12>\n" +
 	"\x06mongod\x18\x05 \x01(\v2$.agent.v1.GetVersionsRequest.MongoDBH\x00R\x06mongod\x124\n" +
 	"\x03pbm\x18\x06 \x01(\v2 .agent.v1.GetVersionsRequest.PBMH\x00R\x03pbmB\n" +
 	"\n" +

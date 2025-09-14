@@ -92,7 +92,6 @@ func TestVersionCache(t *testing.T) {
 			{Version: "8.0.23"},
 			{Version: "8.0.23"},
 			{Version: "8.0.23"},
-			{Version: "1.1"},
 		}
 		versionerMock.On("GetVersions", agentID1, softwares).Return(versions1, nil).Once()
 
@@ -118,10 +117,6 @@ func TestVersionCache(t *testing.T) {
 						Name:    models.XbcloudSoftwareName,
 						Version: oldVersions[2].Version,
 					},
-					{
-						Name:    models.QpressSoftwareName,
-						Version: oldVersions[3].Version,
-					},
 				}
 				require.Equal(t, softwareVersions, v.SoftwareVersions)
 
@@ -135,7 +130,6 @@ func TestVersionCache(t *testing.T) {
 			{Version: "8.0.24"},
 			{Version: "5.0.25"},
 			{Version: "5.0.25"},
-			{Version: "0.1"},
 		}
 		mockGetVersions(versions1, versions2, false)
 		mockGetVersions(versions2, versions2, true)
