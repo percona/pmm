@@ -1143,9 +1143,7 @@ var databaseSchema = [][]string{
 	},
 	111: {
 		`ALTER TABLE artifacts 
-		ADD COLUMN compression VARCHAR NOT NULL DEFAULT 'none'`,
-
-		`UPDATE artifacts SET compression = 'default' WHERE compression = 'none'`,
+		ADD COLUMN compression VARCHAR NOT NULL DEFAULT 'default'`,
 
 		`ALTER TABLE artifacts ALTER COLUMN compression DROP DEFAULT`,
 	},
