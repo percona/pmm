@@ -206,8 +206,8 @@ func TestMongoDBBackupJobCompression(t *testing.T) {
 				false,
 				backuppb.DataModel_DATA_MODEL_LOGICAL,
 				"artifact_folder",
-				tc.compression,
-			)
+				tc.compression)
+
 			if tc.shouldError {
 				assert.Error(t, err)
 				assert.Nil(t, job)
