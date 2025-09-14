@@ -166,12 +166,13 @@ func TestPerformBackup(t *testing.T) {
 				}
 
 				artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-					ServiceID:  pointer.GetString(agent.ServiceID),
-					LocationID: tc.locationModel.ID,
-					Name:       tc.name + "_" + "test_backup",
-					DataModel:  tc.dataModel,
-					Mode:       models.Snapshot,
-					Folder:     "artifact_folder",
+					ServiceID:   pointer.GetString(agent.ServiceID),
+					LocationID:  tc.locationModel.ID,
+					Name:        tc.name + "_" + "test_backup",
+					DataModel:   tc.dataModel,
+					Mode:        models.Snapshot,
+					Folder:      "artifact_folder",
+					Compression: models.Default,
 				})
 
 				if tc.expectedError != nil {
@@ -197,12 +198,13 @@ func TestPerformBackup(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-				ServiceID:  pointer.GetString(agent.ServiceID),
-				LocationID: s3Location.ID,
-				Name:       "test_backup",
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.PITR,
-				Folder:     "artifact_folder_2",
+				ServiceID:   pointer.GetString(agent.ServiceID),
+				LocationID:  s3Location.ID,
+				Name:        "test_backup",
+				DataModel:   models.PhysicalDataModel,
+				Mode:        models.PITR,
+				Folder:      "artifact_folder_2",
+				Compression: models.Default,
 			})
 			assert.ErrorIs(t, err, ErrIncompatibleDataModel)
 			assert.Empty(t, artifactID)
@@ -211,12 +213,13 @@ func TestPerformBackup(t *testing.T) {
 		t.Run("backup fails for empty service ID", func(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, "").Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-				ServiceID:  "",
-				LocationID: s3Location.ID,
-				Name:       "test_backup",
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.PITR,
-				Folder:     "artifact_folder_3",
+				ServiceID:   "",
+				LocationID:  s3Location.ID,
+				Name:        "test_backup",
+				DataModel:   models.PhysicalDataModel,
+				Mode:        models.PITR,
+				Folder:      "artifact_folder_3",
+				Compression: models.Default,
 			})
 			assert.ErrorContains(t, err, "Empty Service ID")
 			assert.Empty(t, artifactID)
@@ -226,12 +229,13 @@ func TestPerformBackup(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-				ServiceID:  pointer.GetString(agent.ServiceID),
-				LocationID: s3Location.ID,
-				Name:       "test_backup",
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.Incremental,
-				Folder:     "artifact_folder_4",
+				ServiceID:   pointer.GetString(agent.ServiceID),
+				LocationID:  s3Location.ID,
+				Name:        "test_backup",
+				DataModel:   models.PhysicalDataModel,
+				Mode:        models.Incremental,
+				Folder:      "artifact_folder_4",
+				Compression: models.Default,
 			})
 			assert.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
 			assert.Empty(t, artifactID)
