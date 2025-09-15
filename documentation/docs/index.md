@@ -12,7 +12,7 @@ Key features:
 - Easy setup with just two components: Server and Client
 
 ## Try PMM Demo
-Want to see PMM in action before installing? Visit our live demo at https://pmmdemo.percona.com/ to explore PMM's features and interface with sample data.
+Want to see PMM in action before installing? Visit our [live demo](https://pmmdemo.percona.com/) to explore PMM's features and interface with sample data.
 
 <div data-grid markdown><div data-banner markdown>
 
