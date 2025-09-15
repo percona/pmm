@@ -159,7 +159,7 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
 | Scales with DB count       | Linear degradation| Constant         |
 
 === "MongoDB Profiler (Default)"
-    Choose this standard method for simple setups with fewer than 100 databases, remote MongoDB instances, or when you need real-time query collection. 
+    Choose this standard method for environments with fewer than 100 logical databases, remote MongoDB instances, or when you need real-time query collection. 
 
     The MongoDB Profiler stores query performance data in `system.profile` collections for each database. PMM continuously reads from these collections to provide query analytics.
     
@@ -225,7 +225,7 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
     If you have already [added a service](#step-3-add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
 
 === "Diagnostic Log (Recommended for scale)"
-     Choose this method for production environments with 100+ databases, when experiencing connection pool issues, or when monitoring mongos routers.
+     Choose this method for environments with 100+ logical databases, when experiencing connection pool issues, or when monitoring mongos routers.
 
     Available from PMM 3.3.0+, this method reads query data directly from MongoDB's log files instead of querying the database. This eliminates connection pool usage and reduces performance impact.
 
