@@ -1,5 +1,12 @@
 # Deploy PMM Server on VMware
 
+!!! caution alert alert-warning "VMware support deprecation"
+    VMware support is deprecated as of PMM 3.4.0 and will be removed in PMM 3.6.0 (expected January 2026).
+    [Migrate](../../../../pmm-upgrade/migrating_from_vmware.md) to VirtualBox, Docker, Podman or Kubernetes before this date.
+    
+    **Need help?** Contact [Percona Support](https://www.percona.com/services/support) for migration assistance.
+
+
 Import the PMM Server OVA file into VMware products including ESXi, vSphere, Workstation, and Fusion to create a virtual machine for your monitoring environment.
 
 ## Prerequisites
@@ -15,7 +22,7 @@ Import the PMM Server OVA file into VMware products including ESXi, vSphere, Wor
     To import downloaded file using the command-line interface:
     {.power-number}
 
-    1. Install [`ovftool`][OVFTool]. (You need to register.)
+    1. Install [`ovftool`][OVFTool]. You will need to register.
     2. Import and convert the OVA file using one of these methods:
 
         * To download and import the OVA file directly:
@@ -120,4 +127,4 @@ After successfully importing and starting the PMM Server VM:
 [OVF]: https://wikipedia.org/wiki/Open_Virtualization_Format
 [VirtualBox]: https://www.virtualbox.org/
 [VMware]: https://www.vmware.com/products/
-[OVFTool]: https://code.vmware.com/tool/ovf
+[OVFTool]: https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest

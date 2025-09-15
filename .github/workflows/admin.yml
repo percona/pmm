@@ -1,4 +1,4 @@
-name: 'Client: pmm and pmm-admin'
+name: 'Client: pmm-admin'
 
 on:
   push:
@@ -37,16 +37,16 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Set up Go release
+      - name: Set up Go
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -55,7 +55,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -71,7 +71,7 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
         with:
           files: cover.out
           flags: admin
@@ -84,91 +84,3 @@ jobs:
           env | sort
           go env | sort
           git status
-
-  cli-test:
-    name: CLI Tests
-    if: false
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        test-type: [ pmm-common, pmm-server-install, pmm-docker-test ]
-
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/cli-tests
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up Go release
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: go mod download -x
-
-      - name: Build and install
-        run: make -C ../admin install
-
-      - name: Setup tools
-        run: |
-          sudo ln -sf /home/runner/go/bin/pmm /usr/bin
-          sudo chown -R runner:docker /usr/bin/pmm
-
-      - name: Install Playwright
-        run: |
-          npm ci
-          npx playwright install
-
-      - name: Run "pmm" common tests
-        if: ${{ matrix.test-type == 'pmm-common' }}
-        run: npx playwright test tests/pmm-cli/pmm.spec.ts
-
-      - name: Run "pmm server install" tests
-        if: ${{ matrix.test-type == 'pmm-server-install' }}
-        run: npx playwright test tests/pmm-cli/server/install.spec.ts
-
-      - name: Run "pmm server upgrade" tests
-        if: ${{ matrix.test-type == 'pmm-server-update' }}
-        run: npx playwright test tests/pmm-cli/server/upgrade.spec.ts
-
-      - name: Run specific docker tests
-        if: ${{ matrix.test-type == 'pmm-docker-test' }}
-        run: npx playwright test tests/pmm-cli/server/docker-specific.spec.ts
-
-      - name: Attach the report on failure
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: "report-${{ matrix.go-version }}-${{ matrix.test-type }}"
-          path: ${{ github.workspace }}/cli-tests/playwright-report/
-
-      - name: Run debug commands on failure
-        if: ${{ failure() }}
-        run: |
-          env | sort
-          go env | sort
-          git status
-          node --version
-          npx --version
-          npx playwright --version
