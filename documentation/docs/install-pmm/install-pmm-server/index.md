@@ -22,7 +22,7 @@ Install and run at least one PMM Server using one of the following deployment me
 | Environment/Requirement       | Recommended Method          | Documentation Link                                                                 |
 |-------------------------------|-----------------------------|-----------------------------------------------------------------------------------|
 | **Kubernetes** environments   | Helm chart                  | [Helm installation guide →](../install-pmm-server/deployment-options/helm/index.md) |
-| **Virtual machines**          | Virtual appliance           | [VM installation →](../install-pmm-server/deployment-options/virtual/index.md)     |
+| **Virtual machines**          | Virtual appliance (VirtualBox and other OVF-compatible platforms)          | [VM installation →](../install-pmm-server/deployment-options/virtual/index.md)     |
 | **Quick setup** needs         | Docker container            | [Docker guide →](../install-pmm-server/deployment-options/docker/index.md)         |
 | **Security-focused** setups   | Podman (rootless containers)| [Podman instructions →](../install-pmm-server/deployment-options/podman/index.md)  |
 
