@@ -54,6 +54,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 | PBM | **MongoDB PBM backup has failed** | Monitors the status of backups and alerts if they fail.  | MongoDB |
 | PBM | **MongoDB PBM backup duration** |Monitors the time taken to complete a backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent.  | MongoDB |
 | PBM | **MongoDB PBM backup size** | Monitors the amount of disk space taken by a completed backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent.  | MongoDB |
+| PBM | **MongoDB Stale PBM backup** | Monitors the time of the last successful backup. If it is older than the configured threshold, it sends an alert. | All users | MongoDB | 
 
 <a id="mysql_alerts"></a>
 ### MySQL templates
