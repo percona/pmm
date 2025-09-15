@@ -473,6 +473,40 @@ After creating your PMM database user, you can quickly add your MySQL service to
           MySQL-TLS
         ```
 
+    === "PAM and cleartext authentication"   
+
+        If your MySQL instance uses PAM authentication plugins (such as `auth_pam_compat`) or other external authentication methods that require cleartext password transmission, use the `--extra-dsn` parameter:
+
+        ```sh
+        pmm-admin add mysql \
+        --username=mysql_user \
+        --password=mysql_password \
+        --host=localhost \
+        --port=3306 \
+        --extra-dsn="allowCleartextPasswords=1" \
+        --query-source=slowlog \
+        MySQL-PAM
+        ```
+
+        If you need PAM authentication with TLS:
+
+        ```sh
+        pmm-admin add mysql \
+          --username=mysql_user \
+          --password=mysql_password \
+          --host=mysql-server.example.com \
+          --port=3306 \
+          --extra-dsn="allowCleartextPasswords=1" \
+          --tls \
+          --tls-ca=/path/to/ca.pem \
+          --query-source=slowlog \
+          MySQL-PAM-Secure
+        ```
+
+        !!! caution "Security warning"
+            The `allowCleartextPasswords=1` parameter transmits passwords without encryption. 
+            Only use when connections are secured with TLS/SSL or over trusted networks.
+
 ### After adding the service
 
 Upon successful addition, PMM Client will display a confirmation message:

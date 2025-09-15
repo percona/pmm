@@ -62,7 +62,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 3. Add the Percona repository and check available PMM versions:
 
     ```bash
-    helm repo add percona [https://percona.github.io/percona-helm-charts/](https://percona.github.io/percona-helm-charts/)
+    helm repo add percona https://percona.github.io/percona-helm-charts/
     helm repo update
     ```
 
@@ -75,11 +75,12 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     ??? info "Example output"
         ```text
         NAME        CHART VERSION   APP VERSION DESCRIPTION
-        percona/pmm 1.4.3           3.1.0       A Helm chart for Percona Monitoring and Managem...
-        percona/pmm 1.4.2           3.1.0       A Helm chart for Percona Monitoring and Managem...
-        percona/pmm 1.4.1           3.0.0       A Helm chart for Percona Monitoring and Managem...
-        percona/pmm 1.4.0           3.0.0       A Helm chart for Percona Monitoring and Managem...
-        percona/pmm 1.3.21          2.44.0      A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.9        	3.3.1      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.8        	3.3.1      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.7        	3.3.1      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.6        	3.3.0      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.5        	3.2.0      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.4        	3.1.0      	A Helm chart for Percona Monitoring and Managem...
         ```
 
 5. Deploy PMM Server with your chosen version and secret:
@@ -89,7 +90,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     helm install pmm \
     --set secret.create=false \
     --set secret.name=pmm-secret \
-    --version 1.4.3 \
+    --version 1.4.9 \
     percona/pmm
     ```
 
@@ -103,10 +104,10 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
     ```bash
     # If using ClusterIP (default)
-    kubectl port-forward svc/pmm-service 443:443
+    kubectl port-forward svc/monitoring-service 443:443
 
     # If using NodePort
-    kubectl get svc pmm-service -o jsonpath='{.spec.ports[0].nodePort}'
+    kubectl get svc monitoring-service -o jsonpath='{.spec.ports[0].nodePort}'
     ```
   
 ### Configure PMM Server
@@ -175,6 +176,3 @@ To enhance security, you have two options:
 
 - [Back up PMM Server Helm deployment](backup_container_helm.md)
 - [Configure advanced Kubernetes settings](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#advanced-configuration)
-
-
-
