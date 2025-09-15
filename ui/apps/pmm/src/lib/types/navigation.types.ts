@@ -12,4 +12,5 @@ export interface NavItem {
   isDivider?: boolean;
   onClick?: () => void;
   hidden?: boolean;
+  badge?: string;
 }

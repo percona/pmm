@@ -17,6 +17,7 @@ import {
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
   NAV_CHANGE_PASSWORD,
+  NAV_CONFIGURATION,
   NAV_DASHBOARDS,
   NAV_DASHBOARDS_BROWSE,
   NAV_DASHBOARDS_LIBRARY_PANELS,
@@ -40,6 +41,7 @@ import {
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/textUtils';
 import { DashboardFolder } from 'types/folders.types';
+import { UpdateStatus } from 'types/updates.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -190,4 +192,17 @@ export const addAccount = (
     children,
     text: NAV_ACCOUNT.text + (name ? `: ${name}` : ''),
   };
+};
+
+export const addConfiguration = (status: UpdateStatus): NavItem => {
+  const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
+
+  if (
+    updates &&
+    (status === UpdateStatus.Pending || status === UpdateStatus.UpdateClients)
+  ) {
+    updates.badge = 'New';
+  }
+
+  return NAV_CONFIGURATION;
 };

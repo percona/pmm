@@ -151,6 +151,17 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
             color: '#920000',
             backgroundColor: '#FFECE9',
           },
+          colorWarning: {
+            color: peakTheme.warning.light,
+            borderColor: peakTheme.warning.main,
+          },
+        },
+      },
+      MuiBadge: {
+        styleOverrides: {
+          colorWarning: {
+            backgroundColor: peakTheme.warning.light,
+          },
         },
       },
       MuiCard: {
