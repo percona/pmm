@@ -22,12 +22,14 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	realtimev1 "github.com/percona/pmm/api/realtime/v1"
 )
 
-// Change represents built-in Agent status change and/or QAN collect request.
+// Change represents built-in Agent status change, QAN collect request, and/or real-time data.
 type Change struct {
-	Status        inventoryv1.AgentStatus
-	MetricsBucket []*agentv1.MetricsBucket
+	Status          inventoryv1.AgentStatus
+	MetricsBucket   []*agentv1.MetricsBucket
+	RealTimeQueries []*realtimev1.RealTimeQueryData
 }
 
 // BuiltinAgent is a common interface for all built-in Agents.

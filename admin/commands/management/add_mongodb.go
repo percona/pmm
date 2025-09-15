@@ -37,6 +37,7 @@ var addMongoDBResultT = commands.ParseTemplate(`
 MongoDB Service added.
 Service ID  : {{ .Service.ServiceID }}
 Service name: {{ .Service.ServiceName }}
+{{ if .Service.MongodbRealtimeAnalytics }}Real-time Analytics: Enabled{{ end }}
 `)
 
 type addMongoDBResult struct {
@@ -82,6 +83,7 @@ type AddMongoDBCommand struct {
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit              int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
 	ExposeExporter                bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	MongoDBRealtimeAnalytics      bool              `name:"realtime-analytics" default:"true" help:"Enable real-time analytics for MongoDB queries (default: true)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -192,11 +194,12 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 
 				MetricsMode: cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 
-				EnableAllCollectors: cmd.EnableAllCollectors,
-				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-				StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
-				CollectionsLimit:    cmd.CollectionsLimit,
-				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				EnableAllCollectors:      cmd.EnableAllCollectors,
+				DisableCollectors:        commands.ParseDisableCollectors(cmd.DisableCollectors),
+				StatsCollections:         commands.ParseDisableCollectors(cmd.StatsCollections),
+				CollectionsLimit:         cmd.CollectionsLimit,
+				LogLevel:                 cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				MongodbRealtimeAnalytics: cmd.MongoDBRealtimeAnalytics,
 			},
 		},
 		Context: commands.Ctx,

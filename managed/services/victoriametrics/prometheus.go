@@ -175,6 +175,8 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			continue
 		case models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			continue
+		case models.MongoDBRealtimeAnalyticsAgentType:
+			continue
 
 		case models.RDSExporterType:
 			rdsParams = append(rdsParams, &scrapeConfigParams{

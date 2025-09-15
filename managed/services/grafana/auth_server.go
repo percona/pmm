@@ -59,6 +59,8 @@ var rules = map[string]role{
 	"/server.v1.":                               admin,
 	"/qan.v1.CollectorService.":                 viewer,
 	"/qan.v1.QANService.":                       viewer,
+	"/realtime.v1.RealTimeAnalyticsService/SendRealTimeData": none, // agents send data without user auth
+	"/realtime.v1.": viewer, // general real-time access
 
 	"/v1/alerting":                    viewer,
 	"/v1/advisors":                    editor,

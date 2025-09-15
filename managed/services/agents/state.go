@@ -179,6 +179,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	rdsExporters := make(map[*models.Node]*models.Agent)
 	agentProcesses := make(map[string]*agentv1.SetStateRequest_AgentProcess)
 	builtinAgents := make(map[string]*agentv1.SetStateRequest_BuiltinAgent)
+	realtimeAnalyticsAgents := make(map[string]*agentv1.SetStateRequest_RealtimeAnalyticsAgent)
 	for _, row := range agents {
 		if row.Disabled {
 			continue
@@ -241,7 +242,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
 			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType,
-			models.QANMongoDBMongologAgentType, models.QANPostgreSQLPgStatementsAgentType,
+			models.QANMongoDBMongologAgentType, models.MongoDBRealtimeAnalyticsAgentType, models.QANPostgreSQLPgStatementsAgentType,
 			models.QANPostgreSQLPgStatMonitorAgentType:
 
 			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
@@ -278,6 +279,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMongoDBMongologAgentType:
 				builtinAgents[row.AgentID] = qanMongoDBMongologAgentConfig(service, row, pmmAgentVersion)
+			case models.MongoDBRealtimeAnalyticsAgentType:
+				realtimeAnalyticsAgents[row.AgentID] = mongoDBRealtimeAnalyticsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatementsAgentType:
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
@@ -317,8 +320,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}
 
 	state := &agentv1.SetStateRequest{
-		AgentProcesses: agentProcesses,
-		BuiltinAgents:  builtinAgents,
+		AgentProcesses:          agentProcesses,
+		BuiltinAgents:           builtinAgents,
+		RealtimeAnalyticsAgents: realtimeAnalyticsAgents,
 	}
 	l.Debugf("sendSetStateRequest:\n%s", prototext.Format(state))
 

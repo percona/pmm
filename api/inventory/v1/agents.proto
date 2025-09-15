@@ -30,6 +30,7 @@ enum AgentType {
   AGENT_TYPE_RDS_EXPORTER = 11;
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
+  AGENT_TYPE_MONGODB_REALTIME_ANALYTICS_AGENT = 19;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -485,6 +486,41 @@ message QANMongoDBMongologAgent {
   LogLevel log_level = 22;
 }
 
+// MongoDBRealtimeAnalyticsAgent runs within pmm-agent and sends MongoDB real-time query data to the PMM Server.
+message MongoDBRealtimeAnalyticsAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // MongoDB username for getting real-time query data.
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
+  // Collection interval in seconds.
+  uint32 collection_interval_seconds = 8;
+  // Disable query examples collection for privacy.
+  bool disable_query_text = 9;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 20;
+  // Path to exec process.
+  string process_exec_path = 21;
+  // Log level for exporter.
+  LogLevel log_level = 22;
+}
+
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 message QANPostgreSQLPgStatementsAgent {
   // Unique randomly generated instance identifier.
@@ -706,6 +742,7 @@ message ListAgentsResponse {
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
   repeated QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 18;
+  repeated MongoDBRealtimeAnalyticsAgent mongodb_realtime_analytics_agent = 19;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
   repeated ExternalExporter external_exporter = 13;
@@ -734,6 +771,7 @@ message GetAgentResponse {
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
     QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 18;
+    MongoDBRealtimeAnalyticsAgent mongodb_realtime_analytics_agent = 19;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
     ExternalExporter external_exporter = 13;
@@ -776,6 +814,7 @@ message AddAgentRequest {
     AddQANMySQLSlowlogAgentParams qan_mysql_slowlog_agent = 11;
     AddQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
     AddQANMongoDBMongologAgentParams qan_mongodb_mongolog_agent = 16;
+    AddMongoDBRealtimeAnalyticsAgentParams mongodb_realtime_analytics_agent = 17;
     AddQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
   }
@@ -796,6 +835,7 @@ message AddAgentResponse {
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 11;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
     QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 16;
+    MongoDBRealtimeAnalyticsAgent mongodb_realtime_analytics_agent = 17;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
   }
@@ -819,6 +859,7 @@ message ChangeAgentRequest {
     ChangeQANMySQLSlowlogAgentParams qan_mysql_slowlog_agent = 11;
     ChangeQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
     ChangeQANMongoDBMongologAgentParams qan_mongodb_mongolog_agent = 17;
+    ChangeMongoDBRealtimeAnalyticsAgentParams mongodb_realtime_analytics_agent = 18;
     ChangeQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     ChangeQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
 
@@ -842,6 +883,7 @@ message ChangeAgentResponse {
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 11;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
     QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 17;
+    MongoDBRealtimeAnalyticsAgent mongodb_realtime_analytics_agent = 18;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
 
@@ -986,6 +1028,56 @@ message AddMongoDBExporterParams {
   LogLevel log_level = 19;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 20;
+}
+
+message AddMongoDBRealtimeAnalyticsAgentParams {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // MongoDB username for scraping metrics.
+  string username = 3;
+  // MongoDB password for scraping metrics.
+  string password = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
+  // Client certificate and key.
+  string tls_certificate_key = 7;
+  // Password for decrypting tls_certificate_key.
+  string tls_certificate_key_file_password = 8;
+  // Certificate Authority certificate chain.
+  string tls_ca = 9;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // Skip connection check.
+  bool skip_connection_check = 11;
+  // Authentication mechanism.
+  string authentication_mechanism = 12;
+  // Authentication database.
+  string authentication_database = 13;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 14;
+  // Collection interval in seconds.
+  uint32 collection_interval_seconds = 15;
+  // Disable query examples collection.
+  bool disable_examples = 16;
+  // Log level for agent.
+  LogLevel log_level = 17;
+}
+
+message ChangeMongoDBRealtimeAnalyticsAgentParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 2;
+  // Collection interval in seconds.
+  optional uint32 collection_interval_seconds = 3;
+  // Disable query examples collection.
+  optional bool disable_examples = 4;
+  // Log level for agent.
+  optional LogLevel log_level = 5;
 }
 
 message ChangeMongoDBExporterParams {

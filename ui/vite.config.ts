@@ -9,7 +9,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/v1': {
-        target: '/',
+        target: 'https://localhost:443',
+        secure: false,
+        changeOrigin: true,
+      },
+      '/graph': {
+        target: 'https://localhost:443',
+        secure: false,
+        changeOrigin: true,
       },
     },
     host: '0.0.0.0',

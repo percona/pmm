@@ -50,6 +50,7 @@ func (v *agentTableType) Columns() []string {
 		"log_level",
 		"exporter_options",
 		"qan_options",
+		"realtime_analytics_options",
 		"aws_options",
 		"azure_options",
 		"mongo_options",
@@ -101,6 +102,7 @@ var AgentTable = &agentTableType{
 			{Name: "LogLevel", Type: "*string", Column: "log_level"},
 			{Name: "ExporterOptions", Type: "ExporterOptions", Column: "exporter_options"},
 			{Name: "QANOptions", Type: "QANOptions", Column: "qan_options"},
+			{Name: "RealTimeAnalyticsOptions", Type: "RealTimeAnalyticsOptions", Column: "realtime_analytics_options"},
 			{Name: "AWSOptions", Type: "AWSOptions", Column: "aws_options"},
 			{Name: "AzureOptions", Type: "AzureOptions", Column: "azure_options"},
 			{Name: "MongoDBOptions", Type: "MongoDBOptions", Column: "mongo_options"},
@@ -114,7 +116,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 27)
+	res := make([]string, 28)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -137,11 +139,12 @@ func (s Agent) String() string {
 	res[19] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
 	res[20] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
 	res[21] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
-	res[22] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
-	res[23] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
-	res[24] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[25] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[26] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[22] = "RealTimeAnalyticsOptions: " + reform.Inspect(s.RealTimeAnalyticsOptions, true)
+	res[23] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
+	res[24] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
+	res[25] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[26] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[27] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -171,6 +174,7 @@ func (s *Agent) Values() []interface{} {
 		s.LogLevel,
 		s.ExporterOptions,
 		s.QANOptions,
+		s.RealTimeAnalyticsOptions,
 		s.AWSOptions,
 		s.AzureOptions,
 		s.MongoDBOptions,
@@ -205,6 +209,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.LogLevel,
 		&s.ExporterOptions,
 		&s.QANOptions,
+		&s.RealTimeAnalyticsOptions,
 		&s.AWSOptions,
 		&s.AzureOptions,
 		&s.MongoDBOptions,

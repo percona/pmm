@@ -201,6 +201,9 @@ type ChangeAgentBody struct {
 	// mongodb exporter
 	MongodbExporter *ChangeAgentParamsBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
+	// mongodb realtime analytics agent
+	MongodbRealtimeAnalyticsAgent *ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent `json:"mongodb_realtime_analytics_agent,omitempty"`
+
 	// mysqld exporter
 	MysqldExporter *ChangeAgentParamsBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
@@ -251,6 +254,10 @@ func (o *ChangeAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMongodbExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMongodbRealtimeAnalyticsAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -357,6 +364,25 @@ func (o *ChangeAgentBody) validateMongodbExporter(formats strfmt.Registry) error
 				return ve.ValidateName("body" + "." + "mongodb_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mongodb_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentBody) validateMongodbRealtimeAnalyticsAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.MongodbRealtimeAnalyticsAgent) { // not required
+		return nil
+	}
+
+	if o.MongodbRealtimeAnalyticsAgent != nil {
+		if err := o.MongodbRealtimeAnalyticsAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongodb_realtime_analytics_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongodb_realtime_analytics_agent")
 			}
 			return err
 		}
@@ -609,6 +635,10 @@ func (o *ChangeAgentBody) ContextValidate(ctx context.Context, formats strfmt.Re
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateMongodbRealtimeAnalyticsAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -715,6 +745,26 @@ func (o *ChangeAgentBody) contextValidateMongodbExporter(ctx context.Context, fo
 				return ve.ValidateName("body" + "." + "mongodb_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mongodb_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentBody) contextValidateMongodbRealtimeAnalyticsAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.MongodbRealtimeAnalyticsAgent != nil {
+
+		if swag.IsZero(o.MongodbRealtimeAnalyticsAgent) { // not required
+			return nil
+		}
+
+		if err := o.MongodbRealtimeAnalyticsAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongodb_realtime_analytics_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongodb_realtime_analytics_agent")
 			}
 			return err
 		}
@@ -1215,6 +1265,9 @@ type ChangeAgentOKBody struct {
 	// mongodb exporter
 	MongodbExporter *ChangeAgentOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
+	// mongodb realtime analytics agent
+	MongodbRealtimeAnalyticsAgent *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent `json:"mongodb_realtime_analytics_agent,omitempty"`
+
 	// mysqld exporter
 	MysqldExporter *ChangeAgentOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
@@ -1265,6 +1318,10 @@ func (o *ChangeAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMongodbExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMongodbRealtimeAnalyticsAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1371,6 +1428,25 @@ func (o *ChangeAgentOKBody) validateMongodbExporter(formats strfmt.Registry) err
 				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentOKBody) validateMongodbRealtimeAnalyticsAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.MongodbRealtimeAnalyticsAgent) { // not required
+		return nil
+	}
+
+	if o.MongodbRealtimeAnalyticsAgent != nil {
+		if err := o.MongodbRealtimeAnalyticsAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "mongodb_realtime_analytics_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "mongodb_realtime_analytics_agent")
 			}
 			return err
 		}
@@ -1623,6 +1699,10 @@ func (o *ChangeAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateMongodbRealtimeAnalyticsAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1729,6 +1809,26 @@ func (o *ChangeAgentOKBody) contextValidateMongodbExporter(ctx context.Context, 
 				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentOKBody) contextValidateMongodbRealtimeAnalyticsAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.MongodbRealtimeAnalyticsAgent != nil {
+
+		if swag.IsZero(o.MongodbRealtimeAnalyticsAgent) { // not required
+			return nil
+		}
+
+		if err := o.MongodbRealtimeAnalyticsAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "mongodb_realtime_analytics_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "mongodb_realtime_analytics_agent")
 			}
 			return err
 		}
@@ -2794,6 +2894,218 @@ func (o *ChangeAgentOKBodyMongodbExporterMetricsResolutions) MarshalBinary() ([]
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyMongodbExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyMongodbExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent MongoDBRealtimeAnalyticsAgent runs within pmm-agent and sends MongoDB real-time query data to the PMM Server.
+swagger:model ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent
+*/
+type ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting real-time query data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Collection interval in seconds.
+	CollectionIntervalSeconds int64 `json:"collection_interval_seconds,omitempty"`
+
+	// Disable query examples collection for privacy.
+	DisableQueryText bool `json:"disable_query_text,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this change agent OK body mongodb realtime analytics agent
+func (o *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var changeAgentOkBodyMongodbRealtimeAnalyticsAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyMongodbRealtimeAnalyticsAgentTypeStatusPropEnum = append(changeAgentOkBodyMongodbRealtimeAnalyticsAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyMongodbRealtimeAnalyticsAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("changeAgentOk"+"."+"mongodb_realtime_analytics_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeAgentOkBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum = append(changeAgentOkBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeAgentOk"+"."+"mongodb_realtime_analytics_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this change agent OK body mongodb realtime analytics agent based on context it is used
+func (o *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyMongodbRealtimeAnalyticsAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -6510,6 +6822,121 @@ func (o *ChangeAgentParamsBodyMongodbExporterMetricsResolutions) MarshalBinary()
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyMongodbExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyMongodbExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent change agent params body mongodb realtime analytics agent
+swagger:model ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent
+*/
+type ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent struct {
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Collection interval in seconds.
+	CollectionIntervalSeconds *int64 `json:"collection_interval_seconds,omitempty"`
+
+	// Disable query examples collection.
+	DisableExamples *bool `json:"disable_examples,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this change agent params body mongodb realtime analytics agent
+func (o *ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var changeAgentParamsBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentParamsBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum = append(changeAgentParamsBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentParamsBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"mongodb_realtime_analytics_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this change agent params body mongodb realtime analytics agent based on context it is used
+func (o *ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyMongodbRealtimeAnalyticsAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

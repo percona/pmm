@@ -45,6 +45,7 @@ import (
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	realtimev1 "github.com/percona/pmm/api/realtime/v1"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 )
@@ -78,9 +79,11 @@ type Client struct {
 
 	runner *runner.Runner
 
-	rw      sync.RWMutex
-	md      *agentv1.ServerConnectMetadata
-	channel *channel.Channel
+	rw             sync.RWMutex
+	md             *agentv1.ServerConnectMetadata
+	channel        *channel.Channel
+	conn           *grpc.ClientConn
+	realtimeClient realtimev1.RealTimeAnalyticsServiceClient
 
 	cus      *connectionuptime.Service
 	logStore *tailog.Store
@@ -177,6 +180,8 @@ func (c *Client) Run(ctx context.Context) error {
 	c.rw.Lock()
 	c.md = dialResult.md
 	c.channel = dialResult.channel
+	c.conn = dialResult.conn
+	c.realtimeClient = realtimev1.NewRealTimeAnalyticsServiceClient(dialResult.conn)
 	c.rw.Unlock()
 
 	// Once the client is connected, ctx cancellation is ignored by it.
@@ -259,6 +264,33 @@ func (c *Client) SendActualStatuses() {
 // Done is closed when all supervisor's requests are sent (if possible) and connection is closed.
 func (c *Client) Done() <-chan struct{} {
 	return c.done
+}
+
+// sendRealTimeData sends real-time analytics data to pmm-managed via the realtime service
+func (c *Client) sendRealTimeData(req *realtimev1.RealTimeAnalyticsRequest) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Use the stored realtime service client
+	c.rw.RLock()
+	client := c.realtimeClient
+	c.rw.RUnlock()
+
+	if client == nil {
+		return errors.New("realtime client is nil")
+	}
+
+	c.l.Debugf("Sending %d real-time queries to pmm-managed", len(req.Queries))
+
+	// Send real-time data
+	_, err := client.SendRealTimeData(ctx, req)
+	if err != nil {
+		c.l.Errorf("Failed to send real-time data: %v", err)
+		return errors.Wrap(err, "failed to send real-time data")
+	}
+
+	c.l.Debugf("Successfully sent %d real-time queries to pmm-managed", len(req.Queries))
+	return nil
 }
 
 func (c *Client) processActionResults(ctx context.Context) {
@@ -349,6 +381,33 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 				}
 			case <-ctx.Done():
 				c.l.Infof("Supervisor QANRequests() channel drained.")
+				return
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		c.l.Infof("Starting real-time data processing goroutine")
+		for {
+			select {
+			case realtimeData := <-c.supervisor.RealTimeRequests():
+				c.l.Debugf("Received real-time data from supervisor channel: %v", realtimeData != nil)
+				if realtimeData == nil {
+					c.l.Warnf("Received nil real-time data, skipping")
+					continue
+				}
+				c.l.Debugf("Processing real-time data with %d queries", len(realtimeData.Queries))
+				// Send real-time data to pmm-managed via realtime service using cached client
+				err := c.sendRealTimeData(realtimeData)
+				if err != nil {
+					c.l.Errorf("Failed to send real-time data: %v", err)
+					continue
+				}
+			case <-ctx.Done():
+				c.l.Infof("Supervisor RealTimeRequests() channel drained.")
 				return
 			}
 		}
