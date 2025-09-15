@@ -164,29 +164,6 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
         # Or use port-forwarding for testing
         oc port-forward svc/pmm-service 443:443
         ```
-   
-8. (Optional) Create a network policy to allow PMM communication:
-
-    ```yaml
-    apiVersion: networking.k8s.io/v1
-    kind: NetworkPolicy
-    metadata:
-      name: pmm-network-policy
-    spec:
-      podSelector:
-        matchLabels:
-          app.kubernetes.io/name: pmm
-      policyTypes:
-      - Ingress
-      - Egress
-      ingress:
-      - from: []
-        ports:
-        - protocol: TCP
-          port: 443
-      egress:
-      - to: []
-    ```
 
 ### Configure PMM Server
 
