@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Regular backups of your PMM Server are essential for protecting your monitoring configuration and historical data.">
+        <meta name="description" content="Regular backups of your PMM Server are essential for protecting your monitoring configuration and historical data, especially before migrations and upgrades.">
       
       
         <meta name="author" content="Percona LLC">
@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.19">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.7e37652d.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.e53b48f4.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -290,7 +290,7 @@
         <a href="https://github.com/percona/pmm/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     percona/pmm
@@ -339,7 +339,7 @@
       <a href="https://github.com/percona/pmm/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     percona/pmm
@@ -759,7 +759,7 @@
   
   
   <span class="md-ellipsis">
-    Prerequisites for PMM Server
+    Prerequisites
     
   </span>
   
@@ -1200,29 +1200,53 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#backup-overview" class="md-nav__link">
+  <a href="#back-up-grafana-plugins" class="md-nav__link">
     <span class="md-ellipsis">
-      Backup overview
+      Back up Grafana plugins
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#backing-up-grafana-plugins" class="md-nav__link">
+  <a href="#backup-procedure" class="md-nav__link">
     <span class="md-ellipsis">
-      Backing up Grafana plugins
+      Backup procedure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backup procedure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-back-up-pmm-server-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Back up PMM Server container
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#back-up-procedure" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#step-2-choose-a-backup-method" class="md-nav__link">
     <span class="md-ellipsis">
-      Back up procedure
+      Step 2: Choose a backup method
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-verify-the-integrity-of-the-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Verify the integrity of the backup
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3998,7 +4022,7 @@
   
   
   <span class="md-ellipsis">
-    Backup and restore
+    Back up and restore
     
   </span>
   
@@ -4009,7 +4033,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6_9">
             <span class="md-nav__icon md-icon"></span>
-            Backup and restore
+            Back up and restore
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -5650,6 +5674,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../pmm-upgrade/migrating_from_vmware.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Migrate from VMware to alternative platforms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
@@ -6213,6 +6260,29 @@
   
   <span class="md-ellipsis">
     Release notes index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../release-notes/3.4.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.4.0 (2025-09-15)
     
   </span>
   
@@ -8999,29 +9069,53 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#backup-overview" class="md-nav__link">
+  <a href="#back-up-grafana-plugins" class="md-nav__link">
     <span class="md-ellipsis">
-      Backup overview
+      Back up Grafana plugins
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#backing-up-grafana-plugins" class="md-nav__link">
+  <a href="#backup-procedure" class="md-nav__link">
     <span class="md-ellipsis">
-      Backing up Grafana plugins
+      Backup procedure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backup procedure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-back-up-pmm-server-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Back up PMM Server container
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#back-up-procedure" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#step-2-choose-a-backup-method" class="md-nav__link">
     <span class="md-ellipsis">
-      Back up procedure
+      Step 2: Choose a backup method
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-verify-the-integrity-of-the-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Verify the integrity of the backup
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -9083,24 +9177,207 @@
 
 
 <h1 id="back-up-pmm-server-docker-container">Back up PMM Server Docker container<a class="headerlink" href="#back-up-pmm-server-docker-container" title="Permanent link">&para;</a></h1>
-<p>Regular backups of your PMM Server are essential for protecting your monitoring configuration and historical data.</p>
-<h2 id="backup-overview">Backup overview<a class="headerlink" href="#backup-overview" title="Permanent link">&para;</a></h2>
-<details class="info">
-<summary>Summary</summary>
-<ul>
-<li>Stop and rename the <code>pmm-server</code> container.</li>
-<li>Take a local copy of the <code>pmm-server</code> container&rsquo;s <code>/srv</code> directory.</li>
-<li>Copy the dat<code>a directory (</code>/srv`) to your host</li>
-<li>Resume normal operations</li>
-</ul>
-</details>
-<h2 id="backing-up-grafana-plugins">Backing up Grafana plugins<a class="headerlink" href="#backing-up-grafana-plugins" title="Permanent link">&para;</a></h2>
+<p>Regular backups of your PMM Server are essential for protecting your monitoring configuration and historical data, especially before migrations and upgrades.</p>
+<h2 id="back-up-grafana-plugins">Back up Grafana plugins<a class="headerlink" href="#back-up-grafana-plugins" title="Permanent link">&para;</a></h2>
 <p>Grafana plugins have been moved to the <code>/srv</code> directory since PMM 2.23.0. So if you are upgrading PMM from a version before 2.23.0 and have installed additional plugins, you&rsquo;ll need to reinstall them after the upgrade.</p>
 <p>To check used Grafana plugins:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>ls<span class="w"> </span>-l<span class="w"> </span>/var/lib/grafana/plugins
 </code></pre></div>
-<h2 id="back-up-procedure">Back up procedure<a class="headerlink" href="#back-up-procedure" title="Permanent link">&para;</a></h2>
-<p class="power-number">To back up your PMM Server container:</p>
+<h2 id="backup-procedure">Backup procedure<a class="headerlink" href="#backup-procedure" title="Permanent link">&para;</a></h2>
+<p>To back up your PMM Server container, follow the backup instructions for your deployment type.</p>
+<h3 id="step-1-back-up-pmm-server-container">Step 1: Back up PMM Server container<a class="headerlink" href="#step-1-back-up-pmm-server-container" title="Permanent link">&para;</a></h3>
+<p>Identify your deployment type and storage method since different PMM Server deployments store data differently:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Docker with named volumes</label><label for="__tabbed_1_2">Docker with host directories</label><label for="__tabbed_1_3">Podman with SystemD</label><label for="__tabbed_1_4">Kubernetes</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Your PMM data is stored in a Docker-managed volume (like pmm-data). You&rsquo;ll need to copy this volume&rsquo;s contents to create a backup.</p>
+<p><strong>Command to check mount configuration</strong>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>inspect<span class="w"> </span>pmm-server<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="s1">&#39;&quot;Mounts&quot;&#39;</span>
+</code></pre></div></p>
+<p><strong>Expected output</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;Mounts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;Type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;volume&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pmm-data&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/var/lib/docker/volumes/pmm-data/_data&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Destination&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/srv&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Driver&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;RW&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Propagation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p>Your PMM data is stored in a directory on your host machine that&rsquo;s mounted into the container. You&rsquo;ll back up this directory using standard file system tools.</p>
+<p><strong>Command to check mount configuration</strong>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>inspect<span class="w"> </span>pmm-server<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="s1">&#39;&quot;Mounts&quot;&#39;</span>
+</code></pre></div></p>
+<p><strong>Expected output</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;Mounts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;Type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bind&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/home/user/srv&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Destination&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/srv&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;RW&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Propagation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rprivate&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p>Your PMM runs as a SystemD service using Podman. You&rsquo;ll need to stop the service, back up the volume, and restart the service.</p>
+<p><strong>Command to check if PMM service is running</strong>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span>is-active<span class="w"> </span>pmm-server
+</code></pre></div></p>
+<p><strong>Expected output</strong>
+<div class="highlight"><pre><span></span><code>active
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p>Your PMM runs in a Kubernetes cluster. You&rsquo;ll use volume snapshots or persistent volume backups.</p>
+<p><strong>Command to check if PMM pods are running</strong>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/name<span class="o">=</span>pmm
+</code></pre></div></p>
+<p><strong>Expected output:</strong>
+<div class="highlight"><pre><span></span><code>NAME    READY   STATUS    RESTARTS   AGE
+pmm-0   1/1     Running   0          2d
+</code></pre></div></p>
+<p><strong>Command to check persistent volume claims</strong>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pvc<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/name<span class="o">=</span>pmm
+</code></pre></div></p>
+<p><strong>Expected output</strong>
+<div class="highlight"><pre><span></span><code>NAME               STATUS   VOLUME                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+pmm-storage-pmm-0  Bound    pvc-abc123-def4-5678-9012  8Gi        RWO            gp2            2d
+</code></pre></div></p>
+</div>
+</div>
+</div>
+<h3 id="step-2-choose-a-backup-method">Step 2: Choose a backup method<a class="headerlink" href="#step-2-choose-a-backup-method" title="Permanent link">&para;</a></h3>
+<p>Choose the appropriate backup method based on your PMM Server deployment:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:5"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><input id="__tabbed_2_5" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Docker with named volume</label><label for="__tabbed_2_2">Docker with host directory</label><label for="__tabbed_2_3">Podman with systemD</label><label for="__tabbed_2_4">Kubernetes (Helm)</label><label for="__tabbed_2_5">Universal container copy</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>This is the most common deployment pattern and is ideal for migrations, as it preserves the entire <code>pmm-data</code> volume structure required for a successful transfer. Use this method if your PMM Server is deployed with a named Docker volume:</p>
+<p><strong>Example deployment</strong>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span>--restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--publish<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--volume<span class="w"> </span>pmm-data:/srv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>percona/pmm-server:3
+</code></pre></div></p>
+<p><strong>Create volume backup</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Stop PMM Server</span>
+docker<span class="w"> </span>stop<span class="w"> </span>pmm-server
+
+<span class="c1"># Create backup volume with timestamp</span>
+<span class="nv">BACKUP_VOLUME</span><span class="o">=</span><span class="s2">&quot;pmm-data-backup-</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d-%H%M%S<span class="k">)</span><span class="s2">&quot;</span>
+docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span><span class="w"> </span><span class="m">1</span>&gt;<span class="w"> </span>/dev/null
+
+<span class="c1"># Copy data from current volume to backup volume</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>pmm-data:/from<span class="w"> </span>-v<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>:/to<span class="w"> </span>alpine<span class="w"> </span>ash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;cp -av /from/. /to&#39;</span>
+
+<span class="c1"># Verify backup</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>:/backup<span class="w"> </span>alpine<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/backup
+
+<span class="c1"># Restart PMM Server</span>
+docker<span class="w"> </span>start<span class="w"> </span>pmm-server
+
+<span class="c1"># Note backup volume name for recovery</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Backup volume created: </span><span class="nv">$BACKUP_VOLUME</span><span class="s2">&quot;</span>
+</code></pre></div></p>
+<p><strong>Alternative: Export volume to archive:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create compressed backup archive</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>pmm-volume-backups
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>pmm-data:/volume<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/pmm-volume-backups:/backup<span class="w"> </span>alpine<span class="w"> </span>tar<span class="w"> </span>czf<span class="w"> </span>/backup/pmm-data-backup-<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d-%H%M%S<span class="k">)</span>.tar.gz<span class="w"> </span>-C<span class="w"> </span>/volume<span class="w"> </span>.
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p>Use this method if your PMM Server mounts a host directory:</p>
+<p><strong>Example deployment</strong>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span>--restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--publish<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--volume<span class="w"> </span>/home/user/srv:/srv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>percona/pmm-server:3
+</code></pre></div></p>
+<p><strong>Create host directory backup</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Stop PMM Server</span>
+docker<span class="w"> </span>stop<span class="w"> </span>pmm-server
+
+<span class="c1"># Create backup directory</span>
+<span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&quot;pmm-directory-backup-</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d-%H%M%S<span class="k">)</span><span class="s2">&quot;</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="nv">$BACKUP_DIR</span>
+
+<span class="c1"># Copy mounted directory (adjust path to match your deployment)</span>
+cp<span class="w"> </span>-r<span class="w"> </span>/home/user/srv<span class="w"> </span><span class="nv">$BACKUP_DIR</span>/
+
+<span class="c1"># Or use rsync for incremental backup</span>
+rsync<span class="w"> </span>-av<span class="w"> </span>/home/user/srv/<span class="w"> </span><span class="nv">$BACKUP_DIR</span>/
+
+<span class="c1"># Restart PMM Server</span>
+docker<span class="w"> </span>start<span class="w"> </span>pmm-server
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p>Use this method if your PMM Server runs with Podman and SystemD:</p>
+<p><strong>Example deployment via SystemD service</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Podman with named volume via SystemD</span>
+systemctl<span class="w"> </span>--user<span class="w"> </span>status<span class="w"> </span>pmm-server
+</code></pre></div></p>
+<p><strong>Create Podman volume backup</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Stop PMM Server service</span>
+systemctl<span class="w"> </span>--user<span class="w"> </span>stop<span class="w"> </span>pmm-server
+
+<span class="c1"># Create backup volume with timestamp</span>
+<span class="nv">BACKUP_VOLUME</span><span class="o">=</span><span class="s2">&quot;pmm-data-backup-</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d-%H%M%S<span class="k">)</span><span class="s2">&quot;</span>
+podman<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>
+
+<span class="c1"># Copy data from current volume to backup volume</span>
+podman<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>pmm-server:/from<span class="w"> </span>-v<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>:/to<span class="w"> </span>alpine<span class="w"> </span>ash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;cp -av /from/. /to&#39;</span>
+
+<span class="c1"># Verify backup</span>
+podman<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>:/backup<span class="w"> </span>alpine<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/backup
+
+<span class="c1"># Restart PMM Server service</span>
+systemctl<span class="w"> </span>--user<span class="w"> </span>start<span class="w"> </span>pmm-server
+
+<span class="c1"># Note backup volume name for restoration</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Backup volume created: </span><span class="nv">$BACKUP_VOLUME</span><span class="s2">&quot;</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p>Use this method if your PMM Server runs on Kubernetes via Helm. Requires <code>StorageClass</code> and <code>VolumeSnapshotClass</code> that support snapshots. Check with your Kubernetes provider for availability.</p>
+<p><strong>Example deployment</strong>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>pmm<span class="w"> </span>percona/pmm
+</code></pre></div></p>
+<p><strong>Create Kubernetes volume snapshot</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check available storage classes and snapshot classes</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>storageclass
+kubectl<span class="w"> </span>get<span class="w"> </span>volumesnapshotclass
+
+<span class="c1"># Create volume snapshot</span>
+cat<span class="w"> </span><span class="s">&lt;&lt;EOF | kubectl apply -f -</span>
+<span class="s">apiVersion: snapshot.storage.k8s.io/v1</span>
+<span class="s">kind: VolumeSnapshot</span>
+<span class="s">metadata:</span>
+<span class="s">  name: pmm-backup-$(date +%Y%m%d-%H%M%S)</span>
+<span class="s">  labels:</span>
+<span class="s">    app.kubernetes.io/name: pmm</span>
+<span class="s">spec:</span>
+<span class="s">  source:</span>
+<span class="s">    persistentVolumeClaimName: pmm-storage-pmm-0</span>
+<span class="s">  volumeSnapshotClassName: your-snapshot-class</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Verify snapshot creation</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>volumesnapshot<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/name<span class="o">=</span>pmm
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p class="power-number">While this method works universally, the deployment-specific methods above are more efficient and preserve storage structures better. This method works for all deployment types as a fallback option when you&rsquo;re unsure about your deployment type or you need a quick backup without determining volume setup.</p>
 <ol>
 <li>
 <p>Stop the running PMM Server container:</p>
@@ -9113,21 +9390,74 @@
 </code></pre></div>
 </li>
 <li>
-<p>Create a backup subdirectory (e.g., <code>pmm-data-backup</code>) and navigate to it:</p>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>pmm-data-backup<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pmm-data-backup
+<p>Create a backup subdirectory and navigate to it:</p>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>pmm-data-backup-<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d-%H%M%S<span class="k">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pmm-data-backup-<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d-%H%M%S<span class="k">)</span>
 </code></pre></div>
 </li>
 <li>
 <p>Back up the data:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>cp<span class="w"> </span>pmm-server-backup:/srv<span class="w"> </span>.
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>cp<span class="w"> </span>pmm-server-backup:/srv/.<span class="w"> </span>.
 </code></pre></div>
 </li>
 <li>
-<p>Verify the backup was created successfully:
-    <div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-la<span class="w"> </span>srv/
-</code></pre></div></p>
+<p>Verify the backup was created successfully:</p>
+<div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-la<span class="w"> </span>.
+</code></pre></div>
+</li>
+<li>
+<p>Create new container from original image:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-v<span class="w"> </span>pmm-data:/srv<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span>--name<span class="w"> </span>pmm-server<span class="w"> </span>--restart<span class="w"> </span>always<span class="w"> </span>percona/pmm-server:3
+</code></pre></div>
 </li>
 </ol>
+</div>
+</div>
+</div>
+<h3 id="step-3-verify-the-integrity-of-the-backup">Step 3: Verify the integrity of the backup<a class="headerlink" href="#step-3-verify-the-integrity-of-the-backup" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:4"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><input id="__tabbed_3_4" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Volume backups</label><label for="__tabbed_3_2">Directory backups</label><label for="__tabbed_3_3">Podman volumes</label><label for="__tabbed_3_4">Kubernetes snapshots</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>For backups created using the Named Volume method:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check backup volume contents</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>:/backup<span class="w"> </span>alpine<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/backup
+
+<span class="c1"># Verify critical directories</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>:/backup<span class="w"> </span>alpine<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;ls -la /backup/grafana /backup/prometheus /backup/clickhouse 2&gt;/dev/null || echo &quot;Some directories may not exist in older versions&quot;&#39;</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>For directory-based backups:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check backup directory</span>
+ls<span class="w"> </span>-la<span class="w"> </span><span class="nv">$BACKUP_DIR</span>/
+
+<span class="c1"># Verify critical subdirectories</span>
+ls<span class="w"> </span>-la<span class="w"> </span><span class="nv">$BACKUP_DIR</span>/<span class="o">{</span>grafana,prometheus,clickhouse<span class="o">}</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Some directories may not exist in older versions&quot;</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>For backups created using Podman volumes:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check backup volume contents</span>
+podman<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>:/backup<span class="w"> </span>alpine<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/backup
+
+<span class="c1"># Verify critical directories exist</span>
+podman<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="nv">$BACKUP_VOLUME</span>:/backup<span class="w"> </span>alpine<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/backup/grafana<span class="w"> </span>/backup/prometheus<span class="w"> </span>/backup/clickhouse<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Some directories may not exist in older versions&quot;</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>For backups created using Kubernetes volume snapshots:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check snapshot status</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>volumesnapshot<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/name<span class="o">=</span>pmm
+
+<span class="c1"># Verify snapshot is ready</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>volumesnapshot<span class="w"> </span>pmm-backup-YYYYMMDD-HHMMSS<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.readyToUse}&#39;</span>
+
+<span class="c1"># Check snapshot size and source</span>
+kubectl<span class="w"> </span>describe<span class="w"> </span>volumesnapshot<span class="w"> </span>pmm-backup-YYYYMMDD-HHMMSS
+</code></pre></div>
+</div>
+</div>
+</div>
 <h2 id="next-steps-after-backup">Next steps after backup<a class="headerlink" href="#next-steps-after-backup" title="Permanent link">&para;</a></h2>
 <p class="power-number">After creating your backup, you have two options:</p>
 <ol>
@@ -9161,7 +9491,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-05-29
+    2025-08-19
   </span>
 
     
@@ -9279,7 +9609,7 @@
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
         <script src="../../../../js/promptremover.js"></script>
       
