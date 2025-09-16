@@ -190,6 +190,7 @@ nav:
               - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
               - Install from binaries: install-pmm/install-pmm-client/binary_package.md
               - Install on Docker: install-pmm/install-pmm-client/docker.md
+              - Install on Kubernetes: install-pmm/install-pmm-client/kubernetes.md
           - Configure monitoring:
               - Database monitoring:
                   - Overview: install-pmm/install-pmm-client/connect-database/index.md

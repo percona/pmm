@@ -28,7 +28,6 @@ Complete these essential steps before installation:
 
 4. [Create database monitoring users](prerequisites.md#database-monitoring-requirements) with appropriate permissions for the databases you plan to monitor.
 
-5. Check that you have root or sudo privileges to install PMM Client. Alternatively, use [binary installation](binary_package.md) for non-root environments.
 
 !!! note "Version information"
     The commands below are for the latest PMM release. If you want to install a different release, make sure to update the commands with your required version number.
