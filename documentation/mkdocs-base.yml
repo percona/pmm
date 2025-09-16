@@ -143,7 +143,7 @@ nav:
           - install-pmm/plan-pmm-installation/network_and_firewall.md
       - Install PMM Server:
           - Server installation overview: install-pmm/install-pmm-server/index.md
-          - install-pmm/install-pmm-server/prerequisites.md
+          - Prerequisites: install-pmm/install-pmm-server/prerequisites.md
           - Deployment options:
               - Install on Docker:
                   - install-pmm/install-pmm-server/deployment-options/docker/index.md
@@ -185,7 +185,7 @@ nav:
                   - install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
       - Install PMM Client:
           - Client installation overview: install-pmm/install-pmm-client/index.md
-          - Prerequisites: install-pmm/install-pmm-client/prerequisites.md
+          - install-pmm/install-pmm-client/prerequisites.md
           - Deployment options:
               - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
               - Install from binaries: install-pmm/install-pmm-client/binary_package.md
@@ -308,7 +308,7 @@ nav:
           - Upgrade PMM Server in K8s:
               - pmm-upgrade/upgrade_helm.md
           - pmm-upgrade/migrating_from_pmm_2.md
-          - pmm-upgrade/migrating_from_vmware.md 
+          - pmm-upgrade/migrating_from_vmware.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
   - Uninstall:
@@ -332,6 +332,7 @@ nav:
   - Release notes:
       - Release notes index: release-notes/index.md
       - "PMM 3.4.0 (2025-09-15)": release-notes/3.4.0.md
+      - "PMM 3.3.1 (2025-07-30)": release-notes/3.3.1.md
       - "PMM 3.3.0 (2025-07-09)": release-notes/3.3.0.md
       - "PMM 3.2.0 (2025-05-29)": release-notes/3.2.0.md
       - "PMM 3.1.0 (2025-03-31)": release-notes/3.1.0.md
