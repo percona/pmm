@@ -9369,7 +9369,7 @@ To deploy PMM Server on OpenShift using the standard Percona Helm charts with pl
 <ul>
 <li>
 <p><a href="https://perconadev.atlassian.net/browse/PMM-14194">PMM-14194</a>: Custom filter groups in Query Analytics (QAN) now correctly distinguish between intentional comments and quoted strings containing comment-like characters. Previously, queries with values like <code>street = '123 Main St # app=something'</code> would incorrectly generate unwanted custom filters. </p>
-<p>Now, only genuine SQL comments such as <code>-- app='web', team='backend'</code> create filter options in the <strong>PMM Query Analytics</strong> dashboard sidebar. This means that you get cleaner query categorization when <a href="/documentation/docs/use/qan/panels/filters.md#custom-filter-groups">comment parsing</a> is enabled.</p>
+<p>Now, only genuine SQL comments such as <code>-- app='web', team='backend'</code> create filter options in the <strong>PMM Query Analytics</strong> dashboard sidebar. This means that you get cleaner query categorization when <a href="../use/qan/panels/filters.html#custom-filter-groups">comment parsing</a> is enabled.</p>
 </li>
 <li>
 <p><a href="https://perconadev.atlassian.net/browse/PMM-14048">PMM-14048</a>: Reorganized MongoDB dashboards for better usability. The <strong>MongoDB PBM Details</strong> and <strong>PBM Backup Details</strong> dashboards are now available directly from the main navigation for easier access, while the <strong>MongoDB InMemory Details</strong> and <strong>MongoDB WiredTiger Details</strong> dashboards are now relocated to <strong>Other Dashboards</strong>.</p>
@@ -9378,10 +9378,10 @@ To deploy PMM Server on OpenShift using the standard Percona Helm charts with pl
 <p><a href="https://perconadev.atlassian.net/browse/PMM-13990">PMM-13990</a>: Improved MongoDB exporter performance by caching regular expression operations. Previously, the exporter repeatedly compiled the same regular expressions during metric collection, causing unnecessary CPU overhead. Now, these regex patterns are cached and reused, reducing the MongoDB exporter&rsquo;s CPU usage without affecting monitoring data quality.</p>
 </li>
 <li>
-<p><a href="https://perconadev.atlassian.net/browse/PMM-11826">PMM-11826 </a>: You can now configure <code>vmagent</code> settings on PMM Clients by setting <code>VMAGENT_</code> environment variables on the PMM Server. These variables automatically apply to all connected clients, allowing you to tune disk usage limits and other parameters centrally.</p>
+<p><a href="https://perconadev.atlassian.net/browse/PMM-11826">PMM-11826</a>: You can now configure <code>vmagent</code> settings on PMM Clients by setting <code>VMAGENT_</code> environment variables on the PMM Server. These variables automatically apply to all connected clients, allowing you to tune disk usage limits and other parameters centrally.</p>
 </li>
 <li>
-<p><a href="https://perconadev.atlassian.net/browse/PMM-11826">PMM-11826</a>: Added support for PMM Client on Red Hat Enterprise Linux 10 (RHEL 10) for both AMD64 and ARM64 architectures.</p>
+<p><a href="https://perconadev.atlassian.net/browse/PMM-14208">PMM-14208</a>: Added support for PMM Client on Red Hat Enterprise Linux 10 (RHEL 10) for both AMD64 and ARM64 architectures.</p>
 </li>
 </ul>
 <h2 id="fixed-issues">Fixed issues<a class="headerlink" href="#fixed-issues" title="Permanent link">&para;</a></h2>
@@ -9458,7 +9458,7 @@ To deploy PMM Server on OpenShift using the standard Percona Helm charts with pl
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-09-11
+    2025-09-16
   </span>
 
     
