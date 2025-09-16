@@ -74,7 +74,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 3. Add the Percona repository and check available PMM versions:
 
     ```bash
-    helm repo add percona [https://percona.github.io/percona-helm-charts/](https://percona.github.io/percona-helm-charts/)
+    helm repo add percona https://percona.github.io/percona-helm-charts
     helm repo update
     ```
 
@@ -140,6 +140,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     ```
 7. Access PMM Server:
 
+
     === "On Kubernetes"
         Standard Kubernetes clusters provide several options for accessing PMM Server. Choose the method that best fits your networking setup and security requirements:
 
@@ -182,8 +183,9 @@ Configure PMM Server using either command-line arguments or a YAML file:
 
     ```sh
     helm install pmm \
-    --set secret.create=false --set secret.name=pmm-secret \
-    --set service.type="NodePort" \
+        --set secret.create=false \
+        --set secret.name=pmm-secret \
+        --set service.type="NodePort" \
         percona/pmm
     ```
 === "Using a .yaml configuration file"
@@ -204,7 +206,7 @@ Add [environment variables](../docker/env_var.md) for advanced operations (like 
 
 ```yaml
 pmmEnv:
-PMM_ENABLE_UPDATES: "1"
+  PMM_ENABLE_UPDATES: "0"
 ```
 
 ### SSL certificates
