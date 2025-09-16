@@ -1141,6 +1141,12 @@ var databaseSchema = [][]string{
 		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
 		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
 	},
+	111: {
+		`ALTER TABLE artifacts 
+		ADD COLUMN compression VARCHAR NOT NULL DEFAULT 'default'`,
+
+		`ALTER TABLE artifacts ALTER COLUMN compression DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

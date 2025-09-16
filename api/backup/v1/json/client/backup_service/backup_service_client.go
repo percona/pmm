@@ -68,6 +68,8 @@ type ClientService interface {
 
 	ListScheduledBackups(params *ListScheduledBackupsParams, opts ...ClientOption) (*ListScheduledBackupsOK, error)
 
+	ListServiceCompression(params *ListServiceCompressionParams, opts ...ClientOption) (*ListServiceCompressionOK, error)
+
 	RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts ...ClientOption) (*RemoveScheduledBackupOK, error)
 
 	ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOption) (*ScheduleBackupOK, error)
@@ -347,6 +349,45 @@ func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams, opts .
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListScheduledBackupsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListServiceCompression lists service compression
+
+Return a list of available compression methods for a service.
+*/
+func (a *Client) ListServiceCompression(params *ListServiceCompressionParams, opts ...ClientOption) (*ListServiceCompressionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListServiceCompressionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListServiceCompression",
+		Method:             "GET",
+		PathPattern:        "/v1/backups/services/{service_id}/compression",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListServiceCompressionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListServiceCompressionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListServiceCompressionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

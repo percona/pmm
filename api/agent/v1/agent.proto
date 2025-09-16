@@ -520,6 +520,8 @@ message StartJobRequest {
     string name = 6;
     // Folder to store artifact on a storage.
     string folder = 7;
+    // Compression
+    backup.v1.BackupCompression compression = 8;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
@@ -537,6 +539,8 @@ message StartJobRequest {
     string name = 2;
     // Folder to store artifact on a storage.
     string folder = 3;
+    // Compression
+    backup.v1.BackupCompression compression = 4;
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;
@@ -557,6 +561,8 @@ message StartJobRequest {
     bool enable_pitr = 5;
     // Backup data model (physical or logical).
     backup.v1.DataModel data_model = 6;
+    // Compression
+    backup.v1.BackupCompression compression = 7;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
@@ -578,6 +584,8 @@ message StartJobRequest {
     backup.v1.PbmMetadata pbm_metadata = 5;
     // Point-in-Time recovery timestamp.
     google.protobuf.Timestamp pitr_timestamp = 6;
+    // Compression
+    backup.v1.BackupCompression compression = 7;
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;

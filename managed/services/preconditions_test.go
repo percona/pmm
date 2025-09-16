@@ -242,14 +242,15 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-		Name:       "test_artifact",
-		Vendor:     "mysql",
-		LocationID: location.ID,
-		ServiceID:  mysqlSvc1.ServiceID,
-		DataModel:  models.LogicalDataModel,
-		Mode:       models.Snapshot,
-		Status:     models.SuccessBackupStatus,
-		Folder:     folder2,
+		Name:        "test_artifact",
+		Vendor:      "mysql",
+		LocationID:  location.ID,
+		ServiceID:   mysqlSvc1.ServiceID,
+		DataModel:   models.LogicalDataModel,
+		Mode:        models.Snapshot,
+		Status:      models.SuccessBackupStatus,
+		Folder:      folder2,
+		Compression: models.Default,
 	})
 	require.NoError(t, err)
 

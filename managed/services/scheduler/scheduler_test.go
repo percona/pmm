@@ -93,6 +93,7 @@ func TestService(t *testing.T) {
 			Retention:     7,
 			Retries:       3,
 			RetryInterval: 5 * time.Second,
+			Compression:   models.Default,
 		})
 		require.NoError(t, err)
 
@@ -120,6 +121,7 @@ func TestService(t *testing.T) {
 			Retention:     7,
 			Retries:       3,
 			RetryInterval: 5 * time.Second,
+			Compression:   models.Default,
 		})
 		require.NoError(t, err)
 

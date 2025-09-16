@@ -311,13 +311,14 @@ func TestBackupLocations(t *testing.T) {
 		require.NoError(t, q.Insert(s))
 
 		artifact, err := models.CreateArtifact(q, models.CreateArtifactParams{
-			Name:       "artifact",
-			Vendor:     "mysql",
-			LocationID: loc.ID,
-			ServiceID:  serviceID1,
-			DataModel:  models.PhysicalDataModel,
-			Mode:       models.Snapshot,
-			Status:     models.SuccessBackupStatus,
+			Name:        "artifact",
+			Vendor:      "mysql",
+			LocationID:  loc.ID,
+			ServiceID:   serviceID1,
+			DataModel:   models.PhysicalDataModel,
+			Mode:        models.Snapshot,
+			Status:      models.SuccessBackupStatus,
+			Compression: models.Default,
 		})
 		require.NoError(t, err)
 
