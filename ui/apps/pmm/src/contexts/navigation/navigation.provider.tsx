@@ -36,7 +36,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { data: folders = [] } = useFolders();
   const { colorMode, toggleColorMode } = useColorMode();
   const { user } = useUser();
-  const { status } = useUpdates();
+  const { status, versionInfo } = useUpdates();
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
@@ -77,7 +77,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
         items.push(NAV_DIVIDERS.backups);
 
-        items.push(addConfiguration(status));
+        items.push(addConfiguration(status, versionInfo));
       }
 
       items.push(addAccount(user, colorMode, toggleColorMode));
@@ -90,6 +90,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     return items;
   }, [
     status,
+    versionInfo,
     serviceTypes,
     folders,
     user,

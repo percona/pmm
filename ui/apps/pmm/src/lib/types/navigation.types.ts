@@ -4,6 +4,7 @@ import { SvgIconComponent } from './util.types';
 export interface NavItem {
   id: string;
   text?: string;
+  secondaryText?: string;
   icon?: IconName | SvgIconComponent;
   url?: string;
   children?: NavItem[];

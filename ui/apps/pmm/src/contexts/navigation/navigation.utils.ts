@@ -41,7 +41,7 @@ import {
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/textUtils';
 import { DashboardFolder } from 'types/folders.types';
-import { UpdateStatus } from 'types/updates.types';
+import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -194,14 +194,30 @@ export const addAccount = (
   };
 };
 
-export const addConfiguration = (status: UpdateStatus): NavItem => {
+export const addConfiguration = (
+  status: UpdateStatus,
+  versionInfo?: GetUpdatesResponse
+): NavItem => {
   const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
+  const { installed, latest } = versionInfo || {};
+
+  if (!updates) {
+    return NAV_CONFIGURATION;
+  }
+
+  if (versionInfo?.updateAvailable) {
+    updates.secondaryText = `Update from v${installed?.version?.slice(0, 5)} to v${latest?.version}`;
+  } else {
+    updates.secondaryText = `Current: v${installed?.version} (up to date)`;
+  }
 
   if (
-    updates &&
-    (status === UpdateStatus.Pending || status === UpdateStatus.UpdateClients)
+    status === UpdateStatus.Pending ||
+    status === UpdateStatus.UpdateClients
   ) {
     updates.badge = 'New';
+  } else {
+    updates.badge = undefined;
   }
 
   return NAV_CONFIGURATION;
