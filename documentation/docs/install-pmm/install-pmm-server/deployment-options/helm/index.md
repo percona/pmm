@@ -7,17 +7,24 @@ Deploy PMM Server on Kubernetes using Helm for scalable, orchestrated monitoring
 ## Prerequisites
 
   - [Helm v3](https://docs.helm.sh/using_helm/#installing-helm)
-  - Kubernetes cluster running a [supported version](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [Supported Helm](https://helm.sh/docs/topics/version_skew/) versions
-  - Storage driver with snapshot support (for backups)
+  - Kubernetes cluster running a [supported version](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [supported Helm](https://helm.sh/docs/topics/version_skew/) versions
+  - storage driver with snapshot support (for backups)
   - `kubectl` configured to communicate with your cluster
 
+### OpenShift-specific requirements
+For OpenShift deployments, you'll also need:
+
+- OpenShift Container Platform 4.16. Other versions will likely work but they haven't been tested
+- `oc` CLI tool configured
+- permissions to create Routes and manage RBAC policies
+
 ## Storage requirements
+Different Kubernetes platforms offer varying storage capabilities. When planning your deployment, consider: 
 
-Different Kubernetes platforms offer varying capabilities: 
-
-- for **production use**, ensure your platform provides storage drivers supporting snapshots for backups
-- for **cloud environments**, verify your provider's Kubernetes storage options and costs
-- for **on-premises deployments**, confirm your storage solution is compatible with dynamic provisioning
+- **for production use**, ensure your platform provides storage drivers supporting snapshots for backups
+- **for cloud environments**, verify your provider's Kubernetes storage options and costs
+- **for on-premises deployments**, confirm your storage solution is compatible with dynamic provisioning
+- **for OpenShift**, use OpenShift Container Storage (OCS) with `ReadWriteOnce` access mode and appropriate `PersistentVolume` permissions for non-root containers
 
 ## Deployment best practices
 
@@ -26,12 +33,17 @@ For optimal monitoring in production environments:
 
 1. Separate PMM Server from monitored systems by either:
 
-    - using separate Kubernetes clusters for monitoring and databases
-    - configuring workload separation through node configurations, affinity rules, and label selectors
+    - using separate Kubernetes clusters for monitoring and databases.
+    - configuring workload separation through node configurations, affinity rules, and label selectors.
 
-2. Enable [high availability](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/) to ensure continuous monitoring during node failures
+2. Enable [High Availability](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/) to ensure continuous monitoring during node failures.
 
-## Install PMM Server on your Kubernetes cluster
+3.  Openshift considerations:   
+
+    - use OpenShift Routes for external access instead of Kubernetes Ingress.
+    - define resource quotas and limits as OpenShift projects often have stricter defaults.
+
+## Install PMM Server on your Kubernetes cluster/Openshift clusters
 
 Create the required Kubernetes secret and deploy PMM Server using Helm:
 {.power-number}
@@ -81,34 +93,79 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
         percona/pmm 1.4.0           3.0.0       A Helm chart for Percona Monitoring and Managem...
         percona/pmm 1.3.21          2.44.0      A Helm chart for Percona Monitoring and Managem...
         ```
-
+        
 5. Deploy PMM Server with your chosen version and secret:
 
-    ```bash
-    # Choose a specific chart version from the list in previous step
-    helm install pmm \
-    --set secret.create=false \
-    --set secret.name=pmm-secret \
-    --version 1.4.3 \
-    percona/pmm
-    ```
+    === "On Kubernetes"
+        Use Helm to deploy PMM Server on standard Kubernetes clusters. This approach works with most Kubernetes distributions and cloud providers.
+
+        ```bash
+        helm install pmm \
+        --set secret.create=false \
+        --set secret.name=pmm-secret \
+        --version 1.4.8 \
+        percona/pmm
+        ```
+
+    === "On OpenShift"
+        OpenShift requires additional security configurations due to its stricter security policies:
+
+        1. Create a custom values file for OpenShift:
+           ```bash
+           cat <<EOF > openshift-values.yaml
+           secret:
+             create: false
+             name: pmm-secret
+
+           # OpenShift-specific pod security settings
+           podSecurityContext:
+             runAsNonRoot: true
+             seccompProfile:
+               type: RuntimeDefault
+           EOF
+           ```
+
+        2. Deploy using the values file:
+           ```bash
+           helm install pmm \
+           -f openshift-values.yaml \
+           --version 1.4.3 \
+           percona/pmm
+           ```
 
 6. Verify the deployment:
     ```bash
     helm list
     kubectl get pods -l app.kubernetes.io/name=pmm
     ```
-
 7. Access PMM Server:
 
-    ```bash
-    # If using ClusterIP (default)
-    kubectl port-forward svc/monitoring-service 443:443
 
-    # If using NodePort
-    kubectl get svc monitoring-service -o jsonpath='{.spec.ports[0].nodePort}'
-    ```
-  
+    === "On Kubernetes"
+        Standard Kubernetes clusters provide several options for accessing PMM Server. Choose the method that best fits your networking setup and security requirements:
+
+        ```bash
+        # If using ClusterIP (default)
+        kubectl port-forward svc/pmm-service 443:443
+
+        # If using NodePort
+        kubectl get svc pmm-service -o jsonpath='{.spec.ports[0].nodePort}'
+        ```
+
+    === "On OpenShift"
+        OpenShift offers native routing capabilities through its Route resource, which provides external access with built-in load balancing and SSL termination:
+
+        ```bash
+        # Create a Route to expose PMM
+        oc expose svc/pmm-service --port=443
+
+        # Get the Route URL
+        oc get route pmm-service -o jsonpath='{.spec.host}'
+        
+        # Or use port-forwarding for testing
+        oc port-forward svc/pmm-service 443:443
+        ```
+
 ### Configure PMM Server
 
 #### View available parameters
@@ -122,7 +179,8 @@ Check the list of available parameters in the [PMM Helm chart documentation](htt
 
 Configure PMM Server using either command-line arguments or a YAML file:
 
- - using command-line arguments: 
+=== "Using command-line arguments"
+
     ```sh
     helm install pmm \
         --set secret.create=false \
@@ -130,7 +188,7 @@ Configure PMM Server using either command-line arguments or a YAML file:
         --set service.type="NodePort" \
         percona/pmm
     ```
-- using a .yaml configuration file: 
+=== "Using a .yaml configuration file"
   ```sh
   helm show values percona/pmm > values.yaml
   ``` 
