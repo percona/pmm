@@ -1,0 +1,26 @@
+---
+checks:
+  - version: 2
+    name: mysql_indexes_larger
+    summary: Are there tables with index sizes larger than data?
+    description: Check all the tables to see if any have indexes larger than data.  This indicates sub-optimial schema and should be reviewed.
+    interval: standard
+    advisor: query_schema_design
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: "concat(table_schema, '.', table_name) as tbl_name, concat(round(table_rows/1000000,2),'M') num_rows, concat(round(data_length/(1024*1024*1024),2),'G') data_size, concat(round(index_length/(1024*1024*1024),2),'G') idx_size, concat(round((data_length+index_length)/(1024*1024*1024),2),'G') total_size, round(index_length/data_length,2) idxfrac FROM information_schema.TABLES WHERE table_schema not in ('information_schema', 'mysql', 'performance_schema', 'sys') ORDER BY data_length+index_length DESC LIMIT 10"
+    script: |-
+      def check_context(docs, context):
+          results = []
+          for row in docs[0]:
+            name, value = row["tbl_name"], row["idxfrac"]
+            if float(value) > 1.0:
+              results.append({
+                "summary": "Index size is larger than data for table: {}".format(name),
+                "description": "There is a table where index is larger than data.  This typically indicates sub-optimial indexing.",
+                "read_more_url": "https://dev.mysql.com/doc/refman/en/data-size.html",
+                "severity": "warning",
+                "labels": {},
+              })
+          return results

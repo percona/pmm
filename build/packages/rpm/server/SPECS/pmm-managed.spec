@@ -46,10 +46,11 @@ cd ../ui
 make release
 
 %install
-install -d -p %{buildroot}%{_bindir}
-install -d -p %{buildroot}%{_sbindir}
-install -d -p %{buildroot}%{_datadir}/%{name}
-install -d -p %{buildroot}%{_datadir}/pmm-ui
+install -d %{buildroot}%{_bindir}
+install -d %{buildroot}%{_sbindir}
+install -d %{buildroot}%{_datadir}/%{name}
+install -d %{buildroot}%{_datadir}/pmm-ui
+install -d -o 1000 %{buildroot}/usr/local/percona/{advisors,checks,alerting-templates}
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
@@ -58,6 +59,9 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
+cp -pa ./managed/data/advisors/*.yml %{buildroot}/usr/local/percona/advisors/
+cp -pa ./managed/data/checks/*.yml %{buildroot}/usr/local/percona/checks/
+cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/alerting-templates/
 
 %files
 %license src/%{provider}/LICENSE
@@ -68,8 +72,17 @@ cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
 %{_datadir}/pmm-ui
+%attr(0644, pmm, root) /usr/local/percona/advisors/*.yml
+%attr(0644, pmm, root) /usr/local/percona/checks/*.yml
+%attr(0644, pmm, root) /usr/local/percona/alerting-templates/*.yml
 
 %changelog
+* Thu Sep 4 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
+- PMM-14013 bundle alerting templates with PMM.
+
+* Wed Jun 11 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
+- PMM-14009 bundle advisors with PMM.
+
 * Mon Sep 23 2024 Jiri Ctvrtka <jiri.ctvrtka@ext.percona.com> - 3.0.0-1
 - PMM-13132 add PMM encryption rotation tool
 
