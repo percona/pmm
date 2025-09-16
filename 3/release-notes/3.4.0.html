@@ -9320,8 +9320,8 @@
 <h2 id="release-highlights">Release highlights<a class="headerlink" href="#release-highlights" title="Permanent link">&para;</a></h2>
 <h3 id="openshift-support-for-pmm-server">OpenShift support for PMM Server<a class="headerlink" href="#openshift-support-for-pmm-server" title="Permanent link">&para;</a></h3>
 <p>Building on the existing OpenShift compatibility available for PMM Client, PMM 3.4.0 now extends full support to PMM Server as well. All PMM Docker images meet Red Hat certification requirements, including non-root user execution and SecurityContextConstraints (SCC) support. This means that you can seamlessly deploy both PMM Client and PMM Server in OpenShift environments.</p>
-<p>While OpenShift 4.16 is fully tested and supported, other versions will likely work but not guaranteed. 
-To deploy PMM Server on OpenShift using the standard Percona Helm charts with platform-specific parameters, see the <a href="../install-pmm/install-pmm-server/deployment-options/helm/index.html">Install PMM Server on your Kubernetes cluster/OpenShift clusters</a>.</p>
+<p>While OpenShift 4.16 is fully tested and supported, other versions will likely work but not guaranteed. </p>
+<p>To deploy PMM Server on OpenShift using the standard Percona Helm charts with platform-specific parameters, see the <a href="../install-pmm/install-pmm-server/deployment-options/helm/index.html">Install PMM Server on your Kubernetes cluster/OpenShift clusters</a>.</p>
 <h3 id="centralized-vmagent-settings-for-all-clients">Centralized <code>vmagent</code> settings for all clients<a class="headerlink" href="#centralized-vmagent-settings-for-all-clients" title="Permanent link">&para;</a></h3>
 <p>You can now centrally configure <code>vmagent</code> settings for all connected PMM Clients using environment variables.</p>
 <p>Instead of configuring each client individually, set <code>VMAGENT_*</code> variables on the PMM Server to automatically apply <code>vmagent</code> settings across your entire monitoring infrastructure. </p>

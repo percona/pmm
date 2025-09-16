@@ -1764,6 +1764,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openshift-specific-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenShift-specific requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1785,13 +1800,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#install-pmm-server-on-your-kubernetes-cluster" class="md-nav__link">
+  <a href="#install-pmm-server-on-your-kubernetes-clusteropenshift-clusters" class="md-nav__link">
     <span class="md-ellipsis">
-      Install PMM Server on your Kubernetes cluster
+      Install PMM Server on your Kubernetes cluster/Openshift clusters
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Install PMM Server on your Kubernetes cluster">
+    <nav class="md-nav" aria-label="Install PMM Server on your Kubernetes cluster/Openshift clusters">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -9115,6 +9130,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openshift-specific-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenShift-specific requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -9136,13 +9166,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#install-pmm-server-on-your-kubernetes-cluster" class="md-nav__link">
+  <a href="#install-pmm-server-on-your-kubernetes-clusteropenshift-clusters" class="md-nav__link">
     <span class="md-ellipsis">
-      Install PMM Server on your Kubernetes cluster
+      Install PMM Server on your Kubernetes cluster/Openshift clusters
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Install PMM Server on your Kubernetes cluster">
+    <nav class="md-nav" aria-label="Install PMM Server on your Kubernetes cluster/Openshift clusters">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -9264,16 +9294,24 @@
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://docs.helm.sh/using_helm/#installing-helm">Helm v3</a></li>
-<li>Kubernetes cluster running a <a href="https://kubernetes.io/releases/version-skew-policy/#supported-versions">supported version</a> and <a href="https://helm.sh/docs/topics/version_skew/">Supported Helm</a> versions</li>
-<li>Storage driver with snapshot support (for backups)</li>
+<li>Kubernetes cluster running a <a href="https://kubernetes.io/releases/version-skew-policy/#supported-versions">supported version</a> and <a href="https://helm.sh/docs/topics/version_skew/">supported Helm</a> versions</li>
+<li>storage driver with snapshot support (for backups)</li>
 <li><code>kubectl</code> configured to communicate with your cluster</li>
 </ul>
-<h2 id="storage-requirements">Storage requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">&para;</a></h2>
-<p>Different Kubernetes platforms offer varying capabilities: </p>
+<h3 id="openshift-specific-requirements">OpenShift-specific requirements<a class="headerlink" href="#openshift-specific-requirements" title="Permanent link">&para;</a></h3>
+<p>For OpenShift deployments, you&rsquo;ll also need:</p>
 <ul>
-<li>for <strong>production use</strong>, ensure your platform provides storage drivers supporting snapshots for backups</li>
-<li>for <strong>cloud environments</strong>, verify your provider&rsquo;s Kubernetes storage options and costs</li>
-<li>for <strong>on-premises deployments</strong>, confirm your storage solution is compatible with dynamic provisioning</li>
+<li>OpenShift Container Platform 4.16. Other versions will likely work but they haven&rsquo;t been tested</li>
+<li><code>oc</code> CLI tool configured</li>
+<li>permissions to create Routes and manage RBAC policies</li>
+</ul>
+<h2 id="storage-requirements">Storage requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">&para;</a></h2>
+<p>Different Kubernetes platforms offer varying storage capabilities. When planning your deployment, consider: </p>
+<ul>
+<li><strong>for production use</strong>, ensure your platform provides storage drivers supporting snapshots for backups</li>
+<li><strong>for cloud environments</strong>, verify your provider&rsquo;s Kubernetes storage options and costs</li>
+<li><strong>for on-premises deployments</strong>, confirm your storage solution is compatible with dynamic provisioning</li>
+<li><strong>for OpenShift</strong>, use OpenShift Container Storage (OCS) with <code>ReadWriteOnce</code> access mode and appropriate <code>PersistentVolume</code> permissions for non-root containers</li>
 </ul>
 <h2 id="deployment-best-practices">Deployment best practices<a class="headerlink" href="#deployment-best-practices" title="Permanent link">&para;</a></h2>
 <p class="power-number">For optimal monitoring in production environments:</p>
@@ -9281,15 +9319,22 @@
 <li>
 <p>Separate PMM Server from monitored systems by either:</p>
 <ul>
-<li>using separate Kubernetes clusters for monitoring and databases</li>
-<li>configuring workload separation through node configurations, affinity rules, and label selectors</li>
+<li>using separate Kubernetes clusters for monitoring and databases.</li>
+<li>configuring workload separation through node configurations, affinity rules, and label selectors.</li>
 </ul>
 </li>
 <li>
-<p>Enable <a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/">high availability</a> to ensure continuous monitoring during node failures</p>
+<p>Enable <a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/">High Availability</a> to ensure continuous monitoring during node failures.</p>
+</li>
+<li>
+<p>Openshift considerations:   </p>
+<ul>
+<li>use OpenShift Routes for external access instead of Kubernetes Ingress.</li>
+<li>define resource quotas and limits as OpenShift projects often have stricter defaults.</li>
+</ul>
 </li>
 </ol>
-<h2 id="install-pmm-server-on-your-kubernetes-cluster">Install PMM Server on your Kubernetes cluster<a class="headerlink" href="#install-pmm-server-on-your-kubernetes-cluster" title="Permanent link">&para;</a></h2>
+<h2 id="install-pmm-server-on-your-kubernetes-clusteropenshift-clusters">Install PMM Server on your Kubernetes cluster/Openshift clusters<a class="headerlink" href="#install-pmm-server-on-your-kubernetes-clusteropenshift-clusters" title="Permanent link">&para;</a></h2>
 <p class="power-number">Create the required Kubernetes secret and deploy PMM Server using Helm:</p>
 <ol>
 <li>
@@ -9337,13 +9382,47 @@ percona/pmm 1.3.21          2.44.0      A Helm chart for Percona Monitoring and 
 </li>
 <li>
 <p>Deploy PMM Server with your chosen version and secret:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Choose a specific chart version from the list in previous step</span>
-helm<span class="w"> </span>install<span class="w"> </span>pmm<span class="w"> </span><span class="se">\</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">On Kubernetes</label><label for="__tabbed_1_2">On OpenShift</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Use Helm to deploy PMM Server on standard Kubernetes clusters. This approach works with most Kubernetes distributions and cloud providers.</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>pmm<span class="w"> </span><span class="se">\</span>
 --set<span class="w"> </span>secret.create<span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
 --set<span class="w"> </span>secret.name<span class="o">=</span>pmm-secret<span class="w"> </span><span class="se">\</span>
---version<span class="w"> </span><span class="m">1</span>.4.3<span class="w"> </span><span class="se">\</span>
+--version<span class="w"> </span><span class="m">1</span>.4.8<span class="w"> </span><span class="se">\</span>
 percona/pmm
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>OpenShift requires additional security configurations due to its stricter security policies:</p>
+<ol>
+<li>
+<p>Create a custom values file for OpenShift:
+   <div class="highlight"><pre><span></span><code>cat<span class="w"> </span><span class="s">&lt;&lt;EOF &gt; openshift-values.yaml</span>
+<span class="s">secret:</span>
+<span class="s">  create: false</span>
+<span class="s">  name: pmm-secret</span>
+
+<span class="s"># OpenShift-specific pod security settings</span>
+<span class="s">podSecurityContext:</span>
+<span class="s">  runAsNonRoot: true</span>
+<span class="s">  seccompProfile:</span>
+<span class="s">    type: RuntimeDefault</span>
+<span class="s">EOF</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Deploy using the values file:
+   <div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>pmm<span class="w"> </span><span class="se">\</span>
+-f<span class="w"> </span>openshift-values.yaml<span class="w"> </span><span class="se">\</span>
+--version<span class="w"> </span><span class="m">1</span>.4.3<span class="w"> </span><span class="se">\</span>
+percona/pmm
+</code></pre></div></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
 </li>
 <li>
 <p>Verify the deployment:
@@ -9353,12 +9432,31 @@ kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> <
 </li>
 <li>
 <p>Access PMM Server:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">On Kubernetes</label><label for="__tabbed_2_2">On OpenShift</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Standard Kubernetes clusters provide several options for accessing PMM Server. Choose the method that best fits your networking setup and security requirements:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># If using ClusterIP (default)</span>
-kubectl<span class="w"> </span>port-forward<span class="w"> </span>svc/monitoring-service<span class="w"> </span><span class="m">443</span>:443
+kubectl<span class="w"> </span>port-forward<span class="w"> </span>svc/pmm-service<span class="w"> </span><span class="m">443</span>:443
 
 <span class="c1"># If using NodePort</span>
-kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>monitoring-service<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.ports[0].nodePort}&#39;</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>pmm-service<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.ports[0].nodePort}&#39;</span>
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>OpenShift offers native routing capabilities through its Route resource, which provides external access with built-in load balancing and SSL termination:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create a Route to expose PMM</span>
+oc<span class="w"> </span>expose<span class="w"> </span>svc/pmm-service<span class="w"> </span>--port<span class="o">=</span><span class="m">443</span>
+
+<span class="c1"># Get the Route URL</span>
+oc<span class="w"> </span>get<span class="w"> </span>route<span class="w"> </span>pmm-service<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.host}&#39;</span>
+
+<span class="c1"># Or use port-forwarding for testing</span>
+oc<span class="w"> </span>port-forward<span class="w"> </span>svc/pmm-service<span class="w"> </span><span class="m">443</span>:443
+</code></pre></div>
+</div>
+</div>
+</div>
 </li>
 </ol>
 <h3 id="configure-pmm-server">Configure PMM Server<a class="headerlink" href="#configure-pmm-server" title="Permanent link">&para;</a></h3>
@@ -9370,18 +9468,21 @@ kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </
 </ul>
 <h4 id="set-configuration-values">Set configuration values<a class="headerlink" href="#set-configuration-values" title="Permanent link">&para;</a></h4>
 <p>Configure PMM Server using either command-line arguments or a YAML file:</p>
-<ul>
-<li>using command-line arguments: 
-    <div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>pmm<span class="w"> </span><span class="se">\</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Using command-line arguments</label><label for="__tabbed_3_2">Using a .yaml configuration file</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>pmm<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--set<span class="w"> </span>secret.create<span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--set<span class="w"> </span>secret.name<span class="o">=</span>pmm-secret<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--set<span class="w"> </span>service.type<span class="o">=</span><span class="s2">&quot;NodePort&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>percona/pmm
-</code></pre></div></li>
-<li>using a .yaml configuration file: 
-  <div class="highlight"><pre><span></span><code>helm<span class="w"> </span>show<span class="w"> </span>values<span class="w"> </span>percona/pmm<span class="w"> </span>&gt;<span class="w"> </span>values.yaml
-</code></pre></div></li>
-</ul>
+</code></pre></div>
+</div>
+<div class="tabbed-block"></div>
+</div>
+</div>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>show<span class="w"> </span>values<span class="w"> </span>percona/pmm<span class="w"> </span>&gt;<span class="w"> </span>values.yaml
+</code></pre></div>
 <h4 id="change-credentials">Change credentials<a class="headerlink" href="#change-credentials" title="Permanent link">&para;</a></h4>
 <p>Helm cannot modify application credentials after deployment.  To change credentials after deployment, either:</p>
 <ul>
@@ -9437,7 +9538,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-09-08
+    2025-09-16
   </span>
 
     
