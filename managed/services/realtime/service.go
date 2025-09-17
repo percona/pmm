@@ -123,9 +123,9 @@ func (s *Service) SendRealTimeData(ctx context.Context, req *realtimev1.RealTime
 
 	// Enhanced logging with opid information
 	totalQueries := len(req.Queries)
-	opIds := make([]string, 0, totalQueries)
+	opIds := make([]int64, 0, totalQueries)
 	for _, query := range req.Queries {
-		if query.Mongodb != nil && query.Mongodb.Opid != "" {
+		if query.Mongodb != nil && query.Mongodb.Opid != 0 {
 			opIds = append(opIds, query.Mongodb.Opid)
 		}
 	}

@@ -118,7 +118,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 28)
+	res := make([]string, 29)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -147,7 +147,7 @@ func (s Agent) String() string {
 	res[25] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
 	res[26] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
 	res[27] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
-	res[27] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
+	res[28] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
 	return strings.Join(res, ", ")
 }
 
