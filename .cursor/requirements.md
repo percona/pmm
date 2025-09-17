@@ -6,197 +6,197 @@ Real-Time Query Analytics (RTA) is a feature for Percona Monitoring and Manageme
 ## Core Architecture Requirements
 
 ### ✅ API & Protocol Design
-- [x] Define protobuf messages for real-time analytics communication
-- [x] Create gRPC service definition for agent-to-server communication
-- [x] Design HTTP REST API endpoints for UI communication
-- [x] Implement proper error handling and status codes
-- [x] Support for both current and historical data retrieval
+- [x] **RTA-001**: Define protobuf messages for real-time analytics communication
+- [x] **RTA-002**: Create gRPC service definition for agent-to-server communication
+- [x] **RTA-003**: Design HTTP REST API endpoints for UI communication
+- [x] **RTA-004**: Implement proper error handling and status codes
+- [x] **RTA-005**: Support for both current and historical data retrieval
 
 ### ✅ Database Agent Implementation
-- [x] MongoDB real-time analytics agent using `db.currentOp()` 
-- [x] Collection of currently running queries with microsecond precision
-- [x] Query fingerprinting using shared PMM fingerprinter
-- [x] Configurable collection intervals (default: 1 second)
-- [x] Query text extraction with privacy controls (disable examples)
-- [x] Support for MongoDB 7.x `$currentOp` aggregation pipeline
-- [x] Raw `currentOp` document preservation for debugging
-- [x] Operation ID (`opid`) tracking for query deduplication
-- [x] Panic recovery and error handling for robustness
+- [x] **RTA-006**: MongoDB real-time analytics agent using `db.currentOp()` 
+- [x] **RTA-007**: Collection of currently running queries with microsecond precision
+- [x] **RTA-008**: Query fingerprinting using shared PMM fingerprinter
+- [x] **RTA-009**: Configurable collection intervals (default: 1 second)
+- [x] **RTA-010**: Query text extraction with privacy controls (disable examples)
+- [x] **RTA-011**: Support for MongoDB 7.x `$currentOp` aggregation pipeline
+- [x] **RTA-012**: Raw `currentOp` document preservation for debugging
+- [x] **RTA-013**: Operation ID (`opid`) tracking for query deduplication
+- [x] **RTA-014**: Panic recovery and error handling for robustness
 
 ### ✅ Backend Server Implementation
-- [x] Real-time analytics gRPC service in pmm-managed
-- [x] Data buffering with configurable retention (default: 2 minutes)
-- [x] Service metadata enrichment from agent data
-- [x] Label-Based Access Control (LBAC) integration
-- [x] Historical vs. current data separation
-- [x] Per-service data isolation and management
+- [x] **RTA-015**: Real-time analytics gRPC service in pmm-managed
+- [x] **RTA-016**: Data buffering with configurable retention (default: 2 minutes)
+- [x] **RTA-017**: Service metadata enrichment from agent data
+- [x] **RTA-018**: Label-Based Access Control (LBAC) integration
+- [x] **RTA-019**: Historical vs. current data separation
+- [x] **RTA-020**: Per-service data isolation and management
 
 ### ✅ Agent Management & Lifecycle
-- [x] RTA agent type registration in inventory system
-- [x] Agent configuration via `SetStateRequest` from pmm-managed
-- [x] Automatic agent creation when adding MongoDB services
-- [x] Agent status reporting and health monitoring
-- [x] Connection management and error recovery
-- [x] Graceful agent start/stop/restart capabilities
+- [x] **RTA-021**: RTA agent type registration in inventory system
+- [x] **RTA-022**: Agent configuration via `SetStateRequest` from pmm-managed
+- [x] **RTA-023**: Automatic agent creation when adding MongoDB services
+- [x] **RTA-024**: Agent status reporting and health monitoring
+- [x] **RTA-025**: Connection management and error recovery
+- [x] **RTA-026**: Graceful agent start/stop/restart capabilities
 
 ### ✅ Configuration Management
-- [x] Store RTA configuration in JSONB field within `agent` table
-- [x] Support for enable/disable per service
-- [x] Configurable collection intervals
-- [x] Query text privacy controls (disable examples)
-- [x] Configuration validation and defaults
+- [x] **RTA-027**: Store RTA configuration in JSONB field within `agent` table
+- [x] **RTA-028**: Support for enable/disable per service
+- [x] **RTA-029**: Configurable collection intervals
+- [x] **RTA-030**: Query text privacy controls (disable examples)
+- [x] **RTA-031**: Configuration validation and defaults
 
 ### ✅ Communication Infrastructure
-- [x] pmm-agent to pmm-managed gRPC streaming
-- [x] Efficient batch data transmission
-- [x] Connection reuse and optimization
-- [x] Authentication and authorization for gRPC endpoints
-- [x] Nginx reverse proxy configuration for gRPC/HTTP routing
+- [x] **RTA-032**: pmm-agent to pmm-managed gRPC streaming
+- [x] **RTA-033**: Efficient batch data transmission
+- [x] **RTA-034**: Connection reuse and optimization
+- [x] **RTA-035**: Authentication and authorization for gRPC endpoints
+- [x] **RTA-036**: Nginx reverse proxy configuration for gRPC/HTTP routing
 
 ## User Interface Requirements
 
 ### ✅ Core UI Components
-- [x] Real-time query analytics dashboard page
-- [x] Service selection and filtering interface
-- [x] Query table with sortable columns (fingerprint, database, duration, state, timestamp)
-- [x] Query details dialog with raw MongoDB document display
-- [x] Real-time data refresh with configurable intervals
-- [x] Search and filtering capabilities
-- [x] State-based query filtering (running, waiting, finished)
+- [x] **RTA-037**: Real-time query analytics dashboard page
+- [x] **RTA-038**: Service selection and filtering interface
+- [x] **RTA-039**: Query table with sortable columns (fingerprint, database, duration, state, timestamp)
+- [x] **RTA-040**: Query details dialog with raw MongoDB document display
+- [x] **RTA-041**: Real-time data refresh with configurable intervals
+- [x] **RTA-042**: Search and filtering capabilities
+- [x] **RTA-043**: State-based query filtering (running, waiting, finished)
 
 ### ✅ Data Visualization
-- [x] Query execution time display with millisecond precision
-- [x] Query state indicators with color coding
-- [x] Database and operation type labeling
-- [x] Formatted JSON display for raw MongoDB operations
-- [x] Service metadata display (node, labels)
+- [x] **RTA-044**: Query execution time display with millisecond precision
+- [x] **RTA-045**: Query state indicators with color coding
+- [x] **RTA-046**: Database and operation type labeling
+- [x] **RTA-047**: Formatted JSON display for raw MongoDB operations
+- [x] **RTA-048**: Service metadata display (node, labels)
 
 ### ✅ User Experience
-- [x] Auto-refresh with 2-second intervals
-- [x] Query deduplication by MongoDB `opid`
-- [x] Latest query prioritization for duplicate operations
-- [x] Responsive design with Material-UI components
-- [x] Error handling for missing or undefined data
-- [x] Loading states and empty state handling
+- [x] **RTA-049**: Auto-refresh with 2-second intervals
+- [x] **RTA-050**: Query deduplication by MongoDB `opid`
+- [x] **RTA-051**: Latest query prioritization for duplicate operations
+- [x] **RTA-052**: Responsive design with Material-UI components
+- [x] **RTA-053**: Error handling for missing or undefined data
+- [x] **RTA-054**: Loading states and empty state handling
 
 ## Security & Access Control Requirements
 
 ### ✅ Authentication & Authorization
-- [x] LBAC integration following qan-api2 patterns
-- [x] Service-level access control
-- [x] Role-based permissions (viewer role minimum)
-- [x] Secure gRPC communication with proper authentication
-- [x] Query text privacy controls per service configuration
+- [x] **RTA-055**: LBAC integration following qan-api2 patterns
+- [x] **RTA-056**: Service-level access control
+- [x] **RTA-057**: Role-based permissions (viewer role minimum)
+- [x] **RTA-058**: Secure gRPC communication with proper authentication
+- [x] **RTA-059**: Query text privacy controls per service configuration
 
 ### ✅ Data Privacy
-- [x] Optional query text collection (can be disabled)
-- [x] Raw operation data sanitization
-- [x] Service isolation and access controls
-- [x] No sensitive credential exposure in logs or UI
+- [x] **RTA-060**: Optional query text collection (can be disabled)
+- [x] **RTA-061**: Raw operation data sanitization
+- [x] **RTA-062**: Service isolation and access controls
+- [x] **RTA-063**: No sensitive credential exposure in logs or UI
 
 ## CLI Integration Requirements
 
 ### ✅ pmm-admin Integration
-- [x] `pmm-admin add mongodb` command enables RTA by default
-- [x] RTA configuration options in CLI
-- [x] Agent type validation and compatibility checks
-- [x] Proper error handling and user feedback
+- [x] **RTA-064**: `pmm-admin add mongodb` command enables RTA by default
+- [x] **RTA-065**: RTA configuration options in CLI
+- [x] **RTA-066**: Agent type validation and compatibility checks
+- [x] **RTA-067**: Proper error handling and user feedback
 
 ## Performance & Scalability Requirements
 
 ### ✅ Data Collection Efficiency
-- [x] Minimal impact on monitored MongoDB instances
-- [x] Configurable collection intervals to balance load
-- [x] Efficient `$currentOp` aggregation with proper filtering
-- [x] Connection pooling and reuse
-- [x] Prometheus metrics for monitoring collection performance
+- [x] **RTA-068**: Minimal impact on monitored MongoDB instances
+- [x] **RTA-069**: Configurable collection intervals to balance load
+- [x] **RTA-070**: Efficient `$currentOp` aggregation with proper filtering
+- [x] **RTA-071**: Connection pooling and reuse
+- [x] **RTA-072**: Prometheus metrics for monitoring collection performance
 
 ### ✅ Data Management
-- [x] Automatic data expiration (2-minute history buffer)
-- [x] Memory-efficient data structures
-- [x] Batch processing for efficient network usage
-- [x] Separate current vs. historical data handling
+- [x] **RTA-073**: Automatic data expiration (2-minute history buffer)
+- [x] **RTA-074**: Memory-efficient data structures
+- [x] **RTA-075**: Batch processing for efficient network usage
+- [x] **RTA-076**: Separate current vs. historical data handling
 
 ### ✅ Network Optimization
-- [x] gRPC streaming for real-time data
-- [x] Connection reuse to minimize overhead
-- [x] Efficient serialization with protobuf
-- [x] Configurable batch sizes and intervals
+- [x] **RTA-077**: gRPC streaming for real-time data
+- [x] **RTA-078**: Connection reuse to minimize overhead
+- [x] **RTA-079**: Efficient serialization with protobuf
+- [x] **RTA-080**: Configurable batch sizes and intervals
 
 ## Quality Assurance Requirements
 
 ### ✅ Testing Strategy
-- [x] Unit tests for MongoDB agent functionality
-- [x] Integration tests with live MongoDB instances
-- [x] Slow query capture validation
-- [x] Error handling and recovery testing
-- [x] Agent lifecycle testing
+- [x] **RTA-081**: Unit tests for MongoDB agent functionality
+- [x] **RTA-082**: Integration tests with live MongoDB instances
+- [x] **RTA-083**: Slow query capture validation
+- [x] **RTA-084**: Error handling and recovery testing
+- [x] **RTA-085**: Agent lifecycle testing
 
 ### ✅ Error Handling
-- [x] Graceful degradation on MongoDB connection issues
-- [x] Panic recovery in critical code paths
-- [x] Comprehensive logging for debugging
-- [x] User-friendly error messages in UI
-- [x] Automatic retry mechanisms
+- [x] **RTA-086**: Graceful degradation on MongoDB connection issues
+- [x] **RTA-087**: Panic recovery in critical code paths
+- [x] **RTA-088**: Comprehensive logging for debugging
+- [x] **RTA-089**: User-friendly error messages in UI
+- [x] **RTA-090**: Automatic retry mechanisms
 
 ### ✅ Monitoring & Observability
-- [x] Prometheus metrics for query collection
-- [x] Performance monitoring for collection duration
-- [x] Agent status reporting and health checks
-- [x] Debug logging for troubleshooting
-- [x] Raw operation data preservation for analysis
+- [x] **RTA-091**: Prometheus metrics for query collection
+- [x] **RTA-092**: Performance monitoring for collection duration
+- [x] **RTA-093**: Agent status reporting and health checks
+- [x] **RTA-094**: Debug logging for troubleshooting
+- [x] **RTA-095**: Raw operation data preservation for analysis
 
 ## Development Infrastructure Requirements
 
 ### ✅ Build & Deployment
-- [x] Docker Compose setup for development environment
-- [x] Makefile targets for code generation and testing
-- [x] Protobuf code generation automation
-- [x] Development environment documentation
-- [x] Nginx configuration for production deployment
+- [x] **RTA-096**: Docker Compose setup for development environment
+- [x] **RTA-097**: Makefile targets for code generation and testing
+- [x] **RTA-098**: Protobuf code generation automation
+- [x] **RTA-099**: Development environment documentation
+- [x] **RTA-100**: Nginx configuration for production deployment
 
 ### ✅ Documentation
-- [x] API documentation via protobuf definitions
-- [x] Code comments and documentation
-- [x] Development setup instructions
-- [x] Configuration reference
-- [x] Troubleshooting guides
+- [x] **RTA-101**: API documentation via protobuf definitions
+- [x] **RTA-102**: Code comments and documentation
+- [x] **RTA-103**: Development setup instructions
+- [x] **RTA-104**: Configuration reference
+- [x] **RTA-105**: Troubleshooting guides
 
 ## Database Schema Requirements
 
 ### ✅ Schema Changes
-- [x] Add `real_time_analytics_options` JSONB field to `agents` table
-- [x] Database migration for schema updates
-- [x] Backward compatibility maintenance
-- [x] Proper indexing for performance
+- [x] **RTA-106**: Add `real_time_analytics_options` JSONB field to `agents` table
+- [x] **RTA-107**: Database migration for schema updates
+- [x] **RTA-108**: Backward compatibility maintenance
+- [x] **RTA-109**: Proper indexing for performance
 
 ## Future Extensibility Requirements
 
 ### ✅ Multi-Database Support Preparation
-- [x] Generic protobuf message structure
-- [x] Database-specific field containers
-- [x] Extensible agent architecture
-- [x] Plugin-style database support framework
+- [x] **RTA-110**: Generic protobuf message structure
+- [x] **RTA-111**: Database-specific field containers
+- [x] **RTA-112**: Extensible agent architecture
+- [x] **RTA-113**: Plugin-style database support framework
 
 ### ✅ Feature Enhancement Readiness
-- [x] Modular component architecture
-- [x] Configurable collection strategies
-- [x] Extensible UI component system
-- [x] API versioning support
+- [x] **RTA-114**: Modular component architecture
+- [x] **RTA-115**: Configurable collection strategies
+- [x] **RTA-116**: Extensible UI component system
+- [x] **RTA-117**: API versioning support
 
 ## Known Limitations & Technical Debt
 
 ### Areas for Future Improvement
-- [ ] Support for additional database types (MySQL, PostgreSQL)
-- [ ] Advanced query analysis and recommendations
-- [ ] Query performance trend analysis
-- [ ] Historical query replay capabilities
-- [ ] Advanced filtering and search features
-- [ ] Export functionality for query data
-- [ ] Integration with alerting systems
-- [ ] Query plan analysis and visualization
-- [ ] Multi-instance aggregation views
-- [ ] Real-time query killing capabilities
+- [ ] **RTA-118**: Support for additional database types (MySQL, PostgreSQL)
+- [ ] **RTA-119**: Advanced query analysis and recommendations
+- [ ] **RTA-120**: Query performance trend analysis
+- [ ] **RTA-121**: Historical query replay capabilities
+- [ ] **RTA-122**: Advanced filtering and search features
+- [ ] **RTA-123**: Export functionality for query data
+- [ ] **RTA-124**: Integration with alerting systems
+- [ ] **RTA-125**: Query plan analysis and visualization
+- [ ] **RTA-126**: Multi-instance aggregation views
+- [ ] **RTA-127**: Real-time query killing capabilities
 
 ## Completion Status
 

@@ -44,7 +44,7 @@ export const RealTimeConfigDialog: React.FC<RealTimeConfigDialogProps> = ({
   const handleServiceChange = (serviceId: string) => {
     setSelectedServiceId(serviceId);
     const service = services.find(s => s.serviceId === serviceId);
-    if (service) {
+    if (service && service.config) {
       setConfig(service.config);
     }
   };

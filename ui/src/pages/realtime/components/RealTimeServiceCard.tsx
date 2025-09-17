@@ -48,15 +48,19 @@ export const RealTimeServiceCard: React.FC<RealTimeServiceCardProps> = ({
     }
   };
 
-  const getStatusColor = (isEnabled: boolean) => {
+  const getStatusColor = (isEnabled: boolean | undefined) => {
     return isEnabled ? 'success' : 'default';
   };
 
-  const getStatusIcon = (isEnabled: boolean) => {
+  const getStatusIcon = (isEnabled: boolean | undefined) => {
     return isEnabled ? <CheckCircleIcon /> : <ErrorIcon />;
   };
 
-  const getLastSeenStatus = (lastSeen: string) => {
+  const getLastSeenStatus = (lastSeen: string | undefined) => {
+    if (!lastSeen) {
+      return { color: 'error', text: 'Never' };
+    }
+    
     const lastSeenTime = new Date(lastSeen).getTime();
     const now = Date.now();
     const diffMinutes = (now - lastSeenTime) / (1000 * 60);
@@ -123,7 +127,7 @@ export const RealTimeServiceCard: React.FC<RealTimeServiceCardProps> = ({
           </Box>
 
           {/* Configuration */}
-          {service.isEnabled && (
+          {service.isEnabled && service.config && (
             <Box>
               <Typography variant="body2" color="text.secondary">
                 Configuration

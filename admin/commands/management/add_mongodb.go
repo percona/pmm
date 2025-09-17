@@ -37,7 +37,6 @@ var addMongoDBResultT = commands.ParseTemplate(`
 MongoDB Service added.
 Service ID  : {{ .Service.ServiceID }}
 Service name: {{ .Service.ServiceName }}
-{{ if .Service.MongodbRealtimeAnalytics }}Real-time Analytics: Enabled{{ end }}
 `)
 
 type addMongoDBResult struct {
