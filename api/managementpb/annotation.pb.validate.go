@@ -84,7 +84,7 @@ type AddAnnotationRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAnnotationRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -186,7 +186,7 @@ type AddAnnotationResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAnnotationResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

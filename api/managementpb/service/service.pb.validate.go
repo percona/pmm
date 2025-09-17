@@ -199,7 +199,7 @@ type UniversalServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -305,7 +305,7 @@ type ListServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -441,7 +441,7 @@ type ListServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

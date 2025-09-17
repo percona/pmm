@@ -162,7 +162,7 @@ type PSMDBClusterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PSMDBClusterParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -288,7 +288,7 @@ type GetPSMDBClusterCredentialsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPSMDBClusterCredentialsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -422,7 +422,7 @@ type GetPSMDBClusterCredentialsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPSMDBClusterCredentialsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -600,7 +600,7 @@ type CreatePSMDBClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreatePSMDBClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -702,7 +702,7 @@ type CreatePSMDBClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreatePSMDBClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -888,7 +888,7 @@ type UpdatePSMDBClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePSMDBClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -990,7 +990,7 @@ type UpdatePSMDBClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePSMDBClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1121,7 +1121,7 @@ type GetPSMDBClusterResourcesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPSMDBClusterResourcesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1255,7 +1255,7 @@ type GetPSMDBClusterResourcesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPSMDBClusterResourcesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1393,7 +1393,7 @@ type PSMDBClusterParams_ReplicaSetMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PSMDBClusterParams_ReplicaSetMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1510,7 +1510,7 @@ type GetPSMDBClusterCredentialsResponse_PSMDBCredentialsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPSMDBClusterCredentialsResponse_PSMDBCredentialsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1661,7 +1661,7 @@ type UpdatePSMDBClusterRequest_UpdatePSMDBClusterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePSMDBClusterRequest_UpdatePSMDBClusterParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1808,7 +1808,7 @@ type UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSetMultiError []e
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSetMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

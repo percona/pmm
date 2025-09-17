@@ -87,7 +87,7 @@ type DiscoverRDSInstanceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DiscoverRDSInstanceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -193,7 +193,7 @@ type DiscoverRDSRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DiscoverRDSRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -329,7 +329,7 @@ type DiscoverRDSResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DiscoverRDSResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -542,7 +542,7 @@ type AddRDSRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRDSRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -876,7 +876,7 @@ type AddRDSResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRDSResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

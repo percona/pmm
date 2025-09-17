@@ -227,7 +227,7 @@ type PSMDBClusterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PSMDBClusterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -483,7 +483,7 @@ type PXCClusterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PXCClusterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -594,7 +594,7 @@ type ListDBClustersRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListDBClustersRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -764,7 +764,7 @@ type ListDBClustersResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListDBClustersResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -899,7 +899,7 @@ type RestartDBClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestartDBClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1001,7 +1001,7 @@ type RestartDBClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestartDBClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1125,7 +1125,7 @@ type GetDBClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetDBClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1285,7 +1285,7 @@ type GetDBClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetDBClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1420,7 +1420,7 @@ type DeleteDBClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteDBClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1522,7 +1522,7 @@ type DeleteDBClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteDBClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1624,7 +1624,7 @@ type S3ItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m S3ItemMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1726,7 +1726,7 @@ type ListS3BackupsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListS3BackupsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1862,7 +1862,7 @@ type ListS3BackupsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListS3BackupsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1975,7 +1975,7 @@ type ListSecretsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListSecretsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2077,7 +2077,7 @@ type SecretMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SecretMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2211,7 +2211,7 @@ type ListSecretsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListSecretsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -81,7 +81,7 @@ type KubeAuthMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m KubeAuthMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -184,7 +184,7 @@ type OperatorMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m OperatorMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -370,7 +370,7 @@ type OperatorsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m OperatorsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -470,7 +470,7 @@ type ListKubernetesClustersRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListKubernetesClustersRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -607,7 +607,7 @@ type ListKubernetesClustersResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListKubernetesClustersResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -767,7 +767,7 @@ type RegisterKubernetesClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RegisterKubernetesClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -872,7 +872,7 @@ type RegisterKubernetesClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RegisterKubernetesClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -990,7 +990,7 @@ type UnregisterKubernetesClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UnregisterKubernetesClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1095,7 +1095,7 @@ type UnregisterKubernetesClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UnregisterKubernetesClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1209,7 +1209,7 @@ type GetKubernetesClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetKubernetesClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1341,7 +1341,7 @@ type GetKubernetesClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetKubernetesClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1455,7 +1455,7 @@ type GetResourcesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetResourcesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1615,7 +1615,7 @@ type GetResourcesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetResourcesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1728,7 +1728,7 @@ type ListStorageClassesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListStorageClassesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1830,7 +1830,7 @@ type ListStorageClassesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListStorageClassesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1968,7 +1968,7 @@ type ListKubernetesClustersResponse_ClusterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListKubernetesClustersResponse_ClusterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

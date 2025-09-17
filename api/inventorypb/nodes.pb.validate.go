@@ -88,7 +88,7 @@ type GenericNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GenericNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -208,7 +208,7 @@ type ContainerNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ContainerNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -321,7 +321,7 @@ type RemoteNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoteNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -435,7 +435,7 @@ type RemoteRDSNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoteRDSNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -549,7 +549,7 @@ type RemoteAzureDatabaseNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoteAzureDatabaseNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -653,7 +653,7 @@ type ListNodesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListNodesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -923,7 +923,7 @@ type ListNodesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListNodesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1036,7 +1036,7 @@ type GetNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1346,7 +1346,7 @@ type GetNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1656,7 +1656,7 @@ type AddNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1966,7 +1966,7 @@ type AddNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2100,7 +2100,7 @@ type AddGenericNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddGenericNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2231,7 +2231,7 @@ type AddGenericNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddGenericNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2369,7 +2369,7 @@ type AddContainerNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddContainerNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2500,7 +2500,7 @@ type AddContainerNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddContainerNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2632,7 +2632,7 @@ type AddRemoteNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2763,7 +2763,7 @@ type AddRemoteNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2904,7 +2904,7 @@ type AddRemoteRDSNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteRDSNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3035,7 +3035,7 @@ type AddRemoteRDSNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteRDSNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3178,7 +3178,7 @@ type AddRemoteAzureDatabaseNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteAzureDatabaseNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3312,7 +3312,7 @@ type AddRemoteAzureDatabaseNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteAzureDatabaseNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3428,7 +3428,7 @@ type RemoveNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3530,7 +3530,7 @@ type RemoveNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -92,7 +92,7 @@ type MySQLServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MySQLServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -214,7 +214,7 @@ type MongoDBServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MongoDBServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -340,7 +340,7 @@ type PostgreSQLServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PostgreSQLServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -464,7 +464,7 @@ type ProxySQLServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProxySQLServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -578,7 +578,7 @@ type HAProxyServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HAProxyServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -694,7 +694,7 @@ type ExternalServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExternalServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -800,7 +800,7 @@ type ListServicesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServicesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1106,7 +1106,7 @@ type ListServicesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServicesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1208,7 +1208,7 @@ type ListActiveServiceTypesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListActiveServiceTypesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1311,7 +1311,7 @@ type ListActiveServiceTypesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListActiveServiceTypesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1425,7 +1425,7 @@ type GetServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1778,7 +1778,7 @@ type GetServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1916,7 +1916,7 @@ type AddMySQLServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2047,7 +2047,7 @@ type AddMySQLServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2185,7 +2185,7 @@ type AddMongoDBServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMongoDBServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2316,7 +2316,7 @@ type AddMongoDBServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMongoDBServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2456,7 +2456,7 @@ type AddPostgreSQLServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgreSQLServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2588,7 +2588,7 @@ type AddPostgreSQLServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgreSQLServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2727,7 +2727,7 @@ type AddProxySQLServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddProxySQLServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2858,7 +2858,7 @@ type AddProxySQLServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddProxySQLServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2990,7 +2990,7 @@ type AddHAProxyServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddHAProxyServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3121,7 +3121,7 @@ type AddHAProxyServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddHAProxyServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3255,7 +3255,7 @@ type AddExternalServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3386,7 +3386,7 @@ type AddExternalServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3501,7 +3501,7 @@ type RemoveServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3603,7 +3603,7 @@ type RemoveServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3718,7 +3718,7 @@ type AddCustomLabelsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddCustomLabelsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3820,7 +3820,7 @@ type AddCustomLabelsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddCustomLabelsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3933,7 +3933,7 @@ type RemoveCustomLabelsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveCustomLabelsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4035,7 +4035,7 @@ type RemoveCustomLabelsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveCustomLabelsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4164,7 +4164,7 @@ type ChangeServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4266,7 +4266,7 @@ type ChangeServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
