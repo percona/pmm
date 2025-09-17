@@ -31,13 +31,13 @@ type Store struct {
 // NewStore creates Store.
 func NewStore(capacity uint) *Store {
 	return &Store{
-		log:      ring.New(int(capacity)),
+		log:      ring.New(int(capacity)), //nolint:gosec
 		capacity: capacity,
 	}
 }
 
 // Write writes log to the store.
-func (l *Store) Write(b []byte) (int, error) { //nolint:unparam
+func (l *Store) Write(b []byte) (int, error) {
 	l.m.Lock()
 	defer l.m.Unlock()
 
@@ -61,7 +61,7 @@ func (l *Store) Resize(capacity uint) {
 
 	old := l.log
 
-	l.log = ring.New(int(capacity))
+	l.log = ring.New(int(capacity)) //nolint:gosec
 	l.capacity = capacity
 	if l.capacity == 0 {
 		return

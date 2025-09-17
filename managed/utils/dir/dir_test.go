@@ -27,49 +27,28 @@ func TestCreateDataDir(t *testing.T) {
 	t.Parallel()
 
 	testcases := []struct {
-		name      string
-		path      string
-		username  string
-		groupname string
-		perm      os.FileMode
-		err       string
+		name string
+		path string
+		perm os.FileMode
+		err  string
 	}{{
-		name:      "valid params",
-		path:      "/tmp/testdir_valid",
-		username:  "pmm",
-		groupname: "pmm",
-		perm:      os.FileMode(0o775),
-		err:       ``,
+		name: "valid params",
+		path: "/tmp/testdir_valid",
+		perm: os.FileMode(0o775),
+		err:  ``,
 	}, {
-		name:      "invalid path",
-		path:      "",
-		username:  "pmm",
-		groupname: "pmm",
-		perm:      os.FileMode(0o775),
-		err:       `cannot create path "": mkdir : no such file or directory`,
-	}, {
-		name:      "unknown user",
-		path:      "/tmp/testdir_user",
-		username:  "$",
-		groupname: "pmm",
-		perm:      os.FileMode(0o775),
-		err:       `user: unknown user $`,
-	}, {
-		name:      "unknown group",
-		path:      "/tmp/testdir_group",
-		username:  "pmm",
-		groupname: "$",
-		perm:      os.FileMode(0o775),
-		err:       `group: unknown group $`,
+		name: "invalid path",
+		path: "",
+		perm: os.FileMode(0o775),
+		err:  `cannot create path "": mkdir : no such file or directory`,
 	}}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			defer os.Remove(tc.path) //nolint:errcheck
 
-			err := CreateDataDir(tc.path, tc.username, tc.groupname, tc.perm)
+			err := CreateDataDir(tc.path, tc.perm)
 			if tc.err != "" {
 				assert.EqualError(t, err, tc.err)
 				return
@@ -138,7 +117,6 @@ func TestFindFilesWithExtensions(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

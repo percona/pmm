@@ -69,6 +69,7 @@ type AddExternalCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 
 	flags.MetricsModeFlags
 }
@@ -88,7 +89,7 @@ func (cmd *AddExternalCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddExternalCommand.
 func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	if cmd.RunsOnNodeID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -138,6 +139,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				TLSSkipVerify:       cmd.TLSSkipVerify,
 			},
 		},
 		Context: commands.Ctx,

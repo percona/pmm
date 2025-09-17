@@ -54,7 +54,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			return err
 		}
 
-		node, err = models.CheckUniqueNodeInstanceRegion(tx.Querier, req.Address, &req.Region)
+		node, err = models.CheckUniqueNodeAddressRegion(tx.Querier, req.Address, &req.Region)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			// nothing
@@ -81,6 +81,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			ContainerID:   pointer.ToStringOrNil(req.ContainerId),
 			ContainerName: pointer.ToStringOrNil(req.ContainerName),
 			CustomLabels:  req.CustomLabels,
+			InstanceID:    req.InstanceId,
 			Address:       req.Address,
 			Region:        pointer.ToStringOrNil(req.Region),
 		})
@@ -137,7 +138,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 	return res, nil
 }
 
-// Unregister do unregistration of the node.
+// UnregisterNode unregisters the node.
 func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
@@ -226,7 +227,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 
-		nodes, err = models.FindNodes(s.db.Querier, filters)
+		nodes, err = models.FindNodes(tx.Querier, filters)
 		if err != nil {
 			return err
 		}
@@ -244,7 +245,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			return err
 		}
 
-		services, err = models.FindServices(s.db.Querier, models.ServiceFilters{})
+		services, err = models.FindServices(tx.Querier, models.ServiceFilters{})
 		if err != nil {
 			return err
 		}
@@ -323,6 +324,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			NodeModel:     node.NodeModel,
 			Region:        pointer.GetString(node.Region),
 			UpdatedAt:     timestamppb.New(node.UpdatedAt),
+			InstanceId:    node.InstanceID,
 		}
 
 		if metric, ok := metrics[node.NodeID]; ok {

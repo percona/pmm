@@ -116,7 +116,7 @@ func SetPMMServerID(q reform.DBTX) error {
 func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop
 	err := ValidateSettings(params)
 	if err != nil {
-		return nil, NewInvalidArgumentError(err.Error())
+		return nil, NewInvalidArgumentError("%s", err.Error())
 	}
 
 	if params.DefaultRoleID != nil {
@@ -125,7 +125,8 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 			return nil, fmt.Errorf("%w: changing Role ID requires a *reform.TX", ErrTxRequired)
 		}
 
-		if err := lockRoleForChange(tx, *params.DefaultRoleID); err != nil {
+		var r Role
+		if err := findRole(tx, *params.DefaultRoleID, &r); err != nil {
 			return nil, err
 		}
 	}
@@ -241,15 +242,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		return nil, err
 	}
 	return settings, nil
-}
-
-func lockRoleForChange(tx *reform.TX, roleID int) error {
-	var r Role
-	if err := FindAndLockRole(tx, roleID, &r); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // ValidateSettings validates settings changes.

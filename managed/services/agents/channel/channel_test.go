@@ -76,7 +76,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 	})
 	go func() {
 		err = server.Serve(lis)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 	}()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -111,7 +111,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 
 func TestAgentRequest(t *testing.T) {
 	const count = 50
-	require.True(t, count > agentRequestsCap)
+	require.Greater(t, count, agentRequestsCap)
 
 	var channel *Channel
 	connect := func(ch *Channel) error {
@@ -163,7 +163,7 @@ func TestAgentRequest(t *testing.T) {
 
 func TestServerRequest(t *testing.T) {
 	const count = 50
-	require.True(t, count > agentRequestsCap)
+	require.Greater(t, count, agentRequestsCap)
 
 	connect := func(ch *Channel) error {
 		for i := uint32(1); i <= count; i++ {
@@ -343,7 +343,7 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 	stop := make(chan struct{})
 	stopServer := make(chan struct{})
-	connect := func(ch *Channel) error {
+	connect := func(_ *Channel) error {
 		<-stopServer
 		close(stop)
 		return nil

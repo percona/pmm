@@ -34,8 +34,8 @@ func TestPackages(t *testing.T) {
 	require.NoError(t, err, "%s", b)
 
 	out := string(b)
-	assert.False(t, strings.Contains(out, "-httptest.serve"), `pmm-managed should not import package "net/http/httptest"`)
-	assert.False(t, strings.Contains(out, "-test.run"), `pmm-managed should not import package "testing"`)
+	assert.NotContains(t, out, "-httptest.serve", `pmm-managed should not import package "net/http/httptest"`)
+	assert.NotContains(t, out, "-test.run", `pmm-managed should not import package "testing"`)
 }
 
 func TestImports(t *testing.T) {
@@ -182,12 +182,12 @@ func TestImports(t *testing.T) {
 	}
 	sort.Strings(lines)
 
-	fmt.Fprintf(f, "digraph packages {\n")
+	fmt.Fprintf(f, "digraph packages {\n") //nolint:errcheck
 	duplicate := make(map[string]struct{})
 	for _, line := range lines {
 		if _, ok := duplicate[line]; !ok {
 			duplicate[line] = struct{}{}
-			fmt.Fprint(f, line)
+			fmt.Fprint(f, line) //nolint:errcheck
 		}
 	}
 	fmt.Fprintf(f, "}\n")

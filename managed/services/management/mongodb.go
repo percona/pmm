@@ -43,7 +43,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
 			Address:        pointer.ToStringOrNil(req.Address),
-			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			Port:           pointer.ToUint16OrNil(uint16(req.Port)), //nolint:gosec // port is a uint16
 			Socket:         pointer.ToStringOrNil(req.Socket),
 			CustomLabels:   req.CustomLabels,
 		})
@@ -122,6 +122,32 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				return err
 			}
 			mongodb.QanMongodbProfiler = agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+		}
+
+		if req.QanMongodbMongolog {
+			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBMongologAgentType, &models.CreateAgentParams{
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				QANOptions: models.QANOptions{
+					MaxQueryLength: req.MaxQueryLength,
+					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
+				},
+				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
+				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			})
+			if err != nil {
+				return err
+			}
+
+			agent, err := services.ToAPIAgent(tx.Querier, row)
+			if err != nil {
+				return err
+			}
+			mongodb.QanMongodbMongolog = agent.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
 		}
 
 		return nil

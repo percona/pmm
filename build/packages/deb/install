@@ -12,6 +12,7 @@ mongodb_exporter /usr/local/percona/pmm/exporters/
 proxysql_exporter /usr/local/percona/pmm/exporters/
 rds_exporter /usr/local/percona/pmm/exporters/
 azure_exporter /usr/local/percona/pmm/exporters/
+valkey_exporter /usr/local/percona/pmm/exporters/
 vmagent /usr/local/percona/pmm/exporters/
 example.prom /usr/local/percona/pmm/collectors/textfile-collector/low-resolution/
 example.prom /usr/local/percona/pmm/collectors/textfile-collector/medium-resolution/
@@ -24,5 +25,6 @@ example-queries-postgres.yml /usr/local/percona/pmm/collectors/custom-queries/po
 example-queries-postgres.yml /usr/local/percona/pmm/collectors/custom-queries/postgresql/medium-resolution/
 example-queries-postgres.yml /usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
 queries-postgres-uptime.yml /usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
+queries-hr.yml /usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
 queries-mr.yaml /usr/local/percona/pmm/collectors/custom-queries/postgresql/medium-resolution/
 queries-lr.yaml /usr/local/percona/pmm/collectors/custom-queries/postgresql/low-resolution/

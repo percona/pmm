@@ -79,7 +79,7 @@ func TestAgents(t *testing.T) {
 		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one service")
+		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one service")
 
 		assertMySQLExporterExists(t, res, mySqldExporterID)
 		assertPMMAgentExists(t, res, pmmAgentID)
@@ -149,7 +149,7 @@ func TestAgents(t *testing.T) {
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one agent")
+		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one agent")
 		assertMySQLExporterExists(t, res, mySqldExporterID)
 		assertNodeExporterExists(t, res, nodeExporterID)
 		assertPMMAgentNotExists(t, res, pmmAgentID)
@@ -162,7 +162,7 @@ func TestAgents(t *testing.T) {
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotZerof(t, len(res.Payload.NodeExporter), "There should be at least one node exporter")
+		require.NotEmpty(t, res.Payload.NodeExporter, "There should be at least one node exporter")
 		assertMySQLExporterNotExists(t, res, mySqldExporterID)
 		assertPMMAgentNotExists(t, res, pmmAgentID)
 		assertNodeExporterExists(t, res, nodeExporterID)
@@ -175,7 +175,7 @@ func TestAgents(t *testing.T) {
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one mysql exporter")
+		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one mysql exporter")
 		assertMySQLExporterExists(t, res, mySqldExporterID)
 		assertPMMAgentNotExists(t, res, pmmAgentID)
 		assertNodeExporterNotExists(t, res, nodeExporterID)
@@ -188,7 +188,7 @@ func TestAgents(t *testing.T) {
 			})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one mysql exporter")
+		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one mysql exporter")
 		assertMySQLExporterExists(t, res, mySqldExporterID)
 		assertPMMAgentNotExists(t, res, pmmAgentID)
 		assertNodeExporterNotExists(t, res, nodeExporterID)
@@ -403,6 +403,7 @@ func TestPMMAgent(t *testing.T) {
 				},
 				Status:             &AgentStatusUnknown,
 				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				ExtraDsnParams:     map[string]string{},
 				DisabledCollectors: make([]string, 0),
 			},
 		}, listAgentsOK.Payload.MysqldExporter)
@@ -530,8 +531,9 @@ func TestQanAgentExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					Status:         &AgentStatusUnknown,
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					ExtraDsnParams: map[string]string{},
 				},
 			},
 		}, getAgentRes)
@@ -552,14 +554,15 @@ func TestQanAgentExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
-					AgentID:      agentID,
-					ServiceID:    serviceID,
-					Username:     "username",
-					PMMAgentID:   pmmAgentID,
-					Disabled:     true,
-					Status:       &AgentStatusUnknown,
-					CustomLabels: map[string]string{},
-					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					AgentID:        agentID,
+					ServiceID:      serviceID,
+					Username:       "username",
+					PMMAgentID:     pmmAgentID,
+					Disabled:       true,
+					Status:         &AgentStatusUnknown,
+					CustomLabels:   map[string]string{},
+					ExtraDsnParams: map[string]string{},
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -591,8 +594,9 @@ func TestQanAgentExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					Status:         &AgentStatusUnknown,
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					ExtraDsnParams: map[string]string{},
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)

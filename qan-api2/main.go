@@ -47,6 +47,7 @@ import (
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 
@@ -83,7 +84,7 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 		// Do not increase that value. If larger requests are required (there are errors in logs),
 		// implement request slicing on pmm-managed side:
 		// send B/N requests with N buckets in each instead of 1 huge request with B buckets.
-		grpc.MaxRecvMsgSize(20*1024*1024), //nolint:gomnd
+		grpc.MaxRecvMsgSize(20*1024*1024), //nolint:mnd
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
@@ -149,6 +150,8 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
+		grpc_gateway.WithIncomingHeaderMatcher(customMatcher),
+		grpc_gateway.WithMetadata(gatewayAnnotator),
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
@@ -222,7 +225,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 	if err != nil {
 		l.Panic(err)
 	}
-	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
@@ -365,4 +368,24 @@ func main() {
 	}()
 
 	wg.Wait()
+}
+
+// customMatcher allows to pass custom headers to the backend gRPC server.
+func customMatcher(key string) (string, bool) {
+	switch key {
+	case models.LBACHeaderName:
+		return key, true
+	default:
+		return grpc_gateway.DefaultHeaderMatcher(key)
+	}
+}
+
+// gatewayAnnotator is used to annotate the gRPC request with metadata from the HTTP request.
+func gatewayAnnotator(_ context.Context, req *http.Request) metadata.MD {
+	md := metadata.MD{}
+	if filters := req.Header.Get(models.LBACHeaderName); filters != "" {
+		md.Set(strings.ToLower(models.LBACHeaderName), filters)
+		return md
+	}
+	return nil
 }

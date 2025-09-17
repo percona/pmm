@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	headerName = "x-test-header"
+	headerName = "X-Test-Header"
 	targetURL  = "http://127.0.0.1"
 )
 
@@ -36,7 +36,7 @@ func TestProxy(t *testing.T) {
 
 	setup := func(t *testing.T, filters []string, headers map[string]string) http.HandlerFunc {
 		t.Helper()
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 			if filters != nil {
 				assert.Equal(t, url.Values{"extra_filters[]": filters}.Encode(), r.URL.RawQuery)
 			}
@@ -76,7 +76,7 @@ func TestProxy(t *testing.T) {
 		resp := rec.Result()
 		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
-		require.Equal(t, resp.StatusCode, http.StatusOK)
+		require.Equal(t, http.StatusOK, resp.StatusCode)
 	})
 
 	t.Run("shall properly handle filters", func(t *testing.T) {
@@ -141,7 +141,6 @@ func TestProxy(t *testing.T) {
 			},
 		}
 		for _, tc := range testCases {
-			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
@@ -191,7 +190,6 @@ func TestProxy(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
-			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 

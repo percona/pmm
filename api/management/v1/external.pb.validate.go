@@ -138,6 +138,8 @@ func (m *AddExternalServiceParams) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for TlsSkipVerify
+
 	if len(errors) > 0 {
 		return AddExternalServiceParamsMultiError(errors)
 	}

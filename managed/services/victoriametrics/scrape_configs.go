@@ -508,6 +508,19 @@ func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.Scr
 	return r, nil
 }
 
+func scrapeConfigForValkeyExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	return r, nil
+}
+
 func scrapeConfigsForProxySQLExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil) // TODO https://jira.percona.com/browse/PMM-4619
 	if err != nil {
@@ -589,12 +602,13 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 	}
 
 	if pointer.GetString(params.agent.Username) != "" {
-		cfg.HTTPClientConfig = config.HTTPClientConfig{
-			BasicAuth: &config.BasicAuth{
-				Username: pointer.GetString(params.agent.Username),
-				Password: pointer.GetString(params.agent.Password),
-			},
+		cfg.HTTPClientConfig.BasicAuth = &config.BasicAuth{
+			Username: pointer.GetString(params.agent.Username),
+			Password: pointer.GetString(params.agent.Password),
 		}
+	}
+	if params.agent.TLSSkipVerify {
+		cfg.HTTPClientConfig.TLSConfig.InsecureSkipVerify = true
 	}
 
 	port := int(*params.agent.ListenPort)

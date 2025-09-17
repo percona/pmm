@@ -99,10 +99,16 @@ build() {
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
 
+    local volume_mounts="-v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS"
+    volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
+    volume_mounts+=" -v pmm-yarn:/home/builder/.cache/yarn"
+    volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
+    volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
+
     if  [[ -n "${FORCE_REBUILD}" ]] || is_build_needed "${spec_name}" "${rpm_version}"; then
         echo "RPM Build Dir: ${rpmbuild_dir}, Docker image: ${rpmbuild_docker_image}"
 
-        docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
+        docker run --rm ${volume_mounts} ${rpmbuild_docker_image} sh -c "
             set -o errexit
             set -o xtrace
             echo \"spec_name: ${spec_name}\"
@@ -127,7 +133,7 @@ build() {
             done
 
             if [[ ${spec_name} =~ ^grafana|^percona-dashboards ]]; then
-                sudo yum-builddep -y SOURCES/${spec_name}.spec
+                sudo dnf builddep -y SOURCES/${spec_name}.spec
             fi
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec

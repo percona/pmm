@@ -23,9 +23,9 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -224,21 +224,20 @@ func TestRDSService(t *testing.T) {
 			t.Run(fmt.Sprintf("discoverRDSRegion %s", tt.region), func(t *testing.T) {
 				ctx := logger.Set(context.Background(), t.Name())
 				accessKey, secretKey := tests.GetAWSKeys(t)
-
-				creds := credentials.NewStaticCredentials(accessKey, secretKey, "")
-				cfg := &aws.Config{
-					CredentialsChainVerboseErrors: aws.Bool(true),
-					Credentials:                   creds,
-					HTTPClient:                    &http.Client{},
+				creds := credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
+				opts := []func(*config.LoadOptions) error{
+					config.WithCredentialsProvider(creds),
+					config.WithHTTPClient(&http.Client{}),
 				}
-				sess, err := session.NewSession(cfg)
+				opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
+				cfg, err := config.LoadDefaultConfig(ctx, opts...)
 				require.NoError(t, err)
 
 				// do not break our API if some AWS region is slow or down
 				ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 				defer cancel()
 
-				instances, err := discoverRDSRegion(ctx, sess, tt.region)
+				instances, err := discoverRDSRegion(ctx, cfg, tt.region)
 
 				require.NoError(t, err)
 				require.Equal(t, len(tt.instances), len(instances), "Should have two instances")
@@ -290,12 +289,13 @@ func TestRDSService(t *testing.T) {
 			Service: &managementv1.AddServiceResponse_Rds{
 				Rds: &managementv1.RDSServiceResult{
 					Node: &inventoryv1.RemoteRDSNode{
-						NodeId:    "00000000-0000-4000-8000-000000000005",
-						NodeName:  "rds-mysql57",
-						Address:   "rds-mysql57",
-						NodeModel: "db.t3.micro",
-						Region:    "us-east-1",
-						Az:        "us-east-1b",
+						NodeId:     "00000000-0000-4000-8000-000000000005",
+						NodeName:   "rds-mysql57",
+						Address:    "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
+						InstanceId: "rds-mysql57",
+						NodeModel:  "db.t3.micro",
+						Region:     "us-east-1",
+						Az:         "us-east-1b",
 						CustomLabels: map[string]string{
 							"foo": "bar",
 						},
@@ -383,12 +383,13 @@ func TestRDSService(t *testing.T) {
 			Service: &managementv1.AddServiceResponse_Rds{
 				Rds: &managementv1.RDSServiceResult{
 					Node: &inventoryv1.RemoteRDSNode{
-						NodeId:    "00000000-0000-4000-8000-00000000000a",
-						NodeName:  "rds-postgresql",
-						Address:   "rds-postgresql",
-						NodeModel: "db.t3.micro",
-						Region:    "us-east-1",
-						Az:        "us-east-1b",
+						NodeId:     "00000000-0000-4000-8000-00000000000a",
+						NodeName:   "rds-postgresql",
+						Address:    "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
+						InstanceId: "rds-postgresql",
+						NodeModel:  "db.t3.micro",
+						Region:     "us-east-1",
+						Az:         "us-east-1b",
 						CustomLabels: map[string]string{
 							"foo": "bar",
 						},

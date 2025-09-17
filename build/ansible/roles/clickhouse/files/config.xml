@@ -793,7 +793,7 @@
            export MVN_URL=https://repo1.maven.org/maven2/com/clickhouse/clickhouse-jdbc-bridge/
            export PKG_VER=$(curl -sL $MVN_URL/maven-metadata.xml | grep '<release>' | sed -e 's|.*>\(.*\)<.*|\1|')
            wget https://github.com/ClickHouse/clickhouse-jdbc-bridge/releases/download/v$PKG_VER/clickhouse-jdbc-bridge-$PKG_VER-1.noarch.rpm
-           yum localinstall -y clickhouse-jdbc-bridge-$PKG_VER-1.noarch.rpm
+           dnf install -y ./clickhouse-jdbc-bridge-$PKG_VER-1.noarch.rpm
            clickhouse-jdbc-bridge &
 
          Please refer to https://github.com/ClickHouse/clickhouse-jdbc-bridge#usage for more information.
@@ -1042,6 +1042,7 @@
 
         <!-- example of using a different storage policy for a system table -->
         <!-- storage_policy>local_ssd</storage_policy -->
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </query_log>
 
     <!-- Trace log. Stores stack traces collected by query profilers.
@@ -1057,6 +1058,7 @@
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <!-- Indication whether logs should be dumped to the disk in case of a crash -->
         <flush_on_crash>false</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </trace_log>
 
     <!-- Query thread log. Has information about all threads participated in query execution.
@@ -1070,6 +1072,7 @@
         <reserved_size_rows>8192</reserved_size_rows>
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <flush_on_crash>false</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </query_thread_log>
 
     <!-- Query views log. Has information about all dependent views associated with a query.
@@ -1079,6 +1082,7 @@
         <table>query_views_log</table>
         <partition_by>toYYYYMM(event_date)</partition_by>
         <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </query_views_log>
 
     <!-- Uncomment if use part log.
@@ -1092,6 +1096,7 @@
         <reserved_size_rows>8192</reserved_size_rows>
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <flush_on_crash>false</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </part_log>
 
     <!-- Uncomment to write text log into table.
@@ -1119,6 +1124,7 @@
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <collect_interval_milliseconds>1000</collect_interval_milliseconds>
         <flush_on_crash>false</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </metric_log>
 
     <!--
@@ -1133,6 +1139,7 @@
         <reserved_size_rows>8192</reserved_size_rows>
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <flush_on_crash>false</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </asynchronous_metric_log>
 
     <!--
@@ -1176,6 +1183,7 @@
         <reserved_size_rows>1024</reserved_size_rows>
         <buffer_size_rows_flush_threshold>512</buffer_size_rows_flush_threshold>
         <flush_on_crash>true</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </crash_log>
 
     <!-- Session log. Stores user log in (successful or not) and log out events.

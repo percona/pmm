@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestManagementGlobalFlags(t *testing.T) {
@@ -109,7 +110,6 @@ func TestManagementGlobalFlags(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.testName, func(t *testing.T) {
 			cmd := &AddMongoDBCommand{
 				ServiceName: test.nameArg,
@@ -124,7 +124,7 @@ func TestManagementGlobalFlags(t *testing.T) {
 
 			serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, test.wantServiceName, serviceName)
 			assert.Equal(t, test.wantHost, host)
 			assert.Equal(t, int(test.wantPort), int(port))

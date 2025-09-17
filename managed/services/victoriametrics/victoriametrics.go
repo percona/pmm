@@ -92,10 +92,10 @@ func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
 
-	if err := dir.CreateDataDir(victoriametricsDir, "pmm", "pmm", dirPerm); err != nil {
+	if err := dir.CreateDataDir(victoriametricsDir, dirPerm); err != nil {
 		svc.l.Error(err)
 	}
-	if err := dir.CreateDataDir(victoriametricsDataDir, "pmm", "pmm", dirPerm); err != nil {
+	if err := dir.CreateDataDir(victoriametricsDataDir, dirPerm); err != nil {
 		svc.l.Error(err)
 	}
 
@@ -184,7 +184,7 @@ func (svc *Service) reload(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if resp.StatusCode != http.StatusNoContent {
+	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
 		return errors.Errorf("expected 204, got %d", resp.StatusCode)
 	}
 	return nil

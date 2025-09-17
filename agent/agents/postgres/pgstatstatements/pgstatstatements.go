@@ -43,9 +43,9 @@ import (
 )
 
 const (
-	retainStatStatements    = 25 * time.Hour // make it work for daily queries
-	statStatementsCacheSize = 5000           // cache size rows limit
-	queryStatStatements     = time.Minute
+	retainStatStatements = 25 * time.Hour // make it work for daily queries
+	defaultPgssCacheSize = 5000           // cache size rows limit
+	queryStatStatements  = time.Minute
 )
 
 var (
@@ -76,7 +76,10 @@ type Params struct {
 	TextFiles              *agentv1.TextFiles
 }
 
-const queryTag = "agent='pgstatstatements'"
+const (
+	queryTag     = "agent='pgstatstatements'"
+	pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
+)
 
 // New creates new PGStatStatementsQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
@@ -94,8 +97,20 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, params.DisableCommentsParsing, l)
 }
 
+func getPgStatStatementsCacheSize(q *reform.Querier, l *logrus.Entry) uint {
+	var pgSSCacheSize uint
+	err := q.QueryRow(pgssMaxQuery).Scan(&pgSSCacheSize)
+	if err != nil {
+		l.WithError(err).Error("failed to get pg_stat_statements.max")
+		return defaultPgssCacheSize
+	}
+
+	return pgSSCacheSize
+}
+
 func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
-	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, statStatementsCacheSize, l)
+	cacheSize := getPgStatStatementsCacheSize(q, l)
+	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}

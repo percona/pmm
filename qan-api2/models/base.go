@@ -412,6 +412,42 @@ func isValidMetricColumn(name string) bool {
 	return isValid
 }
 
+// IsDimension checks if the given column name is a dimension.
+func IsDimension(name string) bool {
+	dimensionColumnNames := map[string]struct{}{
+		// Main dimensions
+		"queryid":      {},
+		"service_name": {},
+		"database":     {},
+		"schema":       {},
+		"username":     {},
+		"client_host":  {},
+		// Standard labels
+		"replication_set":  {},
+		"cluster":          {},
+		"service_type":     {},
+		"service_id":       {},
+		"environment":      {},
+		"az":               {},
+		"region":           {},
+		"node_model":       {},
+		"node_id":          {},
+		"node_name":        {},
+		"node_type":        {},
+		"machine_id":       {},
+		"container_name":   {},
+		"container_id":     {},
+		"cmd_type":         {},
+		"application_name": {},
+		"top_queryid":      {},
+		"planid":           {},
+		"plan_summary":     {},
+	}
+
+	_, ok := dimensionColumnNames[name]
+	return ok
+}
+
 func agentTypeToClickHouseEnum(agentType inventoryv1.AgentType) string {
 	// String representation of agent type. It must match the one in pmm-managed.
 	agentTypes := map[inventoryv1.AgentType]string{
@@ -419,6 +455,7 @@ func agentTypeToClickHouseEnum(agentType inventoryv1.AgentType) string {
 		inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT:         "qan-mongodb-mongolog-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
 	}

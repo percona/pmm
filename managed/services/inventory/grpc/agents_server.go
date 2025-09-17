@@ -20,6 +20,9 @@ import (
 	"context"
 	"fmt"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
@@ -42,6 +45,7 @@ var agentTypes = map[inventoryv1.AgentType]models.AgentType{
 	inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER:                    models.MySQLdExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER:                   models.MongoDBExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER:                  models.PostgresExporterType,
+	inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:                    models.ValkeyExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER:                  models.ProxySQLExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         models.QANMySQLPerfSchemaAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            models.QANMySQLSlowlogAgentType,
@@ -93,8 +97,12 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.QanMysqlSlowlogAgent = append(res.QanMysqlSlowlogAgent, agent)
 		case *inventoryv1.PostgresExporter:
 			res.PostgresExporter = append(res.PostgresExporter, agent)
+		case *inventoryv1.ValkeyExporter:
+			res.ValkeyExporter = append(res.ValkeyExporter, agent)
 		case *inventoryv1.QANMongoDBProfilerAgent:
 			res.QanMongodbProfilerAgent = append(res.QanMongodbProfilerAgent, agent)
+		case *inventoryv1.QANMongoDBMongologAgent:
+			res.QanMongodbMongologAgent = append(res.QanMongodbMongologAgent, agent)
 		case *inventoryv1.ProxySQLExporter:
 			res.ProxysqlExporter = append(res.ProxysqlExporter, agent)
 		case *inventoryv1.QANPostgreSQLPgStatementsAgent:
@@ -141,8 +149,12 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_QanMysqlSlowlogAgent{QanMysqlSlowlogAgent: agent}
 	case *inventoryv1.PostgresExporter:
 		res.Agent = &inventoryv1.GetAgentResponse_PostgresExporter{PostgresExporter: agent}
+	case *inventoryv1.ValkeyExporter:
+		res.Agent = &inventoryv1.GetAgentResponse_ValkeyExporter{ValkeyExporter: agent}
 	case *inventoryv1.QANMongoDBProfilerAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbProfilerAgent{QanMongodbProfilerAgent: agent}
+	case *inventoryv1.QANMongoDBMongologAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbMongologAgent{QanMongodbMongologAgent: agent}
 	case *inventoryv1.ProxySQLExporter:
 		res.Agent = &inventoryv1.GetAgentResponse_ProxysqlExporter{ProxysqlExporter: agent}
 	case *inventoryv1.QANPostgreSQLPgStatementsAgent:
@@ -191,6 +203,8 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.s.AddMongoDBExporter(ctx, req.GetMongodbExporter())
 	case *inventoryv1.AddAgentRequest_PostgresExporter:
 		return s.s.AddPostgresExporter(ctx, req.GetPostgresExporter())
+	case *inventoryv1.AddAgentRequest_ValkeyExporter:
+		return s.s.AddValkeyExporter(ctx, req.GetValkeyExporter())
 	case *inventoryv1.AddAgentRequest_ProxysqlExporter:
 		return s.s.AddProxySQLExporter(ctx, req.GetProxysqlExporter())
 	case *inventoryv1.AddAgentRequest_RdsExporter:
@@ -205,18 +219,20 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.s.AddQANMySQLSlowlogAgent(ctx, req.GetQanMysqlSlowlogAgent())
 	case *inventoryv1.AddAgentRequest_QanMongodbProfilerAgent:
 		return s.s.AddQANMongoDBProfilerAgent(ctx, req.GetQanMongodbProfilerAgent())
+	case *inventoryv1.AddAgentRequest_QanMongodbMongologAgent:
+		return s.s.AddQANMongoDBMongologAgent(ctx, req.GetQanMongodbMongologAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatementsAgent:
 		return s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
 	default:
-		return nil, fmt.Errorf("invalid request %v", req.Agent)
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
 }
 
 // ChangeAgent allows to change some Agent attributes.
 func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
-	agentID := req.GetAgentId() //nolint:typecheck
+	agentID := req.GetAgentId()
 
 	switch req.Agent.(type) {
 	case *inventoryv1.ChangeAgentRequest_NodeExporter:
@@ -227,6 +243,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeMongoDBExporter(ctx, agentID, req.GetMongodbExporter())
 	case *inventoryv1.ChangeAgentRequest_PostgresExporter:
 		return s.s.ChangePostgresExporter(ctx, agentID, req.GetPostgresExporter())
+	case *inventoryv1.ChangeAgentRequest_ValkeyExporter:
+		return s.s.ChangeValkeyExporter(ctx, agentID, req.GetValkeyExporter())
 	case *inventoryv1.ChangeAgentRequest_ProxysqlExporter:
 		return s.s.ChangeProxySQLExporter(ctx, agentID, req.GetProxysqlExporter())
 	case *inventoryv1.ChangeAgentRequest_RdsExporter:
@@ -241,6 +259,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeQANMySQLSlowlogAgent(ctx, agentID, req.GetQanMysqlSlowlogAgent())
 	case *inventoryv1.ChangeAgentRequest_QanMongodbProfilerAgent:
 		return s.s.ChangeQANMongoDBProfilerAgent(ctx, agentID, req.GetQanMongodbProfilerAgent())
+	case *inventoryv1.ChangeAgentRequest_QanMongodbMongologAgent:
+		return s.s.ChangeQANMongoDBMongologAgent(ctx, agentID, req.GetQanMongodbMongologAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatementsAgent:
 		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, agentID, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:
@@ -248,7 +268,7 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 	case *inventoryv1.ChangeAgentRequest_NomadAgent:
 		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
 	default:
-		return nil, fmt.Errorf("invalid request %v", req.Agent)
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
 }
 

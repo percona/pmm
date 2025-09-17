@@ -316,7 +316,7 @@ func startMySQL(ctx context.Context, mySQLServiceName string) error {
 }
 
 func chownRecursive(path string, uid, gid int) error {
-	return filepath.Walk(path, func(name string, info os.FileInfo, err error) error {
+	return filepath.Walk(path, func(name string, _ os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

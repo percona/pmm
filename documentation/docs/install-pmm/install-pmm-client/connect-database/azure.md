@@ -1,6 +1,6 @@
-# Connect Azure instance
+# Connect Azure instance to PMM
 
-!!! caution alert alert-warning "Caution"
+!!! caution alert alert-warning "Technical Preview"
     Microsoft Azure functionality is currently in [technical preview](../../../reference/glossary.md#technical-preview) and is subject to change.
 
 ## Activate Microsoft Azure
@@ -12,13 +12,15 @@ The Microsoft Azure feature is turned off by default. To turn it on:
 
 2. Click the <i class="uil uil-toggle-off"></i> toggle in the **Technical preview features** section of the page.
 
-## Required settings
+## Prerequisites
 
-It is possible to use PMM for monitoring [Azure](https://azure.microsoft.com) database instances like other remote instances. In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Azure DB instance. Discovery is not yet implemented in PMM but it is possible to add known instances by providing the connection parameters.
+PMM can monitor [Azure](https://azure.microsoft.com) database instances similar to other remote instances. In this case, the PMM Client is not installed on the host where the database server is deployed. 
 
-First of all, ensure that there is the minimal latency between PMM Server and the Azure instance.
+By using the PMM web interface, you connect to the Azure DB instance. Discovery is not yet implemented in PMM but it is possible to add known instances by providing the connection parameters.
+{.power-number}
 
-Second, add a firewall rule to enable access from PMM Client like this:
+1. Minimize network latency between PMM Server and the Azure instance.
+2. Configure firewall rules to allow PMM Server access to your Azure database:
 
 ![!image](../../../images/azure-firewall.png)
 
@@ -36,7 +38,7 @@ GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%';
 ALTER USER 'pmm'@'%' WITH MAX_USER_CONNECTIONS 10;
 ```
 
-## Adding an Azure Instance
+## Adding an Azure instance
 
 Follow the instructions for remotes instances explained [here](aws.md), Azure MySQL databases are similar to AWS RDS databases.
 
@@ -138,7 +140,7 @@ You can find more details on how to create DB on Azure at:
 - <https://docs.microsoft.com/en-us/azure/mysql/>
 
 !!! hint alert alert-success "Tip"
-    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. ([Read more.](postgresql.md#pg_stat_statements))
+    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. [Read more](../connect-database/postgresql.md#configure-monitoring-extension.
 
 ![!](../../../images/PMM_Add_Instance_Azure_3.png)
 
@@ -161,7 +163,7 @@ PMM can use 3 exporters to collect metrics:
 
 - `mysql_exporter` or `postgres_exporter` – to collect database related metrics.
 
-- pmm-agent to collect queries related metrics using [`pg_stat_statements`](postgresql.md#pg_stat_statements) for PostgreSQL or Performance Schema for MySQL (MariaDB)
+- pmm-agent to collect queries related metrics using [`pg_stat_statements`](../connect-database/postgresql.md#configure-monitoring-extension) for PostgreSQL or Performance Schema for MySQL (MariaDB)
 
 ### Adding an Azure Instance on PMM Client side
 

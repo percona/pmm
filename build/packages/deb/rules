@@ -56,6 +56,7 @@ override_dh_auto_install:
 	cp -f distro/proxysql_exporter $(TMP)/proxysql_exporter
 	cp -f distro/rds_exporter $(TMP)/rds_exporter
 	cp -f distro/azure_exporter $(TMP)/azure_exporter
+	cp -f distro/valkey_exporter $(TMP)/valkey_exporter
 	cp -f distro/vmagent $(TMP)/vmagent
 	cp -f distro/nomad $(TMP)/nomad
 	cp -f distro/example.prom $(TMP)/example.prom
@@ -63,6 +64,7 @@ override_dh_auto_install:
 	cp -f distro/queries-mysqld-group-replication.yml $(TMP)/queries-mysqld-group-replication.yml
 	cp -f distro/example-queries-postgres.yml $(TMP)/example-queries-postgres.yml
 	cp -f distro/queries-postgres-uptime.yml $(TMP)/queries-postgres-uptime.yml
+	cp -f distro/queries-hr.yml $(TMP)/queries-hr.yml
 	cp -f distro/queries-mr.yaml $(TMP)/queries-mr.yaml
 	cp -f distro/queries-lr.yaml $(TMP)/queries-lr.yaml
 	cp -f distro/pt-summary $(TMP)/pt-summary

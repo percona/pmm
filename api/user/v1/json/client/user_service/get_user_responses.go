@@ -422,9 +422,6 @@ type GetUserOKBody struct {
 
 	// Snoozed PMM version update
 	SnoozedPMMVersion string `json:"snoozed_pmm_version,omitempty"`
-
-	// Snoozed warning about API keys migration
-	SnoozedAPIKeysMigration bool `json:"snoozed_api_keys_migration,omitempty"`
 }
 
 // Validate validates this get user OK body

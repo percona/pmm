@@ -44,7 +44,6 @@ func TestSavePMMConfig(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		test := test
 		t.Run(test.description, func(t *testing.T) {
 			t.Parallel()
 			expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec

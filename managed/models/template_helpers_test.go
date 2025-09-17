@@ -151,7 +151,7 @@ func TestRuleTemplates(t *testing.T) {
 		updateParams := changeTemplateParams(name)
 		updateParams.Name = uuid.New().String()
 		_, err = models.ChangeTemplate(q, updateParams)
-		require.NotNil(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("remove", func(t *testing.T) {
@@ -214,7 +214,6 @@ func createTemplateParams(name string) *models.CreateTemplateParams {
 			Name:    name,
 			Version: 1,
 			Summary: gofakeit.Quote(),
-			Tiers:   []common.Tier{common.Anonymous},
 			Expr:    gofakeit.Quote(),
 			Params: []alert.Parameter{{
 				Name:    uuid.New().String(),
@@ -240,7 +239,6 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 			Name:    name,
 			Version: 1,
 			Summary: gofakeit.Quote(),
-			Tiers:   []common.Tier{common.Anonymous},
 			Expr:    gofakeit.Quote(),
 			Params: []alert.Parameter{{
 				Name:    uuid.New().String(),

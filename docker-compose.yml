@@ -1,5 +1,4 @@
 ---
-# version: '3.7' // Deprecated: see https://docs.docker.com/compose/compose-file/04-version-and-name/
 services:
   pmm-server:
     profiles:
@@ -27,7 +26,7 @@ services:
       - PMM_ENABLE_TELEMETRY=${PMM_ENABLE_TELEMETRY:-0}
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
       - PMM_RELEASE_VERSION=3.0.0
-      - GO_VERSION=1.23.x
+      - GO_VERSION=1.24.x
       # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
@@ -95,10 +94,14 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - srv:/srv
+      # temporarily mount advisor files until we package them.
+      - ./managed/data/advisors/:/usr/local/percona/advisors/
+      - ./managed/data/checks/:/usr/local/percona/checks/
+      - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # grafana
-#      - "../grafana:/workspace"
-#      - "../grafana/public:/usr/share/grafana/public"
-#      - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
+    #  - "../grafana:/workspace"
+    #  - "../grafana/public:/usr/share/grafana/public"
+    #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
     # command: >
     #   bash -c "
     #     rm -rf /tmp/certs
@@ -127,10 +130,10 @@ services:
     image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
     container_name: watchtower
     environment:
-        - WATCHTOWER_HTTP_LISTEN_PORT=8080
-        - WATCHTOWER_HTTP_API_UPDATE=1
-        - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
-        - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
+      - WATCHTOWER_HTTP_LISTEN_PORT=8080
+      - WATCHTOWER_HTTP_API_UPDATE=1
+      - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
+      - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
     hostname: watchtower
     networks:
       - ${NETWORK:-default}
@@ -469,18 +472,6 @@ services:
       - ./managed/testdata/pg/certs/:/certs/
 
 volumes:
-  chdata:  # Volume for ClickHouse data
-  vmdata:  # Volume for VictoriaMetrics data
-  pgdata:  # Volume for PostgreSQL data
   go-modules:
   root-cache:
   srv:
-
-networks:
-  minikube:
-    external: true
-    name: minikube
-  ha:
-    ipam:
-      config:
-        - subnet: 172.20.0.0/24

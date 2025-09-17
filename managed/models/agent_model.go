@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"database/sql/driver"
 	"fmt"
+	"maps"
 	"net"
 	"net/url"
 	"strconv"
@@ -67,11 +68,13 @@ const (
 	QANMySQLPerfSchemaAgentType         AgentType = "qan-mysql-perfschema-agent"
 	QANMySQLSlowlogAgentType            AgentType = "qan-mysql-slowlog-agent"
 	QANMongoDBProfilerAgentType         AgentType = "qan-mongodb-profiler-agent"
+	QANMongoDBMongologAgentType         AgentType = "qan-mongodb-mongolog-agent"
 	QANPostgreSQLPgStatementsAgentType  AgentType = "qan-postgresql-pgstatements-agent"
 	QANPostgreSQLPgStatMonitorAgentType AgentType = "qan-postgresql-pgstatmonitor-agent"
 	ExternalExporterType                AgentType = "external-exporter"
 	VMAgentType                         AgentType = "vmagent"
 	NomadAgentType                      AgentType = "nomad-agent"
+	ValkeyExporterType                  AgentType = "valkey_exporter"
 )
 
 var v2_42 = version.MustParse("2.42.0-0")
@@ -217,6 +220,9 @@ type MySQLOptions struct {
 	// Negative value means tablestats group collectors are always disabled.
 	// See IsMySQLTablestatsGroupEnabled method.
 	TableCountTablestatsGroupLimit int32 `json:"table_count_tablestats_group_limit"`
+
+	// Extra DSN query parameters for MySQL.
+	ExtraDSNParams map[string]string `json:"extra_dsn_params"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -262,10 +268,26 @@ func (c PostgreSQLOptions) IsEmpty() bool {
 		c.MaxExporterConnections == 0
 }
 
-// PMMAgentWithPushMetricsSupport - version of pmmAgent,
-// that support vmagent and push metrics mode
-// will be released with PMM Agent v2.12.
-var PMMAgentWithPushMetricsSupport = version.MustParse("2.11.99")
+// ValkeyOptions represents a structure for special Valkey options.
+type ValkeyOptions struct {
+	TLS     bool   `json:"tls"`
+	SSLCa   string `json:"ssl_ca"`
+	SSLCert string `json:"ssl_cert"`
+	SSLKey  string `json:"ssl_key"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c ValkeyOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *ValkeyOptions) Scan(src any) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all ValkeyOptions fields are unset or have zero values, otherwise returns false.
+func (c ValkeyOptions) IsEmpty() bool {
+	return c.SSLCa == "" &&
+		c.SSLCert == "" &&
+		c.SSLKey == ""
+}
 
 // Agent represents Agent as stored in database.
 //
@@ -303,6 +325,7 @@ type Agent struct {
 	MongoDBOptions    MongoDBOptions    `reform:"mongo_options"`
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
+	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -369,9 +392,7 @@ func (s *Agent) UnifiedLabels() (map[string]string, error) {
 		"agent_id":   s.AgentID,
 		"agent_type": string(s.AgentType),
 	}
-	for name, value := range custom {
-		res[name] = value
-	}
+	maps.Copy(res, custom)
 
 	if err = prepareLabels(res, true); err != nil {
 		return nil, err
@@ -455,6 +476,13 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			}
 		}
 
+		if s.MySQLOptions.ExtraDSNParams != nil {
+			// Add extra DSN parameters if they are set.
+			for k, v := range s.MySQLOptions.ExtraDSNParams {
+				cfg.Params[k] = v
+			}
+		}
+
 		// MultiStatements must not be used as it enables SQL injections (in particular, in pmm-agent's Actions)
 		cfg.MultiStatements = false
 
@@ -487,6 +515,13 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
+			}
+		}
+
+		if s.MySQLOptions.ExtraDSNParams != nil {
+			// Add extra DSN parameters if they are set.
+			for k, v := range s.MySQLOptions.ExtraDSNParams {
+				cfg.Params[k] = v
 			}
 		}
 
@@ -525,7 +560,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return cfg.FormatDSN()
 
-	case QANMongoDBProfilerAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
 		q := make(url.Values)
 		if dsnParams.DialTimeout != 0 {
 			q.Set("connectTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
@@ -652,6 +687,36 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
 
 		return dsn
+
+	case ValkeyExporterType:
+		urlScheme := "redis"
+		if s.TLS {
+			urlScheme += "s"
+		}
+		address := ""
+		if socket == "" {
+			address = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		} else {
+			// Set socket directory as host URI parameter.
+			address = socket
+		}
+
+		u := &url.URL{
+			Scheme: urlScheme,
+			Host:   address,
+		}
+		switch {
+		case password != "":
+			u.User = url.UserPassword(username, password)
+		case username != "":
+			u.User = url.User(username)
+		}
+
+		dsn := u.String()
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Left), tdp.Left)
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
+
+		return dsn
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
@@ -738,7 +803,7 @@ func (s Agent) Files() map[string]string {
 		return nil
 	case ProxySQLExporterType:
 		return nil
-	case QANMongoDBProfilerAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
 		files := make(map[string]string)
 		if s.MongoDBOptions.TLSCa != "" {
 			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
@@ -763,6 +828,24 @@ func (s Agent) Files() map[string]string {
 		}
 		if s.PostgreSQLOptions.SSLKey != "" {
 			files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
+		}
+
+		if len(files) != 0 {
+			return files
+		}
+
+		return nil
+	case ValkeyExporterType:
+		files := make(map[string]string)
+
+		if s.ValkeyOptions.SSLCa != "" {
+			files["tlsCa"] = s.ValkeyOptions.SSLCa
+		}
+		if s.ValkeyOptions.SSLCert != "" {
+			files["tlsCert"] = s.ValkeyOptions.SSLCert
+		}
+		if s.ValkeyOptions.SSLKey != "" {
+			files["tlsKey"] = s.ValkeyOptions.SSLKey
 		}
 
 		if len(files) != 0 {

@@ -313,18 +313,18 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 
 	// Unlike other tests, there we mostly see "context canceled", but "signal: killed" still happens.
 	// Check both.
-	expected := make([]agentv1.AgentRequestPayload, 2)
-	expected[0] = <-cr.ActionsResults()
-	expected[1] = <-cr.ActionsResults()
-	sort.Slice(expected, func(i, j int) bool {
-		return expected[i].(*agentv1.ActionResultRequest).ActionId < expected[j].(*agentv1.ActionResultRequest).ActionId
+	actual := make([]agentv1.AgentRequestPayload, 2)
+	actual[0] = <-cr.ActionsResults()
+	actual[1] = <-cr.ActionsResults()
+	sort.Slice(actual, func(i, j int) bool {
+		return actual[i].(*agentv1.ActionResultRequest).ActionId < actual[j].(*agentv1.ActionResultRequest).ActionId
 	})
-	assert.Equal(t, expected[0].(*agentv1.ActionResultRequest).ActionId, "6a479303-5081-46d0-baa0-87d6248c987b")
-	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentv1.ActionResultRequest).Error)
-	assert.True(t, expected[0].(*agentv1.ActionResultRequest).Done)
-	assert.Equal(t, expected[1].(*agentv1.ActionResultRequest).ActionId, "84140ab2-612d-4d93-9360-162a4bd5de14")
-	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentv1.ActionResultRequest).Error)
-	assert.True(t, expected[1].(*agentv1.ActionResultRequest).Done)
+	assert.Equal(t, "6a479303-5081-46d0-baa0-87d6248c987b", actual[0].(*agentv1.ActionResultRequest).ActionId)
+	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, actual[0].(*agentv1.ActionResultRequest).Error)
+	assert.True(t, actual[0].(*agentv1.ActionResultRequest).Done)
+	assert.Equal(t, "84140ab2-612d-4d93-9360-162a4bd5de14", actual[1].(*agentv1.ActionResultRequest).ActionId)
+	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, actual[1].(*agentv1.ActionResultRequest).Error)
+	assert.True(t, actual[1].(*agentv1.ActionResultRequest).Done)
 	cr.wg.Wait()
 	assert.Empty(t, cr.cancels)
 }
@@ -347,7 +347,7 @@ func TestSemaphoresReleasing(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Check that job is started and local semaphore was acquired
-	assert.Equal(t, cr.lSemsLen(), 1)
+	assert.Equal(t, 1, cr.lSemsLen())
 
 	// Check that job is not running, because it's waiting for global semaphore to be acquired
 	assert.False(t, cr.IsRunning(j.ID()))
@@ -359,7 +359,7 @@ func TestSemaphoresReleasing(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Check that local samaphore was released
-	assert.Equal(t, cr.lSemsLen(), 0)
+	assert.Zero(t, cr.lSemsLen())
 }
 
 type testJob struct {
