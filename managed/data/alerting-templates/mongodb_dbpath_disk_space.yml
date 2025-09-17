@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_dbpath_disk_space
+  - name: pmm_mongodb_dbpath_disk_space
     version: 1
     summary: MongoDB DBPath Disk Space Utilization
     expr: |-

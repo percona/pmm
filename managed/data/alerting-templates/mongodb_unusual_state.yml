@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_unusual_state
+  - name: pmm_mongodb_unusual_state
     version: 1
     summary: MongoDB member is in Unusual state
     expr: |-

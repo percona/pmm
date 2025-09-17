@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_replset_primary_changed
+  - name: pmm_mongodb_replset_primary_changed
     version: 1
     summary: MongoDB Primary Changed
     expr: min by (set)(changes(mongodb_mongod_replset_my_state[10m]) > 0)

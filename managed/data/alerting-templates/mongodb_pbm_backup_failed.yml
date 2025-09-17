@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_pbm_backup_failed
+  - name: pmm_mongodb_pbm_backup_failed
     version: 1
     summary: PBM backup failed
     expr: count by (cluster,name) (mongodb_pbm_backup_size_bytes{status="error"}) > 0

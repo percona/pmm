@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_host_ssl_cert_expiry
+  - name: pmm_mongodb_host_ssl_cert_expiry
     version: 1
     summary: MongoDB Host SSL Certificate Expiry
     expr: |-

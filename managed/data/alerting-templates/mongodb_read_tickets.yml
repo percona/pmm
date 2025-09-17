@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_read_tickets
+  - name: pmm_mongodb_read_tickets
     version: 1
     summary: MongoDB Read Tickets
     expr: |-

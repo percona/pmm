@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_replset_no_primary
+  - name: pmm_mongodb_replset_no_primary
     version: 1
     summary: MongoDB ReplicaSet has no Primary
     expr: |-

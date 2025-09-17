@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_postgresql_not_autovacuumed
+  - name: pmm_postgresql_not_autovacuumed
     version: 1
     summary: PostgreSQL tables not auto vacuumed
     expr: |-

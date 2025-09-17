@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_replication_lag
+  - name: pmm_mongodb_replication_lag
     version: 1
     summary: MongoDB Replication Lag is high
     expr: |-

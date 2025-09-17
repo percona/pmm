@@ -1,5 +1,5 @@
 templates:
-  - name: percona_postgresql_high_table_bloat
+  - name: pmm_postgresql_high_table_bloat
     version: 1
     summary: PostgreSQL table bloat is high
     expr: pg_bloat_table_bloat_pct > 70 and on (relname) (pg_bloat_table_real_size > 200000000)

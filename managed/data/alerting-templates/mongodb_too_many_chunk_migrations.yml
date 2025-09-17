@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_too_many_chunk_migrations
+  - name: pmm_mongodb_too_many_chunk_migrations
     version: 1
     summary: Too many chunk migrations
     expr: |-

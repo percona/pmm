@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_pbm_agent_down
+  - name: pmm_mongodb_pbm_agent_down
     version: 1
     summary: PBM agent down
     expr: 'avg by (node_name) (mongodb_pbm_agent_status{role=~"P|S|H",self="1"}) > 0'

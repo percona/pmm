@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_pbm_backup_size
+  - name: pmm_mongodb_pbm_backup_size
     version: 1
     summary: PBM backup size
     expr: |-

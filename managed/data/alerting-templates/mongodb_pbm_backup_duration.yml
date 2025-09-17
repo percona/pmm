@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_pbm_backup_duration
+  - name: pmm_mongodb_pbm_backup_duration
     version: 1
     summary: PBM backup duration
     expr: |-

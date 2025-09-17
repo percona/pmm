@@ -1,5 +1,5 @@
 templates:
-  - name: percona_postgresql_high_transaction_rollbacks
+  - name: pmm_postgresql_high_transaction_rollbacks
     version: 1
     summary: PostgreSQL high rate of transaction rollbacks
     expr: sum by (namespace,datname) ((rate(pg_stat_database_xact_rollback{datname!~"template.*|postgres",datid!="0"}[3m])) / ((rate(pg_stat_database_xact_rollback{datname!~"template.*|postgres",datid!="0"}[3m])) + (rate(pg_stat_database_xact_commit{datname!~"template.*|postgres",datid!="0"}[3m])))) > 0.10

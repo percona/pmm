@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_write_tickets
+  - name: pmm_mongodb_write_tickets
     version: 1
     summary: MongoDB Write Tickets
     expr: |-

@@ -1,5 +1,5 @@
 templates:
-  - name: percona_postgresql_high_index_bloat
+  - name: pmm_postgresql_high_index_bloat
     version: 1
     summary: PostgreSQL index bloat is high
     expr: pg_bloat_btree_bloat_pct > 60 and on (idxname) (pg_bloat_btree_real_size > 100000000)

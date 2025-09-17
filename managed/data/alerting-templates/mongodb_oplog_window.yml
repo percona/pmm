@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: percona_mongodb_oplog_window
+  - name: pmm_mongodb_oplog_window
     version: 1
     summary: MongoDB Oplog Window
     expr: |-
