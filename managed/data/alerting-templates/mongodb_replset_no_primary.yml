@@ -1,0 +1,13 @@
+---
+templates:
+  - name: percona_mongodb_replset_no_primary
+    version: 1
+    summary: MongoDB ReplicaSet has no Primary
+    expr: |-
+      avg(mongodb_ss_repl_isWritablePrimary) by(cluster,rs_nm) == 0
+    for: 1m
+    severity: critical
+    annotations:
+      summary: MongoDB has NO Primary for ReplSet ({{ $labels.rs_nm }})
+      description: |-
+        MongoDB has NO Primary for ReplSet {{ $labels.rs_nm }} in {{ $labels.cluster }} cluster.

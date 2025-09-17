@@ -1,0 +1,19 @@
+---
+templates:
+  - name: percona_mongodb_pbm_backup_size
+    version: 1
+    summary: PBM backup size
+    expr: |-
+      (max by (name,node_name) (mongodb_pbm_backup_size_bytes{status="done"})/1073741824)
+      > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: PBM backup size, GiB
+        type: float
+        value: 1
+    for: 5m
+    severity: warning
+    annotations:
+      summary: Size of PBM backup is larger than [[ .threshold ]] GiB on {{ $labels.node_name }}
+      description: |-
+        Size of PBM backup is larger than [[ .threshold ]] GiB on {{ $labels.node_name }}.

@@ -1,0 +1,13 @@
+templates:
+  - name: percona_postgresql_high_table_bloat
+    version: 1
+    summary: PostgreSQL table bloat is high
+    expr: pg_bloat_table_bloat_pct > 70 and on (relname) (pg_bloat_table_real_size > 200000000)
+    for: 1h
+    severity: warning
+    annotations:
+      description: |-
+        The table {{ $labels.relname }} is bloated. You should execute `VACUUM {{ $labels.relname }};`
+          VALUE = {{ $value }}
+          LABELS = {{ $labels }}
+      summary: Postgresql bloat table high (> 70%) (instance {{ $labels.instance }})

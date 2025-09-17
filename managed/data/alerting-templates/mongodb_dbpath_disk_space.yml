@@ -1,0 +1,21 @@
+---
+templates:
+  - name: percona_mongodb_dbpath_disk_space
+    version: 1
+    summary: MongoDB DBPath Disk Space Utilization
+    expr: |-
+      (((max(mongodb_dbstats_fsUsedSize) by(cluster,node_name,rs_nm)) / (max(mongodb_dbstats_fsTotalSize) by(cluster,node_name,rs_nm))) * 100)
+      > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: A percentage from configured maximum
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 85
+    for: 5m
+    severity: critical
+    annotations:
+      summary: MongoDB Disk space % used on Data Partition is high for ({{ $labels.node_name }})
+      description: |-
+        MongoDB Disk space % used on Data Partition on {{ $labels.node_name }} (replicaSet {{ $labels.rs_nm }}) is above the defined threshold of [[ .threshold ]]%. Current value is {{ printf "%.2f" $values.A.Value }}%.

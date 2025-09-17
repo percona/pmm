@@ -1,0 +1,20 @@
+---
+templates:
+  - name: percona_mongodb_host_ssl_cert_expiry
+    version: 1
+    summary: MongoDB Host SSL Certificate Expiry
+    expr: |-
+      avg by (cluster,rs_nm,node_name,service_name) ((mongodb_ss_security_SSLServerCertificateExpirationDate / (1000 * 60 * 60 * 24)) - (mongodb_date / (1000 * 60 * 60 * 24)))
+      < bool [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: Number of days before expiration
+        type: float
+        range: [0, 100]
+        value: 30
+    for: 5m
+    severity: warning
+    annotations:
+      summary: MongoDB Host's SSL certificate about to expire for ({{ $labels.node_name }})
+      description: |-
+        {{ $labels.node_name }} SSL certificate about to expiry in {{ $value }} days (less than [[ .threshold ]] days) for replicaSet {{ $labels.rs_nm }} .

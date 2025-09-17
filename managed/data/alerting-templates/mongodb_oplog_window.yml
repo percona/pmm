@@ -1,0 +1,20 @@
+---
+templates:
+  - name: percona_mongodb_oplog_window
+    version: 1
+    summary: MongoDB Oplog Window
+    expr: |-
+      ((mongodb_mongod_replset_oplog_head_timestamp - mongodb_mongod_replset_oplog_tail_timestamp) / 3600)
+      < bool [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: Number of Hours
+        type: float
+        range: [0, 200]
+        value: 24
+    for: 5m
+    severity: warning
+    annotations:
+      summary: MongoDB Oplog Window is low for ({{ $labels.node_name }})
+      description: |-
+        MongoDB Oplog Window is below [[ .threshold ]]hrs on {{ $labels.node_name }} for {{ $labels.cluster }}.

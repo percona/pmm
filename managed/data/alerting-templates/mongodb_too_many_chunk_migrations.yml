@@ -1,0 +1,19 @@
+---
+templates:
+  - name: percona_mongodb_too_many_chunk_migrations
+    version: 1
+    summary: Too many chunk migrations
+    expr: |-
+      (max by (cluster) (mongodb_mongos_sharding_changelog_10min_total{event="moveChunk.start"}))
+      > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: chunk migrations
+        type: float
+        range: [0, 1000]
+        value: 40
+    for: 1m
+    severity: critical
+    annotations:
+      summary: Cluster {{ $labels.cluster }} has too many chunk migrations
+      description: "{{ $labels.cluster }} had more than [[ .threshold ]] chunk migrations."

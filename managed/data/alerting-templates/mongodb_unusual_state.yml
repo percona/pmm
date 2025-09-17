@@ -1,0 +1,13 @@
+---
+templates:
+  - name: percona_mongodb_unusual_state
+    version: 1
+    summary: MongoDB member is in Unusual state
+    expr: |-
+      group(mongodb_rs_members_state != 1 and mongodb_rs_members_state != 2 and mongodb_rs_members_state != 7 and mongodb_rs_members_state != 8) by (cluster,member_idx,member_state,rs_nm)
+    for: 1m
+    severity: critical
+    annotations:
+      summary: MongoDB replicaSet member is in unusual state for ({{ $labels.member_idx }})
+      description: |-
+        MongoDB replicaSet member ({{ $labels.member_idx }}) is in "{{ $labels.member_state }}" state for cluster {{ $labels.cluster }}.

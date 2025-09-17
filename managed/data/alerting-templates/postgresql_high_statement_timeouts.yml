@@ -1,0 +1,13 @@
+templates:
+  - name: percona_postgresql_high_statement_timeouts
+    version: 1
+    summary: PostgreSQL has a high number of statement timeouts
+    expr: rate(postgresql_errors_total{type="statement_timeout"}[1m]) > 3
+    for: 1m
+    severity: critical
+    annotations:
+      description: |-
+        Postgres transactions showing high rate of statement timeouts
+          VALUE = {{ $value }}
+          LABELS = {{ $labels }}
+      summary: Postgresql high rate statement timeout (instance {{ $labels.instance }})

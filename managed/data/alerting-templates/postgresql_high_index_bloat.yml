@@ -1,0 +1,13 @@
+templates:
+  - name: percona_postgresql_high_index_bloat
+    version: 1
+    summary: PostgreSQL index bloat is high
+    expr: pg_bloat_btree_bloat_pct > 60 and on (idxname) (pg_bloat_btree_real_size > 100000000)
+    for: 1h
+    severity: warning
+    annotations:
+      description: |-
+        The index {{ $labels.idxname }} is bloated. You should execute `REINDEX INDEX CONCURRENTLY {{ $labels.idxname }};`
+          VALUE = {{ $value }}
+          LABELS = {{ $labels }}
+      summary: Postgresql bloat index high (> 60%) (instance {{ $labels.instance }})
