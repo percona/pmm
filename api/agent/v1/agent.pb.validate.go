@@ -4380,6 +4380,8 @@ func (m *CheckConnectionRequest) validate(all bool) error {
 
 	// no validation rules for TlsSkipVerify
 
+	// no validation rules for Tls
+
 	if len(errors) > 0 {
 		return CheckConnectionRequestMultiError(errors)
 	}
@@ -4649,6 +4651,8 @@ func (m *ServiceInfoRequest) validate(all bool) error {
 	}
 
 	// no validation rules for TlsSkipVerify
+
+	// no validation rules for Tls
 
 	if len(errors) > 0 {
 		return ServiceInfoRequestMultiError(errors)

@@ -95,6 +95,10 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - srv:/srv
+      # temporarily mount advisor files until we package them.
+      - ./managed/data/advisors/:/usr/local/percona/advisors/
+      - ./managed/data/checks/:/usr/local/percona/checks/
+      - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # grafana
     #  - "../grafana:/workspace"
     #  - "../grafana/public:/usr/share/grafana/public"

@@ -93,7 +93,6 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
-	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/realtime"
 	realtimegrpc "github.com/percona/pmm/managed/services/realtime/grpc"
@@ -300,9 +299,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dumpv1beta1.RegisterDumpServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
-
-	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
-	platformv1.RegisterPlatformServiceServer(gRPCServer, platformService)
 
 	realtimev1.RegisterRealTimeAnalyticsServiceServer(gRPCServer, realtimegrpc.NewRealTimeServer(deps.realtimeService))
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
@@ -949,10 +945,10 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
 
-	checksService := checks.New(db, platformClient, actionsService, v1.NewAPI(vmClient), clickhouseClient)
+	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
-	alertingService, err := alerting.NewService(db, platformClient, grafanaClient)
+	alertingService, err := alerting.NewService(db, grafanaClient)
 	if err != nil {
 		l.Fatalf("Could not create alerting service: %s", err)
 	}

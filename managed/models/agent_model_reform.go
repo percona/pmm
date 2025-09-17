@@ -56,6 +56,7 @@ func (v *agentTableType) Columns() []string {
 		"mongo_options",
 		"mysql_options",
 		"postgresql_options",
+		"valkey_options",
 	}
 }
 
@@ -108,6 +109,7 @@ var AgentTable = &agentTableType{
 			{Name: "MongoDBOptions", Type: "MongoDBOptions", Column: "mongo_options"},
 			{Name: "MySQLOptions", Type: "MySQLOptions", Column: "mysql_options"},
 			{Name: "PostgreSQLOptions", Type: "PostgreSQLOptions", Column: "postgresql_options"},
+			{Name: "ValkeyOptions", Type: "ValkeyOptions", Column: "valkey_options"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -145,6 +147,7 @@ func (s Agent) String() string {
 	res[25] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
 	res[26] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
 	res[27] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[27] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -180,6 +183,7 @@ func (s *Agent) Values() []interface{} {
 		s.MongoDBOptions,
 		s.MySQLOptions,
 		s.PostgreSQLOptions,
+		s.ValkeyOptions,
 	}
 }
 
@@ -215,6 +219,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.MongoDBOptions,
 		&s.MySQLOptions,
 		&s.PostgreSQLOptions,
+		&s.ValkeyOptions,
 	}
 }
 
