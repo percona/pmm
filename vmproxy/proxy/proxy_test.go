@@ -40,10 +40,8 @@ func TestProxy(t *testing.T) {
 			if filters != nil {
 				assert.Equal(t, url.Values{"extra_filters[]": filters}.Encode(), r.URL.RawQuery)
 			}
-			if headers != nil {
-				for k, v := range headers {
-					assert.Equal(t, v, r.Header.Get(k))
-				}
+			for k, v := range headers {
+				assert.Equal(t, v, r.Header.Get(k))
 			}
 		}))
 		t.Cleanup(func() {
