@@ -82,7 +82,7 @@ type ComponentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ComponentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -548,7 +548,7 @@ type MatrixMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MatrixMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -681,7 +681,7 @@ type OperatorVersionMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m OperatorVersionMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -785,7 +785,7 @@ type GetPSMDBComponentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPSMDBComponentsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -921,7 +921,7 @@ type GetPSMDBComponentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPSMDBComponentsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1027,7 +1027,7 @@ type GetPXCComponentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPXCComponentsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1163,7 +1163,7 @@ type GetPXCComponentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPXCComponentsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1301,7 +1301,7 @@ type ChangeComponentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeComponentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1441,7 +1441,7 @@ type ChangePSMDBComponentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangePSMDBComponentsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1544,7 +1544,7 @@ type ChangePSMDBComponentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangePSMDBComponentsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1745,7 +1745,7 @@ type ChangePXCComponentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangePXCComponentsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1847,7 +1847,7 @@ type ChangePXCComponentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangePXCComponentsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1983,7 +1983,7 @@ type InstallOperatorRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m InstallOperatorRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2087,7 +2087,7 @@ type InstallOperatorResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m InstallOperatorResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2189,7 +2189,7 @@ type CheckForOperatorUpdateRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CheckForOperatorUpdateRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2294,7 +2294,7 @@ type ComponentUpdateInformationMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ComponentUpdateInformationMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2442,7 +2442,7 @@ type ComponentsUpdateInformationMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ComponentsUpdateInformationMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2591,7 +2591,7 @@ type CheckForOperatorUpdateResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CheckForOperatorUpdateResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2711,7 +2711,7 @@ type ChangeComponent_ComponentVersionMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeComponent_ComponentVersionMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

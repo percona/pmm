@@ -83,7 +83,7 @@ type TextFilesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m TextFilesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -181,7 +181,7 @@ type PingMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PingMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -308,7 +308,7 @@ type PongMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PongMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -442,7 +442,7 @@ type QANCollectRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANCollectRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -544,7 +544,7 @@ type QANCollectResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANCollectResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -656,7 +656,7 @@ type StateChangedRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StateChangedRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -758,7 +758,7 @@ type StateChangedResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StateChangedResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -952,7 +952,7 @@ type SetStateRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SetStateRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1052,7 +1052,7 @@ type SetStateResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SetStateResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1393,7 +1393,7 @@ type QueryActionValueMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryActionValueMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1527,7 +1527,7 @@ type QueryActionSliceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryActionSliceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1673,7 +1673,7 @@ type QueryActionMapMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryActionMapMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1777,7 +1777,7 @@ type QueryActionBinaryMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryActionBinaryMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1947,7 +1947,7 @@ type QueryActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2946,7 +2946,7 @@ type StartActionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3048,7 +3048,7 @@ type StartActionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3152,7 +3152,7 @@ type StopActionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StopActionRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3254,7 +3254,7 @@ type StopActionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StopActionResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3364,7 +3364,7 @@ type ActionResultRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ActionResultRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3466,7 +3466,7 @@ type ActionResultResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ActionResultResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3601,7 +3601,7 @@ type PBMSwitchPITRRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PBMSwitchPITRRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3705,7 +3705,7 @@ type PBMSwitchPITRResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PBMSwitchPITRResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3811,7 +3811,7 @@ type AgentLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AgentLogsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3913,7 +3913,7 @@ type AgentLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AgentLogsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4079,7 +4079,7 @@ type CheckConnectionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CheckConnectionRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4212,7 +4212,7 @@ type CheckConnectionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CheckConnectionResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4378,7 +4378,7 @@ type ServiceInfoRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ServiceInfoRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4490,7 +4490,7 @@ type ServiceInfoResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ServiceInfoResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4594,7 +4594,7 @@ type JobStatusRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobStatusRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4696,7 +4696,7 @@ type JobStatusResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobStatusResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4808,7 +4808,7 @@ type S3LocationConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m S3LocationConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4910,7 +4910,7 @@ type FilesystemLocationConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m FilesystemLocationConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5212,7 +5212,7 @@ type StartJobRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartJobRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5314,7 +5314,7 @@ type StartJobResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartJobResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5416,7 +5416,7 @@ type StopJobRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StopJobRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5516,7 +5516,7 @@ type StopJobResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StopJobResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5856,7 +5856,7 @@ type JobResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6114,7 +6114,7 @@ type JobProgressMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobProgressMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6248,7 +6248,7 @@ type GetVersionsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6384,7 +6384,7 @@ type GetVersionsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7259,7 +7259,7 @@ type AgentMessageMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AgentMessageMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8051,7 +8051,7 @@ type ServerMessageMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ServerMessageMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8159,7 +8159,7 @@ type SetStateRequest_AgentProcessMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SetStateRequest_AgentProcessMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8307,7 +8307,7 @@ type SetStateRequest_BuiltinAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SetStateRequest_BuiltinAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8451,7 +8451,7 @@ type StartActionRequest_MySQLExplainParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MySQLExplainParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8592,7 +8592,7 @@ type StartActionRequest_MySQLShowCreateTableParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MySQLShowCreateTableParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8736,7 +8736,7 @@ type StartActionRequest_MySQLShowTableStatusParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MySQLShowTableStatusParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8880,7 +8880,7 @@ type StartActionRequest_MySQLShowIndexParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MySQLShowIndexParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9022,7 +9022,7 @@ type StartActionRequest_PostgreSQLShowCreateTableParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_PostgreSQLShowCreateTableParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9170,7 +9170,7 @@ type StartActionRequest_PostgreSQLShowIndexParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_PostgreSQLShowIndexParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9310,7 +9310,7 @@ type StartActionRequest_MongoDBExplainParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MongoDBExplainParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9415,7 +9415,7 @@ type StartActionRequest_PTSummaryParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_PTSummaryParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9528,7 +9528,7 @@ type StartActionRequest_PTPgSummaryParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_PTPgSummaryParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9642,7 +9642,7 @@ type StartActionRequest_PTMongoDBSummaryParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_PTMongoDBSummaryParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9758,7 +9758,7 @@ type StartActionRequest_PTMySQLSummaryParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_PTMySQLSummaryParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9899,7 +9899,7 @@ type StartActionRequest_MySQLQueryShowParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MySQLQueryShowParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10040,7 +10040,7 @@ type StartActionRequest_MySQLQuerySelectParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MySQLQuerySelectParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10179,7 +10179,7 @@ type StartActionRequest_PostgreSQLQueryShowParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_PostgreSQLQueryShowParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10321,7 +10321,7 @@ type StartActionRequest_PostgreSQLQuerySelectParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_PostgreSQLQuerySelectParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10461,7 +10461,7 @@ type StartActionRequest_MongoDBQueryGetParameterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MongoDBQueryGetParameterParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10605,7 +10605,7 @@ type StartActionRequest_MongoDBQueryBuildInfoParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MongoDBQueryBuildInfoParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10746,7 +10746,7 @@ type StartActionRequest_MongoDBQueryGetCmdLineOptsParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MongoDBQueryGetCmdLineOptsParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10891,7 +10891,7 @@ type StartActionRequest_MongoDBQueryReplSetGetStatusParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MongoDBQueryReplSetGetStatusParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11040,7 +11040,7 @@ type StartActionRequest_MongoDBQueryGetDiagnosticDataParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_MongoDBQueryGetDiagnosticDataParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11159,7 +11159,7 @@ type StartActionRequest_RestartSystemServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartActionRequest_RestartSystemServiceParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11267,7 +11267,7 @@ type CheckConnectionResponse_StatsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CheckConnectionResponse_StatsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11430,7 +11430,7 @@ type StartJobRequest_MySQLBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartJobRequest_MySQLBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11587,7 +11587,7 @@ type StartJobRequest_MySQLRestoreBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartJobRequest_MySQLRestoreBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11826,7 +11826,7 @@ type StartJobRequest_MongoDBBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartJobRequest_MongoDBBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -12121,7 +12121,7 @@ type StartJobRequest_MongoDBRestoreBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartJobRequest_MongoDBRestoreBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -12226,7 +12226,7 @@ type JobResult_ErrorMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobResult_ErrorMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -12357,7 +12357,7 @@ type JobResult_MongoDBBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobResult_MongoDBBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -12488,7 +12488,7 @@ type JobResult_MySQLBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobResult_MySQLBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -12590,7 +12590,7 @@ type JobResult_MySQLRestoreBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobResult_MySQLRestoreBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -12693,7 +12693,7 @@ type JobResult_MongoDBRestoreBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobResult_MongoDBRestoreBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -12796,7 +12796,7 @@ type JobProgress_MySQLBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobProgress_MySQLBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -12898,7 +12898,7 @@ type JobProgress_MySQLRestoreBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobProgress_MySQLRestoreBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -13007,7 +13007,7 @@ type JobProgress_LogsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m JobProgress_LogsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -13107,7 +13107,7 @@ type GetVersionsRequest_MySQLdMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsRequest_MySQLdMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -13209,7 +13209,7 @@ type GetVersionsRequest_XtrabackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsRequest_XtrabackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -13312,7 +13312,7 @@ type GetVersionsRequest_XbcloudMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsRequest_XbcloudMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -13414,7 +13414,7 @@ type GetVersionsRequest_QpressMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsRequest_QpressMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -13516,7 +13516,7 @@ type GetVersionsRequest_MongoDBMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsRequest_MongoDBMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -13618,7 +13618,7 @@ type GetVersionsRequest_PBMMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsRequest_PBMMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -13971,7 +13971,7 @@ type GetVersionsRequest_SoftwareMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsRequest_SoftwareMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -14078,7 +14078,7 @@ type GetVersionsResponse_VersionMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetVersionsResponse_VersionMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

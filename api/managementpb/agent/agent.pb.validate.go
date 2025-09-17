@@ -311,7 +311,7 @@ type UniversalAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -415,7 +415,7 @@ type ListAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -549,7 +549,7 @@ type ListAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -653,7 +653,7 @@ type UniversalAgent_MySQLOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_MySQLOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -766,7 +766,7 @@ type UniversalAgent_AzureOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_AzureOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -881,7 +881,7 @@ type UniversalAgent_MongoDBOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_MongoDBOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -992,7 +992,7 @@ type UniversalAgent_PostgreSQLOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_PostgreSQLOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

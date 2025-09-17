@@ -169,7 +169,7 @@ type MetricsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -427,7 +427,7 @@ type MetricsReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -542,7 +542,7 @@ type MetricValuesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricValuesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -640,7 +640,7 @@ type LabelsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LabelsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -838,7 +838,7 @@ type QueryExampleRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryExampleRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -974,7 +974,7 @@ type QueryExampleReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryExampleReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1097,7 +1097,7 @@ type QueryExampleMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryExampleMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1259,7 +1259,7 @@ type ObjectDetailsLabelsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ObjectDetailsLabelsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1407,7 +1407,7 @@ type ObjectDetailsLabelsReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ObjectDetailsLabelsReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1509,7 +1509,7 @@ type ListLabelValuesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListLabelValuesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1611,7 +1611,7 @@ type QueryPlanRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryPlanRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1715,7 +1715,7 @@ type QueryPlanReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryPlanReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1909,7 +1909,7 @@ type HistogramRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HistogramRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2043,7 +2043,7 @@ type HistogramReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HistogramReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2147,7 +2147,7 @@ type HistogramItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HistogramItemMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2251,7 +2251,7 @@ type QueryExistsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryExistsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2357,7 +2357,7 @@ type SchemaByQueryIDRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SchemaByQueryIDRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2461,7 +2461,7 @@ type SchemaByQueryIDReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SchemaByQueryIDReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2569,7 +2569,7 @@ type ExplainFingerprintByQueryIDRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExplainFingerprintByQueryIDRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2678,7 +2678,7 @@ type ExplainFingerprintByQueryIDReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExplainFingerprintByQueryIDReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2805,7 +2805,7 @@ type GetSelectedQueryMetadataReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetSelectedQueryMetadataReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
