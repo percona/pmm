@@ -57,127 +57,14 @@ For detailed information about available environment variables, see the [Docker 
 
 These variables are particularly useful for AWS AMI deployments:
 
-| Variable | Default | Description | AWS-specific notes |
-|----------|---------|-------------|-------------------|
-| `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data | Consider EBS volume size |
-| `PMM_ENABLE_UPDATES` | `true` | Allow version checks and updates | Requires internet access |
-| `PMM_ENABLE_TELEMETRY` | `true` | Enable usage data collection | Requires outbound access |
-| `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server | Set to Elastic IP if used |
-| `PMM_DEBUG` | `false` | Enable verbose logging | Can increase CloudWatch costs |
-| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval | Affects instance performance |
-
-## AWS-specific configuration examples
-
-### Production deployment with Elastic IP
-
-For production environments using Elastic IP addresses:
-
-```bash
-# Set static public address
-PMM_PUBLIC_ADDRESS=203.0.113.10
-
-# Performance optimizations for production
-PMM_DATA_RETENTION=90d
-PMM_METRICS_RESOLUTION=5s
-PMM_METRICS_RESOLUTION_HR=10s
-PMM_METRICS_RESOLUTION_MR=30s
-PMM_METRICS_RESOLUTION_LR=300s
-
-# Security settings
-PMM_ENABLE_TELEMETRY=false
-```
-
-### Multi-AZ deployment with internal addressing
-
-For deployments using internal IP addresses and load balancers:
-
-```bash
-# Use internal IP for cluster communication
-PMM_PUBLIC_ADDRESS=10.0.1.100
-
-# Configure for high availability
-PMM_DATA_RETENTION=30d
-PMM_ENABLE_BACKUP_MANAGEMENT=true
-
-# Optimize for network performance
-PMM_METRICS_RESOLUTION=10s
-```
-
-### Development and testing
-
-For development environments with cost optimization:
-
-```bash
-# Short retention to minimize storage costs
-PMM_DATA_RETENTION=7d
-
-# Enable debugging for troubleshooting
-PMM_DEBUG=true
-PMM_TRACE=true
-
-# Disable external features to reduce costs
-PMM_ENABLE_TELEMETRY=false
-PMM_ENABLE_UPDATES=false
-```
-
-### Compliance-focused deployment
-
-For environments with strict compliance requirements:
-
-```bash
-# Disable all external communication
-PMM_ENABLE_UPDATES=false
-PMM_ENABLE_TELEMETRY=false
-
-# Enable audit logging
-PMM_DEBUG=true
-
-# Set specific network configuration
-PMM_PUBLIC_ADDRESS=172.31.1.100
-```
-
-## AWS integration
-
-### Instance metadata
-
-You can use AWS instance metadata in environment variables:
-
-```bash
-# Dynamic public IP detection
-PMM_PUBLIC_ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-
-# Use instance ID in configuration
-INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-```
-
-### CloudWatch integration
-
-Configure environment variables for enhanced CloudWatch monitoring:
-
-```bash
-# Enable detailed logging (increases CloudWatch costs)
-PMM_DEBUG=true
-PMM_TRACE=false
-
-# Optimize for CloudWatch log shipping
-PMM_METRICS_RESOLUTION=30s
-```
-
-### EBS volume optimization
-
-Configure PMM for your EBS volume setup:
-
-```bash
-# For larger EBS volumes, increase retention
-PMM_DATA_RETENTION=180d
-
-# Optimize for GP3 volumes
-PMM_METRICS_RESOLUTION=5s
-
-# For io2 volumes, use higher resolution
-PMM_METRICS_RESOLUTION=1s
-PMM_METRICS_RESOLUTION_HR=1s
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
+| `PMM_ENABLE_UPDATES` | `true` | Allow version checks and updates |
+| `PMM_ENABLE_TELEMETRY` | `true` | Enable usage data collection |
+| `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
+| `PMM_DEBUG` | `false` | Enable verbose logging |
+| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
 
 ## Troubleshooting
 
@@ -240,76 +127,6 @@ Then restart the service:
 systemctl --user restart pmm-server
 ```
 
-## Advanced AWS configuration
-
-### External RDS integration
-
-Configure PMM to work with external RDS instances:
-
-```bash
-# PostgreSQL RDS connection
-PMM_POSTGRES_HOST=pmm-db.cluster-xyz.us-east-1.rds.amazonaws.com
-PMM_POSTGRES_PORT=5432
-PMM_POSTGRES_USER=pmm
-PMM_POSTGRES_PASSWORD=secure-password
-PMM_POSTGRES_DATABASE=pmm
-```
-
-### Cross-region monitoring
-
-For cross-region deployments:
-
-```bash
-# Set region-specific settings
-AWS_REGION=us-west-2
-PMM_PUBLIC_ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-
-# Optimize for cross-region latency
-PMM_METRICS_RESOLUTION=10s
-PMM_DATA_RETENTION=30d
-```
-
-### Auto Scaling Group considerations
-
-For instances in Auto Scaling Groups:
-
-```bash
-# Use dynamic addressing
-PMM_PUBLIC_ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-
-# Configure for ephemeral instances
-PMM_DATA_RETENTION=7d
-PMM_ENABLE_BACKUP_MANAGEMENT=true
-```
+## Advanced configuration
 
 For a complete list of available environment variables and their descriptions, see [Docker environment variables documentation](../docker/env_var.md).
-
-## Cost optimization
-
-### Monitor resource usage
-
-Environment variable settings directly impact AWS costs:
-
-| Variable | Cost Impact | Recommendation |
-|----------|-------------|----------------|
-| `PMM_DATA_RETENTION` | EBS storage costs | Set based on compliance needs |
-| `PMM_DEBUG` | CloudWatch Logs costs | Disable in production |
-| `PMM_METRICS_RESOLUTION` | CPU/Memory usage | Balance detail vs. performance |
-
-### Example cost-optimized configuration
-
-```bash
-# Minimize storage costs
-PMM_DATA_RETENTION=14d
-
-# Reduce CPU usage
-PMM_METRICS_RESOLUTION=30s
-PMM_METRICS_RESOLUTION_HR=60s
-
-# Minimize CloudWatch costs
-PMM_DEBUG=false
-PMM_TRACE=false
-
-# Disable unnecessary features
-PMM_ENABLE_TELEMETRY=false
-```
