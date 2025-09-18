@@ -17,8 +17,11 @@ package helpers
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
@@ -91,4 +94,11 @@ func IsOnPmmServer() (bool, error) {
 	}
 
 	return status.NodeID == "pmm-server", nil
+}
+
+// NiceAgentStatus returns prettified agent status.
+func NiceAgentStatus(status string) string {
+	status = strings.ToLower(status)
+	status = cases.Title(language.English).String(status)
+	return strings.ReplaceAll(status, "_", " ")
 }

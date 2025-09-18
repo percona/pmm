@@ -80,22 +80,24 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("FailedToStart", func(t *testing.T) {
-		ctx, _, l := setup(t)
+		ctx, cancel, l := setup(t)
 		p := New(&Params{Path: "no_such_command"}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_INITIALIZATION_ERROR,
-			inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_INITIALIZATION_ERROR, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		cancel()
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
 	})
 
 	t.Run("ExitedEarly", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
-		ctx, _, l := setup(t)
+		ctx, cancel, l := setup(t)
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_INITIALIZATION_ERROR,
-			inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_INITIALIZATION_ERROR, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		cancel()
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
 	})
 
 	t.Run("Exited", func(t *testing.T) {

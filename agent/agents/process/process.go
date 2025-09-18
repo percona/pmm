@@ -212,7 +212,7 @@ func (p *Process) toFailing(err error) {
 	p.l.Tracef("Process: failing")
 	p.changes <- inventorypb.AgentStatus_INITIALIZATION_ERROR
 	p.l.Infof("Process: exited: %s.", p.cmd.ProcessState)
-	go p.toDone()
+	close(p.changes)
 	p.err = err
 	p.initialized <- false
 }
