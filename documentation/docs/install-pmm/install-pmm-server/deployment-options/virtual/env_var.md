@@ -27,10 +27,8 @@ To set environment variables for PMM Server on OVF deployments:
 3. Add your desired environment variables in `KEY=VALUE` format:
 
     ```bash
-    PMM_DATA_RETENTION=720h
-    PMM_DEBUG=false
-    PMM_ENABLE_TELEMETRY=true
-    PMM_METRICS_RESOLUTION=5s
+    PMM_DEBUG=true
+    PMM_ENABLE_TELEMETRY=false
     ```
 
 4. Restart the PMM Server service to apply the changes:
@@ -66,47 +64,6 @@ These variables are particularly useful for virtual appliance deployments:
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
 
 
-
-## Troubleshooting
-
-### View current environment variables
-
-To see the current environment variables being used by the PMM Server service:
-
-```bash
-systemctl --user show pmm-server --property=Environment
-```
-
-### Check service logs
-
-If PMM Server fails to start after changing environment variables:
-
-```bash
-journalctl --user -u pmm-server -f
-```
-
-### Reset to defaults
-
-To reset environment variables to defaults, edit the file and remove custom variables:
-
-```bash
-nano ~/.config/systemd/user/pmm-server.env
-```
-
-Keep only the required system variables:
-
-```bash
-PMM_WATCHTOWER_HOST=http://watchtower:8080
-PMM_WATCHTOWER_TOKEN=123
-PMM_IMAGE=docker.io/percona/pmm-server:3
-PMM_DISTRIBUTION_METHOD=ovf
-```
-
-Then restart the service:
-
-```bash
-systemctl --user restart pmm-server
-```
 
 ## Advanced configuration
 
