@@ -188,17 +188,10 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
           <ListItemText
             primary={item.text}
             secondary={item.secondaryText}
-            secondaryTypographyProps={{
-              sx: (theme) => ({
-                color: item.badge
-                  ? theme.palette.warning.contrastText
-                  : undefined,
-              }),
-            }}
             className="navitem-primary-text"
             sx={styles.text}
           />
-          {item.badge && !active && (
+          {item.badge && (
             <Chip
               size="small"
               label={item.badge}

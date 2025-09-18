@@ -15,6 +15,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -69,7 +70,9 @@ type GetUserResponse struct {
 	// Alerting Tour
 	AlertingTourCompleted bool `protobuf:"varint,3,opt,name=alerting_tour_completed,json=alertingTourCompleted,proto3" json:"alerting_tour_completed,omitempty"`
 	// Snoozed PMM version update
-	SnoozedPmmVersion string `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
+	SnoozedPmmVersion string                 `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
+	SnoozedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
+	SnoozedCount      uint32                 `protobuf:"varint,7,opt,name=snoozed_count,json=snoozedCount,proto3" json:"snoozed_count,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -132,6 +135,20 @@ func (x *GetUserResponse) GetSnoozedPmmVersion() string {
 	return ""
 }
 
+func (x *GetUserResponse) GetSnoozedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SnoozedAt
+	}
+	return nil
+}
+
+func (x *GetUserResponse) GetSnoozedCount() uint32 {
+	if x != nil {
+		return x.SnoozedCount
+	}
+	return 0
+}
+
 type UpdateUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Product Tour
@@ -139,7 +156,9 @@ type UpdateUserRequest struct {
 	// Alerting Tour
 	AlertingTourCompleted *bool `protobuf:"varint,3,opt,name=alerting_tour_completed,json=alertingTourCompleted,proto3,oneof" json:"alerting_tour_completed,omitempty"`
 	// Snooze update alert for a PMM version
-	SnoozedPmmVersion *string `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3,oneof" json:"snoozed_pmm_version,omitempty"`
+	SnoozedPmmVersion *string                `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3,oneof" json:"snoozed_pmm_version,omitempty"`
+	SnoozedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
+	SnoozedCount      uint32                 `protobuf:"varint,7,opt,name=snoozed_count,json=snoozedCount,proto3" json:"snoozed_count,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -195,6 +214,20 @@ func (x *UpdateUserRequest) GetSnoozedPmmVersion() string {
 	return ""
 }
 
+func (x *UpdateUserRequest) GetSnoozedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SnoozedAt
+	}
+	return nil
+}
+
+func (x *UpdateUserRequest) GetSnoozedCount() uint32 {
+	if x != nil {
+		return x.SnoozedCount
+	}
+	return 0
+}
+
 type UpdateUserResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// User ID
@@ -204,7 +237,9 @@ type UpdateUserResponse struct {
 	// Alerting Tour
 	AlertingTourCompleted bool `protobuf:"varint,3,opt,name=alerting_tour_completed,json=alertingTourCompleted,proto3" json:"alerting_tour_completed,omitempty"`
 	// Snooze update alert for a PMM version
-	SnoozedPmmVersion string `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
+	SnoozedPmmVersion string                 `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
+	SnoozedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
+	SnoozedCount      uint32                 `protobuf:"varint,7,opt,name=snoozed_count,json=snoozedCount,proto3" json:"snoozed_count,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -265,6 +300,20 @@ func (x *UpdateUserResponse) GetSnoozedPmmVersion() string {
 		return x.SnoozedPmmVersion
 	}
 	return ""
+}
+
+func (x *UpdateUserResponse) GetSnoozedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SnoozedAt
+	}
+	return nil
+}
+
+func (x *UpdateUserResponse) GetSnoozedCount() uint32 {
+	if x != nil {
+		return x.SnoozedCount
+	}
+	return 0
 }
 
 type ListUsersRequest struct {
@@ -404,25 +453,34 @@ var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/user.proto\x12\auser.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x10\n" +
-	"\x0eGetUserRequest\"\xce\x01\n" +
+	"\x12user/v1/user.proto\x12\auser.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x10\n" +
+	"\x0eGetUserRequest\"\xae\x02\n" +
 	"\x0fGetUserResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\rR\x06userId\x124\n" +
 	"\x16product_tour_completed\x18\x02 \x01(\bR\x14productTourCompleted\x126\n" +
 	"\x17alerting_tour_completed\x18\x03 \x01(\bR\x15alertingTourCompleted\x12.\n" +
-	"\x13snoozed_pmm_version\x18\x04 \x01(\tR\x11snoozedPmmVersionJ\x04\b\x05\x10\x06\"\x95\x02\n" +
+	"\x13snoozed_pmm_version\x18\x04 \x01(\tR\x11snoozedPmmVersion\x129\n" +
+	"\n" +
+	"snoozed_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tsnoozedAt\x12#\n" +
+	"\rsnoozed_count\x18\a \x01(\rR\fsnoozedCountJ\x04\b\x05\x10\x06\"\xf5\x02\n" +
 	"\x11UpdateUserRequest\x129\n" +
 	"\x16product_tour_completed\x18\x02 \x01(\bH\x00R\x14productTourCompleted\x88\x01\x01\x12;\n" +
 	"\x17alerting_tour_completed\x18\x03 \x01(\bH\x01R\x15alertingTourCompleted\x88\x01\x01\x123\n" +
-	"\x13snoozed_pmm_version\x18\x04 \x01(\tH\x02R\x11snoozedPmmVersion\x88\x01\x01B\x19\n" +
+	"\x13snoozed_pmm_version\x18\x04 \x01(\tH\x02R\x11snoozedPmmVersion\x88\x01\x01\x129\n" +
+	"\n" +
+	"snoozed_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tsnoozedAt\x12#\n" +
+	"\rsnoozed_count\x18\a \x01(\rR\fsnoozedCountB\x19\n" +
 	"\x17_product_tour_completedB\x1a\n" +
 	"\x18_alerting_tour_completedB\x16\n" +
-	"\x14_snoozed_pmm_versionJ\x04\b\x05\x10\x06\"\xd1\x01\n" +
+	"\x14_snoozed_pmm_versionJ\x04\b\x05\x10\x06\"\xb1\x02\n" +
 	"\x12UpdateUserResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\rR\x06userId\x124\n" +
 	"\x16product_tour_completed\x18\x02 \x01(\bR\x14productTourCompleted\x126\n" +
 	"\x17alerting_tour_completed\x18\x03 \x01(\bR\x15alertingTourCompleted\x12.\n" +
-	"\x13snoozed_pmm_version\x18\x04 \x01(\tR\x11snoozedPmmVersionJ\x04\b\x05\x10\x06\"\x12\n" +
+	"\x13snoozed_pmm_version\x18\x04 \x01(\tR\x11snoozedPmmVersion\x129\n" +
+	"\n" +
+	"snoozed_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tsnoozedAt\x12#\n" +
+	"\rsnoozed_count\x18\a \x01(\rR\fsnoozedCountJ\x04\b\x05\x10\x06\"\x12\n" +
 	"\x10ListUsersRequest\"\x92\x01\n" +
 	"\x11ListUsersResponse\x12;\n" +
 	"\x05users\x18\x01 \x03(\v2%.user.v1.ListUsersResponse.UserDetailR\x05users\x1a@\n" +
@@ -461,22 +519,26 @@ var (
 		(*ListUsersRequest)(nil),             // 4: user.v1.ListUsersRequest
 		(*ListUsersResponse)(nil),            // 5: user.v1.ListUsersResponse
 		(*ListUsersResponse_UserDetail)(nil), // 6: user.v1.ListUsersResponse.UserDetail
+		(*timestamppb.Timestamp)(nil),        // 7: google.protobuf.Timestamp
 	}
 )
 
 var file_user_v1_user_proto_depIdxs = []int32{
-	6, // 0: user.v1.ListUsersResponse.users:type_name -> user.v1.ListUsersResponse.UserDetail
-	0, // 1: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest
-	2, // 2: user.v1.UserService.UpdateUser:input_type -> user.v1.UpdateUserRequest
-	4, // 3: user.v1.UserService.ListUsers:input_type -> user.v1.ListUsersRequest
-	1, // 4: user.v1.UserService.GetUser:output_type -> user.v1.GetUserResponse
-	3, // 5: user.v1.UserService.UpdateUser:output_type -> user.v1.UpdateUserResponse
-	5, // 6: user.v1.UserService.ListUsers:output_type -> user.v1.ListUsersResponse
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	7, // 0: user.v1.GetUserResponse.snoozed_at:type_name -> google.protobuf.Timestamp
+	7, // 1: user.v1.UpdateUserRequest.snoozed_at:type_name -> google.protobuf.Timestamp
+	7, // 2: user.v1.UpdateUserResponse.snoozed_at:type_name -> google.protobuf.Timestamp
+	6, // 3: user.v1.ListUsersResponse.users:type_name -> user.v1.ListUsersResponse.UserDetail
+	0, // 4: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest
+	2, // 5: user.v1.UserService.UpdateUser:input_type -> user.v1.UpdateUserRequest
+	4, // 6: user.v1.UserService.ListUsers:input_type -> user.v1.ListUsersRequest
+	1, // 7: user.v1.UserService.GetUser:output_type -> user.v1.GetUserResponse
+	3, // 8: user.v1.UserService.UpdateUser:output_type -> user.v1.UpdateUserResponse
+	5, // 9: user.v1.UserService.ListUsers:output_type -> user.v1.ListUsersResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_user_proto_init() }

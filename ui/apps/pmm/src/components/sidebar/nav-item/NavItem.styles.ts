@@ -69,11 +69,17 @@ export const getStyles = (
   text: {
     pl: 2,
 
+    [`&:hover .${listItemTextClasses.secondary}`]: {
+      color: 'inherit',
+    },
+
     [`.${listItemTextClasses.secondary}`]: {
       ...theme.typography.helperText,
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
+
+      color: active ? 'inherit' : theme.palette.warning.contrastText,
     },
   },
 });

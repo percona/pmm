@@ -1,6 +1,6 @@
 import { Modal } from 'components/modal';
 import { useUpdates } from 'contexts/updates';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Messages } from './UpdateModal.messages';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -8,34 +8,43 @@ import Link from '@mui/material/Link';
 import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { PMM_NEW_NAV_UPDATES_PATH } from 'lib/constants';
+import {
+  PMM_NEW_NAV_UPDATES_PATH,
+  SHOW_UPDATE_INFO_DELAY_MS,
+} from 'lib/constants';
 import Snackbar from '@mui/material/Snackbar';
 import CloseIcon from '@mui/icons-material/Close';
 import Card from '@mui/material/Card';
 import IconButton from '@mui/material/IconButton';
+import { parseReleaseHighlights } from './UpdateModal.utils';
+import { ReleaseNotes } from 'pages/updates/change-log/release-notes';
+import { useSnooze } from 'hooks/snooze';
 
 const UpdateModal: FC = () => {
   const { isLoading, versionInfo } = useUpdates();
-  const [open, setIsOpen] = useState(true);
-  const [isFirstAttempt, setIsFirstAttempt] = useState(true);
+  const [open, setIsOpen] = useState(false);
+  const highlights = parseReleaseHighlights(
+    versionInfo?.latest.releaseNotesText
+  );
+  const { snoozeUpdate, snoozeCount } = useSnooze();
+
+  const handleClose = () => {
+    setIsOpen(false);
+
+    snoozeUpdate();
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsOpen(true);
+    }, SHOW_UPDATE_INFO_DELAY_MS);
+  }, []);
 
   if (isLoading || !versionInfo) {
     return false;
   }
 
-  const handleClose = () => {
-    setIsOpen(false);
-
-    if (isFirstAttempt) {
-      setIsFirstAttempt(false);
-
-      setTimeout(() => {
-        setIsOpen(true);
-      }, 2500);
-    }
-  };
-
-  if (!isFirstAttempt) {
+  if (snoozeCount > 0) {
     return (
       <Snackbar
         open={open}
@@ -93,17 +102,26 @@ const UpdateModal: FC = () => {
       <Stack gap={1}>
         <Typography>{Messages.descriptionModal}</Typography>
         <Typography variant="h6">{Messages.highlights}</Typography>
-        <Box component="ul" sx={{ my: 1 }}>
-          <li>
-            {Messages.more}
-            <Link
-              href={versionInfo.latest.releaseNotesUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {Messages.releaseNotes}
-            </Link>
-          </li>
+        <Box sx={{ my: 1 }}>
+          <Box
+            sx={{
+              mb: 1,
+
+              '& p': {
+                m: 0,
+              },
+            }}
+          >
+            <ReleaseNotes content={highlights} />
+          </Box>
+          {Messages.more}
+          <Link
+            href={versionInfo.latest.releaseNotesUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {Messages.releaseNotes}
+          </Link>
         </Box>
         <Stack direction="row" justifyContent="end" sx={{ gap: 1, pt: 2 }}>
           <Button variant="text" onClick={handleClose}>

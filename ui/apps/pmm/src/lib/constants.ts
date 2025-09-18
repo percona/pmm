@@ -41,3 +41,10 @@ export const ALL_SERVICE_TYPES = [
   ServiceType.posgresql,
   ServiceType.proxysql,
 ];
+
+// 5 seconds
+export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
+// 1 hour
+export const SHOW_UPDATE_MODAL_AFTER_MS = 86_400_000;
+// 7 days
+export const SHOW_UPDATE_SNACKBAR_AFTER_MS = 604_800_000;
