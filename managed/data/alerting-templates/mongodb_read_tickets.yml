@@ -1,0 +1,20 @@
+---
+templates:
+  - name: pmm_mongodb_read_tickets
+    version: 1
+    summary: MongoDB Read Tickets
+    expr: |-
+      avg by(cluster,node_name,txn_rw) (mongodb_mongod_wiredtiger_concurrent_transactions_available_tickets{txn_rw="read"})
+      < bool [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: Number of read tickets
+        type: float
+        range: [0, 128]
+        value: 50
+    for: 1m
+    severity: warning
+    annotations:
+      summary: MongoDB Wiredtiger Read Tickets are low for ({{ $labels.node_name }})
+      description: |-
+        MongoDB Wiredtiger Read Tickets are below [[ .threshold ]] for {{ $labels.node_name }} .
