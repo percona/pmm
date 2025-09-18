@@ -101,3 +101,4 @@ After reviewing the requirements:
 
 - [Download the PMM Server OVA file](download_ova.md)
 - [Deploy on VirtualBox](virtualbox.md)
+- [Configure environment variables](env_var.md) to customize PMM Server behavior
