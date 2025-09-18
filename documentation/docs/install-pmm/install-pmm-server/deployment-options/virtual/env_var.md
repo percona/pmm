@@ -65,53 +65,7 @@ These variables are particularly useful for virtual appliance deployments:
 | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
 
-## Example configurations
 
-### High-performance production server
-
-For production environments with high monitoring loads:
-
-```bash
-# Performance optimizations
-PMM_DATA_RETENTION=90d
-PMM_METRICS_RESOLUTION=5s
-PMM_METRICS_RESOLUTION_HR=10s
-PMM_METRICS_RESOLUTION_MR=30s
-PMM_METRICS_RESOLUTION_LR=300s
-
-# Disable non-essential features
-PMM_ENABLE_TELEMETRY=false
-PMM_DEBUG=false
-```
-
-### Development environment
-
-For development and testing environments:
-
-```bash
-# Short retention for testing
-PMM_DATA_RETENTION=7d
-
-# Enable debugging
-PMM_DEBUG=true
-PMM_TRACE=true
-
-# Disable telemetry
-PMM_ENABLE_TELEMETRY=false
-```
-
-### Security-focused deployment
-
-For environments with strict security requirements:
-
-```bash
-# Disable external communication features
-PMM_ENABLE_UPDATES=false
-PMM_ENABLE_TELEMETRY=false
-
-# Set specific network binding
-PMM_PUBLIC_ADDRESS=10.0.1.100
-```
 
 ## Troubleshooting
 
@@ -155,30 +109,6 @@ systemctl --user restart pmm-server
 ```
 
 ## Advanced configuration
-
-### External database connections
-
-Configure connections to external ClickHouse or PostgreSQL instances:
-
-```bash
-# External ClickHouse
-PMM_CLICKHOUSE_ADDR=clickhouse.example.com:9000
-PMM_CLICKHOUSE_DATABASE=pmm
-PMM_CLICKHOUSE_USER=pmm
-PMM_CLICKHOUSE_PASSWORD=secret
-PMM_DISABLE_BUILTIN_CLICKHOUSE=true
-```
-
-### Grafana customization
-
-Pass environment variables to the embedded Grafana instance:
-
-```bash
-# Grafana security settings
-GF_SECURITY_ADMIN_PASSWORD=secure-password
-GF_SECURITY_ADMIN_USER=admin
-GF_SECURITY_DISABLE_GRAVATAR=true
-```
 
 ### VictoriaMetrics tuning
 
