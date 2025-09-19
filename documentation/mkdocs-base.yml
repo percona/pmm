@@ -176,8 +176,8 @@ nav:
                         - Planning: install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
                         - Deployment: install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
                         - Initial setup: install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
-                  - Virtual machine configuration: 
-                        - Environment variables: install-pmm/install-pmm-server/deployment-options/virtual/env_var.md
+                  - VM configuration: 
+                        - Configure environment variables: install-pmm/install-pmm-server/deployment-options/virtual/env_var.md
                         - Access PMM UI: install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
                         - Remove VM: install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md         
               - Install on Kubernetes:

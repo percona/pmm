@@ -80,7 +80,7 @@ Replace the user name `ec2-user` with `admin`. You can also add SSH keys later t
 With your PMM Server deployed and accessible:
 
 - [Configure PMM Server](../aws/configure_aws.md) for security and authentication
-- [Configure environment variables](env_var.md) to customize PMM Server behavior
+- [Configure environment variables](../virtual/env_var.md) to customize PMM Server behavior
 - [Configure PMM Clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
 - [Register client nodes](../../../register-client-node/index.md) with your PMM Server
 - [Improve PMM EC2 instance resilience using CloudWatch Alarm actions](https://www.percona.com/blog/2021/04/29/improving-percona-monitoring-and-management-ec2-instance-resilience-using-cloudwatch-alarm-actions/)

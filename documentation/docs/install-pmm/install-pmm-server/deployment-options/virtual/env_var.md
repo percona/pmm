@@ -1,4 +1,4 @@
-# Configure environment variables for PMM Server (Virtual machines)
+# Configure environment variables for PMM Server (Virtual machines: AMI/OVF)
 
 Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:
 
@@ -8,7 +8,6 @@ Set up environment variables in the `systemd` environment file to customize perf
 Both deployment types use the same `systemd` user service that launches a Podman container, with environment variables configured through a dedicated environment file.
 
 ## Configure environment variables
-
 Your PMM Server runs as a systemd user service that launches a Podman container. You can customize its behavior by setting environment variables in the `pmm-server.env` file on your virtual machine.
 
 To set environment variables for PMM Server on virtual machine deployments:
@@ -16,15 +15,15 @@ To set environment variables for PMM Server on virtual machine deployments:
 
 1. Connect to your PMM Server virtual machine via SSH using the `admin` user:
 
-=== "For AWS AMI deployments"
-    ```bash
-    ssh -i your-key.pem admin@<ec2-instance-public-ip>
-    ```
-    
-=== "For Virtual Appliance (OVF) deployments"
-    ```bash
-    ssh admin@<pmm-server-ip>
-    ```
+    === "For AWS AMI deployments"
+        ```bash
+        ssh -i your-key.pem admin@<ec2-instance-public-ip>
+        ```
+        
+    === "For Virtual Appliance (OVF) deployments"
+        ```bash
+        ssh admin@<pmm-server-ip>
+        ```
 
 2. Open `/home/admin/.config/systemd/user/pmm-server.env` and edit the environment variables file. This file is automatically loaded by the `systemd` service:
 
@@ -53,7 +52,7 @@ To set environment variables for PMM Server on virtual machine deployments:
 
 ## Available variables
 
-PMM uses the same environment variables across all deployment methods. See  [Docker environment variables documentation](../docker/env_var.md) for the complete list. For virtual machine deployments, make sure to set these variables using the `systemd` file instructions above. 
+Unlike Docker deployments that use `-e` flags, virtual machines configure PMM Server using the systemd environment file instructions above. However, PMM uses the same [list of environment variables](../docker/env_var.md) across all deployment methods.
 
 ### Common examples for virtual machines
 
@@ -87,13 +86,13 @@ PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume e
 
     # Optimize for write-heavy workloads (optional)
     VM_storage.maxMergeReadSpeed=1000MB
-```
+    ```
 
 2. Restart the PMM Server service after making VictoriaMetrics changes, and monitor disk space when extending retention periods.
 
 When to configure these settings:
 
- - Large deployments (>100 monitored nodes): Increase query timeout and adjust memory limits
+ - Large deployments (>100 monitored nodes): increase query timeout and adjust memory limits
  - Extended retention (>30 days): Set `VM_retentionPeriod` independently from `PMM_DATA_RETENTION` for finer control
- - Memory-constrained environments: Reduce `VM_memory.allowedPercent` to prevent OOM issues
- - High write volume: Add merge speed optimization for better ingestion performance
+ - Memory-constrained environments: reduce `VM_memory.allowedPercent` to prevent OOM issues
+ - High write volume: add merge speed optimization for better ingestion performance
