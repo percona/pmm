@@ -34,13 +34,9 @@ test-env-up:                    ## Start docker containers used for testing
 	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:23.8.2.7
 	make test-env
 
-test-env-up-apple:              ## Start docker containers used for testing on Apple chips
-	docker run -d --platform=linux/arm64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:23.8.2.7
-	make test-env
-
 test-env:                       ## Create pmm_test DB and load test data
 	sleep 10
-	go run qan-api2/migrations/cmd/main.go
+	go run migrations/cmd/main.go
 	docker exec pmm-clickhouse-test clickhouse client --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
