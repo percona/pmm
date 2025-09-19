@@ -1,6 +1,6 @@
 # Contributing notes
 
-**pmm-managed** is a core component of PMM Server. As such, its development and testing is best done inside of a PMM Server container, which we call "devcontainer". You can take a look at PMM's architecture [here](https://www.percona.com/doc/percona-monitoring-and-management/details/architecture.html)
+**pmm-managed** is a core component of PMM Server. As such, its development and testing is best done inside of a PMM Server container, which we call "devcontainer". You can take a look at PMM's architecture [here](https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html).
 
 # Devcontainer setup
 
@@ -94,9 +94,9 @@ If there is a need to change the logic of Advisor checks (actual logic executed 
 
 Changes to Advisors will be most visible in the list of all advisors by categories, such as https://pmmdemo.percona.com/graph/advisors/configuration.
 
-<img width="1024" alt="image" src="https://github.com/percona/checked/assets/25495422/6b369cd6-f080-49aa-a132-72db5fbdf046">
+![Advisors interface](../docs/assets/advisors/pmm-advisor-interface.png)
 
-``advisors.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L4
+``advisors.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L5
 
 ``advisors.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L6
 
@@ -104,14 +104,16 @@ Changes to Advisors will be most visible in the list of all advisors by categori
 
 Advisors checks refer to the list of Advisors categorized by specific topics available on https://pmmdemo.percona.com/graph/advisors/configuration. It provides detailed information in the Insights section, which can be accessed by expanding the Advisor.
 
-<img width="1024" alt="image" src="https://github.com/percona/checked/assets/25495422/7ec59008-f888-4c98-9be9-3eeb39dd6c0e">
+![Advisors by categories](../docs/assets/advisors/pmm-configuration-advisors.png)
 
 ``checks.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L5
 ``chcks.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L6
 
 
 When an Advisor check identifies an issue in the user's infrastructure, it displays insights on the https://pmmdemo.percona.com/graph/advisors/insights page.
-<img width="1024" alt="image" src="https://github.com/percona/checked/assets/25495422/b44089e0-7c1f-46b2-96d2-43d205e1c3fe">
+
+![Advisor Insight](../docs/assets/advisors/pmm-advisor-insights.png)
+
 ``results.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L51
 ``results.descrioption`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L52
 
@@ -120,7 +122,7 @@ Please note, there might be several results[] in one check file.
 
 ## Working with Percona Alerting
 
-Please go through the Percona Alerting section in our [user documentation](https://docs.percona.com/percona-monitoring-and-management/get-started/alerting.html).
+Please go through the Percona Alerting section in our [user documentation](https://docs.percona.com/percona-monitoring-and-management/3/alert/index.html).
 
 ### Contributing to Percona Alerting Templates
 
@@ -130,9 +132,9 @@ You can read more about the [Alert Templates format in our documentation]https:/
 
 # Internals
 
-There are three makefiles: `Makefile` (host), `Makefile.devcontainer`, and `Makefile.include`. `Makefile.devcontainer` is mounted on top of `Makefile` inside devcontainer (see `docker-compose.yml`) to enable `make env TARGET=target-name` usage.
+There are three makefiles: `Makefile` (host), `Makefile.devcontainer`, and `Makefile.include`. `Makefile.devcontainer` is mounted on top of `Makefile` inside the devcontainer (see `docker-compose.yml`) to enable `make env TARGET=target-name` usage.
 
-Devcontainer initialization code is located in `.devcontainer/setup.py`. It uses multiprocessing to run several commands in parallel to speed-up the setup.
+Devcontainer initialization code is located in `.devcontainer/setup.py`. It provisions several binaries required for code development.
 
 ## Code Structure
 
@@ -147,15 +149,16 @@ Devcontainer initialization code is located in `.devcontainer/setup.py`. It uses
 ├── utils - utilities
 ```
 
-# How to make PR
+# How to make a Pull Request (PR)
 
-- If the changes require multiple PRs spanning multiple repos make sure to keep the branch names same.
-- If the PR requires any API changes then make your changes in `main` branch of the [API repo](https://github.com/percona/pmm) and pull those changes in your pmm-managed branch by mentioning the API changes branch name in the `Gopkg.toml` constraint and running `dep ensure -v -update github.com/percona/pmm`.
-- If the PR changes any files named `deps.go` make sure to run `make gen` to generate mock clients.
-  Before making PR, please run these commands locally:
+- If the changes require multiple PRs spanning multiple repos, make sure to keep the branch names the same.
+- If the PR requires any API changes, make sure to contribute to the API docs (/docs/api).
+- If the PR changes any of `deps.go` files, make sure to run `make gen` to generate mock clients.
+
+Before making a PR, please run these commands locally:
 - `make env TARGET=check-all` to run all checkers and linters.
 - `make env TARGET=test-race` to run tests.
-- For help, please post on the [PMM 2.x Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/percona-monitoring-and-management-pmm-v2/)
+- For help, please post on the [PMM 3.x Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/)
 
 ## VSCode
 
