@@ -1,7 +1,7 @@
 ---
 checks:
   - version: 2
-    name: postgresql_archiver_failing_1
+    name: postgresql_archiver_failing
     summary: PostgreSQL Archiver is failing
     description: This check verifies if the archiver has failed.
     family: POSTGRESQL

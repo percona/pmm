@@ -1,7 +1,7 @@
 ---
 checks:
   - version: 2
-    name: postgresql_config_changes_need_restart_1
+    name: postgresql_config_changes_need_restart
     summary: Configuration change requires restart/reload.
     description: This check returns a warning if there is any setting/configuration that was changed and needs a server restart/reload.
     family: POSTGRESQL

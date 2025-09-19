@@ -1,7 +1,7 @@
 ---
 checks:
   - version: 2
-    name: postgresql_log_autovacuum_min_duration_1
+    name: postgresql_log_autovacuum_min_duration
     summary: PostgreSQL Autovacuum Logging Is Disabled
     description: This check returns a notice if the log_autovacuum_min_duration configuration option is set to -1 (disabled). It is recommended to enable the logging of autovacuum run information, as that provides a lot of useful information with almost no drawbacks.
     family: POSTGRESQL

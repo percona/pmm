@@ -1,7 +1,7 @@
 ---
 checks:
   - version: 2
-    name: postgresql_log_checkpoints_1
+    name: postgresql_log_checkpoints
     summary: PostgreSQL Checkpoints Logging is Disabled.
     description: This check returns a notice if the log_checkpoints configuration option is not enabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.
     family: POSTGRESQL
