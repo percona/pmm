@@ -405,6 +405,37 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}, nil
 
+	case models.MongoDBRealtimeAnalyticsAgentType:
+		collectionInterval := uint32(1) // Default value
+		disableExamples := false        // Default value
+
+		// Use RealTimeAnalyticsOptions if available
+		if !agent.RealTimeAnalyticsOptions.IsEmpty() {
+			if agent.RealTimeAnalyticsOptions.CollectionIntervalSeconds > 0 {
+				collectionInterval = agent.RealTimeAnalyticsOptions.CollectionIntervalSeconds
+			}
+			disableExamples = agent.RealTimeAnalyticsOptions.DisableExamples
+		} else {
+			// Fallback to QAN options for query text disabling
+			disableExamples = agent.QANOptions.QueryExamplesDisabled
+		}
+
+		return &inventoryv1.MongoDBRealtimeAnalyticsAgent{
+			AgentId:                   agent.AgentID,
+			PmmAgentId:                pointer.GetString(agent.PMMAgentID),
+			ServiceId:                 serviceID,
+			Username:                  pointer.GetString(agent.Username),
+			Disabled:                  agent.Disabled,
+			Status:                    inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:              labels,
+			Tls:                       agent.TLS,
+			TlsSkipVerify:             agent.TLSSkipVerify,
+			CollectionIntervalSeconds: collectionInterval,
+			DisableQueryText:          disableExamples,
+			ProcessExecPath:           processExecPath,
+			LogLevel:                  inventoryv1.LogLevelAPIValue(agent.LogLevel),
+		}, nil
+
 	case models.ProxySQLExporterType:
 		return &inventoryv1.ProxySQLExporter{
 			AgentId:            agent.AgentID,

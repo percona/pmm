@@ -1145,6 +1145,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
 		`UPDATE agents SET valkey_options = '{}'::jsonb`,
 	},
+	112: {
+		`ALTER TABLE agents ADD COLUMN realtime_analytics_options JSONB`,
+		`UPDATE agents SET realtime_analytics_options = '{}'::jsonb WHERE realtime_analytics_options IS NULL`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

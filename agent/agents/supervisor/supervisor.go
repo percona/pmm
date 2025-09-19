@@ -31,10 +31,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
 	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
+	mongodbreal "github.com/percona/pmm/agent/agents/mongodb/realtime"
 	"github.com/percona/pmm/agent/agents/mysql/perfschema"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog"
 	"github.com/percona/pmm/agent/agents/noop"
@@ -47,6 +49,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	realtimev1 "github.com/percona/pmm/api/realtime/v1"
 )
 
 // configGetter allows for getting a config.
@@ -57,17 +60,19 @@ type configGetter interface {
 // Supervisor manages all Agents, both processes and built-in.
 type Supervisor struct {
 	// TODO: refactor to move context outside of struct
-	ctx            context.Context //nolint:containedctx
-	agentVersioner agentVersioner
-	cfg            configGetter
-	portsRegistry  *portsRegistry
-	changes        chan *agentv1.StateChangedRequest
-	qanRequests    chan *agentv1.QANCollectRequest
-	l              *logrus.Entry
+	ctx              context.Context //nolint:containedctx
+	agentVersioner   agentVersioner
+	cfg              configGetter
+	portsRegistry    *portsRegistry
+	changes          chan *agentv1.StateChangedRequest
+	qanRequests      chan *agentv1.QANCollectRequest
+	realtimeRequests chan *realtimev1.RealTimeAnalyticsRequest
+	l                *logrus.Entry
 
-	rw             sync.RWMutex
-	agentProcesses map[string]*agentProcessInfo
-	builtinAgents  map[string]*builtinAgentInfo
+	rw                      sync.RWMutex
+	agentProcesses          map[string]*agentProcessInfo
+	builtinAgents           map[string]*builtinAgentInfo
+	realtimeAnalyticsAgents map[string]*realtimeAnalyticsAgentInfo
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventoryv1.AgentStatus
@@ -93,6 +98,16 @@ type builtinAgentInfo struct {
 	logStore       *tailog.Store                  // store logs
 }
 
+// realtimeAnalyticsAgentInfo describes real-time analytics Agent.
+type realtimeAnalyticsAgentInfo struct {
+	cancel         func()          // to cancel AgentType.Run(ctx)
+	done           <-chan struct{} // closes when AgentType.Changes() channel closes
+	requestedState *agentv1.SetStateRequest_RealtimeAnalyticsAgent
+	describe       func(chan<- *prometheus.Desc)  // agent's func to describe Prometheus metrics
+	collect        func(chan<- prometheus.Metric) // agent's func to provide Prometheus metrics
+	logStore       *tailog.Store                  // store logs
+}
+
 // NewSupervisor creates new Supervisor object.
 //
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
@@ -100,17 +115,19 @@ type builtinAgentInfo struct {
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
 func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Supervisor {
 	return &Supervisor{
-		ctx:            ctx,
-		agentVersioner: av,
-		cfg:            cfg,
-		portsRegistry:  newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
-		changes:        make(chan *agentv1.StateChangedRequest, 100),
-		qanRequests:    make(chan *agentv1.QANCollectRequest, 100),
-		l:              logrus.WithField("component", "supervisor"),
+		ctx:              ctx,
+		agentVersioner:   av,
+		cfg:              cfg,
+		portsRegistry:    newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
+		changes:          make(chan *agentv1.StateChangedRequest, 100),
+		qanRequests:      make(chan *agentv1.QANCollectRequest, 100),
+		realtimeRequests: make(chan *realtimev1.RealTimeAnalyticsRequest, 100),
+		l:                logrus.WithField("component", "supervisor"),
 
-		agentProcesses: make(map[string]*agentProcessInfo),
-		builtinAgents:  make(map[string]*builtinAgentInfo),
-		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
+		agentProcesses:          make(map[string]*agentProcessInfo),
+		builtinAgents:           make(map[string]*builtinAgentInfo),
+		realtimeAnalyticsAgents: make(map[string]*realtimeAnalyticsAgentInfo),
+		lastStatuses:            make(map[string]inventoryv1.AgentStatus),
 	}
 }
 
@@ -158,13 +175,17 @@ func (s *Supervisor) AgentsLogs() map[string][]string {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
-	res := make(map[string][]string, len(s.agentProcesses)+len(s.builtinAgents))
+	res := make(map[string][]string, len(s.agentProcesses)+len(s.builtinAgents)+len(s.realtimeAnalyticsAgents))
 
 	for id, agent := range s.agentProcesses {
 		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), id)], _ = agent.logStore.GetLogs()
 	}
 
 	for id, agent := range s.builtinAgents {
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), id)], _ = agent.logStore.GetLogs()
+	}
+
+	for id, agent := range s.realtimeAnalyticsAgents {
 		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), id)], _ = agent.logStore.GetLogs()
 	}
 	return res
@@ -183,6 +204,11 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	builtinAgent, ok := s.builtinAgents[id]
 	if ok {
 		return builtinAgent.logStore.GetLogs()
+	}
+
+	realtimeAnalyticsAgent, ok := s.realtimeAnalyticsAgents[id]
+	if ok {
+		return realtimeAnalyticsAgent.logStore.GetLogs()
 	}
 
 	return nil, 0
@@ -212,6 +238,11 @@ func (s *Supervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 	return s.qanRequests
 }
 
+// RealTimeRequests returns channel with Agent's real-time data requests.
+func (s *Supervisor) RealTimeRequests() <-chan *realtimev1.RealTimeAnalyticsRequest {
+	return s.realtimeRequests
+}
+
 // SetState starts or updates all agents placed in args and stops all agents not placed in args, but already run.
 func (s *Supervisor) SetState(state *agentv1.SetStateRequest) {
 	// do not process SetState requests concurrently for internal state consistency and implementation simplicity
@@ -226,6 +257,7 @@ func (s *Supervisor) SetState(state *agentv1.SetStateRequest) {
 
 	s.setAgentProcesses(state.AgentProcesses)
 	s.setBuiltinAgents(state.BuiltinAgents)
+	s.setRealtimeAnalyticsAgents(state.RealtimeAnalyticsAgents)
 }
 
 // RestartAgents restarts all existing agents.
@@ -375,6 +407,62 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 	// start new agents
 	for _, agentID := range toStart {
 		if err := s.startBuiltin(agentID, builtinAgents[agentID]); err != nil {
+			s.l.Errorf("Failed to start Agent: %s.", err)
+			// TODO report that error to server
+		}
+	}
+}
+
+// setRealtimeAnalyticsAgents starts/restarts/stops real-time analytics Agents.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) setRealtimeAnalyticsAgents(realtimeAnalyticsAgents map[string]*agentv1.SetStateRequest_RealtimeAnalyticsAgent) {
+	existingParams := make(map[string]agentv1.AgentParams)
+	for id, agent := range s.realtimeAnalyticsAgents {
+		existingParams[id] = agent.requestedState
+	}
+	newParams := make(map[string]agentv1.AgentParams)
+	for id, agent := range realtimeAnalyticsAgents {
+		newParams[id] = agent
+	}
+	toStart, toRestart, toStop := filter(existingParams, newParams)
+	if len(toStart)+len(toRestart)+len(toStop) == 0 {
+		return
+	}
+	s.l.Infof("Starting %d, restarting %d, and stopping %d real-time analytics agents.", len(toStart), len(toRestart), len(toStop))
+
+	// We have to wait for Agents to terminate before starting a new ones to send all state updates.
+	// If that place is slow, we can cancel them all in parallel, but then we still have to wait.
+
+	// stop first to avoid extra load
+	for _, agentID := range toStop {
+		agent := s.realtimeAnalyticsAgents[agentID]
+		agent.cancel()
+		<-agent.done
+
+		delete(s.realtimeAnalyticsAgents, agentID)
+
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+		}
+	}
+
+	// restart
+	for _, agentID := range toRestart {
+		agent := s.realtimeAnalyticsAgents[agentID]
+		agent.cancel()
+		<-agent.done
+
+		if err := s.startRealtimeAnalytics(agentID, realtimeAnalyticsAgents[agentID]); err != nil {
+			s.l.Errorf("Failed to start Agent: %s.", err)
+			// TODO report that error to server
+		}
+	}
+
+	// start new agents
+	for _, agentID := range toStart {
+		if err := s.startRealtimeAnalytics(agentID, realtimeAnalyticsAgents[agentID]); err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
@@ -663,6 +751,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 					MetricsBucket: change.MetricsBucket,
 				}
 			}
+			if change.RealTimeQueries != nil {
+				l.Debugf("Sending %d real-time queries.", len(change.RealTimeQueries))
+				s.realtimeRequests <- &realtimev1.RealTimeAnalyticsRequest{
+					Queries:        change.RealTimeQueries,
+					CollectionTime: timestamppb.Now(),
+				}
+			}
 		}
 		close(done)
 	}()
@@ -672,6 +767,92 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		cancel:         cancel,
 		done:           done,
 		requestedState: proto.Clone(builtinAgent).(*agentv1.SetStateRequest_BuiltinAgent),
+		describe:       agent.Describe,
+		collect:        agent.Collect,
+		logStore:       logStore,
+	}
+	return nil
+}
+
+// startRealtimeAnalytics starts real-time analytics Agent.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) startRealtimeAnalytics(agentID string, realtimeAgent *agentv1.SetStateRequest_RealtimeAnalyticsAgent) error {
+	cfg := s.cfg.Get()
+
+	ctx, cancel := context.WithCancel(s.ctx)
+	agentType := trimPrefix(realtimeAgent.Type.String())
+	logStore := tailog.NewStore(cfg.LogLinesCount)
+	l := s.agentLogger(logStore).WithFields(logrus.Fields{
+		"component": "agent-realtime",
+		"agentID":   agentID,
+		"type":      agentType,
+	})
+
+	done := make(chan struct{})
+	var agent agents.BuiltinAgent
+	var err error
+
+	var dsn string
+	tempDir := filepath.Join(cfg.Paths.TempDir, strings.ToLower(realtimeAgent.Type.String()), agentID)
+	dsn, err = templates.RenderDSN(realtimeAgent.Dsn, realtimeAgent.TextFiles, tempDir)
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	switch realtimeAgent.Type {
+	case inventoryv1.AgentType_AGENT_TYPE_MONGODB_REALTIME_ANALYTICS_AGENT:
+		params := &mongodbreal.Params{
+			DSN:                     dsn,
+			AgentID:                 agentID,
+			ServiceID:               agentID,                 // Use agentID as serviceID for now
+			ServiceName:             "mongodb",               // Default service name
+			NodeID:                  agentID,                 // Use agentID as nodeID for now
+			NodeName:                "mongodb-node",          // Default node name
+			Labels:                  make(map[string]string), // Empty labels for now
+			CollectionInterval:      time.Duration(realtimeAgent.CollectionIntervalSeconds) * time.Second,
+			DisableQueryText:        realtimeAgent.DisableExamples,
+			MaxQueriesPerCollection: 100, // Default value, could be configurable
+		}
+		agent, err = mongodbreal.New(params, l)
+
+	default:
+		err = errors.Errorf("unhandled real-time analytics agent type %[1]s (%[1]d)", realtimeAgent.Type)
+	}
+
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
+
+	go func() {
+		for change := range agent.Changes() {
+			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
+				s.storeLastStatus(agentID, change.Status)
+				l.Infof("Sending status: %s.", change.Status)
+				s.changes <- &agentv1.StateChangedRequest{
+					AgentId: agentID,
+					Status:  change.Status,
+				}
+			}
+			if change.RealTimeQueries != nil {
+				l.Debugf("Sending %d real-time queries.", len(change.RealTimeQueries))
+				s.realtimeRequests <- &realtimev1.RealTimeAnalyticsRequest{
+					Queries:        change.RealTimeQueries,
+					CollectionTime: timestamppb.Now(),
+				}
+			}
+		}
+		close(done)
+	}()
+
+	//nolint:forcetypeassert
+	s.realtimeAnalyticsAgents[agentID] = &realtimeAnalyticsAgentInfo{
+		cancel:         cancel,
+		done:           done,
+		requestedState: proto.Clone(realtimeAgent).(*agentv1.SetStateRequest_RealtimeAnalyticsAgent),
 		describe:       agent.Describe,
 		collect:        agent.Collect,
 		logStore:       logStore,

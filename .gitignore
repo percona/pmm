@@ -13,6 +13,7 @@ cover.out
 crosscover.out
 
 agent/testdata/
+agent/tmp/
 
 agent/agents/mysql/slowlog/parser/corpus/
 agent/agents/mysql/slowlog/parser/crashers/

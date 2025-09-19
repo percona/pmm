@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package realtime.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "api/realtime/v1;realtimev1";
+
+// RealTimeQueryData represents a single query data point
+message RealTimeQueryData {
+  // Common fields across all database types
+  string query_id = 1; // Unique identifier (hash of normalized query)
+  string query_text = 2; // Full query text (optional based on security settings)
+  string fingerprint = 3; // Normalized query pattern
+  string database = 4; // Database name
+  string client_host = 6; // Client host/IP
+  google.protobuf.Timestamp timestamp = 7; // When this data was collected
+
+  // Execution details
+  QueryState state = 8; // Current state of the query
+  double current_execution_time = 9; // Elapsed time for running query (seconds)
+
+  // Database-specific fields
+  MongoDBFields mongodb = 20;
+
+  // Service metadata (populated for UI responses, not agent communication)
+  string service_id = 30;
+  string service_name = 31;
+  string node_id = 32;
+  string node_name = 33;
+  map<string, string> labels = 34;
+}
+
+// QueryState represents the current state of a query
+enum QueryState {
+  UNKNOWN = 0;
+  RUNNING = 1;
+  WAITING = 2;
+  FINISHED = 3;
+}
+
+// MongoDB-specific fields
+message MongoDBFields {
+  int64 opid = 1; // Operation ID
+  double secs_running = 2; // Duration the operation has been running
+  string operation_type = 3; // Type of operation (query, update, etc.)
+  string namespace = 4; // Collection namespace
+  string plan_summary = 5; // Query plan summary
+  bool blocking = 6; // Whether operation is blocking others
+  string current_op_raw = 7; // Complete raw currentOp document as JSON
+}
+
+// RealTimeAnalyticsRequest is sent from agent to server
+message RealTimeAnalyticsRequest {
+  repeated RealTimeQueryData queries = 1;
+  google.protobuf.Timestamp collection_time = 2;
+}
+
+// RealTimeAnalyticsResponse acknowledges the data receipt
+message RealTimeAnalyticsResponse {
+  // Empty for now, might add status/errors later
+}
+
+// RealTimeDataRequest is sent from UI to get current data
+message RealTimeDataRequest {
+  repeated string service_ids = 1; // Filter by specific services (empty = all accessible)
+  int32 limit = 2; // Maximum number of queries to return (default: 100)
+  bool include_history = 3; // Include buffered historical data
+}
+
+// RealTimeDataResponse contains the current real-time data
+message RealTimeDataResponse {
+  repeated RealTimeQueryData queries = 1;
+  int32 total_count = 2;
+  bool has_more = 3;
+}
+
+// EnableRealTimeAnalyticsRequest enables real-time analytics for a service
+message EnableRealTimeAnalyticsRequest {
+  string service_id = 1;
+  RealTimeConfig config = 2;
+}
+
+// DisableRealTimeAnalyticsRequest disables real-time analytics for a service
+message DisableRealTimeAnalyticsRequest {
+  string service_id = 1;
+}
+
+// RealTimeConfig contains configuration for real-time analytics
+message RealTimeConfig {
+  int32 collection_interval_seconds = 1; // Collection interval (default: 1)
+  bool disable_examples = 2; // Disable query examples collection
+}
+
+// ConfigResponse acknowledges configuration changes
+message ConfigResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// RealTimeAnalyticsService defines the gRPC service
+service RealTimeAnalyticsService {
+  // Agent-to-Server communication
+  rpc SendRealTimeData(RealTimeAnalyticsRequest) returns (RealTimeAnalyticsResponse);
+
+  // UI-to-Server communication (via HTTP gateway)
+  rpc GetRealTimeData(RealTimeDataRequest) returns (RealTimeDataResponse) {
+    option (google.api.http) = {get: "/v1/realtime/data"};
+  }
+
+  // Configuration management
+  rpc EnableRealTimeAnalytics(EnableRealTimeAnalyticsRequest) returns (ConfigResponse) {
+    option (google.api.http) = {
+      post: "/v1/realtime/enable"
+      body: "*"
+    };
+  }
+
+  rpc DisableRealTimeAnalytics(DisableRealTimeAnalyticsRequest) returns (ConfigResponse) {
+    option (google.api.http) = {
+      post: "/v1/realtime/disable"
+      body: "*"
+    };
+  }
+}

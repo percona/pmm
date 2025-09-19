@@ -30,6 +30,14 @@ export const Breadcrumbs: FC = () => {
       >
         {Messages.updates}
       </Link>
+      <Link
+        underline="hover"
+        component={RouterLink}
+        color={alpha(theme.typography.body1.color || '#fff', 0.75)}
+        to="/realtime"
+      >
+        Real-Time Analytics
+      </Link>
     </MuiBreadcrumbs>
   );
 };
