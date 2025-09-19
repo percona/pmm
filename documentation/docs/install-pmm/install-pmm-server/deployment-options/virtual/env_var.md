@@ -1,24 +1,32 @@
-# Configure environment variables for PMM Server (OVF/Virtual Appliance)
+# Configure environment variables for PMM Server (Virtual machines)
 
-Configure PMM Server behavior on virtual appliances (OVF) by setting environment variables in the systemd environment file. This allows you to customize performance, storage, features, and other settings without modifying the container directly.
+Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:
 
-## Using environment variables
+- **AWS AMI instances**: EC2 instances deployed from AWS Marketplace
+- **Virtual appliances (OVF)**: Deployed on VirtualBox, VMware, and other virtualization platforms
 
-PMM Server in virtual appliances runs as a systemd user service that launches a Podman container. Environment variables are configured through a dedicated environment file.
+Both deployment types use the same `systemd` user service that launches a Podman container, with environment variables configured through a dedicated environment file.
 
-### Configure environment variables
+## Configure environment variables
 
-To set environment variables for PMM Server on OVF deployments:
+Your PMM Server runs as a systemd user service that launches a Podman container. You can customize its behavior by setting environment variables in the `pmm-server.env` file on your virtual machine.
 
+To set environment variables for PMM Server on virtual machine deployments:
 {.power-number}
 
 1. Connect to your PMM Server virtual machine via SSH using the `admin` user:
 
+=== "For AWS AMI deployments"
+    ```bash
+    ssh -i your-key.pem admin@<ec2-instance-public-ip>
+    ```
+    
+=== "For Virtual Appliance (OVF) deployments"
     ```bash
     ssh admin@<pmm-server-ip>
     ```
 
-2. Edit the environment variables file:
+2. Open `/home/admin/.config/systemd/user/pmm-server.env` and edit the environment variables file. This file is automatically loaded by the `systemd` service:
 
     ```bash
     nano ~/.config/systemd/user/pmm-server.env
@@ -43,38 +51,49 @@ To set environment variables for PMM Server on OVF deployments:
     systemctl --user status pmm-server
     ```
 
-!!! note "File location"
-    The environment file is located at `/home/admin/.config/systemd/user/pmm-server.env` and is automatically loaded by the systemd service.
+## Available variables
 
-## Core configuration variables
+PMM uses the same environment variables across all deployment methods. See  [Docker environment variables documentation](../docker/env_var.md) for the complete list. For virtual machine deployments, make sure to set these variables using the `systemd` file instructions above. 
 
-For detailed information about available environment variables, see the [Docker environment variables documentation](../docker/env_var.md). All variables documented for Docker deployments are supported in OVF deployments.
+### Common examples for virtual machines
 
-### Key variables for virtual appliances
-
-These variables are particularly useful for virtual appliance deployments:
+These variables are particularly useful for both AWS AMI and virtual appliance deployments:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
 | `PMM_ENABLE_UPDATES` | `true` | Allow version checks and updates |
 | `PMM_ENABLE_TELEMETRY` | `true` | Enable usage data collection |
+| `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
 | `PMM_DEBUG` | `false` | Enable verbose logging |
 | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
-| `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
 
+### VictoriaMetrics performance tuning
 
+PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume environments or extended retention periods, you may need to tune VictoriaMetrics settings to optimize performance and resource usage. To do this: 
+{.power-number}
 
-## Advanced configuration
+1. Add the following variables to your `pmm-server.env` file:
 
-### VictoriaMetrics tuning
+    ```bash
+    # Extend metrics retention beyond the default PMM_DATA_RETENTION
+    VM_retentionPeriod=90d
 
-Configure the embedded VictoriaMetrics instance:
+    # Limit memory usage (percentage of available system memory)
+    VM_memory.allowedPercent=60
 
-```bash
-# VictoriaMetrics memory settings
-VM_retentionPeriod=90d
-VM_memory.allowedPercent=60
+    # Increase query timeout for complex queries in high-cardinality environments
+    VM_search.maxQueryDuration=300s
+
+    # Optimize for write-heavy workloads (optional)
+    VM_storage.maxMergeReadSpeed=1000MB
 ```
 
-For a complete list of available environment variables and their descriptions, see [Docker environment variables documentation](../docker/env_var.md).
+2. Restart the PMM Server service after making VictoriaMetrics changes, and monitor disk space when extending retention periods.
+
+When to configure these settings:
+
+ - Large deployments (>100 monitored nodes): Increase query timeout and adjust memory limits
+ - Extended retention (>30 days): Set `VM_retentionPeriod` independently from `PMM_DATA_RETENTION` for finer control
+ - Memory-constrained environments: Reduce `VM_memory.allowedPercent` to prevent OOM issues
+ - High write volume: Add merge speed optimization for better ingestion performance

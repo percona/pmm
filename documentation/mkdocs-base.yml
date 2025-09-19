@@ -166,23 +166,26 @@ nav:
                       - install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md
                       - install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.md
                       - install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.md
-              - Install on Virtual Appliance:
-                  - install-pmm/install-pmm-server/deployment-options/virtual/index.md
-                  - Setup and configuration:
-                      - install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
-                      - install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
-                      - install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
-                      - install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
-                      - install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md
+              - Install on virtual machines:
+                  - Install on Virtual Appliance:
+                        - Overview: install-pmm/install-pmm-server/deployment-options/virtual/index.md
+                        - Download OVA: install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
+                        - Deploy on VirtualBox: install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
+                        - Deploy on VMware (deprecated): install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
+                  - Install on AWS Marketplace:
+                        - Planning: install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
+                        - Deployment: install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
+                        - Initial setup: install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
+                  - Virtual machine configuration: 
+                        - Environment variables: install-pmm/install-pmm-server/deployment-options/virtual/env_var.md
+                        - Access PMM UI: install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
+                        - Remove VM: install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md         
               - Install on Kubernetes:
                   - install-pmm/install-pmm-server/deployment-options/helm/index.md
                   - Backup & maintenance:
                       - install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md
                       - install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.md
-              - Install on AWS Marketplace:
-                  - install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
-                  - install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
-                  - install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
+
       - Install PMM Client:
           - Client installation overview: install-pmm/install-pmm-client/index.md
           - install-pmm/install-pmm-client/prerequisites.md
