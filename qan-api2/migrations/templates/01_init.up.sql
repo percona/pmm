@@ -188,7 +188,7 @@ CREATE TABLE metrics (
   `m_docs_scanned_min` Float32,
   `m_docs_scanned_max` Float32,
   `m_docs_scanned_p99` Float32
-) ENGINE = MergeTree PARTITION BY toYYYYMMDD(period_start)
+ ) ENGINE = {{ .engine }} PARTITION BY toYYYYMMDD(period_start)
 ORDER BY
   (
     queryid,

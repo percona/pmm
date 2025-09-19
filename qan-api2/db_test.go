@@ -30,6 +30,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/qan-api2/migrations"
 )
 
 func setup() *sqlx.DB {
@@ -47,7 +49,11 @@ func setup() *sqlx.DB {
 	if err != nil {
 		log.Fatal("Connection: ", err)
 	}
-	err = runMigrations(dsn)
+
+	data := map[string]map[string]any{
+		"01_init.up.sql": {"engine": getEngine(dsn)},
+	}
+	err = migrations.Run(dsn, data)
 	if err != nil {
 		log.Fatal("Migration: ", err)
 	}
