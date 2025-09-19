@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		// handle error
 	}
-	sqlPath := filepath.Join(wd, "qan-api2", "migrations", "sql")
+	sqlPath := filepath.Join(wd, "migrations", "sql")
 	if err := migrations.GenerateTestSetupMigrations(data, sqlPath); err != nil {
 		log.Fatalf("Failed to generate migrations: %v", err)
 	}
