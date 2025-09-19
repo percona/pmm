@@ -40,6 +40,7 @@ test-env-up-apple:              ## Start docker containers used for testing on A
 
 test-env:                       ## Create pmm_test DB and load test data
 	sleep 10
+	go run qan-api2/migrations/cmd/main.go
 	docker exec pmm-clickhouse-test clickhouse client --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"

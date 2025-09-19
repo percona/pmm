@@ -16,21 +16,17 @@
 package main
 
 import (
-	"bytes"
-	"embed"
 	"fmt"
-	iofs "io/fs"
 	"log"
 	"net/url"
 	"strings"
-	"text/template"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
-	"github.com/golang-migrate/migrate/v4"
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2"          // register database/sql driver
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
 	"github.com/jmoiron/sqlx"                                    // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
-	"github.com/pkg/errors"
+
+	"github.com/percona/pmm/qan-api2/migrations"
 )
 
 const (
@@ -69,7 +65,10 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	if err := runMigrations(dsn); err != nil {
+	data := map[string]map[string]any{
+		"01_init.up.sql": {"engine": getEngine(dsn)},
+	}
+	if err := migrations.Run(dsn, data); err != nil {
 		log.Fatal("Migrations: ", err)
 	}
 	log.Println("Migrations applied.")
@@ -124,66 +123,6 @@ func getEngine(dsn string) string {
 		return fmt.Sprintf(databaseEngineCluster, shardNum, replicaNum)
 	}
 	return databaseEngineSimple
-}
-
-//go:embed migrations/sql/*.sql
-var fs embed.FS
-
-func runMigrations(dsn string) error {
-	dynamic := map[string]map[string]interface{}{
-		"01_init.up.sql": {"engine": getEngine(dsn)},
-	}
-
-	entries, err := iofs.ReadDir(fs, "migrations/sql")
-	if err != nil {
-		return err
-	}
-
-	var migrations []memMigration
-	for i, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		content, err := fs.ReadFile("migrations/sql/" + entry.Name())
-		if err != nil {
-			return err
-		}
-
-		migration := memMigration{
-			Version:    uint(i + 1),
-			Identifier: entry.Name(),
-		}
-		if dynamic[entry.Name()] == nil {
-			migration.Up = string(content)
-			migrations = append(migrations, migration)
-			continue
-		}
-
-		var buf bytes.Buffer
-		tmpl, err := template.New(entry.Name()).Parse(string(content))
-		if err != nil {
-			return err
-		}
-		if err := tmpl.Execute(&buf, dynamic[entry.Name()]); err != nil {
-			return err
-		}
-		migration.Up = buf.String()
-		migrations = append(migrations, migration)
-	}
-
-	src := newDynamicMigrations(migrations)
-	m, err := migrate.NewWithSourceInstance("dynamic", src, dsn)
-	if err != nil {
-		return err
-	}
-
-	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
-		return nil
-	}
-
-	return err
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
