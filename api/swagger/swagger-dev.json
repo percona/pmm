@@ -29455,6 +29455,16 @@
                   "type": "string",
                   "title": "Snoozed PMM version update",
                   "x-order": 3
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 4
+                },
+                "snoozed_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
                 }
               }
             }
@@ -29524,6 +29534,16 @@
                   "title": "Snooze update alert for a PMM version",
                   "x-nullable": true,
                   "x-order": 2
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 3
+                },
+                "snoozed_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 4
                 }
               }
             }
@@ -29555,6 +29575,16 @@
                   "type": "string",
                   "title": "Snooze update alert for a PMM version",
                   "x-order": 3
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 4
+                },
+                "snoozed_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
                 }
               }
             }

@@ -1141,6 +1141,11 @@ var databaseSchema = [][]string{
 		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
 		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
 	},
+	111: {
+		`ALTER TABLE user_flags
+			ADD COLUMN snoozed_at TIMESTAMP,
+			ADD COLUMN snoozed_count INTEGER NOT NULL DEFAULT 0`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

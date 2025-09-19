@@ -4,6 +4,7 @@ import { useBootstrap } from 'hooks/utils/useBootstrap';
 import { Sidebar } from 'components/sidebar';
 import { GrafanaPage } from 'pages/grafana';
 import { useGrafana } from 'contexts/grafana';
+import { UpdateModal } from 'components/update-modal';
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
@@ -35,6 +36,7 @@ export const MainWithNav = () => {
         </>
       )}
       <GrafanaPage />
+      <UpdateModal />
     </Stack>
   );
 };

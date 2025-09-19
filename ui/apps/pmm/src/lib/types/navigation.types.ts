@@ -4,6 +4,7 @@ import { SvgIconComponent } from './util.types';
 export interface NavItem {
   id: string;
   text?: string;
+  secondaryText?: string;
   icon?: IconName | SvgIconComponent;
   url?: string;
   children?: NavItem[];
@@ -12,4 +13,5 @@ export interface NavItem {
   isDivider?: boolean;
   onClick?: () => void;
   hidden?: boolean;
+  badge?: string;
 }

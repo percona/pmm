@@ -17,6 +17,7 @@ import {
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
   NAV_CHANGE_PASSWORD,
+  NAV_CONFIGURATION,
   NAV_DASHBOARDS,
   NAV_DASHBOARDS_BROWSE,
   NAV_DASHBOARDS_LIBRARY_PANELS,
@@ -40,6 +41,7 @@ import {
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/textUtils';
 import { DashboardFolder } from 'types/folders.types';
+import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -190,4 +192,33 @@ export const addAccount = (
     children,
     text: NAV_ACCOUNT.text + (name ? `: ${name}` : ''),
   };
+};
+
+export const addConfiguration = (
+  status: UpdateStatus,
+  versionInfo?: GetUpdatesResponse
+): NavItem => {
+  const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
+  const { installed, latest } = versionInfo || {};
+
+  if (!updates) {
+    return NAV_CONFIGURATION;
+  }
+
+  if (versionInfo?.updateAvailable) {
+    updates.secondaryText = `Update from v${installed?.version?.slice(0, 5)} to v${latest?.version}`;
+  } else {
+    updates.secondaryText = `Current: v${installed?.version} (up to date)`;
+  }
+
+  if (
+    status === UpdateStatus.Pending ||
+    status === UpdateStatus.UpdateClients
+  ) {
+    updates.badge = 'New';
+  } else {
+    updates.badge = undefined;
+  }
+
+  return NAV_CONFIGURATION;
 };

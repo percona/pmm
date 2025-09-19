@@ -23,6 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -67,11 +68,18 @@ func (s *Service) GetUser(ctx context.Context, _ *userv1.GetUserRequest) (*userv
 		return nil, err
 	}
 
+	var snoozedAt *timestamppb.Timestamp
+	if userInfo.SnoozedAt != nil {
+		snoozedAt = timestamppb.New(*userInfo.SnoozedAt)
+	}
+
 	resp := &userv1.GetUserResponse{
 		UserId:                uint32(userInfo.ID), //nolint:gosec // user ID is not expected to overflow uint32
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
+		SnoozedAt:             snoozedAt,
+		SnoozedCount:          uint32(userInfo.SnoozedCount), //nolint:gosec
 	}
 	return resp, nil
 }
@@ -99,9 +107,16 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 			Tour:         req.ProductTourCompleted,
 			AlertingTour: req.AlertingTourCompleted,
 		}
+		if req.SnoozedAt != nil {
+			snoozedAt := req.SnoozedAt.AsTime()
+			params.SnoozedAt = &snoozedAt
+		}
 		if req.SnoozedPmmVersion != nil {
 			params.SnoozedPMMVersion = req.SnoozedPmmVersion
 		}
+
+		snoozedCount := int(req.SnoozedCount)
+		params.SnoozedCount = &snoozedCount
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)
 		if err != nil {
@@ -114,11 +129,18 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 		return nil, e
 	}
 
+	var snoozedAt *timestamppb.Timestamp
+	if userInfo.SnoozedAt != nil {
+		snoozedAt = timestamppb.New(*userInfo.SnoozedAt)
+	}
+
 	resp := &userv1.UpdateUserResponse{
 		UserId:                uint32(userInfo.ID), //nolint:gosec // user ID is not expected to overflow uint32
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
+		SnoozedAt:             snoozedAt,
+		SnoozedCount:          uint32(userInfo.SnoozedCount),
 	}
 	return resp, nil
 }
