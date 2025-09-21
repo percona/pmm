@@ -290,7 +290,7 @@ func (s *Service) StartChecks(checkNames []string) error {
 
 func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
 	if err := intervalGroup.Validate(); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	res, err := s.executeChecks(ctx, intervalGroup, checkNames)
