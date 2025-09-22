@@ -105,13 +105,13 @@ func getEngine(dsn string) string {
 	if err != nil {
 		return databaseEngineSimple
 	}
-	defer db.Close()
+	defer db.Close() //nolint:errcheck
 
 	rows, err := db.Queryx("SELECT shard_num, replica_num FROM system.clusters WHERE cluster = 'default';")
 	if err != nil {
 		return databaseEngineSimple
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	if rows.Next() {
 		var shardNum int
