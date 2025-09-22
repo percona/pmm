@@ -36,6 +36,7 @@ test-env-up:                    ## Start docker containers used for testing
 
 test-env:                       ## Create pmm_test DB and load test data
 	sleep 10
+	mkdir migrations/sql
 	go run migrations/cmd/main.go
 	docker exec pmm-clickhouse-test clickhouse client --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
