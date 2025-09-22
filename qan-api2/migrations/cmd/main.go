@@ -14,7 +14,7 @@ func main() {
 	}
 	wd, err := os.Getwd()
 	if err != nil {
-		// handle error
+		log.Fatalf("Failed to get working directory: %v", err)
 	}
 	sqlPath := filepath.Join(wd, "migrations", "sql")
 	if err := migrations.GenerateTestSetupMigrations(data, sqlPath); err != nil {
