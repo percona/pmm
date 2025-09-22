@@ -96,7 +96,7 @@ Changes to Advisors will be most visible in the list of all advisors by categori
 
 ![Advisors interface](../docs/assets/advisors/pmm-advisor-interface.png)
 
-``advisors.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L5
+``advisors.summary`` = https://github.com/percona/pmm/blob/b951d3c14eb1d5e4d716a61811da599af869054b/managed/data/advisors/example.yml.example#L5
 
 ``advisors.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L6
 
