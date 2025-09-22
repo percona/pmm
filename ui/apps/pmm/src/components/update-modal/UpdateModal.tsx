@@ -44,12 +44,15 @@ const UpdateModal: FC = () => {
     return false;
   }
 
-  if (snoozeCount > 0) {
+  if (snoozeCount > 1) {
     return (
       <Snackbar
         open={open}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         onClose={handleClose}
+        ClickAwayListenerProps={{
+          mouseEvent: false,
+        }}
       >
         <Card
           elevation={12}
