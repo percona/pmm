@@ -436,7 +436,9 @@ func TestTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, name)
+			})
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
 				Reload:  pointer.ToBool(true),
@@ -466,17 +468,18 @@ func TestTemplatesAPI(t *testing.T) {
 
 				templateNames[name] = struct{}{}
 			}
-			defer func() {
+			t.Cleanup(func() {
 				for name := range templateNames {
 					deleteTemplate(t, client, name)
 				}
-			}()
+			})
 
 			// list rules, so they are all on the first page
 			listAllTemplates, err := client.ListTemplates(&alerting.ListTemplatesParams{
 				PageSize:  pointer.ToInt32(100),
 				PageIndex: pointer.ToInt32(0),
 				Context:   pmmapitests.Context,
+				Reload:    pointer.ToBool(true),
 			})
 			require.NoError(t, err)
 
