@@ -73,7 +73,7 @@ type LogsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LogsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -195,7 +195,7 @@ type GetLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetLogsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -329,7 +329,7 @@ type GetLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetLogsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
