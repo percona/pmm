@@ -307,6 +307,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "updates_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -615,6 +620,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "updates_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0

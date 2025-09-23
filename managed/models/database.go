@@ -1146,6 +1146,12 @@ var databaseSchema = [][]string{
 			ADD COLUMN snoozed_at TIMESTAMP,
 			ADD COLUMN snoozed_count INTEGER NOT NULL DEFAULT 0`,
 	},
+	112: {
+		`UPDATE settings
+			SET settings = settings || '{"updates": {"snooze_duration": 604800000000000}}'
+			WHERE settings->'updates' IS NULL
+			OR settings->'updates'->'snooze_duration' IS NULL`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
