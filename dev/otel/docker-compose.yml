@@ -1,0 +1,124 @@
+services:
+  # Certificate generator - runs once to create SSL certificates
+  # cert-generator:
+  #   image: alpine:latest
+  #   container_name: cert-generator
+  #   restart: on-failure
+  #   volumes:
+  #     - clickhouse-certs:/certs
+  #     - ./clickhouse/generate-certs.sh:/app/generate-certs.sh
+  #   command: |
+  #     sh -c "
+  #       apk add --no-cache openssl && \
+  #       CHOWN_TO=1000 /app/generate-certs.sh
+  #     "
+  #   networks:
+  #     - otel
+
+  # PMM Server with built-in ClickHouse
+  pmm-server:
+    # image: percona/pmm-server:3
+    image: perconalab/pmm-server:3-dev-latest
+    platform: linux/amd64
+    container_name: pmm-server
+    hostname: pmm-server
+    restart: always
+    # depends_on:
+    #   cert-generator:
+    #     condition: service_completed_successfully
+    environment:
+      - GF_ANALYTICS_ENABLED=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_REPORTING_ENABLED=false
+      - GF_NEWS_NEWS_FEED_ENABLED=false
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_SECURITY_ADMIN_EMAIL=${GF_SECURITY_ADMIN_EMAIL:?GF_SECURITY_ADMIN_EMAIL must be set}
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=mailhog:1025
+      - GF_SMTP_FROM_NAME=Percona
+      - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:?GF_SMTP_FROM_ADDRESS must be set}
+      - GF_LOG_FILTERS=ngalert.api:error
+    ports:
+      - "443:8443"
+      - "9000:9000"
+    volumes:
+      - pmm-data:/srv
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./grafana/change-admin-password:/usr/local/sbin/change-admin-password:ro
+      - ./grafana/datasources.yml:/usr/share/grafana/conf/provisioning/datasources/otel-ds.yml:ro
+      - ./grafana/alert-rules.yml:/usr/share/grafana/conf/provisioning/alerting/otel-alert-rules.yml:ro
+      - ./grafana/contact-points.yml:/usr/share/grafana/conf/provisioning/alerting/otel-contactpoints.yml:ro
+      - ./grafana/notification-policies.yml:/usr/share/grafana/conf/provisioning/alerting/otel-policies.yml:ro
+      - ./clickhouse/config.d/config-override.xml:/etc/clickhouse-server/config.d/config-override.xml:ro
+      - ./clickhouse/client-config.xml:/etc/clickhouse-client/config.xml:ro
+      - clickhouse-certs:/etc/clickhouse-server/certs:ro
+    networks:
+      - otel
+
+  # OpenTelemetry Collector
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel/config.yml"]
+    volumes:
+      - ./config.yml:/etc/otel/config.yml
+      - pmm-data:/srv
+      - pg-logs:/logs/postgresql
+    depends_on:
+      pmm-server:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    networks:
+      - otel
+  
+  # MailHog for SMTP testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    platform: linux/amd64
+    container_name: mailhog
+    restart: always
+    ports:
+      - "8025:8025"   # Web UI
+    networks:
+      - otel
+
+  postgres:
+    image: percona/percona-distribution-postgresql:17
+    platform: ${PLATFORM:-linux/amd64}
+    container_name: postgres
+    hostname: postgres
+    restart: unless-stopped
+    command: |
+      postgres
+      -c config_file=/etc/postgresql/postgresql.conf
+      -c shared_preload_libraries=pg_stat_monitor
+      -c pg_stat_monitor.pgsm_query_max_len=4096
+      -c pg_stat_monitor.pgsm_enable_query_plan=1
+      -c pg_stat_monitor.pgsm_enable_pgsm_query_id=1
+      -c pg_stat_monitor.pgsm_normalized_query=1
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pmm-password}
+    volumes:
+      - $HOME/config/postgres/postgres-init.sh:/docker-entrypoint-initdb.d/postgres-init.sh
+      - $HOME/config/postgres/postgresql-otel.conf:/etc/postgresql/postgresql.conf:ro
+      - pg-logs:/var/log/postgresql
+    ports:
+      - 127.0.0.1:5432:5432
+    networks:
+      - otel
+
+networks:
+  otel:
+    name: otel
+    driver: bridge
+
+volumes:
+  pmm-data:
+    name: pmm-data
+  pg-logs:
+    name: pg-logs
+  clickhouse-certs:
+    name: clickhouse-certs
+    external: true
