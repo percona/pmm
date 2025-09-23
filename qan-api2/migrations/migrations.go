@@ -70,6 +70,7 @@ func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
 			Down:       downSQL,
 		})
 	}
+
 	return migrations, nil
 }
 
@@ -143,5 +144,6 @@ func Run(dsn string, data map[string]map[string]any) error {
 	if errors.Is(err, migrate.ErrNoChange) {
 		return nil
 	}
+
 	return err
 }

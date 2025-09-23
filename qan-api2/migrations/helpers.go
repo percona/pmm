@@ -59,6 +59,7 @@ func (s memMigrations) ReadUp(version uint) (io.ReadCloser, string, error) {
 			return io.NopCloser(strings.NewReader(m.Up)), m.Identifier, nil
 		}
 	}
+
 	return nil, "", io.EOF
 }
 
@@ -68,6 +69,7 @@ func (s memMigrations) ReadDown(version uint) (io.ReadCloser, string, error) {
 			return io.NopCloser(strings.NewReader(m.Down)), m.Identifier, nil
 		}
 	}
+
 	return nil, "", io.EOF
 }
 func (s memMigrations) Reset() error            { return nil }
