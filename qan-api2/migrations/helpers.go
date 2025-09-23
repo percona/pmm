@@ -1,6 +1,7 @@
 package migrations
 
 import (
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -12,6 +13,7 @@ type memMigration struct {
 	Version    uint
 	Identifier string
 	Up         string
+	Down       string
 }
 
 type memMigrations []memMigration
@@ -53,6 +55,7 @@ func (s memMigrations) Next(version uint) (uint, error) {
 func (s memMigrations) ReadUp(version uint) (io.ReadCloser, string, error) {
 	for _, m := range s {
 		if m.Version == version {
+			fmt.Printf("[memMigrations] ReadUp: version=%d, identifier=%s\nSQL:\n%s\n", m.Version, m.Identifier, m.Up)
 			return io.NopCloser(strings.NewReader(m.Up)), m.Identifier, nil
 		}
 	}
@@ -60,6 +63,11 @@ func (s memMigrations) ReadUp(version uint) (io.ReadCloser, string, error) {
 }
 
 func (s memMigrations) ReadDown(version uint) (io.ReadCloser, string, error) {
+	for _, m := range s {
+		if m.Version == version && m.Down != "" {
+			return io.NopCloser(strings.NewReader(m.Down)), m.Identifier, nil
+		}
+	}
 	return nil, "", io.EOF
 }
 func (s memMigrations) Reset() error            { return nil }
