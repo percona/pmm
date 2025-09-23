@@ -13,6 +13,7 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -129,7 +130,7 @@ func Run(dsn string, data map[string]map[string]any) error {
 		return err
 	}
 	for _, mig := range migrations {
-		fmt.Printf("[Run] Migration loaded: version=%d, identifier=%s\n", mig.Version, mig.Identifier)
+		logrus.Debugf("[Run] Migration loaded: version=%d, identifier=%s\n", mig.Version, mig.Identifier)
 	}
 	src := newMemMigrations(migrations)
 	m, err := migrate.NewWithSourceInstance("memMigrations", src, dsn)
@@ -139,7 +140,7 @@ func Run(dsn string, data map[string]map[string]any) error {
 
 	err = m.Up()
 	if err != nil {
-		fmt.Printf("[Run] Migration failed: %v\n", err)
+		logrus.Errorf("[Run] Migration failed: %v\n", err)
 	}
 	if errors.Is(err, migrate.ErrNoChange) {
 		return nil

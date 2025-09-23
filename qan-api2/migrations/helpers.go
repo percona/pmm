@@ -1,12 +1,12 @@
 package migrations
 
 import (
-	"fmt"
 	"io"
 	"strings"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4/source"
+	"github.com/sirupsen/logrus"
 )
 
 type memMigration struct {
@@ -55,7 +55,8 @@ func (s memMigrations) Next(version uint) (uint, error) {
 func (s memMigrations) ReadUp(version uint) (io.ReadCloser, string, error) {
 	for _, m := range s {
 		if m.Version == version {
-			fmt.Printf("[memMigrations] ReadUp: version=%d, identifier=%s\nSQL:\n%s\n", m.Version, m.Identifier, m.Up)
+			logrus.Debugf("[memMigrations] ReadUp: version=%d, identifier=%s\nSQL:\n%s\n", m.Version, m.Identifier, m.Up)
+
 			return io.NopCloser(strings.NewReader(m.Up)), m.Identifier, nil
 		}
 	}
