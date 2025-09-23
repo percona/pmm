@@ -2,6 +2,7 @@ package migrations
 
 import (
 	"io"
+	"sort"
 	"strings"
 	"time"
 
@@ -19,6 +20,10 @@ type memMigration struct {
 type memMigrations []memMigration
 
 func newMemMigrations(migs []memMigration) memMigrations {
+	sort.Slice(migs, func(i, j int) bool {
+		return migs[i].Version < migs[j].Version
+	})
+
 	return memMigrations(migs)
 }
 
@@ -44,8 +49,12 @@ func (s memMigrations) Prev(version uint) (uint, error) {
 
 func (s memMigrations) Next(version uint) (uint, error) {
 	for i := range s {
-		if s[i].Version == version && i+1 < len(s) {
-			return s[i+1].Version, nil
+		if s[i].Version == version {
+			if i+1 < len(s) {
+				return s[i+1].Version, nil
+			}
+			// No next migration, return current version and io.EOF
+			return s[i].Version, io.EOF
 		}
 	}
 
