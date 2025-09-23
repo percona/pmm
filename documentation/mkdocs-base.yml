@@ -243,6 +243,37 @@ nav:
           - advisors/advisors.md
           - advisors/advisor-details.md
           - advisors/develop-advisor-checks.md
+          - advisors/advisor-details.md
+          - advisors/develop-advisor-checks.md
+          - advisors/checks/binlog-checksum-value.md
+          - advisors/checks/binlog-retention-period.md
+          - advisors/checks/binlog-row-image.md
+          - advisors/checks/check-replica-verifying-checksum.md
+          - advisors/checks/check-the-replica-set-topology.md
+          - advisors/checks/configuration-check-general-log.md
+          - advisors/checks/configuration-check-innodb-data-file-path.md
+          - advisors/checks/configuration-check-log-bin.md
+          - advisors/checks/configuration-check-relay-log-purge.md
+          - advisors/checks/configuration-check-replica-not-read-only.md
+          - advisors/checks/configuration-check-replica-verifying-checksum.md
+          - advisors/checks/configuration-check-sql-mode.md
+          - advisors/checks/configuration-check-sync-binlog.md
+          - advisors/checks/configuration-check-tmp-table-size-limit.md
+          - advisors/checks/configuration-innodb-file-format.md
+          - advisors/checks/configuration-innodb-flush-method.md
+          - advisors/checks/configuration-pg-check-fsync-enabled.md
+          - advisors/checks/configuration-pg-high-max-connections.md
+          - advisors/checks/configuration-pg-log-autovacuum-disabled.md
+          - advisors/checks/configuration-pg-log-checkpoints-disabled.md
+          - advisors/checks/configuration-pg-settings-changed.md
+          - advisors/checks/datadesign-mysql-indexes-larger-than-data.md
+          - advisors/checks/default-password-lifetime.md
+          - advisors/checks/documentation.example.md
+          - advisors/checks/innodb-strict-mode.md
+          - advisors/checks/innodb_redo_logs_not_sized_correctly.md
+          - advisors/checks/local-option-of-load-data-enabled.md
+          - advisors/checks/master-verify-checksum.md
+          - advisors/checks/mongo-check-the-replica-set-topology.md
           
       - Percona Alerting:
           - alert/index.md
