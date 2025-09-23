@@ -243,6 +243,7 @@ nav:
           - advisors/advisors.md
           - advisors/advisor-details.md
           - advisors/develop-advisor-checks.md
+          
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
