@@ -25,10 +25,9 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/helpers"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
@@ -65,7 +64,7 @@ func (a listResultAgent) NiceAgentStatus() string {
 	if res == "" {
 		res = "unknown" //nolint:goconst
 	}
-	res = cases.Title(language.English).String(strings.ToLower(res))
+	res = helpers.NiceAgentStatus(res)
 	if a.Disabled {
 		res += " (disabled)"
 	}
