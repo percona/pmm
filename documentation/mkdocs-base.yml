@@ -239,42 +239,45 @@ nav:
               - use/qan/panels/overview.md
               - use/qan/panels/filters.md
               - use/qan/panels/details.md
-      - Advisors:
-          - advisors/advisors.md
-          - advisors/advisor-details.md
-          - advisors/develop-advisor-checks.md
-          - advisors/advisor-details.md
-          - advisors/develop-advisor-checks.md
-          - advisors/checks/binlog-checksum-value.md
-          - advisors/checks/binlog-retention-period.md
-          - advisors/checks/binlog-row-image.md
-          - advisors/checks/check-replica-verifying-checksum.md
-          - advisors/checks/check-the-replica-set-topology.md
-          - advisors/checks/configuration-check-general-log.md
-          - advisors/checks/configuration-check-innodb-data-file-path.md
-          - advisors/checks/configuration-check-log-bin.md
-          - advisors/checks/configuration-check-relay-log-purge.md
-          - advisors/checks/configuration-check-replica-not-read-only.md
-          - advisors/checks/configuration-check-replica-verifying-checksum.md
-          - advisors/checks/configuration-check-sql-mode.md
-          - advisors/checks/configuration-check-sync-binlog.md
-          - advisors/checks/configuration-check-tmp-table-size-limit.md
-          - advisors/checks/configuration-innodb-file-format.md
-          - advisors/checks/configuration-innodb-flush-method.md
-          - advisors/checks/configuration-pg-check-fsync-enabled.md
-          - advisors/checks/configuration-pg-high-max-connections.md
-          - advisors/checks/configuration-pg-log-autovacuum-disabled.md
-          - advisors/checks/configuration-pg-log-checkpoints-disabled.md
-          - advisors/checks/configuration-pg-settings-changed.md
-          - advisors/checks/datadesign-mysql-indexes-larger-than-data.md
-          - advisors/checks/default-password-lifetime.md
-          - advisors/checks/documentation.example.md
-          - advisors/checks/innodb-strict-mode.md
-          - advisors/checks/innodb_redo_logs_not_sized_correctly.md
-          - advisors/checks/local-option-of-load-data-enabled.md
-          - advisors/checks/master-verify-checksum.md
-          - advisors/checks/mongo-check-the-replica-set-topology.md
-          
+        - Advisors:
+            - Overview: advisors/advisors.md
+            - Advisor details: advisors/advisor-details.md
+            - Develop Avisor checks: advisors/develop-advisor-checks.md
+            - Checks:
+                - MySQL configuration checks:
+                    - Binlog checksum value: advisors/checks/binlog-checksum-value.md
+                    - Binlog retention period: advisors/checks/binlog-retention-period.md
+                    - Binlog row image: advisors/checks/binlog-row-image.md
+                    - General log: advisors/checks/configuration-check-general-log.md
+                    - InnoDB data file path: advisors/checks/configuration-check-innodb-data-file-path.md
+                    - Log bin: advisors/checks/configuration-check-log-bin.md
+                    - Relay log purge: advisors/checks/configuration-check-relay-log-purge.md
+                    - Replica not read-only: advisors/checks/configuration-check-replica-not-read-only.md
+                    - Replica verifying checksum: advisors/checks/configuration-check-replica-verifying-checksum.md
+                    - SQL mode: advisors/checks/configuration-check-sql-mode.md
+                    - Sync binlog: advisors/checks/configuration-check-sync-binlog.md
+                    - Temporary table size limit: advisors/checks/configuration-check-tmp-table-size-limit.md
+                    - InnoDB file format: advisors/checks/configuration-innodb-file-format.md
+                    - InnoDB flush method: advisors/checks/configuration-innodb-flush-method.md
+                - PostgreSQL configuration checks:
+                    - Fsync enabled: advisors/checks/configuration-pg-check-fsync-enabled.md
+                    - High max connections: advisors/checks/configuration-pg-high-max-connections.md
+                    - Log autovacuum disabled: advisors/checks/configuration-pg-log-autovacuum-disabled.md
+                    - Log checkpoints disabled: advisors/checks/configuration-pg-log-checkpoints-disabled.md
+                    - Settings changed: advisors/checks/configuration-pg-settings-changed.md
+                - MongoDB configuration checks:
+                    - Replica set topology: advisors/checks/mongo-check-the-replica-set-topology.md
+                - Data design checks:
+                    - MySQL indexes larger than data: advisors/checks/datadesign-mysql-indexes-larger-than-data.md
+                - Security checks:
+                    - Default password lifetime: advisors/checks/default-password-lifetime.md
+                    - Local option of load data enabled: advisors/checks/local-option-of-load-data-enabled.md
+                - Performance checks:
+                    - InnoDB strict mode: advisors/checks/innodb-strict-mode.md
+                    - InnoDB redo logs not sized correctly: advisors/checks/innodb_redo_logs_not_sized_correctly.md
+                - Examples and miscellaneous:
+                    - Documentation example: advisors/checks/documentation.example.md
+                    - Master verify checksum: advisors/checks/master-verify-checksum.md
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
