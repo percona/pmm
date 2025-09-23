@@ -130,7 +130,7 @@ func Run(dsn string, data map[string]map[string]any) error {
 		return err
 	}
 	for _, mig := range migrations {
-		logrus.Debugf("[Run] Migration loaded: version=%d, identifier=%s\n", mig.Version, mig.Identifier)
+		fmt.Printf("[Run] Migration loaded: version=%d, identifier=%s\n", mig.Version, mig.Identifier)
 	}
 	src := newMemMigrations(migrations)
 	m, err := migrate.NewWithSourceInstance("memMigrations", src, dsn)
