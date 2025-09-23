@@ -12,26 +12,16 @@ import (
 	"text/template"
 
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/jmoiron/sqlx"
+)
+
+const (
+	databaseEngineSimple  = "MergeTree"
+	databaseEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/metrics', '{replica}')"
 )
 
 //go:embed templates/*.sql
 var eFS embed.FS
-
-func GenerateTestSetupMigrations(data map[string]map[string]any, path string) error {
-	migrations, err := renderMigrations(data)
-	if err != nil {
-		return err
-	}
-
-	for _, migration := range migrations {
-		err = os.WriteFile(filepath.Join(path, migration.Identifier), []byte(migration.Up), 0o644)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
 
 func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
 	entries, err := fs.ReadDir(eFS, "templates")
@@ -81,6 +71,55 @@ func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
 		})
 	}
 	return migrations, nil
+}
+
+func isClickhouseCluster(dsn string) bool {
+	db, err := sqlx.Connect("clickhouse", dsn)
+	if err != nil {
+		return false
+	}
+	defer db.Close() //nolint:errcheck
+
+	rows, err := db.Queryx("SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters;")
+	if err != nil {
+		return false
+	}
+	defer rows.Close() //nolint:errcheck
+
+	if rows.Next() {
+		var remoteHosts int
+		if err := rows.Scan(&remoteHosts); err != nil {
+			return false
+		}
+
+		return remoteHosts > 0
+	}
+
+	return false
+}
+
+func GetEngine(dsn string) string {
+	if isClickhouseCluster(dsn) {
+		return databaseEngineCluster
+	}
+
+	return databaseEngineSimple
+}
+
+func GenerateMigrations(data map[string]map[string]any, path string) error {
+	migrations, err := renderMigrations(data)
+	if err != nil {
+		return err
+	}
+
+	for _, migration := range migrations {
+		err = os.WriteFile(filepath.Join(path, migration.Identifier), []byte(migration.Up), 0o644)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func Run(dsn string, data map[string]map[string]any) error {

@@ -31,8 +31,6 @@ import (
 
 const (
 	databaseNotExistErrorCode = 81
-	databaseEngineSimple      = "MergeTree"
-	databaseEngineCluster     = "ReplicatedMergeTree('/clickhouse/tables/%d/metrics', '%d')"
 )
 
 // NewDB return updated db.
@@ -66,7 +64,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db.SetMaxOpenConns(maxOpenConns)
 
 	data := map[string]map[string]any{
-		"01_init.up.sql": {"engine": getEngine(dsn)},
+		"01_init.up.sql": {"engine": migrations.GetEngine(dsn)},
 	}
 	if err := migrations.Run(dsn, data); err != nil {
 		log.Fatal("Migrations: ", err)
@@ -98,31 +96,6 @@ func createDB(dsn string) error {
 	log.Println("Database was created")
 	return nil
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
-}
-
-func getEngine(dsn string) string {
-	db, err := sqlx.Connect("clickhouse", dsn)
-	if err != nil {
-		return databaseEngineSimple
-	}
-	defer db.Close() //nolint:errcheck
-
-	rows, err := db.Queryx("SELECT shard_num, replica_num FROM system.clusters WHERE cluster = 'default';")
-	if err != nil {
-		return databaseEngineSimple
-	}
-	defer rows.Close() //nolint:errcheck
-
-	if rows.Next() {
-		var shardNum int
-		var replicaNum int
-		if err := rows.Scan(&shardNum, &replicaNum); err != nil {
-			return databaseEngineSimple
-		}
-
-		return fmt.Sprintf(databaseEngineCluster, shardNum, replicaNum)
-	}
-	return databaseEngineSimple
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.

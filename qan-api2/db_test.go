@@ -51,7 +51,7 @@ func setup() *sqlx.DB {
 	}
 
 	data := map[string]map[string]any{
-		"01_init.up.sql": {"engine": getEngine(dsn)},
+		"01_init.up.sql": {"engine": migrations.GetEngine(dsn)},
 	}
 	err = migrations.Run(dsn, data)
 	if err != nil {
