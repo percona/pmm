@@ -422,6 +422,56 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 	}, nil
 }
 
+// Snooze updates for specific pmm version for current user
+func (s *Server) SnoozeUpdate(ctx context.Context, req *serverv1.SnoozeUpdateRequest) (*serverv1.SnoozeUpdateResponse, error) {
+	userID, err := s.grafanaClient.GetUserID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo, err := models.GetOrCreateUser(s.db.Querier, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &serverv1.SnoozeUpdateResponse{
+		SnoozedPmmVersion: userInfo.SnoozedPMMVersion,
+		SnoozedAt:         timestamppb.New(pointer.Get(userInfo.SnoozedAt)),
+		SnoozedCount:      uint32(userInfo.SnoozedCount),
+	}
+
+	err = s.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.UpdateUserParams{
+			UserID:            userInfo.ID,
+			SnoozedPMMVersion: &req.SnoozedPmmVersion,
+			SnoozedAt:         pointer.ToTime(time.Now()),
+		}
+
+		// when changing snoozed PMM version reset the counter
+		if req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
+			params.SnoozedCount = pointer.ToInt(1)
+		} else {
+			params.SnoozedCount = pointer.ToInt(userInfo.SnoozedCount + 1)
+		}
+
+		userInfo, err = models.UpdateUser(tx.Querier, params)
+		if err != nil {
+			return err
+		}
+
+		res.SnoozedPmmVersion = userInfo.SnoozedPMMVersion
+		res.SnoozedAt = timestamppb.New(*userInfo.SnoozedAt)
+		res.SnoozedCount = uint32(userInfo.SnoozedCount)
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 // writeUpdateAuthToken writes authentication token for getting update status and logs to the file.
 //
 // We can't rely on Grafana for authentication or on PostgreSQL for storage as their configuration
