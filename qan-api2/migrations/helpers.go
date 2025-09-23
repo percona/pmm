@@ -53,8 +53,8 @@ func (s memMigrations) Next(version uint) (uint, error) {
 			if i+1 < len(s) {
 				return s[i+1].Version, nil
 			}
-			// No next migration, return current version and io.EOF
-			return s[i].Version, io.EOF
+			// No next migration, return 0 and io.EOF
+			return 0, io.EOF
 		}
 	}
 
