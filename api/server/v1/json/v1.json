@@ -483,6 +483,11 @@
                   "title": "Enable Access Control",
                   "x-nullable": true,
                   "x-order": 12
+                },
+                "updates_snooze_duration": {
+                  "description": "A number of full days for which an update is snoozed. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }

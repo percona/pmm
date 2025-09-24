@@ -28538,6 +28538,11 @@
                   "title": "Enable Access Control",
                   "x-nullable": true,
                   "x-order": 12
+                },
+                "updates_snooze_duration": {
+                  "description": "A number of full days for which an update is snoozed. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }
@@ -29631,16 +29636,6 @@
                   "title": "Snooze update alert for a PMM version",
                   "x-nullable": true,
                   "x-order": 2
-                },
-                "snoozed_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 3
-                },
-                "snoozed_count": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 4
                 }
               }
             }

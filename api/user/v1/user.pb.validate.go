@@ -296,37 +296,6 @@ func (m *UpdateUserRequest) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetSnoozedAt()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UpdateUserRequestValidationError{
-					field:  "SnoozedAt",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UpdateUserRequestValidationError{
-					field:  "SnoozedAt",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetSnoozedAt()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UpdateUserRequestValidationError{
-				field:  "SnoozedAt",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	// no validation rules for SnoozedCount
-
 	if m.ProductTourCompleted != nil {
 		// no validation rules for ProductTourCompleted
 	}

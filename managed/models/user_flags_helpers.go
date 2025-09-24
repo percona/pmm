@@ -116,7 +116,7 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 	if params.SnoozedAt != nil {
 		row.SnoozedAt = params.SnoozedAt
 	}
-	if params.SnoozedCount != nil && *params.SnoozedCount != 0 {
+	if params.SnoozedCount != nil {
 		row.SnoozedCount = *params.SnoozedCount
 	}
 

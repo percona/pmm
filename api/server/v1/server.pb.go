@@ -1549,8 +1549,10 @@ type ChangeSettingsRequest struct {
 	EnableBackupManagement *bool `protobuf:"varint,12,opt,name=enable_backup_management,json=enableBackupManagement,proto3,oneof" json:"enable_backup_management,omitempty"`
 	// Enable Access Control
 	EnableAccessControl *bool `protobuf:"varint,13,opt,name=enable_access_control,json=enableAccessControl,proto3,oneof" json:"enable_access_control,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// A number of full days for which an update is snoozed. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+	UpdatesSnoozeDuration *durationpb.Duration `protobuf:"bytes,14,opt,name=updates_snooze_duration,json=updatesSnoozeDuration,proto3" json:"updates_snooze_duration,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ChangeSettingsRequest) Reset() {
@@ -1672,6 +1674,13 @@ func (x *ChangeSettingsRequest) GetEnableAccessControl() bool {
 		return *x.EnableAccessControl
 	}
 	return false
+}
+
+func (x *ChangeSettingsRequest) GetUpdatesSnoozeDuration() *durationpb.Duration {
+	if x != nil {
+		return x.UpdatesSnoozeDuration
+	}
+	return nil
 }
 
 type ChangeSettingsResponse struct {
@@ -1926,7 +1935,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xca\a\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\x9d\b\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1941,7 +1950,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	" \x01(\v2\x1e.server.v1.AdvisorRunIntervalsR\x13advisorRunIntervals\x126\n" +
 	"\x14enable_azurediscover\x18\v \x01(\bH\aR\x13enableAzurediscover\x88\x01\x01\x12=\n" +
 	"\x18enable_backup_management\x18\f \x01(\bH\bR\x16enableBackupManagement\x88\x01\x01\x127\n" +
-	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01B\x11\n" +
+	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x12Q\n" +
+	"\x17updates_snooze_duration\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\x15updatesSnoozeDurationB\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\n" +
 	"\n" +
@@ -2062,35 +2072,36 @@ var file_server_v1_server_proto_depIdxs = []int32{
 	30, // 23: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
 	31, // 24: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
 	18, // 25: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	19, // 26: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
-	29, // 27: server.v1.SnoozeUpdateResponse.snoozed_at:type_name -> google.protobuf.Timestamp
-	2,  // 28: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
-	4,  // 29: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
-	6,  // 30: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
-	8,  // 31: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
-	11, // 32: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
-	13, // 33: server.v1.ServerService.StartUpdate:input_type -> server.v1.StartUpdateRequest
-	15, // 34: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
-	27, // 35: server.v1.ServerService.SnoozeUpdate:input_type -> server.v1.SnoozeUpdateRequest
-	21, // 36: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
-	22, // 37: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
-	25, // 38: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
-	3,  // 39: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
-	5,  // 40: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
-	7,  // 41: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
-	10, // 42: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
-	12, // 43: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
-	14, // 44: server.v1.ServerService.StartUpdate:output_type -> server.v1.StartUpdateResponse
-	16, // 45: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
-	28, // 46: server.v1.ServerService.SnoozeUpdate:output_type -> server.v1.SnoozeUpdateResponse
-	23, // 47: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
-	24, // 48: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
-	26, // 49: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
-	39, // [39:50] is the sub-list for method output_type
-	28, // [28:39] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	30, // 26: server.v1.ChangeSettingsRequest.updates_snooze_duration:type_name -> google.protobuf.Duration
+	19, // 27: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
+	29, // 28: server.v1.SnoozeUpdateResponse.snoozed_at:type_name -> google.protobuf.Timestamp
+	2,  // 29: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
+	4,  // 30: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
+	6,  // 31: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
+	8,  // 32: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
+	11, // 33: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
+	13, // 34: server.v1.ServerService.StartUpdate:input_type -> server.v1.StartUpdateRequest
+	15, // 35: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
+	27, // 36: server.v1.ServerService.SnoozeUpdate:input_type -> server.v1.SnoozeUpdateRequest
+	21, // 37: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
+	22, // 38: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
+	25, // 39: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
+	3,  // 40: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
+	5,  // 41: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
+	7,  // 42: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
+	10, // 43: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
+	12, // 44: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
+	14, // 45: server.v1.ServerService.StartUpdate:output_type -> server.v1.StartUpdateResponse
+	16, // 46: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
+	28, // 47: server.v1.ServerService.SnoozeUpdate:output_type -> server.v1.SnoozeUpdateResponse
+	23, // 48: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
+	24, // 49: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
+	26, // 50: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
+	40, // [40:51] is the sub-list for method output_type
+	29, // [29:40] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_server_v1_server_proto_init() }

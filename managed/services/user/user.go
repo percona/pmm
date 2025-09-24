@@ -18,7 +18,9 @@ package user
 
 import (
 	"context"
+	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -107,16 +109,13 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 			Tour:         req.ProductTourCompleted,
 			AlertingTour: req.AlertingTourCompleted,
 		}
-		if req.SnoozedAt != nil {
-			snoozedAt := req.SnoozedAt.AsTime()
-			params.SnoozedAt = &snoozedAt
-		}
-		if req.SnoozedPmmVersion != nil {
-			params.SnoozedPMMVersion = req.SnoozedPmmVersion
-		}
 
-		snoozedCount := int(req.SnoozedCount)
-		params.SnoozedCount = &snoozedCount
+		// Keep for backwards compatibility, prefer the new snooze updates:endpoint
+		if req.SnoozedPmmVersion != nil && req.SnoozedPmmVersion != &userInfo.SnoozedPMMVersion {
+			params.SnoozedPMMVersion = req.SnoozedPmmVersion
+			params.SnoozedAt = pointer.ToTime(time.Now())
+			params.SnoozedCount = pointer.ToInt(1)
+		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)
 		if err != nil {

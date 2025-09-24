@@ -34,8 +34,6 @@ message UpdateUserRequest {
   // Snooze update alert for a PMM version
   optional string snoozed_pmm_version = 4;
   reserved 5;
-  google.protobuf.Timestamp snoozed_at = 6;
-  uint32 snoozed_count = 7;
 }
 
 message UpdateUserResponse {

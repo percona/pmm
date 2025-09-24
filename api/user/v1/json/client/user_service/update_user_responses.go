@@ -200,38 +200,10 @@ type UpdateUserBody struct {
 
 	// Snooze update alert for a PMM version
 	SnoozedPMMVersion *string `json:"snoozed_pmm_version,omitempty"`
-
-	// snoozed at
-	// Format: date-time
-	SnoozedAt strfmt.DateTime `json:"snoozed_at,omitempty"`
-
-	// snoozed count
-	SnoozedCount int64 `json:"snoozed_count,omitempty"`
 }
 
 // Validate validates this update user body
 func (o *UpdateUserBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateSnoozedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *UpdateUserBody) validateSnoozedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.SnoozedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"snoozed_at", "body", "date-time", o.SnoozedAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
