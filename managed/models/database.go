@@ -1141,6 +1141,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
 		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
 	},
+	111: {
+		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
+		`UPDATE agents SET valkey_options = '{}'::jsonb`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

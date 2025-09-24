@@ -25,6 +25,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -44,9 +45,6 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/managed/utils/platform"
-	"github.com/percona/pmm/managed/utils/signatures"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/utils/sqlrows"
 	"github.com/percona/pmm/version"
@@ -58,9 +56,10 @@ const (
 	// Environment variables that affect checks service; only for testing.
 	envCheckFile         = "PMM_DEV_ADVISOR_CHECKS_FILE"
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
+	builtinAdvisorsPath  = "/usr/local/percona/advisors"
+	builtinChecksPath    = "/usr/local/percona/checks"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
-	platformRequestTimeout = 2 * time.Minute  // time limit to get checks list from the portal
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
 	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
 	resultCheckInterval    = time.Second
@@ -72,7 +71,7 @@ const (
 )
 
 // pmm-agent versions with known changes in Query Actions.
-// To match all pre-release versions add '-0' suffix to specified version.
+// To match all pre-release versions, add a '-0' suffix to the specified version.
 var (
 	pmmAgent2_6_0   = version.MustParse("2.6.0")
 	pmmAgent2_7_0   = version.MustParse("2.7.0")
@@ -84,17 +83,15 @@ var (
 
 // Service is responsible for interactions with Percona Check service.
 type Service struct {
-	platformClient *platform.Client
 	agentsRegistry agentsRegistry
 	db             *reform.DB
 	alertsRegistry *registry
 	vmClient       v1.API
 	clickhouseDB   *sql.DB
 
-	l                  *logrus.Entry
-	startDelay         time.Duration
-	platformPublicKeys []string
-	localChecksFile    string // For testing
+	l               *logrus.Entry
+	startDelay      time.Duration
+	customCheckFile string // For testing
 
 	am       sync.Mutex
 	advisors []check.Advisor
@@ -120,18 +117,11 @@ type queryPlaceholders struct {
 // New returns Service with given PMM version.
 func New(
 	db *reform.DB,
-	platformClient *platform.Client,
 	agentsRegistry agentsRegistry,
 	vmClient v1.API,
 	clickhouseDB *sql.DB,
 ) *Service {
 	l := logrus.WithField("component", "checks")
-
-	var platformPublicKeys []string
-	if k := envvars.GetPlatformPublicKeys(); k != nil {
-		l.Warnf("Percona Platform public keys changed to %q.", k)
-		platformPublicKeys = k
-	}
 
 	s := &Service{
 		db:             db,
@@ -140,11 +130,9 @@ func New(
 		vmClient:       vmClient,
 		clickhouseDB:   clickhouseDB,
 
-		l:                  l,
-		platformClient:     platformClient,
-		startDelay:         defaultStartDelay,
-		platformPublicKeys: platformPublicKeys,
-		localChecksFile:    os.Getenv(envCheckFile),
+		l:               l,
+		startDelay:      defaultStartDelay,
+		customCheckFile: os.Getenv(envCheckFile),
 
 		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -182,7 +170,7 @@ func (s *Service) Run(ctx context.Context) {
 	s.l.Info("Starting...")
 	defer s.l.Info("Done.")
 
-	s.CollectAdvisors(ctx)
+	s.UpdateAdvisorsList(ctx)
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to get settings: %+v.", err)
@@ -202,7 +190,7 @@ func (s *Service) Run(ctx context.Context) {
 	startCtx, startCancel := context.WithTimeout(ctx, s.startDelay)
 	<-startCtx.Done()
 	startCancel()
-	if ctx.Err() != nil { // check main context, not startCtx
+	if ctx.Err() != nil { // check the main context, not the startCtx
 		return
 	}
 
@@ -272,7 +260,7 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 		return services.ErrAdvisorsDisabled
 	}
 
-	s.CollectAdvisors(ctx)
+	s.UpdateAdvisorsList(ctx)
 	return s.run(ctx, intervalGroup, nil)
 }
 
@@ -290,7 +278,7 @@ func (s *Service) StartChecks(checkNames []string) error {
 
 	go func() {
 		ctx := context.Background()
-		s.CollectAdvisors(ctx)
+		s.UpdateAdvisorsList(ctx)
 		if err := s.run(ctx, "", checkNames); err != nil {
 			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
 		}
@@ -449,7 +437,7 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 		}
 
 		// since we re-run checks at regular intervals using a call
-		// to s.runChecksGroup which in turn calls s.CollectAdvisors
+		// to s.runChecksGroup which in turn calls s.UpdateAdvisorsList
 		// to load/download checks, we must persist any changes
 		// to check intervals in the DB so that they can be re-applied
 		// once the checks have been re-loaded on restarts.
@@ -1371,102 +1359,152 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	return targets, nil
 }
 
-// CollectAdvisors loads advisors from file or SaaS, and stores versions this pmm-managed version can handle.
-func (s *Service) CollectAdvisors(ctx context.Context) {
+// UpdateAdvisorsList loads advisors from built-in advisors directory or user-defined file, and stores versions supported by this pmm-managed version.
+func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error
 
 	defer s.refreshChecksInMemoryMetric()
 
-	if s.localChecksFile != "" {
-		s.l.Warnf("Using local test checks file: %s.", s.localChecksFile)
-		checks, err := s.loadLocalChecks(s.localChecksFile)
+	s.l.Infof("Using builtin test checks file: %s", builtinAdvisorsPath)
+	advisors, err = s.loadBuiltinAdvisors(ctx)
+	if err != nil {
+		s.l.Errorf("Failed to load built-in advisors: %s.", err)
+		return // keep previously downloaded advisors
+	}
+	// if custom check file is provided, load it and append to the list of advisors
+	if s.customCheckFile != "" {
+		s.l.Infof("Using local test checks file: %s.", s.customCheckFile)
+		checks, err := s.loadChecksFromFiles([]string{s.customCheckFile})
 		if err != nil {
 			s.l.Errorf("Failed to load local checks file: %s.", err)
 			return // keep previously loaded advisors
 		}
 
 		advisors = append(advisors, check.Advisor{
-			Version:     1,
+			Version:     2,
 			Name:        "dev",
 			Summary:     "Dev Advisor",
 			Description: "Advisor used for developing checks",
 			Category:    "development",
 			Checks:      checks,
 		})
-	} else {
-		advisors, err = s.downloadAdvisors(ctx)
-		if err != nil {
-			s.l.Errorf("Failed to download checks: %s.", err)
-			return // keep previously downloaded advisors
-		}
 	}
 
 	s.updateAdvisors(s.filterSupportedChecks(advisors))
 }
 
-// loadLocalCheck loads checks form local file.
-func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
-	data, err := os.ReadFile(file) //nolint:gosec
+// loadBuiltinAdvisors loads builtin advisors.
+func (s *Service) loadBuiltinAdvisors(_ context.Context) ([]check.Advisor, error) {
+	s.l.Infof("Loading advisors from dir=%s", builtinAdvisorsPath)
+	advisorFiles, err := filepath.Glob(filepath.Join(builtinAdvisorsPath, "*.yml"))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read test checks file")
+		return nil, errors.Wrap(err, "failed to find advisor files")
 	}
 
-	// be strict about local files
-	params := &check.ParseParams{
-		DisallowUnknownFields: true,
-		DisallowInvalidChecks: true,
-	}
-	checks, err := check.ParseChecks(bytes.NewReader(data), params)
+	advisors, err := s.loadAdvisorsFromFiles(advisorFiles)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse test checks file")
+		return nil, err
 	}
 
+	s.l.Infof("Loading checks from dir=%s", builtinChecksPath)
+
+	checkFiles, err := filepath.Glob(filepath.Join(builtinChecksPath, "*.yml"))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find check files")
+	}
+
+	checks, err := s.loadChecksFromFiles(checkFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	// Link checks to advisors
 	for _, c := range checks {
-		if c.Advisor != "dev" {
-			return nil, errors.Errorf("Local checks are supposed to be linked to the 'dev' advisor.") //nolint:revive
+		a, ok := advisors[c.Advisor]
+		if !ok {
+			return nil, errors.Errorf("check '%s' refers to an unknown advisor '%s'", c.Name, c.Advisor)
 		}
+		a.Checks = append(a.Checks, c)
 	}
 
-	return checks, nil
+	advisorsSlice := make([]check.Advisor, 0, len(advisors))
+	for _, a := range advisors {
+		advisorsSlice = append(advisorsSlice, *a)
+	}
+	return advisorsSlice, nil
 }
 
-// downloadAdvisors downloads advisors form percona service endpoint.
-func (s *Service) downloadAdvisors(ctx context.Context) ([]check.Advisor, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
+// loadChecksFromFiles loads Advisor checks from a list of given files.
+func (s *Service) loadChecksFromFiles(files []string) ([]check.Check, error) {
+	res := make([]check.Check, 0, len(files))
+	for _, file := range files {
+		s.l.Debugf("Loading check file=%s", file)
+
+		b, err := os.ReadFile(file) //nolint:gosec
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to read checks file %s", file)
+		}
+		checks, err := check.ParseChecks(bytes.NewReader(b), &check.ParseParams{
+			DisallowUnknownFields: true,
+			DisallowInvalidChecks: true,
+		})
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to parse checks from file %s", file)
+		}
+
+		if len(checks) != 1 {
+			return nil, errors.Errorf("expected exactly one check in %s", file)
+		}
+		c := checks[0]
+
+		_, fileName := filepath.Split(file)
+		if c.Name != strings.TrimSuffix(fileName, ".yml") {
+			return nil, errors.Errorf("check name does not match file name %s", file)
+		}
+
+		res = append(res, c)
 	}
 
-	if !settings.IsTelemetryEnabled() {
-		s.l.Debug("Advisors downloading skipped due to disabled telemetry.")
-		return nil, nil
+	return res, nil
+}
+
+// loadAdvisorsFromFiles loads Advisors from a list of given files.
+func (s *Service) loadAdvisorsFromFiles(files []string) (map[string]*check.Advisor, error) {
+	res := make(map[string]*check.Advisor, len(files))
+	for _, file := range files {
+		s.l.Debugf("Loading advisor file=%s", file)
+
+		b, err := os.ReadFile(file) //nolint:gosec
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to read advisor file %s", file)
+		}
+		advisors, err := check.ParseAdvisors(bytes.NewReader(b), &check.ParseParams{
+			DisallowUnknownFields: true,
+			DisallowInvalidChecks: true,
+		})
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to parse advisor from file %s", file)
+		}
+
+		if len(advisors) != 1 {
+			return nil, errors.Errorf("expected exactly one advisor in %s", file)
+		}
+		a := advisors[0]
+
+		_, fileName := filepath.Split(file)
+		if a.Name != strings.TrimSuffix(fileName, ".yml") {
+			return nil, errors.Errorf("advisor name does not match file name %s", file)
+		}
+
+		if _, ok := res[a.Name]; ok {
+			return nil, errors.Errorf("advisor name collision detected: %s", a.Name)
+		}
+
+		res[a.Name] = &a
 	}
 
-	nCtx, cancel := context.WithTimeout(ctx, platformRequestTimeout)
-	defer cancel()
-
-	resp, err := s.platformClient.GetAdvisors(nCtx)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.platformPublicKeys); err != nil {
-		return nil, err
-	}
-
-	// be liberal about files from SaaS for smooth transition to future versions
-	params := &check.ParseParams{
-		DisallowUnknownFields: false,
-		DisallowInvalidChecks: false,
-	}
-
-	advisors, err := check.ParseAdvisors(strings.NewReader(resp.File), params)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	return advisors, nil
+	return res, nil
 }
 
 // filterSupportedChecks returns supported advisor checks and prints warning log messages about unsupported.

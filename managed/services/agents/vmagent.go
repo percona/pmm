@@ -80,6 +80,7 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
 		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
 	}
+	args = append(args, params.VMAgentArgs()...)
 
 	sort.Strings(args)
 
