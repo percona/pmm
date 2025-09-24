@@ -1,6 +1,6 @@
 import { Modal } from 'components/modal';
 import { useUpdates } from 'contexts/updates';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { Messages } from './UpdateModal.messages';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -26,7 +26,7 @@ const UpdateModal: FC = () => {
   const highlights = parseReleaseHighlights(
     versionInfo?.latest.releaseNotesText
   );
-  const { snoozeUpdate, snoozeCount } = useSnooze();
+  const { snoozeUpdate, snoozeActive, snoozeCount } = useSnooze();
 
   const handleClose = () => {
     setIsOpen(false);
@@ -40,8 +40,8 @@ const UpdateModal: FC = () => {
     }, SHOW_UPDATE_INFO_DELAY_MS);
   }, []);
 
-  if (isLoading || !versionInfo) {
-    return false;
+  if (isLoading || !versionInfo || snoozeActive) {
+    return null;
   }
 
   if (snoozeCount > 1) {

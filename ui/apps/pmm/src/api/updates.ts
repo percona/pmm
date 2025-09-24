@@ -5,6 +5,8 @@ import {
   GetUpdateStatusResponse,
   GetUpdatesParams,
   GetUpdatesResponse,
+  SnoozeUpdateBody,
+  SnoozeUpdateResponse,
   StartUpdateBody,
   StartUpdateResponse,
 } from 'types/updates.types';
@@ -39,6 +41,14 @@ export const getUpdateStatus = async (body: GetUpdateStatusBody) => {
     GetUpdateStatusBody,
     AxiosResponse<GetUpdateStatusResponse>
   >('/server/updates:getStatus', body);
+  return res.data;
+};
+
+export const snoozeUpdate = async (body: SnoozeUpdateBody) => {
+  const res = await api.post<
+    SnoozeUpdateBody,
+    AxiosResponse<SnoozeUpdateResponse>
+  >('/server/updates:snooze', body);
   return res.data;
 };
 
