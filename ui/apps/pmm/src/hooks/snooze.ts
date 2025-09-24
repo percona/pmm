@@ -20,7 +20,7 @@ export const useSnooze = () => {
       ? new Date().getTime() - new Date(user?.info.snoozedAt).getTime() <=
           parseDuration(settings.updatesSnoozeDuration)
       : false;
-  }, [latestVersion, user?.info.snoozedAt, settings?.updatesSnoozeDuration]);
+  }, [latestVersion, user, settings]);
 
   const snoozeUpdate = async () => {
     if (!latestVersion) {

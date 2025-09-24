@@ -3,16 +3,10 @@ import {
   GetSettingsResponse,
 } from 'types/settings.types';
 import { api, grafanaApi } from './api';
-import { parseDuration } from 'utils/duration';
 
 export const getSettings = async () => {
   const res = await api.get<GetSettingsResponse>('/server/settings');
-  return {
-    ...res.data.settings,
-    updatesSnoozeDurationMs: parseDuration(
-      res.data.settings.updatesSnoozeDuration
-    ),
-  };
+  return res.data.settings;
 };
 
 export const getReadonlySettings = async () => {
