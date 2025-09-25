@@ -57,6 +57,7 @@ jobs:
         run: docker exec -i -u root pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Pull the cache image and inject cache to PMM Server
+        if: false # temporarily disabled due to size growth, will be enabled once we optimize the cache size
         continue-on-error: true
         run: |
           if docker pull --platform linux/amd64 ${{ env.PMM_CACHE_IMAGE }}; then
@@ -66,6 +67,7 @@ jobs:
           fi
 
       - name: Remove the cache image
+        if: false # see the comment above
         continue-on-error: true
         run: docker image rm ${{ env.PMM_CACHE_IMAGE }}
 
@@ -88,11 +90,6 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Run PMM Server update test
-        run: |
-          echo "PMM Server update test will be refactored once we have a new update mechanism."
-          # docker exec -i -u root pmm-server make -C managed test-update
-
       - name: Save PMM Go module and build cache as an image
         if: ${{ fromJSON(env.BUILD_CACHE) }}
         run: |
@@ -108,7 +105,7 @@ jobs:
 
       - name: Login to ghcr.io registry
         if: ${{ fromJSON(env.BUILD_CACHE) }}
-        uses: docker/login-action@v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -130,6 +127,8 @@ jobs:
           services=$(docker exec pmm-server supervisorctl status | awk '{print $1}')
           services=(`echo ${services}`)
           for service in "${services[@]}"; do
-            echo "Logs for $service:"
-            docker exec pmm-server supervisorctl tail $service || true
+            if [ "$service" != "clickhouse" ]; then
+              echo "Logs for $service:"
+              docker exec pmm-server supervisorctl tail $service || true
+            fi
           done
