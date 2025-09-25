@@ -242,7 +242,6 @@ nav:
       - Advisors:
           - Overview: advisors/advisors.md
           - Advisor details: advisors/advisor-details.md
-          - Develop Advisor checks: advisors/develop-advisor-checks.md
           - Checks:
               - MySQL configuration checks:
                   - Binlog checksum value: advisors/checks/binlog-checksum-value.md
@@ -276,6 +275,7 @@ nav:
               - Performance checks:
                   - InnoDB strict mode: advisors/checks/innodb-strict-mode.md
                   - InnoDB redo logs not sized correctly: advisors/checks/innodb_redo_logs_not_sized_correctly.md
+          - Develop Advisor checks: advisors/develop-advisor-checks.md
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
