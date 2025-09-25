@@ -116,8 +116,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableUpdates = &b
-		case "PMM_UPDATES_SNOOZE_DURATION":
-			if envSettings.UpdatesSnoozeDuration, err = parseStringDuration(v); err != nil {
+		case "PMM_UPDATE_SNOOZE_DURATION":
+			if envSettings.UpdateSnoozeDuration, err = parseStringDuration(v); err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}

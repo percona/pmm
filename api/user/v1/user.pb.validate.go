@@ -194,7 +194,7 @@ func (m *GetUserResponse) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for SnoozedCount
+	// no validation rules for SnoozeCount
 
 	if len(errors) > 0 {
 		return GetUserResponseMultiError(errors)
@@ -447,7 +447,7 @@ func (m *UpdateUserResponse) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for SnoozedCount
+	// no validation rules for SnoozeCount
 
 	if len(errors) > 0 {
 		return UpdateUserResponseMultiError(errors)
@@ -764,6 +764,254 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListUsersResponseValidationError{}
+
+// Validate checks the field values on SnoozeUpdateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SnoozeUpdateRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SnoozeUpdateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SnoozeUpdateRequestMultiError, or nil if none found.
+func (m *SnoozeUpdateRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SnoozeUpdateRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetSnoozedPmmVersion()) < 1 {
+		err := SnoozeUpdateRequestValidationError{
+			field:  "SnoozedPmmVersion",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return SnoozeUpdateRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// SnoozeUpdateRequestMultiError is an error wrapping multiple validation
+// errors returned by SnoozeUpdateRequest.ValidateAll() if the designated
+// constraints aren't met.
+type SnoozeUpdateRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SnoozeUpdateRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SnoozeUpdateRequestMultiError) AllErrors() []error { return m }
+
+// SnoozeUpdateRequestValidationError is the validation error returned by
+// SnoozeUpdateRequest.Validate if the designated constraints aren't met.
+type SnoozeUpdateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SnoozeUpdateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SnoozeUpdateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SnoozeUpdateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SnoozeUpdateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SnoozeUpdateRequestValidationError) ErrorName() string {
+	return "SnoozeUpdateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SnoozeUpdateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSnoozeUpdateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SnoozeUpdateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SnoozeUpdateRequestValidationError{}
+
+// Validate checks the field values on SnoozeUpdateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SnoozeUpdateResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SnoozeUpdateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SnoozeUpdateResponseMultiError, or nil if none found.
+func (m *SnoozeUpdateResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SnoozeUpdateResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for SnoozedPmmVersion
+
+	if all {
+		switch v := interface{}(m.GetSnoozedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SnoozeUpdateResponseValidationError{
+					field:  "SnoozedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SnoozeUpdateResponseValidationError{
+					field:  "SnoozedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSnoozedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SnoozeUpdateResponseValidationError{
+				field:  "SnoozedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for SnoozeCount
+
+	if len(errors) > 0 {
+		return SnoozeUpdateResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// SnoozeUpdateResponseMultiError is an error wrapping multiple validation
+// errors returned by SnoozeUpdateResponse.ValidateAll() if the designated
+// constraints aren't met.
+type SnoozeUpdateResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SnoozeUpdateResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SnoozeUpdateResponseMultiError) AllErrors() []error { return m }
+
+// SnoozeUpdateResponseValidationError is the validation error returned by
+// SnoozeUpdateResponse.Validate if the designated constraints aren't met.
+type SnoozeUpdateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SnoozeUpdateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SnoozeUpdateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SnoozeUpdateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SnoozeUpdateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SnoozeUpdateResponseValidationError) ErrorName() string {
+	return "SnoozeUpdateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SnoozeUpdateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSnoozeUpdateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SnoozeUpdateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SnoozeUpdateResponseValidationError{}
 
 // Validate checks the field values on ListUsersResponse_UserDetail with the
 // rules defined in the proto definition for this message. If any rules are

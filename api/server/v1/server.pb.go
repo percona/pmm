@@ -11,7 +11,6 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -1096,9 +1095,9 @@ type Settings struct {
 	// Default Access Control role ID for new users.
 	DefaultRoleId uint32 `protobuf:"varint,18,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
 	// Duration for which an update is snoozed
-	UpdatesSnoozeDuration *durationpb.Duration `protobuf:"bytes,19,opt,name=updates_snooze_duration,json=updatesSnoozeDuration,proto3" json:"updates_snooze_duration,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,19,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
@@ -1250,9 +1249,9 @@ func (x *Settings) GetDefaultRoleId() uint32 {
 	return 0
 }
 
-func (x *Settings) GetUpdatesSnoozeDuration() *durationpb.Duration {
+func (x *Settings) GetUpdateSnoozeDuration() *durationpb.Duration {
 	if x != nil {
-		return x.UpdatesSnoozeDuration
+		return x.UpdateSnoozeDuration
 	}
 	return nil
 }
@@ -1549,10 +1548,10 @@ type ChangeSettingsRequest struct {
 	EnableBackupManagement *bool `protobuf:"varint,12,opt,name=enable_backup_management,json=enableBackupManagement,proto3,oneof" json:"enable_backup_management,omitempty"`
 	// Enable Access Control
 	EnableAccessControl *bool `protobuf:"varint,13,opt,name=enable_access_control,json=enableAccessControl,proto3,oneof" json:"enable_access_control,omitempty"`
-	// A number of full days for which an update is snoozed. Should have a suffix in JSON: 2592000s, 43200m, 720h.
-	UpdatesSnoozeDuration *durationpb.Duration `protobuf:"bytes,14,opt,name=updates_snooze_duration,json=updatesSnoozeDuration,proto3" json:"updates_snooze_duration,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,14,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ChangeSettingsRequest) Reset() {
@@ -1676,9 +1675,9 @@ func (x *ChangeSettingsRequest) GetEnableAccessControl() bool {
 	return false
 }
 
-func (x *ChangeSettingsRequest) GetUpdatesSnoozeDuration() *durationpb.Duration {
+func (x *ChangeSettingsRequest) GetUpdateSnoozeDuration() *durationpb.Duration {
 	if x != nil {
-		return x.UpdatesSnoozeDuration
+		return x.UpdateSnoozeDuration
 	}
 	return nil
 }
@@ -1727,119 +1726,11 @@ func (x *ChangeSettingsResponse) GetSettings() *Settings {
 	return nil
 }
 
-type SnoozeUpdateRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// PMM version which should be snoozed
-	SnoozedPmmVersion string `protobuf:"bytes,1,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *SnoozeUpdateRequest) Reset() {
-	*x = SnoozeUpdateRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[26]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SnoozeUpdateRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SnoozeUpdateRequest) ProtoMessage() {}
-
-func (x *SnoozeUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[26]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SnoozeUpdateRequest.ProtoReflect.Descriptor instead.
-func (*SnoozeUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{26}
-}
-
-func (x *SnoozeUpdateRequest) GetSnoozedPmmVersion() string {
-	if x != nil {
-		return x.SnoozedPmmVersion
-	}
-	return ""
-}
-
-type SnoozeUpdateResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Snoozed PMM version
-	SnoozedPmmVersion string `protobuf:"bytes,1,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
-	// Snoozed at timestamp
-	SnoozedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
-	// Number of times the update was snoozed
-	SnoozedCount  uint32 `protobuf:"varint,3,opt,name=snoozed_count,json=snoozedCount,proto3" json:"snoozed_count,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SnoozeUpdateResponse) Reset() {
-	*x = SnoozeUpdateResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[27]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SnoozeUpdateResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SnoozeUpdateResponse) ProtoMessage() {}
-
-func (x *SnoozeUpdateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[27]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SnoozeUpdateResponse.ProtoReflect.Descriptor instead.
-func (*SnoozeUpdateResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{27}
-}
-
-func (x *SnoozeUpdateResponse) GetSnoozedPmmVersion() string {
-	if x != nil {
-		return x.SnoozedPmmVersion
-	}
-	return ""
-}
-
-func (x *SnoozeUpdateResponse) GetSnoozedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.SnoozedAt
-	}
-	return nil
-}
-
-func (x *SnoozeUpdateResponse) GetSnoozedCount() uint32 {
-	if x != nil {
-		return x.SnoozedCount
-	}
-	return 0
-}
-
 var File_server_v1_server_proto protoreflect.FileDescriptor
 
 const file_server_v1_server_proto_rawDesc = "" +
 	"\n" +
-	"\x16server/v1/server.proto\x12\tserver.v1\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x84\x01\n" +
+	"\x16server/v1/server.proto\x12\tserver.v1\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x84\x01\n" +
 	"\vVersionInfo\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12!\n" +
 	"\ffull_version\x18\x02 \x01(\tR\vfullVersion\x128\n" +
@@ -1900,7 +1791,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xb4\a\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xb2\a\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1919,8 +1810,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x15connected_to_platform\x18\x0f \x01(\bR\x13connectedToPlatform\x12/\n" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
-	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x12Q\n" +
-	"\x17updates_snooze_duration\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\x15updatesSnoozeDuration\"\x8f\x03\n" +
+	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x12O\n" +
+	"\x16update_snooze_duration\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\"\x8f\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1935,7 +1826,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\x9d\b\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\x9b\b\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1950,8 +1841,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	" \x01(\v2\x1e.server.v1.AdvisorRunIntervalsR\x13advisorRunIntervals\x126\n" +
 	"\x14enable_azurediscover\x18\v \x01(\bH\aR\x13enableAzurediscover\x88\x01\x01\x12=\n" +
 	"\x18enable_backup_management\x18\f \x01(\bH\bR\x16enableBackupManagement\x88\x01\x01\x127\n" +
-	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x12Q\n" +
-	"\x17updates_snooze_duration\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\x15updatesSnoozeDurationB\x11\n" +
+	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x12O\n" +
+	"\x16update_snooze_duration\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDurationB\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\n" +
 	"\n" +
@@ -1964,21 +1855,14 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x19_enable_backup_managementB\x18\n" +
 	"\x16_enable_access_control\"I\n" +
 	"\x16ChangeSettingsResponse\x12/\n" +
-	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"N\n" +
-	"\x13SnoozeUpdateRequest\x127\n" +
-	"\x13snoozed_pmm_version\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x11snoozedPmmVersion\"\xa6\x01\n" +
-	"\x14SnoozeUpdateResponse\x12.\n" +
-	"\x13snoozed_pmm_version\x18\x01 \x01(\tR\x11snoozedPmmVersion\x129\n" +
-	"\n" +
-	"snoozed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tsnoozedAt\x12#\n" +
-	"\rsnoozed_count\x18\x03 \x01(\rR\fsnoozedCount*\xce\x01\n" +
+	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings*\xce\x01\n" +
 	"\x12DistributionMethod\x12#\n" +
 	"\x1fDISTRIBUTION_METHOD_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aDISTRIBUTION_METHOD_DOCKER\x10\x01\x12\x1b\n" +
 	"\x17DISTRIBUTION_METHOD_OVF\x10\x02\x12\x1b\n" +
 	"\x17DISTRIBUTION_METHOD_AMI\x10\x03\x12\x1d\n" +
 	"\x19DISTRIBUTION_METHOD_AZURE\x10\x04\x12\x1a\n" +
-	"\x16DISTRIBUTION_METHOD_DO\x10\x052\x93\x11\n" +
+	"\x16DISTRIBUTION_METHOD_DO\x10\x052\xd9\x0f\n" +
 	"\rServerService\x12\x86\x01\n" +
 	"\aVersion\x12\x19.server.v1.VersionRequest\x1a\x1a.server.v1.VersionResponse\"D\x92A'\x12\aVersion\x1a\x1cReturns PMM Server versions.\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/server/version\x12\xab\x02\n" +
 	"\tReadiness\x12\x1b.server.v1.ReadinessRequest\x1a\x1c.server.v1.ReadinessResponse\"\xe2\x01\x92A\xc5\x01\x12\x16Check server readiness\x1a\xaa\x01Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/server/readyz\x12\x81\x02\n" +
@@ -1986,8 +1870,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\fCheckUpdates\x12\x1e.server.v1.CheckUpdatesRequest\x1a\x1f.server.v1.CheckUpdatesResponse\"V\x92A9\x12\rCheck updates\x1a(Checks for available PMM Server updates.\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/server/updates\x12\xe9\x01\n" +
 	"\x0eListChangeLogs\x12 .server.v1.ListChangeLogsRequest\x1a!.server.v1.ListChangeLogsResponse\"\x91\x01\x92Ai\x12\x11Get the changelog\x1aTDisplay a changelog comparing the installed version to the latest available version.\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/server/updates/changelogs\x12\x9d\x01\n" +
 	"\vStartUpdate\x12\x1d.server.v1.StartUpdateRequest\x1a\x1e.server.v1.StartUpdateResponse\"O\x92A)\x12\fStart update\x1a\x19Starts PMM Server update.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/server/updates:start\x12\xad\x01\n" +
-	"\fUpdateStatus\x12\x1e.server.v1.UpdateStatusRequest\x1a\x1f.server.v1.UpdateStatusResponse\"\\\x92A2\x12\rUpdate status\x1a!Returns PMM Server update status.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/server/updates:getStatus\x12\xb7\x01\n" +
-	"\fSnoozeUpdate\x12\x1e.server.v1.SnoozeUpdateRequest\x1a\x1f.server.v1.SnoozeUpdateResponse\"f\x92A?\x12\x1eSnooze update for current user\x1a\x1dReturns update snooze status.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/server/updates:snooze\x12\xa0\x01\n" +
+	"\fUpdateStatus\x12\x1e.server.v1.UpdateStatusRequest\x1a\x1f.server.v1.UpdateStatusResponse\"\\\x92A2\x12\rUpdate status\x1a!Returns PMM Server update status.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/server/updates:getStatus\x12\xa0\x01\n" +
 	"\vGetSettings\x12\x1d.server.v1.GetSettingsRequest\x1a\x1e.server.v1.GetSettingsResponse\"R\x92A4\x12\fGet settings\x1a$Returns current PMM Server settings.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/server/settings\x12\xd9\x01\n" +
 	"\x13GetReadOnlySettings\x12%.server.v1.GetReadOnlySettingsRequest\x1a&.server.v1.GetReadOnlySettingsResponse\"s\x92AL\x12\x16Get read-only settings\x1a2Returns a stripped version of PMM Server settings.\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/server/settings/readonly\x12\xa7\x01\n" +
 	"\x0eChangeSettings\x12 .server.v1.ChangeSettingsRequest\x1a!.server.v1.ChangeSettingsResponse\"P\x92A/\x12\x0fChange settings\x1a\x1cChanges PMM Server settings.\x82\xd3\xe4\x93\x02\x18:\x01*\x1a\x13/v1/server/settingsB\x90\x01\n" +
@@ -2008,7 +1891,7 @@ func file_server_v1_server_proto_rawDescGZIP() []byte {
 
 var (
 	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 28)
+	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 26)
 	file_server_v1_server_proto_goTypes   = []any{
 		(DistributionMethod)(0),             // 0: server.v1.DistributionMethod
 		(*VersionInfo)(nil),                 // 1: server.v1.VersionInfo
@@ -2037,71 +1920,66 @@ var (
 		(*GetReadOnlySettingsResponse)(nil), // 24: server.v1.GetReadOnlySettingsResponse
 		(*ChangeSettingsRequest)(nil),       // 25: server.v1.ChangeSettingsRequest
 		(*ChangeSettingsResponse)(nil),      // 26: server.v1.ChangeSettingsResponse
-		(*SnoozeUpdateRequest)(nil),         // 27: server.v1.SnoozeUpdateRequest
-		(*SnoozeUpdateResponse)(nil),        // 28: server.v1.SnoozeUpdateResponse
-		(*timestamppb.Timestamp)(nil),       // 29: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),         // 30: google.protobuf.Duration
-		(*common.StringArray)(nil),          // 31: common.StringArray
+		(*timestamppb.Timestamp)(nil),       // 27: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),         // 28: google.protobuf.Duration
+		(*common.StringArray)(nil),          // 29: common.StringArray
 	}
 )
 
 var file_server_v1_server_proto_depIdxs = []int32{
-	29, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
+	27, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo
 	1,  // 2: server.v1.VersionResponse.managed:type_name -> server.v1.VersionInfo
 	0,  // 3: server.v1.VersionResponse.distribution_method:type_name -> server.v1.DistributionMethod
-	29, // 4: server.v1.DockerVersionInfo.timestamp:type_name -> google.protobuf.Timestamp
+	27, // 4: server.v1.DockerVersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 5: server.v1.CheckUpdatesResponse.installed:type_name -> server.v1.VersionInfo
 	9,  // 6: server.v1.CheckUpdatesResponse.latest:type_name -> server.v1.DockerVersionInfo
-	29, // 7: server.v1.CheckUpdatesResponse.last_check:type_name -> google.protobuf.Timestamp
+	27, // 7: server.v1.CheckUpdatesResponse.last_check:type_name -> google.protobuf.Timestamp
 	9,  // 8: server.v1.ListChangeLogsResponse.updates:type_name -> server.v1.DockerVersionInfo
-	29, // 9: server.v1.ListChangeLogsResponse.last_check:type_name -> google.protobuf.Timestamp
-	30, // 10: server.v1.MetricsResolutions.hr:type_name -> google.protobuf.Duration
-	30, // 11: server.v1.MetricsResolutions.mr:type_name -> google.protobuf.Duration
-	30, // 12: server.v1.MetricsResolutions.lr:type_name -> google.protobuf.Duration
-	30, // 13: server.v1.AdvisorRunIntervals.standard_interval:type_name -> google.protobuf.Duration
-	30, // 14: server.v1.AdvisorRunIntervals.rare_interval:type_name -> google.protobuf.Duration
-	30, // 15: server.v1.AdvisorRunIntervals.frequent_interval:type_name -> google.protobuf.Duration
+	27, // 9: server.v1.ListChangeLogsResponse.last_check:type_name -> google.protobuf.Timestamp
+	28, // 10: server.v1.MetricsResolutions.hr:type_name -> google.protobuf.Duration
+	28, // 11: server.v1.MetricsResolutions.mr:type_name -> google.protobuf.Duration
+	28, // 12: server.v1.MetricsResolutions.lr:type_name -> google.protobuf.Duration
+	28, // 13: server.v1.AdvisorRunIntervals.standard_interval:type_name -> google.protobuf.Duration
+	28, // 14: server.v1.AdvisorRunIntervals.rare_interval:type_name -> google.protobuf.Duration
+	28, // 15: server.v1.AdvisorRunIntervals.frequent_interval:type_name -> google.protobuf.Duration
 	17, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	30, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
+	28, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
 	18, // 18: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	30, // 19: server.v1.Settings.updates_snooze_duration:type_name -> google.protobuf.Duration
+	28, // 19: server.v1.Settings.update_snooze_duration:type_name -> google.protobuf.Duration
 	19, // 20: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
 	20, // 21: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
 	17, // 22: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	30, // 23: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
-	31, // 24: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
+	28, // 23: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
+	29, // 24: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
 	18, // 25: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	30, // 26: server.v1.ChangeSettingsRequest.updates_snooze_duration:type_name -> google.protobuf.Duration
+	28, // 26: server.v1.ChangeSettingsRequest.update_snooze_duration:type_name -> google.protobuf.Duration
 	19, // 27: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
-	29, // 28: server.v1.SnoozeUpdateResponse.snoozed_at:type_name -> google.protobuf.Timestamp
-	2,  // 29: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
-	4,  // 30: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
-	6,  // 31: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
-	8,  // 32: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
-	11, // 33: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
-	13, // 34: server.v1.ServerService.StartUpdate:input_type -> server.v1.StartUpdateRequest
-	15, // 35: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
-	27, // 36: server.v1.ServerService.SnoozeUpdate:input_type -> server.v1.SnoozeUpdateRequest
-	21, // 37: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
-	22, // 38: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
-	25, // 39: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
-	3,  // 40: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
-	5,  // 41: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
-	7,  // 42: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
-	10, // 43: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
-	12, // 44: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
-	14, // 45: server.v1.ServerService.StartUpdate:output_type -> server.v1.StartUpdateResponse
-	16, // 46: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
-	28, // 47: server.v1.ServerService.SnoozeUpdate:output_type -> server.v1.SnoozeUpdateResponse
-	23, // 48: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
-	24, // 49: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
-	26, // 50: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
-	40, // [40:51] is the sub-list for method output_type
-	29, // [29:40] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	2,  // 28: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
+	4,  // 29: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
+	6,  // 30: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
+	8,  // 31: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
+	11, // 32: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
+	13, // 33: server.v1.ServerService.StartUpdate:input_type -> server.v1.StartUpdateRequest
+	15, // 34: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
+	21, // 35: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
+	22, // 36: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
+	25, // 37: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
+	3,  // 38: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
+	5,  // 39: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
+	7,  // 40: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
+	10, // 41: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
+	12, // 42: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
+	14, // 43: server.v1.ServerService.StartUpdate:output_type -> server.v1.StartUpdateResponse
+	16, // 44: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
+	23, // 45: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
+	24, // 46: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
+	26, // 47: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
+	38, // [38:48] is the sub-list for method output_type
+	28, // [28:38] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_server_v1_server_proto_init() }
@@ -2116,7 +1994,7 @@ func file_server_v1_server_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_v1_server_proto_rawDesc), len(file_server_v1_server_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   28,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

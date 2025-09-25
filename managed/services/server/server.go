@@ -422,56 +422,6 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 	}, nil
 }
 
-// Snooze updates for specific pmm version for current user
-func (s *Server) SnoozeUpdate(ctx context.Context, req *serverv1.SnoozeUpdateRequest) (*serverv1.SnoozeUpdateResponse, error) {
-	userID, err := s.grafanaClient.GetUserID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	userInfo, err := models.GetOrCreateUser(s.db.Querier, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &serverv1.SnoozeUpdateResponse{
-		SnoozedPmmVersion: userInfo.SnoozedPMMVersion,
-		SnoozedAt:         timestamppb.New(pointer.Get(userInfo.SnoozedAt)),
-		SnoozedCount:      uint32(userInfo.SnoozedCount),
-	}
-
-	err = s.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.UpdateUserParams{
-			UserID:            userInfo.ID,
-			SnoozedPMMVersion: &req.SnoozedPmmVersion,
-			SnoozedAt:         pointer.ToTime(time.Now()),
-		}
-
-		// when changing snoozed PMM version reset the counter
-		if req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
-			params.SnoozedCount = pointer.ToInt(1)
-		} else {
-			params.SnoozedCount = pointer.ToInt(userInfo.SnoozedCount + 1)
-		}
-
-		userInfo, err = models.UpdateUser(tx.Querier, params)
-		if err != nil {
-			return err
-		}
-
-		res.SnoozedPmmVersion = userInfo.SnoozedPMMVersion
-		res.SnoozedAt = timestamppb.New(*userInfo.SnoozedAt)
-		res.SnoozedCount = uint32(userInfo.SnoozedCount)
-
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
 // writeUpdateAuthToken writes authentication token for getting update status and logs to the file.
 //
 // We can't rely on Grafana for authentication or on PostgreSQL for storage as their configuration
@@ -545,9 +495,9 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
-		EnableAccessControl:   settings.IsAccessControlEnabled(),
-		DefaultRoleId:         uint32(settings.DefaultRoleID),
-		UpdatesSnoozeDuration: durationpb.New(settings.Updates.SnoozeDuration),
+		EnableAccessControl:  settings.IsAccessControlEnabled(),
+		DefaultRoleId:        uint32(settings.DefaultRoleID),
+		UpdateSnoozeDuration: durationpb.New(settings.Updates.SnoozeDuration),
 	}
 
 	return res
@@ -644,8 +594,8 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
-	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.UpdatesSnoozeDuration) {
-		return status.Error(codes.FailedPrecondition, "Updates snooze duration is set via PMM_UPDATES_SNOOZE_DURATION environment variable.")
+	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
+		return status.Error(codes.FailedPrecondition, "Updates snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
 	}
 
 	return nil

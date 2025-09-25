@@ -32,7 +32,7 @@ type UserDetails struct {
 	AlertingTour      bool       `reform:"alerting_tour_done"`
 	SnoozedPMMVersion string     `reform:"snoozed_pmm_version"`
 	SnoozedAt         *time.Time `reform:"snoozed_at"`
-	SnoozedCount      int        `reform:"snoozed_count"`
+	SnoozeCount       int        `reform:"snooze_count"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`

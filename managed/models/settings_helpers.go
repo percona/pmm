@@ -99,7 +99,7 @@ type ChangeSettingsParams struct {
 	EncryptedItems []string
 
 	// Duration for which an update is snoozed
-	UpdatesSnoozeDuration time.Duration
+	UpdateSnoozeDuration time.Duration
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -143,8 +143,8 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Updates.Enabled = params.EnableUpdates
 	}
 
-	if params.UpdatesSnoozeDuration != 0 {
-		settings.Updates.SnoozeDuration = params.UpdatesSnoozeDuration
+	if params.UpdateSnoozeDuration != 0 {
+		settings.Updates.SnoozeDuration = params.UpdateSnoozeDuration
 	}
 
 	if params.EnableTelemetry != nil {

@@ -428,8 +428,8 @@ type GetUserOKBody struct {
 	// Format: date-time
 	SnoozedAt strfmt.DateTime `json:"snoozed_at,omitempty"`
 
-	// snoozed count
-	SnoozedCount int64 `json:"snoozed_count,omitempty"`
+	// snooze count
+	SnoozeCount int64 `json:"snooze_count,omitempty"`
 }
 
 // Validate validates this get user OK body

@@ -33,7 +33,7 @@ func (v *userDetailsTableType) Columns() []string {
 		"alerting_tour_done",
 		"snoozed_pmm_version",
 		"snoozed_at",
-		"snoozed_count",
+		"snooze_count",
 		"created_at",
 		"updated_at",
 	}
@@ -65,7 +65,7 @@ var UserDetailsTable = &userDetailsTableType{
 			{Name: "AlertingTour", Type: "bool", Column: "alerting_tour_done"},
 			{Name: "SnoozedPMMVersion", Type: "string", Column: "snoozed_pmm_version"},
 			{Name: "SnoozedAt", Type: "*time.Time", Column: "snoozed_at"},
-			{Name: "SnoozedCount", Type: "int", Column: "snoozed_count"},
+			{Name: "SnoozeCount", Type: "int", Column: "snooze_count"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -82,7 +82,7 @@ func (s UserDetails) String() string {
 	res[2] = "AlertingTour: " + reform.Inspect(s.AlertingTour, true)
 	res[3] = "SnoozedPMMVersion: " + reform.Inspect(s.SnoozedPMMVersion, true)
 	res[4] = "SnoozedAt: " + reform.Inspect(s.SnoozedAt, true)
-	res[5] = "SnoozedCount: " + reform.Inspect(s.SnoozedCount, true)
+	res[5] = "SnoozeCount: " + reform.Inspect(s.SnoozeCount, true)
 	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[7] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
@@ -97,7 +97,7 @@ func (s *UserDetails) Values() []interface{} {
 		s.AlertingTour,
 		s.SnoozedPMMVersion,
 		s.SnoozedAt,
-		s.SnoozedCount,
+		s.SnoozeCount,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -112,7 +112,7 @@ func (s *UserDetails) Pointers() []interface{} {
 		&s.AlertingTour,
 		&s.SnoozedPMMVersion,
 		&s.SnoozedAt,
-		&s.SnoozedCount,
+		&s.SnoozeCount,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}

@@ -27,7 +27,6 @@ const (
 	ServerService_ListChangeLogs_FullMethodName      = "/server.v1.ServerService/ListChangeLogs"
 	ServerService_StartUpdate_FullMethodName         = "/server.v1.ServerService/StartUpdate"
 	ServerService_UpdateStatus_FullMethodName        = "/server.v1.ServerService/UpdateStatus"
-	ServerService_SnoozeUpdate_FullMethodName        = "/server.v1.ServerService/SnoozeUpdate"
 	ServerService_GetSettings_FullMethodName         = "/server.v1.ServerService/GetSettings"
 	ServerService_GetReadOnlySettings_FullMethodName = "/server.v1.ServerService/GetReadOnlySettings"
 	ServerService_ChangeSettings_FullMethodName      = "/server.v1.ServerService/ChangeSettings"
@@ -54,8 +53,6 @@ type ServerServiceClient interface {
 	StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
 	UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error)
-	// SnoozeUpdate snoozes updates for currently logged in user and returns the count and timestamp
-	SnoozeUpdate(ctx context.Context, in *SnoozeUpdateRequest, opts ...grpc.CallOption) (*SnoozeUpdateResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
 	// GetReadOnlySettings returns a limited number of PMM settings that is opened to authenticated users of all roles.
@@ -142,16 +139,6 @@ func (c *serverServiceClient) UpdateStatus(ctx context.Context, in *UpdateStatus
 	return out, nil
 }
 
-func (c *serverServiceClient) SnoozeUpdate(ctx context.Context, in *SnoozeUpdateRequest, opts ...grpc.CallOption) (*SnoozeUpdateResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SnoozeUpdateResponse)
-	err := c.cc.Invoke(ctx, ServerService_SnoozeUpdate_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *serverServiceClient) GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetSettingsResponse)
@@ -203,8 +190,6 @@ type ServerServiceServer interface {
 	StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
 	UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error)
-	// SnoozeUpdate snoozes updates for currently logged in user and returns the count and timestamp
-	SnoozeUpdate(context.Context, *SnoozeUpdateRequest) (*SnoozeUpdateResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
 	// GetReadOnlySettings returns a limited number of PMM settings that is opened to authenticated users of all roles.
@@ -247,10 +232,6 @@ func (UnimplementedServerServiceServer) StartUpdate(context.Context, *StartUpdat
 
 func (UnimplementedServerServiceServer) UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatus not implemented")
-}
-
-func (UnimplementedServerServiceServer) SnoozeUpdate(context.Context, *SnoozeUpdateRequest) (*SnoozeUpdateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SnoozeUpdate not implemented")
 }
 
 func (UnimplementedServerServiceServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
@@ -411,24 +392,6 @@ func _ServerService_UpdateStatus_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServerService_SnoozeUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SnoozeUpdateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServerServiceServer).SnoozeUpdate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServerService_SnoozeUpdate_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).SnoozeUpdate(ctx, req.(*SnoozeUpdateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ServerService_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetSettingsRequest)
 	if err := dec(in); err != nil {
@@ -517,10 +480,6 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateStatus",
 			Handler:    _ServerService_UpdateStatus_Handler,
-		},
-		{
-			MethodName: "SnoozeUpdate",
-			Handler:    _ServerService_SnoozeUpdate_Handler,
 		},
 		{
 			MethodName: "GetSettings",

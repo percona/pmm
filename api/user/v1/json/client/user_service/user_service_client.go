@@ -58,6 +58,8 @@ type ClientService interface {
 
 	ListUsers(params *ListUsersParams, opts ...ClientOption) (*ListUsersOK, error)
 
+	SnoozeUpdate(params *SnoozeUpdateParams, opts ...ClientOption) (*SnoozeUpdateOK, error)
+
 	UpdateUser(params *UpdateUserParams, opts ...ClientOption) (*UpdateUserOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -138,6 +140,45 @@ func (a *Client) ListUsers(params *ListUsersParams, opts ...ClientOption) (*List
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListUsersDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+SnoozeUpdate snoozes update for current user
+
+Returns updated snooze status.
+*/
+func (a *Client) SnoozeUpdate(params *SnoozeUpdateParams, opts ...ClientOption) (*SnoozeUpdateOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSnoozeUpdateParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "SnoozeUpdate",
+		Method:             "POST",
+		PathPattern:        "/v1/users/me:snoozeUpdate",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SnoozeUpdateReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SnoozeUpdateOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*SnoozeUpdateDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

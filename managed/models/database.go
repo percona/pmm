@@ -1144,8 +1144,9 @@ var databaseSchema = [][]string{
 	111: {
 		`ALTER TABLE user_flags
 			ADD COLUMN snoozed_at TIMESTAMP,
-			ADD COLUMN snoozed_count INTEGER NOT NULL DEFAULT 0`,
+			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0`,
 	},
+	// Default snooze duration - 7 days
 	112: {
 		`UPDATE settings
 			SET settings = settings || '{"updates": {"snooze_duration": 604800000000000}}'

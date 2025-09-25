@@ -129,7 +129,7 @@
                   "format": "date-time",
                   "x-order": 4
                 },
-                "snoozed_count": {
+                "snooze_count": {
                   "type": "integer",
                   "format": "int64",
                   "x-order": 5
@@ -239,10 +239,95 @@
                   "format": "date-time",
                   "x-order": 4
                 },
-                "snoozed_count": {
+                "snooze_count": {
                   "type": "integer",
                   "format": "int64",
                   "x-order": 5
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/me:snoozeUpdate": {
+      "post": {
+        "description": "Returns updated snooze status.",
+        "tags": [
+          "UserService"
+        ],
+        "summary": "Snooze update for current user",
+        "operationId": "SnoozeUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "PMM version which should be snoozed",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "snoozed_pmm_version": {
+                  "type": "string",
+                  "title": "Snoozed PMM version",
+                  "x-order": 0
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Snoozed at timestamp",
+                  "x-order": 1
+                },
+                "snooze_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "Number of times the update was snoozed",
+                  "x-order": 2
                 }
               }
             }

@@ -7,7 +7,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "validate/validate.proto";
 
 // DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
 enum DistributionMethod {
@@ -181,7 +180,7 @@ message Settings {
   // Default Access Control role ID for new users.
   uint32 default_role_id = 18;
   // Duration for which an update is snoozed
-  google.protobuf.Duration updates_snooze_duration = 19;
+  google.protobuf.Duration update_snooze_duration = 19;
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -238,26 +237,12 @@ message ChangeSettingsRequest {
   optional bool enable_backup_management = 12;
   // Enable Access Control
   optional bool enable_access_control = 13;
-  // A number of full days for which an update is snoozed. Should have a suffix in JSON: 2592000s, 43200m, 720h.
-  google.protobuf.Duration updates_snooze_duration = 14;
+  // A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+  google.protobuf.Duration update_snooze_duration = 14;
 }
 
 message ChangeSettingsResponse {
   Settings settings = 1;
-}
-
-message SnoozeUpdateRequest {
-  // PMM version which should be snoozed
-  string snoozed_pmm_version = 1 [(validate.rules).string.min_len = 1];
-}
-
-message SnoozeUpdateResponse {
-  // Snoozed PMM version
-  string snoozed_pmm_version = 1;
-  // Snoozed at timestamp
-  google.protobuf.Timestamp snoozed_at = 2;
-  // Number of times the update was snoozed
-  uint32 snoozed_count = 3;
 }
 
 // Server service provides generic PMM Server public APIs.
@@ -323,17 +308,6 @@ service ServerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update status"
       description: "Returns PMM Server update status."
-    };
-  }
-  // SnoozeUpdate snoozes updates for currently logged in user and returns the count and timestamp
-  rpc SnoozeUpdate(SnoozeUpdateRequest) returns (SnoozeUpdateResponse) {
-    option (google.api.http) = {
-      post: "/v1/server/updates:snooze"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Snooze update for current user"
-      description: "Returns update snooze status."
     };
   }
   // GetSettings returns current PMM Server settings.

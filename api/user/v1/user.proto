@@ -5,6 +5,7 @@ package user.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {title: "User API"}
@@ -23,7 +24,7 @@ message GetUserResponse {
   string snoozed_pmm_version = 4;
   reserved 5;
   google.protobuf.Timestamp snoozed_at = 6;
-  uint32 snoozed_count = 7;
+  uint32 snooze_count = 7;
 }
 
 message UpdateUserRequest {
@@ -47,7 +48,7 @@ message UpdateUserResponse {
   string snoozed_pmm_version = 4;
   reserved 5;
   google.protobuf.Timestamp snoozed_at = 6;
-  uint32 snoozed_count = 7;
+  uint32 snooze_count = 7;
 }
 
 message ListUsersRequest {}
@@ -60,6 +61,20 @@ message ListUsersResponse {
   }
 
   repeated UserDetail users = 1;
+}
+
+message SnoozeUpdateRequest {
+  // PMM version which should be snoozed
+  string snoozed_pmm_version = 1 [(validate.rules).string.min_len = 1];
+}
+
+message SnoozeUpdateResponse {
+  // Snoozed PMM version
+  string snoozed_pmm_version = 1;
+  // Snoozed at timestamp
+  google.protobuf.Timestamp snoozed_at = 2;
+  // Number of times the update was snoozed
+  uint32 snooze_count = 3;
 }
 
 // UserService contains rpcs related to user data
@@ -86,6 +101,17 @@ service UserService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List all users"
       description: "Retrieve user details for all users from PMM server"
+    };
+  }
+  // SnoozeUpdate snoozes updates for an authenticated user and returns the count and timestamp
+  rpc SnoozeUpdate(SnoozeUpdateRequest) returns (SnoozeUpdateResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/me:snoozeUpdate"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Snooze update for current user"
+      description: "Returns updated snooze status."
     };
   }
 }

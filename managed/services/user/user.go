@@ -70,19 +70,18 @@ func (s *Service) GetUser(ctx context.Context, _ *userv1.GetUserRequest) (*userv
 		return nil, err
 	}
 
-	var snoozedAt *timestamppb.Timestamp
-	if userInfo.SnoozedAt != nil {
-		snoozedAt = timestamppb.New(*userInfo.SnoozedAt)
-	}
-
 	resp := &userv1.GetUserResponse{
 		UserId:                uint32(userInfo.ID), //nolint:gosec // user ID is not expected to overflow uint32
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
-		SnoozedAt:             snoozedAt,
-		SnoozedCount:          uint32(userInfo.SnoozedCount), //nolint:gosec
+		SnoozeCount:           uint32(userInfo.SnoozeCount), //nolint:gosec
 	}
+
+	if userInfo.SnoozedAt != nil {
+		resp.SnoozedAt = timestamppb.New(*userInfo.SnoozedAt)
+	}
+
 	return resp, nil
 }
 
@@ -111,10 +110,10 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 		}
 
 		// Keep for backwards compatibility, prefer the new snooze updates:endpoint
-		if req.SnoozedPmmVersion != nil && req.SnoozedPmmVersion != &userInfo.SnoozedPMMVersion {
+		if req.SnoozedPmmVersion != nil && *req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
 			params.SnoozedPMMVersion = req.SnoozedPmmVersion
 			params.SnoozedAt = pointer.ToTime(time.Now())
-			params.SnoozedCount = pointer.ToInt(1)
+			params.SnoozeCount = pointer.ToInt(1)
 		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)
@@ -128,19 +127,18 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 		return nil, e
 	}
 
-	var snoozedAt *timestamppb.Timestamp
-	if userInfo.SnoozedAt != nil {
-		snoozedAt = timestamppb.New(*userInfo.SnoozedAt)
-	}
-
 	resp := &userv1.UpdateUserResponse{
 		UserId:                uint32(userInfo.ID), //nolint:gosec // user ID is not expected to overflow uint32
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
-		SnoozedAt:             snoozedAt,
-		SnoozedCount:          uint32(userInfo.SnoozedCount),
+		SnoozeCount:           uint32(userInfo.SnoozeCount),
 	}
+
+	if userInfo.SnoozedAt != nil {
+		resp.SnoozedAt = timestamppb.New(*userInfo.SnoozedAt)
+	}
+
 	return resp, nil
 }
 
@@ -162,4 +160,47 @@ func (s *Service) ListUsers(_ context.Context, _ *userv1.ListUsersRequest) (*use
 	}
 
 	return resp, nil
+}
+
+// SnoozeUpdate snoozes the updates for specific pmm version for current user
+func (s *Service) SnoozeUpdate(ctx context.Context, req *userv1.SnoozeUpdateRequest) (*userv1.SnoozeUpdateResponse, error) {
+	userID, err := s.c.GetUserID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo, err := models.GetOrCreateUser(s.db.Querier, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &userv1.SnoozeUpdateResponse{
+		SnoozedPmmVersion: userInfo.SnoozedPMMVersion,
+		SnoozedAt:         timestamppb.New(pointer.Get(userInfo.SnoozedAt)),
+		SnoozeCount:       uint32(userInfo.SnoozeCount),
+	}
+
+	params := &models.UpdateUserParams{
+		UserID:            userInfo.ID,
+		SnoozedPMMVersion: &req.SnoozedPmmVersion,
+		SnoozedAt:         pointer.ToTime(time.Now()),
+	}
+
+	// when changing snoozed PMM version reset the counter
+	if req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
+		params.SnoozeCount = pointer.ToInt(1)
+	} else {
+		params.SnoozeCount = pointer.ToInt(userInfo.SnoozeCount + 1)
+	}
+
+	userInfo, err = models.UpdateUser(s.db.Querier, params)
+	if err != nil {
+		return nil, err
+	}
+
+	res.SnoozedPmmVersion = userInfo.SnoozedPMMVersion
+	res.SnoozedAt = timestamppb.New(*userInfo.SnoozedAt)
+	res.SnoozeCount = uint32(userInfo.SnoozeCount)
+
+	return res, nil
 }

@@ -716,7 +716,7 @@ type GetSettingsOKBodySettings struct {
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
 
 	// Duration for which an update is snoozed
-	UpdatesSnoozeDuration string `json:"updates_snooze_duration,omitempty"`
+	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
