@@ -1,4 +1,4 @@
-# Check Table bloat in bytes
+# Advisor check: Check Table bloat in bytes
 
 ## Description
 

@@ -1,4 +1,4 @@
-# MySQL Replica node is not configured as READ-ONLY
+# Advisor check: MySQL Replica node is not configured as READ-ONLY
 
 ## Description
 

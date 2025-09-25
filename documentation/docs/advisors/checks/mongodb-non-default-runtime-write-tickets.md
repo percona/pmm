@@ -1,4 +1,4 @@
-# Write tickets during runtime are > 128
+# Advisor check: Write tickets during runtime are > 128
 
 ## Description
 This advisor warns if the number of write transactions (tickets) into the WiredTiger storage during runtime is more than 128. 
@@ -11,7 +11,6 @@ The default number of write tickets is 128. You can adjust it for both your `mon
 See [wiredTigerConcurrentWriteTransactions](https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.wiredTigerConcurrentWriteTransactions) in the MongoDB documentation.
 
 This parameter also needs to be set at the configuration file.
-
 
 ## Rule 
 ``` MONGODB_GETPARAMETER

@@ -1,4 +1,4 @@
-# MongoDB active vs available connections
+# Adviosor check: MongoDB active vs available connections
 
 ## Description
 This check returns a warning if the ratio between active and available connections is higher than 75%. 

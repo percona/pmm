@@ -1,4 +1,4 @@
-# Too many accounts with SUPER privileges
+# Advisor check: Too many accounts with SUPER privileges
 
 ## Description
 

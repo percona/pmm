@@ -1,4 +1,4 @@
-# MySQL binaries are 32-bit
+# Advisor check: MySQL binaries are 32-bit
 
 ## Description
 

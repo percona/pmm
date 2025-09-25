@@ -1,4 +1,4 @@
-# PostgreSQL stale replication slot
+# Advisor check: PostgreSQL stale replication slot
 
 ## Description
 

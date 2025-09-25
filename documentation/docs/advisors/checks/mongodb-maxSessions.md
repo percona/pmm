@@ -1,4 +1,4 @@
-# Check the maxSessions value
+# Advisor check: Check the maxSessions value
 
 ## Description 
 
@@ -9,7 +9,6 @@ This is relevant because setting a too high number of sessions can negatively im
 The parameter also needs to be set at the configuration file.
 
 To avoid performance issues, see [The (In)famous MongoDB Message blogpost](https://www.percona.com/blog/2021/06/03/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions) to check and set the right value for your environment.
-
 
 ## Rule
 

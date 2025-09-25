@@ -1,4 +1,4 @@
- # Transaction ID wraparound is approaching
+# Advisor check: Transaction ID wraparound is approaching
  
 ## Description
 This advisor check verifies the age of the database's transaction IDs, and notifies if any is approaching the wraparound limit by 20% or more.
@@ -46,6 +46,7 @@ But if for some reason, the system cannot catch up with the workload, the recomm
 
 
 Here:
+
 **-F|--freeze** - flag to freeze row transaction information.
 **-z|--analyze** - flag to update optimizer statistics.
 **-j|--jobs=N** - flag to set a number of concurrent connections to vacuum. It can vary from a couple to a value equal to the number of CPUs on the host.
@@ -59,6 +60,7 @@ An effective way to quickly start moving backward the wraparound is to identify 
 Then, vacuum (FREEZE) those specific tables. 
 
 In his blogpost, Rober Bernier recommends using the following pair of scripts:
+{.power-number}
 
 1. Identify the database with the oldest TXID.
 2. Generate a list of tables in order of the oldest TXID age to the youngest.
@@ -113,7 +115,6 @@ export DB=$1
 
 vacuumdb --verbose ${DB} > ${DB}.log 2>&1
 ``` 
-
 
 ### PostgreSQL has shut down due to wraparound
 

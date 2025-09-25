@@ -1,4 +1,4 @@
-# MySQL innodb_file_per_table configuration is enabled
+# Advisor check: MySQL innodb_file_per_table configuration is enabled
 
 ## Description
 

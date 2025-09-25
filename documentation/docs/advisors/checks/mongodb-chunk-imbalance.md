@@ -1,8 +1,7 @@
-# MongoDB sharding - chunk imbalance across shards
+# Advisor check: MongoDB sharding - chunk imbalance across shards
 
 ## Description
 This check warns if the chunks are imbalanced across shards.
-
 
 In a sharded cluster, chunk imbalances can occur when the data is not evenly distributed among the shards. This can lead to some shards having more chunks than others, which can cause performance issues and slower query times.
 
@@ -29,8 +28,6 @@ Starting with MongoDB 5.0, you can reshard collections by changing their shard k
 
 ### Clear the jumbo chunks
 To prevent the situation described above, check for jumbo chunks and remove the jumbo flag. For information on detecting and splitting the jumbo chunks, see [Finding Undetected Jumbo Chunks in MongoDB](https://www.percona.com/blog/finding-undetected-jumbo-chunks-in-mongodb/).
-
-
 
 ## Need more support from Percona?
 Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.

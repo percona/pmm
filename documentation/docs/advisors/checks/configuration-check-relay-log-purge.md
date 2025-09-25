@@ -1,4 +1,4 @@
-# MySQL relay log on the replica node is not automatically purged
+# Advisor check: MySQL relay log on the replica node is not automatically purged
 
 ## Description
 

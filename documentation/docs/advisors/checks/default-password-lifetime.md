@@ -1,4 +1,4 @@
-# MySQL InnoDB password lifetime
+# Advisor check: MySQL InnoDB password lifetime
 
 ## Description
 

@@ -1,4 +1,4 @@
-# MySQL secure_file_priv configuration option empty check
+# Advisor check: MySQL secure_file_priv configuration option empty check
 
 ## Description
 

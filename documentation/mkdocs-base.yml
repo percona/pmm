@@ -259,6 +259,7 @@ nav:
                   - Temporary table size limit: advisors/checks/configuration-check-tmp-table-size-limit.md
                   - InnoDB file format: advisors/checks/configuration-innodb-file-format.md
                   - InnoDB flush method: advisors/checks/configuration-innodb-flush-method.md
+                  - Master verify checksum: advisors/checks/master-verify-checksum.md
               - PostgreSQL configuration checks:
                   - Fsync enabled: advisors/checks/configuration-pg-check-fsync-enabled.md
                   - High max connections: advisors/checks/configuration-pg-high-max-connections.md
@@ -275,9 +276,6 @@ nav:
               - Performance checks:
                   - InnoDB strict mode: advisors/checks/innodb-strict-mode.md
                   - InnoDB redo logs not sized correctly: advisors/checks/innodb_redo_logs_not_sized_correctly.md
-              - Examples and miscellaneous:
-                  - Documentation example: advisors/checks/documentation.example.md
-                  - Master verify checksum: advisors/checks/master-verify-checksum.md
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
