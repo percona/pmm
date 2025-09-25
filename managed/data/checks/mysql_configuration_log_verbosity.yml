@@ -1,19 +1,19 @@
 ---
 checks:
-  - version: 1
+  - version: 2
     name: mysql_configuration_log_verbosity
     summary: Check log verbosity
     description: Checks that warnings are being printed on the log
-    #family: MYSQL
+    family: MYSQL
     #author: Carlos
     advisor: configuration_generic
     interval: standard
-    type: MYSQL_SHOW
-    query: VARIABLES
+    queries:
+      - type: MYSQL_SHOW
+        query: VARIABLES
     script: |
       read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
-      def check(rows):
-          return check_context(rows, {})
+
       def check_log_error_verbosity(log_error_verbosity):
               if log_error_verbosity < 2:
                   return {
@@ -22,6 +22,7 @@ checks:
                       "severity": "warning",
                       "read_more_url":read_url.format("mysql-warnings-not-being-logged")
                   }
+
       def check_log_warnings(log_warnings):
               if log_warnings < 2:
                   return {
@@ -31,7 +32,7 @@ checks:
                       "read_more_url":read_url.format("mysql-warnings-not-being-logged")
                   }
 
-      def check_context(rows, context):
+      def check_context(docs, context):
           # var initialization
           expire_logs_days = 0
           log_error_verbosity = 0
@@ -39,6 +40,8 @@ checks:
           is_percona_server, is_community, is_mariadb = False, False, False
           # collect the results from running this advisor
           results = []
+
+          rows = docs[0]
           for row in rows:
               name, value = row["Variable_name"], row["Value"]
               if name == "version_comment":
