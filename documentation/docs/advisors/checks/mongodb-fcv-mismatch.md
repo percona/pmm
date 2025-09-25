@@ -1,4 +1,4 @@
-# MongoDB FeatureCompatibilityVersion
+# Advisor check: MongoDB FeatureCompatibilityVersion
 
 ## Description
 This check warns if there is a mismatch between the MongoDB version and the value of the internal FCV (Feature Compatibility Version) parameter.
@@ -36,9 +36,6 @@ db.adminCommand( { setFeatureCompatibilityVersion: "6.0" } )
 ```
 
 For more information on FCV, see the [MongoDB Documentation](https://www.mongodb.com/docs/manual/reference/command/setFeatureCompatibilityVersion/).
-
-
-
 
 ## Need more support from Percona?
 Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.

@@ -1,4 +1,4 @@
-# MySQL InnoDB tablespace has a max cap and cannot auto-extend
+# Advisor check: MySQL InnoDB tablespace has a max cap and cannot auto-extend
 
 ## Description
 

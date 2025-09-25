@@ -1,5 +1,4 @@
-# The advisor checks for two replication specific configuration options. 
-
+# Advisor check: The advisor checks for two replication specific configuration options
 
 ## Description
 
@@ -7,8 +6,6 @@ Normally, replication stops when an error occurs on the replica, which gives you
 
 The configuration `[slave | replica]_exec_mode` controls the way a replication thread resolves either conflicts or errors during replication. The STRICT mode is the default value and does not suppress conflicts or errors. The IDEMPOTENT mode suppresses duplicate-key and key-not-found errors, and this mode should only be used if you are sure these errors can be ignored.
 This check ensures recommended replication setup and suggests against using IDEMPOTENT mode or skipping any replication errors.
-
-
 
 ## Resolution
 

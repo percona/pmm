@@ -1,4 +1,4 @@
-# Performance check for On-Disk Temporary MySQL tables
+# Advisor check: Performance check for On-Disk Temporary MySQL tables
 
 ## Description
 

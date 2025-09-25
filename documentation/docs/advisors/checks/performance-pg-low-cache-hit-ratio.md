@@ -1,4 +1,4 @@
-# PostgreSQL cache hit ratio
+# Advisor check: PostgreSQL cache hit ratio
 
 ## Description
 

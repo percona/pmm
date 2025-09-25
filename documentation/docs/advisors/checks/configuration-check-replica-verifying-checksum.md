@@ -1,4 +1,4 @@
-# MySQL enforced data integrity checking is disabled
+# Advisor check: MySQL enforced data integrity checking is disabled
 
 ## Description
 

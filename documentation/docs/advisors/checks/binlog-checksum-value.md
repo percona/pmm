@@ -1,4 +1,4 @@
-# MySQL binlog checksum not set
+# Advisor check: MySQL binlog checksum not set
 
 ## Description
 

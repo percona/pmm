@@ -1,4 +1,4 @@
-# MongoDB Swap Allocation
+# Advisor check: MongoDB Swap Allocation
 
 ## Description
 This check warns if there is no swap memory allocated to your instance.
@@ -9,9 +9,7 @@ MongoDB performs best if swapping can be avoided or kept to a minimum since retr
 
 Choose one of the following swap strategies:
 
-
 - Assign swap space on your system, and configure the kernel to only permit swapping under high-memory load, or
-
 
 - Do not assign swap space on your system, and configure the kernel to disable swapping entirely.
 

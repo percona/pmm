@@ -1,7 +1,6 @@
-# PostgreSQL temporary files written to disk check
+# Advisor check: PostgreSQL temporary files written to disk check
 ## Description
 This check reports details about the temporary files and total space used. You can use this information for fine-tuning the **work_mem** parameter.
-
 
 ## Resolution
 There are numerous tunable parameters that can affect the number of temporary files created. However, the **work_mem** parameter is the most commonly targeted one. This parameter defaults to **4MB** and sets the base maximum amount of memory to be used by a query operation before writing to temporary disk files. For example, Sort or Hash table operations.

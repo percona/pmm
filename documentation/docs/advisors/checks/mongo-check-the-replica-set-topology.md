@@ -1,15 +1,12 @@
-# Check the replica set topology
+# Advisor check: Check the replica set topology
 
 ## Description
 This advisor returns a warning if the replica set has less than 3 members.
-
-
 
 ## Rule
 ```
          if members_number < 3:
 ```
-
 
 ## Resolution
 The recommended configuration for a replica set is minimum 3 data bearing members. 

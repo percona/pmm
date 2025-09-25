@@ -1,4 +1,4 @@
-# MongoDB profiling level is too high 
+# Advisor check: MongoDB profiling level is too high 
 
 ## Description
 This advisor warns if the global profiling level is too high - it is set to anything other than 0.
@@ -31,6 +31,8 @@ Can also be queried from within the database via the following commands:
 Turn off profiler or reduce the level. You can do this either from the command line startup or via the config file.
 
 To turn off profiler level globally:
+{.power-number}
+
 1. Edit the **mongod.conf** file and disable/comment below parameter: 
    **operationProfiling**
    OR, adjust the **mode**: 
@@ -40,9 +42,7 @@ operationProfiling:
      mode: off
 ```
 
-
 2. Roll-restart your mongod nodes.
-
 
 To reduce the profiler level, edit and adjust the following parameter in **mongod.conf**:
 

@@ -1,4 +1,4 @@
-# MongoDB PSA Architecture
+# Advisor check: MongoDB PSA Architecture
 
 ## Description
 This check returns an error if the replica set is using a PSA (Primary Secondary Arbiter) architecture.

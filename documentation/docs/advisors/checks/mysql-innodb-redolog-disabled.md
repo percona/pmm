@@ -1,4 +1,4 @@
-# Redo log is disabled in this instance
+# Advisor check: Redo log is disabled in this instance
 
 ## Description
 

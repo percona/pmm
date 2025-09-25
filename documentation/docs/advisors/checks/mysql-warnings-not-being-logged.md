@@ -1,4 +1,4 @@
-# Warnings are not being logged
+# Advisor check: Warnings are not being logged
 
 ## Description
 

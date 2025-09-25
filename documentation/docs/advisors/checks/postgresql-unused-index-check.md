@@ -1,5 +1,4 @@
-# Check for relations with unused indexes for PostgreSQL
-
+# Advisor check: Check for relations with unused indexes for PostgreSQL
 
 ## Description
 
@@ -19,7 +18,6 @@ The output lists the indexes for the current database. The column `idx_scan` ind
 If you find unused indexes, check whether these indexes are needed, and take appropriate actions.  
 
 Keep in mind that some indexes may be needed to address foreign key performance. For example deleting or updating a key would force Postgres to validate the constraint. Without an index, this could result in sequential scans. 
-
 
 ## Need more support from Percona?
 

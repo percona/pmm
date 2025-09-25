@@ -1,4 +1,4 @@
-# MongoDB high connections
+# Advisor check: MongoDB high connections
 
 ## Description
 This check returns warnings if there is an increase in the number of connections.
@@ -32,14 +32,12 @@ Here are some common reasons and potential solutions for high connection counts 
 
 If the application has been designed to create too many connections, it can lead to high connection counts in MongoDB. To minimize connection overhead, consider implementing connection sharing, where connections are reused across application instances.
 
-
 -  **Server resource constraints**
 
 Insufficient server resources such as CPU, memory, or disk I/O can lead to high connection counts in MongoDB. Check the system resource utilization and increase resources as needed. You may also want to consider adding more members to the replica set to distribute the load.
 
 
 In summary, to reduce high connection counts in MongoDB, it's essential to configure connection pooling correctly, optimize queries, adjust the application design, allocate sufficient server resources and prevent connection leaks.
-
 
 ## Need more support from Percona?
 Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.

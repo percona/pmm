@@ -1,5 +1,4 @@
-# Automatic_sp_privileges configuration for MySQL
-
+# Advisor check: Automatic_sp_privileges configuration for MySQL
 
 ## Description
 
@@ -9,7 +8,6 @@ When the [automatic_sp_privileges](https://dev.mysql.com/doc/refman/8.0/en/serve
 ## Resolution
 
 Consider enabling the **automatic_sp_privileges** by setting this variable to **1**.
-
 
 ## Need more support from Percona?
 

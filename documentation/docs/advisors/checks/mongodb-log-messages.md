@@ -1,4 +1,4 @@
-# MongoDB logLevel is not default
+# Advisor check: MongoDB logLevel is not default
 
 ## Description
 
@@ -9,7 +9,6 @@ The verbosity level is controlled by the `logLevel` parameter. Its value is an i
 Increasing the verbosity of log messages is useful for debugging purposes for a short period of time.
 
 For more information, see [db.setLogLevel() in the MongoDB documentation](https://docs.mongodb.com/manual/reference/method/db.setLogLevel/).
-
 
 ## Rule
 MONGODB_GETPARAMETER

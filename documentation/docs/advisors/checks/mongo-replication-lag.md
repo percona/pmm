@@ -1,8 +1,7 @@
-# MongoDB replication lag	
+# Advisor check: MongoDB replication lag	
 
 ## Description
 This check returns a warning if a secondary member of the replica set lags more than ten seconds behind the primary one. This interval is the default threshold where flow control engages.
-
 
 ## Resolution
 [MongoDB documentation](https://www.mongodb.com/docs/manual/tutorial/troubleshoot-replica-sets/#replication-lag-causes), specifies the following possible causes of replication lag:
@@ -30,8 +29,6 @@ This check returns a warning if a secondary member of the replica set lags more 
     If you are performing a large data ingestion or bulk load operation that require a large number of writes to the primary, particularly with unacknowledged write concern, the secondaries will not be able to read the oplog fast enough to keep up with changes.
 
     To prevent this, request acknowledgement for write operations after every 100, 1000, or another interval to provide an opportunity for secondaries to catch up with the primary.
-
-
 
 ## Need more support from Percona?
 Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.

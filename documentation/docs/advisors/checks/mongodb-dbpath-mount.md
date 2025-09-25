@@ -1,4 +1,4 @@
-# MongoDB DBPATH mount
+# Advisor check: MongoDB DBPATH mount
 
 ## Description
 This check warns if **dbpath** does not have a dedicated mount point.

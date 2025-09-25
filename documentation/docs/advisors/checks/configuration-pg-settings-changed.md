@@ -1,4 +1,4 @@
-# Settings changed on a instance that requires a restart
+# Advisor check: Settings changed on a instance that requires a restart
 
 ## Description
 

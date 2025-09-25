@@ -1,4 +1,4 @@
-# Minimim PostgreSQL logging features
+# Advisor check: Minimim PostgreSQL logging features
 
 
 ## Description
@@ -25,8 +25,6 @@ Logs statistics about checkpoints and information about when they occur. 
 **log_min_duration_statement**
 
 This is useful for determining slow-running queries. Set a value in milliseconds to log queries that take either the set value or a longer time to complete.
-
-
 
 ## Need more support from Percona?
 

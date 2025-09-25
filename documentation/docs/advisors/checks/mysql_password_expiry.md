@@ -1,10 +1,9 @@
-# MySQL expired passwords
+# Advisor check: MySQL expired passwords
 
 ## Description
 
 MySQL provides a password-expiration capability, which enables database administrators to require users to reset their passwords. When the password expires, the server either disconnects the client or restricts the client to a sandbox mode. In this mode, the client can only reset the expired password.
 Such scenarios impact the application users and this check helps prevent them.
-
 
 ## Resolution
 

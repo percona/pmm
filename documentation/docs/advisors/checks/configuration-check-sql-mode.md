@@ -1,4 +1,4 @@
-# MySQL SQL mode not fitting best practice
+# Advisor check: MySQL SQL mode not fitting best practice
 
 ## Description
 

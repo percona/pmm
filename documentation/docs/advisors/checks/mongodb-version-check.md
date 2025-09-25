@@ -1,4 +1,4 @@
-# MongoDB version check 
+# Advisor check: MongoDB version check 
 
 ## Description
 This advisor check rolls through a list of available versions and warns if MongoDB or Percona Server for MongoDB version is not the latest one.
@@ -6,7 +6,6 @@ This advisor check rolls through a list of available versions and warns if Mongo
 The goal is to follow updated and optimal upgrade plans and paths. This avoids possible bugs and security issues. 
 
 For Production systems, we recommend upgrading to the latest patch release for major or minor stable versions. 
-
 
 ## Rule
 ```MONGODB_BUILDINFO

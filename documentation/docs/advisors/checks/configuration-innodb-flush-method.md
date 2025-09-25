@@ -1,4 +1,4 @@
-# MySQL InnoDB file format in use
+# Advisor check: MySQL InnoDB file format in use
 
 ## Description
 

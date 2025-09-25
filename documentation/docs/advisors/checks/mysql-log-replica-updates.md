@@ -1,4 +1,4 @@
-# MySQL server replicating events are not logged
+# Advisor check: MySQL server replicating events are not logged
 
 ## Description
 

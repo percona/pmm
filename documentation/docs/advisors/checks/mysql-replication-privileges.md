@@ -1,4 +1,4 @@
-# Replication privileges
+# Advisor check: Replication privileges
 
 ## Description
 

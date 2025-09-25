@@ -1,4 +1,4 @@
-# Check WiredTiger cache size
+# Advisor check: Check WiredTiger cache size
 
 ## Description
 This advisor warns if the configured WiredTiger cache size is greater than 50% of server memory. 
@@ -8,7 +8,6 @@ This is important because MongoDB uses the remaining available memory (filesyste
 Keeping a non-default high cache size for WiredTiger can cause OOM (Out of memory) issues.
 
 To avoid performance issues, see the [WiredTiger Storage Engine blog](https://www.mongodb.com/docs/manual/core/wiredtiger/#memory-use) to check and set the right value for your environment.
-
 
 ## Rule
 

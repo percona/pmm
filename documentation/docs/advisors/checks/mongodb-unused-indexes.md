@@ -1,4 +1,4 @@
-# MongoDB Unused Indexes
+# Advisor check: MongoDB unused indexes
 
 ## Description
 This check warns if there are unused indexes on any database collection in your instance (Need to enable "indexStats" metric collector).
@@ -20,13 +20,9 @@ We suggest evaluating this number and dropping indexes that are not used.
 
 **Important:** Keep in mind that the index stats will be updated ONLY on the server executing the query. If some queries are sent only to secondary (or primary), this usage will not be recorded on other replica set members. 
 
-Therfore, before deciding to drop an index, we need to analyze every member in a replica set.
+Therefore, before deciding to drop an index, we need to analyze every member in a replica set.
 
 For more information on unused indexes, see the [Identifying Unused Indexes in MongoDB](https://www.percona.com/blog/identifying-unused-indexes-in-mongodb/) blog post.
-
-
-
-
 
 ## Need more support from Percona?
 Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.

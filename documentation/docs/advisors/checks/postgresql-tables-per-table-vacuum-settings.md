@@ -1,4 +1,4 @@
-# Check the tables that have “per table” vacuum settings
+# Advisor check: Check the tables that have “per table” vacuum settings
 
 ## Description
 This advisor returns the list of tables that specify table-level autovacuum parameters. Their associated table-level settings are also listed. 
@@ -6,7 +6,6 @@ This advisor returns the list of tables that specify table-level autovacuum para
 Table-level settings override the global settings. This can lead to difficult troubleshooting, unexpected behaviors, and incidents. Therefore, it is very important to check if tables in the database have any specific, table-level settings. 
 
 The table-level parameters can be adjusted according to the current autovacuum statistics.
-
 
 ## Rule
 N/A (checks framework provides output for type POSTGRESQL_SHOW).
