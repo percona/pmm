@@ -73,6 +73,7 @@ func (s *services) StartAllServices(ctx context.Context) {
 				err := service.Start(ctx)
 				if err != nil {
 					s.l.Errorln(err)
+					s.removeService(service.ID())
 				}
 			}()
 		}
@@ -86,8 +87,8 @@ func (s *services) StopRunningServices() {
 	for id, service := range s.running {
 		s.l.Infoln("Stopping", service.ID())
 		service.Stop()
-		s.wg.Done()
 		delete(s.running, id)
+		s.wg.Done()
 	}
 }
 
@@ -97,4 +98,11 @@ func (s *services) Refresh() chan struct{} {
 
 func (s *services) Wait() {
 	s.wg.Wait()
+}
+
+func (s *services) removeService(id string) {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+	delete(s.running, id)
+	s.wg.Done()
 }
