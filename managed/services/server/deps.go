@@ -33,6 +33,7 @@ type healthChecker interface { //nolint:iface
 // grafanaClient is a subset of methods of grafana.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface { //nolint:iface
+	GetUserID(ctx context.Context) (int, error)
 	healthChecker
 }
 

@@ -68,3 +68,13 @@ export interface GetChangeLogsResponse {
   updates: GetChangeLogItem[];
   lastCheck: string;
 }
+
+export interface SnoozeUpdateBody {
+  snoozedPmmVersion: string;
+}
+
+export interface SnoozeUpdateResponse {
+  snoozedPmmVersion: string;
+  snoozedAt: string;
+  snoozedCount: number;
+}

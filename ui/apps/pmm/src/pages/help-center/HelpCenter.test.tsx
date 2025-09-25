@@ -4,18 +4,10 @@ import { CARD_IDS } from './HelpCenter.constants';
 import * as useUserModule from 'contexts/user';
 import { OrgRole, User } from 'types/user.types';
 import { MemoryRouter } from 'react-router-dom';
+import { TEST_USER_ADMIN } from 'utils/testStubs';
 
 const getUser = (user: Partial<User> = {}): User => ({
-  id: 1,
-  isPMMAdmin: true,
-  orgRole: OrgRole.Admin,
-  isAuthorized: true,
-  name: 'admin',
-  login: 'admin',
-  orgId: 1,
-  isViewer: true,
-  isEditor: true,
-  orgs: [],
+  ...TEST_USER_ADMIN,
   ...user,
 });
 

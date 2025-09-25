@@ -1141,6 +1141,18 @@ var databaseSchema = [][]string{
 		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
 		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
 	},
+	111: {
+		`ALTER TABLE user_flags
+			ADD COLUMN snoozed_at TIMESTAMP,
+			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0`,
+	},
+	// Default snooze duration - 7 days
+	112: {
+		`UPDATE settings
+			SET settings = settings || '{"updates": {"snooze_duration": 604800000000000}}'
+			WHERE settings->'updates' IS NULL
+			OR settings->'updates'->'snooze_duration' IS NULL`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

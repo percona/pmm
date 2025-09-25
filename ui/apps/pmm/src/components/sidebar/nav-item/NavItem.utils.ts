@@ -20,3 +20,13 @@ export const getLinkProps = (item: NavItem, url?: string) => {
     component: Link,
   };
 };
+
+export const shouldShowBadge = (item: NavItem, expanded: boolean): boolean => {
+  if (item.badge && !expanded) {
+    return true;
+  }
+
+  return (
+    item.children?.some((child) => shouldShowBadge(child, expanded)) || false
+  );
+};
