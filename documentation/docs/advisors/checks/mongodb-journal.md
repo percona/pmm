@@ -1,4 +1,4 @@
-# MongoDB journal enabled
+# Advisor check: MongoDB journal enabled
 
 ## Description
 This advisor warns if the journal is not enabled. 
@@ -12,18 +12,16 @@ In recent versions (starting with versions 4.0 +), MongoDB enables journaling by
 
 For more information, see the [Journaling section](https://docs.mongodb.com/manual/core/journaling/) in the MongoDB documentation.
 
-
-
 ## Rule
 ```
  storage_journal = parsed.get("storage.journal", {})
  journal_enabled = (storage_journal.get("enabled") == "true")
 ```
 
-
 ## Resolution
 
-Follow the steps below to enable journaling: 
+To enable journaling: 
+{.power-number}
 
 1. Enable journal. 
 2. Edit **mongod.conf** and set the following parameter:
@@ -32,7 +30,6 @@ storage:
   journal:
 	enabled: true
 ```
-
 3. Roll-restart your `mongod` (data bearing) nodes.
 
 ## Need more support from Percona?

@@ -1,4 +1,4 @@
-# MongoDB - Multiple mongod service running in a single node
+# Advisor check: MongoDB - Multiple mongod service running in a single node
 
 ## Description
 This check warns if multiple mongod services are running on a single node.
@@ -22,8 +22,6 @@ Here are some of those potential downsides:
 To ensure that your mongod instance is stable and performant, follow the recommendations below:
 - Run a single mongod service per node.
 - If you do want to run multiple mongod instances, use containers/virtual machines which isolate different workloads or databases on the same node.
-
-
 
 ## Need more support from Percona?
 Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.

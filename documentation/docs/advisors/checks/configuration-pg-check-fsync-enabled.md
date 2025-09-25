@@ -1,4 +1,4 @@
-# fsync is disabled on PostgreSQL configuration
+# Advisor check: fsync is disabled on PostgreSQL configuration
 
 ## Description
 When this parameter is enabled (which it is by default), the PostgreSQL server tries to make sures that updates are physically written to disk, by issuing fsync() system calls or various equivalent methods mentioned in wal_sync_method. 

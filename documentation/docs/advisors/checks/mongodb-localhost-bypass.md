@@ -1,4 +1,4 @@
-# Check mongodb localhost bypass
+# Advisor check: Check mongodb localhost bypass
 
 ## Description
 This advisor returns a warning if the [localhost exception](https://www.mongodb.com/docs/v6.0/core/localhost-exception/) is enabled in MongoDB ( the **enableLocalhostAuthBypass** parameter is set to True).
@@ -18,9 +18,9 @@ true
             if enableLocalhostAuthBypass == "true":
 ```
 
-
 ## Resolution
 Follow the steps below to disable localhost exception:
+{.power-number}
 
 1. Edit the `mongod.conf` and set the below parameter.
     

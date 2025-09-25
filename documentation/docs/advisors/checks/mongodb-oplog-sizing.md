@@ -1,4 +1,4 @@
-# MongoDB Oplog Sizing
+# Advisor check: MongoDB Oplog Sizing
 
 ## Description
 This check warns if the oplog window is below 24 hours, and recommends an oplog size based on your instance.
@@ -32,6 +32,7 @@ For 48 hour window -
 **Set the oplog size**
 
 You can explicitly change the oplog size by using either of the following methods:
+{.power-number}
 
 1. Set the size in the mongodb configuration file -
 

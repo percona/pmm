@@ -1,4 +1,4 @@
-# MongoDB XFS Filesystem type
+# Advisor check: MongoDB XFS Filesystem type
 
 ## Description
 This check warns if DBPATH is not using the XFS filesystem type.
@@ -16,9 +16,6 @@ To avoid performance issues when using EXT4 with WiredTiger, [MongoDB Documentat
 
 
 Overall, the combination of the WiredTiger storage engine with XFS filesystem provides high performance and efficient storage for MongoDB workloads, especially in write-heavy scenarios.
-
-
-
 
 ## Need more support from Percona?
 Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.

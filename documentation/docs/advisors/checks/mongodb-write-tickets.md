@@ -1,4 +1,4 @@
-# MongoDB write ticket is more than 128
+# Advisor check: MongoDB write ticket is more than 128
 
 ## Description
 This advisor warns if the number of write transactions (tickets) into the WiredTiger storage during runtime is more than 128. Too high number of write tickets can cause performance issues.
@@ -7,7 +7,6 @@ Ideally, the number of tickets should be based on the number of CPU available.
 The default number of write tickets is 128. You can adjust it for both your `mongod` and `mongos` nodes. 
 
 For more information, see [wiredTigerConcurrentWriteTransactions in the MongoDB documentation](https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.wiredTigerConcurrentWriteTransactions).
-
 
 ## Rule
 MONGODB_GETPARAMETER

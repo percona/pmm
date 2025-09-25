@@ -1,4 +1,4 @@
-# MongoDB replica set topology
+# Advisor check: MongoDB replica set topology
 
 ## Description
 This advisor warns if the Replica Set cluster has less than three members.

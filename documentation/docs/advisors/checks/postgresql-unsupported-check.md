@@ -1,4 +1,4 @@
-# PostgreSQL version compatibility
+# Advisor check: PostgreSQL version compatibility
 
 ## Description
 This check details the currently installed PostgreSQL version, and reports whether Percona supports it.
@@ -6,7 +6,6 @@ This check details the currently installed PostgreSQL version, and reports wheth
 Percona supports all versions of Percona Distribution for PostgreSQ, including Community distribution. However, certain updates and services from Percona, such as Managed Services, only support versions 11 and higher. 
 
 This check will advise if the currently installed version meets those requirements, and will also perform an EOL check.
-
 
 ## Resolution
 

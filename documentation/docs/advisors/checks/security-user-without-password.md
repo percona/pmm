@@ -1,4 +1,4 @@
-# There are users without passwords
+# Advisor checks: There are users without passwords
 
 ## Description
 

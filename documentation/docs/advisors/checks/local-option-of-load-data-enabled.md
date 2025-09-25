@@ -1,4 +1,4 @@
-# Verify if local infile global variable is disabled
+# Advisor check: Verify if local infile global variable is disabled
 
 ## Description
 

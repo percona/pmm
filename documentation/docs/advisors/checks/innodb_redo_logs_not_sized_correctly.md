@@ -1,4 +1,4 @@
-# InnoDB redo log size advisor
+# Advisor check: InnoDB redo log size advisor
 
 ## Description
 

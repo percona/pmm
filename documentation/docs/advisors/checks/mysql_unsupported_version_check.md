@@ -1,4 +1,4 @@
-# Unsupported MySQL version
+# Advisor check: Unsupported MySQL version
 
 ## Description
 

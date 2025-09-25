@@ -1,4 +1,4 @@
-# MySQL binlog_expire_logs_seconds too low
+# Advisor check: MySQL binlog_expire_logs_seconds too low
 
 ## Description
 

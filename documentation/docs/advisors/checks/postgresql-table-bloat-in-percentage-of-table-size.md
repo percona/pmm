@@ -1,4 +1,4 @@
-# Table bloat in percentage of table size
+# Advisor check: Table bloat in percentage of table size
 
 ## Description
 This advisor check verifies the table bloat from the currently connected database. 

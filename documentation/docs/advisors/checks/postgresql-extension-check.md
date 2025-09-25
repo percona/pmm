@@ -1,4 +1,4 @@
-# PostgreSQL outdated extensions
+# Advisor check: PostgreSQL outdated extensions
 
 ## Description
 
@@ -12,7 +12,6 @@ Therefore, we recommend that you always install the latest versions of extension
 Upgrading extensions is straightforward. A simple query is executed from within the database containing the extension.
 
  ALTER EXTENSION extension_name UPDATE TO ‘version’;
-
 
 ## Need more support from Percona?
 
