@@ -1,0 +1,42 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_log_bin
+    summary: Binary Log is disabled
+    description: Check if the binlog is enabled or disabled.
+    interval: standard
+    advisor: configuration_generic
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@global.log_bin as log_bin, @@version version,@@hostname service;"
+    script: |
+      def check_log_bin(doc,read_url):
+          for row in doc:
+             log_bin = row["log_bin"]
+             version = row["version"]
+             service = row["service"]
+
+          if log_bin != 1:
+              return {
+                  "summary": "Binary logging is disabled",
+                  "description": "This database instance cannot be a replication source, nor it can provide the needed logs for point in time recovery. Binary Log {} instead of 1.".format(log_bin),
+                  "severity": "warning",
+                  "read_more_url": read_url.format("configuration-check-log-bin"),
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  }
+              }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          in_result = check_log_bin(docs[0],read_url)
+          if in_result:
+            results.append(in_result)
+
+          return results
