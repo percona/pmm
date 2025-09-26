@@ -107,7 +107,7 @@ func (e *Emailer) Send(ctx context.Context, settings *models.EmailAlertingSettin
 		},
 		Timeout: true,
 	}); err != nil {
-		return models.NewInvalidArgumentError(err.Error())
+		return models.NewInvalidArgumentError("%s", err.Error())
 	}
 
 	return nil
