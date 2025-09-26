@@ -16,19 +16,17 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"log"
 	"net/url"
 	"strings"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
-	"github.com/golang-migrate/migrate/v4"
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2"          // register database/sql driver
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
-	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
+	"github.com/jmoiron/sqlx"                                    // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
-	"github.com/pkg/errors"
+
+	"github.com/percona/pmm/qan-api2/migrations"
 )
 
 const (
@@ -65,7 +63,10 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	if err := runMigrations(dsn); err != nil {
+	data := map[string]map[string]any{
+		"01_init.up.sql": {"engine": migrations.GetEngine(dsn)},
+	}
+	if err := migrations.Run(dsn, data); err != nil {
 		log.Fatal("Migrations: ", err)
 	}
 	log.Println("Migrations applied.")
@@ -95,28 +96,6 @@ func createDB(dsn string) error {
 	log.Println("Database was created")
 	return nil
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
-}
-
-//go:embed migrations/sql/*.sql
-var fs embed.FS
-
-func runMigrations(dsn string) error {
-	d, err := iofs.New(fs, "migrations/sql")
-	if err != nil {
-		return err
-	}
-
-	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
-	if err != nil {
-		return err
-	}
-
-	// run up to the latest migration
-	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
-		return nil
-	}
-	return err
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
