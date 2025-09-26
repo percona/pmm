@@ -92,7 +92,7 @@ services:
       - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
       # caching
       - go-modules:/root/go/pkg/mod
-      - root-cache:/root/.cache
+      - go-cache:/root/.cache
       - srv:/srv
       # grafana
     #  - "../grafana:/workspace"
@@ -138,5 +138,5 @@ services:
 
 volumes:
   go-modules:
-  root-cache:
+  go-cache:
   srv:

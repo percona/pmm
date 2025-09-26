@@ -7,6 +7,9 @@ on:
       - build/docker/server/README.md
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   updateReadme:
     runs-on: ubuntu-latest
