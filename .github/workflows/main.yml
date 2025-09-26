@@ -86,10 +86,10 @@ jobs:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
           reporter: github-pr-review
-          fail_on_error: true
+          fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.62.0 # Version should match specified in Makefile
+          golangci_lint_version: v1.64.2 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
