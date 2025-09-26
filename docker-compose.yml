@@ -92,7 +92,7 @@ services:
       - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
       # caching
       - go-modules:/root/go/pkg/mod
-      - root-cache:/root/.cache
+      - go-cache:/root/.cache
       - srv:/srv
       # temporarily mount advisor files until we package them.
       - ./managed/data/advisors/:/usr/local/percona/advisors/
@@ -142,5 +142,5 @@ services:
 
 volumes:
   go-modules:
-  root-cache:
+  go-cache:
   srv:
