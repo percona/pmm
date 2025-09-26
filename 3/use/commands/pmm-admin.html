@@ -9712,25 +9712,25 @@
 <p>Source of queries, one of: <code>profiler</code>, <code>mongolog</code>, <code>none</code> (default: <code>profiler</code>).</p>
 <dl>
 <dt><code>--environment=environment</code></dt>
-<dd>Environment name.</dd>
+<dd>Environment name (e.g. dev, test, prod, etc.)</dd>
 <dt><code>--cluster=cluster</code></dt>
-<dd>Cluster name.</dd>
+<dd>Cluster name. Set to the replica set or the desired sharded cluster name.</dd>
 <dt><code>--replication-set=replication-set</code></dt>
-<dd>Replication set name.</dd>
+<dd>Replication set name. Use only if you need to override the auto-detected replica set name.</dd>
 <dt><code>--custom-labels=custom-labels</code></dt>
 <dd>Custom user-assigned labels.</dd>
 <dt><code>--skip-connection-check</code></dt>
-<dd>Skip connection check.</dd>
+<dd>Skip checking if pmm agent can connect to the local db when adding a service.</dd>
 <dt><code>--tls</code></dt>
 <dd>Use TLS to connect to the database.</dd>
 <dt><code>--tls-skip-verify</code></dt>
-<dd>Skip TLS certificates validation.</dd>
+<dd>Skip validation of the TLS certificate presented by the db server to the pmm agent.</dd>
 <dt><code>--tls-certificate-key-file=PATHTOCERT</code></dt>
-<dd>Path to TLS certificate file.</dd>
+<dd>Path to TLS certificate file to present to the db server by pmm agent.</dd>
 <dt><code>--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET</code></dt>
 <dd>Password for TLS certificate file.</dd>
 <dt><code>--tls-ca-file=PATHTOCACERT</code></dt>
-<dd>Path to certificate authority file.</dd>
+<dd>Path to certificate authority file used to validate the db server certificate.</dd>
 <dt><code>--metrics-mode=mode</code></dt>
 <dd>
 <p>Metrics flow mode for agents node-exporter. Allowed values:</p>
@@ -10213,7 +10213,7 @@ Agents: aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-09-11
+    2025-09-26
   </span>
 
     
