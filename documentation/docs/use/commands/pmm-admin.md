@@ -331,7 +331,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : Password for TLS certificate file.
 
         `--tls-ca-file=PATHTOCACERT`
-        : Path to certificate authority file used to validate the db server certificate
+        : Path to certificate authority file used to validate the db server certificate.
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
