@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.23.2
+go 1.24.0
 
 // Update saas with
 // go get -v github.com/percona-platform/saas@latest
@@ -75,11 +75,11 @@ require (
 	github.com/stretchr/testify v1.11.1
 	go.mongodb.org/mongo-driver v1.17.1
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
-	golang.org/x/crypto v0.40.0
-	golang.org/x/sync v0.16.0
-	golang.org/x/sys v0.34.0
-	golang.org/x/text v0.28.0
-	golang.org/x/tools v0.35.0
+	golang.org/x/crypto v0.42.0
+	golang.org/x/sync v0.17.0
+	golang.org/x/sys v0.36.0
+	golang.org/x/text v0.29.0
+	golang.org/x/tools v0.37.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c
 	google.golang.org/grpc v1.75.0
@@ -164,6 +164,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/time v0.7.0 // indirect
+	golang.org/x/tools/godoc v0.1.0-deprecated // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -267,10 +268,10 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
-	golang.org/x/mod v0.26.0 // indirect
-	golang.org/x/net v0.42.0 // indirect
+	golang.org/x/mod v0.28.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/term v0.33.0 // indirect
+	golang.org/x/term v0.35.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.3.0 // indirect
 )
