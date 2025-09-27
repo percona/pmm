@@ -27,7 +27,7 @@
 - name: Generate SSL certificates
   command: openssl req -new -newkey rsa:2048 -days 1095 -nodes -x509 -subj "/CN=localhost" -keyout /etc/clickhouse-server/server.key -out /etc/clickhouse-server/server.crt
   args:
-    creates: /etc/clickhouse-server/clickhouse.crt
+    creates: /etc/clickhouse-server/server.key
 
 - name: Change ownership of clickhouse directories
   file:
