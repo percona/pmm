@@ -64,7 +64,7 @@ These variables are particularly useful for both AWS AMI and virtual appliance d
 | `PMM_ENABLE_UPDATES` | `true` | Allow version checks and updates |
 | `PMM_ENABLE_ACCESS_CONTROL` | `true` | Enable label-based access control (LBAC) |
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
-| `PMM_DEBUG` | `false` | Enable verbose logging |
+| `PMM_DEBUG` | `true` | Enable verbose logging |
 | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
 
 ### VictoriaMetrics performance tuning
