@@ -73,6 +73,7 @@ services:
     # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
     ulimits:
       memlock: 67108864
+    user: pmm
 
     ports:
       - ${PMM_PORT_HTTP:-80}:8080

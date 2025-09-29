@@ -10,6 +10,7 @@ import "google/rpc/status.proto";
 import "inventory/v1/agent_status.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/services.proto";
+import "realtime/v1/realtime.proto";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
@@ -36,6 +37,16 @@ message QANCollectRequest {
 
 // QANCollectResponse is a ServerMessage for QAN data acceptance.
 message QANCollectResponse {}
+
+// RealTimeCollectRequest is an AgentMessage for sending real-time query data.
+message RealTimeCollectRequest {
+  string agent_id = 1;
+  repeated realtime.v1.RealTimeQueryData queries = 2;
+  google.protobuf.Timestamp collection_time = 3;
+}
+
+// RealTimeCollectResponse is a ServerMessage for real-time data acceptance.
+message RealTimeCollectResponse {}
 
 // StateChangedRequest is an AgentMessage describing actual agent status.
 message StateChangedRequest {
@@ -82,6 +93,23 @@ message SetStateRequest {
     bool tls_skip_verify = 9;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
+
+  // RealtimeAnalyticsAgent describes desired configuration of real-time analytics agents.
+  message RealtimeAnalyticsAgent {
+    inventory.v1.AgentType type = 1;
+    string dsn = 2;
+    // Collection interval in seconds (default: 1).
+    uint32 collection_interval_seconds = 3;
+    // Disable query examples collection for privacy.
+    bool disable_examples = 4;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 5;
+    // TLS is enabled if true.
+    bool tls = 6;
+    // TLS certificate won't be verified.
+    bool tls_skip_verify = 7;
+  }
+  map<string, RealtimeAnalyticsAgent> realtime_analytics_agents = 3;
 }
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
@@ -730,6 +758,7 @@ message AgentMessage {
     Ping ping = 2;
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
+    RealTimeCollectRequest realtime_collect = 6;
     ActionResultRequest action_result = 5;
     JobResult job_result = 16;
     JobProgress job_progress = 17;
@@ -762,6 +791,7 @@ message ServerMessage {
     Pong pong = 2;
     StateChangedResponse state_changed = 3;
     QANCollectResponse qan_collect = 4;
+    RealTimeCollectResponse realtime_collect = 6;
     ActionResultResponse action_result = 5;
     // requests from server
     Ping ping = 8;

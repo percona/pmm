@@ -103,6 +103,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.QanMongodbProfilerAgent = append(res.QanMongodbProfilerAgent, agent)
 		case *inventoryv1.QANMongoDBMongologAgent:
 			res.QanMongodbMongologAgent = append(res.QanMongodbMongologAgent, agent)
+		case *inventoryv1.MongoDBRealtimeAnalyticsAgent:
+			res.MongodbRealtimeAnalyticsAgent = append(res.MongodbRealtimeAnalyticsAgent, agent)
 		case *inventoryv1.ProxySQLExporter:
 			res.ProxysqlExporter = append(res.ProxysqlExporter, agent)
 		case *inventoryv1.QANPostgreSQLPgStatementsAgent:
@@ -155,6 +157,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbProfilerAgent{QanMongodbProfilerAgent: agent}
 	case *inventoryv1.QANMongoDBMongologAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbMongologAgent{QanMongodbMongologAgent: agent}
+	case *inventoryv1.MongoDBRealtimeAnalyticsAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_MongodbRealtimeAnalyticsAgent{MongodbRealtimeAnalyticsAgent: agent}
 	case *inventoryv1.ProxySQLExporter:
 		res.Agent = &inventoryv1.GetAgentResponse_ProxysqlExporter{ProxysqlExporter: agent}
 	case *inventoryv1.QANPostgreSQLPgStatementsAgent:

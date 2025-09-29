@@ -610,6 +610,275 @@ var _ interface {
 	ErrorName() string
 } = QANCollectResponseValidationError{}
 
+// Validate checks the field values on RealTimeCollectRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RealTimeCollectRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RealTimeCollectRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RealTimeCollectRequestMultiError, or nil if none found.
+func (m *RealTimeCollectRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RealTimeCollectRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	for idx, item := range m.GetQueries() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, RealTimeCollectRequestValidationError{
+						field:  fmt.Sprintf("Queries[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, RealTimeCollectRequestValidationError{
+						field:  fmt.Sprintf("Queries[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RealTimeCollectRequestValidationError{
+					field:  fmt.Sprintf("Queries[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if all {
+		switch v := interface{}(m.GetCollectionTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RealTimeCollectRequestValidationError{
+					field:  "CollectionTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RealTimeCollectRequestValidationError{
+					field:  "CollectionTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCollectionTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RealTimeCollectRequestValidationError{
+				field:  "CollectionTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return RealTimeCollectRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// RealTimeCollectRequestMultiError is an error wrapping multiple validation
+// errors returned by RealTimeCollectRequest.ValidateAll() if the designated
+// constraints aren't met.
+type RealTimeCollectRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RealTimeCollectRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RealTimeCollectRequestMultiError) AllErrors() []error { return m }
+
+// RealTimeCollectRequestValidationError is the validation error returned by
+// RealTimeCollectRequest.Validate if the designated constraints aren't met.
+type RealTimeCollectRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RealTimeCollectRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RealTimeCollectRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RealTimeCollectRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RealTimeCollectRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RealTimeCollectRequestValidationError) ErrorName() string {
+	return "RealTimeCollectRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RealTimeCollectRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRealTimeCollectRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RealTimeCollectRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RealTimeCollectRequestValidationError{}
+
+// Validate checks the field values on RealTimeCollectResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RealTimeCollectResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RealTimeCollectResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RealTimeCollectResponseMultiError, or nil if none found.
+func (m *RealTimeCollectResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RealTimeCollectResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return RealTimeCollectResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RealTimeCollectResponseMultiError is an error wrapping multiple validation
+// errors returned by RealTimeCollectResponse.ValidateAll() if the designated
+// constraints aren't met.
+type RealTimeCollectResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RealTimeCollectResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RealTimeCollectResponseMultiError) AllErrors() []error { return m }
+
+// RealTimeCollectResponseValidationError is the validation error returned by
+// RealTimeCollectResponse.Validate if the designated constraints aren't met.
+type RealTimeCollectResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RealTimeCollectResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RealTimeCollectResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RealTimeCollectResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RealTimeCollectResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RealTimeCollectResponseValidationError) ErrorName() string {
+	return "RealTimeCollectResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RealTimeCollectResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRealTimeCollectResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RealTimeCollectResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RealTimeCollectResponseValidationError{}
+
 // Validate checks the field values on StateChangedRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -929,6 +1198,52 @@ func (m *SetStateRequest) validate(all bool) error {
 				if err := v.Validate(); err != nil {
 					return SetStateRequestValidationError{
 						field:  fmt.Sprintf("BuiltinAgents[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
+	}
+
+	{
+		sorted_keys := make([]string, len(m.GetRealtimeAnalyticsAgents()))
+		i := 0
+		for key := range m.GetRealtimeAnalyticsAgents() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetRealtimeAnalyticsAgents()[key]
+			_ = val
+
+			// no validation rules for RealtimeAnalyticsAgents[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, SetStateRequestValidationError{
+							field:  fmt.Sprintf("RealtimeAnalyticsAgents[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, SetStateRequestValidationError{
+							field:  fmt.Sprintf("RealtimeAnalyticsAgents[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return SetStateRequestValidationError{
+						field:  fmt.Sprintf("RealtimeAnalyticsAgents[%v]", key),
 						reason: "embedded message failed validation",
 						cause:  err,
 					}
@@ -6602,6 +6917,47 @@ func (m *AgentMessage) validate(all bool) error {
 			}
 		}
 
+	case *AgentMessage_RealtimeCollect:
+		if v == nil {
+			err := AgentMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRealtimeCollect()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "RealtimeCollect",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "RealtimeCollect",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRealtimeCollect()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AgentMessageValidationError{
+					field:  "RealtimeCollect",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	case *AgentMessage_ActionResult:
 		if v == nil {
 			err := AgentMessageValidationError{
@@ -7469,6 +7825,47 @@ func (m *ServerMessage) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "QanCollect",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ServerMessage_RealtimeCollect:
+		if v == nil {
+			err := ServerMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRealtimeCollect()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "RealtimeCollect",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "RealtimeCollect",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRealtimeCollect()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ServerMessageValidationError{
+					field:  "RealtimeCollect",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -8348,6 +8745,153 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SetStateRequest_BuiltinAgentValidationError{}
+
+// Validate checks the field values on SetStateRequest_RealtimeAnalyticsAgent
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *SetStateRequest_RealtimeAnalyticsAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// SetStateRequest_RealtimeAnalyticsAgent with the rules defined in the proto
+// definition for this message. If any rules are violated, the result is a
+// list of violation errors wrapped in
+// SetStateRequest_RealtimeAnalyticsAgentMultiError, or nil if none found.
+func (m *SetStateRequest_RealtimeAnalyticsAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetStateRequest_RealtimeAnalyticsAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Type
+
+	// no validation rules for Dsn
+
+	// no validation rules for CollectionIntervalSeconds
+
+	// no validation rules for DisableExamples
+
+	if all {
+		switch v := interface{}(m.GetTextFiles()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SetStateRequest_RealtimeAnalyticsAgentValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SetStateRequest_RealtimeAnalyticsAgentValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SetStateRequest_RealtimeAnalyticsAgentValidationError{
+				field:  "TextFiles",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	if len(errors) > 0 {
+		return SetStateRequest_RealtimeAnalyticsAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetStateRequest_RealtimeAnalyticsAgentMultiError is an error wrapping
+// multiple validation errors returned by
+// SetStateRequest_RealtimeAnalyticsAgent.ValidateAll() if the designated
+// constraints aren't met.
+type SetStateRequest_RealtimeAnalyticsAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetStateRequest_RealtimeAnalyticsAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetStateRequest_RealtimeAnalyticsAgentMultiError) AllErrors() []error { return m }
+
+// SetStateRequest_RealtimeAnalyticsAgentValidationError is the validation
+// error returned by SetStateRequest_RealtimeAnalyticsAgent.Validate if the
+// designated constraints aren't met.
+type SetStateRequest_RealtimeAnalyticsAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetStateRequest_RealtimeAnalyticsAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetStateRequest_RealtimeAnalyticsAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetStateRequest_RealtimeAnalyticsAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetStateRequest_RealtimeAnalyticsAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetStateRequest_RealtimeAnalyticsAgentValidationError) ErrorName() string {
+	return "SetStateRequest_RealtimeAnalyticsAgentValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetStateRequest_RealtimeAnalyticsAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetStateRequest_RealtimeAnalyticsAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetStateRequest_RealtimeAnalyticsAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetStateRequest_RealtimeAnalyticsAgentValidationError{}
 
 // Validate checks the field values on StartActionRequest_MySQLExplainParams
 // with the rules defined in the proto definition for this message. If any
