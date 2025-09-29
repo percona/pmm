@@ -35,7 +35,7 @@ To set environment variables for PMM Server on virtual machine deployments:
 
     ```bash
     PMM_DEBUG=true
-    PMM_ENABLE_TELEMETRY=false
+    PMM_ENABLE_ACCESS_CONTROL=true
     ```
 
 4. Restart the PMM Server service to apply the changes:
