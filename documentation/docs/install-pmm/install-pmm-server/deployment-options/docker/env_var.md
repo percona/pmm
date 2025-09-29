@@ -215,7 +215,7 @@ For testing and development, you might want debugging enabled:
 docker run \
  -e PMM_DATA_RETENTION=7d \
  -e PMM_DEBUG=true \
- -e PMM_ENABLE_TELEMETRY=false \
+ -e PMM_ENABLE_TELEMETRY=true \
  percona/pmm-server:3
 ``` 
 
