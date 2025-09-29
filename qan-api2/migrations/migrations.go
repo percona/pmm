@@ -44,13 +44,8 @@ func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
 		if err != nil {
 			return nil, err
 		}
-		var version uint
 		parts := strings.SplitN(name, "_", 2)
 		if len(parts) < 2 {
-			return nil, fmt.Errorf("invalid migration filename: %s", name)
-		}
-		n, err := fmt.Sscanf(parts[0], "%d", &version)
-		if n != 1 || err != nil {
 			return nil, fmt.Errorf("invalid migration filename: %s", name)
 		}
 		upSQL := string(content)
@@ -66,7 +61,6 @@ func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
 			downSQL = string(downContent)
 		}
 		migrations = append(migrations, memMigration{
-			Version:    version,
 			Identifier: name,
 			Up:         upSQL,
 			Down:       downSQL,
@@ -130,10 +124,20 @@ func Run(dsn string, data map[string]map[string]any) error {
 	if err != nil {
 		return err
 	}
+	// Build versions slice from migration filenames
+	var versions []uint
 	for _, mig := range migrations {
-		logrus.Debugf("[Run] Migration loaded: version=%d, identifier=%s\n", mig.Version, mig.Identifier)
+		parts := strings.SplitN(mig.Identifier, "_", 2)
+		if len(parts) < 2 {
+			continue
+		}
+		var v uint
+		if _, err := fmt.Sscanf(parts[0], "%d", &v); err == nil {
+			versions = append(versions, v)
+		}
+		logrus.Debugf("[Run] Migration loaded: version=%d, identifier=%s", v, mig.Identifier)
 	}
-	src := newMemMigrations(migrations)
+	src := newMemMigrations(migrations, versions)
 	m, err := migrate.NewWithSourceInstance("memMigrations", src, dsn)
 	if err != nil {
 		return err
@@ -144,7 +148,7 @@ func Run(dsn string, data map[string]map[string]any) error {
 		if errors.Is(err, migrate.ErrNoChange) || errors.Is(err, io.EOF) {
 			return nil
 		}
-		logrus.Errorf("[Run] Migration failed: %v\n", err)
+		logrus.Errorf("[Run] Migration failed: %v", err)
 	}
 
 	return err
