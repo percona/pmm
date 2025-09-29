@@ -88,7 +88,7 @@ PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume e
     VM_storage.maxMergeReadSpeed=1000MB
     ```
 
-2. Restart the PMM Server service after making VictoriaMetrics changes, and monitor disk space when extending retention periods.
+2. Restart the PMM Server service after changing environment variables for VictoriaMetrics and monitor disk space when extending retention periods.
 
 When to configure these settings:
 
