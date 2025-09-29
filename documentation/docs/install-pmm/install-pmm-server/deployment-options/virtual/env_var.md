@@ -3,7 +3,7 @@
 Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:
 
 - **AWS AMI instances**: EC2 instances deployed from AWS Marketplace
-- **Virtual appliances (OVF)**: Deployed on VirtualBox, VMware, and other virtualization platforms
+- **Virtual appliances (OVF)**: Deployed on VirtualBox and some other virtualization platforms
 
 Both deployment types use the same `systemd` user service that launches a Podman container, with environment variables configured through a dedicated environment file.
 
