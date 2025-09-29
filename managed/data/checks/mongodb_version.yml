@@ -17,8 +17,8 @@ checks:
               "4.4": 40429,  # https://www.percona.com/downloads/percona-server-mongodb-4.4/
               "5.0": 50029,  # https://www.percona.com/downloads/percona-server-mongodb-5.0/
               "6.0": 60025,  # https://www.percona.com/downloads/percona-server-mongodb-6.0/
-              "7.0": 70022,  # https://www.percona.com/downloads/percona-server-mongodb-7.0/
-              "8.0": 80008,  # https://www.percona.com/downloads/percona-server-mongodb-8.0/
+              "7.0": 70024,  # https://www.percona.com/downloads/percona-server-mongodb-7.0/
+              "8.0": 80012,  # https://www.percona.com/downloads/percona-server-mongodb-8.0/
           },
           "read_url": "https://docs.percona.com/percona-platform/advisors/checks/{}.html",
       }
