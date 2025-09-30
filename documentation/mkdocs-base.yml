@@ -239,8 +239,8 @@ nav:
               - use/qan/panels/overview.md
               - use/qan/panels/filters.md
               - use/qan/panels/details.md
-      - Advisors:
-          - Overview: advisors/advisors.md
+      - Percona Advisors:
+          - Percona Advisors: advisors/advisors.md
           - List of advisors and checks: advisors/advisor-details.md
             - Configuration advisors:
                 - Version configuration checks:
