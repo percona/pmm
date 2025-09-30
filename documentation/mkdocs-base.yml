@@ -373,7 +373,6 @@ nav:
               - Schema Design Query checks:
                   - MySQL indexes larger than data: advisors/checks/datadesign-mysql-indexes-larger-than-data.md
           - Develop Advisor checks: advisors/develop-advisor-checks.md
-          - Develop Advisor checks: advisors/develop-advisor-checks.md
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
