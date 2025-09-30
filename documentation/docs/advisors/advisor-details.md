@@ -1,4 +1,4 @@
-## List of database Advisors
+## List of database advisors
  
 Percona Monitoring and Management (PMM) offers four categories of database Advisors to help you improve database performance: Configuration, Performance, Query and Security Advisors.
 
