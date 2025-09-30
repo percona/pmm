@@ -1,6 +1,5 @@
 # Edit users
 
-
 You can edit users by changing the information or settings for an individual user account.
 
 !!! caution alert alert-warning "Important"

@@ -241,138 +241,148 @@ nav:
               - use/qan/panels/details.md
       - Advisors:
           - Overview: advisors/advisors.md
-          - Advisor details: advisors/advisor-details.md
-          - Configuration Advisors:
-              - Version Configuration checks:
-                  - MongoDB EOL version: advisors/checks/mongodb-eol.md
-                  - MongoDB unsupported version: advisors/checks/mongodb-unsupported-version.md
-                  - MongoDB version check: advisors/checks/mongodb-version.md
-                  - MySQL unsupported version: advisors/checks/mysql-unsupported-version-check.md
-                  - MySQL version: advisors/checks/mysql-version.md
-                  - MySQL EOL version 5.7: advisors/checks/mysql-version-eol-57.md
-                  - PostgreSQL EOL check: advisors/checks/postgresql-eol-check.md
-                  - PostgreSQL extension check: advisors/checks/postgresql-extension-check.md
-                  - PostgreSQL unsupported check: advisors/checks/postgresql-unsupported-check.md
-                  - PostgreSQL version check: advisors/checks/postgresql-version-check.md
-              - Generic Configuration checks:
-                  - MongoDB cache size: advisors/checks/mongo-cache-size.md
-                  - MongoDB active vs available connections: advisors/checks/mongodb-active-vs-available-connections.md
-                  - MongoDB journal disabled: advisors/checks/mongodb-journal.md
-                  - MongoDB non-default log level: advisors/checks/mongodb-loglevel.md
-                  - MongoDB read tickets: advisors/checks/mongodb-read-tickets.md
-                  - MongoDB write tickets: advisors/checks/mongodb-write-tickets.md
-                  - MongoDB write tickets runtime: advisors/checks/mongodb-write-tickets-runtime.md
-                  - MySQL automatic SP privileges: advisors/checks/mysql-automatic-sp-privileges-enabled.md
-                  - MySQL binlog retention period: advisors/checks/binlog-retention-period.md
-                  - MySQL binlog row image: advisors/checks/binlog-row-image.md
-                  - MySQL binlog checksum value: advisors/checks/binlog-checksum-value.md
-                  - MySQL general log: advisors/checks/configuration-check-general-log.md
-                  - MySQL log bin: advisors/checks/configuration-check-log-bin.md
-                  - MySQL SQL mode: advisors/checks/configuration-check-sql-mode.md
-                  - MySQL temporary table size limit: advisors/checks/configuration-check-tmp-table-size-limit.md
-                  - MySQL log verbosity: advisors/checks/mysql-configuration-log-verbosity.md
-                  - MySQL test database: advisors/checks/mysql-test-database.md
-                  - MySQL timezone: advisors/checks/mysql-timezone.md
-                  - PostgreSQL archiver failing: advisors/checks/postgresql-archiver-failing.md
-                  - PostgreSQL fsync enabled: advisors/checks/configuration-pg-check-fsync-enabled.md
-                  - PostgreSQL log checkpoints disabled: advisors/checks/configuration-pg-log-checkpoints-disabled.md
-                  - PostgreSQL logging recommendations: advisors/checks/postgresql-logging-recommendation-checks.md
-                  - PostgreSQL WAL retention: advisors/checks/postgresql-wal-retention-check.md
-              - Resources Configuration checks:
-                  - MongoDB collection fragmented: advisors/checks/mongodb-collection-fragmented.md
-                  - MongoDB CPU cores: advisors/checks/mongodb-cpucores.md
-                  - MongoDB DBPath mount: advisors/checks/mongodb-dbpath-mount.md
-                  - MongoDB FCV mismatch: advisors/checks/mongodb-fcv-check.md
-                  - MongoDB maxSessions: advisors/checks/mongodb-maxsessions.md
-                  - MongoDB swap allocation: advisors/checks/mongodb-swap-allocation.md
-                  - MongoDB TaskExecutor pool size: advisors/checks/mongodb-taskexecutor.md
-                  - MongoDB XFS filesystem: advisors/checks/mongodb-xfs-ftype.md
-                  - MySQL 32-bit binary on 64-bit system: advisors/checks/mysql-32binary-on-64system.md
-              - Connection Configuration checks:
-                  - MongoDB sudden spike in connections: advisors/checks/mongodb-connection-sudden-spike.md
-                  - MongoDB high connections: advisors/checks/mongodb-connections.md
-                  - MySQL max connections usage: advisors/checks/mysql-configuration-max-connections-usage.md
-                  - PostgreSQL high max connections: advisors/checks/configuration-pg-high-max-connections.md
-              - Replication Configuration checks:
-                  - MongoDB PSA architecture: advisors/checks/mongodb-psa-architecture-check.md
-                  - MongoDB replica set topology: advisors/checks/mongo-check-the-replica-set-topology.md
-                  - MySQL relay log purge: advisors/checks/configuration-check-relay-log-purge.md
-                  - MySQL replication best practices: advisors/checks/configuration-check-replica-not-read-only.md
-                  - MySQL replica verifying checksum: advisors/checks/configuration-check-replica-verifying-checksum.md
-                  - MySQL slave parallel workers: advisors/checks/mysql-config-slave-parallel-workers.md
-                  - MySQL sync binlog: advisors/checks/configuration-check-sync-binlog.md
-                  - MySQL log replica updates: advisors/checks/mysql-log-replica-updates.md
-                  - MySQL replica skipping errors: advisors/checks/replica-running-skipping-errors-or-idempotent-mode.md
-              - InnoDB Configuration checks:
-                  - InnoDB redo logs not sized correctly: advisors/checks/innodb_redo_logs_not_sized_correctly.md
-                  - InnoDB AHI efficiency: advisors/checks/mysql-ahi-efficiency-performance-basic-check.md
-                  - InnoDB redo log disabled: advisors/checks/mysql-config-innodb-redolog-disabled.md
-                  - InnoDB file format: advisors/checks/configuration-innodb-file-format.md
-                  - InnoDB file max limit: advisors/checks/mysql-configuration-innodb-file-maxlimit.md
-                  - InnoDB file per table: advisors/checks/mysql-configuration-innodb-file-per-table-not-enabled.md
-                  - InnoDB flush method: advisors/checks/configuration-innodb-flush-method.md
-                  - InnoDB strict mode: advisors/checks/innodb-strict-mode.md
-              - Vacuum Configuration checks:
-                  - PostgreSQL log autovacuum disabled: advisors/checks/configuration-pg-log-autovacuum-disabled.md
-                  - PostgreSQL table autovac settings: advisors/checks/postgresql-table-autovac-settings.md
-                  - PostgreSQL TXID wraparound approaching: advisors/checks/postgresql-txid-wraparound-approaching.md
-                  - PostgreSQL vacuum sanity check: advisors/checks/postgresql-vacuum-sanity-check.md
-          - Performance Advisors:
-              - Generic Performance checks:
-                  - MongoDB multiple services: advisors/checks/mongodb-multiple-services.md
-                  - PostgreSQL cache hit ratio: advisors/checks/postgresql-cache-hit-ratio.md
-                  - PostgreSQL settings changed: advisors/checks/configuration-pg-settings-changed.md
-                  - PostgreSQL temp files: advisors/checks/postgresql-tmpfiles-check.md
-              - Vacuum Performance checks:
-                  - PostgreSQL table bloat bytes: advisors/checks/postgresql-table-bloat-bytes.md
-                  - PostgreSQL table bloat percentage: advisors/checks/postgresql-table-bloat-in-percentage.md
-              - Replication Performance checks:
-                  - MongoDB chunk imbalance: advisors/checks/mongodb-chunk-imbalance.md
-                  - MongoDB oplog size: advisors/checks/mongodb-oplog-size-recommendation.md
-                  - MongoDB replication lag: advisors/checks/mongodb-replication-lag.md
-                  - PostgreSQL stale replication slot: advisors/checks/postgresql-stale-replication-slot.md
-          - Security Advisors:
-              - CVE Security checks:
-                  - MongoDB CVE version: advisors/checks/mongodb-cve-version.md
-                  - PostgreSQL CVE check: advisors/checks/postgresql-cve-check.md
-              - Configuration Security checks:
-                  - MongoDB AuthMech SCRAM-SHA256: advisors/checks/mongodb-authmech-scramsha256.md
-                  - MySQL local option of load data enabled: advisors/checks/local-option-of-load-data-enabled.md
-                  - MySQL secure file priv empty: advisors/checks/mysql-configuration-secure-file-priv-empty.md
-                  - MySQL password expiry: advisors/checks/mysql-password-expiry.md
-                  - MySQL require secure transport: advisors/checks/mysql-require-secure-transport.md
-                  - MySQL default password lifetime: advisors/checks/default-password-lifetime.md
-                  - MySQL password policy: advisors/checks/mysql-security-password-policy.md
-                  - PostgreSQL expiring password: advisors/checks/postgresql-expiring-passwd-check.md
-              - Authentication Security checks:
-                  - MongoDB authentication disabled: advisors/checks/mongodb-auth.md
-                  - MongoDB localhost auth bypass: advisors/checks/mongodb-localhost-auth-bypass.md
-                  - MySQL automatic expired password: advisors/checks/mysql-automatic-expired-password.md
-                  - MySQL anonymous user: advisors/checks/mysql-security-anonymous-user.md
-                  - MySQL open to world host: advisors/checks/mysql-security-open-to-world-host.md
-                  - MySQL root not local: advisors/checks/mysql-security-root-not-local.md
-                  - MySQL user SSL: advisors/checks/mysql-security-user-ssl.md
-                  - MySQL user super not local: advisors/checks/mysql-security-user-super-not-local.md
-                  - MySQL user without password: advisors/checks/mysql-security-user-without-password.md
-                  - PostgreSQL super role: advisors/checks/postgresql-super-role.md
-              - Replication Security checks:
-                  - MySQL replication grants: advisors/checks/mysql-replication-grants.md
-                  - MySQL replication grants mixed: advisors/checks/mysql-security-replication-grants-mixed.md
-              - Connection Security checks:
-                  - MongoDB IP bindings: advisors/checks/mongodb-bindip.md
-                  - MySQL private networks only: advisors/checks/mysql-private-networks-only.md
-          - Query Advisors:
-              - Index Query checks:
-                  - MongoDB inconsistent indexes: advisors/checks/mongodb-shard-collection-inconsistent-indexes.md
-                  - MongoDB unused indexes: advisors/checks/mongodb-unused-index.md
-                  - MySQL temp on-disk tables: advisors/checks/mysql-performance-temp-ondisk-table-high.md
-                  - MySQL tables without primary key: advisors/checks/mysql-tables-without-pk.md
-                  - PostgreSQL number of indexes: advisors/checks/postgresql-number-of-index-check.md
-                  - PostgreSQL sequential scan: advisors/checks/postgresql-sequential-scan-check.md
-                  - PostgreSQL unused index: advisors/checks/postgresql-unused-index-check.md
-              - Schema Design Query checks:
-                  - MySQL indexes larger than data: advisors/checks/datadesign-mysql-indexes-larger-than-data.md
-          - Develop Advisor checks: advisors/develop-advisor-checks.md
+          - List of Advisors and checks: advisors/advisor-details.md
+            - Configuration Advisors:
+                - Version configuration checks:
+                    - MongoDB:
+                        - MongoDB EOL version: advisors/checks/mongodb-eol.md
+                        - MongoDB unsupported version: advisors/checks/mongodb-unsupported-version.md
+                        - MongoDB version check: advisors/checks/mongodb-version.md
+                    - MySQL:
+                        - MySQL unsupported version: advisors/checks/mysql-unsupported-version-check.md
+                        - MySQL version: advisors/checks/mysql-version.md
+                        - MySQL EOL version 5.7: advisors/checks/mysql-version-eol-57.md
+                    - PostgreSQL:
+                        - PostgreSQL EOL check: advisors/checks/postgresql-eol-check.md
+                        - PostgreSQL extension check: advisors/checks/postgresql-extension-check.md
+                        - PostgreSQL unsupported check: advisors/checks/postgresql-unsupported-check.md
+                        - PostgreSQL version check: advisors/checks/postgresql-version-check.md
+                - Generic configuration checks:
+                    - MongoDB:
+                        - MongoDB cache size: advisors/checks/mongo-cache-size.md
+                        - MongoDB active vs available connections: advisors/checks/mongodb-active-vs-available-connections.md
+                        - MongoDB journal disabled: advisors/checks/mongodb-journal.md
+                        - MongoDB non-default log level: advisors/checks/mongodb-loglevel.md
+                        - MongoDB read tickets: advisors/checks/mongodb-read-tickets.md
+                        - MongoDB write tickets: advisors/checks/mongodb-write-tickets.md
+                        - MongoDB write tickets runtime: advisors/checks/mongodb-write-tickets-runtime.md
+                    -MySQL:
+                        - MySQL automatic SP privileges: advisors/checks/mysql-automatic-sp-privileges-enabled.md
+                        - MySQL binlog retention period: advisors/checks/binlog-retention-period.md
+                        - MySQL binlog row image: advisors/checks/binlog-row-image.md
+                        - MySQL binlog checksum value: advisors/checks/binlog-checksum-value.md
+                        - MySQL general log: advisors/checks/configuration-check-general-log.md
+                        - MySQL log bin: advisors/checks/configuration-check-log-bin.md
+                        - MySQL SQL mode: advisors/checks/configuration-check-sql-mode.md
+                        - MySQL temporary table size limit: advisors/checks/configuration-check-tmp-table-size-limit.md
+                        - MySQL log verbosity: advisors/checks/mysql-configuration-log-verbosity.md
+                        - MySQL test database: advisors/checks/mysql-test-database.md
+                        - MySQL timezone: advisors/checks/mysql-timezone.md
+                    - PostgreSQL:
+                        - PostgreSQL archiver failing: advisors/checks/postgresql-archiver-failing.md
+                        - PostgreSQL fsync enabled: advisors/checks/configuration-pg-check-fsync-enabled.md
+                        - PostgreSQL log checkpoints disabled: advisors/checks/configuration-pg-log-checkpoints-disabled.md
+                        - PostgreSQL logging recommendations: advisors/checks/postgresql-logging-recommendation-checks.md
+                        - PostgreSQL WAL retention: advisors/checks/postgresql-wal-retention-check.md
+                - Resources configuration checks:
+                    - MongoDB:
+                        - MongoDB collection fragmented: advisors/checks/mongodb-collection-fragmented.md
+                        - MongoDB CPU cores: advisors/checks/mongodb-cpucores.md
+                        - MongoDB DBPath mount: advisors/checks/mongodb-dbpath-mount.md
+                        - MongoDB FCV mismatch: advisors/checks/mongodb-fcv-check.md
+                        - MongoDB maxSessions: advisors/checks/mongodb-maxsessions.md
+                        - MongoDB swap allocation: advisors/checks/mongodb-swap-allocation.md
+                        - MongoDB TaskExecutor pool size: advisors/checks/mongodb-taskexecutor.md
+                        - MongoDB XFS filesystem: advisors/checks/mongodb-xfs-ftype.md
+                    - MySQL 32-bit binary on 64-bit system: advisors/checks/mysql-32binary-on-64system.md
+                - Connection configuration checks:
+                    - MongoDB sudden spike in connections: advisors/checks/mongodb-connection-sudden-spike.md
+                    - MongoDB high connections: advisors/checks/mongodb-connections.md
+                    - MySQL max connections usage: advisors/checks/mysql-configuration-max-connections-usage.md
+                    - PostgreSQL high max connections: advisors/checks/configuration-pg-high-max-connections.md
+                - Replication configuration checks:
+                    - MongoDB:
+                        - MongoDB PSA architecture: advisors/checks/mongodb-psa-architecture-check.md
+                        - MongoDB replica set topology: advisors/checks/mongo-check-the-replica-set-topology.md
+                    - MySQL:
+                        - MySQL relay log purge: advisors/checks/configuration-check-relay-log-purge.md
+                        - MySQL replication best practices: advisors/checks/configuration-check-replica-not-read-only.md
+                        - MySQL replica verifying checksum: advisors/checks/configuration-check-replica-verifying-checksum.md
+                        - MySQL slave parallel workers: advisors/checks/mysql-config-slave-parallel-workers.md
+                        - MySQL sync binlog: advisors/checks/configuration-check-sync-binlog.md
+                        - MySQL log replica updates: advisors/checks/mysql-log-replica-updates.md
+                        - MySQL replica skipping errors: advisors/checks/replica-running-skipping-errors-or-idempotent-mode.md
+                - InnoDB configuration checks:
+                    - InnoDB redo logs not sized correctly: advisors/checks/innodb_redo_logs_not_sized_correctly.md
+                    - InnoDB AHI efficiency: advisors/checks/mysql-ahi-efficiency-performance-basic-check.md
+                    - InnoDB redo log disabled: advisors/checks/mysql-config-innodb-redolog-disabled.md
+                    - InnoDB file format: advisors/checks/configuration-innodb-file-format.md
+                    - InnoDB file max limit: advisors/checks/mysql-configuration-innodb-file-maxlimit.md
+                    - InnoDB file per table: advisors/checks/mysql-configuration-innodb-file-per-table-not-enabled.md
+                    - InnoDB flush method: advisors/checks/configuration-innodb-flush-method.md
+                    - InnoDB strict mode: advisors/checks/innodb-strict-mode.md
+                - Vacuum Configuration checks:
+                    - PostgreSQL log autovacuum disabled: advisors/checks/configuration-pg-log-autovacuum-disabled.md
+                    - PostgreSQL table autovac settings: advisors/checks/postgresql-table-autovac-settings.md
+                    - PostgreSQL TXID wraparound approaching: advisors/checks/postgresql-txid-wraparound-approaching.md
+                    - PostgreSQL vacuum sanity check: advisors/checks/postgresql-vacuum-sanity-check.md
+            - Performance Advisors:
+                - Generic performance checks:
+                    - MongoDB multiple services: advisors/checks/mongodb-multiple-services.md
+                    - PostgreSQL cache hit ratio: advisors/checks/postgresql-cache-hit-ratio.md
+                    - PostgreSQL settings changed: advisors/checks/configuration-pg-settings-changed.md
+                    - PostgreSQL temp files: advisors/checks/postgresql-tmpfiles-check.md
+                - Vacuum Performance checks:
+                    - PostgreSQL table bloat bytes: advisors/checks/postgresql-table-bloat-bytes.md
+                    - PostgreSQL table bloat percentage: advisors/checks/postgresql-table-bloat-in-percentage.md
+                - Replication Performance checks:
+                    - MongoDB chunk imbalance: advisors/checks/mongodb-chunk-imbalance.md
+                    - MongoDB oplog size: advisors/checks/mongodb-oplog-size-recommendation.md
+                    - MongoDB replication lag: advisors/checks/mongodb-replication-lag.md
+                    - PostgreSQL stale replication slot: advisors/checks/postgresql-stale-replication-slot.md
+            - Security Advisors:
+                - CVE Security checks:
+                    - MongoDB CVE version: advisors/checks/mongodb-cve-version.md
+                    - PostgreSQL CVE check: advisors/checks/postgresql-cve-check.md
+                - Configuration security checks:
+                    - MongoDB AuthMech SCRAM-SHA256: advisors/checks/mongodb-authmech-scramsha256.md
+                    - MySQL local option of load data enabled: advisors/checks/local-option-of-load-data-enabled.md
+                    - MySQL secure file priv empty: advisors/checks/mysql-configuration-secure-file-priv-empty.md
+                    - MySQL password expiry: advisors/checks/mysql-password-expiry.md
+                    - MySQL require secure transport: advisors/checks/mysql-require-secure-transport.md
+                    - MySQL default password lifetime: advisors/checks/default-password-lifetime.md
+                    - MySQL password policy: advisors/checks/mysql-security-password-policy.md
+                    - PostgreSQL expiring password: advisors/checks/postgresql-expiring-passwd-check.md
+                - Authentication security checks:
+                    - Mongo:
+                        - MongoDB authentication disabled: advisors/checks/mongodb-auth.md
+                        - MongoDB localhost auth bypass: advisors/checks/mongodb-localhost-auth-bypass.md
+                    - MySQL:
+                        - MySQL automatic expired password: advisors/checks/mysql-automatic-expired-password.md
+                        - MySQL anonymous user: advisors/checks/mysql-security-anonymous-user.md
+                        - MySQL open to world host: advisors/checks/mysql-security-open-to-world-host.md
+                        - MySQL root not local: advisors/checks/mysql-security-root-not-local.md
+                        - MySQL user SSL: advisors/checks/mysql-security-user-ssl.md
+                        - MySQL user super not local: advisors/checks/mysql-security-user-super-not-local.md
+                        - MySQL user without password: advisors/checks/mysql-security-user-without-password.md
+                    - PostgreSQL super role: advisors/checks/postgresql-super-role.md
+                - Replication security checks:
+                    - MySQL replication grants: advisors/checks/mysql-replication-grants.md
+                    - MySQL replication grants mixed: advisors/checks/mysql-security-replication-grants-mixed.md
+                - Connection security checks:
+                    - MongoDB IP bindings: advisors/checks/mongodb-bindip.md
+                    - MySQL private networks only: advisors/checks/mysql-private-networks-only.md
+            - Query Advisors:
+                - Index Query checks:
+                    - MongoDB inconsistent indexes: advisors/checks/mongodb-shard-collection-inconsistent-indexes.md
+                    - MongoDB unused indexes: advisors/checks/mongodb-unused-index.md
+                    - MySQL temp on-disk tables: advisors/checks/mysql-performance-temp-ondisk-table-high.md
+                    - MySQL tables without primary key: advisors/checks/mysql-tables-without-pk.md
+                    - PostgreSQL number of indexes: advisors/checks/postgresql-number-of-index-check.md
+                    - PostgreSQL sequential scan: advisors/checks/postgresql-sequential-scan-check.md
+                    - PostgreSQL unused index: advisors/checks/postgresql-unused-index-check.md
+                - Schema Design Query checks:
+                    - MySQL indexes larger than data: advisors/checks/datadesign-mysql-indexes-larger-than-data.md
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
