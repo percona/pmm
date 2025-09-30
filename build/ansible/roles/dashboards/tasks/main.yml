@@ -13,12 +13,10 @@
   loop: "{{ plugin_list['files'] }}"
 
 - name: Copy new plugins to the plugin directory
-  synchronize:
+  copy:
     src: /usr/share/percona-dashboards/panels/
     dest: /srv/grafana/plugins/
-    rsync_opts:
-      - "--no-filter"
-      - "--include=*"
+    remote_src: yes
 
 - name: Set permissions for the plugin directory
   file:
