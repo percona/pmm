@@ -241,8 +241,8 @@ nav:
               - use/qan/panels/details.md
       - Advisors:
           - Overview: advisors/advisors.md
-          - List of Advisors and checks: advisors/advisor-details.md
-            - Configuration Advisors:
+          - List of advisors and checks: advisors/advisor-details.md
+            - Configuration advisors:
                 - Version configuration checks:
                     - MongoDB:
                         - MongoDB EOL version: advisors/checks/mongodb-eol.md
@@ -326,7 +326,7 @@ nav:
                     - PostgreSQL table autovac settings: advisors/checks/postgresql-table-autovac-settings.md
                     - PostgreSQL TXID wraparound approaching: advisors/checks/postgresql-txid-wraparound-approaching.md
                     - PostgreSQL vacuum sanity check: advisors/checks/postgresql-vacuum-sanity-check.md
-            - Performance Advisors:
+            - Performance advisors:
                 - Generic performance checks:
                     - MongoDB multiple services: advisors/checks/mongodb-multiple-services.md
                     - PostgreSQL cache hit ratio: advisors/checks/postgresql-cache-hit-ratio.md
@@ -340,12 +340,12 @@ nav:
                     - MongoDB oplog size: advisors/checks/mongodb-oplog-size-recommendation.md
                     - MongoDB replication lag: advisors/checks/mongodb-replication-lag.md
                     - PostgreSQL stale replication slot: advisors/checks/postgresql-stale-replication-slot.md
-            - Security Advisors:
+            - Security advisors:
                 - CVE Security checks:
                     - MongoDB CVE version: advisors/checks/mongodb-cve-version.md
                     - PostgreSQL CVE check: advisors/checks/postgresql-cve-check.md
                 - Configuration security checks:
-                    - MongoDB AuthMech SCRAM-SHA256: advisors/checks/mongodb-authmech-scramsha256.md
+                    - MongoDB authMech SCRAM-SHA256: advisors/checks/mongodb-authmech-scramsha256.md
                     - MySQL local option of load data enabled: advisors/checks/local-option-of-load-data-enabled.md
                     - MySQL secure file priv empty: advisors/checks/mysql-configuration-secure-file-priv-empty.md
                     - MySQL password expiry: advisors/checks/mysql-password-expiry.md
@@ -372,8 +372,8 @@ nav:
                 - Connection security checks:
                     - MongoDB IP bindings: advisors/checks/mongodb-bindip.md
                     - MySQL private networks only: advisors/checks/mysql-private-networks-only.md
-            - Query Advisors:
-                - Index Query checks:
+            - Query advisors:
+                - Index query checks:
                     - MongoDB inconsistent indexes: advisors/checks/mongodb-shard-collection-inconsistent-indexes.md
                     - MongoDB unused indexes: advisors/checks/mongodb-unused-index.md
                     - MySQL temp on-disk tables: advisors/checks/mysql-performance-temp-ondisk-table-high.md
@@ -381,7 +381,7 @@ nav:
                     - PostgreSQL number of indexes: advisors/checks/postgresql-number-of-index-check.md
                     - PostgreSQL sequential scan: advisors/checks/postgresql-sequential-scan-check.md
                     - PostgreSQL unused index: advisors/checks/postgresql-unused-index-check.md
-                - Schema Design Query checks:
+                - Schema design query checks:
                     - MySQL indexes larger than data: advisors/checks/datadesign-mysql-indexes-larger-than-data.md
       - Percona Alerting:
           - alert/index.md
