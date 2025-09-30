@@ -266,7 +266,7 @@ nav:
                         - MongoDB read tickets: advisors/checks/mongodb-read-tickets.md
                         - MongoDB write tickets: advisors/checks/mongodb-write-tickets.md
                         - MongoDB write tickets runtime: advisors/checks/mongodb-write-tickets-runtime.md
-                    -MySQL:
+                    - MySQL:
                         - MySQL automatic SP privileges: advisors/checks/mysql-automatic-sp-privileges-enabled.md
                         - MySQL binlog retention period: advisors/checks/binlog-retention-period.md
                         - MySQL binlog row image: advisors/checks/binlog-row-image.md
