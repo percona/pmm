@@ -1,14 +1,14 @@
-## List of database advisors
+## List of advisors and checks
  
-Percona Monitoring and Management (PMM) offers four categories of database Advisors to help you improve database performance: Configuration, Performance, Query and Security Advisors.
+Percona Monitoring and Management (PMM) offers four categories of database advisors to help you improve database performance: Configuration, Performance, Query and Security advisors.
 
-Each Advisor includes a set of automated checks that investigate specific ranges of possible issues and areas of improvement: security threats, non-compliance issues, performance degradation, query and index optimization strategies etc. 
+Each advisor includes a set of automated checks that investigate specific ranges of possible issues and areas of improvement: security threats, non-compliance issues, performance degradation, query and index optimization strategies etc. 
 
-Here's the complete list of database Advisors and available checks:
+Here's the complete list of database advisors and available checks:
 
 ### Configuration advisors
 
-| Advisor Name | Description  | Database technology|
+| Advisor name | Description  | Database technology|
 | :--------- | :---------- | :--- |:--- |
 | **Version configuration** | Notifies of newly released database versions to streamline database maintenance and ensure the most up-to-date performance. |MySQL, MongoDB, PostgreSQL|
 | **Generic configuration** | Provides basic recommendations for improving your database configuration.   | MySQL, MongoDB, PostgreSQL| 
@@ -20,7 +20,7 @@ Here's the complete list of database Advisors and available checks:
 
 ### Performance advisors
 
-| Advisor Name | Description  Database Technology|
+| Advisor name | Description  Database technology|
 | :--------- | :---------- | :--- |:--- |
 | **Generic performance** | Provides basic database configuration recommendations for high-performance query execution. | MongoDB, PostgreSQL|
 | **Vacuum performance** | Helps improve the efficiency and execution speed of database Vacuum commands. |  PostgreSQL|
@@ -28,7 +28,7 @@ Here's the complete list of database Advisors and available checks:
 
 ### Security advisors
 
-| Advisor Name | Description | Database Technology|
+| Advisor name | Description | Database technology|
 | :--------- | :---------- | :--- |:--- |
 | **CVE security** | Informs you of any database versions affected by CVE.  | MongoDB, PostgreSQL |
 | **Configuration security** | Checks your database configuration to ensure that security best practices are correctly implemented.  |MySQL, MongoDB, PostgreSQL|
@@ -38,14 +38,14 @@ Here's the complete list of database Advisors and available checks:
 
 ### Query advisors
 
-| Advisor Name | Description  | Database Technology|
+| Advisor name | Description  | Database technology|
 | :--------- | :---------- | :--- |:--- |
 | **Index query** | Provides query and index optimization strategies for peak database performance. |  MySQL, MongoDB, PostgreSQL |
 | **Schema design query** | Helps create efficient database schemas by analyzing queries and offering suggestions for optimization. | MySQL|
 
 ## List of checks
 
-Every Advisor consists of one or more Advisor checks. Here is the full list of checks: 
+Every advisor consists of one or more advisor checks. Here is the full list of checks: 
 
 ### MongoDB
 
@@ -87,7 +87,7 @@ Every Advisor consists of one or more Advisor checks. Here is the full list of c
 
 ### MySQL
 
-| Advisor| Check Name | Description | Summary |
+| Advisor| Check name | Description | Summary |
 | :--------- | :---------- | :--- |:--- |
 |Connection configuration| mysql\_configuration\_max\_connections\_usage |Checks the MySQL max_connections configuration option to ensure maximum utilization is achieved.| Check Max Connections Usage |
 | Generic configuration | mysql\_automatic\_sp\_privileges\_enabled | Checks if the automatic\_sp\_privileges configuration is ON. | Checks if automatic\_sp\_privileges configuration is ON. |
@@ -141,7 +141,7 @@ Every Advisor consists of one or more Advisor checks. Here is the full list of c
 
 ### PostgreSQL
 
-| Advisor| Check Name | Description | 
+| Advisor| Check name | Description | 
 | :--------- | :---------- | :--- |
 |Connection configuration| postgresql\_max\_connections_1 | Notifies if the *max_connections* configuration option is set to a high value (above 300). PostgreSQL doesn't cope well with having many connections even if they are idle. The recommended value is below 300. |
 | Generic configuration | postgresql\_archiver\_failing_1 | Verifies if the archiver has failed. |
