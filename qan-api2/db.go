@@ -88,9 +88,7 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	// old: fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName)
-	// CREATE DATABASE pmm ON CLUSTER cluster_2S_2R ENGINE = Replicated('/clickhouse/databases/pmm', '{shard}', '{replica}');
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Replicated('/clickhouse/databases/%s', '{shard}', '{replica}')`, databaseName, databaseName))
+	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {
 		log.Printf("Result: %v", result)
 		return err
