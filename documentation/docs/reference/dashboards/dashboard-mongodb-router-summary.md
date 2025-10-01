@@ -37,7 +37,7 @@ Displays the current version of MongoDB running on the system. This information 
 Shows the status of all MongoDB Shard (MongoS) nodes in the selected cluster over time. It uses a color-coded timeline: green bars mean a node is "UP" and working, while red bars show it's "DOWN" or unreachable. This simple view helps you quickly spot which nodes are active, see any recent status changes, and identify patterns in node availability.
 
 ## Details
-This section includes additional information like "Command Operations", "Connections", "Query execution times" and "Query efficiency".
+This section includes additional information like "Command Operations", "Connections", "Operations Latency" and "Query efficiency".
 
 ### Command Operations
 Shows MongoDB command operations over time, displaying rates for inserts, updates, deletes, queries, and TTL deletions per second.

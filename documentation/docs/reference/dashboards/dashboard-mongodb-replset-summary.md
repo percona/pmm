@@ -93,7 +93,7 @@ Available connections indicate remaining connection capacity. Idle connections (
 
 Use this to monitor connection capacity and identify connection pool inefficiencies.
 
-### Query Execution Times
+### Operations Latency
 Shows the average latency in microseconds (µs) for read, write, and command operations. Use this metric to monitor query performance and identify slow operations that may need optimization.
 
 ## Collection Details
