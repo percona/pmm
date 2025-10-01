@@ -51,7 +51,7 @@ Use this to monitor connection usage trends, identify periods of high demand, an
 
 By comparing current to available connections, it's easy to spot potential bottlenecks or capacity issues before they impact performance.
 
-### Query execution times
+### Operations Latency
 Shows the average execution times for MongoDB queries over time, categorized into read, write, and other command operations.
 
 Use this to identify slow queries, performance bottlenecks, and unusual spikes in execution times. Comparing latencies across operation types can also guide decisions on indexing strategies and query optimizations.
