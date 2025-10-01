@@ -87,11 +87,7 @@ Shows both active and queued read/write operations in your MongoDB deployment. U
 
 ### Connections
 
-Shows the number of current, available, and idle MongoDB connections. Current connections represent all established connections to the database. 
-
-Available connections indicate remaining connection capacity. Idle connections (calculated as current minus active connections) represent established connections that are not actively processing requests. 
-
-Use this to monitor connection capacity and identify connection pool inefficiencies.
+Shows the number of current and available MongoDB connections. Use this to monitor connection usage and ensure your deployment has sufficient capacity for new client connections.
 
 ### Query Execution Times
 Shows the average latency in microseconds (µs) for read, write, and command operations. Use this metric to monitor query performance and identify slow operations that may need optimization.
