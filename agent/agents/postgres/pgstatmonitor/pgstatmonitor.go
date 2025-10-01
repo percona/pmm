@@ -310,7 +310,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 
 			settings, err := m.getSettings()
 			if err != nil {
-				m.l.Errorf(err.Error())
+				m.l.Error(err)
 				running = false
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 				m.resetWaitTime(t, waitTime)
@@ -318,7 +318,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			}
 			normalizedQuery, err := settings.getNormalizedQueryValue()
 			if err != nil {
-				m.l.Errorf(err.Error())
+				m.l.Error(err)
 				running = false
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 				m.resetWaitTime(t, waitTime)
@@ -579,7 +579,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM)
 			if err != nil {
-				m.l.Warnf(err.Error())
+				m.l.Warn(err)
 			} else {
 				mb.Postgresql.HistogramItems = histogram
 			}
