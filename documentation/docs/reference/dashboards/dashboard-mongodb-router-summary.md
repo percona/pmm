@@ -45,7 +45,9 @@ Shows MongoDB command operations over time, displaying rates for inserts, update
 Use this to monitor overall database workload, compare operation types, spot peak usage and unusual patterns, assess replication activity, and track automatic data cleanup.
 
 ### Connections
-Displays MongoDB connection metrics over time, showing both current and available connections. Use this to monitor connection usage trends, identify periods of high demand, and ensure the database isn’t reaching its connection limits.
+Shows current, available, and idle MongoDB connections over time for each service. Current connections represent all established connections. Available connections indicate remaining capacity. Idle connections are calculated as current minus active connections, representing established connections not actively processing requests. 
+
+Use this to monitor connection usage trends, identify periods of high demand, and ensure the database isn't reaching its connection limits. 
 
 By comparing current to available connections, it’s easy to spot potential bottlenecks or capacity issues before they impact performance.
 
