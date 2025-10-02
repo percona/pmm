@@ -107,7 +107,7 @@ Advisors checks refer to the list of Advisors categorized by specific topics ava
 <img width="1024" alt="image" src="https://github.com/percona/checked/assets/25495422/7ec59008-f888-4c98-9be9-3eeb39dd6c0e">
 
 ``checks.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L5
-``chcks.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L6
+``checks.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L6
 
 
 When an Advisor check identifies an issue in the user's infrastructure, it displays insights on the https://pmmdemo.percona.com/graph/advisors/insights page.
