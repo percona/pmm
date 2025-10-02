@@ -89,8 +89,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
-	const selectAllCities = "SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city"
-	const selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN " +
+	var selectAllCities = "SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city"
+	var selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN " +
 		"($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, " +
 		"$21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, " +
 		"$41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, " +
@@ -155,12 +155,13 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCitiesLong: "-8264367755446145090",
 		}
 	case "17":
-		truncatedMSharedBlksHitSum = float32(8)
 		digests = map[string]string{
 			selectAllCities:     "1563925687573067138",
 			selectAllCitiesLong: "-3196437048361615995",
 		}
 	case "18":
+		selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN ($1 /*, ... */)"
+		truncatedMSharedBlksHitSum = float32(8)
 		digests = map[string]string{
 			selectAllCities:     "2398197226709363629",
 			selectAllCitiesLong: "-1570108445478818403",
@@ -286,8 +287,17 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
+
+		// In PG 18+ we already got shortened query, so it is not truncated.
+		isTruncated := true
+		switch {
+		case engineVersion == "18":
+			isTruncated = false
+		}
+
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
+				Queryid:             digests[selectAllCitiesLong],
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
 				Tables:              []string{"city"},
@@ -296,7 +306,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				IsTruncated:         true,
+				IsTruncated:         isTruncated,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -315,7 +325,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MRowsSum:              499,
 			},
 		}
-		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 
@@ -334,6 +343,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum, 2)
 		expected = &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
+				Queryid:             digests[expected.Common.Fingerprint],
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
 				Tables:              []string{"city"},
@@ -342,7 +352,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				IsTruncated:         true,
+				IsTruncated:         isTruncated,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -359,7 +369,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MRowsSum:              499,
 			},
 		}
-		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
