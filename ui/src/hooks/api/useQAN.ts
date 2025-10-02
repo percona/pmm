@@ -1,5 +1,14 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { getRecentQANData, getQANMetricsNames, getQANFilters, QANReportResponse, QANMetricsNamesResponse, QANFiltersResponse, QANFiltersRequest, QANLabel } from 'api/qan';
+import {
+  getRecentQANData,
+  getQANMetricsNames,
+  getQANFilters,
+  QANReportResponse,
+  QANMetricsNamesResponse,
+  QANFiltersResponse,
+  QANFiltersRequest,
+  QANLabel,
+} from 'api/qan';
 
 export const useRecentQANData = (
   hoursBack: number = 12,
@@ -39,4 +48,4 @@ export const useQANFilters = (
     staleTime: 10 * 60 * 1000, // 10 minutes
     retry: 1,
     ...options,
-  }); 
+  });

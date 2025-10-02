@@ -57,6 +57,9 @@ services:
       # - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
       # - GF_DATABASE_CLIENT_CERT_PATH=/tmp/certs/grafana.crt
 
+    # allow overriding env variables via .env file
+    env_file:
+      - .env
     extra_hosts:
       - host.docker.internal:host-gateway
       # - portal.localhost:${PORTAL_HOST:-host-gateway}

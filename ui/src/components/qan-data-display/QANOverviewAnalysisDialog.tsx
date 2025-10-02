@@ -25,7 +25,9 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+// @ts-expect-error - Types are defined but not recognized due to moduleResolution
+import SyntaxHighlighter from 'react-syntax-highlighter/dist/esm/prism';
+// @ts-expect-error - Types are defined but not recognized due to moduleResolution
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { aiChatAPI, StreamMessage } from '../../api/aichat';
 import { QANReportResponse } from '../../api/qan';
@@ -49,49 +51,78 @@ interface QANOverviewAnalysisDialogProps {
   qanData: QANReportResponse | null;
 }
 
-export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps> = ({
-  open,
-  onClose,
-  qanData,
-}) => {
+export const QANOverviewAnalysisDialog: React.FC<
+  QANOverviewAnalysisDialogProps
+> = ({ open, onClose, qanData }) => {
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [toolExecutions, setToolExecutions] = useState<ToolExecution[]>([]);
   const [analysisSessionId, setAnalysisSessionId] = useState<string>('');
-  const activeStreamsRef = useRef<Map<string, { type: string; timestamp: number }>>(new Map());
+  const activeStreamsRef = useRef<
+    Map<string, { type: string; timestamp: number }>
+  >(new Map());
 
   // Stream management operations
   const addStream = (streamId: string, type: string) => {
     activeStreamsRef.current.set(streamId, { type, timestamp: Date.now() });
-    console.log('🔢 Overview stream added:', streamId, 'type:', type, 'total:', activeStreamsRef.current.size);
+    console.log(
+      '🔢 Overview stream added:',
+      streamId,
+      'type:',
+      type,
+      'total:',
+      activeStreamsRef.current.size
+    );
     debugStreams();
   };
 
   const removeStream = (streamId: string, sessionId: string) => {
     const wasRemoved = activeStreamsRef.current.delete(streamId);
-    console.log('🔢 Overview stream removed:', streamId, 'success:', wasRemoved, 'remaining:', activeStreamsRef.current.size);
+    console.log(
+      '🔢 Overview stream removed:',
+      streamId,
+      'success:',
+      wasRemoved,
+      'remaining:',
+      activeStreamsRef.current.size
+    );
     debugStreams();
-    
+
     // Check if we should cleanup the session
     if (activeStreamsRef.current.size === 0 && sessionId) {
-      console.log('🧹 All overview analysis streams completed, cleaning up session:', sessionId);
-      aiChatAPI.deleteSession(sessionId).catch(error => {
-        console.warn('⚠️ Failed to cleanup overview analysis session:', error);
-      }).then(() => {
-        setAnalysisSessionId('');
-        console.log('🧹 Overview analysis session cleaned up');
-      });
+      console.log(
+        '🧹 All overview analysis streams completed, cleaning up session:',
+        sessionId
+      );
+      aiChatAPI
+        .deleteSession(sessionId)
+        .catch((error) => {
+          console.warn(
+            '⚠️ Failed to cleanup overview analysis session:',
+            error
+          );
+        })
+        .then(() => {
+          setAnalysisSessionId('');
+          console.log('🧹 Overview analysis session cleaned up');
+        });
     }
   };
 
   const clearAllStreams = () => {
-    console.log('🧹 Clearing all overview streams, count:', activeStreamsRef.current.size);
+    console.log(
+      '🧹 Clearing all overview streams, count:',
+      activeStreamsRef.current.size
+    );
     activeStreamsRef.current.clear();
   };
 
   const debugStreams = () => {
-    console.log('🔍 Current active overview streams:', Array.from(activeStreamsRef.current.entries()));
+    console.log(
+      '🔍 Current active overview streams:',
+      Array.from(activeStreamsRef.current.entries())
+    );
   };
 
   // Reset state when dialog opens/closes
@@ -103,79 +134,98 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
       setToolExecutions([]);
       setAnalysisSessionId('');
       activeStreamsRef.current.clear();
-      
+
       // Start comprehensive analysis
       handleAnalyzeAllQueries();
     }
   }, [open, qanData]);
 
   // Extracted message handler for analysis stream
-  const handleAnalysisStreamMessage = (message: StreamMessage, currentStreamId?: string) => {
+  const handleAnalysisStreamMessage = (
+    message: StreamMessage,
+    currentStreamId?: string
+  ) => {
     // Update session ID if backend provides one
     if (message.session_id && analysisSessionId === '') {
-      console.log('🔄 Backend created/provided overview session ID:', message.session_id);
+      console.log(
+        '🔄 Backend created/provided overview session ID:',
+        message.session_id
+      );
       setAnalysisSessionId(message.session_id);
     }
-    
+
     switch (message.type) {
       case 'message':
         if (message.content) {
-          setAnalysisResult(prev => prev + message.content);
+          setAnalysisResult((prev) => prev + message.content);
         }
         break;
       case 'tool_approval_request':
         if (message.tool_calls && message.request_id) {
           // Add pending tool executions to state
-          const newToolExecutions = message.tool_calls.map(tool => ({
+          const newToolExecutions = message.tool_calls.map((tool) => ({
             id: tool.id,
             name: tool.function.name,
             arguments: tool.function.arguments,
             status: 'pending' as const,
-            timestamp: Date.now()
+            timestamp: Date.now(),
           }));
-          setToolExecutions(prev => [...prev, ...newToolExecutions]);
-          
-          console.log('🔧 Auto-approving tools for overview analysis:', message.tool_calls);
-          
+          setToolExecutions((prev) => [...prev, ...newToolExecutions]);
+
+          console.log(
+            '🔧 Auto-approving tools for overview analysis:',
+            message.tool_calls
+          );
+
           handleToolApproval(true, message);
         }
         break;
       case 'tool_execution':
         if (message.tool_executions) {
-          message.tool_executions.forEach(execution => {
-            setToolExecutions(prev => prev.map(tool => {
-              if (tool.id === execution.id) {
-                if (execution.result) {
-                  return {
-                    ...tool,
-                    status: 'completed' as const,
-                    result: execution.result
-                  };
-                } else if (execution.error) {
-                  return {
-                    ...tool,
-                    status: 'failed' as const,
-                    error: execution.error
-                  };
-                } else {
-                  return {
-                    ...tool,
-                    status: 'running' as const
-                  };
+          message.tool_executions.forEach((execution) => {
+            setToolExecutions((prev) =>
+              prev.map((tool) => {
+                if (tool.id === execution.id) {
+                  if (execution.result) {
+                    return {
+                      ...tool,
+                      status: 'completed' as const,
+                      result: execution.result,
+                    };
+                  } else if (execution.error) {
+                    return {
+                      ...tool,
+                      status: 'failed' as const,
+                      error: execution.error,
+                    };
+                  } else {
+                    return {
+                      ...tool,
+                      status: 'running' as const,
+                    };
+                  }
                 }
-              }
-              return tool;
-            }));
+                return tool;
+              })
+            );
           });
         }
         break;
       case 'error':
         // Stream errors are now handled by stream-aware error handlers
-        console.log('📊 Overview analysis stream error for', currentStreamId, ':', message.content);
+        console.log(
+          '📊 Overview analysis stream error for',
+          currentStreamId,
+          ':',
+          message.content
+        );
         break;
       case 'done':
         // Stream completion is now handled by stream-aware complete handlers
-        console.log('📊 Overview analysis stream completed for', currentStreamId);
+        console.log(
+          '📊 Overview analysis stream completed for',
+          currentStreamId
+        );
         // But we still need to handle tool approval completion here
         if (currentStreamId && currentStreamId.startsWith('tool_approval_')) {
           removeStream(currentStreamId, message.session_id);
@@ -183,8 +233,6 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
         break;
     }
   };
-
-
 
   const handleAnalyzeAllQueries = async () => {
     if (!qanData) return;
@@ -199,11 +247,14 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
       // Create unique session ID for this analysis
       const sessionId = generateAnalysisSessionId('overview');
       setAnalysisSessionId(sessionId);
-      
+
       const streamId = 'main_overview_analysis';
       addStream(streamId, 'comprehensive_analysis');
 
-      console.log('🚀 Starting comprehensive QAN analysis with session:', sessionId);
+      console.log(
+        '🚀 Starting comprehensive QAN analysis with session:',
+        sessionId
+      );
 
       // Create stream-aware handlers
       const streamAwareMessageHandler = (message: StreamMessage) => {
@@ -231,7 +282,6 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
         streamAwareErrorHandler,
         streamAwareCompleteHandler
       );
-
     } catch (error) {
       console.error('❌ Overview analysis failed:', error);
       setError(error instanceof Error ? error.message : 'Analysis failed');
@@ -241,28 +291,43 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
     }
   };
 
-  const handleToolApproval = async (approved: boolean, message: StreamMessage) => {
+  const handleToolApproval = async (
+    approved: boolean,
+    message: StreamMessage
+  ) => {
     try {
       // Update tool statuses to running if approved
       if (approved) {
-        setToolExecutions(prev => prev.map(tool => {
-          const isPendingTool = message.tool_calls?.some(tc => tc.id === tool.id);
-          return isPendingTool && tool.status === 'pending' 
-            ? { ...tool, status: 'running' as const }
-            : tool;
-        }));
+        setToolExecutions((prev) =>
+          prev.map((tool) => {
+            const isPendingTool = message.tool_calls?.some(
+              (tc) => tc.id === tool.id
+            );
+            return isPendingTool && tool.status === 'pending'
+              ? { ...tool, status: 'running' as const }
+              : tool;
+          })
+        );
       } else {
         // Mark tools as failed if denied
-        setToolExecutions(prev => prev.map(tool => {
-          const isPendingTool = message.tool_calls?.some(tc => tc.id === tool.id);
-          return isPendingTool && tool.status === 'pending'
-            ? { ...tool, status: 'failed' as const, error: 'User denied tool execution' }
-            : tool;
-        }));
+        setToolExecutions((prev) =>
+          prev.map((tool) => {
+            const isPendingTool = message.tool_calls?.some(
+              (tc) => tc.id === tool.id
+            );
+            return isPendingTool && tool.status === 'pending'
+              ? {
+                  ...tool,
+                  status: 'failed' as const,
+                  error: 'User denied tool execution',
+                }
+              : tool;
+          })
+        );
       }
 
       // Send approval/denial as a special message format
-      const approvalMessage = approved 
+      const approvalMessage = approved
         ? `[APPROVE_TOOLS:${message.request_id}]`
         : `[DENY_TOOLS:${message.request_id}]`;
 
@@ -275,7 +340,12 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
       };
 
       const approvalErrorHandler = (error: string) => {
-        console.error('Overview approval stream error for', approvalStreamId, ':', error);
+        console.error(
+          'Overview approval stream error for',
+          approvalStreamId,
+          ':',
+          error
+        );
         setError('Failed to process tool approval');
         removeStream(approvalStreamId, message.session_id);
       };
@@ -332,21 +402,30 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
     }
   };
 
-  const queryCount = qanData?.rows?.filter(row => 
-    row.fingerprint !== 'TOTAL' && row.dimension !== '' && row.rank > 0
-  ).length || 0;
+  const queryCount =
+    qanData?.rows?.filter(
+      (row) =>
+        row.fingerprint !== 'TOTAL' && row.dimension !== '' && row.rank > 0
+    ).length || 0;
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={handleClose}
       maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: { height: '90vh', maxHeight: '90vh' }
+        sx: { height: '90vh', maxHeight: '90vh' },
       }}
     >
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          pb: 1,
+        }}
+      >
         <Typography variant="h6">
           📊 QAN Overview Analysis ({queryCount} queries)
         </Typography>
@@ -355,13 +434,21 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' }}>
+      <DialogContent
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          overflow: 'hidden',
+        }}
+      >
         {/* Loading State */}
         {loading && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2 }}>
             <CircularProgress size={24} />
             <Typography variant="body2">
-              Analyzing {queryCount} queries and generating comprehensive insights...
+              Analyzing {queryCount} queries and generating comprehensive
+              insights...
             </Typography>
           </Box>
         )}
@@ -389,11 +476,14 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
             <AccordionDetails>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {toolExecutions.map((tool) => (
-                  <Box key={tool.id} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box
+                    key={tool.id}
+                    sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
+                  >
                     {getToolStatusIcon(tool.status)}
-                    <Chip 
-                      label={tool.name} 
-                      size="small" 
+                    <Chip
+                      label={tool.name}
+                      size="small"
                       color={getToolStatusColor(tool.status) as any}
                     />
                     <Typography variant="caption" color="textSecondary">
@@ -401,8 +491,8 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
                     </Typography>
                     {tool.result && (
                       <Tooltip title="Copy result">
-                        <IconButton 
-                          size="small" 
+                        <IconButton
+                          size="small"
                           onClick={() => copyToClipboard(tool.result || '')}
                         >
                           <ContentCopyIcon fontSize="small" />
@@ -418,48 +508,57 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
 
         {/* Analysis Results */}
         {analysisResult && (
-          <Paper 
-            sx={{ 
-              flex: 1, 
-              p: 2, 
+          <Paper
+            sx={{
+              flex: 1,
+              p: 2,
               overflow: 'auto',
-              backgroundColor: 'background.default'
+              backgroundColor: 'background.default',
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mb: 2,
+              }}
+            >
               <Typography variant="subtitle1" fontWeight="bold">
                 📋 Analysis Results
               </Typography>
               <Tooltip title="Copy analysis">
-                <IconButton 
-                  size="small" 
+                <IconButton
+                  size="small"
                   onClick={() => copyToClipboard(analysisResult)}
                 >
                   <ContentCopyIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
             </Box>
-            
-            <Box sx={{ 
-              '& pre': { 
-                backgroundColor: '#f5f5f5', 
-                padding: 1, 
-                borderRadius: 1,
-                overflow: 'auto'
-              },
-              '& code': {
-                backgroundColor: '#f5f5f5',
-                padding: '2px 4px',
-                borderRadius: '4px',
-                fontSize: '0.875rem'
-              },
-              '& blockquote': {
-                borderLeft: '4px solid #2196f3',
-                paddingLeft: 2,
-                margin: '16px 0',
-                fontStyle: 'italic'
-              }
-            }}>
+
+            <Box
+              sx={{
+                '& pre': {
+                  backgroundColor: '#f5f5f5',
+                  padding: 1,
+                  borderRadius: 1,
+                  overflow: 'auto',
+                },
+                '& code': {
+                  backgroundColor: '#f5f5f5',
+                  padding: '2px 4px',
+                  borderRadius: '4px',
+                  fontSize: '0.875rem',
+                },
+                '& blockquote': {
+                  borderLeft: '4px solid #2196f3',
+                  paddingLeft: 2,
+                  margin: '16px 0',
+                  fontStyle: 'italic',
+                },
+              }}
+            >
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -475,7 +574,7 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
                           margin: 0,
                           fontSize: '0.875rem',
                           lineHeight: 1.4,
-                          overflow: 'auto'
+                          overflow: 'auto',
                         }}
                       >
                         {String(children).replace(/\n$/, '')}
@@ -509,7 +608,7 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
           Close
         </Button>
         {analysisResult && (
-          <Button 
+          <Button
             onClick={() => copyToClipboard(analysisResult)}
             variant="contained"
             startIcon={<ContentCopyIcon />}
@@ -522,4 +621,4 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
   );
 };
 
-export default QANOverviewAnalysisDialog; 
+export default QANOverviewAnalysisDialog;

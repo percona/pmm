@@ -1,1 +1,1 @@
-export { default as QANDataDisplay } from './QANDataDisplay'; 
+export { default as QANDataDisplay } from './QANDataDisplay';

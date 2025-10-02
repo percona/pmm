@@ -123,7 +123,7 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
             borderStyle: 'solid',
             borderRadius: 5,
             borderColor: theme.palette.divider,
-            backgroundColor: theme.palette.surfaces?.low,
+            backgroundColor: theme.palette.surfaces?.elevation0,
           }),
           bar: {
             borderRadius: 5,

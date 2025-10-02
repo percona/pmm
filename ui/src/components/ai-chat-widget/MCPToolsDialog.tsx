@@ -37,7 +37,7 @@ export const MCPToolsDialog: React.FC<MCPToolsDialogProps> = ({
   // Group tools by server
   const toolsByServer = React.useMemo(() => {
     const grouped: Record<string, MCPTool[]> = {};
-    tools.forEach(tool => {
+    tools.forEach((tool) => {
       const serverName = tool.server || 'Unknown';
       if (!grouped[serverName]) {
         grouped[serverName] = [];
@@ -61,7 +61,7 @@ export const MCPToolsDialog: React.FC<MCPToolsDialogProps> = ({
           </Typography>
         </Box>
       </DialogTitle>
-      
+
       <DialogContent>
         {tools.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -94,10 +94,10 @@ export const MCPToolsDialog: React.FC<MCPToolsDialogProps> = ({
                     <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                       {serverName}
                     </Typography>
-                    <Chip 
+                    <Chip
                       label={`${toolsByServer[serverName].length} tools`}
                       size="small"
-                      sx={{ 
+                      sx={{
                         backgroundColor: 'rgba(255, 255, 255, 0.2)',
                         color: 'inherit',
                         fontWeight: 'bold',
@@ -114,21 +114,45 @@ export const MCPToolsDialog: React.FC<MCPToolsDialogProps> = ({
                         </ListItemIcon>
                         <ListItemText
                           primary={
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                              }}
+                            >
                               <Typography variant="subtitle1" component="span">
                                 {tool.name}
                               </Typography>
-                              <Chip label="MCP" size="small" variant="outlined" color="primary" />
+                              <Chip
+                                label="MCP"
+                                size="small"
+                                variant="outlined"
+                                color="primary"
+                              />
                             </span>
                           }
                           secondary={
                             <span>
-                              <Typography variant="body2" color="textSecondary" component="span" sx={{ display: 'block', mb: 1 }}>
+                              <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                component="span"
+                                sx={{ display: 'block', mb: 1 }}
+                              >
                                 {tool.description}
                               </Typography>
                               {tool.input_schema && (
-                                <Typography variant="caption" color="textSecondary" component="span" sx={{ display: 'block' }}>
-                                  Parameters: {Object.keys(tool.input_schema.properties || {}).join(', ') || 'None'}
+                                <Typography
+                                  variant="caption"
+                                  color="textSecondary"
+                                  component="span"
+                                  sx={{ display: 'block' }}
+                                >
+                                  Parameters:{' '}
+                                  {Object.keys(
+                                    tool.input_schema.properties || {}
+                                  ).join(', ') || 'None'}
                                 </Typography>
                               )}
                             </span>
@@ -143,10 +167,10 @@ export const MCPToolsDialog: React.FC<MCPToolsDialogProps> = ({
           </Box>
         )}
       </DialogContent>
-      
+
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
   );
-}; 
+};

@@ -68,7 +68,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, [triggerRef]);
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = Array.from(event.target.files || []);
     setError(null);
 
@@ -82,7 +84,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     for (const file of files) {
       // Check file size
       if (file.size > maxFileSize) {
-        setError(`File "${file.name}" is too large. Maximum size is ${formatFileSize(maxFileSize)}`);
+        setError(
+          `File "${file.name}" is too large. Maximum size is ${formatFileSize(maxFileSize)}`
+        );
         continue;
       }
 
@@ -177,7 +181,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       {/* Attached files */}
       {attachments.length > 0 && (
         <Box sx={{ mb: 1 }}>
-          <Typography variant="caption" color="textSecondary" sx={{ mb: 0.5, display: 'block' }}>
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            sx={{ mb: 0.5, display: 'block' }}
+          >
             Attached files ({attachments.length}):
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -224,18 +232,20 @@ export const FileUploadButton: React.FC<FileUploadButtonProps> = ({
   };
 
   return (
-    <Tooltip title={`Attach files (max ${maxFiles}, ${formatFileSize(maxFileSize)} each)`}>
+    <Tooltip
+      title={`Attach files (max ${maxFiles}, ${formatFileSize(maxFileSize)} each)`}
+    >
       <IconButton
         size="small"
         onClick={onClick}
         disabled={disabled}
-        sx={{ 
+        sx={{
           alignSelf: 'flex-end',
-          color: hasAttachments ? 'primary.main' : 'text.secondary'
+          color: hasAttachments ? 'primary.main' : 'text.secondary',
         }}
       >
         <AttachFileIcon />
       </IconButton>
     </Tooltip>
   );
-}; 
+};

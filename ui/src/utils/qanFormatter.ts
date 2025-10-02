@@ -3,11 +3,16 @@ import { QANReportResponse, QANRow } from 'api/qan';
 // Helper function to get the correct query count from metrics
 const getQueryCount = (row: QANRow): number => {
   // The API returns camelCase field names, so check both formats
-  const metricsCount = row.metrics?.numQueries?.stats?.sum || row.metrics?.num_queries?.stats?.sum;
-  if (metricsCount !== undefined && metricsCount !== null && !isNaN(metricsCount)) {
+  const metricsCount =
+    row.metrics?.numQueries?.stats?.sum || row.metrics?.num_queries?.stats?.sum;
+  if (
+    metricsCount !== undefined &&
+    metricsCount !== null &&
+    !isNaN(metricsCount)
+  ) {
     return metricsCount;
   }
-  
+
   // Fallback to the deprecated num_queries field if metrics not available
   return row.num_queries || 0;
 };
@@ -21,13 +26,17 @@ const getLoadValue = (row: QANRow): number => {
     }, 0);
     return totalLoad;
   }
-  
+
   // Fallback to metrics if sparkline not available
   const loadFromMetrics = row.metrics?.load?.stats?.sumPerSec;
-  if (loadFromMetrics !== undefined && loadFromMetrics !== null && !isNaN(loadFromMetrics)) {
+  if (
+    loadFromMetrics !== undefined &&
+    loadFromMetrics !== null &&
+    !isNaN(loadFromMetrics)
+  ) {
     return loadFromMetrics;
   }
-  
+
   // Final fallback to direct load field
   return row.load || 0;
 };
@@ -35,11 +44,17 @@ const getLoadValue = (row: QANRow): number => {
 // Helper function to get query rate (QPS)
 const getQueryRate = (row: QANRow): number => {
   // QPS can come from metrics or direct field
-  const rateFromMetrics = row.metrics?.numQueries?.stats?.sumPerSec || row.metrics?.num_queries?.stats?.sumPerSec;
-  if (rateFromMetrics !== undefined && rateFromMetrics !== null && !isNaN(rateFromMetrics)) {
+  const rateFromMetrics =
+    row.metrics?.numQueries?.stats?.sumPerSec ||
+    row.metrics?.num_queries?.stats?.sumPerSec;
+  if (
+    rateFromMetrics !== undefined &&
+    rateFromMetrics !== null &&
+    !isNaN(rateFromMetrics)
+  ) {
     return rateFromMetrics;
   }
-  
+
   return row.qps || 0;
 };
 
@@ -59,7 +74,10 @@ Please check your PMM setup and ensure QAN is properly configured.`;
   let report = `**Real QAN (Query Analytics) Data Analysis**\n\n`;
 
   // Summary section
-  if (totalRow && (totalRow.fingerprint === 'TOTAL' || totalRow.dimension === '')) {
+  if (
+    totalRow &&
+    (totalRow.fingerprint === 'TOTAL' || totalRow.dimension === '')
+  ) {
     const totalQueries = getQueryCount(totalRow);
     report += `**Performance Summary:**\n`;
     report += `- Total Queries Analyzed: ${totalQueries.toLocaleString()}\n`;
@@ -72,55 +90,81 @@ Please check your PMM setup and ensure QAN is properly configured.`;
   // Top slow queries
   if (queryRows.length > 0) {
     report += `**Top ${queryRows.length} Queries by Performance Impact:**\n\n`;
-    
+
     queryRows.forEach((row, index) => {
       const queryCount = getQueryCount(row);
       report += `${index + 1}. **Query ID:** \`${row.dimension}\`\n`;
       report += `   **Database:** ${row.database}\n`;
-      
+
       // Clean up fingerprint for display
-      const fingerprint = row.fingerprint.length > 200 
-        ? row.fingerprint.substring(0, 200) + '...' 
-        : row.fingerprint;
+      const fingerprint =
+        row.fingerprint.length > 200
+          ? row.fingerprint.substring(0, 200) + '...'
+          : row.fingerprint;
       report += `   **Query:** \`${fingerprint}\`\n`;
-      
+
       report += `   **Metrics:**\n`;
       report += `   - Execution Count: ${queryCount.toLocaleString()} times\n`;
       report += `   - Query Rate: ${getQueryRate(row).toFixed(2)} queries/second\n`;
       report += `   - Load Impact: ${getLoadValue(row).toFixed(3)} seconds\n`;
-      
+
       // Add detailed metrics if available
       if (row.metrics) {
         if (row.metrics.queryTime?.stats || row.metrics.query_time?.stats) {
-          const qt = row.metrics.queryTime?.stats || row.metrics.query_time?.stats;
-          if (qt.avg) report += `   - Average Query Time: ${qt.avg.toFixed(3)}s\n`;
-          if (qt.max) report += `   - Maximum Query Time: ${qt.max.toFixed(3)}s\n`;
-          if (qt.sum) report += `   - Total Query Time: ${qt.sum.toFixed(3)}s\n`;
+          const qt =
+            row.metrics.queryTime?.stats || row.metrics.query_time?.stats;
+          if (qt.avg)
+            report += `   - Average Query Time: ${qt.avg.toFixed(3)}s\n`;
+          if (qt.max)
+            report += `   - Maximum Query Time: ${qt.max.toFixed(3)}s\n`;
+          if (qt.sum)
+            report += `   - Total Query Time: ${qt.sum.toFixed(3)}s\n`;
         }
-        
+
         if (row.metrics.lockTime?.stats || row.metrics.lock_time?.stats) {
-          const lt = row.metrics.lockTime?.stats || row.metrics.lock_time?.stats;
-          if (lt.avg) report += `   - Average Lock Time: ${lt.avg.toFixed(3)}s\n`;
-          if (lt.sum && lt.sum > 0) report += `   - Total Lock Time: ${lt.sum.toFixed(3)}s\n`;
+          const lt =
+            row.metrics.lockTime?.stats || row.metrics.lock_time?.stats;
+          if (lt.avg)
+            report += `   - Average Lock Time: ${lt.avg.toFixed(3)}s\n`;
+          if (lt.sum && lt.sum > 0)
+            report += `   - Total Lock Time: ${lt.sum.toFixed(3)}s\n`;
         }
-        
-        if (row.metrics.rowsExamined?.stats || row.metrics.rows_examined?.stats || 
-            row.metrics.docsExamined?.stats || row.metrics.docs_examined?.stats) {
-          const re = row.metrics.rowsExamined?.stats || row.metrics.rows_examined?.stats ||
-                     row.metrics.docsExamined?.stats || row.metrics.docs_examined?.stats;
-          if (re.avg) report += `   - Rows/Docs Examined: ${re.avg.toLocaleString()} avg\n`;
-          if (re.sum) report += `   - Total Rows/Docs Examined: ${re.sum.toLocaleString()}\n`;
+
+        if (
+          row.metrics.rowsExamined?.stats ||
+          row.metrics.rows_examined?.stats ||
+          row.metrics.docsExamined?.stats ||
+          row.metrics.docs_examined?.stats
+        ) {
+          const re =
+            row.metrics.rowsExamined?.stats ||
+            row.metrics.rows_examined?.stats ||
+            row.metrics.docsExamined?.stats ||
+            row.metrics.docs_examined?.stats;
+          if (re.avg)
+            report += `   - Rows/Docs Examined: ${re.avg.toLocaleString()} avg\n`;
+          if (re.sum)
+            report += `   - Total Rows/Docs Examined: ${re.sum.toLocaleString()}\n`;
         }
-        
-        if (row.metrics.rowsSent?.stats || row.metrics.rows_sent?.stats ||
-            row.metrics.docsReturned?.stats || row.metrics.docs_returned?.stats) {
-          const rs = row.metrics.rowsSent?.stats || row.metrics.rows_sent?.stats ||
-                     row.metrics.docsReturned?.stats || row.metrics.docs_returned?.stats;
-          if (rs.avg) report += `   - Rows/Docs Sent: ${rs.avg.toLocaleString()} avg\n`;
-          if (rs.sum) report += `   - Total Rows/Docs Sent: ${rs.sum.toLocaleString()}\n`;
+
+        if (
+          row.metrics.rowsSent?.stats ||
+          row.metrics.rows_sent?.stats ||
+          row.metrics.docsReturned?.stats ||
+          row.metrics.docs_returned?.stats
+        ) {
+          const rs =
+            row.metrics.rowsSent?.stats ||
+            row.metrics.rows_sent?.stats ||
+            row.metrics.docsReturned?.stats ||
+            row.metrics.docs_returned?.stats;
+          if (rs.avg)
+            report += `   - Rows/Docs Sent: ${rs.avg.toLocaleString()} avg\n`;
+          if (rs.sum)
+            report += `   - Total Rows/Docs Sent: ${rs.sum.toLocaleString()}\n`;
         }
       }
-      
+
       report += `\n`;
     });
   }
@@ -158,4 +202,4 @@ Unable to retrieve QAN data from PMM. This could be due to:
 4. Check PMM configuration and logs
 
 You can still ask questions about database performance optimization, and I'll provide general best practices and recommendations.`;
-}; 
+};

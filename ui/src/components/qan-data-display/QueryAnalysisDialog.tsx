@@ -26,7 +26,9 @@ import ErrorIcon from '@mui/icons-material/Error';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+// @ts-expect-error - Types are defined but not recognized due to moduleResolution
+import SyntaxHighlighter from 'react-syntax-highlighter/dist/esm/prism';
+// @ts-expect-error - Types are defined but not recognized due to moduleResolution
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { format as formatSQL } from 'sql-formatter';
 import { aiChatAPI, StreamMessage } from '../../api/aichat';
@@ -64,40 +66,65 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
   const [toolExecutions, setToolExecutions] = useState<ToolExecution[]>([]);
   const [analysisSessionId, setAnalysisSessionId] = useState<string>('');
   const [isQueryFormatted, setIsQueryFormatted] = useState<boolean>(false);
-  const activeStreamsRef = useRef<Map<string, { type: string; timestamp: number }>>(new Map());
+  const activeStreamsRef = useRef<
+    Map<string, { type: string; timestamp: number }>
+  >(new Map());
 
   // Stream management operations
   const addStream = (streamId: string, type: string) => {
     activeStreamsRef.current.set(streamId, { type, timestamp: Date.now() });
-    console.log('🔢 Stream added:', streamId, 'type:', type, 'total:', activeStreamsRef.current.size);
+    console.log(
+      '🔢 Stream added:',
+      streamId,
+      'type:',
+      type,
+      'total:',
+      activeStreamsRef.current.size
+    );
     debugStreams();
   };
 
   const removeStream = (streamId: string, sessionId: string) => {
     const wasRemoved = activeStreamsRef.current.delete(streamId);
-    console.log('🔢 Stream removed:', streamId, 'success:', wasRemoved, 'remaining:', activeStreamsRef.current.size);
+    console.log(
+      '🔢 Stream removed:',
+      streamId,
+      'success:',
+      wasRemoved,
+      'remaining:',
+      activeStreamsRef.current.size
+    );
     debugStreams();
-    
+
     // Check if we should cleanup the session
     if (activeStreamsRef.current.size === 0 && sessionId) {
       console.log('🧹 All streams completed, cleaning up session:', sessionId);
       // Clean up immediately since dialog might be closing
-      aiChatAPI.deleteSession(sessionId).catch(error => {
-        console.warn('⚠️ Failed to cleanup analysis session:', error);
-      }).then(() => {
-        setAnalysisSessionId(''); // Reset session ID to let backend create a new one
-        console.log('🧹 Session cleaned up');
-      });
+      aiChatAPI
+        .deleteSession(sessionId)
+        .catch((error) => {
+          console.warn('⚠️ Failed to cleanup analysis session:', error);
+        })
+        .then(() => {
+          setAnalysisSessionId(''); // Reset session ID to let backend create a new one
+          console.log('🧹 Session cleaned up');
+        });
     }
   };
 
   const clearAllStreams = () => {
-    console.log('🧹 Clearing all streams, count:', activeStreamsRef.current.size);
+    console.log(
+      '🧹 Clearing all streams, count:',
+      activeStreamsRef.current.size
+    );
     activeStreamsRef.current.clear();
   };
 
   const debugStreams = () => {
-    console.log('🔍 Current active streams:', Array.from(activeStreamsRef.current.entries()));
+    console.log(
+      '🔍 Current active streams:',
+      Array.from(activeStreamsRef.current.entries())
+    );
   };
 
   // Reset state when dialog opens/closes
@@ -110,7 +137,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
       setAnalysisSessionId(''); // Reset session ID to let backend create a new one
       setIsQueryFormatted(false); // Reset formatting state
       clearAllStreams();
-      
+
       // Start analysis
       handleAnalyzeQuery();
     }
@@ -120,7 +147,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
   // Detect if query is MongoDB based on fingerprint patterns
   const isMongoDBQuery = (query: string): boolean => {
     if (!query || query === 'N/A') return false;
-    
+
     // MongoDB queries typically start with "db." or contain MongoDB-specific patterns
     const mongoPatterns = [
       /^db\.\w+\./, // db.collection.method()
@@ -132,8 +159,8 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
       /\.deleteMany\(/, // .deleteMany()
       /\.aggregate\(/, // .aggregate()
     ];
-    
-    return mongoPatterns.some(pattern => pattern.test(query));
+
+    return mongoPatterns.some((pattern) => pattern.test(query));
   };
 
   // Format MongoDB query for better readability
@@ -142,7 +169,10 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
       // Add line breaks and indentation for better readability
       let formatted = query
         // Add line breaks after method calls
-        .replace(/(\.)(?=find|insert|update|delete|aggregate|sort|limit|skip)/g, '$1\n  ')
+        .replace(
+          /(\.)(?=find|insert|update|delete|aggregate|sort|limit|skip)/g,
+          '$1\n  '
+        )
         // Add line breaks after major operators
         .replace(/(\{[^}]*\})/g, (match) => {
           // Only format if it's a complex object (contains commas or nested objects)
@@ -157,7 +187,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
         // Clean up extra whitespace
         .replace(/\n\s*\n/g, '\n')
         .trim();
-      
+
       return formatted;
     } catch (error) {
       console.warn('Failed to format MongoDB query:', error);
@@ -200,68 +230,84 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
   };
 
   // Extracted message handler for analysis stream
-  const handleAnalysisStreamMessage = (message: StreamMessage, currentStreamId?: string) => {
+  const handleAnalysisStreamMessage = (
+    message: StreamMessage,
+    currentStreamId?: string
+  ) => {
     // Update session ID if backend provides one (for auto-created sessions)
     if (message.session_id && analysisSessionId === '') {
-      console.log('🔄 Backend created/provided session ID:', message.session_id);
+      console.log(
+        '🔄 Backend created/provided session ID:',
+        message.session_id
+      );
       setAnalysisSessionId(message.session_id);
     }
-    
+
     switch (message.type) {
       case 'message':
         if (message.content) {
-          setAnalysisResult(prev => prev + message.content);
+          setAnalysisResult((prev) => prev + message.content);
         }
         break;
       case 'tool_approval_request':
         if (message.tool_calls && message.request_id) {
           // Add pending tool executions to state
-          const newToolExecutions = message.tool_calls.map(tool => ({
+          const newToolExecutions = message.tool_calls.map((tool) => ({
             id: tool.id,
             name: tool.function.name,
             arguments: tool.function.arguments,
             status: 'pending' as const,
-            timestamp: Date.now()
+            timestamp: Date.now(),
           }));
-          setToolExecutions(prev => [...prev, ...newToolExecutions]);
-          
-          console.log('🔧 Auto-approving tools for popup analysis:', message.tool_calls);
-          
+          setToolExecutions((prev) => [...prev, ...newToolExecutions]);
+
+          console.log(
+            '🔧 Auto-approving tools for popup analysis:',
+            message.tool_calls
+          );
+
           handleToolApproval(true, message);
         }
         break;
       case 'tool_execution':
         if (message.tool_executions) {
-          message.tool_executions.forEach(execution => {
-            setToolExecutions(prev => prev.map(tool => {
-              if (tool.id === execution.id) {
-                if (execution.result) {
-                  return {
-                    ...tool,
-                    status: 'completed' as const,
-                    result: execution.result
-                  };
-                } else if (execution.error) {
-                  return {
-                    ...tool,
-                    status: 'failed' as const,
-                    error: execution.error
-                  };
-                } else {
-                  return {
-                    ...tool,
-                    status: 'running' as const
-                  };
+          message.tool_executions.forEach((execution) => {
+            setToolExecutions((prev) =>
+              prev.map((tool) => {
+                if (tool.id === execution.id) {
+                  if (execution.result) {
+                    return {
+                      ...tool,
+                      status: 'completed' as const,
+                      result: execution.result,
+                    };
+                  } else if (execution.error) {
+                    return {
+                      ...tool,
+                      status: 'failed' as const,
+                      error: execution.error,
+                    };
+                  } else {
+                    return {
+                      ...tool,
+                      status: 'running' as const,
+                    };
+                  }
                 }
-              }
-              return tool;
-            }));
+                return tool;
+              })
+            );
           });
         }
         break;
       case 'error':
         // Stream errors are now handled by stream-aware error handlers
-        console.log('📊 Analysis stream error for', currentStreamId, ':', message.error);
+        console.log(
+          '📊 Analysis stream error for',
+          currentStreamId,
+          ':',
+          message.error
+        );
         break;
       case 'done':
         // Stream completion is now handled by stream-aware complete handlers
@@ -322,28 +368,43 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
     }
   };
 
-  const handleToolApproval = async (approved: boolean, message: StreamMessage) => {
+  const handleToolApproval = async (
+    approved: boolean,
+    message: StreamMessage
+  ) => {
     try {
       // Update tool statuses to running if approved
       if (approved) {
-        setToolExecutions(prev => prev.map(tool => {
-          const isPendingTool = message.tool_calls?.some(tc => tc.id === tool.id);
-          return isPendingTool && tool.status === 'pending' 
-            ? { ...tool, status: 'running' as const }
-            : tool;
-        }));
+        setToolExecutions((prev) =>
+          prev.map((tool) => {
+            const isPendingTool = message.tool_calls?.some(
+              (tc) => tc.id === tool.id
+            );
+            return isPendingTool && tool.status === 'pending'
+              ? { ...tool, status: 'running' as const }
+              : tool;
+          })
+        );
       } else {
         // Mark tools as failed if denied
-        setToolExecutions(prev => prev.map(tool => {
-          const isPendingTool = message.tool_calls?.some(tc => tc.id === tool.id);
-          return isPendingTool && tool.status === 'pending'
-            ? { ...tool, status: 'failed' as const, error: 'User denied tool execution' }
-            : tool;
-        }));
+        setToolExecutions((prev) =>
+          prev.map((tool) => {
+            const isPendingTool = message.tool_calls?.some(
+              (tc) => tc.id === tool.id
+            );
+            return isPendingTool && tool.status === 'pending'
+              ? {
+                  ...tool,
+                  status: 'failed' as const,
+                  error: 'User denied tool execution',
+                }
+              : tool;
+          })
+        );
       }
 
       // Send approval/denial as a special message format
-      const approvalMessage = approved 
+      const approvalMessage = approved
         ? `[APPROVE_TOOLS:${message.request_id}]`
         : `[DENY_TOOLS:${message.request_id}]`;
 
@@ -356,7 +417,12 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
       };
 
       const approvalErrorHandler = (error: string) => {
-        console.error('Approval stream error for', approvalStreamId, ':', error);
+        console.error(
+          'Approval stream error for',
+          approvalStreamId,
+          ':',
+          error
+        );
         setError('Failed to process tool approval');
         removeStream(approvalStreamId, message.session_id);
       };
@@ -417,12 +483,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
   if (!selectedQuery) return null;
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={handleClose}
-      maxWidth="md"
-      fullWidth
-    >
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <RecommendIcon />
@@ -441,13 +502,13 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
               <Typography variant="caption" color="textSecondary">
                 Query ID:
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
+              <Typography
+                variant="body2"
+                sx={{
                   fontFamily: 'monospace',
                   fontSize: '0.875rem',
                   fontWeight: 'bold',
-                  color: 'primary.main'
+                  color: 'primary.main',
                 }}
               >
                 {selectedQuery.dimension}
@@ -462,18 +523,29 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
               </Typography>
             </Box>
             <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 1,
+                }}
+              >
                 <Typography variant="caption" color="textSecondary">
                   Query:
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  <Tooltip title={isQueryFormatted ? "Show original query" : "Format query"}>
+                  <Tooltip
+                    title={
+                      isQueryFormatted ? 'Show original query' : 'Format query'
+                    }
+                  >
                     <IconButton
                       onClick={toggleQueryFormatting}
                       size="small"
-                      sx={{ 
+                      sx={{
                         p: 0.5,
-                        color: isQueryFormatted ? 'primary.main' : 'inherit'
+                        color: isQueryFormatted ? 'primary.main' : 'inherit',
                       }}
                     >
                       <FormatAlignLeftIcon fontSize="small" />
@@ -490,21 +562,27 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                   </Tooltip>
                 </Box>
               </Box>
-              <Box sx={{ 
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                overflow: 'hidden'
-              }}>
+              <Box
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                  overflow: 'hidden',
+                }}
+              >
                 <SyntaxHighlighter
-                  language={isMongoDBQuery(selectedQuery?.fingerprint || '') ? 'javascript' : 'sql'}
+                  language={
+                    isMongoDBQuery(selectedQuery?.fingerprint || '')
+                      ? 'javascript'
+                      : 'sql'
+                  }
                   style={oneLight}
                   customStyle={{
                     margin: 0,
                     fontSize: '0.875rem',
                     lineHeight: 1.4,
                     maxHeight: '200px',
-                    overflow: 'auto'
+                    overflow: 'auto',
                   }}
                   wrapLongLines
                 >
@@ -517,23 +595,53 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
 
         {/* Tool Executions Display */}
         {toolExecutions.length > 0 && (
-          <Paper sx={{ p: 2, mb: 2, bgcolor: 'grey.50', border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Paper
+            sx={{
+              p: 2,
+              mb: 2,
+              bgcolor: 'grey.50',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+              sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            >
               <BuildIcon sx={{ color: 'text.secondary' }} />
               Tool Executions ({toolExecutions.length})
             </Typography>
-            
+
             {toolExecutions.map((tool) => (
-              <Accordion key={tool.id} sx={{ mb: 1, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
+              <Accordion
+                key={tool.id}
+                sx={{
+                  mb: 1,
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      width: '100%',
+                    }}
+                  >
                     {getToolStatusIcon(tool.status)}
-                    <Typography variant="body2" sx={{ fontWeight: 'bold', flex: 1 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 'bold', flex: 1 }}
+                    >
                       {tool.name}
                     </Typography>
-                    <Chip 
-                      label={tool.status.toUpperCase()} 
-                      size="small" 
+                    <Chip
+                      label={tool.status.toUpperCase()}
+                      size="small"
                       color={getToolStatusColor(tool.status) as any}
                       variant="outlined"
                     />
@@ -544,9 +652,9 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                     <Typography variant="caption" color="textSecondary">
                       Arguments:
                     </Typography>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
+                    <Typography
+                      variant="body2"
+                      sx={{
                         fontFamily: 'monospace',
                         fontSize: '0.75rem',
                         bgcolor: 'grey.100',
@@ -555,21 +663,21 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                         border: '1px solid',
                         borderColor: 'divider',
                         overflow: 'auto',
-                        maxHeight: '100px'
+                        maxHeight: '100px',
                       }}
                     >
                       {tool.arguments}
                     </Typography>
                   </Box>
-                  
+
                   {tool.result && (
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="caption" color="textSecondary">
                         Result:
                       </Typography>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
+                      <Typography
+                        variant="body2"
+                        sx={{
                           fontFamily: 'monospace',
                           fontSize: '0.75rem',
                           bgcolor: 'grey.100',
@@ -578,22 +686,22 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                           border: '1px solid',
                           borderColor: 'success.main',
                           overflow: 'auto',
-                          maxHeight: '150px'
+                          maxHeight: '150px',
                         }}
                       >
                         {tool.result}
                       </Typography>
                     </Box>
                   )}
-                  
+
                   {tool.error && (
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="caption" color="textSecondary">
                         Error:
                       </Typography>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
+                      <Typography
+                        variant="body2"
+                        sx={{
                           fontFamily: 'monospace',
                           fontSize: '0.75rem',
                           bgcolor: 'grey.100',
@@ -602,14 +710,14 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                           border: '1px solid',
                           borderColor: 'error.main',
                           overflow: 'auto',
-                          maxHeight: '100px'
+                          maxHeight: '100px',
                         }}
                       >
                         {tool.error}
                       </Typography>
                     </Box>
                   )}
-                  
+
                   <Typography variant="caption" color="textSecondary">
                     Started: {new Date(tool.timestamp).toLocaleTimeString()}
                   </Typography>
@@ -626,7 +734,14 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
         )}
 
         {loading && !analysisResult && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              py: 4,
+            }}
+          >
             <CircularProgress />
             <Typography variant="body2" sx={{ mt: 2 }}>
               Analyzing query performance with AI...
@@ -643,8 +758,8 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                   <Typography
                     variant="body2"
                     component="p"
-                    sx={{ 
-                      mb: 1, 
+                    sx={{
+                      mb: 1,
                       '&:last-child': { mb: 0 },
                     }}
                   >
@@ -652,10 +767,11 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                   </Typography>
                 ),
                 code: ({ inline, className, children }: any) => {
-                  const isInlineCode = inline !== false && !String(children).includes('\n');
+                  const isInlineCode =
+                    inline !== false && !String(children).includes('\n');
                   const match = /language-(\w+)/.exec(className || '');
                   const language = match ? match[1] : '';
-                  
+
                   return isInlineCode ? (
                     <code
                       style={{
@@ -684,27 +800,31 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                         },
                       }}
                     >
-                      <Box sx={{ 
-                        border: '1px solid rgba(0, 0, 0, 0.1)',
-                        borderRadius: 1,
-                        overflow: 'hidden'
-                      }}>
+                      <Box
+                        sx={{
+                          border: '1px solid rgba(0, 0, 0, 0.1)',
+                          borderRadius: 1,
+                          overflow: 'hidden',
+                        }}
+                      >
                         <SyntaxHighlighter
-                          language={language === 'sql' ? 'sql' : language || 'text'}
+                          language={
+                            language === 'sql' ? 'sql' : language || 'text'
+                          }
                           style={oneLight}
                           customStyle={{
                             margin: 0,
                             fontSize: '0.8em',
                             lineHeight: 1.3,
                             maxHeight: '300px',
-                            overflow: 'auto'
+                            overflow: 'auto',
                           }}
                           wrapLongLines
                         >
                           {String(children).replace(/\n$/, '')}
                         </SyntaxHighlighter>
                       </Box>
-                      
+
                       <Tooltip title="Copy code">
                         <IconButton
                           className="copy-button"
@@ -731,12 +851,18 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                   );
                 },
                 ul: ({ children }) => (
-                  <Box component="ul" sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}>
+                  <Box
+                    component="ul"
+                    sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}
+                  >
                     {children}
                   </Box>
                 ),
                 ol: ({ children }) => (
-                  <Box component="ol" sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}>
+                  <Box
+                    component="ol"
+                    sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}
+                  >
                     {children}
                   </Box>
                 ),
@@ -746,17 +872,29 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                   </Typography>
                 ),
                 h1: ({ children }) => (
-                  <Typography variant="h5" component="h1" sx={{ mb: 1, mt: 2, '&:first-of-type': { mt: 0 } }}>
+                  <Typography
+                    variant="h5"
+                    component="h1"
+                    sx={{ mb: 1, mt: 2, '&:first-of-type': { mt: 0 } }}
+                  >
                     {children}
                   </Typography>
                 ),
                 h2: ({ children }) => (
-                  <Typography variant="h6" component="h2" sx={{ mb: 1, mt: 2, '&:first-of-type': { mt: 0 } }}>
+                  <Typography
+                    variant="h6"
+                    component="h2"
+                    sx={{ mb: 1, mt: 2, '&:first-of-type': { mt: 0 } }}
+                  >
                     {children}
                   </Typography>
                 ),
                 h3: ({ children }) => (
-                  <Typography variant="subtitle1" component="h3" sx={{ mb: 1, mt: 1.5, fontWeight: 'bold' }}>
+                  <Typography
+                    variant="subtitle1"
+                    component="h3"
+                    sx={{ mb: 1, mt: 1.5, fontWeight: 'bold' }}
+                  >
                     {children}
                   </Typography>
                 ),
@@ -791,7 +929,14 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
               {analysisResult}
             </ReactMarkdown>
             {loading && (
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, color: 'text.secondary' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mt: 2,
+                  color: 'text.secondary',
+                }}
+              >
                 <CircularProgress size={16} sx={{ mr: 1 }} />
                 <Typography variant="caption">
                   Analysis in progress...
@@ -808,4 +953,4 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
       </DialogActions>
     </Dialog>
   );
-}; 
+};

@@ -20,9 +20,14 @@ export const formatDuration = (seconds: number | undefined | null): string => {
 };
 
 // Query truncation
-export const truncateQuery = (query: string | undefined | null, maxLength: number = 80): string => {
+export const truncateQuery = (
+  query: string | undefined | null,
+  maxLength: number = 80
+): string => {
   if (!query) return 'N/A';
-  return query.length > maxLength ? `${query.substring(0, maxLength)}...` : query;
+  return query.length > maxLength
+    ? `${query.substring(0, maxLength)}...`
+    : query;
 };
 
 // Clipboard utilities
@@ -36,10 +41,13 @@ export const copyToClipboard = async (text: string): Promise<void> => {
 
 // QAN data extractors
 export const getQueryCount = (row: QANRow): number => {
-  return row.num_queries || 
-  row.numQueries || 
-  row.metrics?.num_queries?.stats?.sum || 
-  row.metrics?.numQueries?.stats?.sum || 0;
+  return (
+    row.num_queries ||
+    row.numQueries ||
+    row.metrics?.num_queries?.stats?.sum ||
+    row.metrics?.numQueries?.stats?.sum ||
+    0
+  );
 };
 
 export const getLoadValue = (row: QANRow): number => {
@@ -47,21 +55,27 @@ export const getLoadValue = (row: QANRow): number => {
   if (row.load !== undefined && row.load !== null) {
     return row.load;
   }
-  
+
   // Then try the metrics object for query_time
   if (row.metrics?.query_time?.stats?.sum !== undefined) {
     return row.metrics.query_time.stats.sum;
   }
-  
+
   return 0;
 };
 
 export const getQueryRate = (row: QANRow): number => {
   // QPS can come from metrics or direct field
-  const rateFromMetrics = row.metrics?.numQueries?.stats?.sumPerSec || row.metrics?.num_queries?.stats?.sumPerSec;
-  if (rateFromMetrics !== undefined && rateFromMetrics !== null && !isNaN(rateFromMetrics)) {
+  const rateFromMetrics =
+    row.metrics?.numQueries?.stats?.sumPerSec ||
+    row.metrics?.num_queries?.stats?.sumPerSec;
+  if (
+    rateFromMetrics !== undefined &&
+    rateFromMetrics !== null &&
+    !isNaN(rateFromMetrics)
+  ) {
     return rateFromMetrics;
   }
-  
+
   return row.qps || 0;
-}; 
+};

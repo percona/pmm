@@ -35,8 +35,12 @@ interface ChatMessageProps {
 
 // Helper to check if environment is development
 const isDevEnv = () =>
-  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ||
-  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
+  (typeof import.meta !== 'undefined' &&
+    import.meta.env &&
+    import.meta.env.DEV) ||
+  (typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'));
 
 export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
   message,
@@ -53,7 +57,10 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
   React.useEffect(() => {
     if (message.attachments && message.attachments.length > 0) {
       if (isDevEnv()) {
-        console.log('💾 ChatMessage: Message has attachments:', message.attachments);
+        console.log(
+          '💾 ChatMessage: Message has attachments:',
+          message.attachments
+        );
       }
     }
   }, [message.attachments]);
@@ -160,10 +167,12 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
               backgroundColor: isUser
                 ? 'primary.main'
                 : isTool
-                ? 'warning.light'
-                : 'grey.100',
+                  ? 'warning.light'
+                  : 'grey.100',
               color: isUser ? 'primary.contrastText' : 'text.primary',
-              borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+              borderRadius: isUser
+                ? '16px 16px 4px 16px'
+                : '16px 16px 16px 4px',
               maxWidth: '100%',
               minWidth: 0, // Allow shrinking below content size
               wordBreak: 'break-word',
@@ -179,8 +188,8 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                     <Typography
                       variant="body2"
                       component="p"
-                      sx={{ 
-                        mb: 1, 
+                      sx={{
+                        mb: 1,
                         '&:last-child': { mb: 0 },
                       }}
                     >
@@ -189,9 +198,14 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                   ),
                   code: ({ inline, children }: any) => {
                     // Since inline prop is unreliable, detect based on content characteristics
-                    const isInlineCode = inline !== false && !String(children).includes('\n');
+                    const isInlineCode =
+                      inline !== false && !String(children).includes('\n');
                     if (isDevEnv()) {
-                      console.log('Code element:', { inline, isInlineCode, children: String(children).substring(0, 50) });
+                      console.log('Code element:', {
+                        inline,
+                        isInlineCode,
+                        children: String(children).substring(0, 50),
+                      });
                     }
                     return isInlineCode ? (
                       <code
@@ -255,7 +269,8 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                             },
                             // Firefox scrollbar styling
                             scrollbarWidth: 'thin',
-                            scrollbarColor: 'rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05)',
+                            scrollbarColor:
+                              'rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05)',
                           }}
                         >
                           <Box
@@ -268,7 +283,7 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                             {children}
                           </Box>
                         </Box>
-                        
+
                         {/* Copy button */}
                         <Tooltip title="Copy code">
                           <IconButton
@@ -296,12 +311,18 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                     );
                   },
                   ul: ({ children }) => (
-                    <Box component="ul" sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}>
+                    <Box
+                      component="ul"
+                      sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}
+                    >
                       {children}
                     </Box>
                   ),
                   ol: ({ children }) => (
-                    <Box component="ol" sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}>
+                    <Box
+                      component="ol"
+                      sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}
+                    >
                       {children}
                     </Box>
                   ),
@@ -309,7 +330,9 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                     <Box
                       sx={{
                         borderLeft: '4px solid',
-                        borderLeftColor: isUser ? 'primary.contrastText' : 'primary.main',
+                        borderLeftColor: isUser
+                          ? 'primary.contrastText'
+                          : 'primary.main',
                         pl: 2,
                         ml: 1,
                         mb: 1,
@@ -331,8 +354,14 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
 
             {/* Tool calls display */}
             {message.tool_calls && message.tool_calls.length > 0 && (
-              <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                <Typography variant="caption" color="textSecondary" sx={{ mb: 1 }}>
+              <Box
+                sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(0,0,0,0.1)' }}
+              >
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  sx={{ mb: 1 }}
+                >
                   Tools used:
                 </Typography>
                 {message.tool_calls.map((toolCall, index) => (
@@ -349,13 +378,26 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
 
             {/* Tool executions display */}
             {message.tool_executions && message.tool_executions.length > 0 && (
-              <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                <Typography variant="caption" color="textSecondary" sx={{ mb: 1 }}>
+              <Box
+                sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(0,0,0,0.1)' }}
+              >
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  sx={{ mb: 1 }}
+                >
                   Tool executions:
                 </Typography>
                 {message.tool_executions.map((execution, index) => (
                   <Box key={execution.id || index} sx={{ mb: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        mb: 0.5,
+                      }}
+                    >
                       <Chip
                         label={`${execution.tool_name} (${execution.duration_ms}ms)`}
                         size="small"
@@ -365,13 +407,26 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                       />
                     </Box>
                     {execution.arguments && (
-                      <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        color="textSecondary"
+                        sx={{ display: 'block', mb: 0.5 }}
+                      >
                         Args: {execution.arguments}
                       </Typography>
                     )}
                     {execution.result && (
-                      <Typography variant="caption" sx={{ display: 'block', fontFamily: 'monospace', fontSize: '0.7rem' }}>
-                        {execution.error ? `Error: ${execution.error}` : `Result: ${execution.result.substring(0, 100)}${execution.result.length > 100 ? '...' : ''}`}
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: 'block',
+                          fontFamily: 'monospace',
+                          fontSize: '0.7rem',
+                        }}
+                      >
+                        {execution.error
+                          ? `Error: ${execution.error}`
+                          : `Result: ${execution.result.substring(0, 100)}${execution.result.length > 100 ? '...' : ''}`}
                       </Typography>
                     )}
                   </Box>
@@ -381,8 +436,14 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
 
             {/* Attachments display */}
             {message.attachments && message.attachments.length > 0 && (
-              <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                <Typography variant="caption" color="textSecondary" sx={{ mb: 1 }}>
+              <Box
+                sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(0,0,0,0.1)' }}
+              >
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  sx={{ mb: 1 }}
+                >
                   Attachments:
                 </Typography>
                 {message.attachments.map((attachment, index) => {
@@ -424,95 +485,122 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
 
             {/* Tool approval request */}
             {isToolApproval && message.approval_request && (
-              <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+              <Box
+                sx={{ mt: 2, pt: 2, borderTop: '1px solid rgba(0,0,0,0.1)' }}
+              >
                 <Typography variant="body2" sx={{ mb: 2, fontWeight: 'bold' }}>
                   🔧 Tool Execution Request
                 </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{ mb: 2 }}
+                >
                   The AI assistant wants to execute the following tool(s):
                 </Typography>
-                
+
                 {/* Tool list */}
                 <Box sx={{ mb: 2 }}>
-                  {message.approval_request.tool_calls.map((toolCall, index) => (
-                    <Box key={toolCall.id || index} sx={{ mb: 1 }}>
-                      <Paper 
-                        variant="outlined" 
-                        sx={{ 
-                          p: 1.5, 
-                          backgroundColor: 'rgba(255, 152, 0, 0.05)',
-                          border: '1px solid rgba(255, 152, 0, 0.2)'
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <ToolIcon color="warning" fontSize="small" />
-                          <Typography variant="subtitle2" fontWeight="bold">
-                            {toolCall.function.name}
-                          </Typography>
-                          <Chip 
-                            label={toolCall.type} 
-                            size="small" 
-                            variant="outlined"
-                            color="warning"
-                          />
-                        </Box>
-                        
-                        {toolCall.function.arguments && (
-                          <Box>
-                            <Typography variant="caption" color="textSecondary" sx={{ mb: 0.5, display: 'block' }}>
-                              Arguments:
+                  {message.approval_request.tool_calls.map(
+                    (toolCall, index) => (
+                      <Box key={toolCall.id || index} sx={{ mb: 1 }}>
+                        <Paper
+                          variant="outlined"
+                          sx={{
+                            p: 1.5,
+                            backgroundColor: 'rgba(255, 152, 0, 0.05)',
+                            border: '1px solid rgba(255, 152, 0, 0.2)',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                              mb: 1,
+                            }}
+                          >
+                            <ToolIcon color="warning" fontSize="small" />
+                            <Typography variant="subtitle2" fontWeight="bold">
+                              {toolCall.function.name}
                             </Typography>
-                            <Typography 
-                              variant="caption" 
-                              component="pre"
-                              sx={{ 
-                                fontFamily: 'monospace',
-                                fontSize: '0.7rem',
-                                backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                                p: 0.5,
-                                borderRadius: 0.5,
-                                display: 'block',
-                                whiteSpace: 'pre-wrap',
-                                wordBreak: 'break-word',
-                                maxWidth: '100%',
-                                overflow: 'auto'
-                              }}
-                            >
-                              {(() => {
-                                try {
-                                  return JSON.stringify(JSON.parse(toolCall.function.arguments), null, 2);
-                                } catch {
-                                  return toolCall.function.arguments;
-                                }
-                              })()}
-                            </Typography>
+                            <Chip
+                              label={toolCall.type}
+                              size="small"
+                              variant="outlined"
+                              color="warning"
+                            />
                           </Box>
-                        )}
-                      </Paper>
-                    </Box>
-                  ))}
+
+                          {toolCall.function.arguments && (
+                            <Box>
+                              <Typography
+                                variant="caption"
+                                color="textSecondary"
+                                sx={{ mb: 0.5, display: 'block' }}
+                              >
+                                Arguments:
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                component="pre"
+                                sx={{
+                                  fontFamily: 'monospace',
+                                  fontSize: '0.7rem',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                                  p: 0.5,
+                                  borderRadius: 0.5,
+                                  display: 'block',
+                                  whiteSpace: 'pre-wrap',
+                                  wordBreak: 'break-word',
+                                  maxWidth: '100%',
+                                  overflow: 'auto',
+                                }}
+                              >
+                                {(() => {
+                                  try {
+                                    return JSON.stringify(
+                                      JSON.parse(toolCall.function.arguments),
+                                      null,
+                                      2
+                                    );
+                                  } catch {
+                                    return toolCall.function.arguments;
+                                  }
+                                })()}
+                              </Typography>
+                            </Box>
+                          )}
+                        </Paper>
+                      </Box>
+                    )
+                  )}
                 </Box>
-
-
 
                 {/* Action buttons - only show if not processed */}
                 {!message.approval_request.processed && (
-                  <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                    <Button 
-                      variant="outlined" 
+                  <Box
+                    sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}
+                  >
+                    <Button
+                      variant="outlined"
                       color="error"
                       size="small"
                       startIcon={<CloseIcon />}
-                      onClick={() => onToolDenial?.(message.approval_request!.request_id)}
+                      onClick={() =>
+                        onToolDenial?.(message.approval_request!.request_id)
+                      }
                     >
                       Deny
                     </Button>
-                    <Button 
-                      variant="contained" 
+                    <Button
+                      variant="contained"
                       color="warning"
                       size="small"
                       startIcon={<CheckIcon />}
-                      onClick={() => onToolApproval?.(message.approval_request!.request_id)}
+                      onClick={() =>
+                        onToolApproval?.(message.approval_request!.request_id)
+                      }
                     >
                       Approve All
                     </Button>
@@ -521,13 +609,15 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
 
                 {/* Show processed status */}
                 {message.approval_request.processed && (
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    p: 1, 
-                    backgroundColor: 'rgba(0, 0, 0, 0.05)', 
-                    borderRadius: 1 
-                  }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      p: 1,
+                      backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                      borderRadius: 1,
+                    }}
+                  >
                     <Typography variant="caption" color="textSecondary">
                       ⏳ Processing request...
                     </Typography>
@@ -540,4 +630,4 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
       </Box>
     </Fade>
   );
-}; 
+};

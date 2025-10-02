@@ -40,12 +40,16 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [editingSession, setEditingSession] = useState<ChatSession | null>(null);
+  const [editingSession, setEditingSession] = useState<ChatSession | null>(
+    null
+  );
   const [editTitle, setEditTitle] = useState('');
   const [newSessionTitle, setNewSessionTitle] = useState('');
   const [showNewSessionForm, setShowNewSessionForm] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [sessionIdToDelete, setSessionIdToDelete] = useState<string | null>(null);
+  const [sessionIdToDelete, setSessionIdToDelete] = useState<string | null>(
+    null
+  );
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const loadingRef = useRef(false); // Ref to track loading state reliably in scroll handler
@@ -61,18 +65,18 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
 
   const loadSessions = async (pageNumber: number, reset: boolean = false) => {
     if (loadingRef.current) return; // Prevent multiple simultaneous loads
-    
+
     loadingRef.current = true;
     setLoading(true);
     setError(null);
     try {
       const pageSize = 20; // Define page size
       const response = await aiChatAPI.listSessions(pageNumber, pageSize);
-      
+
       if (reset) {
         setSessions(response.sessions);
       } else {
-        setSessions(prev => [...prev, ...response.sessions]);
+        setSessions((prev) => [...prev, ...response.sessions]);
       }
 
       setHasMore(response.sessions.length === pageSize); // If fewer than pageSize, no more sessions
@@ -96,8 +100,10 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
     if (!newSessionTitle.trim()) return;
 
     try {
-      const newSession = await aiChatAPI.createSession({ title: newSessionTitle.trim() });
-      setSessions(prev => [newSession, ...prev]);
+      const newSession = await aiChatAPI.createSession({
+        title: newSessionTitle.trim(),
+      });
+      setSessions((prev) => [newSession, ...prev]);
       setNewSessionTitle('');
       setShowNewSessionForm(false);
       onSessionSelect(newSession.id);
@@ -113,8 +119,10 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
 
     try {
       await aiChatAPI.updateSession(session.id, { title: editTitle.trim() });
-      setSessions(prev => 
-        prev.map(s => s.id === session.id ? { ...s, title: editTitle.trim() } : s)
+      setSessions((prev) =>
+        prev.map((s) =>
+          s.id === session.id ? { ...s, title: editTitle.trim() } : s
+        )
       );
       setEditingSession(null);
       setEditTitle('');
@@ -127,7 +135,7 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
   const handleDeleteSession = async (sessionId: string) => {
     try {
       await aiChatAPI.deleteSession(sessionId);
-      setSessions(prev => prev.filter(s => s.id !== sessionId));
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
     } catch (error) {
       console.error('Failed to delete session:', error);
       setError('Failed to delete session');
@@ -143,36 +151,40 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
     if (!dateString) {
       return 'Unknown';
     }
-    
+
     const date = new Date(dateString);
-    
+
     // Check if date is valid
     if (isNaN(date.getTime())) {
       console.warn('Invalid date string:', dateString);
       return 'Invalid Date';
     }
-    
+
     const now = new Date();
-    
+
     // Reset time to midnight for accurate day comparison
-    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const dateOnly = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
     const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     const diffTime = nowOnly.getTime() - dateOnly.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
       // Same day - show time
-      return `Today at ${date.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
+      return `Today at ${date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true 
+        hour12: true,
       })}`;
     } else if (diffDays === 1) {
-      return `Yesterday at ${date.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
+      return `Yesterday at ${date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true 
+        hour12: true,
       })}`;
     } else if (diffDays <= 7) {
       return `${diffDays} days ago`;
@@ -180,10 +192,10 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
       return `${Math.floor(diffDays / 7)} weeks ago`;
     } else {
       // For older dates, show the actual date
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
       });
     }
   };
@@ -196,7 +208,7 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
           <Typography variant="h6">Chat Sessions</Typography>
         </Box>
       </DialogTitle>
-      
+
       <DialogContent dividers>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -212,12 +224,12 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
               startIcon={<AddIcon />}
               onClick={() => setShowNewSessionForm(true)}
               fullWidth
-              sx={{ 
+              sx={{
                 color: 'text.secondary',
                 '&:hover': { backgroundColor: 'action.hover' },
                 textTransform: 'none',
                 justifyContent: 'flex-start',
-                fontSize: '0.875rem'
+                fontSize: '0.875rem',
               }}
             >
               New Session
@@ -239,19 +251,30 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
                   }
                 }}
               />
-              <Button onClick={handleCreateSession} variant="contained">Create</Button>
-              <Button onClick={() => setShowNewSessionForm(false)} variant="outlined">Cancel</Button>
+              <Button onClick={handleCreateSession} variant="contained">
+                Create
+              </Button>
+              <Button
+                onClick={() => setShowNewSessionForm(false)}
+                variant="outlined"
+              >
+                Cancel
+              </Button>
             </Box>
           )}
         </Box>
 
         <List dense>
           {sessions.length === 0 && !loading && !error && (
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ textAlign: 'center', py: 2 }}
+            >
               No chat sessions found.
             </Typography>
           )}
-          {sessions.map(session => (
+          {sessions.map((session) => (
             <ListItem
               key={session.id}
               button
@@ -259,7 +282,7 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
               onClick={() => handleSessionSelect(session.id)}
               sx={{ borderRadius: 1, mb: 0.5 }}
             >
-              <ListItemText 
+              <ListItemText
                 primary={session.title || 'Untitled Session'}
                 secondary={formatDate(session.created_at)}
               />
@@ -338,7 +361,10 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
           <Button onClick={() => setEditingSession(null)} color="primary">
             Cancel
           </Button>
-          <Button onClick={() => handleEditSession(editingSession!)} color="primary">
+          <Button
+            onClick={() => handleEditSession(editingSession!)}
+            color="primary"
+          >
             Save
           </Button>
         </DialogActions>
@@ -351,10 +377,11 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Confirm Deletion'}</DialogTitle>
         <DialogContent>
           <Typography id="alert-dialog-description">
-            Are you sure you want to delete this session? This action cannot be undone.
+            Are you sure you want to delete this session? This action cannot be
+            undone.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -369,7 +396,7 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
                 setSessionIdToDelete(null);
               }
             }}
-            color="primary" 
+            color="primary"
             autoFocus
           >
             Delete
@@ -378,4 +405,4 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
       </Dialog>
     </Dialog>
   );
-}; 
+};

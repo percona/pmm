@@ -116,7 +116,13 @@ export interface ToolApprovalResponse {
 }
 
 export interface StreamMessage {
-  type: 'message' | 'tool_call' | 'tool_execution' | 'tool_approval_request' | 'error' | 'done';
+  type:
+    | 'message'
+    | 'tool_call'
+    | 'tool_execution'
+    | 'tool_approval_request'
+    | 'error'
+    | 'done';
   content?: string;
   session_id: string;
   error?: string;
@@ -141,7 +147,10 @@ class AIChatAPI {
   }
 
   // Helper to process API error responses
-  private async processErrorResponse(response: Response, defaultMessage: string): Promise<Error> {
+  private async processErrorResponse(
+    response: Response,
+    defaultMessage: string
+  ): Promise<Error> {
     const errorDetail = await response.text();
     let detailsSuffix = ` - Details: ${errorDetail}`;
 
@@ -153,7 +162,9 @@ class AIChatAPI {
     } catch (e) {
       // JSON parsing failed, finalMessage remains defaultMessage and detailsSuffix remains full
     }
-    return new Error(`${defaultMessage} (HTTP ${response.status} ${response.statusText}${detailsSuffix})`);
+    return new Error(
+      `${defaultMessage} (HTTP ${response.status} ${response.statusText}${detailsSuffix})`
+    );
   }
 
   /**
@@ -179,12 +190,13 @@ class AIChatAPI {
    */
   private debugLog(message?: any, ...optionalParams: any[]): void {
     // Check for development environment in a browser-safe way
-    const isDevelopment = import.meta.env?.DEV === true ||
-                         window.location.hostname === 'localhost' ||
-                         window.location.hostname === '127.0.0.1' ||
-                         window.location.port === '3000' ||
-                         window.location.port === '5173';
-    
+    const isDevelopment =
+      import.meta.env?.DEV === true ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.port === '3000' ||
+      window.location.port === '5173';
+
     if (isDevelopment) {
       console.log(message, ...optionalParams);
     }
@@ -199,15 +211,20 @@ class AIChatAPI {
     });
 
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to send message: POST ${url} - Session: ${request.session_id || 'new'}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to send message: POST ${url} - Session: ${request.session_id || 'new'}`
+      );
     }
 
     return response.json();
   }
 
-  async sendMessageWithFiles(request: ChatRequestWithFiles): Promise<ChatResponse> {
+  async sendMessageWithFiles(
+    request: ChatRequestWithFiles
+  ): Promise<ChatResponse> {
     const formData = new FormData();
-    
+
     // Add message and session_id as form fields
     formData.append('message', request.message);
     if (request.session_id) {
@@ -218,8 +235,11 @@ class AIChatAPI {
     if (request.attachments) {
       request.attachments.forEach((attachment, index) => {
         // Convert base64 to blob using helper function
-        const blob = this.base64ToBlob(attachment.content, attachment.mime_type);
-        
+        const blob = this.base64ToBlob(
+          attachment.content,
+          attachment.mime_type
+        );
+
         // Add file to form data with consistent field naming pattern
         formData.append(`file${index}`, blob, attachment.filename);
       });
@@ -234,8 +254,12 @@ class AIChatAPI {
 
     if (!response.ok) {
       const fileCount = request.attachments?.length || 0;
-      const fileNames = request.attachments?.map(a => a.filename).join(', ') || 'none';
-      throw await this.processErrorResponse(response, `Failed to send message with files: POST ${url} - Session: ${request.session_id || 'new'} - Files: ${fileCount} (${fileNames})`);
+      const fileNames =
+        request.attachments?.map((a) => a.filename).join(', ') || 'none';
+      throw await this.processErrorResponse(
+        response,
+        `Failed to send message with files: POST ${url} - Session: ${request.session_id || 'new'} - Files: ${fileCount} (${fileNames})`
+      );
     }
 
     return response.json();
@@ -246,18 +270,26 @@ class AIChatAPI {
     const response = await fetch(url, {
       headers: this.getDefaultHeaders(),
     });
-    
+
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to get chat history: GET ${url} - Session: ${sessionId}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to get chat history: GET ${url} - Session: ${sessionId}`
+      );
     }
 
     const data = await response.json();
     this.debugLog('🔍 API: getHistory response:', data);
-    
+
     // Debug attachments specifically
     if (data.messages) {
-      const messagesWithAttachments = data.messages.filter((msg: ChatMessage) => msg.attachments && msg.attachments.length > 0);
-      this.debugLog('🔍 API: Messages with attachments:', messagesWithAttachments);
+      const messagesWithAttachments = data.messages.filter(
+        (msg: ChatMessage) => msg.attachments && msg.attachments.length > 0
+      );
+      this.debugLog(
+        '🔍 API: Messages with attachments:',
+        messagesWithAttachments
+      );
     }
 
     return {
@@ -274,7 +306,10 @@ class AIChatAPI {
     });
 
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to clear chat history: DELETE ${url} - Session: ${sessionId}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to clear chat history: DELETE ${url} - Session: ${sessionId}`
+      );
     }
   }
 
@@ -283,15 +318,20 @@ class AIChatAPI {
     if (forceRefresh) {
       url.searchParams.set('force_refresh', 'true');
     }
-    
+
     this.debugLog(`🌐 API: Making request to ${url.toString()}`);
-    
+
     const response = await fetch(url.toString());
-    
-    this.debugLog(`🌐 API: Response status: ${response.status} ${response.statusText}`);
-    
+
+    this.debugLog(
+      `🌐 API: Response status: ${response.status} ${response.statusText}`
+    );
+
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to get MCP tools: GET ${url.toString()} - Force refresh: ${forceRefresh || false}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to get MCP tools: GET ${url.toString()} - Force refresh: ${forceRefresh || false}`
+      );
     }
 
     const data = await response.json();
@@ -300,7 +340,10 @@ class AIChatAPI {
   }
 
   // New streaming pattern: initiate stream and connect separately
-  async initiateStream(sessionId: string, message: string): Promise<{
+  async initiateStream(
+    sessionId: string,
+    message: string
+  ): Promise<{
     stream_id: string;
     session_id: string;
     stream_url: string;
@@ -317,7 +360,10 @@ class AIChatAPI {
     });
 
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to initiate stream: POST ${url} - Session: ${sessionId} - Message length: ${message.length}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to initiate stream: POST ${url} - Session: ${sessionId} - Message length: ${message.length}`
+      );
     }
 
     return response.json();
@@ -330,21 +376,26 @@ class AIChatAPI {
     onError: (error: string) => void,
     onComplete: () => void
   ): () => void {
-    const url = new URL(`${this.baseURL}/stream/${streamId}`, window.location.origin);
+    const url = new URL(
+      `${this.baseURL}/stream/${streamId}`,
+      window.location.origin
+    );
     const eventSource = new EventSource(url.toString());
-    
+
     eventSource.onmessage = (event) => {
       try {
         const streamMessage: StreamMessage = JSON.parse(event.data);
         onMessage(streamMessage);
-        
+
         if (streamMessage.type === 'done' || streamMessage.type === 'error') {
           eventSource.close();
           onComplete();
         }
       } catch (error) {
         console.error('Failed to parse stream message:', error);
-        onError(`Failed to parse stream message: ${(error as Error).message || String(error)}`);
+        onError(
+          `Failed to parse stream message: ${(error as Error).message || String(error)}`
+        );
         eventSource.close();
         onComplete();
       }
@@ -353,8 +404,9 @@ class AIChatAPI {
     eventSource.onerror = (event) => {
       console.error('EventSource failed:', event);
       let errorMessage = 'Connection failed';
-      if (event && (event as any).message) { // Check if it's a standard EventSource error with a message
-        errorMessage = `Connection failed: ${ (event as any).message}`; // Add message from event
+      if (event && (event as any).message) {
+        // Check if it's a standard EventSource error with a message
+        errorMessage = `Connection failed: ${(event as any).message}`; // Add message from event
       } else if (event instanceof Error) {
         errorMessage = `Connection failed: ${event.message}`; // Fallback for Error objects
       } else if (typeof event === 'object' && event !== null) {
@@ -383,11 +435,17 @@ class AIChatAPI {
     try {
       // Step 1: Initiate the stream
       const streamInfo = await this.initiateStream(sessionId, message);
-      
+
       // Step 2: Connect to the stream
-      return this.connectToStream(streamInfo.stream_id, onMessage, onError, onComplete);
+      return this.connectToStream(
+        streamInfo.stream_id,
+        onMessage,
+        onError,
+        onComplete
+      );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       onError(`Failed to initiate stream: ${errorMessage}`);
       onComplete();
       return () => {}; // Return empty cleanup function
@@ -395,14 +453,20 @@ class AIChatAPI {
   }
 
   // Session management methods
-  async listSessions(page: number = 1, limit: number = 20): Promise<SessionListResponse> {
+  async listSessions(
+    page: number = 1,
+    limit: number = 20
+  ): Promise<SessionListResponse> {
     const url = `${this.baseURL}/sessions?page=${page}&limit=${limit}`;
     const response = await fetch(url, {
       headers: this.getDefaultHeaders(),
     });
-    
+
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to list sessions: GET ${url} - Page: ${page}, Limit: ${limit}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to list sessions: GET ${url} - Page: ${page}, Limit: ${limit}`
+      );
     }
 
     return response.json();
@@ -417,7 +481,10 @@ class AIChatAPI {
     });
 
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to create session: POST ${url} - Title: "${request.title}"`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to create session: POST ${url} - Title: "${request.title}"`
+      );
     }
 
     return response.json();
@@ -428,15 +495,21 @@ class AIChatAPI {
     const response = await fetch(url, {
       headers: this.getDefaultHeaders(),
     });
-    
+
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to get session: GET ${url} - Session: ${sessionId}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to get session: GET ${url} - Session: ${sessionId}`
+      );
     }
 
     return response.json();
   }
 
-  async updateSession(sessionId: string, request: UpdateSessionRequest): Promise<void> {
+  async updateSession(
+    sessionId: string,
+    request: UpdateSessionRequest
+  ): Promise<void> {
     const url = `${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`;
     const response = await fetch(url, {
       method: 'PUT',
@@ -445,7 +518,10 @@ class AIChatAPI {
     });
 
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to update session: PUT ${url} - Session: ${sessionId} - Title: "${request.title}"`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to update session: PUT ${url} - Session: ${sessionId} - Title: "${request.title}"`
+      );
     }
   }
 
@@ -457,18 +533,28 @@ class AIChatAPI {
     });
 
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to delete session: DELETE ${url} - Session: ${sessionId}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to delete session: DELETE ${url} - Session: ${sessionId}`
+      );
     }
   }
 
-  async getSessionMessages(sessionId: string, page: number = 1, limit: number = 50): Promise<{ messages: ChatMessage[] }> {
+  async getSessionMessages(
+    sessionId: string,
+    page: number = 1,
+    limit: number = 50
+  ): Promise<{ messages: ChatMessage[] }> {
     const url = `${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages?page=${page}&limit=${limit}`;
     const response = await fetch(url, {
       headers: this.getDefaultHeaders(),
     });
-    
+
     if (!response.ok) {
-      throw await this.processErrorResponse(response, `Failed to get session messages: GET ${url} - Session: ${sessionId} - Page: ${page}, Limit: ${limit}`);
+      throw await this.processErrorResponse(
+        response,
+        `Failed to get session messages: GET ${url} - Session: ${sessionId} - Page: ${page}, Limit: ${limit}`
+      );
     }
 
     return response.json();

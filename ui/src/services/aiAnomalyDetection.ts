@@ -39,17 +39,37 @@ export interface AIAnomalyBatchAnalysis {
 /**
  * Generates an AI prompt for analyzing a single query for anomalies
  */
-const generateQueryAnalysisPrompt = (query: QANRow, context: {
-  avgMetrics: Record<string, number>;
-  totalQueries: number;
-}): string => {
-  const avgTime = query.metrics?.queryTime?.stats?.avg || query.metrics?.query_time?.stats?.avg || 0;
-  const maxTime = query.metrics?.queryTime?.stats?.max || query.metrics?.query_time?.stats?.max || 0;
-  const lockTime = query.metrics?.lockTime?.stats?.avg || query.metrics?.lock_time?.stats?.avg || 0;
-  const rowsExamined = query.metrics?.rowsExamined?.stats?.avg || query.metrics?.rows_examined?.stats?.avg || 
-        query.metrics?.docsExamined?.stats?.avg || query.metrics?.docs_examined?.stats?.avg || 0;
-  const rowsSent = query.metrics?.rowsSent?.stats?.avg || query.metrics?.rows_sent?.stats?.avg || 
-        query.metrics?.docsReturned?.stats?.avg || query.metrics?.docs_returned?.stats?.avg || 0;
+const generateQueryAnalysisPrompt = (
+  query: QANRow,
+  context: {
+    avgMetrics: Record<string, number>;
+    totalQueries: number;
+  }
+): string => {
+  const avgTime =
+    query.metrics?.queryTime?.stats?.avg ||
+    query.metrics?.query_time?.stats?.avg ||
+    0;
+  const maxTime =
+    query.metrics?.queryTime?.stats?.max ||
+    query.metrics?.query_time?.stats?.max ||
+    0;
+  const lockTime =
+    query.metrics?.lockTime?.stats?.avg ||
+    query.metrics?.lock_time?.stats?.avg ||
+    0;
+  const rowsExamined =
+    query.metrics?.rowsExamined?.stats?.avg ||
+    query.metrics?.rows_examined?.stats?.avg ||
+    query.metrics?.docsExamined?.stats?.avg ||
+    query.metrics?.docs_examined?.stats?.avg ||
+    0;
+  const rowsSent =
+    query.metrics?.rowsSent?.stats?.avg ||
+    query.metrics?.rows_sent?.stats?.avg ||
+    query.metrics?.docsReturned?.stats?.avg ||
+    query.metrics?.docs_returned?.stats?.avg ||
+    0;
 
   return `**AI Query Anomaly Detection Request**
 
@@ -113,30 +133,55 @@ Please analyze this database query for performance anomalies and return a JSON r
  * Generates batch analysis prompt for multiple queries
  */
 const generateBatchAnalysisPrompt = (qanData: QANReportResponse): string => {
-  const queryRows = qanData.rows?.filter(row => 
-    row.fingerprint !== 'TOTAL' && row.dimension !== '' && (row.rank || 0) > 0
-  ) || [];
+  const queryRows =
+    qanData.rows?.filter(
+      (row) =>
+        row.fingerprint !== 'TOTAL' &&
+        row.dimension !== '' &&
+        (row.rank || 0) > 0
+    ) || [];
 
   // Get total row for context
-  const totalRow = qanData.rows?.find(row => row.fingerprint === 'TOTAL');
+  const totalRow = qanData.rows?.find((row) => row.fingerprint === 'TOTAL');
   const totalQueries = totalRow ? getQueryCount(totalRow) : 0;
   const totalLoad = totalRow ? getLoadValue(totalRow) : 0;
   const totalQPS = totalRow ? getQueryRate(totalRow) : 0;
 
   // Get database distribution
-  const databases = [...new Set(queryRows.map(q => q.database).filter(Boolean))];
+  const databases = [
+    ...new Set(queryRows.map((q) => q.database).filter(Boolean)),
+  ];
 
-  const topQueries = queryRows.slice(0, 15).map(query => {
-    const avgTime = query.metrics?.queryTime?.stats?.avg || query.metrics?.query_time?.stats?.avg || 0;
-    const maxTime = query.metrics?.queryTime?.stats?.max || query.metrics?.query_time?.stats?.max || 0;
-    const lockTime = query.metrics?.lockTime?.stats?.avg || query.metrics?.lock_time?.stats?.avg || 0;
-    const rowsExamined = query.metrics?.rowsExamined?.stats?.avg || query.metrics?.rows_examined?.stats?.avg || 
-          query.metrics?.docsExamined?.stats?.avg || query.metrics?.docs_examined?.stats?.avg || 0;
-    const rowsSent = query.metrics?.rowsSent?.stats?.avg || query.metrics?.rows_sent?.stats?.avg || 
-          query.metrics?.docsReturned?.stats?.avg || query.metrics?.docs_returned?.stats?.avg || 0;
-    const efficiency = rowsExamined > 0 ? (rowsSent / rowsExamined * 100) : 0;
-    
-    return `- Query ID: ${query.dimension}
+  const topQueries = queryRows
+    .slice(0, 15)
+    .map((query) => {
+      const avgTime =
+        query.metrics?.queryTime?.stats?.avg ||
+        query.metrics?.query_time?.stats?.avg ||
+        0;
+      const maxTime =
+        query.metrics?.queryTime?.stats?.max ||
+        query.metrics?.query_time?.stats?.max ||
+        0;
+      const lockTime =
+        query.metrics?.lockTime?.stats?.avg ||
+        query.metrics?.lock_time?.stats?.avg ||
+        0;
+      const rowsExamined =
+        query.metrics?.rowsExamined?.stats?.avg ||
+        query.metrics?.rows_examined?.stats?.avg ||
+        query.metrics?.docsExamined?.stats?.avg ||
+        query.metrics?.docs_examined?.stats?.avg ||
+        0;
+      const rowsSent =
+        query.metrics?.rowsSent?.stats?.avg ||
+        query.metrics?.rows_sent?.stats?.avg ||
+        query.metrics?.docsReturned?.stats?.avg ||
+        query.metrics?.docs_returned?.stats?.avg ||
+        0;
+      const efficiency = rowsExamined > 0 ? (rowsSent / rowsExamined) * 100 : 0;
+
+      return `- Query ID: ${query.dimension}
   Database: ${query.database || 'Unknown'}
   Rank: ${query.rank}
   QPS: ${getQueryRate(query).toFixed(2)}
@@ -146,7 +191,8 @@ const generateBatchAnalysisPrompt = (qanData: QANReportResponse): string => {
   Lock Time: ${lockTime.toFixed(3)}s
   Efficiency: ${efficiency.toFixed(2)}%
   Query: ${query.fingerprint?.substring(0, 150)}${query.fingerprint && query.fingerprint.length > 150 ? '...' : ''}`;
-  }).join('\n\n');
+    })
+    .join('\n\n');
 
   return `**AI Batch Query Anomaly Analysis Request**
 
@@ -233,39 +279,39 @@ export const analyzeQueryWithAI = async (
 ): Promise<AIAnomalyAnalysis> => {
   try {
     const prompt = generateQueryAnalysisPrompt(query, context);
-    
+
     // Create a temporary session for this analysis
     const sessionId = `anomaly_${query.dimension}_${Date.now()}`;
-    
+
     // Send analysis request to AI
     const response = await aiChatAPI.sendMessage({
       message: prompt,
-      session_id: sessionId
+      session_id: sessionId,
     });
-    
+
     // Extract JSON from the AI response
     const content = response.message?.content || '';
-    
+
     // Try to extract JSON with markdown formatting first
     let jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
     let jsonString = '';
-    
+
     if (jsonMatch) {
       jsonString = jsonMatch[1];
     } else {
       // If no markdown formatting, try to find JSON in the content
       const jsonStart = content.indexOf('{');
       const jsonEnd = content.lastIndexOf('}');
-      
+
       if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
         jsonString = content.substring(jsonStart, jsonEnd + 1);
       } else {
         throw new Error('AI response does not contain valid JSON');
       }
     }
-    
+
     const analysisResult: AIAnomalyAnalysis = JSON.parse(jsonString);
-    
+
     // Validate and sanitize the response
     return {
       queryId: query.dimension,
@@ -273,13 +319,17 @@ export const analyzeQueryWithAI = async (
       severity: analysisResult.severity || 'low',
       anomalies: analysisResult.anomalies || [],
       confidence: Math.max(0, Math.min(1, analysisResult.confidence || 0)),
-      recommendationSummary: analysisResult.recommendationSummary || 'No specific recommendations',
-      estimatedImpact: analysisResult.estimatedImpact || 'minimal'
+      recommendationSummary:
+        analysisResult.recommendationSummary || 'No specific recommendations',
+      estimatedImpact: analysisResult.estimatedImpact || 'minimal',
     };
-    
   } catch (error) {
-    console.error('AI anomaly analysis failed for query:', query.dimension, error);
-    
+    console.error(
+      'AI anomaly analysis failed for query:',
+      query.dimension,
+      error
+    );
+
     // Fallback to basic analysis
     return {
       queryId: query.dimension,
@@ -288,7 +338,7 @@ export const analyzeQueryWithAI = async (
       anomalies: [],
       confidence: 0,
       recommendationSummary: 'Analysis unavailable - AI service error',
-      estimatedImpact: 'minimal'
+      estimatedImpact: 'minimal',
     };
   }
 };
@@ -301,39 +351,39 @@ export const analyzeBatchWithAI = async (
 ): Promise<AIAnomalyBatchAnalysis> => {
   try {
     const prompt = generateBatchAnalysisPrompt(qanData);
-    
+
     // Create a temporary session for batch analysis
     const sessionId = `batch_anomaly_${Date.now()}`;
-    
+
     // Send batch analysis request to AI
     const response = await aiChatAPI.sendMessage({
       message: prompt,
-      session_id: sessionId
+      session_id: sessionId,
     });
-    
+
     // Extract JSON from the AI response
     const content = response.message?.content || '';
-    
+
     // Try to extract JSON with markdown formatting first
     let jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
     let jsonString = '';
-    
+
     if (jsonMatch) {
       jsonString = jsonMatch[1];
     } else {
       // If no markdown formatting, try to find JSON in the content
       const jsonStart = content.indexOf('{');
       const jsonEnd = content.lastIndexOf('}');
-      
+
       if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
         jsonString = content.substring(jsonStart, jsonEnd + 1);
       } else {
         throw new Error('AI response does not contain valid JSON');
       }
     }
-    
+
     const batchResult: AIAnomalyBatchAnalysis = JSON.parse(jsonString);
-    
+
     // Validate and sanitize the response
     return {
       totalQueries: batchResult.totalQueries || 0,
@@ -342,20 +392,27 @@ export const analyzeBatchWithAI = async (
       highCount: batchResult.highCount || 0,
       mediumCount: batchResult.mediumCount || 0,
       lowCount: batchResult.lowCount || 0,
-      overallHealthScore: Math.max(0, Math.min(100, batchResult.overallHealthScore || 50)),
+      overallHealthScore: Math.max(
+        0,
+        Math.min(100, batchResult.overallHealthScore || 50)
+      ),
       topCriticalQueries: batchResult.topCriticalQueries || [],
-      analysisTimestamp: batchResult.analysisTimestamp || new Date().toISOString(),
-      analyses: batchResult.analyses || {}
+      analysisTimestamp:
+        batchResult.analysisTimestamp || new Date().toISOString(),
+      analyses: batchResult.analyses || {},
     };
-    
   } catch (error) {
     console.error('AI batch anomaly analysis failed:', error);
-    
+
     // Fallback response
-    const queryRows = qanData.rows?.filter(row => 
-      row.fingerprint !== 'TOTAL' && row.dimension !== '' && (row.rank || 0) > 0
-    ) || [];
-    
+    const queryRows =
+      qanData.rows?.filter(
+        (row) =>
+          row.fingerprint !== 'TOTAL' &&
+          row.dimension !== '' &&
+          (row.rank || 0) > 0
+      ) || [];
+
     return {
       totalQueries: queryRows.length,
       anomalousQueries: 0,
@@ -366,7 +423,7 @@ export const analyzeBatchWithAI = async (
       overallHealthScore: 50,
       topCriticalQueries: [],
       analysisTimestamp: new Date().toISOString(),
-      analyses: {}
+      analyses: {},
     };
   }
 };
@@ -386,20 +443,22 @@ const formatNumber = (num: number): string => {
 /**
  * Converts AI anomaly analysis to the format expected by our UI components
  */
-export const convertAIAnalysisToUIFormat = (aiAnalysis: AIAnomalyAnalysis): AnomalyDetectionResult => {
+export const convertAIAnalysisToUIFormat = (
+  aiAnalysis: AIAnomalyAnalysis
+): AnomalyDetectionResult => {
   // Map AI anomaly types to our enum values with fallback
   const mapAnomalyType = (type: string): string => {
     const typeMap: Record<string, string> = {
-      'high_execution_time': 'high_execution_time',
-      'excessive_rows_examined': 'excessive_rows_examined', 
-      'high_lock_time': 'high_lock_time',
-      'missing_index': 'missing_index',
-      'full_table_scan': 'full_table_scan',
-      'cartesian_join': 'cartesian_join',
-      'temp_table_disk': 'temp_table_disk',
-      'high_frequency_slow': 'high_frequency_slow',
-      'outlier_pattern': 'outlier_pattern',
-      'resource_intensive': 'resource_intensive'
+      high_execution_time: 'high_execution_time',
+      excessive_rows_examined: 'excessive_rows_examined',
+      high_lock_time: 'high_lock_time',
+      missing_index: 'missing_index',
+      full_table_scan: 'full_table_scan',
+      cartesian_join: 'cartesian_join',
+      temp_table_disk: 'temp_table_disk',
+      high_frequency_slow: 'high_frequency_slow',
+      outlier_pattern: 'outlier_pattern',
+      resource_intensive: 'resource_intensive',
     };
     return typeMap[type] || 'resource_intensive'; // fallback to resource_intensive
   };
@@ -407,7 +466,7 @@ export const convertAIAnalysisToUIFormat = (aiAnalysis: AIAnomalyAnalysis): Anom
   return {
     queryId: aiAnalysis.queryId,
     hasAnomalies: aiAnalysis.hasAnomalies,
-    anomalies: aiAnalysis.anomalies.map(anomaly => ({
+    anomalies: aiAnalysis.anomalies.map((anomaly) => ({
       type: mapAnomalyType(anomaly.type) as any, // Cast to match enum
       severity: anomaly.severity as any, // Cast to match enum
       description: anomaly.description,
@@ -416,8 +475,8 @@ export const convertAIAnalysisToUIFormat = (aiAnalysis: AIAnomalyAnalysis): Anom
       metrics: {
         riskLevel: anomaly.riskLevel,
         estimatedFixTime: anomaly.estimatedFixTime,
-        impact: `${anomaly.severity} risk level`
-      }
+        impact: `${anomaly.severity} risk level`,
+      },
     })),
     overallSeverity: aiAnalysis.severity as any, // Cast to match enum
     aiAnalysisPrompt: `**AI-Generated Analysis Summary**
@@ -427,13 +486,13 @@ export const convertAIAnalysisToUIFormat = (aiAnalysis: AIAnomalyAnalysis): Anom
 **Confidence:** ${(aiAnalysis.confidence * 100).toFixed(0)}%
 
 **Detected Issues:**
-${aiAnalysis.anomalies.map(a => `- ${a.description} (${a.severity})`).join('\n')}
+${aiAnalysis.anomalies.map((a) => `- ${a.description} (${a.severity})`).join('\n')}
 
 **Recommendations:**
 ${aiAnalysis.recommendationSummary}
 
 **Estimated Impact:** ${aiAnalysis.estimatedImpact}
 
-Would you like me to provide more detailed optimization guidance for this query?`
+Would you like me to provide more detailed optimization guidance for this query?`,
   };
-}; 
+};

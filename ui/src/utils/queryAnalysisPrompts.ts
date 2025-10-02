@@ -1,5 +1,11 @@
 import { QANRow, QANReportResponse } from '../api/qan';
-import { formatNumber, formatDuration, getQueryCount, getQueryRate, getLoadValue } from './formatters';
+import {
+  formatNumber,
+  formatDuration,
+  getQueryCount,
+  getQueryRate,
+  getLoadValue,
+} from './formatters';
 import { formatQANDataForAI } from './qanFormatter';
 
 export interface QueryAnalysisPromptOptions {
@@ -11,9 +17,11 @@ export interface QueryAnalysisPromptOptions {
  * Generates a comprehensive analysis prompt for QAN overview data
  * Used for analyzing multiple queries in aggregate
  */
-export const generateComprehensiveQANAnalysisPrompt = (qanData: QANReportResponse): string => {
+export const generateComprehensiveQANAnalysisPrompt = (
+  qanData: QANReportResponse
+): string => {
   const analysisPrompt = formatQANDataForAI(qanData);
-  
+
   return `${analysisPrompt}
 
 **Comprehensive Analysis Request:**
@@ -38,12 +46,26 @@ export const generateDetailedQueryAnalysisPrompt = ({
   selectedQuery,
   rank,
 }: QueryAnalysisPromptOptions): string => {
-  const avgTime = selectedQuery.metrics?.queryTime?.stats?.avg || selectedQuery.metrics?.query_time?.stats?.avg || 0;
-  const maxTime = selectedQuery.metrics?.queryTime?.stats?.max || selectedQuery.metrics?.query_time?.stats?.max || 0;
-  const rowsExamined = selectedQuery.metrics?.rowsExamined?.stats?.avg || selectedQuery.metrics?.rows_examined?.stats?.avg || 
-        selectedQuery.metrics?.docsExamined?.stats?.avg || selectedQuery.metrics?.docs_examined?.stats?.avg || 0;
-  const rowsSent = selectedQuery.metrics?.rowsSent?.stats?.avg || selectedQuery.metrics?.rows_sent?.stats?.avg || 
-        selectedQuery.metrics?.docsReturned?.stats?.avg || selectedQuery.metrics?.docs_returned?.stats?.avg || 0;
+  const avgTime =
+    selectedQuery.metrics?.queryTime?.stats?.avg ||
+    selectedQuery.metrics?.query_time?.stats?.avg ||
+    0;
+  const maxTime =
+    selectedQuery.metrics?.queryTime?.stats?.max ||
+    selectedQuery.metrics?.query_time?.stats?.max ||
+    0;
+  const rowsExamined =
+    selectedQuery.metrics?.rowsExamined?.stats?.avg ||
+    selectedQuery.metrics?.rows_examined?.stats?.avg ||
+    selectedQuery.metrics?.docsExamined?.stats?.avg ||
+    selectedQuery.metrics?.docs_examined?.stats?.avg ||
+    0;
+  const rowsSent =
+    selectedQuery.metrics?.rowsSent?.stats?.avg ||
+    selectedQuery.metrics?.rows_sent?.stats?.avg ||
+    selectedQuery.metrics?.docsReturned?.stats?.avg ||
+    selectedQuery.metrics?.docs_returned?.stats?.avg ||
+    0;
   const lockTime = selectedQuery.metrics?.lockTime?.stats?.avg || 0;
 
   return `**Query Performance Analysis Request**
@@ -60,7 +82,7 @@ ${selectedQuery.fingerprint || 'N/A'}
 
 **Performance Metrics:**
 - **Execution Count:** ${formatNumber(getQueryCount(selectedQuery))} times
-- **Query Rate:** ${(getQueryRate(selectedQuery)).toFixed(2)} queries/second
+- **Query Rate:** ${getQueryRate(selectedQuery).toFixed(2)} queries/second
 - **Load Impact:** ${formatDuration(getLoadValue(selectedQuery))} seconds
 - **Average Execution Time:** ${formatDuration(avgTime)}
 - **Maximum Execution Time:** ${formatDuration(maxTime)}
@@ -82,4 +104,4 @@ Please analyze this specific query and provide:
 
 Try to be short and concise.
 Focus on actionable recommendations specific to this query's performance characteristics.`;
-}; 
+};
