@@ -298,7 +298,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Queryid:             digests[selectAllCitiesLong],
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
 				Tables:              []string{"city"},
@@ -326,6 +325,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MRowsSum:              499,
 			},
 		}
+		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 
@@ -344,7 +344,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum, 2)
 		expected = &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Queryid:             digests[expected.Common.Fingerprint],
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
 				Tables:              []string{"city"},
@@ -370,6 +369,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MRowsSum:              499,
 			},
 		}
+		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
