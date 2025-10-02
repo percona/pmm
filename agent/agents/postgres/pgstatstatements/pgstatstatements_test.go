@@ -155,6 +155,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCitiesLong: "-8264367755446145090",
 		}
 	case "17":
+		truncatedMSharedBlksHitSum = float32(8)
 		digests = map[string]string{
 			selectAllCities:     "1563925687573067138",
 			selectAllCitiesLong: "-3196437048361615995",
