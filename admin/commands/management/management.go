@@ -28,13 +28,14 @@ var (
 		"mysql":      types.ServiceTypeMySQLService,
 		"mongodb":    types.ServiceTypeMongoDBService,
 		"postgresql": types.ServiceTypePostgreSQLService,
+		"valkey":     types.ServiceTypeValkeyService,
 		"proxysql":   types.ServiceTypeProxySQLService,
 		"haproxy":    types.ServiceTypeHAProxyService,
 		"external":   types.ServiceTypeExternalService,
 	}
 
 	// AllServiceTypesKeys lists all possible service types.
-	AllServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "proxysql", "haproxy", "external"}
+	AllServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "valkey", "proxysql", "haproxy", "external"}
 
 	// MetricsModes lists all possible metrics modes.
 	MetricsModes = []string{"auto", "push", "pull"}

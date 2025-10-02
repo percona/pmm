@@ -1,0 +1,69 @@
+---
+checks:
+  - version: 1
+    name: postgresql_cache_hit_ratio_1
+    summary: PostgreSQL cache hit ratio
+    description: This check the hitratio of one or more databases and complains when they are too low.
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    #author: David Gonzales
+    advisor: performance_generic
+    interval: standard
+    query: round(100. * sd.blks_hit /(sd.blks_read + sd.blks_hit),0) AS dhitratio, d.datname, r.rolname AS rolname FROM pg_stat_database sd JOIN pg_database d ON (d.oid = sd.datid) AND d.datname != 'postgres' AND d.datname NOT LIKE 'template%' JOIN pg_roles r ON (r.oid = d.datdba) WHERE sd.blks_read + sd.blks_hit <> 0 ORDER BY 1 DESC
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      # thresholds
+      check_thresholds = {
+          "warning": 90,
+          "critical": 80,
+      }
+
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+      def check_context(rows, context):
+          # `rows` is a frozen (deeply immutable) list of dicts where each dict represents a single row in SQL result.
+          # `context` is a dict with additional functions.
+          #
+          # Global `print` and `fail` functions are available.
+          #
+          # `check_context` function is expected to return a list of dicts that are then converted to alerts;
+          # in particular, that list can be empty.
+          # Any other value (for example, string) is treated as script execution failure
+          # (Starlark does not support Python exceptions);
+          # it is recommended to use global function `fail` for that instead.
+
+          # # # #
+          # This check checks the hit ratio of all databases, excluding the default postgres and templates databases, and complains when they are too low.
+          # There is no need to run this command more than once per database cluster.
+          # This check returns warning if any result is under 90%.
+          # This check returns a major if any results is under 80%.
+          # Error is returned if for any reason there are no results from query.
+          # # # #
+
+          results = []
+          # extract information from variables
+          for row in rows:
+              hitratio, dbname, dbowner = int(row["dhitratio"]), row["datname"], row["rolname"]
+              if hitratio < check_thresholds["critical"]:
+                  results.append({
+                      "summary": "Cache Hit Ratio for database {} is lower than {}".format(dbname, check_thresholds["critical"]),
+                      "description": "The Cache Hit Ratio metric has a critical value of {}".format(hitratio),
+                      "read_more_url": read_url.format("performance-pg-low-cache-hit-ratio"),
+                      "severity": "warning"
+                  })
+              elif hitratio < check_thresholds["warning"]:
+                  results.append({
+                      "summary": "Cache Hit Ratio for database {} is lower than {}".format(dbname, check_thresholds["warning"]),
+                      "description": "The Cache Hit Ratio metric has a warning value of {}".format(hitratio),
+                      "read_more_url": read_url.format("performance-pg-low-cache-hit-ratio"),
+                      "severity": "warning"
+                  })
+          return results
