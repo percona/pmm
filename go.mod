@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.25.0
+go 1.24.7
 
 // Update saas with
 // go get -v github.com/percona/saas@latest
@@ -249,7 +249,7 @@ require (
 	github.com/google/go-containerregistry v0.20.6 // indirect
 	github.com/google/go-dap v0.12.0 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
-	github.com/google/go-github/v74 v74.0.0 // indirect
+	github.com/google/go-github/v64 v64.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/licensecheck v0.3.1 // indirect
 	github.com/gordonklaus/ineffassign v0.1.0 // indirect
@@ -344,7 +344,7 @@ require (
 	github.com/reva2/bitbucket-insights-api v1.0.0 // indirect
 	github.com/reviewdog/errorformat v0.0.0-20250320004447-223c26dbe212 // indirect
 	github.com/reviewdog/go-bitbucket v0.0.0-20201024094602-708c3f6a7de0 // indirect
-	github.com/reviewdog/reviewdog v0.21.0 // indirect
+	github.com/reviewdog/reviewdog v0.20.3 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
@@ -393,6 +393,7 @@ require (
 	github.com/vbatts/tar-split v0.12.1 // indirect
 	github.com/vburenin/ifacemaker v1.2.1 // indirect
 	github.com/vektra/mockery/v2 v2.53.2 // indirect
+	github.com/xanzy/go-gitlab v0.114.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xen0n/gosmopolitan v1.2.2 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
@@ -400,7 +401,6 @@ require (
 	github.com/yeya24/promlinter v0.3.0 // indirect
 	github.com/ykadowak/zerologlint v0.1.5 // indirect
 	gitlab.com/bosi/decorder v0.4.2 // indirect
-	gitlab.com/gitlab-org/api/client-go v0.142.6 // indirect
 	go-simpler.org/musttag v0.13.0 // indirect
 	go-simpler.org/sloglint v0.9.0 // indirect
 	go.lsp.dev/jsonrpc2 v0.10.0 // indirect
