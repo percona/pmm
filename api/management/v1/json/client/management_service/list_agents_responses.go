@@ -630,6 +630,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// True if an exporter agent is exposed on all host addresses.
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// valkey options
+	ValkeyOptions interface{} `json:"valkey_options,omitempty"`
+
 	// azure options
 	AzureOptions *ListAgentsOKBodyAgentsItems0AzureOptions `json:"azure_options,omitempty"`
 
@@ -1070,6 +1073,9 @@ swagger:model ListAgentsOKBodyAgentsItems0MysqlOptions
 type ListAgentsOKBodyAgentsItems0MysqlOptions struct {
 	// True if TLS key is set.
 	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0 mysql options

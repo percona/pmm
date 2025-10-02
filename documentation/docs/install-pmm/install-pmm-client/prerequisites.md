@@ -17,6 +17,7 @@ PMM Client is designed to be lightweight but requires:
 - **Architecture**: x86_64 or ARM64
 - **RAM**: Minimal (100-200 MB per monitored database instance)
 - **Storage**:
+
     - 100 MB for installation
     - VM Agent reserves 1 GB for caching during network outages
 
@@ -35,21 +36,9 @@ For a complete list of ports and detailed network configuration options, see [Ne
 
 ## Required software
 
-- Ensure these packages are installed before proceeding:
-
-    ```
-    curl gnupg sudo wget
-    ```
+- Ensure these packages are installed before proceeding: curl, gnupg, sudo, wget.
 
 - For Docker-based deployment, you'll also need [Docker Engine](https://docs.docker.com/get-started/get-docker/) properly installed and configured. 
-
-## Database monitoring requirements
-
-To monitor database instances, you'll need:
-
-- **Monitoring users**: Database accounts with appropriate permissions
-- **Log access**: File system access to database logs where applicable
-- **Performance schema**: Enabled for MySQL monitoring (recommended)
 
 ## Database monitoring requirements
 
@@ -81,27 +70,14 @@ To ensure successful database monitoring with PMM, confirm the following:
     - [External services monitoring](../install-pmm-client/connect-database/external.md)  
     - [Remote instances monitoring](../install-pmm-client/connect-database/remote.md#recommended-settings)
 
+## Troubleshooting
 
-## Before you install
-
-Complete these steps before installing PMM Client:
-{.power-number}
-
-1. **Install PMM Server** using your [preferred deployment method](../install-pmm-server/index.md)
-2. **Note the PMM Server address** (hostname or IP)
-3. **Select your PMM Client deployment approach** based on your [environment needs](../plan-pmm-installation/choose-deployment.md)
-4. **Prepare database credentials** for monitoring users
-5. **Verify firewall rules** allow necessary connections
+If you encounter issues during installation or setup, see the [Troubleshooting checklist](../../troubleshoot/checklist.md).
 
 ## Next steps
 
 After confirming your environment meets these prerequisites:
 {.power-number}
 
-1. [Install PMM Client](../install-pmm-client/index.md) using your preferred method
-2. [Register the Client node](../register-client-node/index.md) with your PMM Server
-3. [Add database instances](../install-pmm-client/connect-database/index.md) for monitoring
-
-## Troubleshooting
-
-If you encounter issues during installation or setup, refer to the [Troubleshooting checklist](../../troubleshoot/checklist.md).
+- [Install PMM Client](../install-pmm-client/index.md) using your preferred method
+- [Add database instances](../install-pmm-client/connect-database/index.md) for monitoring

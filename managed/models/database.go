@@ -105,7 +105,6 @@ var databaseSchema = [][]string{
 			container_name VARCHAR CHECK (container_name <> ''),
 
 			-- RemoteAmazonRDS
-			-- RDS instance is stored in address
 			region VARCHAR CHECK (region <> ''),
 
 			PRIMARY KEY (node_id),
@@ -1137,6 +1136,14 @@ var databaseSchema = [][]string{
 	},
 	109: {
 		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
+	},
+	110: {
+		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
+		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
+	},
+	111: {
+		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
+		`UPDATE agents SET valkey_options = '{}'::jsonb`,
 	},
 }
 

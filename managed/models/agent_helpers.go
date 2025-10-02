@@ -41,15 +41,29 @@ type MySQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
+	GetExtraDsnParams() map[string]string
 }
 
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
-func MySQLOptionsFromRequest(params MySQLOptionsParams) MySQLOptions {
-	return MySQLOptions{
-		TLSCa:   params.GetTlsCa(),
-		TLSCert: params.GetTlsCert(),
-		TLSKey:  params.GetTlsKey(),
+func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
+	if params.GetExtraDsnParams() != nil {
+		// keep a list of "supported" parameters and fail early if there are unsupported ones.
+		// this prevents unsupported parameters from being passed to the mysql config.
+		for k := range params.GetExtraDsnParams() {
+			switch k {
+			case "allowCleartextPasswords":
+				continue
+			default:
+				return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Unsupported DSN parameter: %s", k)
+			}
+		}
 	}
+	return MySQLOptions{
+		TLSCa:          params.GetTlsCa(),
+		TLSCert:        params.GetTlsCert(),
+		TLSKey:         params.GetTlsKey(),
+		ExtraDSNParams: params.GetExtraDsnParams(),
+	}, nil
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
@@ -77,6 +91,25 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOpti
 		res.AutoDiscoveryLimit = pointer.ToInt32(extendedOptions.GetAutoDiscoveryLimit())
 		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections()
 	}
+
+	return res
+}
+
+// ValkeyOptionsParams contains methods to create a ValkeyOptions object.
+type ValkeyOptionsParams interface {
+	GetTls() bool
+	GetTlsCa() string
+	GetTlsCert() string
+	GetTlsKey() string
+}
+
+// ValkeyOptionsFromRequest creates ValkeyOptions object from request.
+func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
+	res := ValkeyOptions{}
+	res.TLS = params.GetTls()
+	res.SSLCa = params.GetTlsCa()
+	res.SSLCert = params.GetTlsCert()
+	res.SSLKey = params.GetTlsKey()
 
 	return res
 }
@@ -743,6 +776,7 @@ type CreateAgentParams struct {
 	MongoDBOptions    MongoDBOptions
 	MySQLOptions      MySQLOptions
 	PostgreSQLOptions PostgreSQLOptions
+	ValkeyOptions     ValkeyOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -780,6 +814,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		},
 		MongoDBExporterType: {
 			MongoDBServiceType,
+		},
+		ValkeyExporterType: {
+			ValkeyServiceType,
 		},
 		QANMongoDBProfilerAgentType: {
 			MongoDBServiceType,
@@ -878,6 +915,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MongoDBOptions:    params.MongoDBOptions,
 		MySQLOptions:      params.MySQLOptions,
 		PostgreSQLOptions: params.PostgreSQLOptions,
+		ValkeyOptions:     params.ValkeyOptions,
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {

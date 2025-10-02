@@ -45,7 +45,7 @@
     path: /run/supervisor
     state: directory
     owner: pmm
-    group: pmm
+    group: root
     mode: 0770
 
 - name: Create /etc/supervisord.d dir
@@ -53,16 +53,16 @@
     path: /etc/supervisord.d
     state: directory
     owner: pmm
-    group: pmm
-    mode: 0755
+    group: root
+    mode: 0775
 
 - name: Copy *.ini files for PMM components
   copy:
     src: "{{ item }}"
     dest: "/etc/supervisord.d/{{ item }}"
     owner: pmm
-    group: pmm
-    mode: 0644
+    group: root
+    mode: 0664
   loop:
     - supervisord.ini
     - grafana.ini

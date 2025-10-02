@@ -26,3 +26,34 @@
     font-size: 0.65rem;   /* Font size */
     line-height: 1.6;
 }
+
+.md-content__button.md-icon {
+  color: #f56a37 !important;
+}
+
+/* Optional: hover effect */
+.md-content__button.md-icon:hover {
+  color: #dc3f00 !important;
+}
+
+.md-content__button.md-icon[href*="/edit/"] {
+  display: inline-flex;          /* make the button a flex container */
+  flex-direction: column;        /* stack children vertically */
+  align-items: center;           /* center them horizontally */
+  margin-top: -4px;
+}
+
+.md-content__button.md-icon[href*="/edit/"] svg {
+  width: 32px;
+  height: 32px;
+}
+
+.md-content__button.md-icon[href*="/edit/"]::after {
+  content: "Improve this page";
+  margin-top: 2px;
+  font-size: 0.7rem;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
