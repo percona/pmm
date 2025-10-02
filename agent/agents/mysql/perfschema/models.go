@@ -16,7 +16,7 @@ package perfschema
 
 import "gopkg.in/reform.v1/parse"
 
-//go:generate ../../../../bin/reform
+//go:generate go tool reform
 
 // eventsStatementsSummaryByDigest represents a row in performance_schema.events_statements_summary_by_digest table.
 //

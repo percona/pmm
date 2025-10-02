@@ -33,7 +33,7 @@ require (
 	github.com/go-openapi/errors v0.22.0
 	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/strfmt v0.23.0
-	github.com/go-openapi/swag v0.24.1
+	github.com/go-openapi/swag v0.23.0
 	github.com/go-openapi/validate v0.24.0
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/gogo/status v1.1.1
@@ -62,7 +62,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.66.1
-	github.com/prometheus/prometheus v2.5.0+incompatible
 	github.com/ramr/go-reaper v0.3.0
 	github.com/robfig/cron/v3 v3.0.2-0.20210106135023-bc59245fe10e
 	github.com/sirupsen/logrus v1.9.3
@@ -175,6 +174,7 @@ require (
 	github.com/davidmz/go-pageant v1.0.2 // indirect
 	github.com/denis-tingaikin/go-header v0.5.0 // indirect
 	github.com/denisenkom/go-mssqldb v0.9.0 // indirect
+	github.com/dennwc/varint v1.0.0 // indirect
 	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/cli v28.3.3+incompatible // indirect
@@ -200,22 +200,12 @@ require (
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.6.0 // indirect
 	github.com/go-git/go-git/v5 v5.13.0 // indirect
-	github.com/go-kit/kit v0.9.0 // indirect
-	github.com/go-logfmt/logfmt v0.5.1 // indirect
+	github.com/go-kit/kit v0.12.0 // indirect
+	github.com/go-kit/log v0.2.1 // indirect
+	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/inflect v0.21.0 // indirect
-	github.com/go-openapi/swag/cmdutils v0.24.0 // indirect
-	github.com/go-openapi/swag/conv v0.24.0 // indirect
-	github.com/go-openapi/swag/fileutils v0.24.0 // indirect
-	github.com/go-openapi/swag/jsonname v0.24.0 // indirect
-	github.com/go-openapi/swag/jsonutils v0.24.0 // indirect
-	github.com/go-openapi/swag/loading v0.24.0 // indirect
-	github.com/go-openapi/swag/mangling v0.24.0 // indirect
-	github.com/go-openapi/swag/netutils v0.24.0 // indirect
-	github.com/go-openapi/swag/stringutils v0.24.0 // indirect
-	github.com/go-openapi/swag/typeutils v0.24.0 // indirect
-	github.com/go-openapi/swag/yamlutils v0.24.0 // indirect
 	github.com/go-swagger/go-swagger v0.32.3 // indirect
 	github.com/go-toolsmith/astcast v1.1.0 // indirect
 	github.com/go-toolsmith/astcopy v1.1.0 // indirect
@@ -252,12 +242,14 @@ require (
 	github.com/google/go-github/v64 v64.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/licensecheck v0.3.1 // indirect
+	github.com/google/pprof v0.0.0-20250607225305-033d6d78b36a // indirect
 	github.com/gordonklaus/ineffassign v0.1.0 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gostaticanalysis/analysisutil v0.7.1 // indirect
 	github.com/gostaticanalysis/comment v1.5.0 // indirect
 	github.com/gostaticanalysis/forcetypeassert v0.2.0 // indirect
 	github.com/gostaticanalysis/nilerr v0.1.1 // indirect
+	github.com/grafana/regexp v0.0.0-20240518133315-a468a5bfb3bc // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-immutable-radix/v2 v2.1.0 // indirect
 	github.com/hashicorp/go-msgpack/v2 v2.1.1 // indirect
@@ -331,7 +323,8 @@ require (
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/polyfloyd/go-errorlint v1.7.1 // indirect
 	github.com/posener/complete v1.2.3 // indirect
-	github.com/prometheus/tsdb v0.10.0 // indirect
+	github.com/prometheus/prometheus v0.305.0 // indirect
+	github.com/prometheus/tsdb v0.7.1 // indirect
 	github.com/quasilyte/go-consistent v0.6.0 // indirect
 	github.com/quasilyte/go-ruleguard v0.4.3-0.20240823090925-0fe6f58b47b1 // indirect
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22 // indirect
@@ -344,7 +337,7 @@ require (
 	github.com/reva2/bitbucket-insights-api v1.0.0 // indirect
 	github.com/reviewdog/errorformat v0.0.0-20250320004447-223c26dbe212 // indirect
 	github.com/reviewdog/go-bitbucket v0.0.0-20201024094602-708c3f6a7de0 // indirect
-	github.com/reviewdog/reviewdog v0.20.3 // indirect
+	github.com/reviewdog/reviewdog v0.14.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
@@ -409,6 +402,7 @@ require (
 	go.lsp.dev/uri v0.3.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.36.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect

@@ -1,10 +1,9 @@
 # Contributing notes
 
 ## Pre-requirements: 
-git, make, curl, go, [dep](https://github.com/golang/dep)
+git, make, curl, go, docker, docker-compose
 
 ## Local setup  
-Run `make init` to install dependencies.
 
 #### To run qan-api2 
 Run `make env-up` to set-up environment.
@@ -18,7 +17,3 @@ where PMM_CONTAINER is a name of PMM-Server container.
 ## Testing
 Run `make test-env-up` to set-up environment for tests
 Run `make test` to run tests. 
-
-## Vendoring
-
-We use [dep](https://github.com/golang/dep) to vendor dependencies.
