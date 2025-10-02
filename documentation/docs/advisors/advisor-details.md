@@ -8,40 +8,40 @@ Here's the complete list of database advisors and available checks:
 
 ### Configuration advisors
 
-| Advisor name | Description  | Database technology|
-| :--------- | :---------- | :--- |:--- |
-| **Version configuration** | Notifies of newly released database versions to streamline database maintenance and ensure the most up-to-date performance. |MySQL, MongoDB, PostgreSQL|
-| **Generic configuration** | Provides basic recommendations for improving your database configuration.   | MySQL, MongoDB, PostgreSQL| 
-| **Resources configuration** | Watches your database and gives you recommendations for efficient management of resources like binaries architecture, CPU number versus DB Configuration, etc. | All Users | MySQL, MongoDB|
-| **Connection configuration** |Provides recommendations on configuring database connection parameters for improving database performance.  |MySQL, MongoDB, PostgreSQL|
-| **Replication configuration** | Provides recommendations for scalable replication in database clusters. | MySQL, MongoDB|
-| **InnoDB configuration** | Advises on configuring InnoDB optimization for high performance.  | MySQL|
-| **Vacuum configuration** | Provides recommendations on optimizing Vacuum operations. |  PostgreSQL|
+| Advisor name | Description | Database technology |
+| :--------- | :---------- | :--- |
+| **Version configuration** | Notifies of newly released database versions to streamline database maintenance and ensure the most up-to-date performance. | MySQL, MongoDB, PostgreSQL |
+| **Generic configuration** | Provides basic recommendations for improving your database configuration. | MySQL, MongoDB, PostgreSQL |
+| **Resources configuration** | Watches your database and gives you recommendations for efficient management of resources like binaries architecture, CPU number versus DB Configuration, etc. | MySQL, MongoDB |
+| **Connection configuration** | Provides recommendations on configuring database connection parameters for improving database performance. | MySQL, MongoDB, PostgreSQL |
+| **Replication configuration** | Provides recommendations for scalable replication in database clusters. | MySQL, MongoDB |
+| **InnoDB configuration** | Advises on configuring InnoDB optimization for high performance. | MySQL |
+| **Vacuum configuration** | Provides recommendations on optimizing Vacuum operations. | PostgreSQL |
 
 ### Performance advisors
 
-| Advisor name | Description  Database technology|
-| :--------- | :---------- | :--- |:--- |
-| **Generic performance** | Provides basic database configuration recommendations for high-performance query execution. | MongoDB, PostgreSQL|
-| **Vacuum performance** | Helps improve the efficiency and execution speed of database Vacuum commands. |  PostgreSQL|
-| **Replication performance** |Checks efficient replication usage of your database. |  MongoDB, PostgreSQL|
+| Advisor name | Description | Database technology |
+| :--------- | :---------- | :--- |
+| **Generic performance** | Provides basic database configuration recommendations for high-performance query execution. | MongoDB, PostgreSQL |
+| **Vacuum performance** | Helps improve the efficiency and execution speed of database Vacuum commands. | PostgreSQL |
+| **Replication performance** | Checks efficient replication usage of your database. | MongoDB, PostgreSQL |
 
 ### Security advisors
 
-| Advisor name | Description | Database technology|
-| :--------- | :---------- | :--- |:--- |
-| **CVE security** | Informs you of any database versions affected by CVE.  | MongoDB, PostgreSQL |
-| **Configuration security** | Checks your database configuration to ensure that security best practices are correctly implemented.  |MySQL, MongoDB, PostgreSQL|
-| **Authentication security** | Ensures that all database authentication parameters are configured securely.  |MySQL, MongoDB, PostgreSQL|
-| **Replication security** | Helps safeguard data replication by assessing security risks and providing recommendations for improving protection. | MySQL|
-| **Connection security** | Helps identify security issues on network connections and provides recommendations for enhancing security. | MySQL, MongoDB|
+| Advisor name | Description | Database technology |
+| :--------- | :---------- | :--- |
+| **CVE security** | Informs you of any database versions affected by CVE. | MongoDB, PostgreSQL |
+| **Configuration security** | Checks your database configuration to ensure that security best practices are correctly implemented. | MySQL, MongoDB, PostgreSQL |
+| **Authentication security** | Ensures that all database authentication parameters are configured securely. | MySQL, MongoDB, PostgreSQL |
+| **Replication security** | Helps safeguard data replication by assessing security risks and providing recommendations for improving protection. | MySQL |
+| **Connection security** | Helps identify security issues on network connections and provides recommendations for enhancing security. | MySQL, MongoDB |
 
 ### Query advisors
 
-| Advisor name | Description  | Database technology|
-| :--------- | :---------- | :--- |:--- |
-| **Index query** | Provides query and index optimization strategies for peak database performance. |  MySQL, MongoDB, PostgreSQL |
-| **Schema design query** | Helps create efficient database schemas by analyzing queries and offering suggestions for optimization. | MySQL|
+| Advisor name | Description | Database technology |
+| :--------- | :---------- | :--- |
+| **Index query** | Provides query and index optimization strategies for peak database performance. | MySQL, MongoDB, PostgreSQL |
+| **Schema design query** | Helps create efficient database schemas by analyzing queries and offering suggestions for optimization. | MySQL |
 
 ## List of checks
 
