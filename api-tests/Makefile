@@ -1,7 +1,7 @@
 all: build
 
 init:           ## Installs development tools
-	cd tools && go generate -x -tags=tools
+	@echo "Tools are now managed via root go.mod and accessed with 'go tool <toolname>'"
 
 build:
 	go install -v ./...
@@ -13,14 +13,14 @@ build:
 
 run:
 	go test -count=1 -p 1 -v ./... 2>&1 | tee pmm-api-tests-output.txt
-	cat pmm-api-tests-output.txt | bin/go-junit-report > pmm-api-tests-junit-report.xml
+	cat pmm-api-tests-output.txt | go tool go-junit-report > pmm-api-tests-junit-report.xml
 
 run-dev:
 	go test -count=1 -p 1 -v ./...
 
 run-race:
 	go test -count=1 -p 1 -v -race ./... 2>&1 | tee pmm-api-tests-output.txt
-	cat pmm-api-tests-output.txt | bin/go-junit-report > pmm-api-tests-junit-report.xml
+	cat pmm-api-tests-output.txt | go tool go-junit-report > pmm-api-tests-junit-report.xml
 
 clean:
 	rm -f ./pmm-api-tests-output.txt

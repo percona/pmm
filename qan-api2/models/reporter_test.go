@@ -20,7 +20,7 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/prometheus/prometheus/model/labels"
+	"github.com/prometheus/prometheus/pkg/labels"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
@@ -164,43 +164,43 @@ func TestMatchersToSQL(t *testing.T) {
 			{
 				name: "equal matcher",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchEqual, "service_type", "mysql"),
+					mustNewMatcher(t, labels.MatchEqual, "service_type", "mysql"),
 				},
 				expected: "service_type = 'mysql'",
 			},
 			{
 				name: "not equal matcher",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchNotEqual, "environment", "dev"),
+					mustNewMatcher(t, labels.MatchNotEqual, "environment", "dev"),
 				},
 				expected: "environment != 'dev'",
 			},
 			{
 				name: "regex matcher",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchRegexp, "service_type", "mysql|postgresql"),
+					mustNewMatcher(t, labels.MatchRegexp, "service_type", "mysql|postgresql"),
 				},
 				expected: "match(service_type, 'mysql|postgresql')",
 			},
 			{
 				name: "not regex matcher",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchNotRegexp, "node_name", "db-.*"),
+					mustNewMatcher(t, labels.MatchNotRegexp, "node_name", "db-.*"),
 				},
 				expected: "NOT match(node_name, 'db-.*')",
 			},
 			{
 				name: "multiple matchers",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchEqual, "service_type", "mysql"),
-					labels.MustNewMatcher(labels.MatchNotEqual, "environment", "prod"),
+					mustNewMatcher(t, labels.MatchEqual, "service_type", "mysql"),
+					mustNewMatcher(t, labels.MatchNotEqual, "environment", "prod"),
 				},
 				expected: "service_type = 'mysql' AND environment != 'prod'",
 			},
 			{
 				name: "escaped value",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchEqual, "database", "my'db"),
+					mustNewMatcher(t, labels.MatchEqual, "database", "my'db"),
 				},
 				expected: "database = 'my''db'",
 			},
@@ -224,28 +224,28 @@ func TestMatchersToSQL(t *testing.T) {
 			{
 				name: "equal matcher for custom label",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchEqual, "custom_label", "custom_value"),
+					mustNewMatcher(t, labels.MatchEqual, "custom_label", "custom_value"),
 				},
 				expected: "(hasAny(labels.key, ['custom_label']) AND hasAny(labels.value, ['custom_value']))",
 			},
 			{
 				name: "not equal matcher for custom label",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchNotEqual, "community", "pmm-supporters"),
+					mustNewMatcher(t, labels.MatchNotEqual, "community", "pmm-supporters"),
 				},
 				expected: "NOT (hasAny(labels.key, ['community']) AND hasAny(labels.value, ['pmm-supporters']))",
 			},
 			{
 				name: "regex matcher for custom label",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchRegexp, "project", "pmm.*"),
+					mustNewMatcher(t, labels.MatchRegexp, "project", "pmm.*"),
 				},
 				expected: "(hasAny(labels.key, ['project']) AND arrayExists(x -> match(x, 'pmm.*'), labels.value))",
 			},
 			{
 				name: "not regex matcher for custom label",
 				matchers: []*labels.Matcher{
-					labels.MustNewMatcher(labels.MatchNotRegexp, "team", "dev.*"),
+					mustNewMatcher(t, labels.MatchNotRegexp, "team", "dev.*"),
 				},
 				expected: "NOT (hasAny(labels.key, ['team']) AND arrayExists(x -> match(x, 'dev.*'), labels.value))",
 			},
@@ -262,8 +262,8 @@ func TestMatchersToSQL(t *testing.T) {
 
 	t.Run("mixed dimension and custom label matchers", func(t *testing.T) {
 		matchers := []*labels.Matcher{
-			labels.MustNewMatcher(labels.MatchEqual, "service_type", "mysql"),
-			labels.MustNewMatcher(labels.MatchEqual, "custom_label", "value"),
+			mustNewMatcher(t, labels.MatchEqual, "service_type", "mysql"),
+			mustNewMatcher(t, labels.MatchEqual, "custom_label", "value"),
 		}
 		result, err := matchersToSQL(matchers)
 		require.NoError(t, err)
@@ -281,4 +281,13 @@ func TestMatchersToSQL(t *testing.T) {
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "unsupported matcher type")
 	})
+}
+
+func mustNewMatcher(t *testing.T, mType labels.MatchType, name, value string) *labels.Matcher {
+	t.Helper()
+	m, err := labels.NewMatcher(mType, name, value)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return m
 }

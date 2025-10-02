@@ -29,8 +29,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/prometheus/prometheus/model/labels"
-	"github.com/prometheus/prometheus/promql/parser"
+	"github.com/prometheus/prometheus/pkg/labels"
+	parser "github.com/prometheus/prometheus/promql"
 	"google.golang.org/grpc/metadata"
 
 	qanpbv1 "github.com/percona/pmm/api/qan/v1"
