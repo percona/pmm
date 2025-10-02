@@ -116,7 +116,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		mSharedBlksHitSum = 32
 	}
 	truncatedMSharedBlksHitSum := mSharedBlksHitSum
-
+	isTruncated := true
 	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch engineVersion {
@@ -167,6 +167,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "2398197226709363629",
 			selectAllCitiesLong: "-1570108445478818403",
 		}
+		isTruncated = false
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
@@ -288,13 +289,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
-
-		// In PG 18+ we already got shortened query, so it is not truncated.
-		isTruncated := true
-		switch {
-		case engineVersion == "18":
-			isTruncated = false
-		}
 
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
