@@ -147,7 +147,7 @@ func Run(dsn string, data map[string]map[string]any) error {
 			return err
 		}
 		q := u.Query()
-		q.Set("x-migrations-table-engine", GetEngine(dsn))
+		q.Set("x-migrations-table-engine", strings.ReplaceAll(GetEngine(dsn), "metrics", "schema_migrations"))
 		u.RawQuery = q.Encode()
 		dsn = u.String()
 	}
