@@ -1142,12 +1142,16 @@ var databaseSchema = [][]string{
 		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
 	},
 	111: {
+		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
+		`UPDATE agents SET valkey_options = '{}'::jsonb`,
+	},
+	112: {
 		`ALTER TABLE user_flags
 			ADD COLUMN snoozed_at TIMESTAMP,
 			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0`,
 	},
 	// Default snooze duration - 7 days
-	112: {
+	113: {
 		`UPDATE settings
 			SET settings = settings || '{"updates": {"snooze_duration": 604800000000000}}'
 			WHERE settings->'updates' IS NULL

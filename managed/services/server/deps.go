@@ -50,7 +50,7 @@ type prometheusService interface { //nolint:iface
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
 	StartChecks(checkNames []string) error
-	CollectAdvisors(ctx context.Context)
+	UpdateAdvisorsList(ctx context.Context)
 	CleanupAlerts()
 	UpdateIntervals(rare, standard, frequent time.Duration)
 }

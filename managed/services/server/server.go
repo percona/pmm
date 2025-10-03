@@ -700,7 +700,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	if oldSettings.IsTelemetryEnabled() != newSettings.IsTelemetryEnabled() {
 		s.templatesService.CollectTemplates(ctx)
 		if !advisorsStarted {
-			s.checksService.CollectAdvisors(ctx)
+			s.checksService.UpdateAdvisorsList(ctx)
 		}
 	}
 
