@@ -84,7 +84,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE schema_migrations (
 			id INTEGER NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE = ReplicatedMergeTree('/clickhouse/tables/{shard}/schema_migrations', '{replica}')`,
+		)`,
 
 		`CREATE TABLE nodes (
 			-- common
