@@ -1,13 +1,14 @@
 ---
 checks:
-  - version: 1
+  - version: 2
     name: mongodb_cve_version
     summary: MongoDB CVE Version
     description: This check returns errors if MongoDB or Percona Server for MongoDB version is less than the latest one with CVE fixes.
-    type: MONGODB_BUILDINFO
-    #family: mongodb
+    family: MONGODB
     advisor: security_cve
     interval: standard
+    queries:
+      - type: MONGODB_BUILDINFO
     script: |
       LATEST_VERSIONS = {
           "mongodb": {
@@ -23,28 +24,18 @@ checks:
               "4.4": "https://docs.mongodb.com/manual/release-notes/4.4/#4.4.2---nov-18--2020",
           },
           "percona": {
-              "3.6": 30619008,  # https://www.percona.com/doc/percona-server-for-mongodb/3.6/release_notes/index.html
-              "4.0": 40020014,  # https://www.percona.com/doc/percona-server-for-mongodb/4.0/release_notes/index.html
-              "4.2": 40209010,  # https://www.percona.com/doc/percona-server-for-mongodb/4.2/release_notes/index.html
-              "4.4": 40401003,  # https://www.percona.com/doc/percona-server-for-mongodb/4.4/release_notes/index.html
+              "3.6": 30619008,  # https://docs.percona.com/percona-server-for-mongodb/3.6/release_notes/index.html
+              "4.0": 40020014,  # https://docs.percona.com/percona-server-for-mongodb/4.0/release_notes/index.html
+              "4.2": 40209010,  # https://docs.percona.com/percona-server-for-mongodb/4.2/release_notes/index.html
+              "4.4": 40401003,  # https://docs.percona.com/percona-server-for-mongodb/4.4/release_notes/index.html
           },
           "percona_url": {
-              "3.6": "https://www.percona.com/doc/percona-server-for-mongodb/3.6/release_notes/3.6.19-8.0.html",
-              "4.0": "https://www.percona.com/doc/percona-server-for-mongodb/4.0/release_notes/4.0.20-14.html",
-              "4.2": "https://www.percona.com/doc/percona-server-for-mongodb/4.2/release_notes/4.2.9-10.html",
-              "4.4": "https://www.percona.com/doc/percona-server-for-mongodb/4.4/release_notes/4.4.1-3.html",
+              "3.6": "https://docs.percona.com/percona-server-for-mongodb/3.6/release_notes/3.6.19-8.0.html",
+              "4.0": "https://docs.percona.com/percona-server-for-mongodb/4.0/release_notes/4.0.20-14.html",
+              "4.2": "https://docs.percona.com/percona-server-for-mongodb/4.2/release_notes/4.2.9-10.html",
+              "4.4": "https://docs.percona.com/percona-server-for-mongodb/4.4/release_notes/4.4.1-3.html",
           },
       }
-
-
-      def check(docs):
-          # for compatibility with PMM Server < 2.12
-          context = {
-              "format_version_num": format_version_num,
-              "parse_version": parse_version,
-          }
-          return check_context(docs, context)
-
 
       def check_context(docs, context):
           # `docs` is a frozen (deeply immutable) list of dicts where each dict represents a single document in result set.
@@ -65,10 +56,11 @@ checks:
           format_version_num = context.get("format_version_num", fail)
           parse_version = context.get("parse_version", fail)
 
-          if len(docs) != 1:
+          rows = docs[0]
+          if len(rows) != 1:
               return "Unexpected number of documents"
 
-          info = docs[0]
+          info = rows[0]
 
           # extract information
           is_percona = 'psmdbVersion' in info

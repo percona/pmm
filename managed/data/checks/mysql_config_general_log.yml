@@ -11,7 +11,7 @@ checks:
     family: MYSQL
     queries:
       - type: MYSQL_SELECT
-        query: " @@global.general_log as general_log, @@version version,@@hostname service;"
+        query: " @@global.general_log as general_log, @@version as version, @@hostname as service;"
     script: |
       def check_general_log(doc,read_url):
           for row in doc:
@@ -32,7 +32,6 @@ checks:
               }
 
       def check_context(docs, context):
-          # we first define some global variables
           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
           results = []
 

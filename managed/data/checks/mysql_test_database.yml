@@ -1,24 +1,24 @@
 ---
 checks:
-  - version: 1
+  - version: 2
     name: mysql_test_database
     summary: MySQL test Database
-    description: This check returns a notice if there is database with name 'test' or 'test_%'.
-    type: MYSQL_SHOW
-    #family: mysql
+    description: This check returns a notice if there are databases with name 'test' or 'test_%'.
+    family: MYSQL
     advisor: configuration_generic
     interval: standard
-    query: DATABASES WHERE `Database` = 'test' or `Database` like 'test_%'
+    queries:
+      - type: MYSQL_SHOW
+        query: "DATABASES WHERE `Database` = 'test' or `Database` like 'test_%'"
     script: |
-      def check(rows):
-          return check_context(rows, {})
+      def check_context(docs, context):
+          """
+          This check returns a notice if database with name 'test' or 'test_%' are discovered.
+          """
 
-      def check_context(rows, context):
-          """
-          This check returns a notice if database detected with name 'test' or 'test_%'.
-          """
           dbs = []
 
+          rows = docs[0]
           for row in rows:
               db = row.get("Database")
               dbs.append(db)
