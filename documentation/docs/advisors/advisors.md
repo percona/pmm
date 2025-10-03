@@ -9,12 +9,6 @@ PMM Server automatically downloads checks when the **Telemetry** option are enab
 
 Check results *always* remain on the PMM Server. They are never sent as part of Telemetry.
 
-## Highest security for your databases
-
-Before downloading and running advisor checks on your database, PMM verifies the content and integrity of all advisor checks.
-
-To see the complete list of available checks, see the [Advisor checks for PMM](https://docs.percona.com/percona-platform/advisors.html) topic in the Percona Platform documentation.
-
 ## Automatic checks
 Advisor checks can be executed manually or automatically.
 By default, PMM runs all the checks available for your PMM instances every 24 hours.
