@@ -1,7 +1,7 @@
 import { TestWrapper } from 'utils/testWrapper';
 import { MainWithNav } from './MainWithNav';
 import { render, screen } from '@testing-library/react';
-import { wrapWithGrafana } from 'utils/testUtils';
+import { wrapWithGrafana, wrapWithQueryProvider } from 'utils/testUtils';
 
 const setup = ({
   isLoading = false,
@@ -14,7 +14,9 @@ const setup = ({
 }) =>
   render(
     <TestWrapper authContext={{ isLoading, isLoggedIn }}>
-      {wrapWithGrafana(<MainWithNav />, { isFullScreen: kioskModeActive })}
+      {wrapWithQueryProvider(
+        wrapWithGrafana(<MainWithNav />, { isFullScreen: kioskModeActive })
+      )}
     </TestWrapper>
   );
 

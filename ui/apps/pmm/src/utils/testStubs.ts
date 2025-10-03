@@ -11,6 +11,14 @@ export const TEST_USER_ADMIN: User = {
   orgId: 1,
   orgRole: OrgRole.Admin,
   orgs: [],
+  info: {
+    userId: 0,
+    alertingTourCompleted: false,
+    productTourCompleted: false,
+    snoozedAt: null,
+    snoozeCount: 0,
+    snoozedPmmVersion: '',
+  },
 };
 
 export const TEST_USER_EDITOR: User = {
