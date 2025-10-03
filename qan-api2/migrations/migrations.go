@@ -19,8 +19,9 @@ import (
 )
 
 const (
-	databaseEngineSimple  = "MergeTree"
-	databaseEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/metrics', '{replica}')"
+	databaseEngineSimple          = "MergeTree"
+	databaseEngineCluster         = "ReplicatedMergeTree('/clickhouse/tables/{shard}/metrics', '{replica}')"
+	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/schema_migrations', '{replica}') ORDER BY version"
 )
 
 //go:embed templates/*.sql
@@ -147,8 +148,8 @@ func Run(dsn string, data map[string]map[string]any) error {
 			return err
 		}
 		q := u.Query()
-		logrus.Debugf("[Run] ClickHouse cluster detected, setting schema_migrations table engine to: %s", strings.ReplaceAll(GetEngine(dsn), "metrics", "schema_migrations"))
-		q.Set("x-migrations-table-engine", strings.ReplaceAll(GetEngine(dsn), "metrics", "schema_migrations"))
+		logrus.Debugf("[Run] ClickHouse cluster detected, setting schema_migrations table engine to: %s", schemaMigrationsEngineCluster)
+		q.Set("x-migrations-table-engine", schemaMigrationsEngineCluster)
 		u.RawQuery = q.Encode()
 		dsn = u.String()
 	}
