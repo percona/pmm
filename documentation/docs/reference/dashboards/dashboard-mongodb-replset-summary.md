@@ -86,6 +86,7 @@ Shows the number of operations waiting because the database is busy with other o
 Shows both active and queued read/write operations in your MongoDB deployment. Use this to monitor database activity and identify when operations are being delayed due to high load.
 
 ### Connections
+
 Shows the number of current and available MongoDB connections. Use this to monitor connection usage and ensure your deployment has sufficient capacity for new client connections.
 
 ### Query Execution Times
