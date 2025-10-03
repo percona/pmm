@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -138,6 +139,19 @@ func Run(dsn string, data map[string]map[string]any) error {
 		logrus.Debugf("[Run] Migration loaded: version=%d, identifier=%s", v, mig.Identifier)
 	}
 	src := newMemMigrations(migrations, versions)
+
+	if isClickhouseCluster(dsn) {
+		// Force schema_migrations table engine in DSN
+		u, err := url.Parse(dsn)
+		if err != nil {
+			return err
+		}
+		q := u.Query()
+		q.Set("x-migrations-table-engine", GetEngine(dsn))
+		u.RawQuery = q.Encode()
+		dsn = u.String()
+	}
+
 	m, err := migrate.NewWithSourceInstance("memMigrations", src, dsn)
 	if err != nil {
 		return err
