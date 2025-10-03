@@ -55,5 +55,5 @@ if [ ! -f /srv/nginx/certificate.key ] || [ ! -f /srv/nginx/certificate.crt ]; t
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -keyout /srv/nginx/certificate.key \
         -out    /srv/nginx/certificate.crt \
-        -config /etc/nginx/ssl/certificate.conf
+        -config /srv/nginx/certificate.conf
 fi
