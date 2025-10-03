@@ -1,6 +1,6 @@
 import { useUpdates } from 'contexts/updates';
 import { useUser } from 'contexts/user';
-import { useSnoozeUpdate } from './api/useUpdates';
+import { useSnoozeUpdate } from './api/useUser';
 import { useMemo } from 'react';
 import { useSettings } from 'contexts/settings';
 import { parseDuration } from 'utils/duration';
@@ -35,7 +35,7 @@ export const useSnooze = () => {
   return {
     snoozeUpdate,
     snoozeActive,
-    snoozeCount: user?.info.snoozedCount || 0,
+    snoozeCount: user?.info.snoozeCount || 0,
     snoozedAt: user?.info.snoozedAt || null,
   };
 };

@@ -16,16 +16,11 @@ import Snackbar from '@mui/material/Snackbar';
 import CloseIcon from '@mui/icons-material/Close';
 import Card from '@mui/material/Card';
 import IconButton from '@mui/material/IconButton';
-import { parseReleaseHighlights } from './UpdateModal.utils';
-import { ReleaseNotes } from 'pages/updates/change-log/release-notes';
 import { useSnooze } from 'hooks/snooze';
 
 const UpdateModal: FC = () => {
   const { isLoading, versionInfo } = useUpdates();
   const [open, setIsOpen] = useState(false);
-  const highlights = parseReleaseHighlights(
-    versionInfo?.latest.releaseNotesText
-  );
   const { snoozeUpdate, snoozeActive, snoozeCount } = useSnooze();
 
   const handleClose = () => {
@@ -40,7 +35,12 @@ const UpdateModal: FC = () => {
     }, SHOW_UPDATE_INFO_DELAY_MS);
   }, []);
 
-  if (isLoading || !versionInfo || snoozeActive) {
+  if (
+    isLoading ||
+    !versionInfo ||
+    snoozeActive ||
+    !versionInfo.updateAvailable
+  ) {
     return null;
   }
 
@@ -115,7 +115,7 @@ const UpdateModal: FC = () => {
               },
             }}
           >
-            <ReleaseNotes content={highlights} />
+            {Messages.highlightsGeneric}
           </Box>
           {Messages.more}
           <Link

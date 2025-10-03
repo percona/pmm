@@ -33,7 +33,7 @@ export const TestWrapper: FC<TestWrapperProps> = ({
         alertingTourCompleted: false,
         productTourCompleted: false,
         snoozedAt: null,
-        snoozedCount: 0,
+        snoozeCount: 0,
         snoozedPmmVersion: '',
       },
     },

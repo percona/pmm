@@ -3,6 +3,8 @@ export const Messages = {
   descriptionModal:
     'This release introduces powerful new features and essential improvements to keep your databases running smoothly.',
   highlights: 'Highlights',
+  highlightsGeneric:
+    'This release also includes performance enhancements and key bug fixes.',
   more: 'But there are more changes: ',
   releaseNotes: 'View Full Release Notes',
   remindMe: 'Remind me later',

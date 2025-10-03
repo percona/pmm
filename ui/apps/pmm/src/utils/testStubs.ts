@@ -16,7 +16,7 @@ export const TEST_USER_ADMIN: User = {
     alertingTourCompleted: false,
     productTourCompleted: false,
     snoozedAt: null,
-    snoozedCount: 0,
+    snoozeCount: 0,
     snoozedPmmVersion: '',
   },
 };

@@ -1,9 +1,4 @@
-import {
-  checkForUpdates,
-  getChangeLogs,
-  snoozeUpdate,
-  startUpdate,
-} from 'api/updates';
+import { checkForUpdates, getChangeLogs, startUpdate } from 'api/updates';
 import {
   useMutation,
   UseMutationOptions,
@@ -13,8 +8,6 @@ import {
 import {
   GetChangeLogsResponse,
   GetUpdatesResponse,
-  SnoozeUpdateBody,
-  SnoozeUpdateResponse,
   StartUpdateBody,
   StartUpdateResponse,
 } from 'types/updates.types';
@@ -57,14 +50,5 @@ export const useChangeLogs = (
   useQuery({
     queryKey: ['changeLogs'],
     queryFn: getChangeLogs,
-    ...options,
-  });
-
-export const useSnoozeUpdate = (
-  options?: UseMutationOptions<SnoozeUpdateResponse, ApiError, SnoozeUpdateBody>
-) =>
-  useMutation({
-    mutationKey: ['updates:snooze'],
-    mutationFn: (variables) => snoozeUpdate(variables),
     ...options,
   });

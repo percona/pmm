@@ -215,7 +215,9 @@ export const addConfiguration = (
     status === UpdateStatus.Pending ||
     status === UpdateStatus.UpdateClients
   ) {
-    updates.badge = 'New';
+    updates.badge = {
+      label: 'New',
+    };
   } else {
     updates.badge = undefined;
   }

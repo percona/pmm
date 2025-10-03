@@ -53,8 +53,19 @@ export interface UserInfo {
   alertingTourCompleted: boolean;
   productTourCompleted: boolean;
   snoozedAt: string | null;
-  snoozedCount: number;
+  snoozeCount: number;
   snoozedPmmVersion: string;
 }
 
-export type UpdateUserInfoPayload = Partial<Omit<UserInfo, 'userId'>>;
+export type UpdateUserInfoPayload = Partial<
+  Omit<UserInfo, 'userId' | 'snoozeCount' | 'snoozedAt'>
+>;
+
+export interface SnoozeUpdateBody {
+  snoozedPmmVersion: string;
+}
+
+export interface SnoozeUpdateResponse extends SnoozeUpdateBody {
+  snoozedAt: string;
+  snoozeCount: number;
+}

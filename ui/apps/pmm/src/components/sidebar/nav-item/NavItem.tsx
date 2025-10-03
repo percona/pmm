@@ -194,9 +194,9 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
           {item.badge && (
             <Chip
               size="small"
-              label={item.badge}
               color="warning"
               variant="outlined"
+              {...item.badge}
             />
           )}
         </ListItemButton>
