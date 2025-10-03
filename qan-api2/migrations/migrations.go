@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	databaseEngineSimple          = "MergeTree"
-	databaseEngineCluster         = "ReplicatedMergeTree('/clickhouse/tables/{shard}/metrics', '{replica}')"
+	metricsEngineSimple           = "MergeTree"
+	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/metrics', '{replica}')"
 	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/schema_migrations', '{replica}') ORDER BY version"
 )
 
@@ -97,12 +97,28 @@ func isClickhouseCluster(dsn string) bool {
 	return false
 }
 
-func GetEngine(dsn string) string {
-	if isClickhouseCluster(dsn) {
-		return databaseEngineCluster
+// Force schema_migrations table engine in DSN.
+func addSchemaMigrationsEngine(dsn string) (string, error) {
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return "", err
 	}
 
-	return databaseEngineSimple
+	logrus.Debugf("ClickHouse cluster detected, setting schema_migrations table engine to: %s", schemaMigrationsEngineCluster)
+
+	q := u.Query()
+	q.Set("x-migrations-table-engine", schemaMigrationsEngineCluster)
+	u.RawQuery = q.Encode()
+
+	return u.String(), nil
+}
+
+func GetEngine(dsn string) string {
+	if isClickhouseCluster(dsn) {
+		return metricsEngineCluster
+	}
+
+	return metricsEngineSimple
 }
 
 func GenerateMigrations(data map[string]map[string]any, path string) error {
@@ -142,16 +158,10 @@ func Run(dsn string, data map[string]map[string]any) error {
 	src := newMemMigrations(migrations, versions)
 
 	if isClickhouseCluster(dsn) {
-		// Force schema_migrations table engine in DSN
-		u, err := url.Parse(dsn)
+		dsn, err = addSchemaMigrationsEngine(dsn)
 		if err != nil {
 			return err
 		}
-		q := u.Query()
-		logrus.Debugf("[Run] ClickHouse cluster detected, setting schema_migrations table engine to: %s", schemaMigrationsEngineCluster)
-		q.Set("x-migrations-table-engine", schemaMigrationsEngineCluster)
-		u.RawQuery = q.Encode()
-		dsn = u.String()
 	}
 
 	m, err := migrate.NewWithSourceInstance("memMigrations", src, dsn)
