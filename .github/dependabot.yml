@@ -68,24 +68,6 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
 
-  - package-ecosystem: "gomod"
-    directory: "/tools"
-    target-branch: "v3"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
-
-  - package-ecosystem: "gomod"
-    directory: "/api-tests/tools"
-    target-branch: "v3"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
-
   - package-ecosystem: "docker"
     directory: "/"
     target-branch: "v3"

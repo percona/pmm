@@ -24,16 +24,14 @@ def install_packages():
     """Installs required and useful RPM packages."""
 
     run_commands([
-        "dnf install -y gcc git make pkgconfig \
+        "dnf install -y --enablerepo=ol9_codeready_builder\
+            gcc git make pkgconfig \
             vim \
-            mc psmisc procps lsof which iproute diffutils \
+            psmisc procps lsof which iproute diffutils \
             man man-pages \
             openssl-devel \
-            wget \
-            krb5-devel",
-        
-        "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
-
+            ansible-lint glibc-static \
+            krb5-devel"
     ])
 
 
@@ -63,14 +61,6 @@ def install_go():
     ])
 
 
-def make_init():
-    """Runs make init."""
-
-    run_commands([
-        "make init",
-    ])
-
-
 def setup():
     """Runs various setup commands."""
     run_commands([
@@ -87,7 +77,6 @@ def setup():
 def main():
     install_packages()
     install_go()
-    make_init()
 
     # do basic setup
     setup()

@@ -21,7 +21,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // Role represents Role as stored in database.
 //

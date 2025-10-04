@@ -24,7 +24,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // Template represents Percona Alerting rule template.
 //
