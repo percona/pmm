@@ -1,8 +1,8 @@
 module github.com/percona/pmm/golangci-lint
 
-go 1.24.7
+go 1.24.3
 
-# See https://golangci-lint.run/docs/welcome/install/
+// See https://golangci-lint.run/docs/welcome/install/
 tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 
 require (
