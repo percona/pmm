@@ -33,7 +33,7 @@ require (
 	github.com/go-openapi/errors v0.22.0
 	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/strfmt v0.23.0
-	github.com/go-openapi/swag v0.23.0
+	github.com/go-openapi/swag v0.24.1
 	github.com/go-openapi/validate v0.24.0
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/gogo/status v1.1.1
@@ -64,7 +64,7 @@ require (
 	github.com/prometheus/common v0.65.0
 	github.com/prometheus/prometheus v0.305.0
 	github.com/ramr/go-reaper v0.3.0
-	github.com/robfig/cron/v3 v3.0.2-0.20210106135023-bc59245fe10e
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.11.1
@@ -76,10 +76,10 @@ require (
 	golang.org/x/sys v0.36.0
 	golang.org/x/text v0.29.0
 	golang.org/x/tools v0.36.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250826171959-ef028d996bc1
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250826171959-ef028d996bc1
+	google.golang.org/genproto/googleapis/api v0.0.0-20250728155136-f173205681a0
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250728155136-f173205681a0
 	google.golang.org/grpc v1.75.0
-	google.golang.org/protobuf v1.36.8
+	google.golang.org/protobuf v1.36.6
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
@@ -88,11 +88,11 @@ require (
 require (
 	4d63.com/gocheckcompilerdirectives v1.3.0 // indirect
 	4d63.com/gochecknoglobals v0.2.2 // indirect
-	buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go v1.36.8-20250718181942-e35f9b667443.1 // indirect
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.8-20250717185734-6c6e0d3c608e.1 // indirect
+	buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go v1.36.6-20250718181942-e35f9b667443.1 // indirect
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.6-20250912141014-52f32327d4b0.1 // indirect
 	buf.build/gen/go/bufbuild/registry/connectrpc/go v1.18.1-20250819211657-a3dd0d3ea69b.1 // indirect
-	buf.build/gen/go/bufbuild/registry/protocolbuffers/go v1.36.8-20250819211657-a3dd0d3ea69b.1 // indirect
-	buf.build/gen/go/pluginrpc/pluginrpc/protocolbuffers/go v1.36.8-20241007202033-cf42259fcbfc.1 // indirect
+	buf.build/gen/go/bufbuild/registry/protocolbuffers/go v1.36.6-20250924144421-cb55f06efbd2.1 // indirect
+	buf.build/gen/go/pluginrpc/pluginrpc/protocolbuffers/go v1.36.6-20241007202033-cf42259fcbfc.1 // indirect
 	buf.build/go/app v0.1.0 // indirect
 	buf.build/go/bufplugin v0.9.0 // indirect
 	buf.build/go/interrupt v1.1.0 // indirect
@@ -154,7 +154,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.0.4 // indirect
 	github.com/breml/bidichk v0.3.2 // indirect
 	github.com/breml/errchkjson v0.4.0 // indirect
-	github.com/bufbuild/buf v1.57.0 // indirect
+	github.com/bufbuild/buf v1.56.0 // indirect
 	github.com/bufbuild/protocompile v0.14.1 // indirect
 	github.com/bufbuild/protoplugin v0.0.0-20250218205857-750e09ce93e1 // indirect
 	github.com/butuzov/ireturn v0.3.1 // indirect
@@ -205,6 +205,17 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/inflect v0.21.0 // indirect
+	github.com/go-openapi/swag/cmdutils v0.24.0 // indirect
+	github.com/go-openapi/swag/conv v0.24.0 // indirect
+	github.com/go-openapi/swag/fileutils v0.24.0 // indirect
+	github.com/go-openapi/swag/jsonname v0.24.0 // indirect
+	github.com/go-openapi/swag/jsonutils v0.24.0 // indirect
+	github.com/go-openapi/swag/loading v0.24.0 // indirect
+	github.com/go-openapi/swag/mangling v0.24.0 // indirect
+	github.com/go-openapi/swag/netutils v0.24.0 // indirect
+	github.com/go-openapi/swag/stringutils v0.24.0 // indirect
+	github.com/go-openapi/swag/typeutils v0.24.0 // indirect
+	github.com/go-openapi/swag/yamlutils v0.24.0 // indirect
 	github.com/go-swagger/go-swagger v0.32.3 // indirect
 	github.com/go-toolsmith/astcast v1.1.0 // indirect
 	github.com/go-toolsmith/astcopy v1.1.0 // indirect
