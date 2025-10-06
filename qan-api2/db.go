@@ -40,12 +40,12 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	// If the environment variable PMM_CLICKHOUSE_IS_CLUSTER is set to "1",
 	// wait until the ClickHouse cluster is ready (i.e., remote_hosts > 0 in system.clusters).
 	// This ensures the cluster is fully initialized before continuing.
-	 if os.Getenv("PMM_CLICKHOUSE_IS_CLUSTER") == "1" {
-		 for !migrations.IsClickhouseCluster(dsn) {
-			 log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
-			 time.Sleep(1 * time.Second)
-		 }
-	 }
+	if os.Getenv("PMM_CLICKHOUSE_IS_CLUSTER") == "1" {
+		for !migrations.IsClickhouseCluster(dsn) {
+			log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
+			time.Sleep(1 * time.Second)
+		}
+	}
 
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
@@ -78,6 +78,14 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	data := map[string]map[string]any{
 		"01_init.up.sql": {"engine": migrations.GetEngine(dsn)},
 	}
+
+	// If PMM_CLICKHOUSE_CLUSTER_NAME is set, use it in the migration to create the metrics table with the specified cluster.
+	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
+	if clusterName != "" {
+		log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		data["01_init.up.sql"]["cluster"] = clusterName
+	}
+
 	if err := migrations.Run(dsn, data); err != nil {
 		log.Fatal("Migrations: ", err)
 	}

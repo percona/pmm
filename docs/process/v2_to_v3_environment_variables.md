@@ -64,3 +64,4 @@ Below is a list of affected variables and their new names.
 | `PMM_CLICKHOUSE_USER`                      | Added in v3.2.0                                              |
 | `PMM_CLICKHOUSE_PASSWORD`                  | Added in v3.2.0                                              |
 | `PMM_CLICKHOUSE_IS_CLUSTER`                | Added in 3.6.0                                               |
+| `PMM_CLICKHOUSE_CLUSTER_NAME`              | Added in 3.6.0                                               |

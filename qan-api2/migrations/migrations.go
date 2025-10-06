@@ -97,8 +97,8 @@ func IsClickhouseCluster(dsn string) bool {
 	return false
 }
 
-// Force schema_migrations table engine in DSN.
-func addSchemaMigrationsEngine(dsn string) (string, error) {
+// Force schema_migrations table engine, optionaly cluster name in DSN.
+func addSchemaMigrationsParams(dsn string) (string, error) {
 	u, err := url.Parse(dsn)
 	if err != nil {
 		return "", err
@@ -108,6 +108,14 @@ func addSchemaMigrationsEngine(dsn string) (string, error) {
 
 	q := u.Query()
 	q.Set("x-migrations-table-engine", schemaMigrationsEngineCluster)
+
+	// If PMM_CLICKHOUSE_CLUSTER_NAME is set, its value will be added to the DSN as x-cluster-name to ensure migrations target the specified ClickHouse cluster.
+	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
+	if clusterName != "" {
+		logrus.Printf("Using ClickHouse cluster name: %s", clusterName)
+		q.Set("x-cluster-name", clusterName)
+	}
+
 	u.RawQuery = q.Encode()
 
 	return u.String(), nil
@@ -158,7 +166,7 @@ func Run(dsn string, data map[string]map[string]any) error {
 	src := newMemMigrations(migrations, versions)
 
 	if IsClickhouseCluster(dsn) {
-		dsn, err = addSchemaMigrationsEngine(dsn)
+		dsn, err = addSchemaMigrationsParams(dsn)
 		if err != nil {
 			return err
 		}
