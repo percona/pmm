@@ -19,7 +19,9 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"strings"
+	"time"
 
 	clickhouse "github.com/ClickHouse/clickhouse-go/v2"          // register database/sql driver
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
@@ -35,6 +37,19 @@ const (
 
 // NewDB return updated db.
 func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
+	// If the environment variable PMM_CLICKHOUSE_IS_CLUSTER is set to "1",
+	// wait until the ClickHouse cluster is ready (i.e., remote_hosts > 0 in system.clusters).
+	// This ensures the cluster is fully initialized before continuing.
+	if os.Getenv("PMM_CLICKHOUSE_IS_CLUSTER") == "1" {
+		for {
+			if migrations.IsClickhouseCluster(dsn) {
+				break
+			}
+			log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
+			time.Sleep(1 * time.Second)
+		}
+	}
+
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint

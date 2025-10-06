@@ -72,7 +72,7 @@ func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
 	return migrations, nil
 }
 
-func isClickhouseCluster(dsn string) bool {
+func IsClickhouseCluster(dsn string) bool {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		return false
@@ -114,7 +114,7 @@ func addSchemaMigrationsEngine(dsn string) (string, error) {
 }
 
 func GetEngine(dsn string) string {
-	if isClickhouseCluster(dsn) {
+	if IsClickhouseCluster(dsn) {
 		return metricsEngineCluster
 	}
 
@@ -157,7 +157,7 @@ func Run(dsn string, data map[string]map[string]any) error {
 	}
 	src := newMemMigrations(migrations, versions)
 
-	if isClickhouseCluster(dsn) {
+	if IsClickhouseCluster(dsn) {
 		dsn, err = addSchemaMigrationsEngine(dsn)
 		if err != nil {
 			return err
