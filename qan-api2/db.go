@@ -83,7 +83,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
 	if clusterName != "" {
 		log.Printf("Using ClickHouse cluster name: %s", clusterName)
-		data["01_init.up.sql"]["cluster"] = clusterName
+		data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER '%s' ", clusterName)
 	}
 
 	if err := migrations.Run(dsn, data); err != nil {
