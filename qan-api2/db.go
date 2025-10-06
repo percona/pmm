@@ -81,9 +81,12 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 
 	// If PMM_CLICKHOUSE_CLUSTER_NAME is set, use it in the migration to create the metrics table with the specified cluster.
 	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
-	if clusterName != "" {
+	switch {
+	case clusterName != "":
 		log.Printf("Using ClickHouse cluster name: %s", clusterName)
 		data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER '%s' ", clusterName)
+	default:
+		data["01_init.up.sql"]["cluster"] = ""
 	}
 
 	if err := migrations.Run(dsn, data); err != nil {
