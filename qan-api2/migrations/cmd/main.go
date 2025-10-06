@@ -10,7 +10,7 @@ import (
 
 func main() {
 	data := map[string]map[string]any{
-		"01_init.up.sql": {"engine": "MergeTree", "cluster": ""},
+		"01_init.up.sql": {"engine": "MergeTree"},
 	}
 	wd, err := os.Getwd()
 	if err != nil {

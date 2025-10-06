@@ -1,4 +1,4 @@
-CREATE TABLE metrics {{.cluster}}(
+CREATE TABLE metrics {{- if .cluster }}{{ .cluster }}{{- end}}(
   -- Main dimensions
   `queryid` LowCardinality(String) COMMENT 'hash of query fingerprint',
   `service_name` LowCardinality(String) COMMENT 'Name of service (IP or hostname of DB server by default)',
