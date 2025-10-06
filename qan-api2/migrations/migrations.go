@@ -72,29 +72,29 @@ func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
 	return migrations, nil
 }
 
-func IsClickhouseCluster(dsn string) bool {
+func IsClickhouseCluster(dsn string) (bool, error) {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		return false
+		return false, err
 	}
 	defer db.Close() //nolint:errcheck
 
 	rows, err := db.Queryx("SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters;")
 	if err != nil {
-		return false
+		return false, err
 	}
 	defer rows.Close() //nolint:errcheck
 
 	if rows.Next() {
 		var remoteHosts int
 		if err := rows.Scan(&remoteHosts); err != nil {
-			return false
+			return false, err
 		}
 
-		return remoteHosts > 0
+		return remoteHosts > 0, nil
 	}
 
-	return false
+	return false, nil
 }
 
 // Force schema_migrations table engine, optionaly cluster name in DSN.
@@ -122,7 +122,11 @@ func addSchemaMigrationsParams(dsn string) (string, error) {
 }
 
 func GetEngine(dsn string) string {
-	if IsClickhouseCluster(dsn) {
+	isCluster, err := IsClickhouseCluster(dsn)
+	if err != nil {
+		logrus.Fatalf("Error checking ClickHouse cluster status: %v", err)
+	}
+	if isCluster {
 		return metricsEngineCluster
 	}
 
@@ -165,7 +169,11 @@ func Run(dsn string, data map[string]map[string]any) error {
 	}
 	src := newMemMigrations(migrations, versions)
 
-	if IsClickhouseCluster(dsn) {
+	isCluster, err := IsClickhouseCluster(dsn)
+	if err != nil {
+		return err
+	}
+	if isCluster {
 		dsn, err = addSchemaMigrationsParams(dsn)
 		if err != nil {
 			return err
