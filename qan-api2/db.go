@@ -41,11 +41,24 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	// wait until the ClickHouse cluster is ready (i.e., remote_hosts > 0 in system.clusters).
 	// This ensures the cluster is fully initialized before continuing.
 	if os.Getenv("PMM_CLICKHOUSE_IS_CLUSTER") == "1" {
-		isCluster, err := migrations.IsClickhouseCluster(dsn)
+		// Replace database in DSN with 'default' for cluster check, because our database does not exist yet.
+		dsnURL, err := url.Parse(dsn)
 		if err != nil {
-			log.Fatalf("Error checking ClickHouse cluster status: %v", err)
+			log.Fatalf("Error parsing DSN: %v", err)
 		}
-		for !isCluster {
+		dsnURL.Path = "/default"
+		dsnDefault := dsnURL.String()
+
+		for {
+			isCluster, err := migrations.IsClickhouseCluster(dsnDefault)
+			if err != nil {
+				log.Fatalf("Error checking ClickHouse cluster status: %v", err)
+			}
+			if isCluster {
+				log.Println("ClickHouse cluster is ready.")
+				break
+			}
+
 			log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
 			time.Sleep(1 * time.Second)
 		}
