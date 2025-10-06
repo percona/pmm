@@ -146,13 +146,10 @@ func GenerateMigrations(data map[string]map[string]any, path string) error {
 }
 
 func Run(dsn string, data map[string]map[string]any) error {
-	fmt.Println("debug: migrations.go Run called with data:")
-	fmt.Println(data)
 	migrations, err := renderMigrations(data)
 	if err != nil {
 		return err
 	}
-	fmt.Println(migrations[0])
 	// Build versions slice from migration filenames
 	var versions []uint
 	for _, mig := range migrations {
