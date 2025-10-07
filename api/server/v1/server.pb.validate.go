@@ -2475,6 +2475,8 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for DefaultRoleId
 
+	// no validation rules for EnableInternalPgQan
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
@@ -3309,6 +3311,10 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	if m.EnableAccessControl != nil {
 		// no validation rules for EnableAccessControl
+	}
+
+	if m.EnableInternalPgQan != nil {
+		// no validation rules for EnableInternalPgQan
 	}
 
 	if len(errors) > 0 {

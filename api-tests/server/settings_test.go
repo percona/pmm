@@ -30,6 +30,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
@@ -663,6 +665,85 @@ func TestSettings(t *testing.T) {
 						FrequentInterval: "20s",
 					}
 					assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
+				})
+			})
+
+			t.Run("InternalPgQAN", func(t *testing.T) {
+				defer restoreSettingsDefaults(t)
+
+				// First, get the internal PostgreSQL QAN agent to verify it exists
+				listAgentsRes, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+
+				var internalPgQANAgent *agents.ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0
+				for _, agent := range listAgentsRes.Payload.QANPostgresqlPgstatementsAgent {
+					if agent.PMMAgentID == "pmm-server" {
+						internalPgQANAgent = agent
+						break
+					}
+				}
+				require.NotNil(t, internalPgQANAgent, "Internal PostgreSQL QAN agent should exist")
+
+				originalDisabledState := internalPgQANAgent.Disabled
+
+				t.Run("DisableAndEnableInternalPgQAN", func(t *testing.T) {
+					defer restoreSettingsDefaults(t)
+
+					// Disable QAN via settings
+					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							EnableInternalPgQAN: pointer.ToBool(false),
+						},
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.False(t, res.Payload.Settings.EnableInternalPgQAN)
+
+					// Verify the agent is now disabled
+					listAgentsRes, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+
+					for _, agent := range listAgentsRes.Payload.QANPostgresqlPgstatementsAgent {
+						if agent.PMMAgentID == "pmm-server" {
+							assert.True(t, agent.Disabled, "QAN agent should be disabled after changing settings")
+							break
+						}
+					}
+
+					// Enable QAN via settings
+					res, err = serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							EnableInternalPgQAN: pointer.ToBool(true),
+						},
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.True(t, res.Payload.Settings.EnableInternalPgQAN)
+
+					// Verify the agent is now enabled
+					listAgentsRes, err = inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+
+					for _, agent := range listAgentsRes.Payload.QANPostgresqlPgstatementsAgent {
+						if agent.PMMAgentID == "pmm-server" {
+							assert.False(t, agent.Disabled, "QAN agent should be enabled after changing settings")
+							break
+						}
+					}
+
+					// Restore original state
+					_, _ = serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							EnableInternalPgQAN: pointer.ToBool(!originalDisabledState),
+						},
+						Context: pmmapitests.Context,
+					})
 				})
 			})
 
