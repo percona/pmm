@@ -20,7 +20,7 @@
   ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
 
 - name: Generate SSL certificates
-  command: openssl req -new -newkey rsa:2048 -days 1095 -nodes -x509 -subj "/CN=localhost" -keyout /etc/clickhouse-server/server.key -out /etc/clickhouse-server/server.crt
+  command: openssl req -newkey rsa:2048 -days 1095 -nodes -x509 -extensions v3_req -config /srv/nginx/certificate.conf -keyout /etc/clickhouse-server/server.key -out /etc/clickhouse-server/server.crt
   args:
     creates: /etc/clickhouse-server/server.key
   no_log: true
