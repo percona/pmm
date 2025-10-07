@@ -17,6 +17,6 @@ Value >0 will mean that only runs taking longer than so many milliseconds are lo
 Next autovacuum or autoanalyze run information will be present in the PostgreSQL logs.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

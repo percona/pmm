@@ -13,6 +13,8 @@ In addition, several running sessions could be doing such operations concurrentl
 Sort operations are used for ORDER BY, DISTINCT, and merge joins. Hash tables are used in hash joins, hash-based aggregation, and hash-based processing of IN subqueries.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
+
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }
+

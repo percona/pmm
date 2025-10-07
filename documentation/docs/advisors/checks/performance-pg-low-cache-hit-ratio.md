@@ -21,6 +21,7 @@ In some other scenarios, the application can be accessing historical data, which
 Here the recommendation can involve setting up a separate system for the historical data to avoid impacting the OLTP workload.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
+
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

@@ -44,6 +44,6 @@ Turn on or adjust the verbosity of your logs:
      Restart the `mongod` nodes for the changes to take effect. Use the rolling restart method for your cluster or replica set. 
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

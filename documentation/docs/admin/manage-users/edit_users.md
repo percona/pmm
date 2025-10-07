@@ -5,7 +5,7 @@ You can edit users by changing the information or settings for an individual use
 !!! caution alert alert-warning "Important"
     After changing the default admin password for the PMM Server, register the pmm-agent using the same credentials and add the services again. Otherwise, PMM will cease to monitor the service/nodes.
 
-## Grant or Revoke admin privileges
+## Grant or revoke admin privileges
 
 You can grant or revoke admin access to a user as follows:
 {.power-number}
@@ -32,7 +32,7 @@ To change the role:
 
 1. On the **Users** tab, click the user for whom you want to change the role.
 
-2. In the **Organisations** section, click **Change role**.
+2. In the **Organizations** section, click **Change role**.
 
 3. Select the role from the drop-down and click **Save**.
 

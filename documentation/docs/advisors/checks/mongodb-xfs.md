@@ -18,6 +18,6 @@ To avoid performance issues when using EXT4 with WiredTiger, [MongoDB Documentat
 Overall, the combination of the WiredTiger storage engine with XFS filesystem provides high performance and efficient storage for MongoDB workloads, especially in write-heavy scenarios.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

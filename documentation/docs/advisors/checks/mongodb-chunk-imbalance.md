@@ -30,6 +30,7 @@ Starting with MongoDB 5.0, you can reshard collections by changing their shard k
 To prevent the situation described above, check for jumbo chunks and remove the jumbo flag. For information on detecting and splitting the jumbo chunks, see [Finding Undetected Jumbo Chunks in MongoDB](https://www.percona.com/blog/finding-undetected-jumbo-chunks-in-mongodb/).
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
+
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

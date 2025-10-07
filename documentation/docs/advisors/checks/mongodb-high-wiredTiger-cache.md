@@ -28,6 +28,6 @@ mongodb_ss_wt_cache_maximum_bytes_configured{service_name="{{.ServiceName}}"}
 - Make sure that the **storage.wiredTiger.engineConfig.cacheSizeGB** value in the configuration file doesn’t exceed 50% of the server memory.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

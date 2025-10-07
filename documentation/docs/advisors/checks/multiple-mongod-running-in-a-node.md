@@ -24,6 +24,7 @@ To ensure that your mongod instance is stable and performant, follow the recomme
 - If you do want to run multiple mongod instances, use containers/virtual machines which isolate different workloads or databases on the same node.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }
+

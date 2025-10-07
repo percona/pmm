@@ -31,6 +31,6 @@ Upgrade to the latest patch release for major or minor stable versions as soon a
 For example, if you are currently running the major version 4.4.x, upgrade to the latest available patch release for this version.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }
