@@ -180,7 +180,7 @@ func Run(dsn string, data map[string]map[string]any) error {
 		return err
 	}
 	if isCluster {
-		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn:", dsn)
+		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsn)
 		dsn, err = addSchemaMigrationsParams(dsn)
 		if err != nil {
 			return err
