@@ -495,6 +495,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
+		EnableInternalPgQan: settings.IsInternalPgQANEnabled(),
 		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
@@ -569,6 +570,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Telemetry is configured via PMM_ENABLE_TELEMETRY environment variable.")
 	}
 
+	if req.EnableInternalPgQan != nil && s.envSettings.EnableInternalPgQAN != nil && *req.EnableInternalPgQan != *s.envSettings.EnableInternalPgQAN {
+		return status.Error(codes.FailedPrecondition, "QAN for internal PostgreSQL is configured via PMM_ENABLE_INTERNAL_PG_QAN environment variable.")
+	}
+
 	if req.EnableAlerting != nil && s.envSettings.EnableAlerting != nil && *req.EnableAlerting != *s.envSettings.EnableAlerting {
 		return status.Error(codes.FailedPrecondition, "Alerting is configured via ENABLE_ALERTING environment variable.")
 	}
@@ -622,6 +627,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableAlerting:         req.EnableAlerting,
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
+			EnableInternalPgQAN:    req.EnableInternalPgQan,
 			AdvisorsRunInterval: models.AdvisorsRunIntervals{
 				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
 				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
@@ -699,6 +705,39 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
+	// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
+	if oldSettings.IsInternalPgQANEnabled() != newSettings.IsInternalPgQANEnabled() {
+		if err := s.db.InTransaction(func(tx *reform.TX) error {
+			// Find all QAN PostgreSQL agents attached to pmm-server
+			agentType := models.QANPostgreSQLPgStatementsAgentType
+			agents, err := models.FindAgents(tx.Querier, models.AgentFilters{
+				PMMAgentID: models.PMMServerAgentID,
+				AgentType:  &agentType,
+			})
+			if err != nil {
+				return errors.Wrap(err, "failed to find agents")
+			}
+
+			// Find the QAN agent for the internal PostgreSQL service
+			for _, agent := range agents {
+				// Toggle the agent's enabled/disabled state
+				_, err := models.ChangeAgent(tx.Querier, agent.AgentID, &models.ChangeCommonAgentParams{
+					Enabled: pointer.ToBool(newSettings.IsInternalPgQANEnabled()),
+				})
+				if err != nil {
+					return errors.Wrap(err, "failed to change QAN agent state")
+				}
+
+				// Request agents state update
+				s.agentsState.RequestStateUpdate(ctx, agent.AgentID)
+				break
+			}
+
+			return nil
+		}); err != nil {
+			s.l.Error(errors.WithStack(err))
+		}
+	}
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 
 	return &serverv1.ChangeSettingsResponse{
