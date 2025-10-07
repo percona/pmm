@@ -32,6 +32,7 @@ import (
 	"github.com/percona/pmm/api/common"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
@@ -782,5 +783,55 @@ func TestAgents(t *testing.T) {
 		actualAgent, err := as.Get(ctx, "00000000-0000-4000-8000-000000000006")
 		require.NoError(t, err)
 		assert.Equal(t, expectedExternalExporter, actualAgent)
+	})
+}
+
+func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
+	t.Run("FailWhenEnvVarSet", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// Set the environment variable
+		t.Setenv(envvars.EnvEnableInternalPgQAN, "true")
+
+		// Try to change the internal PostgreSQL QAN agent (pmm-server's agent)
+		// The agent with ID "00000000-0000-4000-8000-000000000004" is the internal PostgreSQL QAN agent
+		_, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
+			Enable: pointer.ToBool(false),
+		})
+
+		// Expect a FailedPrecondition error
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is set to true via the PMM_ENABLE_INTERNAL_PG_QAN environment variable."), err)
+	})
+
+	t.Run("SucceedWhenEnvVarNotSet", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// Ensure the environment variable is not set
+		// (It shouldn't be set by default, but we explicitly unset it to be safe)
+		t.Setenv(envVarName, "")
+
+		// Mock the state update request
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+
+		// Try to change the internal PostgreSQL QAN agent
+		agent, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
+			Enable: pointer.ToBool(false),
+		})
+
+		// Should succeed
+		require.NoError(t, err)
+		assert.True(t, agent.GetQanPostgresqlPgstatementsAgent().Disabled)
+
+		// Change it back to enabled
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+		agent, err = as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
+			Enable: pointer.ToBool(true),
+		})
+
+		// Should succeed
+		require.NoError(t, err)
+		assert.False(t, agent.GetQanPostgresqlPgstatementsAgent().Disabled)
 	})
 }

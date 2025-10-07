@@ -43,6 +43,8 @@ const (
 	EnvPlatformAddress = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
 	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
 	ENVvmAgentPrefix = "VMAGENT_"
+	// EnvEnableInternalPgQAN enables internal PostgreSQL QAN
+	EnvEnableInternalPgQAN = "PMM_ENABLE_INTERNAL_PG_QAN"
 )
 
 // InvalidDurationError invalid duration error.
@@ -123,6 +125,13 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableTelemetry = &b
+		case "PMM_ENABLE_INTERNAL_PG_QAN":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
+			}
+			envSettings.EnableInternalPgQAN = &b
 		case "PMM_METRICS_RESOLUTION", "PMM_METRICS_RESOLUTION_HR":
 			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))

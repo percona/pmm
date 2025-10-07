@@ -18,6 +18,7 @@ package inventory
 
 import (
 	"context"
+	"os"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -28,6 +29,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -1008,13 +1010,24 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
+	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
+	a, err := models.FindAgentByID(as.db.Querier, agentID)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
+	}
+	if pointer.GetString(a.PMMAgentID) == "pmm-server" {
+		envVar, exists := os.LookupEnv(envvars.EnvEnableInternalPgQAN)
+		if exists && envVar != "" {
+			return nil, status.Errorf(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is set to %s via the %s environment variable.", envVar, envvars.EnvEnableInternalPgQAN)
+		}
+	}
+	changeParams := &commonAgentParams{
 		Enable:             p.Enable,
 		EnablePushMetrics:  p.EnablePushMetrics,
 		CustomLabels:       p.CustomLabels,
 		MetricsResolutions: p.MetricsResolutions,
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+	ag, err := as.changeAgent(ctx, agentID, changeParams)
 	if err != nil {
 		return nil, err
 	}
