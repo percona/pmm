@@ -126,6 +126,7 @@ postgres --single -D $PGDATA postgres <<< 'vacuum analyze'
 ```
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
+
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

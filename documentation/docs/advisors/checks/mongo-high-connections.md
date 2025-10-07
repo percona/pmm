@@ -40,6 +40,6 @@ Insufficient server resources such as CPU, memory, or disk I/O can lead to high 
 In summary, to reduce high connection counts in MongoDB, it's essential to configure connection pooling correctly, optimize queries, adjust the application design, allocate sufficient server resources and prevent connection leaks.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

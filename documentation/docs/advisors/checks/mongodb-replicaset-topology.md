@@ -9,6 +9,6 @@ The recommended configuration for a replica set is minimum 3 data bearing member
 This kind of topology ensures high availability and resilience in the case of  network partitioning (the “split brain” condition).
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

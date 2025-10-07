@@ -24,6 +24,7 @@ Replace **tablename** with the actual table name, and **val** with the actual pa
 For the full list of table-level autovacuum parameters, see [Automatic Vacuuming](https://www.postgresql.org/docs/18/runtime-config-vacuum.html) in the PostgreSQL documentation.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
+
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

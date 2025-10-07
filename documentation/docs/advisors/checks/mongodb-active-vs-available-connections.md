@@ -11,6 +11,6 @@ We recommend increasing the ULIMIT to accept more connections or to evaluate the
 An unexpected spike on the workload or not optimized queries could be the root cause of more active connections.
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

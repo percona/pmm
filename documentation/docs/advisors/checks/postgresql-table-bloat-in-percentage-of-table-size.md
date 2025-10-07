@@ -112,6 +112,7 @@ Also, suppose the table is the source of a logical replication (publication).
 In that case, it is recommended to stop the replication during the repack and resume it once the operation is finished to avoid unexpected effects. 
 
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
+
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }

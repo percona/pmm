@@ -29,8 +29,7 @@ If a secondary node is down in a PSA architecture, the replica set is left  with
 
 The above consequences can be avoided by having a PSS configuration.  For Production systems, Percona highly recommends using a PSS architecture.
 
-
 ## Need more support from Percona?
-Subscribe to Percona Platform to get database support with guaranteed SLAs or proactive database management services from the Percona team.
 
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 [Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }
