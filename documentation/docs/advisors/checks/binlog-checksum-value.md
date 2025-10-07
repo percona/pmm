@@ -8,7 +8,7 @@ For more information, see [binlog_checksum in the MySQL documentation](https://d
 
 ## Resolution
 
-In the server, set **binlog_checksum=CRC32** to improve consistency and reliability. The CRC32 checksum is only checksum supported and is the default.
+In the server, set **binlog_checksum=CRC32** to improve consistency and reliability. The CRC32 checksum is the only checksum supported and is the default.
 
 `SET GLOBAL binlog_checksum=CRC32;`
 
