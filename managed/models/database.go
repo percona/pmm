@@ -1518,7 +1518,11 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
+	envVar, exists := os.LookupEnv("PMM_ENABLE_INTERNAL_PG_QAN")
 	ap.Disabled = true
+	if exists && envVar == "1" {
+		ap.Disabled = false
+	}
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
