@@ -843,7 +843,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 
 		// Ensure the environment variable is not set
 		// (It shouldn't be set by default, but we explicitly unset it to be safe)
-		t.Setenv(envVarName, "")
+		t.Setenv(envvars.EnvEnableInternalPgQAN, "")
 
 		// Mock the state update request
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
