@@ -5,7 +5,8 @@ Percona advisors provide automated insights and recommendations within Percona M
 Advisors are grouped by category: Security, Configuration, Performance and Query. Each advisor category offers a set of automated checks, which investigate a specific range of possible issues. 
 
 ## Enable/Disable
-PMM Server automatically downloads checks when the **Advisors** option is enabled under **Configuration > Settings > Advanced Settings**. This option is enabled by default so that PMM can run automatic advisor checks in the background. However, you can disable them at any time if you do not need to check the health and performance of your connected databases.
+Advisors are bundled with every PMM installation and automatically loaded by PMM Server when starting up. PMM runs automatic advisor checks in the background when the **Advisors** option is enabled under **Configuration > Settings > Advanced Settings**. This option is enabled by default, but you can disable it at any time if you do not need to check the health and performance of your connected databases.
+
 
 ## Automatic checks
 Advisor checks can be executed manually or automatically.
