@@ -41,6 +41,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	// wait until the ClickHouse cluster is ready (i.e., remote_hosts > 0 in system.clusters).
 	// This ensures the cluster is fully initialized before continuing.
 	if os.Getenv("PMM_CLICKHOUSE_IS_CLUSTER") == "1" {
+		log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
 		// Replace database in DSN with 'default' for cluster check, because our database does not exist yet.
 		dsnURL, err := url.Parse(dsn)
 		if err != nil {
@@ -48,6 +49,8 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 		}
 		dsnURL.Path = "/default"
 		dsnDefault := dsnURL.String()
+
+		log.Println("dsn for cluster check: ", dsnDefault)
 
 		for {
 			isCluster, err := migrations.IsClickhouseCluster(dsnDefault)
@@ -64,13 +67,17 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 		}
 	}
 
+	log.Printf("going to create new connection with dsn: %s", dsn)
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
+		log.Printf("Error connecting to ClickHouse: %v", err)
 		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
+			log.Println("one of expected errors - database does not exist, creating")
 			err = createDB(dsn)
 			if err != nil {
 				log.Fatalf("Database wasn't created: %v", err)
 			}
+			log.Printf("Database created, connecting again %s", dsn)
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
 				log.Fatalf("Connection: %v", err)
@@ -100,7 +107,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
 	if clusterName != "" {
 		log.Printf("Using ClickHouse cluster name: %s", clusterName)
-		data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER '%s'", clusterName)
+		data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER \"%s\"", clusterName)
 	}
 
 	if err := migrations.Run(dsn, data); err != nil {

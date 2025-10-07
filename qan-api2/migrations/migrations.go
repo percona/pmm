@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -154,6 +155,11 @@ func Run(dsn string, data map[string]map[string]any) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("rendered %d migrations", len(migrations))
+	for i := 0; i < len(migrations); i++ {
+		log.Printf("[Run] Migration loaded: version=%d, query=%s", i+1, migrations[i].Up)
+	}
+
 	// Build versions slice from migration filenames
 	var versions []uint
 	for _, mig := range migrations {
@@ -174,10 +180,12 @@ func Run(dsn string, data map[string]map[string]any) error {
 		return err
 	}
 	if isCluster {
+		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn:", dsn)
 		dsn, err = addSchemaMigrationsParams(dsn)
 		if err != nil {
 			return err
 		}
+		log.Printf("Adjusted DSN for migrations: %s", dsn)
 	}
 
 	m, err := migrate.NewWithSourceInstance("memMigrations", src, dsn)

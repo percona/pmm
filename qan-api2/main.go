@@ -289,6 +289,7 @@ func main() {
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
+	log.Printf("current clickhouse address: %s", *clickhouseAddrF)
 	var dsn string
 	if *dsnF == defaultDsnF {
 		dsn = fmt.Sprintf(defaultDsnF, *clickhouseUserF, *clickhousePasswordF, *clickhouseAddrF, *clickhouseDatabaseF)
