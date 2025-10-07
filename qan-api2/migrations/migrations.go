@@ -108,7 +108,6 @@ func addSchemaMigrationsParams(dsn string) (string, error) {
 	logrus.Debugf("ClickHouse cluster detected, setting schema_migrations table engine to: %s", schemaMigrationsEngineCluster)
 
 	q := u.Query()
-	q.Set("x-migrations-table-engine", schemaMigrationsEngineCluster)
 
 	// If PMM_CLICKHOUSE_CLUSTER_NAME is set, its value will be added to the DSN as x-cluster-name to ensure migrations target the specified ClickHouse cluster.
 	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
@@ -117,7 +116,12 @@ func addSchemaMigrationsParams(dsn string) (string, error) {
 		q.Set("x-cluster-name", clusterName)
 	}
 
-	u.RawQuery = q.Encode()
+	encoded := q.Encode()
+	if encoded != "" {
+		u.RawQuery = encoded + "&x-migrations-table-engine=" + schemaMigrationsEngineCluster
+	} else {
+		u.RawQuery = "x-migrations-table-engine=" + schemaMigrationsEngineCluster
+	}
 
 	return u.String(), nil
 }
