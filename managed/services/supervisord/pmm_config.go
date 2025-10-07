@@ -74,7 +74,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
 		err = errors.Wrap(err, "failed to write new config")
 	}
-	return
+	return err
 }
 
 var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]

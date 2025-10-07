@@ -44,12 +44,14 @@ func TestAgents(t *testing.T) {
 			pmmAgentID                   string
 			ms                           *inventoryv1.MySQLService
 			ps                           *inventoryv1.PostgreSQLService
+			valkey                       *inventoryv1.ValkeyService
 			expectedNodeExporter         *inventoryv1.NodeExporter
 			expectedMySQLdExporter       *inventoryv1.MySQLdExporter
 			expectedMongoDBExporter      *inventoryv1.MongoDBExporter
 			expectedQANMySQLSlowlogAgent *inventoryv1.QANMySQLSlowlogAgent
 			expectedPostgresExporter     *inventoryv1.PostgresExporter
 			expectedExternalExporter     *inventoryv1.ExternalExporter
+			expectedValkeyExporter       *inventoryv1.ValkeyExporter
 		)
 
 		t.Run("AddPMMAgent", func(t *testing.T) {
@@ -265,6 +267,37 @@ func TestAgents(t *testing.T) {
 			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
 		})
 
+		t.Run("AddValkeyExporter", func(t *testing.T) {
+			var err error
+			valkey, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
+				ServiceName: "test-valkey",
+				NodeID:      models.PMMServerNodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(6379),
+			})
+			require.NoError(t, err)
+
+			actualAgent, err := as.AddValkeyExporter(ctx, &inventoryv1.AddValkeyExporterParams{
+				PmmAgentId: pmmAgentID,
+				ServiceId:  valkey.ServiceId,
+				Username:   "username",
+				Password:   "password",
+			})
+			require.NoError(t, err)
+			expectedValkeyExporter = &inventoryv1.ValkeyExporter{
+				AgentId:    "00000000-0000-4000-8000-000000000010",
+				PmmAgentId: pmmAgentID,
+				ServiceId:  valkey.ServiceId,
+				Username:   "username",
+				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+			}
+			assert.Equal(t, expectedValkeyExporter, actualAgent.GetValkeyExporter())
+
+			exporter, err := as.Get(ctx, "00000000-0000-4000-8000-000000000010")
+			require.NoError(t, err)
+			assert.Equal(t, expectedValkeyExporter, exporter.(*inventoryv1.ValkeyExporter))
+		})
+
 		var actualAgents []inventoryv1.Agent
 		t.Run("ListAllAgents", func(t *testing.T) {
 			actualAgents, err := as.List(ctx, models.AgentFilters{})
@@ -272,7 +305,7 @@ func TestAgents(t *testing.T) {
 			for i, a := range actualAgents {
 				t.Logf("%d: %T %s", i, a, a)
 			}
-			require.Len(t, actualAgents, 11)
+			require.Len(t, actualAgents, 12)
 
 			// TODO: fix protobuf equality https://jira.percona.com/browse/PMM-6743
 			assert.Equal(t, pmmAgentID, actualAgents[3].(*inventoryv1.PMMAgent).AgentId)
@@ -295,7 +328,7 @@ func TestAgents(t *testing.T) {
 		t.Run("FilterByPMMAgent", func(t *testing.T) {
 			actualAgents, err := as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgentID})
 			require.NoError(t, err)
-			require.Len(t, actualAgents, 5)
+			require.Len(t, actualAgents, 6)
 			assert.Equal(t, expectedNodeExporter, actualAgents[0])
 			assert.Equal(t, expectedMySQLdExporter, actualAgents[1])
 			assert.Equal(t, expectedMongoDBExporter, actualAgents[2])

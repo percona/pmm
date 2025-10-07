@@ -1,0 +1,47 @@
+---
+checks:
+  - version: 1
+    name: mongodb_auth
+    summary: MongoDB authentication
+    description: Warns if MongoDB authentication is disabled.
+    type: MONGODB_GETCMDLINEOPTS
+    #family: mongodb
+    advisor: security_authentication
+    interval: standard
+    script: |
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if MongoDB authentication is disabled.
+          """
+
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+
+          results = []
+
+          parsed = docs[0]["parsed"]
+          print(repr(parsed))
+
+          security = parsed.get("security", {})
+          auth_enabled = (security.get("authorization") == "enabled")
+          auth_enabled = auth_enabled or ("keyFile" in security)
+          auth_enabled = auth_enabled or ("clusterAuthMode" in security)
+
+          if not auth_enabled:
+              results.append({
+                  "summary": "MongoDB authentication is disabled",
+                  "description": "See the following for steps to enable",
+                  "read_more_url": "https://docs.mongodb.com/manual/tutorial/enable-authentication/",
+                  "severity": "warning",
+              })
+
+          return results

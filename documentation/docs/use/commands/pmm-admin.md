@@ -134,6 +134,7 @@ DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
+
         - `auto`: chosen by server (default).
         - `push`: agent will push metrics.
         - `pull`: server scrapes metrics from agent.
@@ -334,12 +335,14 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER` 
         : Limit query length in QAN. Allowed values:
+
             - -1: No limit.
             -  0: Default value. The default value is 4096 chars.
             - >0: Query will be truncated after <NUMBER> chars.
@@ -437,11 +440,13 @@ When you remove a service, collected data remains on PMM Server for the specifie
     PMM collects metrics in two [resolutions](../../configure-pmm/metrics_res.md) to decrease CPU and Memory usage: high and low resolutions.
 
     In high resolution we collect metrics from collectors which work fast:
+
     - `diagnosticdata`
     - `replicasetstatus`
     - `topmetrics`
 
     In low resolution we collect metrics from collectors which could take some time:
+
     - `dbstats`
     - `indexstats`
     - `collstats`
@@ -471,6 +476,19 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--password=password`
         : MySQL password.
 
+         `--extra-dsn=<key=value>`  
+        : Additional DSN (Data Source Name) parameters for MySQL connection configuration.  
+        This option lets you pass custom connection parameters as `key=value` pairs to control how PMM connects to your MySQL instance.  
+
+            For example, use `allowCleartextPasswords=1` when adding MySQL instances that require cleartext password authentication (such as PAM or other external authentication methods):  
+
+            ```bash
+            --extra-dsn="allowCleartextPasswords=1"
+            ```
+
+            !!! caution "Security warning"
+                 Cleartext authentication transmits password without encryption. Use this parameter only when connections are secured with TLS/SSL or over trusted internal networks.
+                
         `--agent-password=password`
         :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
 
@@ -539,12 +557,14 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER`
         : Limit query length in QAN. Allowed values:
+
             - -1: No limit.
             -  0: Default value. The default value is 2048 chars.
             - >0: Query will be truncated after <NUMBER> chars.
@@ -623,12 +643,14 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER` 
         : Limit query length in QAN. Allowed values:
+
             - -1: No limit.
             -  0: Default value. The default value is 2048 chars.
             - >0: Query will be truncated after <NUMBER> chars.
@@ -689,6 +711,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
@@ -741,6 +764,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=MODE`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.

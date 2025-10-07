@@ -1,0 +1,37 @@
+---
+### MongoDB Platform Advisors Write Ticket
+checks:
+  - version: 1
+    name: mongodb_write_tickets_runtime
+    summary: MongoDB Configuration Write ticket Check
+    description: This check returns warnings if MongoDB is using more than 128 write tickets during runtime.
+    type: MONGODB_GETPARAMETER
+    #family: MONGODB
+    #category: Configuration
+    #subcategory: generic
+    #author: Vinicius Grippa
+    advisor: configuration_generic
+    interval: standard
+    script: |
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+      def check_context(docs, context):
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+          results = []
+          parsed = docs[0]
+          writeParameter = parsed.get("wiredTigerConcurrentWriteTransactions", {})
+          check = (int(writeParameter) >= 128)
+          if check:
+              results.append({
+                  "summary": "MongoDB runtime is configured with more than 128 write tickets",
+                  "description": "To avoid performance issues, see the following to set it to default (128)",
+                  "read_more_url": read_url.format("mongodb-write-tickets"),
+                  "severity": "warning",
+              })
+          return results

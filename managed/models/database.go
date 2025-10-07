@@ -1142,6 +1142,10 @@ var databaseSchema = [][]string{
 		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
 	},
 	111: {
+		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
+		`UPDATE agents SET valkey_options = '{}'::jsonb`,
+	},
+	112: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
 	},
 }
