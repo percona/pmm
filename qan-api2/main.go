@@ -250,6 +250,8 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 }
 
 func main() {
+	defer log.Println("qan-api2 exited")
+
 	log.SetFlags(0)
 	log.SetPrefix("stdlog: ")
 
