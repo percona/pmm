@@ -1,16 +1,13 @@
 # Check Percona Portal account information
 
-When you connect your PMM instances to Percona Platform, PMM gets access to:
+!!! caution alert alert-warning "Percona Platform deprecation"
+    VMware support is deprecated as of PMM 3.4.0 and will be removed in PMM 3.6.0 (expected January 2026).
+    [Migrate](../../../../pmm-upgrade/migrating_from_vmware.md) to VirtualBox, Docker, Podman or Kubernetes before this date.
+    
+    **Need help?** Contact [Percona Support](https://www.percona.com/services/support) for migration assistance.
 
--  [more alert templates](../../alert/templates_list.md)
--  [Registered Advisor Checks](../../advisors/advisor-details.md) for additional database checks
--  Paid Advisor Checks for more advanced database health checks. 
-  
-Paid checks are available when you connect to Percona Platform with a customer account.
 
-You can check the list of available Paid Advisor checks on the [Advisors details page](../../advisors/advisor-details.md).
-
-When you connect with a customer account, PMM  reveals two new tabs on the main menu, where you can check all the information available for your customer accounts:  **Entitlements** and **Support tickets**:
+When you connect your PMM instances to Percona Platform with a customer account, PMM  reveals two new tabs on the main menu, where you can check all the information available for your customer accounts:  **Entitlements** and **Support tickets**:
 
 ![CustomerTickets](../../images/CustomerTickets.png)
 

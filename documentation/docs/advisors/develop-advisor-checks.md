@@ -11,9 +11,7 @@ A check is a combination of:
 - A query for extracting data from the database.
 - Python script for converting extracted data into check results. This is actually a [Starlark](https://github.com/google/starlark-go) script, which is a Python dialect that adds more imperative features than Python. The script's execution environment is sandboxed, and no I/O can be done from it.
 
-All checks are self-contained in the first phase, as well as in most of the planned phases.
-
-This means that extracted data is processed on the PMM side and not sent back to Percona Platform.
+All checks are self-contained in the first phase, as well as in most of the planned phases. This means that extracted data is processed on the PMM side.
 
 ## Backend
 
@@ -21,7 +19,7 @@ At the backend, pmm-managed does the following:
 {.power-number}
 
 1. pmm-managed checks that the installation is opted-in for checks.
-2. pmm-managed downloads files with checks from Percona Platform.
+2. pmm-managed downloads files with checks.
 3. pmm-managed verifies file signatures using a list of hard-coded public keys. At least one signature should be correct.
 4. pmm-managed sends queries to pmm-agent and gathers results.
 5. pmm-managed executes check scripts that produce alert information.
@@ -214,7 +212,7 @@ Expand the table below for the list of checks types that you can use to define y
 ## Develop checks
 
 !!! note alert alert-primary "Development/debugging only"
-    Note that check development in PMM is currently for **debugging only** and **NOT for production use!**  Future releases plan to include the option to run custom local checks in addition to hosted Percona Platform checks.
+    Note that check development in PMM is currently for **debugging only** and **NOT for production use!**  Future releases plan to include the option to run custom local checks in addition to default PMM checks.
 
 To develop custom checks for PMM:
 {.power-number}
@@ -222,7 +220,7 @@ To develop custom checks for PMM:
 1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#).
 2. Run PMM Server with special environment variables:
 
-    - `PMM_DEV_ADVISOR_CHECKS_FILE=/srv/custom-checks.yml` to use checks from the local files instead of downloading them from Percona Platform.
+    - `PMM_DEV_ADVISOR_CHECKS_FILE=/srv/custom-checks.yml` to use checks from the local files instead of default PMM ones.
     - `PMM_ADVISORS_CHECKS_DISABLE_START_DELAY=true` to disable the default check execution start delay. This is currently set to one minute, so that checks run upon system start.
 
     ```sh
