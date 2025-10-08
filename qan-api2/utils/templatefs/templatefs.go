@@ -18,6 +18,7 @@ package templatefs
 import (
 	"bytes"
 	"embed"
+	"path/filepath"
 	"text/template"
 
 	iofs "io/fs"
@@ -64,17 +65,9 @@ func (tfs *TemplateFS) ReadFile(name string) ([]byte, error) {
 
 	// Apply templating using the same logic as in the user's example
 	upSQL := string(content)
-	
+
 	// Extract just the filename from the path for template name
-	filename := name
-	if idx := len(name) - 1; idx >= 0 {
-		for i := idx; i >= 0; i-- {
-			if name[i] == '/' {
-				filename = name[i+1:]
-				break
-			}
-		}
-	}
+	filename := filepath.Base(name)
 
 	// Apply template if data exists
 	if tfs.Data != nil {
