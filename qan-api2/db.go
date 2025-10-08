@@ -132,7 +132,15 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
+	sql := fmt.Sprintf(`CREATE DATABASE %s`, databaseName)
+	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
+	if clusterName != "" {
+		log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		sql = fmt.Sprintf(`%s ON CLUSTER '%s'`, sql, clusterName)
+	}
+	sql = fmt.Sprintf(`%s ENGINE = Atomic`, sql)
+
+	result, err := defaultDB.Exec(sql)
 	if err != nil {
 		log.Printf("Result: %v", result)
 		return err
