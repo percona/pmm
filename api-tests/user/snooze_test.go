@@ -34,7 +34,7 @@ func TestUpdateSnoozing(t *testing.T) {
 
 		require.NoError(t, err1)
 
-		assert.Equal(t, "", res.Payload.SnoozedPMMVersion)
+		assert.Empty(t, res.Payload.SnoozedPMMVersion)
 		assert.Equal(t, strfmt.DateTime(time.Time{}), res.Payload.SnoozedAt)
 		assert.Equal(t, int64(0), res.Payload.SnoozeCount)
 	})

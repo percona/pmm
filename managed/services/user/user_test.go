@@ -84,7 +84,7 @@ func TestSnoozeUpdate(t *testing.T) {
 		require.NotNil(t, userInfo)
 
 		// Verify initial state
-		assert.Equal(t, "", userInfo.SnoozedPMMVersion)
+		assert.Empty(t, userInfo.SnoozedPMMVersion)
 		assert.Nil(t, userInfo.SnoozedAt)
 		assert.Equal(t, 0, userInfo.SnoozeCount)
 
