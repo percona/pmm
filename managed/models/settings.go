@@ -104,10 +104,6 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"backup_management"`
 
-	InternalPgQAN struct {
-		Enabled *bool `json:"enabled"`
-	} `json:"internal_pg_qan"`
-
 	// PMMServerID is generated on the first start of PMM server.
 	PMMServerID string `json:"pmmServerID"`
 
@@ -192,14 +188,6 @@ func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 		return *s.VictoriaMetrics.CacheEnabled
 	}
 	return VictoriaMetricsCacheEnabledDefault
-}
-
-// IsInternalPgQANEnabled returns true if QAN for PMM's internal PostgreSQL DB is enabled.
-func (s *Settings) IsInternalPgQANEnabled() bool {
-	if s.InternalPgQAN.Enabled != nil {
-		return *s.InternalPgQAN.Enabled
-	}
-	return InternalPgQANEnabledDefault
 }
 
 // AdvisorsRunIntervals represents intervals between Advisors checks.

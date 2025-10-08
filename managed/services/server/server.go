@@ -495,7 +495,6 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
-		EnableInternalPgQan: settings.IsInternalPgQANEnabled(),
 		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
@@ -706,7 +705,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
-	if oldSettings.IsInternalPgQANEnabled() != newSettings.IsInternalPgQANEnabled() {
+	if req.EnableInternalPgQan != nil {
 		if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 			// Find all QAN PostgreSQL agents attached to pmm-server
 			agentType := models.QANPostgreSQLPgStatementsAgentType
@@ -720,7 +719,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 			for _, agent := range agents {
 				_, err := models.ChangeAgent(tx.Querier, agent.AgentID, &models.ChangeCommonAgentParams{
-					Enabled: pointer.ToBool(newSettings.IsInternalPgQANEnabled()),
+					Enabled: req.EnableInternalPgQan,
 				})
 				if err != nil {
 					return errors.Wrap(err, "failed to change QAN agent state")

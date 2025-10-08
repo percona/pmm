@@ -179,10 +179,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Nomad.Enabled = params.EnableNomad
 	}
 
-	if params.EnableInternalPgQAN != nil {
-		settings.InternalPgQAN.Enabled = params.EnableInternalPgQAN
-	}
-
 	if params.AdvisorsRunInterval.RareInterval != 0 {
 		settings.SaaS.AdvisorRunIntervals.RareInterval = params.AdvisorsRunInterval.RareInterval
 	}
