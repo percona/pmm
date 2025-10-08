@@ -1095,14 +1095,19 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
 	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
-	a, err := models.FindAgentByID(as.db.Querier, agentID)
-	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
-	}
-	if pointer.GetString(a.PMMAgentID) == "pmm-server" {
-		envVar, exists := os.LookupEnv(envvars.EnvEnableInternalPgQAN)
-		if exists && envVar != "" {
-			return nil, status.Errorf(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is set to %s via the %s environment variable.", envVar, envvars.EnvEnableInternalPgQAN)
+	envVar, exists := os.LookupEnv(envvars.EnvEnableInternalPgQAN)
+	if exists && envVar != "" {
+		a, err := models.FindAgentByID(as.db.Querier, agentID)
+		if err != nil {
+			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
+		}
+		if pointer.GetString(a.PMMAgentID) == "pmm-server" {
+			return nil, status.Errorf(
+				codes.FailedPrecondition,
+				"QAN for PMM's internal PostgreSQL server is set to %s via the %s environment variable.",
+				envVar,
+				envvars.EnvEnableInternalPgQAN,
+			)
 		}
 	}
 	changeParams := &commonAgentParams{

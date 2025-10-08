@@ -718,7 +718,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 				return errors.Wrap(err, "failed to find agents")
 			}
 
-			// Find the QAN agent for the internal PostgreSQL service
 			for _, agent := range agents {
 				// Toggle the agent's enabled/disabled state
 				_, err := models.ChangeAgent(tx.Querier, agent.AgentID, &models.ChangeCommonAgentParams{
@@ -730,7 +729,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 				// Request agents state update
 				s.agentsState.RequestStateUpdate(ctx, agent.AgentID)
-				break
 			}
 
 			return nil

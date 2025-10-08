@@ -194,6 +194,7 @@ func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 	return VictoriaMetricsCacheEnabledDefault
 }
 
+// IsInternalPgQANEnabled returns true if QAN for PMM's internal PostgreSQL DB is enabled.
 func (s *Settings) IsInternalPgQANEnabled() bool {
 	if s.InternalPgQAN.Enabled != nil {
 		return *s.InternalPgQAN.Enabled
