@@ -1106,8 +1106,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 				codes.FailedPrecondition,
 				"QAN for PMM's internal PostgreSQL server is set to %s via the %s environment variable.",
 				envVar,
-				envvars.EnvEnableInternalPgQAN,
-			)
+				envvars.EnvEnableInternalPgQAN)
 		}
 	}
 	changeParams := &commonAgentParams{
