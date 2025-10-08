@@ -45,7 +45,7 @@ jobs:
         run: |
           sudo rm -rf /usr/local/lib/android/
           sudo rm -rf /usr/share/dotnet/
-          df -h
+          sudo rm -rf /usr/local/share/chromium/
 
       - name: Initialize CI environment
         run: make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
