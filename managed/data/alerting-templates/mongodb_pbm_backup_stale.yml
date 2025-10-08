@@ -7,7 +7,7 @@ templates:
       time() - mongodb_pbm_backup_last_transition_ts{status="done"} > [[ .threshold ]]
     params:
       - name: threshold
-        summary: Maximum allowed age of last successful backup (seconds)
+        summary: Maximum allowed age of last successful backup (seconds, defaults to 24h)
         type: float
         range: [0, 2678400]
         value: 86400
