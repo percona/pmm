@@ -56,6 +56,7 @@ func TestSettings(t *testing.T) {
 			DefaultRoleID:  1,
 			EncryptedItems: actual.EncryptedItems,
 		}
+		expected.Updates.SnoozeDuration = 7 * 24 * time.Hour
 		assert.Equal(t, expected, actual)
 	})
 
@@ -79,6 +80,7 @@ func TestSettings(t *testing.T) {
 				},
 			},
 		}
+		expected.Updates.SnoozeDuration = 7 * 24 * time.Hour
 		assert.Equal(t, expected, s)
 	})
 

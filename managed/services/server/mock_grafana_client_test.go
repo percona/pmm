@@ -13,34 +13,6 @@ type mockGrafanaClient struct {
 	mock.Mock
 }
 
-// GetUserID provides a mock function with given fields: ctx
-func (_m *mockGrafanaClient) GetUserID(ctx context.Context) (int, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetUserID")
-	}
-
-	var r0 int
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (int, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) int); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Get(0).(int)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // IsReady provides a mock function with given fields: ctx
 func (_m *mockGrafanaClient) IsReady(ctx context.Context) error {
 	ret := _m.Called(ctx)
