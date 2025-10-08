@@ -1522,8 +1522,12 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// We rely on just the environment variable here since we run this set up before loading the server settings.
 	ap.Disabled = true
 	envVar, exists := os.LookupEnv("PMM_ENABLE_INTERNAL_PG_QAN")
-	if exists && (envVar == "1" || strings.ToLower(envVar) == "true") {
-		ap.Disabled = false
+	if exists {
+		if enable, err := strconv.ParseBool(envVar); err != nil {
+			return fmt.Errorf("cannot parse PMM_ENABLE_INTERNAL_PG_QAN value %q: %w", envVar, err)
+		} else if enable {
+			ap.Disabled = false
+		}
 	}
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
