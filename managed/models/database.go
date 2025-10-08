@@ -1429,7 +1429,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		err = setupPMMServerAgents(tx.Querier, params, s)
+		err = setupPMMServerAgents(tx.Querier, params)
 		if err != nil {
 			return err
 		}
@@ -1438,7 +1438,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
-func setupPMMServerAgents(q *reform.Querier, params SetupDBParams, s *Settings) error {
+func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
@@ -1518,8 +1518,11 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams, s *Settings) 
 	}
 
 	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
+	// It can be enabled by setting PMM_ENABLE_INTERNAL_PG_QAN=1
+	// We rely on just the environment variable here since we run this set up before loading the server settings.
 	ap.Disabled = true
-	if s.IsInternalPgQANEnabled() {
+	envVar, exists := os.LookupEnv("PMM_ENABLE_INTERNAL_PG_QAN")
+	if exists && (envVar == "1" || strings.ToLower(envVar) == "true") {
 		ap.Disabled = false
 	}
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
