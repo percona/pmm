@@ -707,7 +707,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 	// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
 	if oldSettings.IsInternalPgQANEnabled() != newSettings.IsInternalPgQANEnabled() {
-		if err := s.db.InTransaction(func(tx *reform.TX) error {
+		if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 			// Find all QAN PostgreSQL agents attached to pmm-server
 			agentType := models.QANPostgreSQLPgStatementsAgentType
 			agents, err := models.FindAgents(tx.Querier, models.AgentFilters{
@@ -719,7 +719,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			}
 
 			for _, agent := range agents {
-				// Toggle the agent's enabled/disabled state
 				_, err := models.ChangeAgent(tx.Querier, agent.AgentID, &models.ChangeCommonAgentParams{
 					Enabled: pointer.ToBool(newSettings.IsInternalPgQANEnabled()),
 				})
@@ -727,7 +726,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 					return errors.Wrap(err, "failed to change QAN agent state")
 				}
 
-				// Request agents state update
 				s.agentsState.RequestStateUpdate(ctx, agent.AgentID)
 			}
 
