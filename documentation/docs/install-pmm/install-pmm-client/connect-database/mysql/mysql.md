@@ -312,7 +312,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
     events_transactions_history_long
     ```
 
-### Query response time
+### Query response time (Percona Server 5.7 & MariaDB only)
 
 **Query time distribution** is a chart in the [**Details** tab of Query Analytics](../../../../use/qan/panels/details.md#details-tab) showing the proportion of query time spent on various activities. It is enabled with the `query_response_time_stats` variable and associated plugins.
 
@@ -323,7 +323,8 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 - **MariaDB**: 10.0.4
 
 !!! warning "Limited version support"   
-    This feature is not available in current Percona Server 8.x. Use this information only if you are using Percona Server 5.7 through our Post-EOL support program, where it remains actively supported.
+    This feature is not available in current Percona Server 8.x. Use this information only if you are using Percona Server 5.7 through our Post-EOL support program, where it remains actively supported. For MySQL 8.0+, use Query Analytics with Performance Schema to monitor query performance.
+
 
 ### Required variable
 
@@ -572,20 +573,22 @@ Once the service is confirmed as active, verify that metrics are being properly 
 
     **For Percona Server for MySQL or MariaDB:**
     
-    If you installed the Query Response Time plugin, verify it:
+    If you installed the Query Response Time plugin, verify it in Query Analytics:
     {.power-number}
 
-    1. Open the **MySQL Query Response Time Details** dashboard
-    2. Select your service from the dropdown
-    3. Alternatively, go to **Query Analytics**, select a query, and check for the **Query time distribution** bar
+    1. Go to **Query Analytics (QAN)**.
+    2. Select your MySQL service then select a query from the list.
+    3. Check for the **Query time distribution** bar in the **Details** tab.
     
+    **For MySQL 8.0+:** Use Performance Schema as your query source to monitor query performance in Query Analytics. The Query Response Time plugin is not available in MySQL 8.0+.
+
     **For Percona XtraDB Cluster:**
     To verify XtraDB Cluster monitoring:
     {.power-number}
 
-    1. Open the [**PXC/Galera Cluster Summary** dashboard][DASH_PXCGALERACLUSTER]
-    2. Select your cluster service from the dropdown
-    3. Verify that cluster-specific metrics are being displayed
+    1. Open the [**PXC/Galera Cluster Summary** dashboard][DASH_PXCGALERACLUSTER].
+    2. Select your cluster service from the dropdown.
+    3. Verify that cluster-specific metrics are being displayed.
 
 ## Related topics
 
