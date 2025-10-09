@@ -1,7 +1,7 @@
 # Log into PMM
 
 !!! note "Percona Platform deprecation"
-    Starting with PMM 3.7.0, the **Sign in with Percona Account** option will be removed as part of Percona Platform discontinuation. Make sure to switch to local PMM authentication.
+    Starting with PMM 3.7.0, the **Sign in with Percona Account** option will be removed as part of Percona Platform discontinuation. [Migrate to local PMM authentication ](../admin/manage-users/edit_users.html#migrating-from-percona-account-authentication-deprecated) before March 2026.
 
 PMM offers two authentication methods:
 
