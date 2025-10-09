@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -37,32 +36,32 @@ const (
 
 // NewDB return updated db.
 func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
-   // If ClickHouse is a cluster, wait until the cluster is ready.
-   if isCluster {
-	   log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
-	   dsnURL, err := url.Parse(dsn)
-	   if err != nil {
-		   log.Fatalf("Error parsing DSN: %v", err)
-	   }
-	   dsnURL.Path = "/default"
-	   dsnDefault := dsnURL.String()
+	// If ClickHouse is a cluster, wait until the cluster is ready.
+	if isCluster {
+		log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
+		dsnURL, err := url.Parse(dsn)
+		if err != nil {
+			log.Fatalf("Error parsing DSN: %v", err)
+		}
+		dsnURL.Path = "/default"
+		dsnDefault := dsnURL.String()
 
-	   log.Println("dsn for cluster check: ", dsnDefault)
+		log.Println("dsn for cluster check: ", dsnDefault)
 
-	   for {
-		   isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
-		   if err != nil {
-			   log.Fatalf("Error checking ClickHouse cluster status: %v", err)
-		   }
-		   if isClusterReady {
-			   log.Println("ClickHouse cluster is ready.")
-			   break
-		   }
+		for {
+			isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
+			if err != nil {
+				log.Fatalf("Error checking ClickHouse cluster status: %v", err)
+			}
+			if isClusterReady {
+				log.Println("ClickHouse cluster is ready.")
+				break
+			}
 
-		   log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
-		   time.Sleep(1 * time.Second)
-	   }
-   }
+			log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
+			time.Sleep(1 * time.Second)
+		}
+	}
 
 	log.Printf("going to create new connection with dsn: %s", dsn)
 	db, err := sqlx.Connect("clickhouse", dsn)
@@ -70,7 +69,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		log.Printf("Error connecting to ClickHouse: %v", err)
 		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
 			log.Println("one of expected errors - database does not exist, creating")
-			err = createDB(dsn)
+			err = createDB(dsn, clusterName)
 			if err != nil {
 				log.Fatalf("Database wasn't created: %v", err)
 			}
@@ -96,18 +95,18 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	   data := map[string]map[string]any{
-		   "01_init.up.sql": {"engine": migrations.GetEngine(dsn)},
-	   }
-	   if clusterName != "" {
-		   log.Printf("Using ClickHouse cluster name: %s", clusterName)
-		   data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
-	   }
-	   if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
-		   log.Fatal("Migrations: ", err)
-	   }
-	   log.Println("Migrations applied.")
-	   return db
+	data := map[string]any{
+		"engine": migrations.GetEngine(dsn),
+	}
+	if clusterName != "" {
+		log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
+	}
+	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
+		log.Fatal("Migrations: ", err)
+	}
+	log.Println("Migrations applied.")
+	return db
 }
 
 func createDB(dsn string, clusterName string) error {
@@ -126,10 +125,10 @@ func createDB(dsn string, clusterName string) error {
 	defer defaultDB.Close() //nolint:errcheck
 
 	sql := fmt.Sprintf("CREATE DATABASE %s", databaseName)
-	   if clusterName != "" {
-		   log.Printf("Using ClickHouse cluster name: %s", clusterName)
-		   sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
-	   }
+	if clusterName != "" {
+		log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
+	}
 	sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 
 	result, err := defaultDB.Exec(sql)

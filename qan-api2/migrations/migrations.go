@@ -1,21 +1,16 @@
 package migrations
 
 import (
-	"bytes"
 	"embed"
 	"errors"
 	"fmt"
-	"io"
-	"io/fs"
 	"log"
 	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
-	"text/template"
 
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx"
+	"github.com/percona/pmm/qan-api2/utils/templatefs"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,53 +20,8 @@ const (
 	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/schema_migrations', '{replica}') ORDER BY version"
 )
 
-//go:embed templates/*.sql
-var eFS embed.FS
-
-func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
-	entries, err := fs.ReadDir(eFS, "templates")
-	if err != nil {
-		return nil, err
-	}
-
-	var migrations []memMigration
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		name := entry.Name()
-		if !strings.HasSuffix(name, ".up.sql") {
-			continue
-		}
-		content, err := eFS.ReadFile("templates/" + name)
-		if err != nil {
-			return nil, err
-		}
-		parts := strings.SplitN(name, "_", 2)
-		if len(parts) < 2 {
-			return nil, fmt.Errorf("invalid migration filename: %s", name)
-		}
-		upSQL := string(content)
-		if tmpl, err := template.New(name).Parse(upSQL); err == nil {
-			var buf bytes.Buffer
-			if err := tmpl.Execute(&buf, data[name]); err == nil {
-				upSQL = buf.String()
-			}
-		}
-		downSQL := ""
-		downName := strings.Replace(name, ".up.sql", ".down.sql", 1)
-		if downContent, err := eFS.ReadFile("templates/" + downName); err == nil {
-			downSQL = string(downContent)
-		}
-		migrations = append(migrations, memMigration{
-			Identifier: name,
-			Up:         upSQL,
-			Down:       downSQL,
-		})
-	}
-
-	return migrations, nil
-}
+//go:embed sql/*.sql
+var migrationFS embed.FS
 
 func IsClickhouseCluster(dsn string, clusterName string) (bool, error) {
 	var args []interface{}
@@ -145,68 +95,34 @@ func GetEngine(dsn string) string {
 	return metricsEngineSimple
 }
 
-func GenerateMigrations(data map[string]map[string]any, path string) error {
-	migrations, err := renderMigrations(data)
-	if err != nil {
-		return err
-	}
-
-	for _, migration := range migrations {
-		err = os.WriteFile(filepath.Join(path, migration.Identifier), []byte(migration.Up), 0o644)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func Run(dsn string, data map[string]map[string]any, isCluster bool, clusterName string) error {
-	migrations, err := renderMigrations(data)
-	if err != nil {
-		return err
-	}
-	log.Printf("rendered %d migrations", len(migrations))
-	for i := 0; i < len(migrations); i++ {
-		log.Printf("[Run] Migration loaded: version=%d, query=%s", i+1, migrations[i].Up)
-	}
-
-	// Build versions slice from migration filenames
-	var versions []uint
-	for _, mig := range migrations {
-		parts := strings.SplitN(mig.Identifier, "_", 2)
-		if len(parts) < 2 {
-			continue
-		}
-		var v uint
-		if _, err := fmt.Sscanf(parts[0], "%d", &v); err == nil {
-			versions = append(versions, v)
-		}
-		logrus.Debugf("[Run] Migration loaded: version=%d, identifier=%s", v, mig.Identifier)
-	}
-	src := newMemMigrations(migrations, versions)
-
+func Run(dsn string, templateData map[string]any, isCluster bool, clusterName string) error {
 	if isCluster {
 		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsn)
-		dsn, err = addClusterSchemaMigrationsParams(dsn, clusterName)
+		dsn, err := addClusterSchemaMigrationsParams(dsn, clusterName)
 		if err != nil {
 			return err
 		}
 		log.Printf("Adjusted DSN for migrations: %s", dsn)
 	}
 
-	m, err := migrate.NewWithSourceInstance("memMigrations", src, dsn)
+	// Prepare TemplateFS with provided template data
+	tfs := templatefs.NewTemplateFS(migrationFS, templateData)
+
+	// Use TemplateFS directly with golang-migrate
+	d, err := iofs.New(tfs, "migrations/sql")
 	if err != nil {
 		return err
 	}
 
-	err = m.Up()
+	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
 	if err != nil {
-		if errors.Is(err, migrate.ErrNoChange) || errors.Is(err, io.EOF) {
-			return nil
-		}
-		logrus.Errorf("[Run] Migration failed: %v", err)
+		return err
 	}
 
+	// run up to the latest migration
+	err = m.Up()
+	if errors.Is(err, migrate.ErrNoChange) {
+		return nil
+	}
 	return err
 }

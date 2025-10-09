@@ -50,8 +50,8 @@ func setup() *sqlx.DB {
 		log.Fatal("Connection: ", err)
 	}
 
-	data := map[string]map[string]any{
-		"01_init.up.sql": {"engine": migrations.GetEngine(dsn)},
+	data := map[string]any{
+		"engine": migrations.GetEngine(dsn),
 	}
 	err = migrations.Run(dsn, data)
 	if err != nil {
