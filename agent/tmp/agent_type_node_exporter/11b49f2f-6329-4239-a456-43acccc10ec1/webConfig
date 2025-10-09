@@ -1,0 +1,2 @@
+basic_auth_users:
+    pmm: $2a$10$LBS0JROxWULhW0KvKEThKOIhvc0NvDn7Sl1TLySSSYPYd9qHorgFS

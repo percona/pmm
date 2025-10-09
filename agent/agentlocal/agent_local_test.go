@@ -132,9 +132,15 @@ func TestGetZipFile(t *testing.T) {
 		supervisor.Test(t)
 		supervisor.On("AgentsList").Return(agentInfo)
 		agentLogs := make(map[string][]string)
-		agentLogs[inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER.String()] = []string{
+		// Use agent ID as key (matches real behavior)
+		agentLogs["00000000-0000-4000-8000-000000000002"] = []string{
 			"logs1",
 			"logs2",
+		}
+		// Add another agent to test filtering
+		agentLogs["00000000-0000-4000-8000-000000000099"] = []string{
+			"other agent logs1",
+			"other agent logs2",
 		}
 		supervisor.On("AgentsLogs").Return(agentLogs)
 		var client mockClient
@@ -179,12 +185,106 @@ func TestGetZipFile(t *testing.T) {
 			file, err := ex.Open()
 			require.NoError(t, err)
 			if contents, err := io.ReadAll(file); err == nil {
-				if ex.Name == serverZipFile {
+				if ex.Name == pmmAgentZipFile {
 					assert.Empty(t, contents)
 				} else {
 					assert.NotEmpty(t, contents)
 				}
 			}
 		}
+	})
+
+	t.Run("test zip file with agent_id filter", func(t *testing.T) {
+		agentInfo, supervisor, client, cfg := setup(t)
+		defer supervisor.AssertExpectations(t)
+		defer client.AssertExpectations(t)
+		logStore := tailog.NewStore(10)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
+		_, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
+		require.NoError(t, err)
+
+		// Test with agent_id query parameter using actual agent ID
+		agentID := agentInfo[0].AgentId
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/logs.zip?agent_id="+agentID, nil)
+		s.ZipLogs(rec, req)
+		existFile, err := io.ReadAll(rec.Body)
+		require.NoError(t, err)
+
+		bufExs := bytes.NewReader(existFile)
+		zipExs, err := zip.NewReader(bufExs, bufExs.Size())
+		require.NoError(t, err)
+
+		// When filtering by agent_id, we should get:
+		// 1. The specific agent's log file (agent ID.log)
+		// 2. pmm-agent.log (always included)
+		// 3. NOT other agents' logs
+		// Count of files should be exactly 2
+		assert.Equal(t, 2, len(zipExs.File), "Should contain exactly 2 files: agent log + pmm-agent.log")
+
+		foundAgentLog := false
+		foundPmmAgentLog := false
+		foundOtherAgentLog := false
+
+		for _, ex := range zipExs.File {
+			switch ex.Name {
+			case agentID + ".log":
+				foundAgentLog = true
+			case pmmAgentZipFile:
+				foundPmmAgentLog = true
+			case "00000000-0000-4000-8000-000000000099.log":
+				// This is the other agent that should NOT be included
+				foundOtherAgentLog = true
+			}
+		}
+
+		assert.True(t, foundAgentLog, "Should contain "+agentID+".log")
+		assert.True(t, foundPmmAgentLog, "Should always contain pmm-agent.log")
+		assert.False(t, foundOtherAgentLog, "Should NOT contain other agent's logs when filtering")
+	})
+
+	t.Run("test zip file without agent_id filter includes all logs", func(t *testing.T) {
+		_, supervisor, client, cfg := setup(t)
+		defer supervisor.AssertExpectations(t)
+		defer client.AssertExpectations(t)
+		logStore := tailog.NewStore(10)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
+		_, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
+		require.NoError(t, err)
+
+		// Test without agent_id query parameter (should get all logs)
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/logs.zip", nil)
+		s.ZipLogs(rec, req)
+		existFile, err := io.ReadAll(rec.Body)
+		require.NoError(t, err)
+
+		bufExs := bytes.NewReader(existFile)
+		zipExs, err := zip.NewReader(bufExs, bufExs.Size())
+		require.NoError(t, err)
+
+		// Without filter, we should get all agent logs + pmm-agent.log
+		// We have 2 agents in mock + pmm-agent.log = 3 files
+		fileCount := len(zipExs.File)
+		assert.Equal(t, 3, fileCount, "Should contain all logs: 2 agents + pmm-agent.log")
+
+		foundPmmAgentLog := false
+		foundFirstAgent := false
+		foundSecondAgent := false
+
+		for _, ex := range zipExs.File {
+			switch ex.Name {
+			case pmmAgentZipFile:
+				foundPmmAgentLog = true
+			case "00000000-0000-4000-8000-000000000002.log":
+				foundFirstAgent = true
+			case "00000000-0000-4000-8000-000000000099.log":
+				foundSecondAgent = true
+			}
+		}
+
+		assert.True(t, foundPmmAgentLog, "Should always contain pmm-agent.log")
+		assert.True(t, foundFirstAgent, "Should contain first agent's log")
+		assert.True(t, foundSecondAgent, "Should contain second agent's log")
 	})
 }

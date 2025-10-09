@@ -29,6 +29,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var (
@@ -196,6 +198,31 @@ func ReadFile(filePath string) (string, error) {
 	}
 
 	return string(content), nil
+}
+
+// GetAgentStatus extracts and formats agent status from API response.
+// This is used in the json output. By convention, statuses must be in uppercase.
+func GetAgentStatus(status *string) string {
+	if status == nil || *status == "" {
+		return "UNKNOWN"
+	}
+	res := *status
+	res = strings.TrimPrefix(res, "AGENT_STATUS_")
+	return res
+}
+
+// GetServiceTypeConstant returns the service type constant for the API based on CLI service type.
+func GetServiceTypeConstant(serviceType string) string {
+	serviceTypes := map[string]string{
+		"mysql":      types.ServiceTypeMySQLService,
+		"mongodb":    types.ServiceTypeMongoDBService,
+		"postgresql": types.ServiceTypePostgreSQLService,
+		"valkey":     types.ServiceTypeValkeyService,
+		"proxysql":   types.ServiceTypeProxySQLService,
+		"haproxy":    types.ServiceTypeHAProxyService,
+		"external":   types.ServiceTypeExternalService,
+	}
+	return serviceTypes[serviceType]
 }
 
 // UsageTemplate is default kingping's usage template with tweaks:
