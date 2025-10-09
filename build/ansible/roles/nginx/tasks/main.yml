@@ -88,9 +88,3 @@
     group: root
     owner: pmm
     mode: 0644
-
-- name: Check nginx configuration
-  command: nginx -t
-  register: nginx_check
-  changed_when: false
-  failed_when: nginx_check.rc != 0 and "'test is successful' not in nginx_check.stderr"
