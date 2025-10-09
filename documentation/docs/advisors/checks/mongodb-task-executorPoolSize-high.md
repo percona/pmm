@@ -1,4 +1,4 @@
-# Advisor check: Check taskExecutorPoolsize value
+# Check taskExecutorPoolsize value
 
 ## Description
 This advisor warns if the number of Task Executor connection pools (the **taskExecutorPool** value) is higher than the number of available CPU cores of a server. 

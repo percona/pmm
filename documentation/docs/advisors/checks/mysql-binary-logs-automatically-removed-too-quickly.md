@@ -1,4 +1,4 @@
-# Advisor check: MySQL binary logs automatically removed too quickly
+# MySQL binary logs automatically removed too quickly
 
 ## Description
 

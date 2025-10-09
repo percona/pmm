@@ -1,4 +1,4 @@
-# Advisor check: MongoDB sharding - inconsistent indexes across sharded collections
+# MongoDB sharding - inconsistent indexes across sharded collections
 
 ## Description
 This check warns if there are inconsistent indexes across shards for sharded collections. Missing or inconsistent indexes across the shards can have a negative impact on performance.

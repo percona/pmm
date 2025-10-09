@@ -1,4 +1,4 @@
-# Advisor check: Checksum in the binary log not enabled
+# Checksum in the binary log not enabled
 
 ## Description
 

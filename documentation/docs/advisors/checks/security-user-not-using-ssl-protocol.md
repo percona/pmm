@@ -1,4 +1,4 @@
-# Advisor checks: User not using SSL protocol to connect
+# s: User not using SSL protocol to connect
 
 ## Description
 

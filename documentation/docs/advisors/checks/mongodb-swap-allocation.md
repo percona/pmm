@@ -1,4 +1,4 @@
-# Advisor check: MongoDB Swap Allocation
+# MongoDB Swap Allocation
 
 ## Description
 This check warns if there is no swap memory allocated to your instance.

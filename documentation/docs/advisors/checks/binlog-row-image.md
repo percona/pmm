@@ -1,4 +1,4 @@
-# Advisor check: MySQL binlog_row_image set to MINIMAL
+# MySQL binlog_row_image set to MINIMAL
 
 ## Description
 

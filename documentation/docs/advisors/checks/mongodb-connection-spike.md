@@ -1,4 +1,4 @@
-# Advisor check: MongoDB Connections sudden spike
+# MongoDB Connections sudden spike
 
 ## Description
 This check warns if the number of connections increases by more than 50% compared to the most recent or normal number of connections.

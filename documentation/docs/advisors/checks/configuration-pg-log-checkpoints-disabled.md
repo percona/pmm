@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL log_checkpoints is not enabled
+# PostgreSQL log_checkpoints is not enabled
 
 ## Description
 

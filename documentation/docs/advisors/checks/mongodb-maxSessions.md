@@ -1,4 +1,4 @@
-# Advisor check: Check the maxSessions value
+# Check the maxSessions value
 
 ## Description 
 

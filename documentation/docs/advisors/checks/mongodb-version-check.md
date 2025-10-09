@@ -1,4 +1,4 @@
-# Advisor check: MongoDB version check 
+# MongoDB version check 
 
 ## Description
 This advisor check rolls through a list of available versions and warns if MongoDB or Percona Server for MongoDB version is not the latest one.

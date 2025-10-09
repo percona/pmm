@@ -1,4 +1,4 @@
-# Advisor check: MongoDB - Multiple mongod service running in a single node
+# MongoDB - Multiple mongod service running in a single node
 
 ## Description
 This check warns if multiple mongod services are running on a single node.

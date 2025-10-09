@@ -1,4 +1,4 @@
-# Advisor check: User with open to the word scope
+# User with open to the word scope
 
 ## Description
 

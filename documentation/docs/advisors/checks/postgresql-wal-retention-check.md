@@ -1,4 +1,4 @@
-# Advisor check: Postgres WAL retention check
+# Postgres WAL retention check
 ## Description
 
 This check analyses the number of WAL files being retained in the **pg_xlog or pg_wal** directory, depending on the version of Postgres being checked, and reports the number of WAL files and the disk space they consume. 

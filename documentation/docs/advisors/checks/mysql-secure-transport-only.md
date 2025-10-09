@@ -1,4 +1,4 @@
-# Advisor check: MySQL secure transport only
+# MySQL secure transport only
 
 ## Description
 

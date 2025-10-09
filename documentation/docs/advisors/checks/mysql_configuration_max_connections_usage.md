@@ -1,4 +1,4 @@
-# Advisor check: MySQL max connection usage check
+# MySQL max connection usage check
 
 ## Description
 

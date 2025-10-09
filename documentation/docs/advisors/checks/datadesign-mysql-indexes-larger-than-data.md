@@ -1,4 +1,4 @@
-# Advisor check: Index size is larger than data size
+# Index size is larger than data size
 
 ## Description
 

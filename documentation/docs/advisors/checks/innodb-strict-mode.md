@@ -1,4 +1,4 @@
-# Advisor check: MySQL InnoDB strict mode not correct
+# MySQL InnoDB strict mode not correct
 
 ## Description
 

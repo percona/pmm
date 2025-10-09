@@ -1,4 +1,4 @@
-# Advisor check: Check the replica set topology
+# Check the replica set topology
 
 ## Description
 This advisor returns a warning if the replica set has less than 3 members.

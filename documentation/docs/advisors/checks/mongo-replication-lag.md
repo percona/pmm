@@ -1,4 +1,4 @@
-# Advisor check: MongoDB replication lag	
+# MongoDB replication lag	
 
 ## Description
 This check returns a warning if a secondary member of the replica set lags more than ten seconds behind the primary one. This interval is the default threshold where flow control engages.

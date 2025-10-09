@@ -1,4 +1,4 @@
-# Advisor check: MongoDB XFS Filesystem type
+# MongoDB XFS Filesystem type
 
 ## Description
 This check warns if DBPATH is not using the XFS filesystem type.

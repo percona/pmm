@@ -1,4 +1,4 @@
-# Advisor check: Check the tables that have “per table” vacuum settings
+# Check the tables that have “per table” vacuum settings
 
 ## Description
 This advisor returns the list of tables that specify table-level autovacuum parameters. Their associated table-level settings are also listed. 

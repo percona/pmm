@@ -1,4 +1,4 @@
-# Advisor checks: There are users without passwords
+# s: There are users without passwords
 
 ## Description
 

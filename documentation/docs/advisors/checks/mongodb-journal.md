@@ -1,4 +1,4 @@
-# Advisor check: MongoDB journal enabled
+# MongoDB journal enabled
 
 ## Description
 This advisor warns if the journal is not enabled. 

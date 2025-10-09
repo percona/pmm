@@ -1,4 +1,4 @@
-# Advisor check: Percona Server for MySQL 5.7 End-Of-Life
+# Percona Server for MySQL 5.7 End-Of-Life
 
 ## Description
 

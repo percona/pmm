@@ -1,4 +1,4 @@
-# Advisor check: Check WiredTiger cache size
+# Check WiredTiger cache size
 
 ## Description
 This advisor warns if the configured WiredTiger cache size is greater than 50% of server memory. 

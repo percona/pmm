@@ -1,4 +1,4 @@
-# Advisor check: Check for relations with high number of indexes
+# Check for relations with high number of indexes
 
 ## Description
 

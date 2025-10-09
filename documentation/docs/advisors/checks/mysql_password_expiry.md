@@ -1,4 +1,4 @@
-# Advisor check: MySQL expired passwords
+# MySQL expired passwords
 
 ## Description
 

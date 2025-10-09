@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL roles with expiring passwords
+# PostgreSQL roles with expiring passwords
 
 ## Description
 

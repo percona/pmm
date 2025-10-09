@@ -1,4 +1,4 @@
-# Advisor check: MongoDB write ticket is more than 128
+# MongoDB write ticket is more than 128
 
 ## Description
 This advisor warns if the number of write transactions (tickets) into the WiredTiger storage during runtime is more than 128. Too high number of write tickets can cause performance issues.

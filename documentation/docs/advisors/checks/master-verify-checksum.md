@@ -1,4 +1,4 @@
-# Advisor check: Master not verifying checksums
+# Master not verifying checksums
 
 ## Description
 

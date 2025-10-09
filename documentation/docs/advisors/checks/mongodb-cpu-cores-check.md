@@ -1,4 +1,4 @@
-# Advisor check: MongoDB CPU cores check
+# MongoDB CPU cores check
 
 ## Description
 This advisor warns if the number of CPU cores does not meet the minimum requirements according to best practices.

@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL temporary files written to disk check
+# PostgreSQL temporary files written to disk check
 ## Description
 This check reports details about the temporary files and total space used. You can use this information for fine-tuning the **work_mem** parameter.
 

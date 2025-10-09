@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL version 
+# PostgreSQL version 
 
 ## Description
 

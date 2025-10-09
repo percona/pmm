@@ -1,4 +1,4 @@
-# Advisor check: Automatic_sp_privileges configuration for MySQL
+# Automatic_sp_privileges configuration for MySQL
 
 ## Description
 

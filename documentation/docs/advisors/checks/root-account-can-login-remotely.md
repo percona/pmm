@@ -1,4 +1,4 @@
-# Advisor check: Root account can log in remotely
+# Root account can log in remotely
 
 ## Description
 

@@ -1,4 +1,4 @@
-# Advisor check: The advisor checks for two replication specific configuration options
+# The advisor checks for two replication specific configuration options
 
 ## Description
 

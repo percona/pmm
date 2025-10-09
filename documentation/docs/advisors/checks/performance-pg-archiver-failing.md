@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL Archiver is failing
+# PostgreSQL Archiver is failing
 
 ## Description
 

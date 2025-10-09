@@ -1,4 +1,4 @@
-# Advisor check: Found tables without primary keys
+# Found tables without primary keys
 
 ## Description
 

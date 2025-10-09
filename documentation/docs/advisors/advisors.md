@@ -44,7 +44,7 @@ To run checks manually:
 3. Click **Run checks** to run all the available checks for this advisor group, or expand an advisor and click **Run** next to each check that you want to run individually.
 ![!Actions options](../images/PMM_Checks_Actions.png)
 
-## Advisor checks results
+## s results
 The results are sent to PMM Server where you can review any failed checks on the Home dashboard. The summary count of failed checks is classified as:
 
 - <b style="color:#e02f44;">Critical</b>, which also includes checks tagged as **Alert** and **Emergency**

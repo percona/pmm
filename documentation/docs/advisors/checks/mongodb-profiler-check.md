@@ -1,4 +1,4 @@
-# Advisor check: MongoDB profiling level is too high 
+# MongoDB profiling level is too high 
 
 ## Description
 This advisor warns if the global profiling level is too high - it is set to anything other than 0.

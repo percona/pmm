@@ -1,4 +1,4 @@
-# Advisor check: Replica SQL processing not multi-threaded
+# Replica SQL processing not multi-threaded
 
 ## Description
 

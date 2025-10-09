@@ -1,4 +1,4 @@
-# Advisor check: Check for relations with unused indexes for PostgreSQL
+# Check for relations with unused indexes for PostgreSQL
 
 ## Description
 

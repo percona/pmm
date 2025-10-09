@@ -1,4 +1,4 @@
-# Advisor check: Transaction ID wraparound is approaching
+# Transaction ID wraparound is approaching
  
 ## Description
 This advisor check verifies the age of the database's transaction IDs, and notifies if any is approaching the wraparound limit by 20% or more.

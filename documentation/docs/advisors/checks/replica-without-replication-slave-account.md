@@ -1,4 +1,4 @@
-# Advisor check: Replica without replication slave account
+# Replica without replication slave account
 
 ## Description
 

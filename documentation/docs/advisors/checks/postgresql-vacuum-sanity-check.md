@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL Vacuum sanity
+# PostgreSQL Vacuum sanity
 
 ## Description
 

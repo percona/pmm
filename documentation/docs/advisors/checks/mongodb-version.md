@@ -1,4 +1,4 @@
-# Advisor check: MongoDB Versions
+# MongoDB Versions
 ## Description
 This check returns the MongoDB or Percona Server for MongoDB versions currently used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
 

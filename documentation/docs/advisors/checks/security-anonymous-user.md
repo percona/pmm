@@ -1,4 +1,4 @@
-# Advisor check: Anonymous users
+# Anonymous users
 
 ## Description
 

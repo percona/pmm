@@ -1,4 +1,4 @@
-# Advisor check: MongoDB logLevel is not default
+# MongoDB logLevel is not default
 
 ## Description
 

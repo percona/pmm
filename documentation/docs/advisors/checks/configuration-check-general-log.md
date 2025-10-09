@@ -1,4 +1,4 @@
-# Advisor check: MySQL General log is active
+# MySQL General log is active
 
 ## Description
 

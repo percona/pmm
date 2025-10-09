@@ -1,4 +1,4 @@
-# Advisor check: MySQL check binary log sync status
+# MySQL check binary log sync status
 
 ## Description
 

@@ -1,4 +1,4 @@
-# Advisor check: Write tickets during runtime are > 128
+# Write tickets during runtime are > 128
 
 ## Description
 This advisor warns if the number of write transactions (tickets) into the WiredTiger storage during runtime is more than 128. 

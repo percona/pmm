@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL excessive sequential scans 
+# PostgreSQL excessive sequential scans 
 
 ## Description
 Checks for relations with excessive sequential scans vs. index scans. Although the query planner will occasionally choose sequential scans when it is more efficient than using an index (typically low count for tuples), this check is based on at least 50,000 live tuples in the relation.

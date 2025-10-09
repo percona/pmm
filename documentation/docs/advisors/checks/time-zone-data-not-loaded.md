@@ -1,4 +1,4 @@
-# Advisor check: Time zone data not loaded
+# Time zone data not loaded
 
 ## Description
 

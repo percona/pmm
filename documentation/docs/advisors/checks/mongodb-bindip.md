@@ -1,4 +1,4 @@
-# Advisor check: MongoDB BindIP Check
+# MongoDB BindIP Check
 
 ## Description
 This check returns a warning if MongoDB network binding setting is not recommended.

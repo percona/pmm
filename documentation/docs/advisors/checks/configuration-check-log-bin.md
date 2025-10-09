@@ -1,4 +1,4 @@
-# Advisor check: MySQL Redo log (binary log) not enabled
+# MySQL Redo log (binary log) not enabled
 
 ## Description
 

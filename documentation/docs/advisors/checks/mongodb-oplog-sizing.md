@@ -1,4 +1,4 @@
-# Advisor check: MongoDB Oplog Sizing
+# MongoDB Oplog Sizing
 
 ## Description
 This check warns if the oplog window is below 24 hours, and recommends an oplog size based on your instance.

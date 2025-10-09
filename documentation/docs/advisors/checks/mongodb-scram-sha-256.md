@@ -1,4 +1,4 @@
-# Advisor check: MongoDB not using the default SCRAM-SHA-256 authentication 
+# MongoDB not using the default SCRAM-SHA-256 authentication 
 
 ## Description
 This advisor warns if the default `SCRAM-SHA-256` authentication method is not used in MongoDB. `SCRAM-SHA-256` is a salted challenge-response authentication mechanism (SCRAM) that uses your username and password, encrypted with the SHA-256 algorithm, to authenticate your user.

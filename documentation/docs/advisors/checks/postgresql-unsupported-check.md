@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL version compatibility
+# PostgreSQL version compatibility
 
 ## Description
 This check details the currently installed PostgreSQL version, and reports whether Percona supports it.

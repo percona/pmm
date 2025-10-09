@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL log_autovacuum_min_duration is disabled (Set to -1)
+# PostgreSQL log_autovacuum_min_duration is disabled (Set to -1)
 
 ## Description
 

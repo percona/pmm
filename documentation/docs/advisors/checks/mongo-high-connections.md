@@ -1,4 +1,4 @@
-# Advisor check: MongoDB high connections
+# MongoDB high connections
 
 ## Description
 This check returns warnings if there is an increase in the number of connections.

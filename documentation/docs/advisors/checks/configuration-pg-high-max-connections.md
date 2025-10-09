@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL max_connections set too high
+# PostgreSQL max_connections set too high
 
 ## Description
 

@@ -1,4 +1,4 @@
-# Advisor check: MongoDB unused indexes
+# MongoDB unused indexes
 
 ## Description
 This check warns if there are unused indexes on any database collection in your instance (Need to enable "indexStats" metric collector).

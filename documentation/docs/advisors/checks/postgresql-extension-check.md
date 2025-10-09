@@ -1,4 +1,4 @@
-# Advisor check: PostgreSQL outdated extensions
+# PostgreSQL outdated extensions
 
 ## Description
 

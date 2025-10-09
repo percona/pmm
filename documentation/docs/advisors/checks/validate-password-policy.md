@@ -1,4 +1,4 @@
-# Advisor check: Policy-based password validation does not perform dictionary checks
+# Policy-based password validation does not perform dictionary checks
 
 ## Description
 

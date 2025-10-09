@@ -1,4 +1,4 @@
-# Advisor check: MongoDB read ticket is more than 128
+# MongoDB read ticket is more than 128
 
 ## Description
 This advisor warns if the number of concurrent read transactions (tickets) into the WiredTiger storage is more than 128. If the number is too high, this  can cause performance issues.

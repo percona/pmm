@@ -1,4 +1,4 @@
-# Advisor check: Check mongodb localhost bypass
+# Check mongodb localhost bypass
 
 ## Description
 This advisor returns a warning if the [localhost exception](https://www.mongodb.com/docs/v6.0/core/localhost-exception/) is enabled in MongoDB ( the **enableLocalhostAuthBypass** parameter is set to True).

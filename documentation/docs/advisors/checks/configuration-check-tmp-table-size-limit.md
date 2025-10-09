@@ -1,4 +1,4 @@
-# Advisor check: MySQL Temporary tables dimension is capped by max_heap_table_size
+# MySQL Temporary tables dimension is capped by max_heap_table_size
 
 ## Description
 

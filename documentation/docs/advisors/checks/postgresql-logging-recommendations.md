@@ -1,4 +1,4 @@
-# Advisor check: Minimim PostgreSQL logging features
+# Minimim PostgreSQL logging features
 
 
 ## Description
