@@ -1,0 +1,38 @@
+---
+checks:
+  - version: 1
+    name: postgresql_log_autovacuum_min_duration_1
+    summary: PostgreSQL Autovacuum Logging Is Disabled
+    description: This check returns a notice if the log_autovacuum_min_duration configuration option is set to -1 (disabled). It is recommended to enable the logging of autovacuum run information, as that provides a lot of useful information with almost no drawbacks.
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    #author: Sergey Kuzmichev
+    advisor: configuration_vacuum
+    interval: standard
+    query: name, setting FROM pg_settings WHERE name = 'log_autovacuum_min_duration'
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+      def check_context(rows, context):
+          for row in rows:
+              name, setting = row["name"], row["setting"]
+              if name == "log_autovacuum_min_duration":
+                  val = int(setting)
+          results = []
+          if val == -1:
+              results.append({
+                  "summary": "The current value of log_autovacuum_min_duration is -1",
+                  "description": "Logging of autovacuum run information is currently disabled. It is recommended to enable the logging of autovacuum run information, as that provides a lot of useful information with almost no drawbacks.",
+                  "read_more_url": read_url.format("configuration-pg-log-autovacuum-disabled"),
+                  "severity": "notice"
+              })
+          return results

@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_replication_grants
+    summary: MySQL security check for replication user
+    description: This check if node has replication configured without a user grants
+    interval: standard
+    advisor: security_replication
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service /*!80001 , IF(ifnull((select SERVICE_STATE from performance_schema.replication_connection_status),'OFF') = 'ON',(select IF(count(User)< 1,1,0) from mysql.user where Repl_slave_priv='Y' ),0)  as found,(select SOURCE_UUID  from performance_schema.replication_connection_status) as source */;"
+    script: |
+      def check_rep_grants(doc,read_url):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            source = row["source"]
+            found = row["found"]
+
+            if found > 0 :
+               return {
+                 "summary": "MySQL security check for replication user",
+                 "description": "Node has replication configured but no user has the correct grants. Source node UUID = {} ;".format(source),
+                 "severity": "warning",
+                 "read_more_url": read_url.format("replica-without-replication-slave-account"),
+                 "labels": {
+                    "mysql_version": "{}".format(version),
+                     "service": "{}".format(service),
+                    }
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = check_rep_grants(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

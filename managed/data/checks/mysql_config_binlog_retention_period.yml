@@ -1,0 +1,56 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_binlog_retention_period
+    summary: Binlogs retention check
+    description: Binlogs should not be rotated too often, except very specific cases.
+    interval: standard
+    advisor: configuration_generic
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, @@global.expire_logs_days as exp_days, @@global.binlog_expire_logs_seconds as exp_secs;"
+    script: |
+      def check_binlog_retention_period(doc,read_url):
+          for row in doc:
+             exp_secs = row["exp_secs"]
+             exp_days = row["exp_days"]
+             version = row["version"]
+             service = row["service"]
+             minimum_retention = 7*86400;
+             if exp_days > 0:
+               exptime = exp_days*86400
+               if exptime < minimum_retention:
+                  return {
+                      "summary": "Binlogs are removed too early and expire_logs_days is deprecated",
+                      "description": "Please consider to use binlog_expire_logs_seconds, and to set it to at least {} seconds".format(minimum_retention),
+                      "read_more_url": read_url.format("binlog-retention-period"),
+                      "severity": "warning",
+                      "labels": {
+                         "mysql_version": "{}".format(version),
+                         "service": "{}".format(service),
+                       }
+                  }
+             if exp_secs < minimum_retention:
+               return {
+                  "summary": "Binlogs are removed too early.",
+                  "description": "Please consider to set binlog_expire_logs_seconds to at least {} seconds".format(minimum_retention),
+                  "read_more_url": read_url.format("binlog-retention-period"),
+                  "severity": "warning",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  }
+
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          in_result = check_binlog_retention_period(docs[0],read_url)
+          if in_result:
+            results.append(in_result)
+
+          return results

@@ -1,0 +1,38 @@
+---
+checks:
+  - version: 2
+    name: mongodb_psa_architecture_check
+    summary: MongoDB PSA Architecture
+    description: This check returns an error if the replicaSet is using a PSA architecture.
+    interval: standard
+    family: MONGODB
+    advisor: configuration_replication
+    #author: Parag Bhayani
+    queries:
+      - type: METRICS_INSTANT
+        query: avg by(cluster,node_name,set) (mongodb_mongod_replset_number_of_members{node_name=~"{{.NodeName}}"})
+      - type: METRICS_INSTANT
+        query: avg by(cluster,node_name,set) (mongodb_mongod_replset_my_state{node_name=~"{{.NodeName}}"})
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          info = docs[0]
+          results = []
+
+          for row in info:
+              members = int(row["value"][1])
+
+          for type in docs[1]:
+              cluster = type["metric"]["cluster"]
+              state = int(type["value"][1])
+              replsetname = type["metric"]["set"]
+
+          if members <= 3 and state == 7:
+              results.append({
+                  "summary": "MongoDB PSA Architecture detected",
+                  "description": "MongoDB PSA(Primary-Secondary-Arbiter) architecture has been detected in your {}-node ReplicaSet ({}) for {} Cluster. It is not recommended to use this architecture for Production systems. For more details, refer to Read More documentation.".format(members, replsetname, cluster),
+                  "read_more_url": read_url.format("mongodb-psa-architecture"),
+                  "severity": "error",
+              })
+          return results

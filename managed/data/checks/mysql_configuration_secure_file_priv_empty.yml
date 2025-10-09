@@ -1,0 +1,34 @@
+---
+checks:
+  - version: 2
+    name: mysql_configuration_secure_file_priv_empty
+    summary: secure_file_priv is empty
+    description: The secure_file_priv when empty allows users with FILE privilege to create files at any location where MySQL server has write permission.
+    interval: standard
+    advisor: security_configuration
+    #subcategory: security
+    #author:Kedar Vaijanapurkar
+    family: MYSQL
+    category: configuration
+    queries:
+      - type: MYSQL_SELECT
+        query: "@@global.version as version, @@global.hostname as service, @@global.secure_file_priv as secure_file_priv"
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check_context(docs, context):
+           results = []
+           for row in docs[0]:
+               version = row["version"]
+               service = row["service"]
+               if row["secure_file_priv"] == 'NULL':
+                      results.append({
+                           "summary": "MySQL secure_file_priv empty check",
+                           "description": "MySQL secure_file_priv_empty is {}. To provide more secure installation scope should be restricted to a specific path.".format(row["secure_file_priv"]),
+                           "read_more_url": read_url.format('mysql_configuration_secure_file_priv_empty'),
+                           "labels": {
+                               "mysql_version": "{}".format(version),
+                               "service": "{}".format(service),
+                           },
+                           "severity": "warning"
+                       })
+           return results
