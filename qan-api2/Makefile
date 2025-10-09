@@ -31,11 +31,11 @@ install-race:                   ## Install qan-api2 binary with race detector
 	go install -v -race ./...
 
 test-env-up:                    ## Start docker containers used for testing
-	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:23.8.2.7
+	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:25.3.6.56
 	make test-env
 
 test-env-up-apple:              ## Start docker containers used for testing on Apple chips
-	docker run -d --platform=linux/arm64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:23.8.2.7
+	docker run -d --platform=linux/arm64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:25.3.6.56
 	make test-env
 
 test-env:                       ## Create pmm_test DB and load test data
