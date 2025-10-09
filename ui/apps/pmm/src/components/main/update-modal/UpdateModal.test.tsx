@@ -146,7 +146,7 @@ describe('UpdateModal', () => {
         ...mockVersionInfo,
         latest: {
           ...mockVersionInfo.latest,
-          version: null as any,
+          version: null,
         },
       };
 

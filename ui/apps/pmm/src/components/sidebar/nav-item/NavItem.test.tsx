@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { wrapWithRouter } from 'utils/testUtils';
 import NavItem from './NavItem';
 import { NavItemProps } from './NavItem.types';
