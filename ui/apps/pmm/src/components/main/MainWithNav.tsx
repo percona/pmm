@@ -5,6 +5,8 @@ import { Sidebar } from 'components/sidebar';
 import { GrafanaPage } from 'pages/grafana';
 import { useGrafana } from 'contexts/grafana';
 import { UpdateModal } from 'components/main/update-modal';
+import { DelayedRender } from 'components/delayed-render';
+import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
@@ -36,7 +38,9 @@ export const MainWithNav = () => {
         </>
       )}
       <GrafanaPage />
-      <UpdateModal />
+      <DelayedRender delay={SHOW_UPDATE_INFO_DELAY_MS}>
+        <UpdateModal />
+      </DelayedRender>
     </Stack>
   );
 };

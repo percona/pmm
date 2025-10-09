@@ -1,4 +1,4 @@
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import UpdateModal from './UpdateModal';
 import { TestWrapper } from 'utils/testWrapper';
@@ -17,9 +17,6 @@ vi.mock('hooks/snooze', () => ({
     snoozeCount: 0,
   }),
 }));
-
-// Mock setTimeout to control timing in tests
-vi.useFakeTimers();
 
 const mockVersionInfo = {
   installed: {
@@ -57,13 +54,6 @@ const renderUpdateModal = (overrides = {}) => {
 describe('UpdateModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.clearAllTimers();
-  });
-
-  afterEach(() => {
-    vi.runOnlyPendingTimers();
-    vi.useRealTimers();
-    vi.useFakeTimers();
   });
 
   describe('Component visibility conditions', () => {
@@ -88,11 +78,6 @@ describe('UpdateModal', () => {
   describe('Component structure', () => {
     it('renders modal for first-time users', () => {
       renderUpdateModal();
-
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
 
       expect(screen.getByTestId('modal-title')).toBeInTheDocument();
       expect(
@@ -119,11 +104,6 @@ describe('UpdateModal', () => {
     it('has correct release notes link', () => {
       renderUpdateModal();
 
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
-
       const releaseNotesLink = screen.getByTestId(
         'update-modal-release-notes-link'
       );
@@ -137,11 +117,6 @@ describe('UpdateModal', () => {
 
     it('renders modal with correct title', () => {
       renderUpdateModal();
-
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
 
       const titleElement = screen.getByTestId('modal-title');
       expect(titleElement).toBeInTheDocument();
@@ -161,11 +136,6 @@ describe('UpdateModal', () => {
 
       renderUpdateModal({ versionInfo: versionInfoWithoutReleaseNotes });
 
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
-
       expect(
         screen.getByTestId('update-modal-release-notes-link')
       ).toBeInTheDocument();
@@ -182,11 +152,6 @@ describe('UpdateModal', () => {
 
       renderUpdateModal({ versionInfo: versionInfoWithNullVersion });
 
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
-
       const titleElement = screen.getByTestId('modal-title');
       expect(titleElement).toBeInTheDocument();
       expect(titleElement).toHaveTextContent('Update to PMM null');
@@ -194,43 +159,20 @@ describe('UpdateModal', () => {
   });
 
   describe('Component behavior', () => {
-    it('does not render initially', () => {
+    it('renders open by default', () => {
       renderUpdateModal();
 
-      // Initially modal should not be visible
-      expect(screen.queryByTestId('modal-title')).not.toBeInTheDocument();
-    });
-
-    it('renders after delay', () => {
-      renderUpdateModal();
-
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
-
-      // Now modal should be visible
       expect(screen.getByTestId('modal-title')).toBeInTheDocument();
     });
 
     it('renders modal close button', () => {
       renderUpdateModal();
 
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
-
       expect(screen.getByTestId('modal-close-button')).toBeInTheDocument();
     });
 
     it('snoozes update when remind be button is clicked', () => {
       renderUpdateModal();
-
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
 
       expect(
         screen.getByTestId('update-modal-remind-me-button')
@@ -244,11 +186,6 @@ describe('UpdateModal', () => {
     it('snoozes update when modal is closed', () => {
       renderUpdateModal();
 
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
-
       expect(screen.getByTestId('modal-close-button')).toBeInTheDocument();
 
       fireEvent.click(screen.getByTestId('modal-close-button'));
@@ -258,11 +195,6 @@ describe('UpdateModal', () => {
 
     it('snooze update when go to updates button is clicked', async () => {
       renderUpdateModal();
-
-      // Fast-forward time to trigger modal
-      act(() => {
-        vi.advanceTimersByTime(5000);
-      });
 
       expect(
         screen.getByTestId('update-modal-go-to-updates-button')

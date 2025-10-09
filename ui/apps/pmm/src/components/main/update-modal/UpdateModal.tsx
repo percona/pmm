@@ -1,6 +1,6 @@
 import { Modal } from 'components/modal';
 import { useUpdates } from 'contexts/updates';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { Messages } from './UpdateModal.messages';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -8,10 +8,7 @@ import Link from '@mui/material/Link';
 import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import {
-  PMM_NEW_NAV_UPDATES_PATH,
-  SHOW_UPDATE_INFO_DELAY_MS,
-} from 'lib/constants';
+import { PMM_NEW_NAV_UPDATES_PATH } from 'lib/constants';
 import Snackbar from '@mui/material/Snackbar';
 import CloseIcon from '@mui/icons-material/Close';
 import Card from '@mui/material/Card';
@@ -20,7 +17,7 @@ import { useSnooze } from 'hooks/snooze';
 
 const UpdateModal: FC = () => {
   const { isLoading, versionInfo } = useUpdates();
-  const [open, setIsOpen] = useState(false);
+  const [open, setIsOpen] = useState(true);
   const { snoozeUpdate, snoozeActive, snoozeCount } = useSnooze();
 
   const handleClose = () => {
@@ -28,12 +25,6 @@ const UpdateModal: FC = () => {
 
     snoozeUpdate();
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsOpen(true);
-    }, SHOW_UPDATE_INFO_DELAY_MS);
-  }, []);
 
   if (
     isLoading ||
@@ -112,9 +103,6 @@ const UpdateModal: FC = () => {
   return (
     <Modal
       title={Messages.title(versionInfo.latest.version)}
-      titleProps={{
-        dataTestId: 'update-modal-title',
-      }}
       open={open}
       onClose={handleClose}
       disableAutoFocus
