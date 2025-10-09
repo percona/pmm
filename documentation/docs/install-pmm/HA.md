@@ -160,6 +160,15 @@ Choose the option that best fits your infrastructure and requirements:
     | `GF_USERNAME` | The username for your Grafana database user.<br><br>Example: `gfuser` |
     | `PMM_CLICKHOUSE_IS_CLUSTER` | Set to `1` to indicate that ClickHouse is running in cluster mode. This enables PMM to use distributed tables and cluster-aware queries for Query Analytics (QAN) metrics.<br><br>Example: `1` |
     | `PMM_CLICKHOUSE_CLUSTER_NAME` | Optional. If set, specifies the ClickHouse cluster name to use for distributed table operations. Used together with PMM_CLICKHOUSE_IS_CLUSTER.<br><br>Example: `my_cluster` |
+    |  |
+
+    > [!WARNING]
+    > **Cluster Name Character Limitations:**
+    > Use only letters, digits, and underscores (`a-z`, `A-Z`, `0-9`, `_`) in ClickHouse cluster names. Avoid dashes (`-`), spaces, and other special characters.
+
+    > [!NOTE]
+    > **QAN Initialization Delay:**
+    > When using ClickHouse in cluster mode (`PMM_CLICKHOUSE_IS_CLUSTER=1`), it can take up to 5 minutes for Query Analytics (QAN) to become fully operational after startup or configuration changes. During this period, you may receive error messages in the QAN interface. This is expected and will resolve automatically once the cluster is ready.
     | `GF_PASSWORD` | The password for your Grafana database user.<br><br>Example: `gfpassword` |
     | `PMM_ACTIVE_IP` | The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.<br><br>Example: `17.10.1.5` |
     | `PMM_ACTIVE_NODE_ID` | The unique ID for your active PMM server node.<br><br>Example: `pmm-server-active` |
