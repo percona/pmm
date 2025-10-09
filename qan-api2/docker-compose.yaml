@@ -12,7 +12,7 @@ services:
     restart: always
 
   ch:
-    image: clickhouse/clickhouse-server
+    image: clickhouse/clickhouse-server:25.3.6.56
     platform: linux/amd64
     container_name: ch-server
     ulimits:
@@ -21,6 +21,8 @@ services:
         hard: 262144
     ports:
       - 9000:9000
+    volumes:
+      - ./users.xml:/etc/clickhouse-server/users.xml
 
   pmm-client:
     container_name: pmm-client
