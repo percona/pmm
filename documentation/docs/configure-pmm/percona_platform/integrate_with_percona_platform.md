@@ -1,6 +1,16 @@
 
 # Integrate PMM with Percona Platform
 
+!!! caution alert alert-warning "Percona Platform deprecation"
+    
+    **Percona Platform is deprecated as of PMM 3.5.0 and will be discontinued with PMM 3.7.0 (March 2026).**
+    
+    All advisors and alert templates are now built directly into PMM as free, offline features. Platform connectivity, Percona Account sign-in, and account information features (Entitlements and Support tickets) in PMM will be removed. 
+    
+    Make sure to switch to [local PMM authentication](../../reference/ui/log_in.md) and [upgrade to 3.5.0+](../../pmm-upgrade/index.md).
+    
+    **Need help?** Contact [Percona Support](https://www.percona.com/services/support) for migration assistance.
+
 Percona Platform brings together database distributions, support expertise, services, management, and automated insights.
 
 Connect your PMM Servers to Percona Platform to boost the monitoring capabilities of your PMM installations and manage database deployments easier. In addition, you get access to PMM updates, automated insights, advanced advisor checks and more alert rule templates.
