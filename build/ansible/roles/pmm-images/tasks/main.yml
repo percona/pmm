@@ -184,10 +184,5 @@
 - name: Check supervisord logs
   shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
 
-- name: Check supervisord status
-  command: supervisorctl status
-  changed_when: false
-  ignore_errors: true
-
 - name: Check grafana logs
   shell: cat /srv/logs/grafana.log
