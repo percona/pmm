@@ -278,7 +278,7 @@ func (s *Service) Run(ctx context.Context) error {
 		}
 	}()
 
-	if len(s.params.Nodes) == 0 && s.bootstrapCluster {
+	if s.bootstrapCluster {
 		// Start the Raft node
 		cfg := raft.Configuration{
 			Servers: []raft.Server{
@@ -300,28 +300,7 @@ func (s *Service) Run(ctx context.Context) error {
 	if len(s.params.Nodes) != 0 {
 		_, err := s.memberlist.Join(s.params.Nodes)
 		if err != nil {
-			if s.bootstrapCluster {
-				s.l.WithError(err).Warn("failed to join memberlist cluster, trying to bootstrap Raft cluster")
-				// Start the Raft node
-				cfg := raft.Configuration{
-					Servers: []raft.Server{
-						{
-							Suffrage: raft.Voter,
-							ID:       raft.ServerID(s.params.NodeID),
-							Address:  raft.ServerAddress(raa.String()),
-						},
-					},
-				}
-				if err := s.raftNode.BootstrapCluster(cfg).Error(); err != nil {
-					// Cluster might already be bootstrapped with persistent storage
-					if err != raft.ErrCantBootstrap {
-						return fmt.Errorf("failed to bootstrap Raft cluster: %w", err)
-					}
-					s.l.Info("Cluster already bootstrapped, skipping")
-				}
-			} else {
-				return fmt.Errorf("failed to join memberlist cluster: %w", err)
-			}
+			return fmt.Errorf("failed to join memberlist cluster: %w", err)
 		}
 	}
 	s.wg.Add(1)
