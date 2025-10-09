@@ -594,7 +594,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
-	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
+	if !canUpdateDurationSetting(req.UpdateSnoozeDuration.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
 		return status.Error(codes.FailedPrecondition, "Updates snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
 	}
 
