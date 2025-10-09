@@ -52,6 +52,8 @@ test-env-up-apple:              ## Start docker containers used for testing on A
 
 test-env:                       ## Create pmm_test DB and load test data
 	sleep 10
+	# remove the config file that prevents the 'default' user from connecting remotely
+	docker exec pmm-clickhouse-test rm /etc/clickhouse-server/users.d/default-user.xml
 	docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --multiline --multiquery
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"
