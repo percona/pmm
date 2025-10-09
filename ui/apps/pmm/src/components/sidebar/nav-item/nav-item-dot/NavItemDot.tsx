@@ -7,7 +7,7 @@ interface Props extends PropsWithChildren {
 
 const NavItemDot: FC<Props> = memo(({ show, children }) =>
   show ? (
-    <Badge variant="dot" color="warning">
+    <Badge variant="dot" color="warning" data-testid="navitem-dot">
       {children}
     </Badge>
   ) : (

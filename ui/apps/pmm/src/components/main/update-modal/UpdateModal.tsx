@@ -60,16 +60,24 @@ const UpdateModal: FC = () => {
             width: 500,
             p: 2,
           }}
+          data-testid="update-modal-snackbar"
         >
           <Stack gap={2}>
             <Stack direction="row">
               <Typography>
-                <Typography fontWeight="bold" display="inline-block">
+                <Typography
+                  fontWeight="bold"
+                  display="inline-block"
+                  data-testid="update-modal-title"
+                >
                   {Messages.title(versionInfo.latest.version)}
                 </Typography>
-                {Messages.descriptionSnack}
+                <span data-testid="update-modal-snackbar-description">
+                  {Messages.descriptionSnack}
+                </span>
               </Typography>
               <IconButton
+                data-testid="update-modal-close-button"
                 onClick={handleClose}
                 sx={{
                   alignSelf: 'flex-start',
@@ -84,10 +92,16 @@ const UpdateModal: FC = () => {
                 onClick={handleClose}
                 component={RouterLink}
                 to={PMM_NEW_NAV_UPDATES_PATH}
+                data-testid="update-modal-go-to-updates-button"
               >
                 {Messages.goToUpdates}
               </Button>
-              <Button onClick={handleClose}>{Messages.remindMe}</Button>
+              <Button
+                data-testid="update-modal-remind-me-button"
+                onClick={handleClose}
+              >
+                {Messages.remindMe}
+              </Button>
             </Stack>
           </Stack>
         </Card>
@@ -98,14 +112,21 @@ const UpdateModal: FC = () => {
   return (
     <Modal
       title={Messages.title(versionInfo.latest.version)}
+      titleProps={{
+        dataTestId: 'update-modal-title',
+      }}
       open={open}
       onClose={handleClose}
       disableAutoFocus
     >
       <Stack gap={1}>
-        <Typography>{Messages.descriptionModal}</Typography>
-        <Typography variant="h6">{Messages.highlights}</Typography>
-        <Box sx={{ my: 1 }}>
+        <Typography data-testid="update-modal-description">
+          {Messages.descriptionModal}
+        </Typography>
+        <Typography variant="h6" data-testid="update-modal-highlights-title">
+          {Messages.highlights}
+        </Typography>
+        <Box sx={{ my: 1 }} data-testid="update-modal-highlights-section">
           <Box
             sx={{
               mb: 1,
@@ -114,23 +135,30 @@ const UpdateModal: FC = () => {
                 m: 0,
               },
             }}
+            data-testid="update-modal-highlights-generic"
           >
             {Messages.highlightsGeneric}
           </Box>
-          {Messages.more}
+          <span data-testid="update-modal-more-text">{Messages.more}</span>
           <Link
             href={versionInfo.latest.releaseNotesUrl}
             target="_blank"
             rel="noopener noreferrer"
+            data-testid="update-modal-release-notes-link"
           >
             {Messages.releaseNotes}
           </Link>
         </Box>
         <Stack direction="row" justifyContent="end" sx={{ gap: 1, pt: 2 }}>
-          <Button variant="text" onClick={handleClose}>
+          <Button
+            data-testid="update-modal-remind-me-button"
+            variant="text"
+            onClick={handleClose}
+          >
             {Messages.remindMe}
           </Button>
           <Button
+            data-testid="update-modal-go-to-updates-button"
             variant="contained"
             onClick={handleClose}
             component={RouterLink}
