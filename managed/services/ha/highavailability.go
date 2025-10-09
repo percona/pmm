@@ -37,7 +37,6 @@ import (
 
 const (
 	defaultNodeEventChanSize = 5
-	defaultMessageChanSize   = 100
 	defaultRaftRetries       = 3
 	defaultTransportTimeout  = 10 * time.Second
 	defaultLeaveTimeout      = 5 * time.Second
@@ -56,9 +55,8 @@ type Service struct {
 
 	services *services
 
-	receivedMessages chan []byte
-	nodeCh           chan memberlist.NodeEvent
-	leaderCh         chan raft.Observation
+	nodeCh   chan memberlist.NodeEvent
+	leaderCh chan raft.Observation
 
 	l  *logrus.Entry
 	wg *sync.WaitGroup
@@ -69,34 +67,55 @@ type Service struct {
 }
 
 // Apply applies a log entry to the high-availability service.
+// Currently only used for Raft consensus, not for state replication.
 func (s *Service) Apply(logEntry *raft.Log) interface{} {
-	s.l.Printf("raft: got a message: %s", string(logEntry.Data))
-
-	// Non-blocking send to prevent blocking the Raft state machine
-	select {
-	case s.receivedMessages <- logEntry.Data:
-		return nil
-	default:
-		s.l.Warn("receivedMessages channel full, dropping message")
-		return fmt.Errorf("channel full, message dropped")
-	}
+	s.l.Debugf("raft: applied log entry: index=%d, data=%s", logEntry.Index, string(logEntry.Data))
+	return nil
 }
 
 // Snapshot returns a snapshot of the high-availability service.
+// Since PMM HA uses Raft for leader election only (not state replication),
+// the FSM has no state to snapshot. Cluster configuration (voters) is
+// automatically stored by Raft in the snapshot metadata.
 func (s *Service) Snapshot() (raft.FSMSnapshot, error) { //nolint:ireturn
-	return nil, nil //nolint:nilnil
+	return &fsmSnapshot{}, nil
 }
 
 // Restore restores the high availability service to a previous state.
-func (s *Service) Restore(_ io.ReadCloser) error {
+// Since PMM HA is stateless (leader election only), there's nothing to restore.
+// Cluster configuration (voters) is automatically restored by Raft from snapshot metadata.
+func (s *Service) Restore(rc io.ReadCloser) error {
+	defer rc.Close()
+
+	// FSM has no state, but we need to consume the reader
+	// Raft automatically restores cluster configuration from metadata
+	s.l.Debug("Restore called - FSM is stateless, cluster config restored by Raft")
 	return nil
+}
+
+// fsmSnapshot implements raft.FSMSnapshot for stateless PMM HA.
+type fsmSnapshot struct{}
+
+// Persist writes an empty snapshot since PMM HA FSM is stateless.
+// Cluster configuration (voters, etc.) is automatically persisted by Raft in metadata.
+func (f *fsmSnapshot) Persist(sink raft.SnapshotSink) error {
+	defer sink.Close()
+
+	// Write empty snapshot - Raft handles cluster configuration in metadata
+	// This allows log compaction while maintaining stateless FSM
+	return nil
+}
+
+// Release is called when we are finished with the snapshot.
+func (f *fsmSnapshot) Release() {
+	// Nothing to release for stateless FSM
 }
 
 // setupRaftStorage sets up persistent storage for Raft.
 func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, raft.SnapshotStore, error) {
 	// Create the Raft data directory for this node
 	raftDir := filepath.Join(defaultRaftDataDir, nodeID)
-	if err := os.MkdirAll(raftDir, 0o755); err != nil {
+	if err := os.MkdirAll(raftDir, 0o750); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to create Raft data directory: %w", err)
 	}
 	l.Infof("Using Raft data directory: %s", raftDir)
@@ -133,7 +152,6 @@ func New(params *models.HAParams) *Service {
 		services:         newServices(),
 		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
-		receivedMessages: make(chan []byte, defaultMessageChanSize),
 		l:                logrus.WithField("component", "ha"),
 		wg:               &sync.WaitGroup{},
 	}
@@ -184,10 +202,10 @@ func (s *Service) Run(ctx context.Context) error {
 	raftConfig.CommitTimeout = 50 * time.Millisecond
 	raftConfig.LeaderLeaseTimeout = 500 * time.Millisecond
 
-	// Disable automatic snapshots since FSM doesn't implement them properly
-	// This saves disk space and avoids creating empty snapshot files
-	raftConfig.SnapshotInterval = 0
-	raftConfig.SnapshotThreshold = 0
+	// Configure snapshots for log compaction
+	// Since PMM HA is stateless (leader election only), snapshots are minimal
+	raftConfig.SnapshotInterval = 120 * time.Second
+	raftConfig.SnapshotThreshold = defaultSnapshotThreshold
 	raftConfig.TrailingLogs = defaultTrailingLogs
 
 	// Create a new Raft transport
@@ -436,24 +454,20 @@ func (s *Service) AddLeaderService(leaderService LeaderService) {
 }
 
 // BroadcastMessage broadcasts a message from the high availability service.
+// Note: Currently unused. Reserved for future cluster-wide message distribution.
 func (s *Service) BroadcastMessage(message []byte) error {
-	if s.params.Enabled {
-		s.rw.RLock()
-		defer s.rw.RUnlock()
-
-		future := s.raftNode.Apply(message, defaultApplyTimeout)
-		if err := future.Error(); err != nil {
-			return fmt.Errorf("failed to apply log to raft: %w", err)
-		}
-		return nil
+	if !s.params.Enabled {
+		return fmt.Errorf("HA is disabled")
 	}
 
-	select {
-	case s.receivedMessages <- message:
-		return nil
-	case <-time.After(defaultApplyTimeout):
-		return fmt.Errorf("timeout sending message to channel")
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	future := s.raftNode.Apply(message, defaultApplyTimeout)
+	if err := future.Error(); err != nil {
+		return fmt.Errorf("failed to apply log to raft: %w", err)
 	}
+	return nil
 }
 
 // IsLeader checks if the current instance of the high availability service is the leader.
