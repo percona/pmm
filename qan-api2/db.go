@@ -107,7 +107,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
 	if clusterName != "" {
 		log.Printf("Using ClickHouse cluster name: %s", clusterName)
-		data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER \"%s\"", clusterName)
+		data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
 	}
 
 	if err := migrations.Run(dsn, data); err != nil {
@@ -132,13 +132,13 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	sql := fmt.Sprintf(`CREATE DATABASE %s`, databaseName)
+	sql := fmt.Sprintf("CREATE DATABASE %s", databaseName)
 	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
 	if clusterName != "" {
 		log.Printf("Using ClickHouse cluster name: %s", clusterName)
-		sql = fmt.Sprintf(`%s ON CLUSTER '%s'`, sql, clusterName)
+		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
 	}
-	sql = fmt.Sprintf(`%s ENGINE = Atomic`, sql)
+	sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 
 	result, err := defaultDB.Exec(sql)
 	if err != nil {
