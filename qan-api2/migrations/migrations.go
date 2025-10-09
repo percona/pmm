@@ -73,10 +73,9 @@ func renderMigrations(data map[string]map[string]any) ([]memMigration, error) {
 	return migrations, nil
 }
 
-func IsClickhouseCluster(dsn string) (bool, error) {
+func IsClickhouseCluster(dsn string, clusterName string) (bool, error) {
 	var args []interface{}
 	sql := "SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters"
-	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
 	if clusterName != "" {
 		sql = fmt.Sprintf("%s WHERE cluster = ?", sql)
 		args = append(args, clusterName)
@@ -108,8 +107,8 @@ func IsClickhouseCluster(dsn string) (bool, error) {
 	return false, nil
 }
 
-// Force schema_migrations table cluster engine, optionaly cluster name in DSN.
-func addClusterSchemaMigrationsParams(dsn string) (string, error) {
+// Force schema_migrations table cluster engine, optionally cluster name in DSN.
+func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, error) {
 	u, err := url.Parse(dsn)
 	if err != nil {
 		return "", err
@@ -119,8 +118,6 @@ func addClusterSchemaMigrationsParams(dsn string) (string, error) {
 
 	q := u.Query()
 
-	// If PMM_CLICKHOUSE_CLUSTER_NAME is set, its value will be added to the DSN as x-cluster-name to ensure migrations target the specified ClickHouse cluster.
-	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
 	if clusterName != "" {
 		logrus.Printf("Using ClickHouse cluster name: %s", clusterName)
 		q.Set("x-cluster-name", clusterName)
@@ -137,7 +134,7 @@ func addClusterSchemaMigrationsParams(dsn string) (string, error) {
 }
 
 func GetEngine(dsn string) string {
-	isCluster, err := IsClickhouseCluster(dsn)
+	isCluster, err := IsClickhouseCluster(dsn, "")
 	if err != nil {
 		logrus.Fatalf("Error checking ClickHouse cluster status: %v", err)
 	}
@@ -164,7 +161,7 @@ func GenerateMigrations(data map[string]map[string]any, path string) error {
 	return nil
 }
 
-func Run(dsn string, data map[string]map[string]any) error {
+func Run(dsn string, data map[string]map[string]any, isCluster bool, clusterName string) error {
 	migrations, err := renderMigrations(data)
 	if err != nil {
 		return err
@@ -189,13 +186,9 @@ func Run(dsn string, data map[string]map[string]any) error {
 	}
 	src := newMemMigrations(migrations, versions)
 
-	isCluster, err := IsClickhouseCluster(dsn)
-	if err != nil {
-		return err
-	}
 	if isCluster {
 		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsn)
-		dsn, err = addClusterSchemaMigrationsParams(dsn)
+		dsn, err = addClusterSchemaMigrationsParams(dsn, clusterName)
 		if err != nil {
 			return err
 		}

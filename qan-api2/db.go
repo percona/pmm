@@ -36,36 +36,33 @@ const (
 )
 
 // NewDB return updated db.
-func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
-	// If the environment variable PMM_CLICKHOUSE_IS_CLUSTER is set to "1",
-	// wait until the ClickHouse cluster is ready (i.e., remote_hosts > 0 in system.clusters).
-	// This ensures the cluster is fully initialized before continuing.
-	if os.Getenv("PMM_CLICKHOUSE_IS_CLUSTER") == "1" {
-		log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
-		// Replace database in DSN with 'default' for cluster check, because our database does not exist yet.
-		dsnURL, err := url.Parse(dsn)
-		if err != nil {
-			log.Fatalf("Error parsing DSN: %v", err)
-		}
-		dsnURL.Path = "/default"
-		dsnDefault := dsnURL.String()
+func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
+   // If ClickHouse is a cluster, wait until the cluster is ready.
+   if isCluster {
+	   log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
+	   dsnURL, err := url.Parse(dsn)
+	   if err != nil {
+		   log.Fatalf("Error parsing DSN: %v", err)
+	   }
+	   dsnURL.Path = "/default"
+	   dsnDefault := dsnURL.String()
 
-		log.Println("dsn for cluster check: ", dsnDefault)
+	   log.Println("dsn for cluster check: ", dsnDefault)
 
-		for {
-			isCluster, err := migrations.IsClickhouseCluster(dsnDefault)
-			if err != nil {
-				log.Fatalf("Error checking ClickHouse cluster status: %v", err)
-			}
-			if isCluster {
-				log.Println("ClickHouse cluster is ready.")
-				break
-			}
+	   for {
+		   isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
+		   if err != nil {
+			   log.Fatalf("Error checking ClickHouse cluster status: %v", err)
+		   }
+		   if isClusterReady {
+			   log.Println("ClickHouse cluster is ready.")
+			   break
+		   }
 
-			log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
-			time.Sleep(1 * time.Second)
-		}
-	}
+		   log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
+		   time.Sleep(1 * time.Second)
+	   }
+   }
 
 	log.Printf("going to create new connection with dsn: %s", dsn)
 	db, err := sqlx.Connect("clickhouse", dsn)
@@ -99,25 +96,21 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	data := map[string]map[string]any{
-		"01_init.up.sql": {"engine": migrations.GetEngine(dsn)},
-	}
-
-	// If PMM_CLICKHOUSE_CLUSTER_NAME is set, use it in the migration to create the metrics table with the specified cluster.
-	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
-	if clusterName != "" {
-		log.Printf("Using ClickHouse cluster name: %s", clusterName)
-		data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
-	}
-
-	if err := migrations.Run(dsn, data); err != nil {
-		log.Fatal("Migrations: ", err)
-	}
-	log.Println("Migrations applied.")
-	return db
+	   data := map[string]map[string]any{
+		   "01_init.up.sql": {"engine": migrations.GetEngine(dsn)},
+	   }
+	   if clusterName != "" {
+		   log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		   data["01_init.up.sql"]["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
+	   }
+	   if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
+		   log.Fatal("Migrations: ", err)
+	   }
+	   log.Println("Migrations applied.")
+	   return db
 }
 
-func createDB(dsn string) error {
+func createDB(dsn string, clusterName string) error {
 	log.Println("Creating database")
 	clickhouseURL, err := url.Parse(dsn)
 	if err != nil {
@@ -133,11 +126,10 @@ func createDB(dsn string) error {
 	defer defaultDB.Close() //nolint:errcheck
 
 	sql := fmt.Sprintf("CREATE DATABASE %s", databaseName)
-	clusterName := os.Getenv("PMM_CLICKHOUSE_CLUSTER_NAME")
-	if clusterName != "" {
-		log.Printf("Using ClickHouse cluster name: %s", clusterName)
-		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
-	}
+	   if clusterName != "" {
+		   log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		   sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
+	   }
 	sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 
 	result, err := defaultDB.Exec(sql)
