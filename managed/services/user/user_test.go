@@ -97,6 +97,52 @@ func TestSnoozeUpdate(t *testing.T) {
 
 		require.NoError(t, err)
 
+		resp, err := service.UpdateUser(ctx, &userv1.UpdateUserRequest{
+			SnoozedPmmVersion: pointer.ToString("1.0.0"),
+		})
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+
+		assert.Equal(t, "1.0.0", resp.SnoozedPmmVersion)
+		assert.WithinDuration(t, time.Now(), resp.SnoozedAt.AsTime(), 1*time.Second)
+		assert.Equal(t, uint32(1), resp.SnoozeCount)
+	})
+
+	t.Run("user info returns updated snooze information", func(t *testing.T) {
+		service, mockClient, cleanup := setup(t)
+		defer cleanup()
+
+		mockClient.On("GetUserID", ctx).Return(userID, nil)
+
+		req := &userv1.SnoozeUpdateRequest{
+			SnoozedPmmVersion: "1.0.0",
+		}
+
+		_, err := service.SnoozeUpdate(ctx, req)
+
+		require.NoError(t, err)
+
+		resp, err := service.GetUser(ctx, &userv1.GetUserRequest{})
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+
+		assert.Equal(t, "1.0.0", resp.SnoozedPmmVersion)
+		assert.WithinDuration(t, time.Now(), resp.SnoozedAt.AsTime(), 1*time.Second)
+		assert.Equal(t, uint32(1), resp.SnoozeCount)
+	})
+
+	t.Run("user info supports incrementing snooze count", func(t *testing.T) {
+		service, mockClient, cleanup := setup(t)
+		defer cleanup()
+
+		mockClient.On("GetUserID", ctx).Return(userID, nil)
+
+		_, err := service.GetUser(ctx, &userv1.GetUserRequest{})
+
+		require.NoError(t, err)
+
 		for i := range 3 {
 			resp, err := service.UpdateUser(ctx, &userv1.UpdateUserRequest{
 				SnoozedPmmVersion: pointer.ToString("1.0.0"),
@@ -109,6 +155,39 @@ func TestSnoozeUpdate(t *testing.T) {
 			assert.WithinDuration(t, time.Now(), resp.SnoozedAt.AsTime(), 1*time.Second)
 			assert.Equal(t, uint32(i+1), resp.SnoozeCount)
 		}
+	})
+
+	t.Run("user info resets counts on version change", func(t *testing.T) {
+		service, mockClient, cleanup := setup(t)
+		defer cleanup()
+
+		mockClient.On("GetUserID", ctx).Return(userID, nil)
+
+		_, err := service.GetUser(ctx, &userv1.GetUserRequest{})
+
+		require.NoError(t, err)
+
+		resp, err := service.UpdateUser(ctx, &userv1.UpdateUserRequest{
+			SnoozedPmmVersion: pointer.ToString("1.0.0"),
+		})
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+
+		assert.Equal(t, "1.0.0", resp.SnoozedPmmVersion)
+		assert.WithinDuration(t, time.Now(), resp.SnoozedAt.AsTime(), 1*time.Second)
+		assert.Equal(t, uint32(1), resp.SnoozeCount)
+
+		resp, err = service.UpdateUser(ctx, &userv1.UpdateUserRequest{
+			SnoozedPmmVersion: pointer.ToString("2.0.0"),
+		})
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+
+		assert.Equal(t, "2.0.0", resp.SnoozedPmmVersion)
+		assert.WithinDuration(t, time.Now(), resp.SnoozedAt.AsTime(), 1*time.Second)
+		assert.Equal(t, uint32(1), resp.SnoozeCount)
 	})
 
 	t.Run("user info returns updated snooze information", func(t *testing.T) {
