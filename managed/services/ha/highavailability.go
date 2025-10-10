@@ -129,15 +129,21 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 	// Create BoltDB-based stable store
 	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(raftDir, "raft-stable.db"))
 	if err != nil {
-		logStore.Close() //nolint:errcheck
+		if cerr := logStore.Close(); cerr != nil {
+			l.Errorf("failed to close logStore after stableStore error: %v", cerr)
+		}
 		return nil, nil, nil, fmt.Errorf("failed to create BoltDB stable store: %w", err)
 	}
 
 	// Create file-based snapshot store
-	snapshotStore, err := raft.NewFileSnapshotStore(raftDir, defaultSnapshotRetention, l.Writer())
+	snapshotStore, err := raft.NewFileSnapshotStore(raftDir, defaultSnapshotRetention, os.Stderr)
 	if err != nil {
-		logStore.Close()    //nolint:errcheck
-		stableStore.Close() //nolint:errcheck
+		if cerr := logStore.Close(); cerr != nil {
+			l.Errorf("failed to close logStore after snapshotStore error: %v", cerr)
+		}
+		if cerr := stableStore.Close(); cerr != nil {
+			l.Errorf("failed to close stableStore after snapshotStore error: %v", cerr)
+		}
 		return nil, nil, nil, fmt.Errorf("failed to create file snapshot store: %w", err)
 	}
 
