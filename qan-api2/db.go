@@ -29,6 +29,8 @@ import (
 	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
 	"github.com/pkg/errors"
+
+	"github.com/percona/pmm/qan-api2/utils/templatefs"
 )
 
 const (
@@ -98,10 +100,17 @@ func createDB(dsn string) error {
 }
 
 //go:embed migrations/sql/*.sql
-var fs embed.FS
+var migrationFS embed.FS
 
 func runMigrations(dsn string) error {
-	d, err := iofs.New(fs, "migrations/sql")
+	// Create TemplateFS with simple template data
+	templateData := map[string]any{
+		"DatabaseName": "pmm",
+	}
+	tfs := templatefs.NewTemplateFS(migrationFS, templateData)
+
+	// Use TemplateFS directly with golang-migrate
+	d, err := iofs.New(tfs, "migrations/sql")
 	if err != nil {
 		return err
 	}
