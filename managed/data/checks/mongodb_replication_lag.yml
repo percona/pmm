@@ -1,42 +1,37 @@
 ---
-### MongoDB Platform Advisors Replica Set Topology
+### MongoDB Advisors - Replica Set Topology
 checks:
-  - version: 1
+  - version: 2
     name: mongodb_replication_lag
     summary: MongoDB Replication Lag
     description: This check returns warnings if the Replica Set member is more than 10 sec behind the primary
-    type: MONGODB_REPLSETGETSTATUS
     advisor: performance_replication
-    #family: mongodb
+    family: MONGODB
     #author: Ivan Groenewold
     interval: standard
+    queries:
+      - type: MONGODB_REPLSETGETSTATUS
     script: |
       read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
-      def check(docs):
-          # for compatibility with PMM Server < 2.12
-          context = {
-              "format_version_num": format_version_num,
-              "parse_version": parse_version,
-          }
-          return check_context(docs, context)
 
       def check_context(docs, context):
           """
           This check returns warnings if the Replica Set member is more than 10 sec behind the primary
           """
 
-          if len(docs) != 1:
+          rows = docs[0]
+          if len(rows) != 1:
               return "Unexpected number of documents"
 
           results = []
 
-          set_name = docs[0]["set"]
+          set_name = rows[0]["set"]
 
-          for member in docs[0]["members"]:
+          for member in rows[0]["members"]:
               if member["state"] == 1:
                   pri_last_opt_t = member["optimeDate"]
 
-          for member in docs[0]["members"]:
+          for member in rows[0]["members"]:
               if "self" in member.keys():
                   this_name = member["name"]
                   this_last_opt_t = member["optimeDate"]
