@@ -32,6 +32,7 @@ const (
 	VictoriaMetricsCacheEnabledDefault = false
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
+	InternalPgQANEnabledDefault        = false
 	awsPartitionID                     = "aws"
 )
 

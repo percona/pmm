@@ -28751,6 +28751,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "enable_internal_pg_qan": {
+                      "description": "True if Query Analytics for PMM's internal PG database is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -28922,6 +28927,12 @@
                   "title": "Enable Access Control",
                   "x-nullable": true,
                   "x-order": 12
+                },
+                "enable_internal_pg_qan": {
+                  "description": "Enable Query Analytics for PMM's internal PG database.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 13
                 }
               }
             }
@@ -29059,6 +29070,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "enable_internal_pg_qan": {
+                      "description": "True if Query Analytics for PMM's internal PG database is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0

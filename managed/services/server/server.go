@@ -468,7 +468,7 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 
 // convertSettings merges database settings and settings from environment variables into API response.
 // Checking if PMM is connected to Platform is separated from settings for security and concurrency reasons.
-func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform bool) *serverv1.Settings {
+func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan bool, connectedToPlatform bool) *serverv1.Settings {
 	res := &serverv1.Settings{
 		UpdatesEnabled:   settings.IsUpdatesEnabled(),
 		TelemetryEnabled: settings.IsTelemetryEnabled(),
@@ -488,6 +488,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
 		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
 		PmmPublicAddress:     settings.PMMPublicAddress,
+		EnableInternalPgQan:  !disableInternalPgQan,
 
 		AlertingEnabled:         settings.IsAlertingEnabled(),
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
@@ -528,10 +529,20 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 		return nil, err
 	}
 
+	var disabledInternalPgQan bool
+	internalPgQanAgent, err := s.getInternalPgQANAgent(s.db.Querier)
+	if err != nil {
+		// if we can't get the agent, log the error and set it to disabled.
+		// this is better than completely failing the request.
+		s.l.Errorf("failed to get internal pgQAN agent: %v", err)
+	} else {
+		disabledInternalPgQan = internalPgQanAgent.Disabled
+	}
+
 	_, err = models.GetPerconaSSODetails(ctx, s.db.Querier)
 
 	return &serverv1.GetSettingsResponse{
-		Settings: s.convertSettings(settings, err == nil),
+		Settings: s.convertSettings(settings, disabledInternalPgQan, err == nil),
 	}, nil
 }
 
@@ -567,6 +578,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if req.EnableTelemetry != nil && s.envSettings.EnableTelemetry != nil && *req.EnableTelemetry != *s.envSettings.EnableTelemetry {
 		return status.Error(codes.FailedPrecondition, "Telemetry is configured via PMM_ENABLE_TELEMETRY environment variable.")
+	}
+
+	if req.EnableInternalPgQan != nil && s.envSettings.EnableInternalPgQAN != nil && *req.EnableInternalPgQan != *s.envSettings.EnableInternalPgQAN {
+		return status.Error(codes.FailedPrecondition, "QAN for internal PostgreSQL is already configured via an environment variable.")
 	}
 
 	if req.EnableAlerting != nil && s.envSettings.EnableAlerting != nil && *req.EnableAlerting != *s.envSettings.EnableAlerting {
@@ -605,6 +620,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	var newSettings, oldSettings *models.Settings
+	var disableInternalPgQan bool
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		if oldSettings, err = models.GetSettings(tx); err != nil {
@@ -622,6 +638,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableAlerting:         req.EnableAlerting,
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
+			EnableInternalPgQAN:    req.EnableInternalPgQan,
 			AdvisorsRunInterval: models.AdvisorsRunIntervals{
 				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
 				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
@@ -657,6 +674,27 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 				s.l.Error(errors.WithStack(err))
 				return status.Errorf(codes.Internal, "failed to write SSH key: %s", err.Error())
 			}
+		}
+
+		// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
+		if req.EnableInternalPgQan != nil {
+			internalQanAgent, err := s.getInternalPgQANAgent(tx.Querier)
+			if err != nil {
+				return fmt.Errorf("failed to get QAN agent: %w", err)
+			}
+			if internalQanAgent == nil {
+				return fmt.Errorf("internal QAN agent not found")
+			}
+
+			newAgent, err := models.ChangeAgent(tx.Querier, internalQanAgent.AgentID, &models.ChangeCommonAgentParams{
+				Enabled: req.EnableInternalPgQan,
+			})
+			if err != nil {
+				return errors.Wrap(err, "failed to change QAN agent state")
+			}
+
+			disableInternalPgQan = newAgent.Disabled
+			s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
 		}
 
 		return nil
@@ -702,8 +740,20 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 
 	return &serverv1.ChangeSettingsResponse{
-		Settings: s.convertSettings(newSettings, err == nil),
+		Settings: s.convertSettings(newSettings, disableInternalPgQan, err == nil),
 	}, nil
+}
+
+func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {
+	agentType := models.QANPostgreSQLPgStatementsAgentType
+	agents, err := models.FindAgents(q, models.AgentFilters{
+		PMMAgentID: models.PMMServerAgentID,
+		AgentType:  &agentType,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to find agents: %w", err)
+	}
+	return agents[0], nil
 }
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
