@@ -1146,12 +1146,15 @@ var databaseSchema = [][]string{
 		`UPDATE agents SET valkey_options = '{}'::jsonb`,
 	},
 	112: {
+		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
+	},
+	113: {
 		`ALTER TABLE user_flags
 			ADD COLUMN snoozed_at TIMESTAMP,
 			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0`,
 	},
 	// Default snooze duration - 7 days
-	113: {
+	114: {
 		`UPDATE settings
 			SET settings = settings || '{"updates": {"snooze_duration": 604800000000000}}'
 			WHERE settings->'updates' IS NULL
@@ -1525,10 +1528,14 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
+
+	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
+	ap.Disabled = true
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
