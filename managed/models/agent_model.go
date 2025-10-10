@@ -49,10 +49,12 @@ const (
 	caFilePlaceholder             = "caFilePlaceholder"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
-	tcp                = "tcp"
-	trueStr            = "true"
-	unix               = "unix"
-	skipVerify         = "skip-verify"
+	// AgentStatusDone indicates thay the agent has either been stopped or disabled.
+	agentStatusDone = "AGENT_STATUS_DONE"
+	tcp             = "tcp"
+	trueStr         = "true"
+	unix            = "unix"
+	skipVerify      = "skip-verify"
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -339,6 +341,9 @@ func (s *Agent) BeforeInsert() error {
 	if s.Status == "" && s.AgentType != ExternalExporterType && s.AgentType != PMMAgentType {
 		s.Status = AgentStatusUnknown
 	}
+	if s.Disabled {
+		s.Status = agentStatusDone
+	}
 	return nil
 }
 
@@ -347,6 +352,9 @@ func (s *Agent) BeforeUpdate() error {
 	s.UpdatedAt = Now()
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
+	}
+	if s.Disabled {
+		s.Status = agentStatusDone
 	}
 	return nil
 }
