@@ -116,7 +116,7 @@ func (f *fsmSnapshot) Release() {
 }
 
 // setupRaftStorage sets up persistent storage for Raft.
-func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, raft.SnapshotStore, error) {
+func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, *raft.FileSnapshotStore, error) {
 	// Create the Raft data directory for this node
 	raftDir := filepath.Join(defaultRaftDataDir, nodeID)
 	if err := os.MkdirAll(raftDir, defaultRaftDataDirPerm); err != nil {
