@@ -109,11 +109,14 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 			AlertingTour: req.AlertingTourCompleted,
 		}
 
-		// Keep for backwards compatibility, prefer the new snooze updates:endpoint
+		// Keep for backwards compatibility, prefer the snoozeUpdate endpoint
 		if req.SnoozedPmmVersion != nil && *req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
 			params.SnoozedPMMVersion = req.SnoozedPmmVersion
 			params.SnoozedAt = pointer.ToTime(time.Now())
 			params.SnoozeCount = pointer.ToInt(1)
+		} else if req.SnoozedPmmVersion != nil && *req.SnoozedPmmVersion == userInfo.SnoozedPMMVersion {
+			params.SnoozedAt = pointer.ToTime(time.Now())
+			params.SnoozeCount = pointer.ToInt(userInfo.SnoozeCount + 1)
 		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)

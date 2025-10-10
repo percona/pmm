@@ -71,6 +71,70 @@ func TestSnoozeUpdate(t *testing.T) {
 		return service, mockClient, cleanup
 	}
 
+	t.Run("user info returns snooze information", func(t *testing.T) {
+		service, mockClient, cleanup := setup(t)
+		defer cleanup()
+
+		mockClient.On("GetUserID", ctx).Return(userID, nil)
+
+		resp, err := service.GetUser(ctx, &userv1.GetUserRequest{})
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+
+		assert.Empty(t, resp.SnoozedPmmVersion)
+		assert.Nil(t, resp.SnoozedAt)
+		assert.Equal(t, uint32(0), resp.SnoozeCount)
+	})
+
+	t.Run("user info support snooze for backwards compatibility", func(t *testing.T) {
+		service, mockClient, cleanup := setup(t)
+		defer cleanup()
+
+		mockClient.On("GetUserID", ctx).Return(userID, nil)
+
+		_, err := service.GetUser(ctx, &userv1.GetUserRequest{})
+
+		require.NoError(t, err)
+
+		for i := range 3 {
+			resp, err := service.UpdateUser(ctx, &userv1.UpdateUserRequest{
+				SnoozedPmmVersion: pointer.ToString("1.0.0"),
+			})
+
+			require.NoError(t, err)
+			require.NotNil(t, resp)
+
+			assert.Equal(t, "1.0.0", resp.SnoozedPmmVersion)
+			assert.WithinDuration(t, time.Now(), resp.SnoozedAt.AsTime(), 1*time.Second)
+			assert.Equal(t, uint32(i+1), resp.SnoozeCount)
+		}
+	})
+
+	t.Run("user info returns updated snooze information", func(t *testing.T) {
+		service, mockClient, cleanup := setup(t)
+		defer cleanup()
+
+		mockClient.On("GetUserID", ctx).Return(userID, nil)
+
+		req := &userv1.SnoozeUpdateRequest{
+			SnoozedPmmVersion: "1.0.0",
+		}
+
+		_, err := service.SnoozeUpdate(ctx, req)
+
+		require.NoError(t, err)
+
+		resp, err := service.GetUser(ctx, &userv1.GetUserRequest{})
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+
+		assert.Equal(t, "1.0.0", resp.SnoozedPmmVersion)
+		assert.WithinDuration(t, time.Now(), resp.SnoozedAt.AsTime(), 1*time.Second)
+		assert.Equal(t, uint32(1), resp.SnoozeCount)
+	})
+
 	t.Run("snooze an update", func(t *testing.T) {
 		service, mockClient, cleanup := setup(t)
 		defer cleanup()
