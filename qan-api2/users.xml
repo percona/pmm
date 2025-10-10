@@ -1,18 +1,5 @@
 <clickhouse>
     <!-- See also the files in users.d directory where the settings can be overridden. -->
-
-    <!-- Profiles of settings. -->
-    <profiles>
-        <!-- Default settings. -->
-        <default>
-        </default>
-
-        <!-- Profile that allows only read queries. -->
-        <readonly>
-            <readonly>1</readonly>
-        </readonly>
-    </profiles>
-
     <!-- Users and ACL. -->
     <users>
         <!-- If user name was not specified, 'default' user is used. -->
@@ -27,34 +14,6 @@
             <networks>
                 <ip>::/0</ip>
             </networks>
-
-            <!-- Settings profile for user. -->
-            <profile>default</profile>
-
-            <!-- Quota for user. -->
-            <quota>default</quota>
-
-            <!-- User can create other users and grant rights to them. -->
-            <!-- <access_management>1</access_management> -->
         </default>
     </users>
-
-    <!-- Quotas. -->
-    <quotas>
-        <!-- Name of quota. -->
-        <default>
-            <!-- Limits for time interval. You could specify many intervals with different limits. -->
-            <interval>
-                <!-- Length of interval. -->
-                <duration>3600</duration>
-
-                <!-- No limits. Just calculate resource usage for time interval. -->
-                <queries>0</queries>
-                <errors>0</errors>
-                <result_rows>0</result_rows>
-                <read_rows>0</read_rows>
-                <execution_time>0</execution_time>
-            </interval>
-        </default>
-    </quotas>
 </clickhouse>
