@@ -47,8 +47,8 @@ theme:
     - content.tabs.link
     - content.code.copy
     - navigation.tracking
-    - content.action.edit
-#    - content.action.view
+#    - content.action.edit
+    - content.action.view
 
 extra_css:
   - https://unicons.iconscout.com/release/v4.0.8/css/line.css
