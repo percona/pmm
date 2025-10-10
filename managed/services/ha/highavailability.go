@@ -18,6 +18,7 @@ package ha
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -36,16 +37,23 @@ import (
 )
 
 const (
-	defaultNodeEventChanSize = 5
-	defaultRaftRetries       = 3
-	defaultTransportTimeout  = 10 * time.Second
-	defaultLeaveTimeout      = 5 * time.Second
-	defaultTickerInterval    = 5 * time.Second
-	defaultApplyTimeout      = 3 * time.Second
-	defaultRaftDataDir       = "/srv/ha"
-	defaultSnapshotRetention = 3
-	defaultSnapshotThreshold = 8192
-	defaultTrailingLogs      = 10240
+	defaultNodeEventChanSize  = 5
+	defaultRaftRetries        = 3
+	defaultTransportTimeout   = 10 * time.Second
+	defaultLeaveTimeout       = 5 * time.Second
+	defaultTickerInterval     = 5 * time.Second
+	defaultApplyTimeout       = 3 * time.Second
+	defaultRaftDataDir        = "/srv/ha"
+	defaultRaftDataDirPerm    = 0o750
+	defaultSnapshotRetention  = 3
+	defaultSnapshotThreshold  = 8192
+	defaultTrailingLogs       = 10240
+	defaultHeartbeatTimeout   = 1000 * time.Millisecond
+	defaultElectionTimeout    = 1000 * time.Millisecond
+	defaultCommitTimeout      = 50 * time.Millisecond
+	defaultLeaderLeaseTimeout = 500 * time.Millisecond
+	defaultSnapshotInterval   = 120 * time.Second
+	defaultServerOpTimeout    = 10 * time.Second
 )
 
 // Service represents the high-availability service.
@@ -90,7 +98,7 @@ func (s *Service) Restore(rc io.ReadCloser) error {
 	// FSM has no state, but we need to consume the reader
 	// Raft automatically restores cluster configuration from metadata
 	s.l.Debug("Restore called - FSM is stateless, cluster config restored by Raft")
-	return nil
+	return rc.Close()
 }
 
 // fsmSnapshot implements raft.FSMSnapshot for stateless PMM HA.
@@ -99,11 +107,9 @@ type fsmSnapshot struct{}
 // Persist writes an empty snapshot since PMM HA FSM is stateless.
 // Cluster configuration (voters, etc.) is automatically persisted by Raft in metadata.
 func (f *fsmSnapshot) Persist(sink raft.SnapshotSink) error {
-	defer sink.Close()
-
 	// Write empty snapshot - Raft handles cluster configuration in metadata
 	// This allows log compaction while maintaining stateless FSM
-	return nil
+	return sink.Close()
 }
 
 // Release is called when we are finished with the snapshot.
@@ -115,7 +121,7 @@ func (f *fsmSnapshot) Release() {
 func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, raft.SnapshotStore, error) {
 	// Create the Raft data directory for this node
 	raftDir := filepath.Join(defaultRaftDataDir, nodeID)
-	if err := os.MkdirAll(raftDir, 0o750); err != nil {
+	if err := os.MkdirAll(raftDir, defaultRaftDataDirPerm); err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to create Raft data directory: %w", err)
 	}
 	l.Infof("Using Raft data directory: %s", raftDir)
@@ -203,14 +209,14 @@ func (s *Service) Run(ctx context.Context) error {
 	}
 
 	// Configure timeouts for better cluster stability
-	raftConfig.HeartbeatTimeout = 1000 * time.Millisecond
-	raftConfig.ElectionTimeout = 1000 * time.Millisecond
-	raftConfig.CommitTimeout = 50 * time.Millisecond
-	raftConfig.LeaderLeaseTimeout = 500 * time.Millisecond
+	raftConfig.HeartbeatTimeout = defaultHeartbeatTimeout
+	raftConfig.ElectionTimeout = defaultElectionTimeout
+	raftConfig.CommitTimeout = defaultCommitTimeout
+	raftConfig.LeaderLeaseTimeout = defaultLeaderLeaseTimeout
 
 	// Configure snapshots for log compaction
 	// Since PMM HA is stateless (leader election only), snapshots are minimal
-	raftConfig.SnapshotInterval = 120 * time.Second
+	raftConfig.SnapshotInterval = defaultSnapshotInterval
 	raftConfig.SnapshotThreshold = defaultSnapshotThreshold
 	raftConfig.TrailingLogs = defaultTrailingLogs
 
@@ -297,7 +303,7 @@ func (s *Service) Run(ctx context.Context) error {
 		}
 		if err := s.raftNode.BootstrapCluster(cfg).Error(); err != nil {
 			// Cluster might already be bootstrapped with persistent storage
-			if err != raft.ErrCantBootstrap {
+			if !errors.Is(err, raft.ErrCantBootstrap) {
 				return fmt.Errorf("failed to bootstrap Raft cluster: %w", err)
 			}
 			s.l.Info("Cluster already bootstrapped, skipping")
@@ -381,7 +387,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	err := s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, 10*time.Second).Error()
+	err := s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, defaultServerOpTimeout).Error()
 	if err != nil {
 		s.l.Errorln(err)
 	}
@@ -390,7 +396,7 @@ func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	err := s.raftNode.AddVoter(raft.ServerID(node.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort)), 0, 10*time.Second).Error()
+	err := s.raftNode.AddVoter(raft.ServerID(node.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort)), 0, defaultServerOpTimeout).Error()
 	if err != nil {
 		s.l.Errorf("couldn't add a server node %s: %q", node.Name, err)
 	}
