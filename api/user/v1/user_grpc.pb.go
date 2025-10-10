@@ -20,9 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_GetUser_FullMethodName    = "/user.v1.UserService/GetUser"
-	UserService_UpdateUser_FullMethodName = "/user.v1.UserService/UpdateUser"
-	UserService_ListUsers_FullMethodName  = "/user.v1.UserService/ListUsers"
+	UserService_GetUser_FullMethodName      = "/user.v1.UserService/GetUser"
+	UserService_UpdateUser_FullMethodName   = "/user.v1.UserService/UpdateUser"
+	UserService_ListUsers_FullMethodName    = "/user.v1.UserService/ListUsers"
+	UserService_SnoozeUpdate_FullMethodName = "/user.v1.UserService/SnoozeUpdate"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -34,6 +35,8 @@ type UserServiceClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
+	// SnoozeUpdate snoozes updates for an authenticated user and returns the count and timestamp
+	SnoozeUpdate(ctx context.Context, in *SnoozeUpdateRequest, opts ...grpc.CallOption) (*SnoozeUpdateResponse, error)
 }
 
 type userServiceClient struct {
@@ -74,6 +77,16 @@ func (c *userServiceClient) ListUsers(ctx context.Context, in *ListUsersRequest,
 	return out, nil
 }
 
+func (c *userServiceClient) SnoozeUpdate(ctx context.Context, in *SnoozeUpdateRequest, opts ...grpc.CallOption) (*SnoozeUpdateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SnoozeUpdateResponse)
+	err := c.cc.Invoke(ctx, UserService_SnoozeUpdate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -83,6 +96,8 @@ type UserServiceServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
+	// SnoozeUpdate snoozes updates for an authenticated user and returns the count and timestamp
+	SnoozeUpdate(context.Context, *SnoozeUpdateRequest) (*SnoozeUpdateResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -103,6 +118,10 @@ func (UnimplementedUserServiceServer) UpdateUser(context.Context, *UpdateUserReq
 
 func (UnimplementedUserServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
+}
+
+func (UnimplementedUserServiceServer) SnoozeUpdate(context.Context, *SnoozeUpdateRequest) (*SnoozeUpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SnoozeUpdate not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -179,6 +198,24 @@ func _UserService_ListUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_SnoozeUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SnoozeUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).SnoozeUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_SnoozeUpdate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).SnoozeUpdate(ctx, req.(*SnoozeUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -197,6 +234,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListUsers",
 			Handler:    _UserService_ListUsers_Handler,
+		},
+		{
+			MethodName: "SnoozeUpdate",
+			Handler:    _UserService_SnoozeUpdate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

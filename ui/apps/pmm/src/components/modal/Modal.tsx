@@ -38,7 +38,9 @@ export const Modal: FC<ModalProps> = ({
           }}
         >
           <Stack direction="row" justifyContent="space-between">
-            <Typography variant="h5">{title}</Typography>
+            <Typography variant="h5" data-testid="modal-title">
+              {title}
+            </Typography>
             <IconButton
               sx={{
                 p: 0,

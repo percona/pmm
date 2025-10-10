@@ -56,6 +56,7 @@ func TestSettings(t *testing.T) {
 			DefaultRoleID:  1,
 			EncryptedItems: actual.EncryptedItems,
 		}
+		expected.Updates.SnoozeDuration = 7 * 24 * time.Hour
 		assert.Equal(t, expected, actual)
 	})
 
@@ -79,6 +80,7 @@ func TestSettings(t *testing.T) {
 				},
 			},
 		}
+		expected.Updates.SnoozeDuration = 7 * 24 * time.Hour
 		assert.Equal(t, expected, s)
 	})
 
@@ -158,8 +160,16 @@ func TestSettings(t *testing.T) {
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				EnableUpdates: pointer.ToBool(false),
 			})
+
 			require.NoError(t, err)
 			assert.False(t, *ns.Updates.Enabled)
+
+			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				UpdateSnoozeDuration: time.Hour,
+			})
+
+			require.NoError(t, err)
+			assert.Equal(t, time.Hour, ns.Updates.SnoozeDuration)
 		})
 
 		t.Run("Telemetry and Advisors validation", func(t *testing.T) {

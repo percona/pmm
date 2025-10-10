@@ -110,4 +110,37 @@ describe('NavItem', () => {
     expect(level0Collapse).not.toHaveClass(collapseClasses.hidden);
     expect(level1Collapse).not.toHaveClass(collapseClasses.hidden);
   });
+
+  it('renders badge if item has badge', () => {
+    renderNavItem({
+      item: { id: 'with-badge', badge: { label: 'badge-label' } },
+    });
+
+    const badge = screen.getByText('badge-label');
+    expect(badge).toBeInTheDocument();
+  });
+
+  it('shows dot on root if children has a badge and is hidden', async () => {
+    renderNavItem(
+      {
+        item: {
+          id: 'with-badge',
+          icon: 'home',
+          url: '/root',
+          children: [
+            {
+              id: 'with-badge-child',
+              url: '/root/child',
+              badge: { label: 'badge-label' },
+            },
+          ],
+        },
+      },
+      { initialEntries: ['/root'] }
+    );
+
+    fireEvent.click(screen.getByTestId('navitem-with-badge-toggle'));
+
+    expect(screen.getByTestId('navitem-dot')).toBeInTheDocument();
+  });
 });

@@ -221,6 +221,9 @@ type ChangeSettingsBody struct {
 	// Enable Access Control
 	EnableAccessControl *bool `json:"enable_access_control,omitempty"`
 
+	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -938,6 +941,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// Default Access Control role ID for new users.
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
+
+	// Duration for which an update is snoozed
+	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

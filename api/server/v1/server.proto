@@ -179,6 +179,8 @@ message Settings {
   bool enable_access_control = 17;
   // Default Access Control role ID for new users.
   uint32 default_role_id = 18;
+  // Duration for which an update is snoozed
+  google.protobuf.Duration update_snooze_duration = 19;
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -235,6 +237,8 @@ message ChangeSettingsRequest {
   optional bool enable_backup_management = 12;
   // Enable Access Control
   optional bool enable_access_control = 13;
+  // A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+  google.protobuf.Duration update_snooze_duration = 14;
 }
 
 message ChangeSettingsResponse {
