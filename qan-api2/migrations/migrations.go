@@ -10,8 +10,9 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx"
-	"github.com/percona/pmm/qan-api2/utils/templatefs"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/qan-api2/utils/templatefs"
 )
 
 const (
@@ -109,7 +110,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 	tfs := templatefs.NewTemplateFS(migrationFS, templateData)
 
 	// Use TemplateFS directly with golang-migrate
-	d, err := iofs.New(tfs, "migrations/sql")
+	d, err := iofs.New(tfs, "sql")
 	if err != nil {
 		return err
 	}

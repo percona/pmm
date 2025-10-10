@@ -53,7 +53,7 @@ func setup() *sqlx.DB {
 	data := map[string]any{
 		"engine": migrations.GetEngine(dsn),
 	}
-	err = migrations.Run(dsn, data)
+	err = migrations.Run(dsn, data, false, "")
 	if err != nil {
 		log.Fatal("Migration: ", err)
 	}
@@ -124,7 +124,7 @@ func TestCreateDbIfNotExists(t *testing.T) {
 			dsn = "clickhouse://127.0.0.1:19000/pmm_created_db"
 		}
 
-		err := createDB(dsn)
+		err := createDB(dsn, "")
 
 		require.NoError(t, err, "Check connection after we create database")
 	})
