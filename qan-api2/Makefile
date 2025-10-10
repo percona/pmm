@@ -37,7 +37,7 @@ test-env-up:                    ## Start docker containers used for testing
 test-env:                       ## Create pmm_test DB and load test data
 	sleep 10
 	docker exec pmm-clickhouse-test clickhouse client --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
-	cat migrations/static/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
+	ENGINE=MergeTree CLUSTER= go run ./cmd/render-migrations | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 test-env-down:                  ## Stop and remove docker containers used for testing
