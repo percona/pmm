@@ -1523,9 +1523,11 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	ap.Disabled = true
 	envVar, exists := os.LookupEnv("PMM_ENABLE_INTERNAL_PG_QAN")
 	if exists {
-		if enable, err := strconv.ParseBool(envVar); err != nil {
+		enable, err := strconv.ParseBool(envVar)
+		if err != nil {
 			return fmt.Errorf("cannot parse PMM_ENABLE_INTERNAL_PG_QAN value %q: %w", envVar, err)
-		} else if enable {
+		}
+		if enable {
 			ap.Disabled = false
 		}
 	}

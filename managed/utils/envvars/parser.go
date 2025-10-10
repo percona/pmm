@@ -125,7 +125,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableTelemetry = &b
-		case "PMM_ENABLE_INTERNAL_PG_QAN":
+		case EnvEnableInternalPgQAN:
 			if _, err := strconv.ParseBool(v); err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 				continue

@@ -834,7 +834,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		})
 
 		// Expect a FailedPrecondition error
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is set to true via the PMM_ENABLE_INTERNAL_PG_QAN environment variable."), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is set to true via an environment variable."), err)
 	})
 
 	t.Run("SucceedWhenEnvVarNotSet", func(t *testing.T) {

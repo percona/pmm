@@ -219,7 +219,7 @@ func TestServer(t *testing.T) {
 		}))
 
 		s.envSettings.EnableInternalPgQAN = pointer.ToBool(true)
-		expected = status.New(codes.FailedPrecondition, "QAN for internal PostgreSQL is configured via PMM_ENABLE_INTERNAL_PG_QAN environment variable.")
+		expected = status.New(codes.FailedPrecondition, "QAN for internal PostgreSQL is already configured via an environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableInternalPgQan: pointer.ToBool(false),
 		}))
