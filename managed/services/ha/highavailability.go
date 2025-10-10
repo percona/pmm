@@ -134,7 +134,7 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 	}
 
 	// Create file-based snapshot store
-	snapshotStore, err := raft.NewFileSnapshotStore(raftDir, defaultSnapshotRetention, os.Stderr)
+	snapshotStore, err := raft.NewFileSnapshotStore(raftDir, defaultSnapshotRetention, l.Writer())
 	if err != nil {
 		logStore.Close()    //nolint:errcheck
 		stableStore.Close() //nolint:errcheck
