@@ -93,8 +93,6 @@ func (s *Service) Snapshot() (raft.FSMSnapshot, error) { //nolint:ireturn
 // Since PMM HA is stateless (leader election only), there's nothing to restore.
 // Cluster configuration (voters) is automatically restored by Raft from snapshot metadata.
 func (s *Service) Restore(rc io.ReadCloser) error {
-	defer rc.Close()
-
 	// FSM has no state, but we need to consume the reader
 	// Raft automatically restores cluster configuration from metadata
 	s.l.Debug("Restore called - FSM is stateless, cluster config restored by Raft")
