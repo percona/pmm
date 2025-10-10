@@ -15,14 +15,15 @@ services:
     image: clickhouse/clickhouse-server:25.3.6.56
     platform: linux/amd64
     container_name: ch-server
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse
     ulimits:
       nofile:
         soft: 262144
         hard: 262144
     ports:
       - 9000:9000
-    volumes:
-      - ./users.xml:/etc/clickhouse-server/users.xml
 
   pmm-client:
     container_name: pmm-client

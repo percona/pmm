@@ -36,7 +36,8 @@ test-env-up:                    ## Start docker containers used for testing
 		--name pmm-clickhouse-test \
 		-p 19000:9000 \
 		-p 18123:8123 \
-		-v ./users.xml:/etc/clickhouse-server/users.xml \
+		-e CLICKHOUSE_USER=default \
+		-e CLICKHOUSE_PASSWORD=clickhouse \
 		clickhouse/clickhouse-server:25.3.6.56
 	make test-env
 
@@ -46,14 +47,13 @@ test-env-up-apple:              ## Start docker containers used for testing on A
 		--name pmm-clickhouse-test \
 		-p 19000:9000 \
 		-p 18123:8123 \
-		-v ./users.xml:/etc/clickhouse-server/users.xml \
+		-e CLICKHOUSE_USER=default \
+		-e CLICKHOUSE_PASSWORD=clickhouse \
 		clickhouse/clickhouse-server:25.3.6.56
 	make test-env
 
 test-env:                       ## Create pmm_test DB and load test data
 	sleep 10
-	# remove the config file that prevents the 'default' user from connecting remotely
-	docker exec pmm-clickhouse-test rm /etc/clickhouse-server/users.d/default-user.xml
 	docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --multiline --multiquery
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"
