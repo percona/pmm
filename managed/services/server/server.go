@@ -529,15 +529,20 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 		return nil, err
 	}
 
+	var disabledInternalPgQan bool
 	internalPgQanAgent, err := s.getInternalPgQANAgent(s.db.Querier)
 	if err != nil {
-		return nil, err
+		// if we can't get the agent, log the error and set it to disabled.
+		// this is better than completely failing the request.
+		s.l.Errorf("failed to get internal pgQAN agent: %v", err)
+	} else {
+		disabledInternalPgQan = internalPgQanAgent.Disabled
 	}
 
 	_, err = models.GetPerconaSSODetails(ctx, s.db.Querier)
 
 	return &serverv1.GetSettingsResponse{
-		Settings: s.convertSettings(settings, internalPgQanAgent.Disabled, err == nil),
+		Settings: s.convertSettings(settings, disabledInternalPgQan, err == nil),
 	}, nil
 }
 
@@ -576,7 +581,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	}
 
 	if req.EnableInternalPgQan != nil && s.envSettings.EnableInternalPgQAN != nil && *req.EnableInternalPgQan != *s.envSettings.EnableInternalPgQAN {
-		return status.Error(codes.FailedPrecondition, "QAN for internal PostgreSQL is configured via an environment variable.")
+		return status.Error(codes.FailedPrecondition, "QAN for internal PostgreSQL is already configured via an environment variable.")
 	}
 
 	if req.EnableAlerting != nil && s.envSettings.EnableAlerting != nil && *req.EnableAlerting != *s.envSettings.EnableAlerting {
