@@ -371,7 +371,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 					b.Common.Comments = comments
 				}
 			}
-		} else if !strings.Contains(b.Common.Fingerprint, "?") {
+		} else if !strings.Contains(b.Common.Fingerprint, "?") && !m.disableQueryExamples {
 			b.Common.Example = b.Common.Fingerprint
 			b.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 
