@@ -290,8 +290,10 @@ SUM(m_local_blks_written_sum) AS m_local_blks_written_sum,
 
 SUM(m_temp_blks_read_sum) AS m_temp_blks_read_sum,
 SUM(m_temp_blks_written_sum) AS m_temp_blks_written_sum,
-SUM(m_blk_read_time_sum) AS m_blk_read_time_sum,
-SUM(m_blk_write_time_sum) AS m_blk_write_time_sum,
+SUM(m_shared_blk_read_time_sum) AS m_shared_blk_read_time_sum,
+SUM(m_shared_blk_write_time_sum) AS m_shared_blk_write_time_sum,
+SUM(m_local_blk_read_time_sum) AS m_local_blk_read_time_sum,
+SUM(m_local_blk_write_time_sum) AS m_local_blk_write_time_sum,
 
 SUM(m_cpu_user_time_sum) AS m_cpu_user_time_sum,
 SUM(m_cpu_sys_time_sum) AS m_cpu_sys_time_sum,
@@ -389,8 +391,10 @@ if(SUM(m_local_blks_dirtied_cnt) == 0, NaN, SUM(m_local_blks_dirtied_sum) / time
 if(SUM(m_local_blks_written_cnt) == 0, NaN, SUM(m_local_blks_written_sum) / time_frame) AS m_local_blks_written_sum_per_sec,
 if(SUM(m_temp_blks_read_cnt) == 0, NaN, SUM(m_temp_blks_read_sum) / time_frame) AS m_temp_blks_read_sum_per_sec,
 if(SUM(m_temp_blks_written_cnt) == 0, NaN, SUM(m_temp_blks_written_sum) / time_frame) AS m_temp_blks_written_sum_per_sec,
-if(SUM(m_blk_read_time_cnt) == 0, NaN, SUM(m_blk_read_time_sum) / time_frame) AS m_blk_read_time_sum_per_sec,
-if(SUM(m_blk_write_time_cnt) == 0, NaN, SUM(m_blk_write_time_sum) / time_frame) AS m_blk_write_time_sum_per_sec,
+if(SUM(m_shared_blk_read_time_cnt) == 0, NaN, SUM(m_shared_blk_read_time_sum) / time_frame) AS m_shared_blk_read_time_sum_per_sec,
+if(SUM(m_shared_blk_write_time_cnt) == 0, NaN, SUM(m_shared_blk_write_time_sum) / time_frame) AS m_shared_blk_write_time_sum_per_sec,
+if(SUM(m_local_blk_read_time_cnt) == 0, NaN, SUM(m_local_blk_read_time_sum) / time_frame) AS m_local_blk_read_time_sum_per_sec,
+if(SUM(m_local_blk_write_time_cnt) == 0, NaN, SUM(m_local_blk_write_time_sum) / time_frame) AS m_local_blk_write_time_sum_per_sec,
 if(SUM(m_cpu_user_time_cnt) == 0, NaN, SUM(m_cpu_user_time_sum) / time_frame) AS m_cpu_user_time_sum_per_sec,
 if(SUM(m_cpu_sys_time_cnt) == 0, NaN, SUM(m_cpu_sys_time_sum) / time_frame) AS m_cpu_sys_time_sum_per_sec,
 if(SUM(m_plans_calls_cnt) == 0, NaN, SUM(m_plans_calls_sum) / time_frame) AS m_plans_calls_sum_per_sec,
@@ -500,6 +504,11 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		if err != nil {
 			return nil, errors.Wrap(err, "DimensionReport scan error")
 		}
+
+		// Fill deprecated fields for compatibility
+		p.MBlkReadTimeSumPerSec = p.MSharedBlksReadSumPerSec
+		p.MBlkWriteTimeSumPerSec = p.MSharedBlkWriteTimeSumPerSec
+
 		resultsWithGaps[p.Point] = &p
 	}
 

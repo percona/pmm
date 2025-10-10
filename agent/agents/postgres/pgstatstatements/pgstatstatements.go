@@ -48,7 +48,10 @@ const (
 	queryStatStatements     = time.Minute
 )
 
-var pgStatVer18 = semver.MustParse("1.8.0")
+var (
+	pgStatVer1_8  = semver.MustParse("1.8.0")
+	pgStatVer1_11 = semver.MustParse("1.11.0")
+)
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
@@ -125,20 +128,6 @@ func getPgStatVersion(q *reform.Querier) (semver.Version, error) {
 	}
 
 	return semver.Parse(v)
-}
-
-func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
-	pgStatVersion, err := getPgStatVersion(q)
-	if err != nil {
-		return nil, err
-	}
-
-	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
-	if pgStatVersion.GE(pgStatVer18) {
-		columns = strings.Replace(columns, `"total_time"`, `"total_exec_time"`, 1)
-	}
-
-	return q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(pgStatStatementsView), tail))
 }
 
 // Run extracts stats data and sends it to the channel until ctx is canceled.
@@ -236,15 +225,22 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	rows, err := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
+	pgStatVersion, err := getPgStatVersion(q)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	row, view := newPgStatMonitorStructs(pgStatVersion)
+	columns := strings.Join(q.QualifiedColumns(view), ", ")
+
+	rows, err := q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(view), "WHERE queryid IS NOT NULL AND query IS NOT NULL"))
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "couldn't get rows from pg_stat_statements")
 	}
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		var row pgStatStatements
-		if err = q.NextRow(&row, rows); err != nil {
+		if err = q.NextRow(row, rows); err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
@@ -252,7 +248,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 		}
 		totalN++
 		c := &pgStatStatementsExtended{
-			pgStatStatements: row,
+			pgStatStatements: *row,
 			Database:         databases[row.DBID],
 			Username:         usernames[row.UserID],
 		}
@@ -287,7 +283,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 		return nil, err
 	}
 
-	buckets := makeBuckets(current, prev, m.disableCommentsParsing, m.l)
+	buckets := m.makeBuckets(current, prev)
 	startS := uint32(periodStart.Unix())
 	m.l.Debugf("Made %d buckets out of %d stat statements in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
@@ -312,8 +308,9 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
 // to make metrics buckets. It's a pure function for easier testing.
-func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *logrus.Entry) []*agentpb.MetricsBucket {
+func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
+	l := m.l
 
 	for queryID, currentPSS := range current {
 		prevPSS := prev[queryID]
@@ -339,10 +336,10 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 		}
 
 		if len(currentPSS.Tables) == 0 {
-			currentPSS.Tables = extractTables(currentPSS.Query, l)
+			currentPSS.Tables = extractTables(currentPSS.Query, m.maxQueryLength, l)
 		}
 
-		if !disableCommentsParsing {
+		if !m.disableCommentsParsing {
 			comments, err := queryparser.PostgreSQLComments(currentPSS.Query)
 			if err != nil {
 				l.Errorf("failed to parse comments for query: %s", currentPSS.Query)
@@ -371,7 +368,7 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 			cnt   *float32 // MetricsBucket.XXXCnt field to write count
 		}{
 			// convert milliseconds to seconds
-			{float32(currentPSS.TotalTime-prevPSS.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
+			{float32(currentPSS.TotalExecTime-prevPSS.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
 			{float32(currentPSS.Rows - prevPSS.Rows), &mb.Postgresql.MRowsSum, &mb.Postgresql.MRowsCnt},
 
 			{float32(currentPSS.SharedBlksHit - prevPSS.SharedBlksHit), &mb.Postgresql.MSharedBlksHitSum, &mb.Postgresql.MSharedBlksHitCnt},
@@ -388,8 +385,10 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 			{float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten), &mb.Postgresql.MTempBlksWrittenSum, &mb.Postgresql.MTempBlksWrittenCnt},
 
 			// convert milliseconds to seconds
-			{float32(currentPSS.BlkReadTime-prevPSS.BlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
-			{float32(currentPSS.BlkWriteTime-prevPSS.BlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
+			{float32(currentPSS.SharedBlkReadTime-prevPSS.SharedBlkReadTime) / 1000, &mb.Postgresql.MSharedBlkReadTimeSum, &mb.Postgresql.MSharedBlkReadTimeCnt},
+			{float32(currentPSS.SharedBlkWriteTime-prevPSS.SharedBlkWriteTime) / 1000, &mb.Postgresql.MSharedBlkWriteTimeSum, &mb.Postgresql.MSharedBlkWriteTimeCnt},
+			{float32(currentPSS.LocalBlkReadTime-prevPSS.LocalBlkReadTime) / 1000, &mb.Postgresql.MLocalBlkReadTimeSum, &mb.Postgresql.MLocalBlkReadTimeCnt},
+			{float32(currentPSS.LocalBlkWriteTime-prevPSS.LocalBlkWriteTime) / 1000, &mb.Postgresql.MLocalBlkWriteTimeSum, &mb.Postgresql.MLocalBlkWriteTimeCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value

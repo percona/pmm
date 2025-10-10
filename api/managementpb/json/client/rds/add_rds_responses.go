@@ -1033,12 +1033,13 @@ type AddRDSOKBodyMysqldExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1087,7 +1088,7 @@ var addRdsOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1102,6 +1103,9 @@ const (
 
 	// AddRDSOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyMysqldExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyMysqldExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
@@ -1472,12 +1476,13 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1529,7 +1534,7 @@ var addRdsOkBodyPostgresqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1544,6 +1549,9 @@ const (
 
 	// AddRDSOKBodyPostgresqlExporterStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyPostgresqlExporterStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyPostgresqlExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyPostgresqlExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyPostgresqlExporterStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyPostgresqlExporterStatusRUNNING string = "RUNNING"
@@ -1797,12 +1805,13 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -1835,7 +1844,7 @@ var addRdsOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1850,6 +1859,9 @@ const (
 
 	// AddRDSOKBodyQANMysqlPerfschemaStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyQANMysqlPerfschemaStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyQANMysqlPerfschemaStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyQANMysqlPerfschemaStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyQANMysqlPerfschemaStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyQANMysqlPerfschemaStatusRUNNING string = "RUNNING"
@@ -2005,12 +2017,13 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -2043,7 +2056,7 @@ var addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2058,6 +2071,9 @@ const (
 
 	// AddRDSOKBodyQANPostgresqlPgstatementsStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyQANPostgresqlPgstatementsStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyQANPostgresqlPgstatementsStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyQANPostgresqlPgstatementsStatusRUNNING string = "RUNNING"
@@ -2201,12 +2217,13 @@ type AddRDSOKBodyRDSExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -2263,7 +2280,7 @@ var addRdsOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2278,6 +2295,9 @@ const (
 
 	// AddRDSOKBodyRDSExporterStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyRDSExporterStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyRDSExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyRDSExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyRDSExporterStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyRDSExporterStatusRUNNING string = "RUNNING"

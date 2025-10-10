@@ -14,20 +14,13 @@ main() {
         set -o errexit
         set -o xtrace
 
-        if grep -q 'CentOS Linux 7' /etc/os-release; then
-            # disable fastestmirror plugin, which mostly fails due to CentOS 7 being EOL
-            sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
-
-            sed -i -e 's/^\(mirrorlist\)/#\1/g' /etc/yum.repos.d/CentOS-Base.repo
-            sed -i -e 's|^#baseurl.*|baseurl=http://vault.centos.org/centos/\$releasever/os/\$basearch/|g' /etc/yum.repos.d/CentOS-Base.repo
-        fi
-
         export pmm_release=$pmm_release
         export sudo_path=
         if [ -e /usr/bin/sudo ]; then
             export sudo_path=\$(ls /usr/bin/sudo)
         fi
         [[ ${IMAGE} = ${rpmbuild_docker_image} ]] || \$sudo_path yum -y install git rpm-build
+
         mkdir -p /tmp/pmm
         pushd /home/builder/results
             /home/builder/bin/build-client-packages \

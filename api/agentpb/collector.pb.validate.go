@@ -191,7 +191,7 @@ type MetricsBucketMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsBucketMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -295,7 +295,7 @@ type HistogramItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HistogramItemMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -447,7 +447,7 @@ type MetricsBucket_CommonMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsBucket_CommonMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -779,7 +779,7 @@ type MetricsBucket_MySQLMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsBucket_MySQLMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -911,7 +911,7 @@ type MetricsBucket_MongoDBMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsBucket_MongoDBMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1043,13 +1043,21 @@ func (m *MetricsBucket_PostgreSQL) validate(all bool) error {
 
 	// no validation rules for MTempBlksWrittenSum
 
-	// no validation rules for MBlkReadTimeCnt
+	// no validation rules for MSharedBlkReadTimeCnt
 
-	// no validation rules for MBlkReadTimeSum
+	// no validation rules for MSharedBlkReadTimeSum
 
-	// no validation rules for MBlkWriteTimeCnt
+	// no validation rules for MSharedBlkWriteTimeCnt
 
-	// no validation rules for MBlkWriteTimeSum
+	// no validation rules for MSharedBlkWriteTimeSum
+
+	// no validation rules for MLocalBlkReadTimeCnt
+
+	// no validation rules for MLocalBlkReadTimeSum
+
+	// no validation rules for MLocalBlkWriteTimeCnt
+
+	// no validation rules for MLocalBlkWriteTimeSum
 
 	// no validation rules for MCpuUserTimeCnt
 
@@ -1143,7 +1151,7 @@ type MetricsBucket_PostgreSQLMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsBucket_PostgreSQLMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -437,12 +437,13 @@ type Status2OKBodyAgentsInfoItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// The current listen port of this Agent (exporter or vmagent).
@@ -559,7 +560,7 @@ var status2OkBodyAgentsInfoItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -574,6 +575,9 @@ const (
 
 	// Status2OKBodyAgentsInfoItems0StatusSTARTING captures enum value "STARTING"
 	Status2OKBodyAgentsInfoItems0StatusSTARTING string = "STARTING"
+
+	// Status2OKBodyAgentsInfoItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	Status2OKBodyAgentsInfoItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// Status2OKBodyAgentsInfoItems0StatusRUNNING captures enum value "RUNNING"
 	Status2OKBodyAgentsInfoItems0StatusRUNNING string = "RUNNING"

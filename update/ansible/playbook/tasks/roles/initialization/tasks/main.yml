@@ -101,12 +101,6 @@
             owner: root
             group: pmm
 
-        - name: Restart clickhouse EL7
-          when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-          command: supervisorctl restart clickhouse
-          become: true
-          changed_when: true
-
         - name: Restart clickhouse EL9
           when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
           command: /usr/local/bin/supervisorctl restart clickhouse
@@ -220,14 +214,14 @@
             name: sqlite-to-postgres
           tags:
             - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+
+        - name: Change default admin id
+          postgresql_query:
+            db: grafana
+            query: UPDATE "user" SET id='1' WHERE login='admin';
+          when: not ansible_check_mode
+
       when: is_database_sqlite.stat.exists
-
-    - name: Change default admin id
-      postgresql_query:
-        db: grafana
-        query: UPDATE "user" SET id='1' WHERE login='admin';
-      when: not ansible_check_mode
-
   when: docker_upgrade
 
 - name: Copy file with image version

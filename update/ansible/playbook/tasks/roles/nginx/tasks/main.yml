@@ -1,16 +1,5 @@
 ---
 # We already have nginx package in epel repo
-- name: Add Nginx repository for RHEL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  yum_repository:
-    name: nginx
-    description: nginx repo
-    baseurl: http://nginx.org/packages/centos/7/$basearch/
-    gpgcheck: no
-    enabled: no
-
 - name: Add Nginx repository for RHEL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'

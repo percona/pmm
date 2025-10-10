@@ -494,12 +494,13 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -545,7 +546,7 @@ var addNodeExporterOkBodyNodeExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -560,6 +561,9 @@ const (
 
 	// AddNodeExporterOKBodyNodeExporterStatusSTARTING captures enum value "STARTING"
 	AddNodeExporterOKBodyNodeExporterStatusSTARTING string = "STARTING"
+
+	// AddNodeExporterOKBodyNodeExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddNodeExporterOKBodyNodeExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddNodeExporterOKBodyNodeExporterStatusRUNNING captures enum value "RUNNING"
 	AddNodeExporterOKBodyNodeExporterStatusRUNNING string = "RUNNING"

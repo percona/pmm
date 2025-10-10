@@ -8,7 +8,7 @@ set -o errexit
 set -o xtrace
 
 # download (in the background) the same verison as used by PMM build process
-curl -sSL https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz -o /tmp/golang.tar.gz &
+curl -sSL https://dl.google.com/go/go1.23.2.linux-amd64.tar.gz -o /tmp/golang.tar.gz &
 
 # to install man pages
 sed -i '/nodocs/d' /etc/yum.conf

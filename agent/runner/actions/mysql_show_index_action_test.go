@@ -70,32 +70,32 @@ func TestMySQLShowIndex(t *testing.T) {
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Ignored",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[1])
-			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[2])
+			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[1])
+			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[2])
 
 		case mySQLVersion.String() == "5.6" || mySQLVendor == version.MariaDBVendor:
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
-			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
+			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
+			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
 		case mySQLVersion.String() == "5.7":
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
-			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
+			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
+			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
 		case mySQLVersion.String() == "8.0":
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Visible", "Expression",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[1])
-			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[2])
+			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[1])
+			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[2])
 
 		default:
 			t.Fatal("Unhandled version.")

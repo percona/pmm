@@ -14,6 +14,11 @@
         # Alternative architecture name just because we never can have only one name in computers
         ansible_architecture_alt: "{% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}none{% endif %}"
 
+    - name: Add hashicorp repository
+      get_url:
+        url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+        dest: /etc/yum.repos.d/hashicorp.repo
+
     - name: Enable epel repo
       yum:
         name: epel-release
@@ -27,10 +32,26 @@
     - name: Add a repository for NodeJS
       shell: "curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }} | bash -"
 
+    - name: Install docker
+      block:
+        - name: Add docker repository
+          get_url:
+            url: https://download.docker.com/linux/centos/docker-ce.repo
+            dest: /etc/yum.repos.d/docker-ce.repo
+
+        - name: Install docker packages
+          package:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+
     - name: Install packages
       package:
         name:
-          - docker
           - git
           - jq
           - gettext
@@ -49,12 +70,14 @@
           - perl
           - p7zip
           - nodejs
+          - packer
           # - xmlstarlet
         state: present
 
+
     - name: Install Java17
       package:
-        name: jdk-17-headless
+        name: java-17-openjdk-headless
         state: present
 
     - name: Install docker-compose
@@ -105,6 +128,11 @@
         group: "root"
         owner: "root"
 
+    - name: Install pip3
+      package:
+        name: python3-pip
+        state: present
+
     - name: Install Python modules
       pip:
         name: "{{ item }}"
@@ -124,16 +152,26 @@
             description: VirtualBox
             baseurl: "http://download.virtualbox.org/virtualbox/rpm/el/$releasever/$basearch"
             gpgcheck: true
-            gpgkey: https://www.virtualbox.org/download/oracle_vbox.asc
+            gpgkey: https://www.virtualbox.org/download/oracle_vbox_2016.asc
             enabled: true
             state: present
+
+        ##- name: Add base repository for Hashicorp
+        ##  yum_repository:
+        ##    name: hashicorp
+        ##    description: HashiCorp Repository
+        ##    baseurl: "https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable"
+        ##    gpgcheck: true
+        ##    gpgkey: https://rpm.releases.hashicorp.com/gpg
+        ##    enabled: true
+        ##    state: present
 
         - name: Install packages for virtualization
           yum:
             state: present
             name: "{{ item }}"
           loop:
-            - VirtualBox-6.1
+            - VirtualBox-7.0
             - vagrant
 
         - name: Reboot to the latest kernel
@@ -141,6 +179,47 @@
             reboot_timeout: 1200
         - name: Recompile kernel
           command: /sbin/vboxconfig
+
+    - name: Install Packer Plugins
+      block:
+        - name: Create Packer plugins directory
+          file:
+            path: ~/.packer.d/plugins/github.com
+            state: directory
+            mode: '0755'
+            recurse: yes
+
+        - name: Install packer virtualbox plugin
+          command: >
+            /usr/bin/packer plugins install github.com/hashicorp/virtualbox
+          register: packer_plugin_install
+          changed_when: "'Installed plugin successfully' in packer_plugin_install.stdout"
+
+        - name: Install packer ansible plugin
+          command: >
+            /usr/bin/packer plugins install github.com/hashicorp/ansible
+          register: packer_ansible_plugin_install
+          changed_when: "'Installing' in packer_ansible_plugin_install.stdout"
+
+        - name: Verify packer virtualbox plugin installation
+          stat:
+            path: ~/.packer.d/plugins/github.com/hashicorp/virtualbox
+          register: packer_virtualbox_plugin
+
+        - name: Verify packer ansible plugin installation
+          stat:
+            path: ~/.packer.d/plugins/github.com/hashicorp/ansible
+          register: packer_ansible_plugin
+
+        - name: Output virtualbox plugin installation status
+          debug:
+            msg: "Packer VirtualBox plugin is installed"
+          when: packer_virtualbox_plugin.stat.exists
+
+        - name: Output ansible plugin installation status
+          debug:
+            msg: "Packer Ansible plugin is installed"
+          when: packer_ansible_plugin.stat.exists
 
     - name: Copy docker daemon config
       copy:
@@ -153,19 +232,14 @@
         state: started
         enabled: yes
 
-    - name: Pull and cache docker images
-      docker_image:
-        name: "{{ item }}"
-        source: pull
-      loop:
-        - debian:buster
-        - debian:stretch
-        - debian:bullseye
-        - ubuntu:jammy
-        - ubuntu:bionic
-        - ubuntu:focal
-        - rockylinux:8
-        - oraclelinux:9
+    - name: Download and unarchive AWS installer
+      unarchive:
+        src: https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip
+        dest: /tmp
+        remote_src: yes
+
+    - name: Run awscli installer
+      shell: /tmp/aws/install
 
     - name: Turn off swap
       sysctl:

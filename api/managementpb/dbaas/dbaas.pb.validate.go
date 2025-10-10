@@ -77,7 +77,7 @@ type RunningOperationMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RunningOperationMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -181,7 +181,7 @@ type ComputeResourcesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ComputeResourcesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -287,7 +287,7 @@ type BackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m BackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -391,7 +391,7 @@ type RestoreMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestoreMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -496,7 +496,7 @@ type ResourcesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ResourcesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

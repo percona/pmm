@@ -1,0 +1,12 @@
+Dimension	In the Query Analytics dashboard, to help focus on the possible source of performance issues, you can group queries by *dimension*, one of: Query, Service Name, Database, Schema, User Name, Client Host
+Fingerprint	A *normalized statement digest*---a query string with values removed that acts as a template or typical example for a query.
+Annotation	A way of showing a mark on dashboards signifying an important point in time.
+Query Analytics	Component of PMM Server that enables you to analyze MySQL query performance over periods of time.
+EBS	Amazon's Elastic Block Store.
+VG	Volume Group.
+MM	Metrics Monitor.
+PEM	Privacy Enhanced Mail.
+IAM	Identity and Access Management (for Amazon AWS).
+QPS	Queries Per Second. A measure of the rate of queries being monitored.
+NUMA	Non-Uniform Memory Access.
+Technical Preview	Releases intended for public preview and feedback but not suitable for use on production or business-critical systems. ([Read more](https://www.percona.com/services/policies/percona-release-lifecycle-overview).)

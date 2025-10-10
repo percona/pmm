@@ -4,6 +4,9 @@ on:
     # run every Saturday
     - cron: "0 12 * * 6"
 
+permissions:
+  contents: read
+
 jobs:
   clean:
     name: Clean caches
@@ -13,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          - version: 1.22.x
+          - version: 1.23.x
             may-fail: false
           - version: tip
             may-fail: true
@@ -36,7 +39,7 @@ jobs:
         env:
           # to avoid error due to `go version` accepting -v flag with an argument since 1.15
           GOFLAGS: ""
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
         with:
           go-version: ${{ matrix.go.version }}
 
@@ -52,19 +55,19 @@ jobs:
           echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           lfs: true
 
       - name: Enable Go modules cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/go/pkg/mod
           key: ${{ matrix.os }}-go-${{ matrix.go.version }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ matrix.os }}-go-${{ matrix.go.version }}-modules-
       - name: Enable Go build cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cache/go-build
           key: ${{ matrix.os }}-go-${{ matrix.go.version }}-build-${{ github.ref }}-${{ hashFiles('**') }}

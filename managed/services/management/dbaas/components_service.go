@@ -22,7 +22,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
@@ -162,7 +162,7 @@ func (c ComponentsService) ChangePSMDBComponents(_ context.Context, req *dbaasv1
 			kubernetesCluster.Mongod, e = setComponent(kubernetesCluster.Mongod, req.Mongod)
 			if e != nil {
 				message := fmt.Sprintf("%s, cluster: %s, component: mongod", e.Error(), kubernetesCluster.KubernetesClusterName)
-				return status.Errorf(codes.InvalidArgument, message)
+				return status.Error(codes.InvalidArgument, message)
 			}
 		}
 
@@ -192,7 +192,7 @@ func (c ComponentsService) ChangePXCComponents(_ context.Context, req *dbaasv1be
 			kubernetesCluster.PXC, e = setComponent(kubernetesCluster.PXC, req.Pxc)
 			if e != nil {
 				message := fmt.Sprintf("%s, cluster: %s, component: pxc", e.Error(), kubernetesCluster.KubernetesClusterName)
-				return status.Errorf(codes.InvalidArgument, message)
+				return status.Error(codes.InvalidArgument, message)
 			}
 		}
 
@@ -200,7 +200,7 @@ func (c ComponentsService) ChangePXCComponents(_ context.Context, req *dbaasv1be
 			kubernetesCluster.ProxySQL, e = setComponent(kubernetesCluster.ProxySQL, req.Proxysql)
 			if e != nil {
 				message := fmt.Sprintf("%s, cluster: %s, component: proxySQL", e.Error(), kubernetesCluster.KubernetesClusterName)
-				return status.Errorf(codes.InvalidArgument, message)
+				return status.Error(codes.InvalidArgument, message)
 			}
 		}
 
@@ -208,7 +208,7 @@ func (c ComponentsService) ChangePXCComponents(_ context.Context, req *dbaasv1be
 			kubernetesCluster.HAProxy, e = setComponent(kubernetesCluster.HAProxy, req.Haproxy)
 			if e != nil {
 				message := fmt.Sprintf("%s, cluster: %s, component: HAProxy", e.Error(), kubernetesCluster.KubernetesClusterName)
-				return status.Errorf(codes.InvalidArgument, message)
+				return status.Error(codes.InvalidArgument, message)
 			}
 		}
 		e = tx.Save(kubernetesCluster)
@@ -537,14 +537,14 @@ func getPMMClientImage() string {
 	return pmmClientImage
 }
 
-func imageExists(ctx context.Context, image string) (bool, error) {
+func imageExists(ctx context.Context, name string) (bool, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		panic(err)
 	}
 	defer cli.Close() //nolint:errcheck
 
-	reader, err := cli.ImagePull(ctx, image, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(ctx, name, image.PullOptions{})
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil

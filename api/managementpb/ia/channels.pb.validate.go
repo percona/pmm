@@ -76,7 +76,7 @@ type BasicAuthMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m BasicAuthMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -191,7 +191,7 @@ type TLSConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m TLSConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -354,7 +354,7 @@ type HTTPConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HTTPConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -466,7 +466,7 @@ type EmailConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m EmailConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -572,7 +572,7 @@ type PagerDutyConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PagerDutyConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -684,7 +684,7 @@ type SlackConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SlackConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -828,7 +828,7 @@ type WebhookConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m WebhookConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1101,7 +1101,7 @@ type ChannelMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChannelMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1230,7 +1230,7 @@ type ListChannelsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListChannelsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1395,7 +1395,7 @@ type ListChannelsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListChannelsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1626,7 +1626,7 @@ type AddChannelRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddChannelRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1730,7 +1730,7 @@ type AddChannelResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddChannelResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1963,7 +1963,7 @@ type ChangeChannelRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeChannelRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2065,7 +2065,7 @@ type ChangeChannelResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeChannelResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2178,7 +2178,7 @@ type RemoveChannelRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveChannelRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2280,7 +2280,7 @@ type RemoveChannelResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveChannelResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

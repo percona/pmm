@@ -191,7 +191,7 @@ type AddMySQLRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -409,7 +409,7 @@ type AddMySQLResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -254,7 +254,7 @@ func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
 	fileConfigs = append(fileConfigs, fileCfg)
 
 	if err := c.validateConfig(fileConfigs); err != nil {
-		c.l.Errorf(err.Error())
+		c.l.Error(err)
 	}
 
 	return c.merge(fileConfigs), nil

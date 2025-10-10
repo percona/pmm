@@ -1,6 +1,7 @@
 # Host Makefile.
 
 include Makefile.include
+-include documentation/Makefile
 
 ifeq ($(PROFILES),)
 PROFILES := 'pmm'

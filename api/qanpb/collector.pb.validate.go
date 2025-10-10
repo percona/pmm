@@ -109,7 +109,7 @@ type CollectRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CollectRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -589,6 +589,22 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for MBlkWriteTimeSum
 
+	// no validation rules for MSharedBlkReadTimeCnt
+
+	// no validation rules for MSharedBlkReadTimeSum
+
+	// no validation rules for MSharedBlkWriteTimeCnt
+
+	// no validation rules for MSharedBlkWriteTimeSum
+
+	// no validation rules for MLocalBlkReadTimeCnt
+
+	// no validation rules for MLocalBlkReadTimeSum
+
+	// no validation rules for MLocalBlkWriteTimeCnt
+
+	// no validation rules for MLocalBlkWriteTimeSum
+
 	// no validation rules for MCpuUserTimeCnt
 
 	// no validation rules for MCpuUserTimeSum
@@ -647,7 +663,7 @@ type MetricsBucketMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsBucketMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -747,7 +763,7 @@ type CollectResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CollectResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

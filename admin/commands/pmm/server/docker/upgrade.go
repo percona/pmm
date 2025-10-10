@@ -25,6 +25,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/pkg/errors"
@@ -204,7 +205,7 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 }
 
 func (c *UpgradeCommand) pullImage(ctx context.Context, imageName string) error {
-	reader, err := c.dockerFn.PullImage(ctx, imageName, types.ImagePullOptions{})
+	reader, err := c.dockerFn.PullImage(ctx, imageName, image.PullOptions{})
 	if err != nil {
 		return err
 	}

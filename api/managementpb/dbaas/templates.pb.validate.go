@@ -74,7 +74,7 @@ type TemplateMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m TemplateMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -196,7 +196,7 @@ type ListTemplatesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListTemplatesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -332,7 +332,7 @@ type ListTemplatesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListTemplatesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

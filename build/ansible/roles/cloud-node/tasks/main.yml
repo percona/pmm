@@ -1,13 +1,5 @@
 ---
 # Common things for all cloud images
-- name: Packages                   | Add EPEL repository for EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  yum:
-    name: https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-14.noarch.rpm
-    state: installed
-
 - name: Packages                   | Add EPEL repository for EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
@@ -15,19 +7,6 @@
   yum:
     name: epel-release
     state: installed
-
-- name: Packages                   | Install OS tools for EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  yum:
-    name:
-      - screen
-      - yum-utils
-      - cloud-init
-      - firewalld
-      - python2-pip
-      - ansible
 
 - name: Packages                   | Install OS tools for EL9
   when:
@@ -40,16 +19,6 @@
       - firewalld
       - python3-libselinux
       - python3-firewall
-
-- name: Firewalld                  | Start EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-    - ansible_os_family == 'RedHat'
-  service:
-    name: firewalld
-    state: started
-    enabled: yes
 
 - name: Firewalld                  | Start EL9
   when:
@@ -136,13 +105,6 @@
       admin ALL=(ALL) NOPASSWD: ALL
     dest: /etc/sudoers.d/90-admin-user
     mode: 0440
-
-- name: change cloud user EL7      | Change cloud user
-  when: create_admin == "true" and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  replace:
-    dest: /etc/cloud/cloud.cfg
-    regexp: "name: centos"
-    replace: "name: admin"
 
 - name: change cloud user for OVF EL9      | Change cloud user
   when:

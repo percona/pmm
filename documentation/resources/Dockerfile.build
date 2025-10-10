@@ -1,0 +1,17 @@
+FROM ubuntu:20.04
+
+RUN apt-get update
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository universe && apt-get update
+RUN apt-get install -y git wget unzip python3 python3-pip python3-dev fontconfig fonts-noto fonts-inconsolata python3-cairocffi
+
+COPY requirements.txt ./requirements.txt
+RUN pip3 install -r requirements.txt
+
+RUN mkdir -p /usr/share/fonts/chivo && cd /usr/share/fonts/chivo && wget -O Chivo.zip https://fonts.google.com/download?family=Chivo && unzip Chivo.zip
+RUN rm /usr/share/fonts/chivo/Chivo.zip && fc-cache -f && apt-get clean
+
+WORKDIR /docs
+
+EXPOSE 8000
+CMD ["mkdocs","build"]
