@@ -813,6 +813,10 @@ func TestSettings(t *testing.T) {
 				break
 			}
 		}
+		// GetServerSettings to verify the setting is persisted.
+		getSettingsRes, err := serverClient.Default.ServerService.GetSettings(nil)
+		require.NoError(t, err)
+		assert.False(t, getSettingsRes.Payload.Settings.EnableInternalPgQAN)
 
 		// Enable QAN via settings
 		res, err = serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -836,5 +840,9 @@ func TestSettings(t *testing.T) {
 				break
 			}
 		}
+
+		getSettingsRes, err = serverClient.Default.ServerService.GetSettings(nil)
+		require.NoError(t, err)
+		assert.True(t, getSettingsRes.Payload.Settings.EnableInternalPgQAN)
 	})
 }
