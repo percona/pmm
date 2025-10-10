@@ -45,7 +45,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 | MySQL             | [MySQL Instances Overview]                                                               | 96
 | MySQL             | [MySQL Wait Event Analyses Details]                                                      | 42
 | MySQL             | [MySQL Performance Schema Details]                                                       | 48
-| MySQL             | [MySQL ]                                                      | 49
+| MySQL             | [MySQL Query Response Time Details]                                                      | 49
 | MySQL             | [MySQL Replication Summary]                                                              | 50
 | MySQL             | [MySQL Group Replication Summary]                                                        | 18
 | MySQL             | [MySQL Table Details]                                                                    | 45
@@ -103,7 +103,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [MySQL Instances Overview]: ../../reference/dashboards/dashboard-mysql-instances-overview.md
 [MySQL Wait Event Analyses Details]: ../../reference/dashboards/dashboard-mysql-wait-event-analyses-details.md
 [MySQL Performance Schema Details]: ../../reference/dashboards/dashboard-mysql-performance-schema-details.md
-[MySQL ]: ../../reference/dashboards/dashboard-mysql-query-response-time-details.md
+[MySQL Query Response Time Details]: ../../reference/dashboards/dashboard-mysql-query-response-time-details.md
 [MySQL Replication Summary]: ../../reference/dashboards/dashboard-mysql-replication-summary.md
 [MySQL Group Replication Summary]: ../../reference/dashboards/dashboard-mysql-group-replication-summary.md
 [MySQL Table Details]: ../../reference/dashboards/dashboard-mysql-table-details.md

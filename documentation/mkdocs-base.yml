@@ -394,6 +394,7 @@ nav:
               - reference/dashboards/dashboard-mysql-instances-overview.md
               - reference/dashboards/dashboard-mysql-wait-event-analyses-details.md
               - reference/dashboards/dashboard-mysql-performance-schema-details.md
+              - reference/dashboards/dashboard-mysql-query-response-time-details.md
               - reference/dashboards/dashboard-mysql-replication-summary.md
               - reference/dashboards/dashboard-mysql-group-replication-summary.md
               - reference/dashboards/dashboard-mysql-table-details.md
