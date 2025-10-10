@@ -30,6 +30,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/qan-api2/migrations"
 )
 
 func setup() *sqlx.DB {
@@ -47,7 +49,11 @@ func setup() *sqlx.DB {
 	if err != nil {
 		log.Fatal("Connection: ", err)
 	}
-	err = runMigrations(dsn)
+
+	data := map[string]any{
+		"engine": migrations.GetEngine(dsn),
+	}
+	err = migrations.Run(dsn, data, false, "")
 	if err != nil {
 		log.Fatal("Migration: ", err)
 	}
@@ -118,7 +124,7 @@ func TestCreateDbIfNotExists(t *testing.T) {
 			dsn = "clickhouse://127.0.0.1:19000/pmm_created_db"
 		}
 
-		err := createDB(dsn)
+		err := createDB(dsn, "")
 
 		require.NoError(t, err, "Check connection after we create database")
 	})
