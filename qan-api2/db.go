@@ -113,9 +113,31 @@ func runMigrations(dsn string) error {
 
 	// run up to the latest migration
 	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
+	if err == nil || errors.Is(err, migrate.ErrNoChange) {
 		return nil
 	}
+
+	// If the database is in dirty state, try to fix it (PMM-14305)
+	var errDirty migrate.ErrDirty
+	if errors.As(err, &errDirty) {
+		log.Printf("Migration %d was unsuccesful, trying to fix it...", errDirty.Version)
+
+		// Note: -1 is a valid version to force to
+		ver := int(errDirty.Version) - 1
+		fixErr := m.Force(ver)
+		if fixErr != nil {
+			return fmt.Errorf("can't force the migration %d: %w", ver, fixErr)
+		}
+
+		// try to run migrations again
+		err = m.Up()
+		if err == nil || errors.Is(err, migrate.ErrNoChange) {
+			return nil
+		}
+
+		return err
+	}
+
 	return err
 }
 
