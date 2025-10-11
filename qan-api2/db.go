@@ -17,6 +17,7 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -28,7 +29,6 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -113,9 +113,29 @@ func runMigrations(dsn string) error {
 
 	// run up to the latest migration
 	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
+	if err == nil || errors.Is(err, migrate.ErrNoChange) {
 		return nil
 	}
+
+	// If the database is in dirty state, try to fix it (PMM-14305)
+	var errDirty migrate.ErrDirty
+	if errors.As(err, &errDirty) {
+		log.Printf("Migration %d was unsuccessful, trying to fix it...", errDirty.Version)
+
+		// Note: -1 is a valid version to force to
+		ver := errDirty.Version - 1
+		fErr := m.Force(ver)
+		if fErr != nil {
+			return fmt.Errorf("can't force the migration %d: %w", ver, fErr)
+		}
+
+		// try to run migrations again
+		err = m.Up()
+		if errors.Is(err, migrate.ErrNoChange) {
+			return nil
+		}
+	}
+
 	return err
 }
 
