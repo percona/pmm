@@ -124,14 +124,14 @@ func runMigrations(dsn string) error {
 
 		// Note: -1 is a valid version to force to
 		ver := int(errDirty.Version) - 1
-		fixErr := m.Force(ver)
-		if fixErr != nil {
-			return fmt.Errorf("can't force the migration %d: %w", ver, fixErr)
+		fErr := m.Force(ver)
+		if fErr != nil {
+			return fmt.Errorf("can't force the migration %d: %w", ver, fErr)
 		}
 
 		// try to run migrations again
 		err = m.Up()
-		if err == nil || errors.Is(err, migrate.ErrNoChange) {
+		if errors.Is(err, migrate.ErrNoChange) {
 			return nil
 		}
 
