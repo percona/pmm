@@ -94,10 +94,8 @@ func (res *debugResult) String() string {
 	return RenderTemplate(debugResultT, res)
 }
 
-var (
-	// DebugServiceTypesKeys lists all possible service types for debug command
-	DebugServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "valkey", "proxysql", "haproxy", "external", "node"}
-)
+// DebugServiceTypesKeys lists all possible service types for debug command
+var DebugServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "valkey", "proxysql", "haproxy", "external", "node"}
 
 // DebugCommand is used by Kong for CLI flags and commands.
 type DebugCommand struct {
@@ -1010,7 +1008,7 @@ func (cmd *DebugCommand) fetchAgentLogs(ctx context.Context, agentFiles map[stri
 		relevantLogs := strings.Join(lines[startIdx:], "\n")
 
 		// Write to file
-		err = os.WriteFile(outputFile, []byte(relevantLogs), 0600)
+		err = os.WriteFile(outputFile, []byte(relevantLogs), 0o600)
 		if err != nil {
 			logrus.Warnf("Failed to write logs to file %s: %v", outputFile, err)
 			continue
