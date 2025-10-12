@@ -111,6 +111,7 @@ func TestCreateAgentInfo(t *testing.T) {
 		status     string
 		listenPort int64
 		serviceID  string
+		category   AgentCategory
 	}{
 		{
 			name:       "node exporter",
@@ -119,6 +120,7 @@ func TestCreateAgentInfo(t *testing.T) {
 			status:     "RUNNING",
 			listenPort: 42000,
 			serviceID:  "service-456",
+			category:   AgentCategoryExporter,
 		},
 		{
 			name:       "mysqld exporter",
@@ -127,19 +129,21 @@ func TestCreateAgentInfo(t *testing.T) {
 			status:     "WAITING",
 			listenPort: 42001,
 			serviceID:  "service-999",
+			category:   AgentCategoryExporter,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			info := createAgentInfo(tt.agentID, tt.agentType, tt.status, tt.listenPort, tt.serviceID)
+			info := createAgentInfo(tt.agentID, tt.agentType, tt.status, tt.listenPort, tt.serviceID, tt.category)
 
 			assert.Equal(t, tt.agentID, info.AgentID)
 			assert.Equal(t, tt.agentType, info.AgentType)
 			assert.Equal(t, tt.status, info.Status)
 			assert.Equal(t, tt.listenPort, info.ListenPort)
 			assert.Equal(t, tt.serviceID, info.ServiceID)
+			assert.Equal(t, tt.category, info.Category)
 			assert.Equal(t, tt.agentID, info.AgentPassword, "Password should default to agent ID")
 		})
 	}
