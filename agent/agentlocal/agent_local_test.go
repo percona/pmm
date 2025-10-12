@@ -287,4 +287,53 @@ func TestGetZipFile(t *testing.T) {
 		assert.True(t, foundFirstAgent, "Should contain first agent's log")
 		assert.True(t, foundSecondAgent, "Should contain second agent's log")
 	})
+
+	t.Run("test zip file with multiple agent_id filters", func(t *testing.T) {
+		agentInfo, supervisor, client, cfg := setup(t)
+		defer supervisor.AssertExpectations(t)
+		defer client.AssertExpectations(t)
+		logStore := tailog.NewStore(10)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
+		_, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
+		require.NoError(t, err)
+
+		// Test with multiple agent_id query parameters
+		agentID1 := agentInfo[0].AgentId
+		agentID2 := "00000000-0000-4000-8000-000000000099"
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/logs.zip?agent_id="+agentID1+"&agent_id="+agentID2, nil)
+		s.ZipLogs(rec, req)
+		existFile, err := io.ReadAll(rec.Body)
+		require.NoError(t, err)
+
+		bufExs := bytes.NewReader(existFile)
+		zipExs, err := zip.NewReader(bufExs, bufExs.Size())
+		require.NoError(t, err)
+
+		// When filtering by multiple agent_ids, we should get:
+		// 1. First agent's log file
+		// 2. Second agent's log file
+		// 3. pmm-agent.log (always included)
+		// Count of files should be exactly 3
+		assert.Equal(t, 3, len(zipExs.File), "Should contain exactly 3 files: 2 agent logs + pmm-agent.log")
+
+		foundAgent1Log := false
+		foundAgent2Log := false
+		foundPmmAgentLog := false
+
+		for _, ex := range zipExs.File {
+			switch ex.Name {
+			case agentID1 + ".log":
+				foundAgent1Log = true
+			case agentID2 + ".log":
+				foundAgent2Log = true
+			case pmmAgentZipFile:
+				foundPmmAgentLog = true
+			}
+		}
+
+		assert.True(t, foundAgent1Log, "Should contain first agent's log")
+		assert.True(t, foundAgent2Log, "Should contain second agent's log")
+		assert.True(t, foundPmmAgentLog, "Should always contain pmm-agent.log")
+	})
 }

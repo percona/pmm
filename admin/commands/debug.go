@@ -151,6 +151,8 @@ func (cmd *DebugCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 
 	timestamp := time.Now().Format("20060102_150405")
 
+	var vmagentInfo *vmagentInfo
+
 	// Only collect metrics for exporter agents, not QAN agents
 	if agentInfo.Category == AgentCategoryExporter {
 		if agentInfo.ListenPort <= 0 {
@@ -159,7 +161,9 @@ func (cmd *DebugCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 		}
 
 		// Get vmagent data (scrape health, collectors) in a single API call
-		vmagentInfo, collectorsMap, err := cmd.getVMAgentData(ctx, agentInfo.AgentID)
+		var collectorsMap map[string][]string
+		var err error
+		vmagentInfo, collectorsMap, err = cmd.getVMAgentData(ctx, agentInfo.AgentID)
 		if err != nil {
 			logrus.Warnf("Failed to get vmagent data: %v", err)
 			result.Error = fmt.Sprintf("vmagent not available: %v", err)
@@ -170,17 +174,6 @@ func (cmd *DebugCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 		result.ScrapeHealth = vmagentInfo.ScrapeHealth
 		if vmagentInfo.LastError != "" {
 			result.ScrapeError = vmagentInfo.LastError
-		}
-
-		// Fetch vmagent logs
-		vmagentLogsFile := cmd.getOutputPath("pmm_debug_%s_%s_vmagent_logs.txt",
-			strings.ToLower(agentInfo.AgentType), timestamp)
-		vmagentLogsLines, err := cmd.fetchAgentLogs(ctx, vmagentInfo.AgentID, vmagentLogsFile, cmd.LogLines, globals)
-		if err != nil {
-			logrus.Warnf("Failed to fetch vmagent logs: %v", err)
-		} else {
-			result.VmagentLogsFile = vmagentLogsFile
-			result.VmagentLogsLines = vmagentLogsLines
 		}
 
 		// Determine which resolutions to collect
@@ -212,15 +205,40 @@ func (cmd *DebugCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	// Fetch agent logs (for both exporter and QAN agents)
+	// Combine agent logs and vmagent logs into a single request
+	agentFiles := make(map[string]string)
+
+	// Always fetch the main agent logs
 	logsFile := cmd.getOutputPath("pmm_debug_%s_%s_logs.txt",
 		strings.ToLower(agentInfo.AgentType), timestamp)
+	agentFiles[agentInfo.AgentID] = logsFile
 
-	logsLines, err := cmd.fetchAgentLogs(ctx, agentInfo.AgentID, logsFile, cmd.LogLines, globals)
+	// Add vmagent logs if we have a vmagent
+	var vmagentLogsFile string
+	if vmagentInfo != nil {
+		vmagentLogsFile = cmd.getOutputPath("pmm_debug_%s_%s_vmagent_logs.txt",
+			strings.ToLower(agentInfo.AgentType), timestamp)
+		agentFiles[vmagentInfo.AgentID] = vmagentLogsFile
+	}
+
+	// Fetch all logs in a single request
+	lineCounts, err := cmd.fetchAgentLogs(ctx, agentFiles, cmd.LogLines, globals)
 	if err != nil {
 		logrus.Warnf("Failed to fetch agent logs: %v", err)
 	} else {
-		result.LogsFile = logsFile
-		result.LogsLines = logsLines
+		// Set main agent logs info
+		if count, ok := lineCounts[agentInfo.AgentID]; ok {
+			result.LogsFile = logsFile
+			result.LogsLines = count
+		}
+
+		// Set vmagent logs info if available
+		if vmagentInfo != nil {
+			if count, ok := lineCounts[vmagentInfo.AgentID]; ok {
+				result.VmagentLogsFile = vmagentLogsFile
+				result.VmagentLogsLines = count
+			}
+		}
 	}
 
 	return result, nil
@@ -900,11 +918,23 @@ func (cmd *DebugCommand) collectMetricsToFile(ctx context.Context, exporterURL s
 	return metricsCount, nil
 }
 
-// fetchAgentLogs fetches agent logs from pmm-agent and saves to file
-func (cmd *DebugCommand) fetchAgentLogs(ctx context.Context, agentID string, outputFile string, maxLines int, globals *flags.GlobalFlags) (int, error) {
-	// Build logs.zip URL with agent_id filter
-	pmmAgentURL := fmt.Sprintf("http://%s:%d/logs.zip?agent_id=%s",
-		agentlocal.Localhost, globals.PMMAgentListenPort, url.QueryEscape(agentID))
+// fetchAgentLogs fetches agent logs from pmm-agent and saves to files
+// Returns a map of agentID -> number of log lines written
+func (cmd *DebugCommand) fetchAgentLogs(ctx context.Context, agentFiles map[string]string, maxLines int, globals *flags.GlobalFlags) (map[string]int, error) {
+	if len(agentFiles) == 0 {
+		return nil, errors.New("no agents specified")
+	}
+
+	// Build logs.zip URL with agent_id filter(s)
+	baseURL := fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, globals.PMMAgentListenPort)
+
+	// Build query parameters for multiple agent IDs
+	params := url.Values{}
+	for agentID := range agentFiles {
+		params.Add("agent_id", agentID)
+	}
+
+	pmmAgentURL := baseURL + "?" + params.Encode()
 
 	// Create HTTP client with timeout
 	client := &http.Client{
@@ -914,70 +944,84 @@ func (cmd *DebugCommand) fetchAgentLogs(ctx context.Context, agentID string, out
 	// Create request
 	req, err := http.NewRequestWithContext(ctx, "GET", pmmAgentURL, nil)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to create HTTP request for logs")
+		return nil, errors.Wrap(err, "failed to create HTTP request for logs")
 	}
 
 	// Fetch logs zip
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to fetch logs from pmm-agent")
+		return nil, errors.Wrap(err, "failed to fetch logs from pmm-agent")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return 0, errors.Errorf("pmm-agent returned status %d: %s", resp.StatusCode, resp.Status)
+		return nil, errors.Errorf("pmm-agent returned status %d: %s", resp.StatusCode, resp.Status)
 	}
 
 	// Read zip content
 	zipData, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to read logs zip")
+		return nil, errors.Wrap(err, "failed to read logs zip")
 	}
 
 	// Parse zip
 	zipReader, err := zip.NewReader(bytes.NewReader(zipData), int64(len(zipData)))
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to parse logs zip")
+		return nil, errors.Wrap(err, "failed to parse logs zip")
 	}
 
-	// Find the log file for this agent (should only be one since we filtered by agent_id)
-	var agentLogs string
+	// Process each log file in the zip and match to agent IDs
+	lineCounts := make(map[string]int)
 	for _, file := range zipReader.File {
-		if strings.HasSuffix(file.Name, ".log") {
-			rc, err := file.Open()
-			if err != nil {
-				return 0, errors.Wrapf(err, "failed to open %s in zip", file.Name)
-			}
-
-			logData, err := io.ReadAll(rc)
-			rc.Close()
-
-			if err != nil {
-				return 0, errors.Wrapf(err, "failed to read %s", file.Name)
-			}
-
-			agentLogs = string(logData)
-			break
+		if !strings.HasSuffix(file.Name, ".log") {
+			continue
 		}
+
+		// Extract agent ID from filename (format: "agentID.log")
+		agentID := strings.TrimSuffix(file.Name, ".log")
+
+		// Check if this agent ID is in our requested list
+		outputFile, exists := agentFiles[agentID]
+		if !exists {
+			continue
+		}
+
+		// Read log data
+		rc, err := file.Open()
+		if err != nil {
+			logrus.Warnf("Failed to open %s in zip: %v", file.Name, err)
+			continue
+		}
+
+		logData, err := io.ReadAll(rc)
+		rc.Close()
+
+		if err != nil {
+			logrus.Warnf("Failed to read %s: %v", file.Name, err)
+			continue
+		}
+
+		// Extract last N lines
+		lines := strings.Split(string(logData), "\n")
+		startIdx := 0
+		if len(lines) > maxLines {
+			startIdx = len(lines) - maxLines
+		}
+		relevantLogs := strings.Join(lines[startIdx:], "\n")
+
+		// Write to file
+		err = os.WriteFile(outputFile, []byte(relevantLogs), 0600)
+		if err != nil {
+			logrus.Warnf("Failed to write logs to file %s: %v", outputFile, err)
+			continue
+		}
+
+		lineCounts[agentID] = len(lines) - startIdx
 	}
 
-	if agentLogs == "" {
-		return 0, errors.Errorf("no logs found for agent %s", agentID)
+	if len(lineCounts) == 0 {
+		return nil, errors.Errorf("no logs found for any of the requested agents")
 	}
 
-	// Extract last N lines
-	lines := strings.Split(agentLogs, "\n")
-	startIdx := 0
-	if len(lines) > maxLines {
-		startIdx = len(lines) - maxLines
-	}
-	relevantLogs := strings.Join(lines[startIdx:], "\n")
-
-	// Write to file
-	err = os.WriteFile(outputFile, []byte(relevantLogs), 0600)
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to write logs to file")
-	}
-
-	return len(lines) - startIdx, nil
+	return lineCounts, nil
 }

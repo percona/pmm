@@ -366,27 +366,26 @@ func addData(zipW *zip.Writer, name string, data []byte) error {
 }
 
 // ZipLogs Handle function for generate zip file with logs.
-// Supports optional "agent_id" query parameter to filter logs for a specific agent.
+// Supports optional "agent_id" query parameter(s) to filter logs for specific agent(s).
+// Multiple agent_id parameters can be provided to include logs for multiple agents.
 func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revive
 	zipBuffer := &bytes.Buffer{}
 	zipWriter := zip.NewWriter(zipBuffer)
 
-	// Get optional agent_id filter from query parameters
-	agentIDFilter := r.URL.Query().Get("agent_id")
+	// Get optional agent_id filter from query parameters (can be multiple)
+	agentIDFilters := r.URL.Query()["agent_id"]
+	filterAgents := len(agentIDFilters) > 0
+
+	// Create a set for O(1) lookup instead of O(n) loop
+	agentIDSet := make(map[string]struct{}, len(agentIDFilters))
+	for _, filterID := range agentIDFilters {
+		agentIDSet[filterID] = struct{}{}
+	}
 
 	for id, logs := range s.supervisor.AgentsLogs() {
-		// Skip if agent_id filter is specified and doesn't match
-		// The id format is "AGENT_TYPE agentID", so we need to extract the agentID part
-		if agentIDFilter != "" {
-			// Extract agent ID from composite key (format: "AGENT_TYPE agent-id-uuid")
-			parts := strings.SplitN(id, " ", 2)
-			actualAgentID := id // default to full id if split fails
-			if len(parts) == 2 {
-				actualAgentID = parts[1]
-			}
-			if actualAgentID != agentIDFilter {
-				continue
-			}
+		// Skip if agent_id filter is specified and doesn't match any of them
+		if _, found := agentIDSet[id]; !found && filterAgents {
+			continue
 		}
 
 		agentFileBuffer := &bytes.Buffer{}
