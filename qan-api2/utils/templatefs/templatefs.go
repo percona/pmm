@@ -12,7 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+// Package templatefs provides a filesystem interface with templating support.
 package templatefs
 
 import (
@@ -86,12 +86,12 @@ type templateFileInfo struct {
 	size int64
 }
 
-func (fi *templateFileInfo) Name() string           { return fi.name }
-func (fi *templateFileInfo) Size() int64            { return fi.size }
-func (fi *templateFileInfo) Mode() iofs.FileMode    { return 0o444 }
-func (fi *templateFileInfo) ModTime() (t time.Time) { return t }
-func (fi *templateFileInfo) IsDir() bool            { return false }
-func (fi *templateFileInfo) Sys() interface{}       { return nil }
+func (fi *templateFileInfo) Name() string        { return fi.name }
+func (fi *templateFileInfo) Size() int64         { return fi.size }
+func (fi *templateFileInfo) Mode() iofs.FileMode { return 0o444 }
+func (fi *templateFileInfo) ModTime() time.Time  { return time.Time{} }
+func (fi *templateFileInfo) IsDir() bool         { return false }
+func (fi *templateFileInfo) Sys() interface{}    { return nil }
 
 // ReadDir reads the named directory and returns a list of directory entries.
 // This delegates directly to the underlying embed.FS.

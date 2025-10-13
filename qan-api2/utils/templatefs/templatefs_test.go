@@ -108,7 +108,7 @@ func TestTemplateFS_ReadDir(t *testing.T) {
 	entries, err := tfs.ReadDir("testdata")
 	require.NoError(t, err)
 	assert.NotEmpty(t, entries)
-	var names []string
+	var names []string //nolint:prealloc
 	for _, entry := range entries {
 		names = append(names, entry.Name())
 	}
