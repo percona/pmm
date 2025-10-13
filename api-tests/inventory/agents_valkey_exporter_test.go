@@ -114,7 +114,7 @@ func TestValkeyExporter(t *testing.T) {
 					Username:           "default",
 					PMMAgentID:         pmmAgentID,
 					Disabled:           true,
-					Status:             &AgentStatusUnknown,
+					Status:             &AgentStatusDone,
 					CustomLabels:       map[string]string{},
 					DisabledCollectors: make([]string, 0),
 				},
@@ -148,7 +148,7 @@ func TestValkeyExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "valkey_exporter",
 					},
-					Status:             &AgentStatusUnknown,
+					Status:             &AgentStatusDone,
 					DisabledCollectors: make([]string, 0),
 				},
 			},
