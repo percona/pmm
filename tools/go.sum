@@ -500,8 +500,8 @@ github.com/quasilyte/go-consistent v0.6.0 h1:tY8DYfgM+7ADpOyr5X47i8hV/XbMNoucqnq
 github.com/quasilyte/go-consistent v0.6.0/go.mod h1:dKYK1JZl3150J1+Jh4cDYPCIu2MqybUBi0YVW2b2E6c=
 github.com/quic-go/qpack v0.5.1 h1:giqksBPnT/HDtZ6VhtFKgoLOWmlyo9Ei6u9PqzIMbhI=
 github.com/quic-go/qpack v0.5.1/go.mod h1:+PC4XFrEskIVkcLzpEkbLqq1uCoxPhQuvK5rH1ZgaEg=
-github.com/quic-go/quic-go v0.54.0 h1:6s1YB9QotYI6Ospeiguknbp2Znb/jZYjZLRXn9kMQBg=
-github.com/quic-go/quic-go v0.54.0/go.mod h1:e68ZEaCdyviluZmy44P6Iey98v/Wfz6HCjQEm+l8zTY=
+github.com/quic-go/quic-go v0.54.1 h1:4ZAWm0AhCb6+hE+l5Q1NAL0iRn/ZrMwqHRGQiFwj2eg=
+github.com/quic-go/quic-go v0.54.1/go.mod h1:e68ZEaCdyviluZmy44P6Iey98v/Wfz6HCjQEm+l8zTY=
 github.com/reva2/bitbucket-insights-api v1.0.0 h1:lpQ/Q7OmnG04w/EM77piOwZBxP41PeTlbytXxVrnplA=
 github.com/reva2/bitbucket-insights-api v1.0.0/go.mod h1:pLs+ki3MKUntrPryxaGIvpRLiEtBhwfJ/uvxQIMfqHU=
 github.com/reviewdog/errorformat v0.0.0-20250320004447-223c26dbe212 h1:vln3OhpVhkYTVwvdVKSqnJ80IGZyc9M7tIesYpfm/UQ=
