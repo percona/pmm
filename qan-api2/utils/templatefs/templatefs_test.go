@@ -18,9 +18,8 @@ package templatefs
 import (
 	"embed"
 	"io"
-	"testing"
-
 	iofs "io/fs"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -78,7 +77,7 @@ func TestTemplateFS_ReadFile_WithoutTemplateData(t *testing.T) {
 }
 
 func TestTemplateFS_ReadFile_WithEmptyTemplateData(t *testing.T) {
-	data := map[string]any{}
+	data := make(map[string]any)
 	tfs := NewTemplateFS(testFS, data)
 	content, err := tfs.ReadFile("testdata/simple.sql")
 	require.NoError(t, err)
@@ -109,7 +108,7 @@ func TestTemplateFS_ReadDir(t *testing.T) {
 	entries, err := tfs.ReadDir("testdata")
 	require.NoError(t, err)
 	assert.NotEmpty(t, entries)
-	var names []string
+	var names []string //nolint:prealloc
 	for _, entry := range entries {
 		names = append(names, entry.Name())
 	}

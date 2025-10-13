@@ -41,45 +41,44 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
 		dsnURL, err := url.Parse(dsn)
 		if err != nil {
-			log.Fatalf("Error parsing DSN: %v", err)
+			log.Fatalf("error parsing DSN: %v", err)
 		}
 		dsnURL.Path = "/default"
 		dsnDefault := dsnURL.String()
-
-		log.Println("dsn for cluster check: ", dsnDefault)
+		log.Printf("DSN for cluster check: %s", dsnDefault)
 
 		for {
 			isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
 			if err != nil {
-				log.Fatalf("Error checking ClickHouse cluster status: %v", err)
+				log.Fatalf("error checking ClickHouse cluster status: %v", err)
 			}
 			if isClusterReady {
-				log.Println("ClickHouse cluster is ready.")
+				log.Println("ClickHouse cluster is ready")
 				break
 			}
 
-			log.Println("Waiting for ClickHouse cluster to be ready... (system.clusters remote_hosts > 0)")
+			log.Println("waiting for ClickHouse cluster to be ready... (system.clusters where remote_hosts > 0)")
 			time.Sleep(1 * time.Second)
 		}
 	}
 
-	log.Printf("going to create new connection with dsn: %s", dsn)
+	log.Printf("new connection with DSN: %s", dsn)
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		log.Printf("Error connecting to ClickHouse: %v", err)
+		log.Printf("error connecting to clickhouse: %v", err)
 		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
 			log.Println("one of expected errors - database does not exist, creating")
 			err = createDB(dsn, clusterName)
 			if err != nil {
-				log.Fatalf("Database wasn't created: %v", err)
+				log.Fatalf("database wasn't created: %v", err)
 			}
-			log.Printf("Database created, connecting again %s", dsn)
+			log.Printf("database created, connecting again %s", dsn)
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
-				log.Fatalf("Connection: %v", err)
+				log.Fatalf("connection: %v", err)
 			}
 		} else {
-			log.Fatalf("Connection: %v", err)
+			log.Fatalf("connection: %v", err)
 		}
 	}
 
@@ -103,9 +102,10 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
 	}
 	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
-		log.Fatal("Migrations: ", err)
+		log.Fatalf("migrations: %v", err)
 	}
-	log.Println("Migrations applied.")
+	log.Println("migrations applied")
+
 	return db
 }
 
@@ -137,8 +137,9 @@ func createDB(dsn string, clusterName string) error {
 		return err
 	}
 	log.Println("Database was created")
-	return nil
+
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
+	return nil
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
