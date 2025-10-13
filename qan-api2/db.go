@@ -45,7 +45,6 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		}
 		dsnURL.Path = "/default"
 		dsnDefault := dsnURL.String()
-
 		log.Printf("DSN for cluster check: %s", dsnDefault)
 
 		for {
@@ -106,6 +105,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		log.Fatalf("migrations: %v", err)
 	}
 	log.Println("migrations applied")
+
 	return db
 }
 
@@ -137,8 +137,9 @@ func createDB(dsn string, clusterName string) error {
 		return err
 	}
 	log.Println("Database was created")
-	return nil
+
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
+	return nil
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.

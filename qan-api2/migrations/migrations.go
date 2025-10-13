@@ -32,14 +32,13 @@ func IsClickhouseCluster(dsn string, clusterName string) (bool, error) {
 		args = append(args, clusterName)
 	}
 
-	log.Printf("Executing query: %s; args: %v", sql, args)
-
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		return false, err
 	}
 	defer db.Close() //nolint:errcheck
 
+	log.Printf("Executing query: %s; args: %v", sql, args)
 	rows, err := db.Queryx(fmt.Sprintf("%s;", sql), args...)
 	if err != nil {
 		return false, err
@@ -65,10 +64,7 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 		return "", err
 	}
 
-	logrus.Debugf("ClickHouse cluster detected, setting schema_migrations table engine to: %s", schemaMigrationsEngineCluster)
-
 	q := u.Query()
-
 	if clusterName != "" {
 		logrus.Printf("Using ClickHouse cluster name: %s", clusterName)
 		q.Set("x-cluster-name", clusterName)
@@ -80,6 +76,7 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 	} else {
 		u.RawQuery = "x-migrations-table-engine=" + schemaMigrationsEngineCluster
 	}
+	logrus.Debugf("ClickHouse cluster detected, setting schema_migrations table engine to: %s", schemaMigrationsEngineCluster)
 
 	return u.String(), nil
 }
@@ -125,5 +122,6 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 	if errors.Is(err, migrate.ErrNoChange) {
 		return nil
 	}
+
 	return err
 }
