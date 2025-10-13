@@ -56,7 +56,10 @@
     - cap_sys_nice
     - cap_net_admin
 
-- name: Remove clickhouse-odbc-bridge binary
+- name: Remove unused binaries
   file:
-    path: /usr/bin/clickhouse-odbc-bridge
+    path: /usr/bin/{{ item }}
     state: absent
+  loop:
+    - clickhouse-odbc-bridge
+    - clickhouse-diagnostics
