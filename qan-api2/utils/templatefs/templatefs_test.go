@@ -77,7 +77,7 @@ func TestTemplateFS_ReadFile_WithoutTemplateData(t *testing.T) {
 }
 
 func TestTemplateFS_ReadFile_WithEmptyTemplateData(t *testing.T) {
-	data := map[string]any{}
+	data := make(map[string]any)
 	tfs := NewTemplateFS(testFS, data)
 	content, err := tfs.ReadFile("testdata/simple.sql")
 	require.NoError(t, err)
