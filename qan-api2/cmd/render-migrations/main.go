@@ -45,7 +45,7 @@ func main() {
 	}
 
 	for _, file := range files {
-		content, err := os.ReadFile(file)
+		content, err := os.ReadFile(file) // #nosec G304
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to read %s: %v\n", file, err)
 			os.Exit(1)
