@@ -19,7 +19,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -27,11 +26,9 @@ import (
 
 func main() {
 	var (
-		sqlDir  string
 		engine  string
 		cluster string
 	)
-	flag.StringVar(&sqlDir, "sql", "migrations/sql", "Directory with .up.sql migration templates")
 	flag.StringVar(&engine, "engine", "MergeTree", "Engine to use in templates")
 	flag.StringVar(&cluster, "cluster", "", "Cluster clause (e.g. ON CLUSTER 'test_cluster')")
 	flag.Parse()
@@ -41,14 +38,14 @@ func main() {
 		"cluster": cluster,
 	}
 
-	files, err := filepath.Glob(filepath.Join(sqlDir, "*.up.sql"))
+	files, err := filepath.Glob(filepath.Join("migrations/sql", "*.up.sql"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to list migration files: %v\n", err)
 		os.Exit(1)
 	}
 
 	for _, file := range files {
-		content, err := ioutil.ReadFile(file)
+		content, err := os.ReadFile(file)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to read %s: %v\n", file, err)
 			os.Exit(1)
