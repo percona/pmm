@@ -165,22 +165,21 @@ export const addAccount = (
 ): NavItem => {
   const name = (user.name || '').split(' ')[0];
   const children = [...(NAV_ACCOUNT.children || [])];
-  const targetTheme = colorMode === 'light' ? 'Dark' : 'Light';
 
-  if (
-    !(
-      settings?.frontend.disableLoginForm ||
-      settings?.frontend.auth.disableLogin
-    )
-  ) {
+  if (!(
+    settings?.frontend.disableLoginForm ||
+    settings?.frontend.auth.disableLogin
+  )) {
     children.push(NAV_CHANGE_PASSWORD);
   }
 
+  // Dynamic theme toggle (action-only, no URL)
+  const targetTheme = colorMode === 'light' ? 'Dark' : 'Light';
   children.push({
     ...NAV_THEME_TOGGLE,
     icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
     text: `Change to ${targetTheme} Theme`,
-    onClick: toggleMode,
+    onClick: toggleMode, // uses your hook: toggles & persists via mutate()
   });
 
   children.push(NAV_SIGN_OUT);
@@ -191,3 +190,4 @@ export const addAccount = (
     text: NAV_ACCOUNT.text + (name ? `: ${name}` : ''),
   };
 };
+

@@ -1,4 +1,11 @@
-import { FC, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import {
+  FC,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+  useRef as useRef2,
+} from 'react';
 import { GrafanaContext } from './grafana.context';
 import { useLocation, useNavigate, useNavigationType } from 'react-router';
 import {
@@ -10,8 +17,15 @@ import { DocumentTitleUpdateMessage, LocationChangeMessage } from '@pmm/shared';
 import messenger from 'lib/messenger';
 import { getLocationUrl } from './grafana.utils';
 import { updateDocumentTitle } from 'lib/utils/document.utils';
-import { useColorMode } from 'hooks/theme';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
+
+type Mode = 'light' | 'dark';
+const readHtmlMode = (): Mode =>
+  document.documentElement
+    .getAttribute('data-md-color-scheme')
+    ?.includes('dark')
+    ? 'dark'
+    : 'light';
 
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
@@ -19,10 +33,12 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const src = location.pathname.replace(PMM_NEW_NAV_PATH, '');
   const isGrafanaPage = src.startsWith(GRAFANA_SUB_PATH);
   const [isLoaded, setIsloaded] = useState(false);
-  const { colorMode } = useColorMode();
   const frameRef = useRef<HTMLIFrameElement>(null);
   const navigate = useNavigate();
   const kioskMode = useKioskMode();
+
+  // Remember last theme we sent to avoid resending the same value.
+  const lastSentThemeRef = useRef2<Mode>(readHtmlMode());
 
   useEffect(() => {
     if (isGrafanaPage) {
@@ -31,7 +47,6 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   }, [isGrafanaPage]);
 
   useEffect(() => {
-    // don't send location change if it's coming from within grafana or is POP type
     if (
       !location.pathname.includes('/graph') ||
       (location.state?.fromGrafana && navigationType !== 'POP')
@@ -50,31 +65,28 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   }, [location, navigationType]);
 
   useEffect(() => {
-    if (!isLoaded) {
-      return;
-    }
+    if (!isLoaded) return;
 
     messenger
       .setTargetWindow(frameRef.current?.contentWindow!, '#grafana-iframe')
       .register();
 
-    // send current PMM theme to Grafana
+    // Send the current canonical theme to Grafana once messenger is ready.
     messenger.waitForMessage('MESSENGER_READY').then(() => {
-      messenger.sendMessage({
-        type: 'CHANGE_THEME',
-        payload: {
-          theme: colorMode,
-        },
-      });
+      const mode = readHtmlMode(); // ✅ take from <html>, already synced with Grafana Prefs
+      if (lastSentThemeRef.current !== mode) {
+        lastSentThemeRef.current = mode;
+        messenger.sendMessage({
+          type: 'CHANGE_THEME',
+          payload: { theme: mode },
+        });
+      }
     });
 
     messenger.addListener({
       type: 'LOCATION_CHANGE',
       onMessage: ({ payload: location }: LocationChangeMessage) => {
-        if (!location || location.action === 'POP') {
-          return;
-        }
-
+        if (!location || location.action === 'POP') return;
         navigate(getLocationUrl(location), {
           state: { fromGrafana: true },
           replace: true,
@@ -95,18 +107,15 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded]);
 
+  // If outer theme changes (our hook updates <html> and posts messages), reflect it to Grafana.
   useEffect(() => {
-    if (!isLoaded) {
-      return;
+    if (!isLoaded) return;
+    const mode = readHtmlMode(); // ✅ canonical
+    if (lastSentThemeRef.current !== mode) {
+      lastSentThemeRef.current = mode;
+      messenger.sendMessage({ type: 'CHANGE_THEME', payload: { theme: mode } });
     }
-
-    messenger.sendMessage({
-      type: 'CHANGE_THEME',
-      payload: {
-        theme: colorMode,
-      },
-    });
-  }, [isLoaded, colorMode]);
+  }, [isLoaded, location]); // re-evaluate on navigation; inexpensive and safe
 
   return (
     <GrafanaContext.Provider

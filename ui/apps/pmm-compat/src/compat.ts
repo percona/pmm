@@ -1,4 +1,4 @@
-import { locationService } from '@grafana/runtime';
+import { locationService, getAppEvents, ThemeChangedEvent, config } from '@grafana/runtime';
 import {
   ChangeThemeMessage,
   CrossFrameMessenger,
@@ -35,6 +35,28 @@ export const initialize = () => {
       }
 
       changeTheme(msg.payload.theme);
+
+      // try {
+      //   const onProfile = /\/profile$/.test(window.location.pathname || '');
+      //   if (onProfile) {
+      //     const FLAG = '__pmm_theme_iframe_reloaded__';
+      //     const now = Date.now();
+      //     const last = Number(sessionStorage.getItem(FLAG) || 0);
+      //
+      //     if (!last || now - last > 1500) {
+      //       sessionStorage.setItem(FLAG, String(now));
+      //       // eslint-disable-next-line no-console
+      //       console.log('[pmm-compat] Reloading iframe to refresh Preferences dropdown');
+      //       window.location.reload();
+      //     } else {
+      //       // eslint-disable-next-line no-console
+      //       console.log('[pmm-compat] Skip reload (recently reloaded)');
+      //     }
+      //   }
+      // } catch (err) {
+      //   // eslint-disable-next-line no-console
+      //   console.warn('[pmm-compat] Failed to reload iframe after theme change:', err);
+      // }
     },
   });
 
@@ -49,8 +71,8 @@ export const initialize = () => {
 
   adjustToolbar();
 
-  // sync with PMM UI theme
-  changeTheme('light');
+  // Wire Grafana theme events to Percona scheme attribute and notify parent
+  setupThemeWiring();
 
   messenger.sendMessage({
     type: 'GRAFANA_READY',
@@ -62,7 +84,6 @@ export const initialize = () => {
       if (!location) {
         return;
       }
-
       locationService.replace(location);
     },
   });
@@ -115,3 +136,40 @@ export const initialize = () => {
     },
   });
 };
+
+/**
+ * Wires Grafana theme changes (ThemeChangedEvent) to Percona CSS scheme.
+ * Ensures <html> has the attribute our CSS reads and informs the parent frame.
+ */
+function setupThemeWiring() {
+  // Helper to apply our scheme attribute and notify parent
+  const apply = (mode: 'light' | 'dark') => {
+    const html = document.documentElement;
+    const scheme = mode === 'dark' ? 'percona-dark' : 'percona-light';
+
+    // Set the attribute expected by our CSS tokens
+    html.setAttribute('data-md-color-scheme', scheme);
+
+    // Optional helpers for broader compatibility
+    html.setAttribute('data-theme', mode);
+    (html.style as any).colorScheme = mode;
+
+    // Notify outer PMM UI (new nav) to sync immediately
+    try {
+      const target = (window.top && window.top !== window) ? window.top : (window.parent || window);
+      target?.postMessage({ type: 'grafana.theme.changed', payload: { mode } }, window.location.origin);
+    } catch {
+      // ignore cross-origin or other unexpected errors
+    }
+  };
+
+  // Initial apply from current Grafana theme config
+  const initialMode = (config?.theme2?.colors?.mode === 'dark' ? 'dark' : 'light') as 'light' | 'dark';
+  apply(initialMode);
+
+  // React to Grafana theme changes (Preferences save or changeTheme())
+  getAppEvents().subscribe(ThemeChangedEvent, (evt: any) => {
+    const mode: 'light' | 'dark' = evt?.payload?.colors?.mode === 'dark' ? 'dark' : 'light';
+    apply(mode);
+  });
+}

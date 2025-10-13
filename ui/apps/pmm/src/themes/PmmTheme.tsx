@@ -20,6 +20,7 @@ import { listItemButtonClasses } from '@mui/material/ListItemButton';
 
 const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
   const peakTheme = mode === 'light' ? PEAK_LIGHT_THEME : PEAK_DARK_THEME;
+  console.log('Using PMM theme', mode, peakTheme);
   const newOptions: ThemeOptions = {
     palette: {
       mode,
