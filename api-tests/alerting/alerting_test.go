@@ -423,7 +423,16 @@ func TestModifyTemplatesAPI(t *testing.T) {
 			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf("Template with name \"%s\" not found.", name))
 		})
 	})
+}
 
+// TestListTemplatesAPI tests listing templates with and without pagination.
+// We keep it separate from the tests in TestModifyTemplatesAPI to avoid
+// race conditions when other tests add or remove templates while we are listing them.
+func TestListTemplatesAPI(t *testing.T) {
+	client := alertingClient.Default.AlertingService
+
+	templateData, err := os.ReadFile("../testdata/alerting/template.yaml")
+	require.NoError(t, err)
 	t.Run("list", func(t *testing.T) {
 		t.Run("without pagination", func(t *testing.T) {
 			name := uuid.New().String()
@@ -436,9 +445,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			t.Cleanup(func() {
-				deleteTemplate(t, client, name)
-			})
+			defer deleteTemplate(t, client, name)
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
 				Reload:  pointer.ToBool(true),
@@ -468,11 +475,11 @@ func TestModifyTemplatesAPI(t *testing.T) {
 
 				templateNames[name] = struct{}{}
 			}
-			t.Cleanup(func() {
+			defer func() {
 				for name := range templateNames {
 					deleteTemplate(t, client, name)
 				}
-			})
+			}()
 
 			// list rules, so they are all on the first page
 			listAllTemplates, err := client.ListTemplates(&alerting.ListTemplatesParams{
