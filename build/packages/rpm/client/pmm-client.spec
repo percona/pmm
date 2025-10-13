@@ -104,6 +104,7 @@ install -m 0755 bin/mongodb_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/expor
 install -m 0755 bin/proxysql_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/rds_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/azure_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
+install -m 0755 bin/valkey_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/vmagent $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/pt-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0755 bin/pt-mysql-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
@@ -121,6 +122,7 @@ install -m 0660 example-queries-postgres.yml $RPM_BUILD_ROOT/usr/local/percona/p
 install -m 0660 example-queries-postgres.yml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/medium-resolution/
 install -m 0660 example-queries-postgres.yml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
 install -m 0660 queries-postgres-uptime.yml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
+install -m 0660 queries-hr.yml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
 install -m 0660 queries-mr.yaml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/medium-resolution/
 install -m 0660 queries-lr.yaml $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/custom-queries/postgresql/low-resolution/
 install -m 0755 -d $RPM_BUILD_ROOT/%{_unitdir}
@@ -172,7 +174,7 @@ fi
 
 %postun
 case "$1" in
-   1) # This is a yum upgrade.
+   1) # This is a dnf upgrade.
       %systemd_postun_with_restart pmm-agent.service
    ;;
 esac
@@ -213,6 +215,9 @@ fi
 %attr(-,pmm-agent,pmm-agent) /usr/local/percona/pmm
 
 %changelog
+* Wed May 21 2025 Talha Bin Rizwan <talha.rizwan@percona.com>
+- PKG-521 include valkey_exporter into pmm client
+
 * Fri Nov 8 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com>
 - PMM-13399 include nomad into pmm client
 

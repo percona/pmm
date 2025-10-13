@@ -15,9 +15,9 @@ services:
 
       # Uncomment to use custom (FE) grafana code
       #- '../../grafana/public:/usr/share/grafana/public'
-      #- '../../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini'
     environment:
       - PMM_DEBUG=1
+      - GF_DEFAULT_APP_MODE=development
       - PMM_DEV_PORTAL_URL=https://portal-dev.percona.com
       - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com:443
       - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTkF7Snv08FCboTne4djQfN5qbrLfAjb8SY3/wwEP+X5nUrkxCEvUDJ

@@ -1,6 +1,6 @@
 ---
 - name: Packages                   | Install OS tools
-  yum:
+  dnf:
     name:
       - lvm2
       - cronie

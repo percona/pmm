@@ -122,7 +122,7 @@ To create an IAM role open the IAM console and click **Roles** on the navigation
 
 8. Fill the role name and description.
 
-9. Click the **Create role** button
+9. Click the **Create role** button.
 
 After the role is created EC2 instances running PMM will have permissions to discover RDS DB instances.
 
@@ -144,7 +144,7 @@ Create the `pmm` user with the following privileges on the Amazon RDS instance t
 CREATE USER 'pmm'@'%' IDENTIFIED BY 'pass';
 GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%';
 ALTER USER 'pmm'@'%' WITH MAX_USER_CONNECTIONS 10;
-GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
+GRANT SELECT ON performance_schema.* TO 'pmm'@'%';
 ```
 
 ## Adding an Amazon RDS, Aurora or Remote Instance
@@ -177,7 +177,7 @@ instances.
 
     ![!](../../../images/PMM_Add_Instance_AWS_RDS_Main_Details.png)
 
-    The **Main details** section allows you to specify the DNS hostname of your instance, the service name to use within PMM, the port your service is listening on, and the database user name and password.
+    The **Main details** section allows you to specify the DNS hostname of your instance, the service name to use within PMM, the port your service is listening on, the database user name and password, and optionally the **Instance ID** to match your RDS instance between PMM and the AWS console.    
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS_Labels.png)
 

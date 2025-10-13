@@ -20,7 +20,6 @@ import (
 	"context"
 	"database/sql"
 	"net/url"
-	"time"
 
 	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
@@ -82,10 +81,10 @@ func openPMMDBConnection(config DSConfigPMMDB, l *logrus.Entry) (*sql.DB, error)
 		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
 	}
 
-	db.SetConnMaxIdleTime(time.Second * 30)
-	db.SetConnMaxLifetime(time.Second * 180)
-	db.SetMaxIdleConns(1)
-	db.SetMaxOpenConns(1)
+	db.SetConnMaxIdleTime(defaultConnMaxIdleTime)
+	db.SetConnMaxLifetime(defaultConnMaxLifetime)
+	db.SetMaxIdleConns(defaultMaxIdleConns)
+	db.SetMaxOpenConns(defaultMaxOpenConns)
 
 	if err := db.Ping(); err != nil {
 		l.Warnf("PMM DB is not reachable at [%s]: %s", config.DSN.Host, err)

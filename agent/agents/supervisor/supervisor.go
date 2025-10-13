@@ -33,7 +33,8 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/agent/agents/mongodb"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
+	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	"github.com/percona/pmm/agent/agents/mysql/perfschema"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog"
 	"github.com/percona/pmm/agent/agents/noop"
@@ -576,16 +577,25 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
 			TextFiles:              builtinAgent.GetTextFiles(),
 			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
+			PerfschemaRefreshRate:  cfg.PerfschemaRefreshRate,
 		}
 		agent, err = perfschema.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:
-		params := &mongodb.Params{
+		params := &mongoprofiler.Params{
 			DSN:            dsn,
 			AgentID:        agentID,
 			MaxQueryLength: builtinAgent.MaxQueryLength,
 		}
-		agent, err = mongodb.New(params, l)
+		agent, err = mongoprofiler.New(params, l)
+
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT:
+		params := &mongolog.Params{
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
+		}
+		agent, err = mongolog.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
@@ -708,6 +718,9 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = cfg.Paths.RDSExporter
 	case inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:
 		processParams.Path = cfg.Paths.AzureExporter
+	case inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:
+		templateParams["paths_base"] = cfg.Paths.PathsBase
+		processParams.Path = cfg.Paths.ValkeyExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
 	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
@@ -786,6 +799,8 @@ func (s *Supervisor) version(agentType inventoryv1.AgentType, path string) (stri
 		return s.agentVersioner.BinaryVersion(path, 0, rdsExporterRegexp, "--version")
 	case inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, azureMetricsExporterRegexp, "--version")
+	case inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, valkeyExporterRegexp, "--version")
 	default:
 		return "", nil
 	}

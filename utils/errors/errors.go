@@ -63,7 +63,7 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 	body := &serverv1.HttpError{
 		Error:   s.Message(),
 		Message: s.Message(),
-		Code:    int32(s.Code()),
+		Code:    int32(s.Code()), //nolint:gosec
 		Details: s.Proto().GetDetails(),
 	}
 

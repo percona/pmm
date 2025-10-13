@@ -1,0 +1,30 @@
+---
+checks:
+  - version: 2
+    name: mysql_require_secure_transport
+    summary: MySQL configuration check
+    description: Checks mysql_secure_transport_only.
+    interval: standard
+    family: MYSQL
+    advisor: security_configuration
+    #author:tibi/the grinch
+    queries:
+      - type: MYSQL_SHOW
+        query: VARIABLES
+    script: |
+      def check_context(docs, context):
+           results = []
+           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+           for row in docs[0]:
+               name, value = row["Variable_name"], row["Value"]
+               if name == "require_secure_transport":
+                if value == "OFF":
+                   results.append({
+                       "summary": "MySQL server allows unencrypted remote connections.",
+                       "description": "MySQL server allows unencrypted remote connections.",
+                       "read_more_url":read_url.format("mysql-secure-transport-only"),
+                       "severity": "warning",
+                       "labels": {},
+                   })
+           return results

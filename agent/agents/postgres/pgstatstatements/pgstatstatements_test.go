@@ -89,8 +89,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
-	const selectAllCities = "SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city"
-	const selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN " +
+	selectAllCities := "SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city"
+	selectAllCitiesLong := "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN " +
 		"($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, " +
 		"$21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, " +
 		"$41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, " +
@@ -116,7 +116,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		mSharedBlksHitSum = 32
 	}
 	truncatedMSharedBlksHitSum := mSharedBlksHitSum
-
+	isTruncated := true
 	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch engineVersion {
@@ -160,6 +160,14 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "1563925687573067138",
 			selectAllCitiesLong: "-3196437048361615995",
 		}
+	case "18":
+		selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN ($1 /*, ... */)"
+		truncatedMSharedBlksHitSum = float32(8)
+		digests = map[string]string{
+			selectAllCities:     "2398197226709363629",
+			selectAllCitiesLong: "-1570108445478818403",
+		}
+		isTruncated = false
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
@@ -182,7 +190,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.Equal(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum)
+		assert.InEpsilon(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
@@ -291,7 +299,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				IsTruncated:         true,
+				IsTruncated:         isTruncated,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -337,7 +345,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				IsTruncated:         true,
+				IsTruncated:         isTruncated,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -378,6 +386,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		var waitGroup sync.WaitGroup
 		n := 1000
+		errChan := make(chan error, 1)
 		for i := 0; i < n; i++ {
 			id := i
 			waitGroup.Add(1)
@@ -385,10 +394,23 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				defer waitGroup.Done()
 				_, err := db.Exec(
 					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
-				require.NoError(t, err)
+				if err != nil {
+					errChan <- err
+				}
 			}()
 		}
-		waitGroup.Wait()
+		go func() {
+			waitGroup.Wait()
+			close(errChan)
+		}()
+
+		for {
+			err, more := <-errChan
+			require.NoError(t, err)
+			if !more {
+				break
+			}
+		}
 
 		buckets, err := m.getNewBuckets(context.Background(), time.Date(2020, 5, 25, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -400,7 +422,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
-		assert.Equal(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt)
+		assert.InEpsilon(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt, 0.0001)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,

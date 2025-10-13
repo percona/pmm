@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: query_index
+    summary: Index Query
+    description: Provides query and index optimization strategies for peak database performance.
+    category: query

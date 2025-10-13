@@ -115,7 +115,6 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 	require.NoError(t, err)
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

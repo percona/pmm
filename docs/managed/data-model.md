@@ -51,11 +51,12 @@ Property names are shared between API calls, database columns, and label values 
 - `az` (optional) Node's AWS Availability Zone.
 - `custom_labels` (optional) Custom map of labels (key/value pairs) provided by the user.
 
-**RemoteAmazonRDSNode** represents a Remote Node for Amazon RDS. Agents can't run on Remote RDS Nodes. Properties:
+**RemoteRDSNode** represents a Remote Node for Amazon RDS. Agents can't run on Remote RDS Nodes. Properties:
 
 - `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `node_name` (required, label). User-defined name, unique across all Nodes, can be changed.
 - `address` (required). Node DNS hostname or IP address.
+- `instance_id` (optional). Instance identifier.
 - `node_model` (optional). String containing an extra description for the node type, like "db.t2.medium"
 - `region` (required, label). Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
 - `az` (optional) Node's AWS Availability Zone.
@@ -95,6 +96,19 @@ Property names are shared between API calls, database columns, and label values 
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
 - `port` (required). Access port. Can be changed.
+- `environment` (optional) Environment name.
+- `cluster` (optional) Cluster name.
+- `replication_set` (optional) Replication set (group) name.
+- `custom_labels` (optional). key/value pairs of custom assigned labels.
+
+**ValkeyService** represents a generic Valkey instance. Properties:
+
+- `service_id` (required, label). A unique randomly generated instance identifier that cannot be changed. Value format: "<uuid>".
+- `service_name` (required, label). Unique across all Services user-defined name and can be changed.
+- `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
+- `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
+- `port` (required). Access port. Can be changed.
+- `unix_socket` (optional). Access Unix socket. Required if address and port are absent.
 - `environment` (optional) Environment name.
 - `cluster` (optional) Cluster name.
 - `replication_set` (optional) Replication set (group) name.
@@ -180,6 +194,19 @@ Property names are shared between API calls, database columns, and label values 
 - `tls_skip_verify` Skip TLS certificate and hostname validation.
 - `custom_labels` key/value pairs of custom assigned labels
 - `status` (read only on responses) Actual agent status. See statuses list below.
+- `listen_port` Listen port for scraping metrics.
+
+**ValkeyExporter** runs on Generic or Container Node and exposes Valkey Service metrics.
+
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
+- `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
+- `service_id` (required) Service identifier.
+- `username` MongoDB authentication user
+- `password` MongoDB authentication password.
+- `tls` Use TLS for database connections.
+- `tls_skip_verify` Skip TLS certificate and hostname validation.
+- `custom_labels` key/value pairs of custom-assigned labels
+- `status` (read only on responses) Actual agent status. See the statuses list below.
 - `listen_port` Listen port for scraping metrics.
 
 **ProxySQLExporter** runs on Generic or Container Node and exposes ProxySQL Service metrics.

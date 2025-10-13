@@ -18,18 +18,20 @@ package analytics
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 	"testing"
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
+	"github.com/percona/pmm/qan-api2/utils/logger"
 )
 
 type expected struct {
@@ -57,7 +59,7 @@ func TestService_GetFilters(t *testing.T) {
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		log.Fatal("Connection: ", err)
+		t.Fatal("Connection: ", err)
 	}
 
 	rm := models.NewReporter(db)
@@ -158,7 +160,7 @@ func TestService_GetFilters(t *testing.T) {
 			false,
 		},
 		{
-			"fail",
+			"fail if time range is inverted",
 			fields{rm: rm, mm: mm},
 			&qanpb.GetFilteredMetricsNamesRequest{
 				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t2.Unix()},
@@ -168,7 +170,7 @@ func TestService_GetFilters(t *testing.T) {
 			true,
 		},
 		{
-			"fail",
+			"fail if no time range passed",
 			fields{rm: rm, mm: mm},
 			&qanpb.GetFilteredMetricsNamesRequest{},
 			nil,
@@ -181,12 +183,16 @@ func TestService_GetFilters(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
-			got, err := s.GetFilteredMetricsNames(context.TODO(), tt.in)
+
+			ctx := metadata.NewIncomingContext(context.TODO(), metadata.Pairs("x-request-id", "test"))
+			ctx = logger.SetEntry(ctx, logrus.WithField("test", tt.name))
+
+			got, err := s.GetFilteredMetricsNames(ctx, tt.in)
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "Service.GetFilters() error = %v, wantErr %v", err, tt.wantErr)
+				assert.Fail(t, "Service.GetFilters() failure", "test: %s, error: %v, wantErr: %t", tt.name, err, tt.wantErr)
 			}
 			if tt.want == nil {
-				assert.Nil(t, got, "Service.GetFilters() return not nil")
+				assert.Nil(t, got, "Service.GetFilters() did not return nil")
 				return
 			}
 

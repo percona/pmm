@@ -1,0 +1,39 @@
+---
+### MongoDB Platform Advisors Active vs Available Connections
+checks:
+  - version: 2
+    name: mongodb_active_vs_available_connections
+    summary: MongoDB Active vs Available Connections
+    description: This check returns warnings if the ratio between active and available connections is higher than 75%
+    family: MONGODB
+    #author: Corrado Pandiani
+    advisor: configuration_generic
+    interval: standard
+    queries:
+      - type: MONGODB_GETDIAGNOSTICDATA
+    script: |
+      def check_context(docs, context):
+          """
+          This check returns warnings if number of active connections is too high.
+          """
+
+          rows = docs[0]
+          if len(rows) != 1:
+              return "Unexpected number of documents"
+
+          results = []
+
+          data = rows[0]["data"]
+          active_connections = data.get("serverStatus").get("connections").get("active")
+          available_connections = data.get("serverStatus").get("connections").get("available")
+          ratio = 100*active_connections/(active_connections+available_connections)
+
+          if ratio >= 75:
+              results.append({
+                  "summary": "MongoDB has too many active connections",
+                  "description": "More than 75% of available connections are active. You may increase the available connections by increasing the ULIMIT. You can also check the workload, maybe there's unexpected spike of connections and queries.",
+                  "read_more_url": "https://www.mongodb.com/docs/manual/reference/ulimit/#recommended-settings",
+                  "severity": "warning",
+              })
+
+          return results

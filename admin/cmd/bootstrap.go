@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/kong"
@@ -41,19 +42,13 @@ import (
 )
 
 // Bootstrap is used to initialize the application.
-func Bootstrap(opts any) {
+func Bootstrap(opts cli.PMMAdminCommands) {
 	var kongCtx *kong.Context
 	var kongParser *kong.Kong
 	var parsedOpts any
 
-	switch o := opts.(type) {
-	case cli.PMMAdminCommands:
-		kongParser = kong.Must(&o, getDefaultKongOptions("pmm-admin")...)
-		parsedOpts = &o
-	case cli.PMMCommands:
-		kongParser = kong.Must(&o, getDefaultKongOptions("pmm")...)
-		parsedOpts = &o
-	}
+	kongParser = kong.Must(&opts, getDefaultKongOptions("pmm-admin")...)
+	parsedOpts = &opts
 
 	kongcompletion.Register(kongParser)
 	kongCtx, err := kongParser.Parse(expandArgs(os.Args[1:]))
@@ -142,6 +137,7 @@ func getDefaultKongOptions(appName string) []kong.Option {
 
 	mongoDBQuerySources := []string{
 		management.MongodbQuerySourceProfiler,
+		management.MongodbQuerySourceMongolog,
 		management.MongodbQuerySourceNone,
 	}
 
@@ -154,17 +150,17 @@ func getDefaultKongOptions(appName string) []kong.Option {
 			NoExpandSubcommands: true,
 		}),
 		kong.Vars{
-			"defaultListenPort":            fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort),
+			"defaultListenPort":            strconv.Itoa(agentlocal.DefaultPMMAgentListenPort),
 			"nodeIp":                       nodeinfo.PublicAddress,
 			"nodeTypeDefault":              nodeTypeDefault,
 			"hostname":                     hostname,
-			"serviceTypesEnum":             strings.Join(management.AllServiceTypesKeys, ","),
+			"serviceTypesEnum":             strings.Join(management.AllServiceTypesKeys, ", "),
 			"defaultMachineID":             defaultMachineID,
 			"distro":                       nodeinfo.Distro,
-			"metricsModesEnum":             strings.Join(management.MetricsModes, ","),
-			"mysqlQuerySourcesEnum":        strings.Join(mysqlQuerySources, ","),
+			"metricsModesEnum":             strings.Join(management.MetricsModes, ", "),
+			"mysqlQuerySourcesEnum":        strings.Join(mysqlQuerySources, ", "),
 			"mysqlQuerySourceDefault":      mysqlQuerySources[0],
-			"mongoDbQuerySourcesEnum":      strings.Join(mongoDBQuerySources, ","),
+			"mongoDbQuerySourcesEnum":      strings.Join(mongoDBQuerySources, ", "),
 			"mongoDbQuerySourceDefault":    mongoDBQuerySources[0],
 			"externalDefaultServiceName":   management.DefaultServiceNameSuffix,
 			"externalDefaultGroupExporter": management.DefaultGroupExternalExporter,

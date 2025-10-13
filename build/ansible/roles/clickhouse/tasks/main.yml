@@ -10,7 +10,7 @@
     enabled: no
 
 - name: Install clickhouse package
-  yum:
+  dnf:
     name:
       - clickhouse-client-{{ clickhouse_version }}
       - clickhouse-server-{{ clickhouse_version }}
@@ -24,7 +24,7 @@
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: pmm
+    group: root
     mode: 0755
     recurse: yes
   loop:
@@ -39,7 +39,7 @@
     src: "{{ item }}"
     dest: "/etc/clickhouse-server/{{ item }}"
     owner: pmm
-    group: pmm
+    group: root
     mode: 0664
   loop:
     - config.xml

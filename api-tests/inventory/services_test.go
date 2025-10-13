@@ -99,8 +99,8 @@ func TestServices(t *testing.T) {
 		res, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one MySQL service")
-		assert.NotZerof(t, len(res.Payload.Postgresql), "There should be at least one PostgreSQL service")
+		assert.NotEmpty(t, res.Payload.Mysql, "There should be at least one MySQL service")
+		assert.NotEmpty(t, res.Payload.Postgresql, "There should be at least one PostgreSQL service")
 		assertMySQLServiceExists(t, res, serviceID)
 		assertMySQLServiceExists(t, res, remoteServiceID)
 		assertPostgreSQLServiceExists(t, res, postgreSQLServiceID)
@@ -115,8 +115,8 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one MySQL service")
-		assert.NotZerof(t, len(res.Payload.Postgresql), "There should be at least one PostgreSQL service")
+		assert.NotEmpty(t, res.Payload.Mysql, "There should be at least one MySQL service")
+		assert.NotEmpty(t, res.Payload.Postgresql, "There should be at least one PostgreSQL service")
 		assertMySQLServiceExists(t, res, serviceID)
 		assertMySQLServiceNotExist(t, res, remoteServiceID)
 		assertPostgreSQLServiceExists(t, res, postgreSQLServiceID)
@@ -130,7 +130,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		assert.NotZerof(t, len(res.Payload.Postgresql), "There should be at least one PostgreSQL service")
+		assert.NotEmpty(t, res.Payload.Postgresql, "There should be at least one PostgreSQL service")
 		assertMySQLServiceNotExist(t, res, serviceID)
 		assertMySQLServiceNotExist(t, res, remoteServiceID)
 		assertExternalServiceNotExist(t, res, externalServiceID)
@@ -177,7 +177,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one node")
+		assert.NotEmpty(t, res.Payload.Mysql, "There should be at least one node")
 		assertMySQLServiceNotExist(t, res, serviceID)
 		assertMySQLServiceExists(t, res, remoteServiceID)
 	})
@@ -355,12 +355,13 @@ func TestMySQLService(t *testing.T) {
 		assert.Equal(t, &services.AddServiceOK{
 			Payload: &services.AddServiceOKBody{
 				Mysql: &services.AddServiceOKBodyMysql{
-					ServiceID:    serviceID,
-					NodeID:       genericNodeID,
-					Address:      "localhost",
-					Port:         3306,
-					ServiceName:  serviceName,
-					CustomLabels: map[string]string{},
+					ServiceID:      serviceID,
+					NodeID:         genericNodeID,
+					Address:        "localhost",
+					Port:           3306,
+					ServiceName:    serviceName,
+					CustomLabels:   map[string]string{},
+					ExtraDsnParams: map[string]string{},
 				},
 			},
 		}, res)
@@ -376,12 +377,13 @@ func TestMySQLService(t *testing.T) {
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
 				Mysql: &services.GetServiceOKBodyMysql{
-					ServiceID:    serviceID,
-					NodeID:       genericNodeID,
-					Address:      "localhost",
-					Port:         3306,
-					ServiceName:  serviceName,
-					CustomLabels: map[string]string{},
+					ServiceID:      serviceID,
+					NodeID:         genericNodeID,
+					Address:        "localhost",
+					Port:           3306,
+					ServiceName:    serviceName,
+					CustomLabels:   map[string]string{},
+					ExtraDsnParams: map[string]string{},
 				},
 			},
 		}, serviceRes)

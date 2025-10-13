@@ -75,7 +75,7 @@ func New(db *reform.DB, urls *URLs) *Service {
 
 // Params represents the parameters for configuring the dump service.
 type Params struct {
-	APIKey       string
+	Token        string
 	Cookie       string
 	User         string
 	Password     string
@@ -113,6 +113,28 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	s.cancel = cancel
 	s.rw.Unlock()
 
+	// include both service names and node names in the instances flag
+	// that way, pmm-dump is able to export both OS metrics and QAN metrics.
+	instances := make([]string, 0, len(params.ServiceNames))
+	nodeNames := make(map[string]struct{})
+	for _, serviceName := range params.ServiceNames {
+		service, err := models.FindServiceByName(s.db.Querier, serviceName)
+		if err != nil {
+			s.running.Store(false)
+			return "", errors.Wrapf(err, "failed to find service %s", serviceName)
+		}
+		node, err := models.FindNodeByID(s.db.Querier, service.NodeID)
+		if err != nil {
+			s.running.Store(false)
+			return "", errors.Wrapf(err, "failed to find node for service %s", serviceName)
+		}
+		instances = append(instances, serviceName)
+		nodeNames[node.NodeName] = struct{}{}
+	}
+	for nodeName := range nodeNames {
+		instances = append(instances, nodeName)
+	}
+
 	pmmDumpCmd := exec.CommandContext(ctx, //nolint:gosec
 		pmmDumpBin,
 		"export",
@@ -121,8 +143,8 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"--victoria-metrics-url="+s.urls.VMURL,
 		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
-	if params.APIKey != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.APIKey))
+	if params.Token != "" {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.Token))
 	}
 
 	if params.Cookie != "" {
@@ -134,8 +156,8 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-pass=%s`, params.Password))
 	}
 
-	for _, serviceName := range params.ServiceNames {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", serviceName))
+	for _, instance := range instances {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", instance))
 	}
 
 	if params.StartTime != nil {

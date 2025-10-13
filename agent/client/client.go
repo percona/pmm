@@ -17,7 +17,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"path/filepath"
 	"strconv"
@@ -164,6 +163,8 @@ func (c *Client) Run(ctx context.Context) error {
 		}
 		return ctx.Err()
 	}
+
+	c.backoff.Reset()
 
 	defer func() {
 		if err := dialResult.conn.Close(); err != nil {
@@ -419,7 +420,7 @@ LOOP:
 				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 				responsePayload = &agentv1.AgentLogsResponse{
 					Logs:                     logs,
-					AgentConfigLogLinesCount: uint32(configLogLinesCount),
+					AgentConfigLogLinesCount: uint32(configLogLinesCount), //nolint:gosec // log lines count is not expected to overflow uint32
 				}
 			default:
 				c.l.Errorf("Unhandled server request: %v.", req)
@@ -865,11 +866,11 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	var resp agentv1.ServerResponsePayload
 	resp, err = channel.SendAndWaitResponse(&agentv1.Ping{})
 	if err != nil {
-		return
+		return latency, clockDrift, err
 	}
 	if resp == nil {
 		err = channel.Wait()
-		return
+		return latency, clockDrift, err
 	}
 	roundtrip := time.Since(start)
 	currentTime := resp.(*agentv1.Pong).CurrentTime //nolint:forcetypeassert
@@ -877,11 +878,11 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	err = currentTime.CheckValid()
 	if err != nil {
 		err = errors.Wrap(err, "Failed to decode Ping")
-		return
+		return latency, clockDrift, err
 	}
 	latency = roundtrip / 2
 	clockDrift = serverTime.Sub(start) - latency
-	return
+	return latency, clockDrift, err
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
@@ -891,11 +892,11 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 	c.rw.RUnlock()
 	if channel == nil {
 		err = errors.New("not connected")
-		return
+		return latency, clockDrift, err
 	}
 
 	latency, clockDrift, err = getNetworkInformation(channel)
-	return
+	return latency, clockDrift, err
 }
 
 // GetServerConnectMetadata returns current server's metadata, or nil.
@@ -970,7 +971,7 @@ func argListFromMongoDBParams(pParams *agentv1.StartActionRequest_PTMongoDBSumma
 
 	if pParams.Password != "" {
 		// TODO change this line when pt-mongodb-summary is updated
-		args = append(args, fmt.Sprintf("--password=%s", pParams.Password))
+		args = append(args, "--password="+pParams.Password)
 	}
 
 	if pParams.Host != "" {

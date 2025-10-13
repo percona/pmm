@@ -92,7 +92,6 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
-	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
@@ -297,8 +296,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
-	platformv1.RegisterPlatformServiceServer(gRPCServer, platformService)
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
 	// run server until it is stopped gracefully or not
@@ -458,7 +455,7 @@ func runDebugServer(ctx context.Context) {
 	if err != nil {
 		l.Panic(err)
 	}
-	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
@@ -843,7 +840,7 @@ func main() { //nolint:maintidx,cyclop
 	agentsRegistry := agents.NewRegistry(db, vmParams)
 
 	// TODO remove once PMM cluster will be Active-Active
-	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() {
+	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
 		agentsRegistry.KickAll(ctx)
 	}))
 
@@ -880,8 +877,12 @@ func main() { //nolint:maintidx,cyclop
 			HAParams: haParams,
 		})
 
-	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
-		return supervisord.StartSupervisedService("pmm-agent")
+	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
+		err := supervisord.StartSupervisedService("pmm-agent")
+		if err != nil {
+			l.Warnf("couldn't start pmm-agent: %q", err)
+		}
+		return err
 	}, func() {
 		err := supervisord.StopSupervisedService("pmm-agent")
 		if err != nil {
@@ -935,10 +936,10 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
 
-	checksService := checks.New(db, platformClient, actionsService, v1.NewAPI(vmClient), clickhouseClient)
+	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
-	alertingService, err := alerting.NewService(db, platformClient, grafanaClient)
+	alertingService, err := alerting.NewService(db, grafanaClient)
 	if err != nil {
 		l.Fatalf("Could not create alerting service: %s", err)
 	}
@@ -973,6 +974,7 @@ func main() { //nolint:maintidx,cyclop
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
 		Dus:                  dus,
+		HAService:            haService,
 		Nomad:                nomad,
 	}
 

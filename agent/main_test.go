@@ -139,13 +139,6 @@ func TestImports(t *testing.T) {
 		constraints[a] = c
 	}
 
-	// slowlog parser should be fully independent
-	constraints["github.com/percona/pmm/agent/agents/mysql/slowlog/parser"] = constraint{
-		denyPrefixes: []string{
-			"github.com/percona/pmm/agent",
-		},
-	}
-
 	// those packages should be independent from each other
 	packs := []string{
 		// TODO https://jira.percona.com/browse/PMM-7206
@@ -242,7 +235,7 @@ func TestImports(t *testing.T) {
 	for _, line := range lines {
 		if _, ok := duplicate[line]; !ok {
 			duplicate[line] = struct{}{}
-			fmt.Fprint(f, line)
+			fmt.Fprint(f, line) //nolint:errcheck
 		}
 	}
 	fmt.Fprintf(f, "}\n")

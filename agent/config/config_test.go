@@ -70,8 +70,8 @@ func TestLoadFromFile(t *testing.T) {
 
 		cfg, err := loadFromFile(name)
 		require.IsType(t, (*os.PathError)(nil), err)
-		assert.Equal(t, "open", err.(*os.PathError).Op)                    //nolint:errorlint
-		assert.EqualError(t, err.(*os.PathError).Err, `permission denied`) //nolint:errorlint
+		assert.Equal(t, "open", err.(*os.PathError).Op)                     //nolint:errorlint
+		require.EqualError(t, err.(*os.PathError).Err, "permission denied") //nolint:errorlint
 		assert.Nil(t, cfg)
 	})
 
@@ -82,7 +82,7 @@ func TestLoadFromFile(t *testing.T) {
 
 		cfg, err := loadFromFile(name)
 		require.IsType(t, (*yaml.TypeError)(nil), err)
-		assert.EqualError(t, err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `not YAML` into config.Config")
+		require.EqualError(t, err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `not YAML` into config.Config")
 		assert.Nil(t, cfg)
 	})
 }
@@ -114,6 +114,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -128,7 +129,8 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			LogLinesCount: 1024,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Empty(t, configFilepath)
@@ -152,6 +154,7 @@ func TestGet(t *testing.T) {
 			Paths: Paths{
 				TempDir: tmpDir,
 			},
+			PerfschemaRefreshRate: 2,
 		})
 
 		configFilepath, err := get([]string{
@@ -176,6 +179,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -190,7 +194,8 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			LogLinesCount: 1024,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 2,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -209,6 +214,7 @@ func TestGet(t *testing.T) {
 			Server: Server{
 				Address: "127.0.0.1",
 			},
+			PerfschemaRefreshRate: 2,
 		})
 
 		configFilepath, err := get([]string{
@@ -217,6 +223,7 @@ func TestGet(t *testing.T) {
 			"--id=flag-id",
 			"--log-level=info",
 			"--debug",
+			"--perfschema-refresh-rate=1",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
@@ -237,6 +244,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/foo/bar/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -251,9 +259,10 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			LogLevel:      "info",
-			Debug:         true,
-			LogLinesCount: 1024,
+			LogLevel:              "info",
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 1,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -306,6 +315,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/base/pro_exporter",     // respect relative value from config file
 				RDSExporter:      "/base/rds_exporter",     // default value
 				AzureExporter:    "/base/azure_exporter",   // default value
+				ValkeyExporter:   "/base/valkey_exporter",  // default value
 				VMAgent:          "/base/vmagent",          // default value
 				TempDir:          "/usr/local/percona/pmm/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -320,8 +330,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug:         true,
-			LogLinesCount: 1024,
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -373,6 +384,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/base/exporters/pro_exporter",       // respect relative value from config file
 				RDSExporter:      "/base/exporters/rds_exporter",       // default value
 				AzureExporter:    "/base/exporters/azure_exporter",     // default value
+				ValkeyExporter:   "/base/exporters/valkey_exporter",    // default value
 				VMAgent:          "/base/exporters/vmagent",            // default value
 				TempDir:          "/base/tmp",
 				NomadDataDir:     "/base/data/nomad",
@@ -387,8 +399,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug:         true,
-			LogLinesCount: 1024,
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -438,6 +451,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/foo/exporters/proxysql_exporter", // default value
 				RDSExporter:      "/foo/exporters/rds_exporter",      // default value
 				AzureExporter:    "/foo/exporters/azure_exporter",    // default value
+				ValkeyExporter:   "/foo/exporters/valkey_exporter",   // default value
 				VMAgent:          "/foo/exporters/vmagent",           // default value
 				TempDir:          "/foo/tmp",
 				NomadDataDir:     "/base/data/nomad",
@@ -452,8 +466,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug:         true,
-			LogLinesCount: 1024,
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -488,6 +503,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -502,8 +518,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug:         true,
-			LogLinesCount: 1024,
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)

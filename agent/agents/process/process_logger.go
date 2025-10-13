@@ -70,7 +70,7 @@ func (pl *processLogger) Write(p []byte) (int, error) {
 		line, err = b.ReadString('\n')
 		if err != nil {
 			pl.buf = []byte(line)
-			return n, nil //nolint:nilerr
+			return n, nil
 		}
 		line = strings.TrimSuffix(line, "\n")
 		if pl.replacer != nil {

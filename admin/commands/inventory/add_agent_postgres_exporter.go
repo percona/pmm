@@ -61,7 +61,7 @@ type AddAgentPostgresExporterCommand struct {
 	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 	TLSCAFile           string            `help:"TLS CA certificate file"`
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
@@ -72,7 +72,7 @@ type AddAgentPostgresExporterCommand struct {
 
 // RunCmd executes the AddAgentPostgresExporterCommand and returns the result.
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	var (
 		err                    error

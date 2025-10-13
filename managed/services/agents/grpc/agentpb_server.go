@@ -29,7 +29,7 @@ type agentPBServer struct {
 }
 
 // NewAgentPBServer creates new agent server.
-func NewAgentPBServer(r *agents.Handler) agentpb.AgentServer { //nolint:ireturn
+func NewAgentPBServer(r *agents.Handler) agentpb.AgentServer { //nolint:ireturn,nolintlint
 	return &agentPBServer{
 		handler: r,
 	}

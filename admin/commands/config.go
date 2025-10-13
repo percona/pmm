@@ -40,8 +40,6 @@ func (res *configResult) String() string {
 }
 
 // ConfigCommand is used by Kong for CLI flags and commands.
-//
-//nolint:lll
 type ConfigCommand struct {
 	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
 	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type. One of: [${enum}]. Default: ${default}"`

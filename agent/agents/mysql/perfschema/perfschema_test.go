@@ -15,7 +15,6 @@
 package perfschema
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -117,7 +116,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			},
 		}
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("Truncate", func(t *testing.T) {
@@ -131,7 +130,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		}
 		current := make(map[string]*eventsStatementsSummaryByDigest)
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("TruncateAndNew", func(t *testing.T) {
@@ -195,7 +194,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 
 	p, err := newPerfSchema(newParams)
 	require.NoError(t, err)
-	require.NoError(t, p.refreshHistoryCache())
+	require.NoError(t, p.refreshHistoryCache(t.Context()))
 	return p
 }
 
@@ -283,8 +282,7 @@ func TestPerfSchema(t *testing.T) {
 	tests.LogTable(t, structs)
 
 	var rowsExamined float32
-	ctx := context.Background()
-	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, db.WithTag("pmm-agent-tests:MySQLVersion"))
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(t.Context(), db.WithTag("pmm-agent-tests:MySQLVersion"))
 	t.Logf("MySQL version: %s, vendor: %s", mySQLVersion, mySQLVendor)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
@@ -310,7 +308,7 @@ func TestPerfSchema(t *testing.T) {
 			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
 		}
 
-	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle", "9.2-oracle", "9.3-oracle":
+	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle", "9.2-oracle", "9.3-oracle", "9.4-oracle":
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
 			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
@@ -370,7 +368,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* Sleep controller='test' */ sleep(0.1)")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -417,7 +415,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -472,7 +470,7 @@ func TestPerfSchema(t *testing.T) {
 			require.NoError(t, err)
 		}()
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -539,8 +537,12 @@ func TestPerfSchema(t *testing.T) {
 		_, err = db.Exec("SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu\xf1rk'")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 		var example string
+		isTruncated := true
+		if mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0 {
+			isTruncated = false
+		}
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.
 		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
@@ -575,6 +577,7 @@ func TestPerfSchema(t *testing.T) {
 				AgentType:              inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:                example,
 				ExampleType:            agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
+				IsTruncated:            isTruncated,
 				NumQueries:             1,
 				NumQueriesWithWarnings: numQueriesWithWarnings,
 				MQueryTimeCnt:          1,
@@ -606,7 +609,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err = db.Exec("SELECT 1, 2, 3, 4, id FROM city WHERE id = 1")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)

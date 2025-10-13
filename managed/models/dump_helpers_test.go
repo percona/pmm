@@ -265,7 +265,6 @@ func TestDumpLogs(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
-			tc := tc
 			t.Run(tc.Name, func(t *testing.T) {
 				logs, err := models.FindDumpLogs(tx.Querier, tc.Filters)
 				require.NoError(t, err)

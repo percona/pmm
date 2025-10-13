@@ -70,11 +70,11 @@ func TestReadLog(t *testing.T) {
 	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 
-	for i := range 10 { //nolint:typecheck
-		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
-		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+	for i := range 10 {
+		fmt.Fprintf(f, "line #%03d\n", i)                //nolint:errcheck // 10 bytes
+		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) //nolint:errcheck // 10 bytes
 	}
-	fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	fmt.Fprintf(fNoNewLineEnding, "some string without new line") //nolint:errcheck
 	require.NoError(t, f.Close())
 	require.NoError(t, fNoNewLineEnding.Close())
 
@@ -106,7 +106,7 @@ func TestReadLogUnlimited(t *testing.T) {
 	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 
-	for i := range 10 { //nolint:typecheck
+	for i := range 10 {
 		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
 		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
 	}

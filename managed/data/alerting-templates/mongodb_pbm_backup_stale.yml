@@ -1,0 +1,20 @@
+---
+templates:
+  - name: pmm_mongodb_pbm_backup_stale
+    version: 1
+    summary: PBM Backup Stale
+    expr: |-
+      time() - mongodb_pbm_backup_last_transition_ts{status="done"} > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: Maximum allowed age of last successful backup (seconds, defaults to 24h)
+        type: float
+        range: [0, 2678400]
+        value: 86400
+    for: 1m
+    severity: critical
+    annotations:
+      summary: Last PBM backup is stale for ({{ $labels.node_name }})
+      description: |-
+        The last successful PBM backup (status="done") for {{ $labels.node_name }} is older than [[ .threshold ]] seconds.
+

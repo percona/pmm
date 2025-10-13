@@ -165,9 +165,9 @@ func TestMySQLExplain(t *testing.T) {
 		assert.Contains(t, actual[0], "Extra")
 
 		// Checks some stable values
-		assert.Equal(t, float64(1), actual[1][0]) // id
-		assert.Equal(t, "SIMPLE", actual[1][1])   // select_type
-		assert.Equal(t, "city", actual[1][2])     // table
+		assert.InEpsilon(t, float64(1), actual[1][0], 0.0001) // id
+		assert.Equal(t, "SIMPLE", actual[1][1])               // select_type
+		assert.Equal(t, "city", actual[1][2])                 // table
 	})
 
 	t.Run("Error", func(t *testing.T) {
@@ -202,7 +202,7 @@ func TestMySQLExplain(t *testing.T) {
 		err = json.Unmarshal(resp, &er)
 		assert.NoError(t, err)
 		assert.True(t, er.IsDMLQuery)
-		assert.Equal(t, er.Query, `SELECT * FROM city  WHERE Name='Rosario'`)
+		assert.Equal(t, `SELECT * FROM city  WHERE Name='Rosario'`, er.Query)
 	})
 
 	t.Run("Query longer than max-query-length", func(t *testing.T) {

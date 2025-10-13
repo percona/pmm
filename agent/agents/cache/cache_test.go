@@ -146,20 +146,20 @@ func TestCacheErrors(t *testing.T) {
 		t.Parallel()
 		var err error
 		_, err = New(100, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.Error(t, err) //nolint:testifylint
+		assert.Error(t, err)
 
 		_, err = New([]float64{}, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.Error(t, err) //nolint:testifylint
+		assert.Error(t, err)
 
 		_, err = New(struct{}{}, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.Error(t, err) //nolint:testifylint
+		assert.Error(t, err)
 	})
 
 	t.Run("WrongTypeOnRefresh", func(t *testing.T) {
 		t.Parallel()
 		c, _ := New(make(map[int]int), time.Second*100, 100, logrus.WithField("test", t.Name()))
 		err := c.Set(map[int]string{1: "some string"})
-		assert.NotNil(t, err)
+		assert.Error(t, err)
 	})
 
 	t.Run("WrongTypeOnGet", func(t *testing.T) {
@@ -167,6 +167,6 @@ func TestCacheErrors(t *testing.T) {
 		c, _ := New(make(map[int]int), time.Second*100, 100, logrus.WithField("test", t.Name()))
 		dest := make(map[int]string)
 		err := c.Get(dest)
-		assert.NotNil(t, err)
+		assert.Error(t, err)
 	})
 }

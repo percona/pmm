@@ -439,6 +439,9 @@ type GetAgentOKBody struct {
 	// proxysql exporter
 	ProxysqlExporter *GetAgentOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
+	// qan mongodb mongolog agent
+	QANMongodbMongologAgent *GetAgentOKBodyQANMongodbMongologAgent `json:"qan_mongodb_mongolog_agent,omitempty"`
+
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent *GetAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 
@@ -456,6 +459,9 @@ type GetAgentOKBody struct {
 
 	// rds exporter
 	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
+
+	// valkey exporter
+	ValkeyExporter *GetAgentOKBodyValkeyExporter `json:"valkey_exporter,omitempty"`
 
 	// vmagent
 	Vmagent *GetAgentOKBodyVmagent `json:"vmagent,omitempty"`
@@ -501,6 +507,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateQANMongodbMongologAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
 		res = append(res, err)
 	}
@@ -522,6 +532,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRDSExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkeyExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -706,6 +720,25 @@ func (o *GetAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) error
 	return nil
 }
 
+func (o *GetAgentOKBody) validateQANMongodbMongologAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+		return nil
+	}
+
+	if o.QANMongodbMongologAgent != nil {
+		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
 	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
 		return nil
@@ -820,6 +853,25 @@ func (o *GetAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *GetAgentOKBody) validateValkeyExporter(formats strfmt.Registry) error {
+	if swag.IsZero(o.ValkeyExporter) { // not required
+		return nil
+	}
+
+	if o.ValkeyExporter != nil {
+		if err := o.ValkeyExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "valkey_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "valkey_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetAgentOKBody) validateVmagent(formats strfmt.Registry) error {
 	if swag.IsZero(o.Vmagent) { // not required
 		return nil
@@ -879,6 +931,10 @@ func (o *GetAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateQANMongodbMongologAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -900,6 +956,10 @@ func (o *GetAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := o.contextValidateRDSExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkeyExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1093,6 +1153,26 @@ func (o *GetAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, fo
 	return nil
 }
 
+func (o *GetAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.QANMongodbMongologAgent != nil {
+
+		if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+			return nil
+		}
+
+		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMongodbProfilerAgent != nil {
 
@@ -1213,6 +1293,26 @@ func (o *GetAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats
 	return nil
 }
 
+func (o *GetAgentOKBody) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
+	if o.ValkeyExporter != nil {
+
+		if swag.IsZero(o.ValkeyExporter) { // not required
+			return nil
+		}
+
+		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "valkey_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "valkey_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetAgentOKBody) contextValidateVmagent(ctx context.Context, formats strfmt.Registry) error {
 	if o.Vmagent != nil {
 
@@ -1284,7 +1384,7 @@ type GetAgentOKBodyAzureDatabaseExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -1596,6 +1696,9 @@ type GetAgentOKBodyExternalExporter struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *GetAgentOKBodyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -1770,7 +1873,7 @@ type GetAgentOKBodyMongodbExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2113,7 +2216,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2135,6 +2238,9 @@ type GetAgentOKBodyMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *GetAgentOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -2420,7 +2526,7 @@ type GetAgentOKBodyNodeExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2715,7 +2821,7 @@ type GetAgentOKBodyNomadAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2915,7 +3021,7 @@ type GetAgentOKBodyPostgresExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3237,7 +3343,7 @@ type GetAgentOKBodyProxysqlExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3512,6 +3618,215 @@ func (o *GetAgentOKBodyProxysqlExporterMetricsResolutions) UnmarshalBinary(b []b
 }
 
 /*
+GetAgentOKBodyQANMongodbMongologAgent QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+swagger:model GetAgentOKBodyQANMongodbMongologAgent
+*/
+type GetAgentOKBodyQANMongodbMongologAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this get agent OK body QAN mongodb mongolog agent
+func (o *GetAgentOKBodyQANMongodbMongologAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum = append(getAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANMongodbMongologAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANMongodbMongologAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_mongodb_mongolog_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum = append(getAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANMongodbMongologAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANMongodbMongologAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"qan_mongodb_mongolog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this get agent OK body QAN mongodb mongolog agent based on context it is used
+func (o *GetAgentOKBodyQANMongodbMongologAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyQANMongodbMongologAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyQANMongodbMongologAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyQANMongodbMongologAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 GetAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANMongodbProfilerAgent
 */
@@ -3550,7 +3865,7 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3774,7 +4089,7 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3787,6 +4102,9 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN mysql perfschema agent
@@ -4001,7 +4319,7 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4014,6 +4332,9 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN mysql slowlog agent
@@ -4213,7 +4534,7 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4428,7 +4749,7 @@ type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4628,7 +4949,7 @@ type GetAgentOKBodyRDSExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4912,6 +5233,258 @@ func (o *GetAgentOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) 
 }
 
 /*
+GetAgentOKBodyValkeyExporter ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
+swagger:model GetAgentOKBodyValkeyExporter
+*/
+type GetAgentOKBodyValkeyExporter struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Valkey username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *GetAgentOKBodyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
+}
+
+// Validate validates this get agent OK body valkey exporter
+func (o *GetAgentOKBodyValkeyExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyValkeyExporterTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyValkeyExporterTypeStatusPropEnum = append(getAgentOkBodyValkeyExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyValkeyExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	GetAgentOKBodyValkeyExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// GetAgentOKBodyValkeyExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyValkeyExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// GetAgentOKBodyValkeyExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	GetAgentOKBodyValkeyExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// GetAgentOKBodyValkeyExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyValkeyExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// GetAgentOKBodyValkeyExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyValkeyExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// GetAgentOKBodyValkeyExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyValkeyExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// GetAgentOKBodyValkeyExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyValkeyExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// GetAgentOKBodyValkeyExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyValkeyExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyValkeyExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyValkeyExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyValkeyExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"valkey_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBodyValkeyExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get agent OK body valkey exporter based on the context it is used
+func (o *GetAgentOKBodyValkeyExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyValkeyExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyValkeyExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyValkeyExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyValkeyExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetAgentOKBodyValkeyExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model GetAgentOKBodyValkeyExporterMetricsResolutions
+*/
+type GetAgentOKBodyValkeyExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this get agent OK body valkey exporter metrics resolutions
+func (o *GetAgentOKBodyValkeyExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get agent OK body valkey exporter metrics resolutions based on context it is used
+func (o *GetAgentOKBodyValkeyExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyValkeyExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyValkeyExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyValkeyExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-agent.
 // It scrapes other exporter Agents that are configured with push_metrics_enabled
 // and uses Prometheus remote write protocol to push metrics to PMM Server.
@@ -4931,7 +5504,7 @@ type GetAgentOKBodyVmagent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`

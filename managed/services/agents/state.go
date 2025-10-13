@@ -184,7 +184,6 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			continue
 		}
 
-		// Ordered the same as AgentType consts
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue
@@ -240,9 +239,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
-			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType,
-			models.QANPostgreSQLPgStatMonitorAgentType:
-
+			models.ValkeyExporterType, models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType,
+			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
+			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
@@ -269,12 +268,16 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				agentProcesses[row.AgentID] = cfg
 			case models.ProxySQLExporterType:
 				agentProcesses[row.AgentID] = proxysqlExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+			case models.ValkeyExporterType:
+				agentProcesses[row.AgentID] = valkeyExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 			case models.QANMySQLPerfSchemaAgentType:
 				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMySQLSlowlogAgentType:
 				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMongoDBProfilerAgentType:
 				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row, pmmAgentVersion)
+			case models.QANMongoDBMongologAgentType:
+				builtinAgents[row.AgentID] = qanMongoDBMongologAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatementsAgentType:
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
@@ -282,7 +285,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 
 		default:
-			return errors.Errorf("unhandled Agent type %s", row.AgentType)
+			return errors.Errorf("cannot send request for unknown agent type %s", row.AgentType)
 		}
 	}
 

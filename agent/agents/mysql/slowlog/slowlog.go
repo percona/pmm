@@ -41,6 +41,7 @@ import (
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
+	"github.com/percona/pmm/agent/utils/filereader"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -308,7 +309,7 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 // processFile extracts performance data from given file and sends it to the channel until ctx is canceled.
 func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime float64) error {
 	rl := s.l.WithField("component", "slowlog/reader").WithField("file", file)
-	reader, err := parser.NewContinuousFileReader(file, rl)
+	reader, err := filereader.NewContinuousFileReader(file, rl)
 	if err != nil {
 		s.l.Errorf("Failed to start reader for file %s: %s.", file, err)
 		return err
