@@ -154,6 +154,8 @@ Property names are shared between API calls, database columns, and label values 
 
 **MySQLdExporter** runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics. Properties:
 
+> **Partial certificates:** For MySQL, it is possible to provide only a subset of the certificate files ("partial certificates") for TLS/SSL connections. Specifically, you can provide only the CA certificate to enable encrypted (TLS) connections. The client certificate and client key are optional and only required for client authentication. Providing only the client certificate and key without the CA is not supported.
+
 - `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required). The pmm-agent identifier which runs this instance.
 - `service_id` (required). Service identifier. Can't be changed.
