@@ -394,7 +394,8 @@ func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	err := s.raftNode.AddVoter(raft.ServerID(node.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort)), 0, defaultServerOpTimeout).Error()
+	serverAddress := raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort))
+	err := s.raftNode.AddVoter(raft.ServerID(node.Name), serverAddress, 0, defaultServerOpTimeout).Error()
 	if err != nil {
 		s.l.Errorf("couldn't add a server node %s: %q", node.Name, err)
 	}
