@@ -250,8 +250,6 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 }
 
 func main() {
-	defer log.Println("qan-api2 exited")
-
 	log.SetFlags(0)
 	log.SetPrefix("stdlog: ")
 
@@ -276,6 +274,7 @@ func main() {
 	kingpin.Parse()
 
 	log.Printf("%s.", version.ShortInfo())
+	log.Printf("Clickhouse address: %s", *clickhouseAddrF)
 
 	logger.SetupGlobalLogger()
 
@@ -294,7 +293,6 @@ func main() {
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	log.Printf("current clickhouse address: %s", *clickhouseAddrF)
 	var dsn string
 	if *dsnF == defaultDsnF {
 		dsn = fmt.Sprintf(defaultDsnF, *clickhouseUserF, *clickhousePasswordF, *clickhouseAddrF, *clickhouseDatabaseF)

@@ -3,17 +3,17 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"text/template"
-	"io/ioutil"
 )
 
 func main() {
 	var (
-		sqlDir   string
-		engine   string
-		cluster  string
+		sqlDir  string
+		engine  string
+		cluster string
 	)
 	flag.StringVar(&sqlDir, "sql", "migrations/sql", "Directory with .up.sql migration templates")
 	flag.StringVar(&engine, "engine", "MergeTree", "Engine to use in templates")
@@ -47,6 +47,5 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Failed to render template %s: %v\n", file, err)
 			os.Exit(1)
 		}
-		fmt.Println()
 	}
 }
