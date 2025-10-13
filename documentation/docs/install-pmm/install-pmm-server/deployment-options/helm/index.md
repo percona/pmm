@@ -146,10 +146,11 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
         ```bash
         # If using ClusterIP (default)
-        kubectl port-forward svc/pmm-service 443:443
+        kubectl port-forward svc/monitoring-service 443:443
+
 
         # If using NodePort
-        kubectl get svc pmm-service -o jsonpath='{.spec.ports[0].nodePort}'
+        kubectl get svc monitoring-service -o jsonpath='{.spec.ports[0].nodePort}'
         ```
 
     === "On OpenShift"
@@ -157,13 +158,13 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
         ```bash
         # Create a Route to expose PMM
-        oc expose svc/pmm-service --port=443
+        oc expose svc/monitoring-service --port=443
 
         # Get the Route URL
-        oc get route pmm-service -o jsonpath='{.spec.host}'
-        
+        oc get route monitoring-service -o jsonpath='{.spec.host}'
+
         # Or use port-forwarding for testing
-        oc port-forward svc/pmm-service 443:443
+        oc port-forward svc/monitoring-service 443:443
         ```
 
 ### Configure PMM Server
