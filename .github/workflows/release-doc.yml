@@ -30,7 +30,7 @@ jobs:
           grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary "\(.*\)"/\> \:memo\: **\1**/g'
           grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary/\> \:memo\: **Note**/g'
       - name: Create Release
-        uses: softprops/action-gh-release@aec2ec56f94eb8180ceec724245f64ef008b89f5 # v2.4.0
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2.4.1
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           draft: true
