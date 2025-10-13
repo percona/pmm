@@ -7,19 +7,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="Release date: October 13, 2025">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/faq.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/release-notes/3.4.1.html">
       
       
-        <link rel="prev" href="glossary.html">
+        <link rel="prev" href="index.html">
       
       
-        <link rel="next" href="trademark-policy.html">
+        <link rel="next" href="3.4.0.html">
       
       
       <link rel="icon" href="../assets/pmm-fav.svg">
@@ -27,7 +27,7 @@
     
     
       
-        <title>FAQ - Percona Monitoring and Management</title>
+        <title>PMM 3.4.1 (2025-10-13) - Percona Monitoring and Management</title>
       
     
     
@@ -90,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - FAQ" />
+                 <meta property="og:title" content="Percona Monitoring and Management - PMM 3.4.1 (2025-10-13)" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -113,7 +113,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#faq" class="md-skip">
+        <a href="#percona-monitoring-and-management-341" class="md-skip">
           Skip to content
         </a>
       
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              FAQ
+              PMM 3.4.1 (2025-10-13)
             
           </span>
         </div>
@@ -2842,7 +2842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="ui/ui_components.html" class="md-nav__link">
+      <a href="../reference/ui/ui_components.html" class="md-nav__link">
         
   
   
@@ -2865,7 +2865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="ui/log_in.html" class="md-nav__link">
+      <a href="../reference/ui/log_in.html" class="md-nav__link">
         
   
   
@@ -2888,7 +2888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="ui/timezone.html" class="md-nav__link">
+      <a href="../reference/ui/timezone.html" class="md-nav__link">
         
   
   
@@ -6092,18 +6092,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" checked>
         
           
           <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
@@ -6119,7 +6121,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_12">
             <span class="md-nav__icon md-icon"></span>
             Release notes
@@ -6133,7 +6135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../release-notes/index.html" class="md-nav__link">
+      <a href="index.html" class="md-nav__link">
         
   
   
@@ -6153,10 +6155,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../release-notes/3.4.1.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.4.1 (2025-10-13)
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="3.4.1.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -6167,6 +6191,137 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#release-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      🆕 Release summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔒 Security updates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔒 Security updates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nomad-denial-of-service-dos-vulnerability-cve-2025-8959" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nomad Denial-of-Service (DOS) vulnerability (CVE-2025-8959)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed-dos-in-percona-toolkit-logrus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fixed: DoS in Percona Toolkit (Logrus)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#false-positive-reported-cves-pmm-not-affected" class="md-nav__link">
+    <span class="md-ellipsis">
+      False-positive reported CVEs (PMM not affected)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="False-positive reported CVEs (PMM not affected)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openssl-cipher-processing-cve-2023-5363" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenSSL cipher processing (CVE-2023-5363)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-code-execution-in-python-setuptools-cve-2024-6345" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote code execution in Python Setuptools (CVE-2024-6345)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse-vulnerabilities-related-to-outdated-go-runtime-cve-2024-24790" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClickHouse vulnerabilities related to outdated Go runtime (CVE-2024-24790)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accepted-risk-openssl-buffer-overflow-vulnerabilities-cve-2022-3786-and-cve-2022-3602" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accepted risk: OpenSSL buffer overflow vulnerabilities (CVE-2022-3786 and CVE-2022-3602)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ready-to-upgrade-to-pmm-341" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Ready to upgrade to PMM 3.4.1?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#questions-or-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❓ Questions or issues?
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -6179,7 +6334,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../release-notes/3.4.0.html" class="md-nav__link">
+      <a href="3.4.0.html" class="md-nav__link">
         
   
   
@@ -6202,7 +6357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../release-notes/3.3.1.html" class="md-nav__link">
+      <a href="3.3.1.html" class="md-nav__link">
         
   
   
@@ -6225,7 +6380,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../release-notes/3.3.0.html" class="md-nav__link">
+      <a href="3.3.0.html" class="md-nav__link">
         
   
   
@@ -6248,7 +6403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../release-notes/3.2.0.html" class="md-nav__link">
+      <a href="3.2.0.html" class="md-nav__link">
         
   
   
@@ -6271,7 +6426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../release-notes/3.1.0.html" class="md-nav__link">
+      <a href="3.1.0.html" class="md-nav__link">
         
   
   
@@ -6294,7 +6449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../release-notes/3.0.0_1.html" class="md-nav__link">
+      <a href="3.0.0_1.html" class="md-nav__link">
         
   
   
@@ -6317,7 +6472,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../release-notes/3.0.0.html" class="md-nav__link">
+      <a href="3.0.0.html" class="md-nav__link">
         
   
   
@@ -6344,20 +6499,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
           <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
@@ -6373,7 +6526,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             Reference
@@ -6425,7 +6578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="index.html" class="md-nav__link">
+      <a href="../reference/index.html" class="md-nav__link">
         
   
   
@@ -6486,7 +6639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="third-party/victoria.html" class="md-nav__link">
+      <a href="../reference/third-party/victoria.html" class="md-nav__link">
         
   
   
@@ -6509,7 +6662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="third-party/clickhouse.html" class="md-nav__link">
+      <a href="../reference/third-party/clickhouse.html" class="md-nav__link">
         
   
   
@@ -6532,7 +6685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="third-party/postgresql.html" class="md-nav__link">
+      <a href="../reference/third-party/postgresql.html" class="md-nav__link">
         
   
   
@@ -6563,7 +6716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="pmm_components_and_versions.html" class="md-nav__link">
+      <a href="../reference/pmm_components_and_versions.html" class="md-nav__link">
         
   
   
@@ -6586,7 +6739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="personal_data_handling.html" class="md-nav__link">
+      <a href="../reference/personal_data_handling.html" class="md-nav__link">
         
   
   
@@ -6900,7 +7053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-home.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-home.html" class="md-nav__link">
         
   
   
@@ -6923,7 +7076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-advanced-data-exploration.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-advanced-data-exploration.html" class="md-nav__link">
         
   
   
@@ -6946,7 +7099,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-victoriametrics.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-victoriametrics.html" class="md-nav__link">
         
   
   
@@ -6969,7 +7122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
         
   
   
@@ -7038,7 +7191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-env-overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-env-overview.html" class="md-nav__link">
         
   
   
@@ -7061,7 +7214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-environment-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-environment-summary.html" class="md-nav__link">
         
   
   
@@ -7130,7 +7283,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/kubernetes_cluster_summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/kubernetes_cluster_summary.html" class="md-nav__link">
         
   
   
@@ -7153,7 +7306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/kubernetes_monitor_operators.html" class="md-nav__link">
+      <a href="../reference/dashboards/kubernetes_monitor_operators.html" class="md-nav__link">
         
   
   
@@ -7176,7 +7329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
+      <a href="../reference/dashboards/kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
         
   
   
@@ -7245,7 +7398,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-cpu-utilization-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-cpu-utilization-details.html" class="md-nav__link">
         
   
   
@@ -7268,7 +7421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-disk-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-disk-details.html" class="md-nav__link">
         
   
   
@@ -7291,7 +7444,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-network-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-network-details.html" class="md-nav__link">
         
   
   
@@ -7314,7 +7467,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-memory-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-memory-details.html" class="md-nav__link">
         
   
   
@@ -7337,7 +7490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-node-temperature-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-node-temperature-details.html" class="md-nav__link">
         
   
   
@@ -7360,7 +7513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-nodes-compare.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -7383,7 +7536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-nodes-overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-nodes-overview.html" class="md-nav__link">
         
   
   
@@ -7406,7 +7559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-node-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-node-summary.html" class="md-nav__link">
         
   
   
@@ -7429,7 +7582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-numa-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-numa-details.html" class="md-nav__link">
         
   
   
@@ -7452,7 +7605,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-processes-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-processes-details.html" class="md-nav__link">
         
   
   
@@ -7521,7 +7674,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-prometheus-exporter-status.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-prometheus-exporter-status.html" class="md-nav__link">
         
   
   
@@ -7544,7 +7697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-prometheus-exporters-overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-prometheus-exporters-overview.html" class="md-nav__link">
         
   
   
@@ -7613,7 +7766,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
         
   
   
@@ -7636,7 +7789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
         
   
   
@@ -7659,7 +7812,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
         
   
   
@@ -7682,7 +7835,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-innodb-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-innodb-details.html" class="md-nav__link">
         
   
   
@@ -7705,7 +7858,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
         
   
   
@@ -7728,7 +7881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-myrocks-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-myrocks-details.html" class="md-nav__link">
         
   
   
@@ -7751,7 +7904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-instance-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -7774,7 +7927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-instances-compare.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -7797,7 +7950,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-instances-overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -7820,7 +7973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
         
   
   
@@ -7843,7 +7996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-performance-schema-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-performance-schema-details.html" class="md-nav__link">
         
   
   
@@ -7866,7 +8019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-query-response-time-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-query-response-time-details.html" class="md-nav__link">
         
   
   
@@ -7889,7 +8042,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-replication-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-replication-summary.html" class="md-nav__link">
         
   
   
@@ -7912,7 +8065,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-group-replication-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-group-replication-summary.html" class="md-nav__link">
         
   
   
@@ -7935,7 +8088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-table-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-table-details.html" class="md-nav__link">
         
   
   
@@ -7958,7 +8111,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-user-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-user-details.html" class="md-nav__link">
         
   
   
@@ -7981,7 +8134,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mysql-tokudb-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mysql-tokudb-details.html" class="md-nav__link">
         
   
   
@@ -8050,7 +8203,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
         
   
   
@@ -8073,7 +8226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
         
   
   
@@ -8096,7 +8249,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
         
   
   
@@ -8119,7 +8272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-cluster-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -8142,7 +8295,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-instance-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8165,7 +8318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-instances-overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-instances-overview.html" class="md-nav__link">
         
   
   
@@ -8188,7 +8341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-instances-compare.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-instances-compare.html" class="md-nav__link">
         
   
   
@@ -8211,7 +8364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-replset-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-replset-summary.html" class="md-nav__link">
         
   
   
@@ -8234,7 +8387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-router-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-router-summary.html" class="md-nav__link">
         
   
   
@@ -8257,7 +8410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-inmemory-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-inmemory-details.html" class="md-nav__link">
         
   
   
@@ -8280,7 +8433,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
         
   
   
@@ -8303,7 +8456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
         
   
   
@@ -8326,7 +8479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-mongodb-PBM-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-PBM-details.html" class="md-nav__link">
         
   
   
@@ -8395,7 +8548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
@@ -8418,7 +8571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-postgresql-instance-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-postgresql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8441,7 +8594,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-postgresql-instances-compare.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-postgresql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -8464,7 +8617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -8487,7 +8640,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
         
   
   
@@ -8510,7 +8663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
         
   
   
@@ -8533,7 +8686,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
         
   
   
@@ -8556,7 +8709,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
         
   
   
@@ -8625,7 +8778,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-proxysql-instance-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-proxysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8694,7 +8847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
         
   
   
@@ -8717,7 +8870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -8740,7 +8893,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-pxc-galera-cluster-summary-experimental.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.html" class="md-nav__link">
         
   
   
@@ -8763,7 +8916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -8786,7 +8939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8825,7 +8978,7 @@
   
   
     <li class="md-nav__item">
-      <a href="nomad.html" class="md-nav__link">
+      <a href="../reference/nomad.html" class="md-nav__link">
         
   
   
@@ -8848,7 +9001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="glossary.html" class="md-nav__link">
+      <a href="../reference/glossary.html" class="md-nav__link">
         
   
   
@@ -8868,32 +9021,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    FAQ
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="faq.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../reference/faq.html" class="md-nav__link">
         
   
   
@@ -8904,206 +9035,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#how-can-i-contact-the-developers" class="md-nav__link">
-    <span class="md-ellipsis">
-      How can I contact the developers?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-are-the-minimum-system-requirements" class="md-nav__link">
-    <span class="md-ellipsis">
-      What are the minimum system requirements?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-can-i-upgrade-from-version-2" class="md-nav__link">
-    <span class="md-ellipsis">
-      How can I upgrade from version 2?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-does-the-pmm-installation-script-fail-during-docker-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why does the PMM installation script fail during Docker installation?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retention" class="md-nav__link">
-    <span class="md-ellipsis">
-      Retention
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-are-pmm-server-logs-rotated" class="md-nav__link">
-    <span class="md-ellipsis">
-      How are PMM Server logs rotated?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-privileges-are-required-to-monitor-a-mysql-instance" class="md-nav__link">
-    <span class="md-ellipsis">
-      What privileges are required to monitor a MySQL instance?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#can-i-monitor-multiple-service-instances" class="md-nav__link">
-    <span class="md-ellipsis">
-      Can I monitor multiple service instances?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#can-i-rename-instances" class="md-nav__link">
-    <span class="md-ellipsis">
-      Can I rename instances?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#can-i-add-an-aws-rds-mysql-or-aurora-mysql-instance-from-a-non-default-aws-partition" class="md-nav__link">
-    <span class="md-ellipsis">
-      Can I add an AWS RDS MySQL or Aurora MySQL instance from a non-default AWS partition?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-resolution-is-used-for-metrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      What resolution is used for metrics?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-do-i-set-up-alerting" class="md-nav__link">
-    <span class="md-ellipsis">
-      How do I set up Alerting?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-do-i-use-a-custom-prometheus-configuration-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      How do I use a custom Prometheus configuration file?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-troubleshoot-an-upgrade" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to troubleshoot an upgrade?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-are-my-login-credentials-when-i-try-to-connect-to-a-prometheus-exporter" class="md-nav__link">
-    <span class="md-ellipsis">
-      What are my login credentials when I try to connect to a Prometheus Exporter?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-provision-pmm-server-with-non-default-admin-password" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to provision PMM Server with non-default admin password?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-change-the-pmm-password-for-the-default-admin-user" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to change the PMM password for the default admin user?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-use-a-non-default-listen-port-for-pmm-admin" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to use a non-default listen-port for pmm-admin?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-does-pmm-handle-personal-and-confidential-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      How does PMM handle personal and confidential data?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-am-i-getting-a-user-already-exists-error-when-logging-back-into-pmm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why am I getting a "User already exists" error when logging back into PMM?
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -9116,7 +9047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="trademark-policy.html" class="md-nav__link">
+      <a href="../reference/trademark-policy.html" class="md-nav__link">
         
   
   
@@ -9139,7 +9070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="copyright.html" class="md-nav__link">
+      <a href="../reference/copyright.html" class="md-nav__link">
         
   
   
@@ -9181,7 +9112,7 @@
                     <div class="md-sidebar__inner">
                       <div data-banner="data-banner">
   <div class="actions">
-    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/reference/faq.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/release-notes/3.4.1.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -9219,180 +9150,111 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-can-i-contact-the-developers" class="md-nav__link">
+  <a href="#release-summary" class="md-nav__link">
     <span class="md-ellipsis">
-      How can I contact the developers?
+      🆕 Release summary
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-are-the-minimum-system-requirements" class="md-nav__link">
+  <a href="#security-updates" class="md-nav__link">
     <span class="md-ellipsis">
-      What are the minimum system requirements?
+      🔒 Security updates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔒 Security updates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nomad-denial-of-service-dos-vulnerability-cve-2025-8959" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nomad Denial-of-Service (DOS) vulnerability (CVE-2025-8959)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed-dos-in-percona-toolkit-logrus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fixed: DoS in Percona Toolkit (Logrus)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#false-positive-reported-cves-pmm-not-affected" class="md-nav__link">
+    <span class="md-ellipsis">
+      False-positive reported CVEs (PMM not affected)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="False-positive reported CVEs (PMM not affected)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openssl-cipher-processing-cve-2023-5363" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenSSL cipher processing (CVE-2023-5363)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-code-execution-in-python-setuptools-cve-2024-6345" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote code execution in Python Setuptools (CVE-2024-6345)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse-vulnerabilities-related-to-outdated-go-runtime-cve-2024-24790" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClickHouse vulnerabilities related to outdated Go runtime (CVE-2024-24790)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accepted-risk-openssl-buffer-overflow-vulnerabilities-cve-2022-3786-and-cve-2022-3602" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accepted risk: OpenSSL buffer overflow vulnerabilities (CVE-2022-3786 and CVE-2022-3602)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ready-to-upgrade-to-pmm-341" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Ready to upgrade to PMM 3.4.1?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-can-i-upgrade-from-version-2" class="md-nav__link">
+  <a href="#questions-or-issues" class="md-nav__link">
     <span class="md-ellipsis">
-      How can I upgrade from version 2?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-does-the-pmm-installation-script-fail-during-docker-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why does the PMM installation script fail during Docker installation?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retention" class="md-nav__link">
-    <span class="md-ellipsis">
-      Retention
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-are-pmm-server-logs-rotated" class="md-nav__link">
-    <span class="md-ellipsis">
-      How are PMM Server logs rotated?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-privileges-are-required-to-monitor-a-mysql-instance" class="md-nav__link">
-    <span class="md-ellipsis">
-      What privileges are required to monitor a MySQL instance?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#can-i-monitor-multiple-service-instances" class="md-nav__link">
-    <span class="md-ellipsis">
-      Can I monitor multiple service instances?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#can-i-rename-instances" class="md-nav__link">
-    <span class="md-ellipsis">
-      Can I rename instances?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#can-i-add-an-aws-rds-mysql-or-aurora-mysql-instance-from-a-non-default-aws-partition" class="md-nav__link">
-    <span class="md-ellipsis">
-      Can I add an AWS RDS MySQL or Aurora MySQL instance from a non-default AWS partition?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-resolution-is-used-for-metrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      What resolution is used for metrics?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-do-i-set-up-alerting" class="md-nav__link">
-    <span class="md-ellipsis">
-      How do I set up Alerting?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-do-i-use-a-custom-prometheus-configuration-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      How do I use a custom Prometheus configuration file?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-troubleshoot-an-upgrade" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to troubleshoot an upgrade?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-are-my-login-credentials-when-i-try-to-connect-to-a-prometheus-exporter" class="md-nav__link">
-    <span class="md-ellipsis">
-      What are my login credentials when I try to connect to a Prometheus Exporter?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-provision-pmm-server-with-non-default-admin-password" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to provision PMM Server with non-default admin password?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-change-the-pmm-password-for-the-default-admin-user" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to change the PMM password for the default admin user?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-use-a-non-default-listen-port-for-pmm-admin" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to use a non-default listen-port for pmm-admin?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-does-pmm-handle-personal-and-confidential-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      How does PMM handle personal and confidential data?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-am-i-getting-a-user-already-exists-error-when-logging-back-into-pmm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why am I getting a "User already exists" error when logging back into PMM?
+      ❓ Questions or issues?
     </span>
   </a>
   
@@ -9422,201 +9284,58 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/reference/faq.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/release-notes/3.4.1.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="faq">FAQ<a class="headerlink" href="#faq" title="Permanent link">&para;</a></h1>
-<h2 id="how-can-i-contact-the-developers">How can I contact the developers?<a class="headerlink" href="#how-can-i-contact-the-developers" title="Permanent link">&para;</a></h2>
+<h1 id="percona-monitoring-and-management-341">Percona Monitoring and Management 3.4.1<a class="headerlink" href="#percona-monitoring-and-management-341" title="Permanent link">&para;</a></h1>
+<p><strong>Release date</strong>: October 13, 2025</p>
+<p>Percona Monitoring and Management (PMM) is an open source database monitoring, management, and observability solution for MySQL, PostgreSQL, and MongoDB. PMM empowers you to:</p>
 <ul>
-<li><a href="https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management">Community forum</a>.</li>
-<li><a href="https://jira.percona.com/projects/PMM">PMM project in JIRA</a>.</li>
+<li>monitor the health and performance of your database systems</li>
+<li>identify patterns and trends in database behavior</li>
+<li>diagnose and resolve issues faster with actionable insights</li>
+<li>manage databases across on-premises, cloud, and hybrid environments</li>
 </ul>
-<h2 id="what-are-the-minimum-system-requirements">What are the minimum system requirements?<a class="headerlink" href="#what-are-the-minimum-system-requirements" title="Permanent link">&para;</a></h2>
-<p>See our detailed guides:</p>
+<h2 id="release-summary">🆕 Release summary<a class="headerlink" href="#release-summary" title="Permanent link">&para;</a></h2>
+<p>PMM 3.4.1 is a maintenance release that addresses several security vulnerabilities and dependency upgrades to enhance stability and security.</p>
+<h2 id="security-updates">🔒 Security updates<a class="headerlink" href="#security-updates" title="Permanent link">&para;</a></h2>
+<h3 id="nomad-denial-of-service-dos-vulnerability-cve-2025-8959">Nomad Denial-of-Service (DOS) vulnerability (CVE-2025-8959)<a class="headerlink" href="#nomad-denial-of-service-dos-vulnerability-cve-2025-8959" title="Permanent link">&para;</a></h3>
+<p>PMM includes Nomad, which is currently affected by a high-severity DoS vulnerability originating from Go crypto library. </p>
+<p>The risk is minimal for typical PMM deployments because Nomad is disabled by default.
+We strongly recommend keeping Nomad disabled to prevent exposure.</p>
+<p>We&rsquo;ve upgraded Nomad to v1.10.5 and continue monitoring the upstream project. Once a fully patched version becomes available, we will include the fix into an upcoming PMM release. </p>
+<h3 id="fixed-dos-in-percona-toolkit-logrus">Fixed: DoS in Percona Toolkit (Logrus)<a class="headerlink" href="#fixed-dos-in-percona-toolkit-logrus" title="Permanent link">&para;</a></h3>
+<p>Upgraded Percona Toolkit to v3.7.0-2 to resolve a high-severity DoS vulnerability in the <code>github.com/sirupsen/logrus</code> dependency. This flaw could previously crash Percona Toolkit commands, disrupting PMM data collection.</p>
+<h3 id="false-positive-reported-cves-pmm-not-affected">False-positive reported CVEs (PMM not affected)<a class="headerlink" href="#false-positive-reported-cves-pmm-not-affected" title="Permanent link">&para;</a></h3>
+<p>Security scanning tools may flag the following CVEs. After a thorough review, we have confirmed that PMM 3.4.1 is not affected by these vulnerabilities.</p>
+<h4 id="openssl-cipher-processing-cve-2023-5363">OpenSSL cipher processing (CVE-2023-5363)<a class="headerlink" href="#openssl-cipher-processing-cve-2023-5363" title="Permanent link">&para;</a></h4>
+<p>PMM is not affected by this vulnerability.</p>
+<p>The <code>openssl-libs</code> package included in PMM&rsquo;s Oracle Linux 9 base operating system already contains the necessary security fix for this OpenSSL cipher processing issue. You can verify this in <a href="https://linux.oracle.com/errata/ELSA-2024-0627.html">Oracle&rsquo;s official security advisory ELSA-2024-0627</a>.</p>
+<h4 id="remote-code-execution-in-python-setuptools-cve-2024-6345">Remote code execution in Python Setuptools (CVE-2024-6345)<a class="headerlink" href="#remote-code-execution-in-python-setuptools-cve-2024-6345" title="Permanent link">&para;</a></h4>
+<p>PMM is not affected by this vulnerability. </p>
+<p>The PMM image&rsquo;s base OS, Oracle Linux 9, ships with <code>python3-setuptools</code> version 53.0.0-13.el9_6.1, which already includes the fix that addresses this vulnerability. You can confirm this though <a href="https://linux.oracle.com/errata/ELSA-2024-5534.html">Oracle&rsquo;s security advisory ELSA-2024-5534</a>.</p>
+<h4 id="clickhouse-vulnerabilities-related-to-outdated-go-runtime-cve-2024-24790">ClickHouse vulnerabilities related to outdated Go runtime (CVE-2024-24790)<a class="headerlink" href="#clickhouse-vulnerabilities-related-to-outdated-go-runtime-cve-2024-24790" title="Permanent link">&para;</a></h4>
+<p>PMM is not affected by this vulnerability. </p>
+<p>This vulnerability was discovered in ClickHouse version 23.8.2.7, the database engine that PMM uses for storing performance metrics. The vulnerability stems from an older version of Go (1.19.10) that was used to compile ClickHouse components.</p>
+<p>The vulnerability specifically affects the <code>clickhouse-diagnostics</code> utility, which is a diagnostic tool that PMM does not use in its operations. To completely eliminate any potential exposure, we have removed the <code>clickhouse-diagnostics</code> package entirely from PMM 3.4.1.</p>
+<p>We are planning a ClickHouse version upgrade for PMM 3.5.0, which will include an updated Go runtime and bring additional performance improvements and security enhancements.</p>
+<h3 id="accepted-risk-openssl-buffer-overflow-vulnerabilities-cve-2022-3786-and-cve-2022-3602">Accepted risk: OpenSSL buffer overflow vulnerabilities (CVE-2022-3786 and CVE-2022-3602)<a class="headerlink" href="#accepted-risk-openssl-buffer-overflow-vulnerabilities-cve-2022-3786-and-cve-2022-3602" title="Permanent link">&para;</a></h3>
+<p>These vulnerabilities affect the <code>openssl-libs</code> package that comes with PMM&rsquo;s Oracle Linux 9 base image.</p>
+<p>Oracle has released patches for these vulnerabilities, but they are distributed exclusively through Ksplice, Oracle&rsquo;s live patching service, available only to customers with Premier Support. </p>
+<p>Because PMM uses only publicly available repositories, we cannot include these Ksplice-only updates in the current release.</p>
+<p>We assess this risk as low, as PMM is usually deployed in controlled environments. We will apply the updates as soon as Oracle releases them publicly for Oracle Linux.</p>
+<h2 id="ready-to-upgrade-to-pmm-341">🚀 Ready to upgrade to PMM 3.4.1?<a class="headerlink" href="#ready-to-upgrade-to-pmm-341" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../install-pmm/plan-pmm-installation/hardware_and_system.html">PMM hardware and system requirements</a> for complete specifications</li>
-<li><a href="../install-pmm/install-pmm-server/index.html">Setting up PMM Server</a> for server installation  </li>
-<li><a href="../install-pmm/install-pmm-client/index.html">Setting up PMM Client</a> for client setup</li>
+<li><strong>New installation:</strong> <a href="../quickstart/quickstart.html">Install PMM with our quickstart guide</a></li>
+<li><strong>Upgrading from PMM 2:</strong> <a href="../pmm-upgrade/migrating_from_pmm_2.html">Migrate from PMM 2 to PMM 3</a></li>
+<li><strong>Upgrading PMM 3:</strong> <a href="../pmm-upgrade/index.html">Upgrade your existing PMM 3 installation</a> </li>
 </ul>
-<p>Quick reference for typical deployment (up to 30 nodes):
-- <strong>Server</strong>:
-    - CPU: 4 cores (must support SSE4.2)
-    - Memory: 8 GB
-    - Storage: 100 GB (approximately 1 GB per node per week)
-- <strong>Client</strong>:
-    - Storage: 100 MB
-    - Supports x86_64 and ARM64 architectures</p>
-<div class="admonition note alert alert-info">
-<p class="admonition-title">Note</p>
-<p>For larger deployments (200+ nodes) or longer retention periods, see our <a href="../install-pmm/plan-pmm-installation/hardware_and_system.html">Hardware and system requirements</a> for detailed sizing recommendations.</p>
-</div>
-<h2 id="how-can-i-upgrade-from-version-2">How can I upgrade from version 2?<a class="headerlink" href="#how-can-i-upgrade-from-version-2" title="Permanent link">&para;</a></h2>
-<p>PMM 3 introduces significant architectural changes that require gradual transition from PMM 2. For detailed instructions, see <a href="../pmm-upgrade/migrating_from_pmm_2.html">Upgrade from PMM2</a>.</p>
-<h2 id="why-does-the-pmm-installation-script-fail-during-docker-installation">Why does the PMM installation script fail during Docker installation?<a class="headerlink" href="#why-does-the-pmm-installation-script-fail-during-docker-installation" title="Permanent link">&para;</a></h2>
-<p class="power-number">If you encounter errors such as <code>ERROR: Unsupported distribution</code> when running the, follow these steps:</p>
-<ol>
-<li><a href="https://docs.docker.com/engine/install/">Install Docker manually</a>.</li>
-<li>Run the <a href="../install-pmm/install-pmm-server/deployment-options/docker/easy-install.html">PMM Easy-install script</a> again.</li>
-</ol>
-<h2 id="retention">Retention<a class="headerlink" href="#retention" title="Permanent link">&para;</a></h2>
-<p>To control data retention, go to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings &gt; Data retention</strong> to adjust the value in days.</p>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
-<p><a href="../configure-pmm/advanced_settings.html#data-retention">Configure data retention</a></p>
-</div>
-<h2 id="how-are-pmm-server-logs-rotated">How are PMM Server logs rotated?<a class="headerlink" href="#how-are-pmm-server-logs-rotated" title="Permanent link">&para;</a></h2>
-<p>PMM Server embeds multiple components, like Victoria Metrics, Query Analytics, Grafana, <code>managed</code>, PostgreSQL, ClickHouse, etc. (components). All PMM Server component logs are rotated by <code>supervisord</code>. The components&rsquo; log rotation settings are stored in <code>*.ini</code> files within the <code>/etc/supervisord.d</code> directory. Those settings define both the maximum size of a log file and the number of log files to keep. The log rotation takes place once the log file reaches its maximum size.</p>
-<h2 id="what-privileges-are-required-to-monitor-a-mysql-instance">What privileges are required to monitor a MySQL instance?<a class="headerlink" href="#what-privileges-are-required-to-monitor-a-mysql-instance" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="p">,</span><span class="w"> </span><span class="n">PROCESS</span><span class="p">,</span><span class="w"> </span><span class="n">SUPER</span><span class="p">,</span><span class="w"> </span><span class="n">REPLICATION</span><span class="w"> </span><span class="n">CLIENT</span><span class="p">,</span><span class="w"> </span><span class="n">RELOAD</span>
-</code></pre></div>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
-<p><a href="../install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm">Setting Up/Client/MySQL</a>.</p>
-</div>
-<h2 id="can-i-monitor-multiple-service-instances">Can I monitor multiple service instances?<a class="headerlink" href="#can-i-monitor-multiple-service-instances" title="Permanent link">&para;</a></h2>
-<p>Yes.</p>
-<p>You can add multiple instances of MySQL or any other service to be monitored from the same PMM Client.</p>
-<p>To do this, you provide a unique port and IP address, or a socket for each instance, and specify a unique name for each. (If a name is not provided, PMM uses the name of the PMM Client host.)</p>
-<p>For example, to add MySQL monitoring for two local MySQL servers:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"> </span>--username<span class="w"> </span>root<span class="w"> </span>--password<span class="w"> </span>root<span class="w"> </span>instance-01<span class="w"> </span><span class="m">127</span>.0.0.1:3001
-pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"> </span>--username<span class="w"> </span>root<span class="w"> </span>--password<span class="w"> </span>root<span class="w"> </span>instance-02<span class="w"> </span><span class="m">127</span>.0.0.1:3002
-</code></pre></div>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
-<p><a href="../use/commands/pmm-admin.html#database-commands"><code>pmm-admin add mysql</code></a></p>
-</div>
-<h2 id="can-i-rename-instances">Can I rename instances?<a class="headerlink" href="#can-i-rename-instances" title="Permanent link">&para;</a></h2>
-<p>Yes, by removing and re-adding with a different name.</p>
-<p>When you remove a monitoring service, previously collected data remains available in Grafana.  However, the metrics are tied to the instance name.  So if you add the same instance back with a different name, it will be considered a new instance with a new set of metrics.  So if you are re-adding an instance and want to keep its previous data, add it with the same name.</p>
-<h2 id="can-i-add-an-aws-rds-mysql-or-aurora-mysql-instance-from-a-non-default-aws-partition">Can I add an AWS RDS MySQL or Aurora MySQL instance from a non-default AWS partition?<a class="headerlink" href="#can-i-add-an-aws-rds-mysql-or-aurora-mysql-instance-from-a-non-default-aws-partition" title="Permanent link">&para;</a></h2>
-<p>By default, the RDS discovery works with the default <code>aws</code> partition. But you can switch to special regions, like the <a href="https://aws.amazon.com/govcloud-us/">GovCloud</a> one, with the alternative <a href="https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants">AWS partitions</a> (e.g. <code>aws-us-gov</code>) adding them to the <em>Settings</em> via the PMM Server <a href="../api/index.html">API</a>.</p>
-<p><img alt="!image" src="../images/aws-partitions-in-api.png" /></p>
-<p>To specify other than the default value, or to use several, use the JSON Array syntax: <code>["aws", "aws-cn"]</code>.</p>
-<h2 id="what-resolution-is-used-for-metrics">What resolution is used for metrics?<a class="headerlink" href="#what-resolution-is-used-for-metrics" title="Permanent link">&para;</a></h2>
-<p>The default values (in seconds):</p>
-<table>
-<thead>
-<tr>
-<th>Preset</th>
-<th>Low</th>
-<th>Medium</th>
-<th>High</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Rare</td>
-<td>300</td>
-<td>180</td>
-<td>60</td>
-</tr>
-<tr>
-<td>Standard</td>
-<td>60</td>
-<td>10</td>
-<td>5</td>
-</tr>
-<tr>
-<td>Frequent</td>
-<td>30</td>
-<td>5</td>
-<td>1</td>
-</tr>
-<tr>
-<td>Custom (defaults)</td>
-<td>60</td>
-<td>10</td>
-<td>5</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
-<p><a href="../configure-pmm/metrics_res.html">Metrics resolution</a></p>
-</div>
-<h2 id="how-do-i-set-up-alerting">How do I set up Alerting?<a class="headerlink" href="#how-do-i-set-up-alerting" title="Permanent link">&para;</a></h2>
-<p>When a monitored service metric reaches a defined threshold, PMM Server can trigger alerts for it using embedded Grafana Alerting functionality.</p>
-<p>For this, you must configure alerting rules that define conditions under which an alert should be triggered, and the contact points used to send the alert (e.g. email).</p>
-<p>Percona templated alerts enable you to create alerts based on built-in or custom templates to simplify the alert setup process. Grafana managed alerts allows attaching rules to your dashboard panel and enables you to create more sophisticated alerting rules. In addition, it can be easier to manage installations with a large number of hosts. This additional flexibility comes at the expense of simplicity.</p>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
-<p><a href="https://grafana.com/docs/grafana/latest/alerting/">Grafana Alerting</a></p>
-</div>
-<h2 id="how-do-i-use-a-custom-prometheus-configuration-file">How do I use a custom Prometheus configuration file?<a class="headerlink" href="#how-do-i-use-a-custom-prometheus-configuration-file" title="Permanent link">&para;</a></h2>
-<p>Normally, PMM Server fully manages the <a href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/">Prometheus configuration file</a>.</p>
-<p>However, some users may want to change the generated configuration to add additional scrape jobs, configure remote storage, etc.</p>
-<p>From version 2.4.0, when <code>pmm-managed</code> starts the Prometheus file generation process, it tries to load the <code>/srv/prometheus/prometheus.base.yml</code> file first, to use it as a base for the <code>prometheus.yml</code> file.</p>
-<p>The <code>prometheus.yml</code> file can be regenerated by restarting the PMM Server container, or by using the <code>SetSettings</code> API call with an empty body.</p>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
-<ul>
-<li><a href="../api/index.html">API</a></li>
-<li><a href="https://www.percona.com/blog/2020/03/23/extending-pmm-prometheus-configuration/">Percona blog: Extending PMM’s Prometheus Configuration</a></li>
-</ul>
-</div>
-<h2 id="how-to-troubleshoot-an-upgrade">How to troubleshoot an upgrade?<a class="headerlink" href="#how-to-troubleshoot-an-upgrade" title="Permanent link">&para;</a></h2>
-<p>See <a href="../troubleshoot/upgrade_issues.html">Troubleshoot update</a>.</p>
-<h2 id="what-are-my-login-credentials-when-i-try-to-connect-to-a-prometheus-exporter">What are my login credentials when I try to connect to a Prometheus Exporter?<a class="headerlink" href="#what-are-my-login-credentials-when-i-try-to-connect-to-a-prometheus-exporter" title="Permanent link">&para;</a></h2>
-<ul>
-<li>User name: <code>pmm</code></li>
-<li>Password: Agent ID</li>
-</ul>
-<p>PMM protects an exporter&rsquo;s output from unauthorized access by adding an authorization layer. To access an exporter, you can use <code>pmm</code> as a user name and the Agent ID as a password. You can find the Agent ID corresponding to a given exporter by running <code>pmm-admin list</code>.</p>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
-<p><a href="../use/commands/pmm-admin.html#information-commands"><code>pmm-admin list</code></a></p>
-</div>
-<h2 id="how-to-provision-pmm-server-with-non-default-admin-password">How to provision PMM Server with non-default admin password?<a class="headerlink" href="#how-to-provision-pmm-server-with-non-default-admin-password" title="Permanent link">&para;</a></h2>
-<p>Currently, there is no API available to change the <code>admin</code> password at deployment time. However, you can use the <code>GF_SECURITY_ADMIN_PASSWORD</code> environment variable to set the password for the default <code>admin</code> user.</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-e<span class="w"> </span><span class="nv">GF_SECURITY_ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your_secure_password&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>percona/pmm-server:latest
-</code></pre></div>
-<h2 id="how-to-change-the-pmm-password-for-the-default-admin-user">How to change the PMM password for the default admin user?<a class="headerlink" href="#how-to-change-the-pmm-password-for-the-default-admin-user" title="Permanent link">&para;</a></h2>
-<p>Once PMM has started, you can use either of the following to change the password  (assuming your container is named <code>pmm-server</code>):</p>
-<ul>
-<li>a helper script <code>change-admin-password</code>:</li>
-</ul>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>change-admin-password<span class="w"> </span>your_secure_password
-</code></pre></div>
-<ul>
-<li>or a code snippet:</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="nv">PMM_PASSWORD</span><span class="o">=</span><span class="s2">&quot;mypassword&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Waiting for PMM to initialize to set password...&quot;</span>
-<span class="k">until</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="k">$(</span>docker<span class="w"> </span>inspect<span class="w"> </span>-f<span class="w"> </span><span class="s1">&#39;{{.State.Health.Status}}&#39;</span><span class="w"> </span>pmm-server<span class="k">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;healthy&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sleep<span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>bash<span class="w"> </span>-c<span class="w">  </span><span class="s2">&quot;grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password </span><span class="nv">$PMM_PASSWORD</span><span class="s2">&quot;</span>
-</code></pre></div>
-<h2 id="how-to-use-a-non-default-listen-port-for-pmm-admin">How to use a non-default listen-port for pmm-admin?<a class="headerlink" href="#how-to-use-a-non-default-listen-port-for-pmm-admin" title="Permanent link">&para;</a></h2>
-<p>If you configure the PMM agent to use a non-default listen-port, for pmm-admin to communicate with the agent, use the global flag <code>--pmm-agent-listen-port=LISTEN_PORT</code>.</p>
-<div class="highlight"><pre><span></span><code>--pmm-agent-listen-port<span class="o">=</span>LISTEN_PORT
-</code></pre></div>
-<p>Example: To use the listen-port 8000</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>--pmm-agent-listen-port<span class="o">=</span><span class="m">8000</span><span class="w"> </span>add<span class="w"> </span>postgresql<span class="w"> </span>--username<span class="o">=</span>pmm-agent<span class="w"> </span>--password<span class="o">=</span>pmm-agent-password<span class="w"> </span>--query-source<span class="o">=</span>pgstatmonitor<span class="w"> </span>nameofpostgres
-</code></pre></div>
-<p>If you are using OVF/AMI, you can change the default password through SSH by using the following command:</p>
-<div class="highlight"><pre><span></span><code>change-admin-password<span class="w"> </span>&lt;new_password&gt;
-</code></pre></div>
-<h2 id="how-does-pmm-handle-personal-and-confidential-data">How does PMM handle personal and confidential data?<a class="headerlink" href="#how-does-pmm-handle-personal-and-confidential-data" title="Permanent link">&para;</a></h2>
-<p>Read our <a href="https://www.percona.com/privacy-policy">Privacy Policy</a> to learn how PMM manages personal and confidential data. More technical details can be found in <a href="personal_data_handling.html">Data handling in PMM</a>.</p>
-<h2 id="why-am-i-getting-a-user-already-exists-error-when-logging-back-into-pmm">Why am I getting a &ldquo;User already exists&rdquo; error when logging back into PMM?<a class="headerlink" href="#why-am-i-getting-a-user-already-exists-error-when-logging-back-into-pmm" title="Permanent link">&para;</a></h2>
-<p>Following <a href="https://grafana.com/blog/2023/06/22/grafana-security-release-for-cve-2023-3128/">CVE fix 2023-3128</a> in the 2.38 release, PMM increases security by only allowing authentications based on the unique user ID provided by the identity provider.</p>
-<p>If you are trying to log into PMM via a third-party authentication provider which doesn&rsquo;t support a unique ID field, PMM will show this error on second and subsequent authentications.</p>
-<p><strong>Solution</strong>: we recommend logging into PMM using a Percona Account, as this is a highly secure authentication method.
-<strong>Workaround</strong>: if you need to log into PMM via a third-party authentication provider which doesn’t support a unique ID field, you can use the following workaround to log into PMM:</p>
-<ul>
-<li>pass the <code>GF_AUTH_OAUTH_ALLOW_INSECURE_EMAIL_LOOKUP=1</code> environment variable to the PMM container <strong>OR</strong></li>
-<li>set the <code>oauth_allow_insecure_email_lookup</code> config key in the auth section of the <code>grafana.ini</code> file. Keep in mind that any changes you make to this file are lost when upgrading PMM, so make sure to manually update this file after each upgrade.</li>
-</ul>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Important</p>
-<p>We do not recommend using the above workaround for an extended period. Instead, ensure user uniqueness across multiple identity providers, while also encouraging your identity provider to support a unique ID field, or choose a provider who does.</p>
-</div>
+<h2 id="questions-or-issues">❓ Questions or issues?<a class="headerlink" href="#questions-or-issues" title="Permanent link">&para;</a></h2>
+<p>Visit our <a href="https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84">community forum</a> or <a href="https://github.com/percona/pmm/issues">open an issue</a> on GitHub.</p>
 
 
 
@@ -9637,7 +9356,7 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-07-09
+    2025-10-13
   </span>
 
     
