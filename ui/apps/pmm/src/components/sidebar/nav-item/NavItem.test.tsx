@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { wrapWithRouter } from 'utils/testUtils';
 import NavItem from './NavItem';
 import { NavItemProps } from './NavItem.types';
-import { NavItem as NavTreeItem } from 'lib/types';
+import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
 
