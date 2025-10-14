@@ -9771,8 +9771,10 @@ type AddValkeyExporterParams struct {
 	AgentPassword string `protobuf:"bytes,14,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,15,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Log level for exporter.
+	LogLevel      LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddValkeyExporterParams) Reset() {
@@ -9910,6 +9912,13 @@ func (x *AddValkeyExporterParams) GetExposeExporter() bool {
 	return false
 }
 
+func (x *AddValkeyExporterParams) GetLogLevel() LogLevel {
+	if x != nil {
+		return x.LogLevel
+	}
+	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
 type ChangeValkeyExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -9940,8 +9949,10 @@ type ChangeValkeyExporterParams struct {
 	AgentPassword *string `protobuf:"bytes,13,opt,name=agent_password,json=agentPassword,proto3,oneof" json:"agent_password,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter *bool `protobuf:"varint,14,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Log level for exporter.
+	LogLevel      *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeValkeyExporterParams) Reset() {
@@ -10070,6 +10081,13 @@ func (x *ChangeValkeyExporterParams) GetExposeExporter() bool {
 		return *x.ExposeExporter
 	}
 	return false
+}
+
+func (x *ChangeValkeyExporterParams) GetLogLevel() LogLevel {
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
+	}
+	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
 type RemoveAgentRequest struct {
@@ -11426,7 +11444,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"_log_level\"@\n" +
 	"\x16ChangeNomadAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01B\t\n" +
-	"\a_enable\"\xa8\x05\n" +
+	"\a_enable\"\xdd\x05\n" +
 	"\x17AddValkeyExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12'\n" +
@@ -11445,10 +11463,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\btls_cert\x18\f \x01(\tR\atlsCert\x12\x17\n" +
 	"\atls_key\x18\r \x01(\tR\x06tlsKey\x12%\n" +
 	"\x0eagent_password\x18\x0e \x01(\tR\ragentPassword\x12'\n" +
-	"\x0fexpose_exporter\x18\x0f \x01(\bR\x0eexposeExporter\x1a?\n" +
+	"\x0fexpose_exporter\x18\x0f \x01(\bR\x0eexposeExporter\x123\n" +
+	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa0\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe8\x06\n" +
 	"\x1aChangeValkeyExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11465,7 +11484,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\atls_key\x18\f \x01(\tH\tR\x06tlsKey\x88\x01\x01\x12*\n" +
 	"\x0eagent_password\x18\r \x01(\tH\n" +
 	"R\ragentPassword\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\x0e \x01(\bH\vR\x0eexposeExporter\x88\x01\x01B\t\n" +
+	"\x0fexpose_exporter\x18\x0e \x01(\bH\vR\x0eexposeExporter\x88\x01\x01\x128\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11478,7 +11498,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"\b_tls_keyB\x11\n" +
 	"\x0f_agent_passwordB\x12\n" +
-	"\x10_expose_exporter\"N\n" +
+	"\x10_expose_exporterB\f\n" +
+	"\n" +
+	"_log_level\"N\n" +
 	"\x12RemoveAgentRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aagentId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"\x15\n" +
@@ -11873,25 +11895,27 @@ var file_inventory_v1_agents_proto_depIdxs = []int32{
 	104, // 230: inventory.v1.ChangeAzureDatabaseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	103, // 231: inventory.v1.ChangeAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
 	101, // 232: inventory.v1.AddValkeyExporterParams.custom_labels:type_name -> inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
-	105, // 233: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 234: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	20,  // 235: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
-	22,  // 236: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
-	24,  // 237: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
-	26,  // 238: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
-	28,  // 239: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
-	62,  // 240: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
-	21,  // 241: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
-	23,  // 242: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
-	25,  // 243: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
-	27,  // 244: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
-	29,  // 245: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
-	63,  // 246: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
-	241, // [241:247] is the sub-list for method output_type
-	235, // [235:241] is the sub-list for method input_type
-	235, // [235:235] is the sub-list for extension type_name
-	235, // [235:235] is the sub-list for extension extendee
-	0,   // [0:235] is the sub-list for field type_name
+	103, // 233: inventory.v1.AddValkeyExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	105, // 234: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
+	104, // 235: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	103, // 236: inventory.v1.ChangeValkeyExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	20,  // 237: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
+	22,  // 238: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
+	24,  // 239: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
+	26,  // 240: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
+	28,  // 241: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
+	62,  // 242: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
+	21,  // 243: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
+	23,  // 244: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
+	25,  // 245: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
+	27,  // 246: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
+	29,  // 247: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
+	63,  // 248: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
+	243, // [243:249] is the sub-list for method output_type
+	237, // [237:243] is the sub-list for method input_type
+	237, // [237:237] is the sub-list for extension type_name
+	237, // [237:237] is the sub-list for extension extendee
+	0,   // [0:237] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_agents_proto_init() }

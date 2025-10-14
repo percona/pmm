@@ -13183,6 +13183,8 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for LogLevel
+
 	if len(errors) > 0 {
 		return AddValkeyExporterParamsMultiError(errors)
 	}
@@ -13404,6 +13406,10 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {

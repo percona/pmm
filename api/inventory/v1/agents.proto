@@ -1853,6 +1853,8 @@ message AddValkeyExporterParams {
   string agent_password = 14;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 15;
+  // Log level for exporter.
+  LogLevel log_level = 16;
 }
 
 message ChangeValkeyExporterParams {
@@ -1884,6 +1886,8 @@ message ChangeValkeyExporterParams {
   optional string agent_password = 13;
   // Optionally expose the exporter process on all public interfaces
   optional bool expose_exporter = 14;
+  // Log level for exporter.
+  optional LogLevel log_level = 15;
 }
 
 // Remove

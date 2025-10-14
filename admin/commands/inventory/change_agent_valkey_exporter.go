@@ -137,6 +137,7 @@ func (cmd *ChangeAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 		DisableCollectors: cmd.DisableCollectors,
 		ExposeExporter:    cmd.ExposeExporter,
 		EnablePushMetrics: cmd.PushMetrics,
+		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
 	}
 
 	if customLabels != nil {

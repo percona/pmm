@@ -802,6 +802,7 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
+			LogLevel:      services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics:    p.PushMetrics,
 				ExposeExporter: p.ExposeExporter,
@@ -860,6 +861,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		TLSSkipVerify: p.TlsSkipVerify,
 		AgentPassword: p.AgentPassword,
 		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
 
 	// Set ValkeyOptions
