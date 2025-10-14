@@ -2,7 +2,7 @@ import { Box, CircularProgress, Stack } from '@mui/material';
 import { useGrafana } from 'contexts/grafana';
 import { PMM_BASE_PATH, PMM_HOME_URL } from 'lib/constants';
 import messenger from 'lib/messenger';
-import { constructUrl } from 'lib/utils/link.utils';
+import { constructUrl } from 'utils/link.utils';
 import { FC, useEffect, useMemo, useState } from 'react';
 
 export const GrafanaPage: FC = () => {

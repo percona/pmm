@@ -1,5 +1,5 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
-import { isActive } from 'lib/utils/navigation.utils';
+import { isActive } from 'utils/navigation.utils';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';

@@ -1,9 +1,9 @@
-import { NavItem } from 'lib/types';
+import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User } from 'types/user.types';
 import { FrontendSettings } from 'types/settings.types';
 import { Advisor } from 'types/advisors.types';
-import { groupAdvisorsIntoCategories } from 'lib/utils/advisors.utils';
+import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
@@ -39,7 +39,7 @@ import {
   NAV_THEME_TOGGLE,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
-import { capitalize } from 'lib/utils/text.utils';
+import { capitalize } from 'utils/text.utils';
 import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 

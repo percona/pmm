@@ -3,8 +3,8 @@ import { useUser } from 'contexts/user';
 import { useSnoozeUpdate } from './api/useUser';
 import { useCallback, useMemo } from 'react';
 import { useSettings } from 'contexts/settings';
-import { parseDuration } from 'lib/utils/duration.utils';
-import { diffFromNow } from 'lib/utils/datetime.utils';
+import { parseDuration } from 'utils/duration.utils';
+import { diffFromNow } from 'utils/datetime.utils';
 import { SHOW_UPDATE_MODAL_AFTER_MS } from 'lib/constants';
 
 export const useSnooze = () => {

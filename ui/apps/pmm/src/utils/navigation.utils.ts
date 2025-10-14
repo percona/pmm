@@ -1,4 +1,4 @@
-import { NavItem } from 'lib/types';
+import { NavItem } from 'types/navigation.types';
 import { matchPath } from 'react-router-dom';
 
 export const isActive = (item: NavItem, pathname: string): boolean => {

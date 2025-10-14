@@ -1,5 +1,5 @@
 import { Icon } from 'components/icon';
-import { NavItem } from 'lib/types';
+import { NavItem } from 'types/navigation.types';
 import { FC } from 'react';
 
 interface Props {
