@@ -1,0 +1,11 @@
+# Linkspector configuration file
+# Ignore HTTP 429 (Too Many Requests) errors from rate limiting
+
+ignoreStatusCodes:
+    - 429
+  
+  # Explicitly ignore URLs that return 429 errors
+  ignoreUrls:
+    - "https://developer.hashicorp.com/nomad"
+    - "https://www.nomadproject.io/"
+    - "https://developer.hashicorp.com/nomad/docs"
