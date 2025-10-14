@@ -14,7 +14,7 @@ type mockDistributionUtilService struct {
 	mock.Mock
 }
 
-// getDistributionMethodAndOS provides a mock function with given fields:
+// getDistributionMethodAndOS provides a mock function with no fields
 func (_m *mockDistributionUtilService) getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
 	ret := _m.Called()
 

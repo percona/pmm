@@ -9,7 +9,7 @@ type mockVmAlert struct {
 	mock.Mock
 }
 
-// RequestConfigurationUpdate provides a mock function with given fields:
+// RequestConfigurationUpdate provides a mock function with no fields
 func (_m *mockVmAlert) RequestConfigurationUpdate() {
 	_m.Called()
 }

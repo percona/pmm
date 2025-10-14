@@ -76,7 +76,7 @@ func (_m *mockAlertManager) GetAlerts(ctx context.Context, params *services.Filt
 	return r0, r1
 }
 
-// RequestConfigurationUpdate provides a mock function with given fields:
+// RequestConfigurationUpdate provides a mock function with no fields
 func (_m *mockAlertManager) RequestConfigurationUpdate() {
 	_m.Called()
 }
