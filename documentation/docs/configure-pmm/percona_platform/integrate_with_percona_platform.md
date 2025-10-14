@@ -7,9 +7,9 @@ Connect your PMM Servers to Percona Platform to boost the monitoring capabilitie
 
 ### Connect PMM to Percona Platform
 
-You can connect to Percona Platform with a Percona Account or via Google or GitHub authentication. If [Percona Support](https://www.percona.com/about-percona/contact) has enabled a custom identity provider for your account, you can also log in using your company's credentials.
+You can connect to Percona Platform with a Percona Account or via Google or GitHub authentication. If [Percona Support :octicons-link-external-16:](https://www.percona.com/about-percona/contact){:target="_blank"} has enabled a custom identity provider for your account, you can also log in using your company's credentials.
 
-We recommend that you connect with a Percona Account, as this gives you access to other Percona services, including Percona Platform, Percona Customer Portal, and Community Forum. If you don’t have a Percona Account, you can create one on the [Percona Platform homepage](https://portal.percona.com/login) using the **Don't have an account? Create one?** link.
+We recommend that you connect with a Percona Account, as this gives you access to other Percona services, including Percona Platform, Percona Customer Portal, and Community Forum. If you don’t have a Percona Account, you can create one on the [Percona Platform homepage :octicons-link-external-16:](https://portal.percona.com/login){:target="_blank"} using the **Don't have an account? Create one?** link.
 
 #### Prerequisites
 
@@ -20,7 +20,7 @@ To ensure that PMM can establish a connection to Percona Platform:
 To check whether you are a member of an existing Platform organization:
 {.power-number}
 
-1. Log in to [Percona Platform](https://portal.percona.com) using your Percona Account. If you are connecting via GitHub, make sure you set your email address as **public** in your GitHub account. If your email address is private instead, Percona Platform cannot access it to authenticate you.
+1. Log in to [Percona Platform :octicons-link-external-16:](https://portal.percona.com){:target="_blank"} using your Percona Account. If you are connecting via GitHub, make sure you set your email address as **public** in your GitHub account. If your email address is private instead, Percona Platform cannot access it to authenticate you.
 
 2. On the **Getting Started** page, check that the **Create organization** step shows an option to view your organization.
 

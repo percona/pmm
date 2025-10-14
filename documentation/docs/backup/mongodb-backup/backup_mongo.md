@@ -16,7 +16,7 @@ The following backup operations are supported for replica sets:
   
 ## Sharded clusters
 
-PMM 3 supports backing up sharded clusters. However, restoring for sharded cluster configurations is only supported from the CLI, and is handled via [Percona Backup for MongoDB](https://docs.percona.com/percona-backup-mongodb/usage/restore.html).
+PMM 3 supports backing up sharded clusters. However, restoring for sharded cluster configurations is only supported from the CLI, and is handled via [Percona Backup for MongoDB :octicons-link-external-16:](https://docs.percona.com/percona-backup-mongodb/usage/restore.html){:target="_blank"}.
 
   - Storing backups on Amazon S3-compatible object storage, and on mounted filesystem
   - Creating Logical snapshot backups

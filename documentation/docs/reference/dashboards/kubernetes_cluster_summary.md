@@ -10,8 +10,8 @@
 
 - Resources
 - Node Status
-- [Pod](https://kubernetes.io/docs/concepts/workloads/pods/) Status
-- [PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) status
+- [Pod :octicons-link-external-16:](https://kubernetes.io/docs/concepts/workloads/pods/){:target="_blank"} Status
+- [PVC :octicons-link-external-16:](https://kubernetes.io/docs/concepts/storage/persistent-volumes/){:target="_blank"} status
 - CPU Overview
 - Kubernetes Resource Count
 - Memory Overview and more

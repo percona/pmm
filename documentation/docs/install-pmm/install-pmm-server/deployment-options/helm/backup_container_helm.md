@@ -10,14 +10,14 @@ Create backups of your PMM Server Kubernetes deployment to protect your monitori
 
 ## Understanding Kubernetes storage for PMM Server
 
-PMM Server Helm chart uses [PersistentVolume and PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) to allocate storage in the Kubernetes cluster.
+PMM Server Helm chart uses [PersistentVolume and PersistentVolumeClaim :octicons-link-external-16:](https://kubernetes.io/docs/concepts/storage/persistent-volumes/){:target="_blank"} to allocate storage in the Kubernetes cluster.
 
-Volumes could be pre-provisioned and dynamic. PMM chart supports both and exposes it through [PMM storage configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration).
+Volumes could be pre-provisioned and dynamic. PMM chart supports both and exposes it through [PMM storage configuration :octicons-link-external-16:](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration){:target="_blank"}.
 
 Backups for the PMM Server currently support only storage layer backups and thus require:
 
- - a [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) that supports volume snapshots
- - a [VolumeSnapshotClass](https://kubernetes.io/docs/concepts/storage/volume-snapshot-classes/) configured for your environment
+ - a [StorageClass :octicons-link-external-16:](https://kubernetes.io/docs/concepts/storage/storage-classes/){:target="_blank"} that supports volume snapshots
+ - a [VolumeSnapshotClass :octicons-link-external-16:](https://kubernetes.io/docs/concepts/storage/volume-snapshot-classes/){:target="_blank"} configured for your environment
 
 ## Verify snapshot support
 
@@ -135,4 +135,4 @@ For production environments, implement a backup rotation policy:
 
 - [Restore PMM Server from backup](restore_container_helm.md)
 - [Upgrade PMM Server on Kubernetes](../../../../pmm-upgrade/upgrade_helm.md)
-- [Configure advanced storage options](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration)
+- [Configure advanced storage options :octicons-link-external-16:](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration){:target="_blank"}

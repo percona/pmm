@@ -2,7 +2,7 @@
 
 Deploy PMM Server as a Docker container for a fast, flexible and isolated setup. 
 
-While PMM Server runs independently, we highly recommend that you streamline [upgrades via the PMM user interface](../../../../pmm-upgrade/ui_upgrade.md) by installing [Watchtower](https://containrrr.dev/watchtower/) alongside PMM Server. 
+While PMM Server runs independently, we highly recommend that you streamline [upgrades via the PMM user interface](../../../../pmm-upgrade/ui_upgrade.md) by installing [Watchtower :octicons-link-external-16:](https://containrrr.dev/watchtower/){:target="_blank"} alongside PMM Server. 
 
 With Watchtower installed, you can easily update PMM Server directly from the **Upgrade** page or by clicking the **Upgrade Now** button on the **Home** dashboard.
 
@@ -19,10 +19,10 @@ Watchtower requires access to the Docker socket to monitor and update containers
 
 To ensure a secure setup when using Watchtower:
  
- - limit Watchtower's access to Docker network or localhost to prevent unauthorized external connections. See [Container network isolation guide](https://docs.docker.com/network/drivers/bridge/#use-user-defined-bridge-networks).
- - configure network to ensure only PMM Server is exposed externally. See [Docker networking best practices](https://docs.docker.com/network/bridge/#manage-a-user-defined-bridge).
- - secure Docker socket access for Watchtower. See [Docker socket security](https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface).
- - place both Watchtower and PMM Server on the same Docker network. See [Watchtower network configuration](https://containrrr.dev/watchtower/usage-overview/#docker_host).
+ - limit Watchtower's access to Docker network or localhost to prevent unauthorized external connections. See [Container network isolation guide :octicons-link-external-16:](https://docs.docker.com/network/drivers/bridge/#use-user-defined-bridge-networks){:target="_blank"}.
+ - configure network to ensure only PMM Server is exposed externally. See [Docker networking best practices :octicons-link-external-16:](https://docs.docker.com/network/bridge/#manage-a-user-defined-bridge){:target="_blank"}.
+ - secure Docker socket access for Watchtower. See [Docker socket security :octicons-link-external-16:](https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface){:target="_blank"}.
+ - place both Watchtower and PMM Server on the same Docker network. See [Watchtower network configuration :octicons-link-external-16:](https://containrrr.dev/watchtower/usage-overview/#docker_host){:target="_blank"}.
 
 ## Installation options
 

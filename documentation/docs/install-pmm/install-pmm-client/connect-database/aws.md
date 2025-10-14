@@ -2,7 +2,7 @@
 
 ## Required settings
 
-It is possible to use PMM for monitoring [Amazon RDS](https://aws.amazon.com/rds/). In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Amazon RDS DB instance. You only need to provide the IAM user access key (or assign an IAM role) and PMM discovers the Amazon RDS DB instances available for monitoring.
+It is possible to use PMM for monitoring [Amazon RDS :octicons-link-external-16:](https://aws.amazon.com/rds/){:target="_blank"}. In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Amazon RDS DB instance. You only need to provide the IAM user access key (or assign an IAM role) and PMM discovers the Amazon RDS DB instances available for monitoring.
 
 First of all, ensure that there is the minimal latency between PMM Server and the Amazon RDS instance.
 
@@ -127,7 +127,7 @@ To create an IAM role open the IAM console and click **Roles** on the navigation
 After the role is created EC2 instances running PMM will have permissions to discover RDS DB instances.
 
 !!! note alert alert-primary ""
-    It’s also possible to create an IAM role to delegate permissions to an IAM user or to add permissions to a user belonging to another AWS account. See the [official AWS documentation on creating IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create.html).
+    It’s also possible to create an IAM role to delegate permissions to an IAM user or to add permissions to a user belonging to another AWS account. See the [official AWS documentation on creating IAM roles :octicons-link-external-16:](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create.html){:target="_blank"}.
 
 ## Setting up the Amazon RDS DB Instance
 

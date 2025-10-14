@@ -18,7 +18,7 @@ As soon as you connect your PMM instance to Percona Platform, has access to addi
 
 If you are a Percona customer with a Percona Customer Portal account, you also get access to Standard/Premium Advisor checks, which offer more advanced database health information.
 
-To see the complete list of available checks, see the [Advisor Checks for PMM](https://docs.percona.com/percona-platform/advisors.html) topic in the Percona Platform documentation.
+To see the complete list of available checks, see the [Advisor Checks for PMM :octicons-link-external-16:](https://docs.percona.com/percona-platform/advisors.html){:target="_blank"} topic in the Percona Platform documentation.
 
 ## Enable/Disable
 To download the checks available for your Percona Account, the Advisors and Telemetry options have to be enabled under :material-cog: **Configuration >** :material-cog-outline: **Settings > Advanced Settings**.

@@ -4,7 +4,7 @@
 
 ## Average Query Response Time
 
-The Average Query Response Time graph shows information collected using the Response Time Distribution plugin sourced from [table `INFORMATION_SCHEMA.QUERY_RESPONSE_TIME`](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME). It computes this value across all queries by taking the sum of seconds divided by the count of queries.
+The Average Query Response Time graph shows information collected using the Response Time Distribution plugin sourced from [table `INFORMATION_SCHEMA.QUERY_RESPONSE_TIME` :octicons-link-external-16:](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME){:target="_blank"}. It computes this value across all queries by taking the sum of seconds divided by the count of queries.
 
 ## Query Response Time Distribution
 
@@ -18,7 +18,7 @@ Query response time counts (operations) are grouped into three buckets:
 
 ## Average Query Response Time
 
-Available only in [Percona Server for MySQL](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#logging-the-queries-in-separate-read-and-write-tables), provides  visibility of the split of [READ](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ) vs [WRITE](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE) query response time.
+Available only in [Percona Server for MySQL :octicons-link-external-16:](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#logging-the-queries-in-separate-read-and-write-tables){:target="_blank"}, provides  visibility of the split of [READ :octicons-link-external-16:](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ){:target="_blank"} vs [WRITE :octicons-link-external-16:](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE){:target="_blank"} query response time.
 
 ## Read Query Response Time Distribution
 

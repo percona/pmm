@@ -4,7 +4,7 @@
     VMware support is deprecated as of PMM 3.4.0 and will be removed in PMM 3.6.0 (expected January 2026).
     [Migrate](../../../../pmm-upgrade/migrating_from_vmware.md) to VirtualBox, Docker, Podman or Kubernetes before this date.
     
-    **Need help?** Contact [Percona Support](https://www.percona.com/services/support) for migration assistance.
+    **Need help?** Contact [Percona Support :octicons-link-external-16:](https://www.percona.com/services/support){:target="_blank"} for migration assistance.
 
 
 Import the PMM Server OVA file into VMware products including ESXi, vSphere, Workstation, and Fusion to create a virtual machine for your monitoring environment.

@@ -5,7 +5,7 @@ The Easy-install script provides the simplest way to deploy PMM Server with Dock
 ## Security best practice
 Before running the script:
 
-- Download the installation script from the [official Percona domain](https://www.percona.com/get/pmm).
+- Download the installation script from the [official Percona domain :octicons-link-external-16:](https://www.percona.com/get/pmm){:target="_blank"}.
 
 - Review the script content to understand its actions.
 
@@ -48,7 +48,7 @@ Download and install PMM Server using `cURL` or `wget`:
 If you encounter Docker installation issues with the Easy-install script (such as `ERROR: Unsupported distribution 'rocky' on Rocky Linux`):
 {.power-number}
 
- 1. [Install Docker manually](https://docs.docker.com/engine/install/)
+ 1. [Install Docker manually :octicons-link-external-16:](https://docs.docker.com/engine/install/){:target="_blank"}
  2. Run the Easy-install script above again
 
 This two-step approach resolves most installation issues, especially on Rocky Linux where automatic installation may fail.

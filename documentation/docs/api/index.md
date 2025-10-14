@@ -2,11 +2,11 @@
 
 PMM Server provides a comprehensive REST API that enables you to monitor databases, manage resources, collect metrics, and automate PMM operations programmatically. The API supports endpoints for managing nodes, services, agents, alerting, backups, and other PMM components. 
 
-The [complete API documentation on Readme.io](https://percona-pmm.readme.io/reference/introduction) includes detailed endpoint specifications, authentication methods, example requests, and response schemas.
+The [complete API documentation on Readme.io :octicons-link-external-16:](https://percona-pmm.readme.io/reference/introduction){:target="_blank"} includes detailed endpoint specifications, authentication methods, example requests, and response schemas.
 
 ## Interactive API documentation
 
-You can explore and test the API using the built-in [Swagger](https://swagger.io/tools/swagger-ui/) UI, accessible at the `/swagger/` endpoint of your PMM Server. The Swagger interface allows you to:
+You can explore and test the API using the built-in [Swagger :octicons-link-external-16:](https://swagger.io/tools/swagger-ui/){:target="_blank"} UI, accessible at the `/swagger/` endpoint of your PMM Server. The Swagger interface allows you to:
 
  - browse available API endpoints
  - view detailed request and response schemas

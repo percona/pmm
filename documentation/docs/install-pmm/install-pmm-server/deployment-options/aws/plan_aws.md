@@ -31,7 +31,7 @@ PMM Server stores all monitoring data in the `/home/admin/volume` partition. Pla
 - retention period for collected data
 - frequency of metric collection
 
-As a reference, the [PMM Demo](https://pmmdemo.percona.com/) site consumes approximately 230 MB per host per day, which totals around 6.9 GB per host over a 30-day retention period.
+As a reference, the [PMM Demo :octicons-link-external-16:](https://pmmdemo.percona.com/){:target="_blank"} site consumes approximately 230 MB per host per day, which totals around 6.9 GB per host over a 30-day retention period.
 
 For 50 hosts with 30-day retention: 50 × 6.9 GB = 345 GB minimum storage. 
 
@@ -55,7 +55,7 @@ Required ports:
 
 PMM Server software is free, but plan for AWS infrastructure costs depending on your instance size and storage needs.
 
-Use the [AWS pricing calculator](https://calculator.aws/#/) to estimate monthly costs based on your planned configuration.
+Use the [AWS pricing calculator :octicons-link-external-16:](https://calculator.aws/#/){:target="_blank"} to estimate monthly costs based on your planned configuration.
 
 ## Plan backups
 
@@ -63,7 +63,7 @@ PMM Server uses a simple backup architecture - all monitoring data is stored in 
 
 When planning your deployment, consider that you'll need to create point-in-time snapshots of the EBS volume containing the `/home/admin/volume` partition. Plan for snapshot storage costs and determine your backup frequency and retention requirements.
 
-Follow the AWS documentation for [Create Amazon EBS snapshots](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-creating-snapshot.html) to understand the backup process you'll implement after deployment.
+Follow the AWS documentation for [Create Amazon EBS snapshots :octicons-link-external-16:](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-creating-snapshot.html){:target="_blank"} to understand the backup process you'll implement after deployment.
 
 ## Next steps
 

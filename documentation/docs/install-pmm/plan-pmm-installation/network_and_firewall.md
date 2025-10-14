@@ -54,6 +54,6 @@ Learn more about available settings for `pmm-agent` in [Percona PMM-Agent docume
 
 For computers in a locked-down corporate environment without direct access to the Internet:
 
- - make sure to [enable access to Percona Platform services](https://docs.percona.com/percona-platform/network.html)
+ - make sure to [enable access to Percona Platform services :octicons-link-external-16:](https://docs.percona.com/percona-platform/network.html){:target="_blank"}
  - configure appropriate proxy settings if PMM Server needs to access external services through a proxy
  - consider using [offline installation methods](../install-pmm-server/deployment-options/docker/isolated_hosts.md) for environments without internet access

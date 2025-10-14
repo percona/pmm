@@ -12,7 +12,7 @@ The following questions might help you identify the origin of the problem while 
      - Does the problem occur when you perform a particular task?
 6. Are you using the recommended [authentication](../api/authentication.md#authenticate) method?
 7. Does your system’s firewall allow TCP traffic on the [ports](../install-pmm/plan-pmm-installation/network_and_firewall.md#essential-ports) used by PMM?
-8. Have you allocated enough [disk space](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/) for installing PMM? If not, check the disk allocation space.
+8. Have you allocated enough [disk space :octicons-link-external-16:](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/){:target="_blank"} for installing PMM? If not, check the disk allocation space.
 9. Are you using a Technical Preview feature? Technical Preview features are not production-ready and should only be used in testing environments. For more information, see the relevant Release Notes.
 10. For installing the PMM client, are you using a package other than a binary package without root permissions?
 11. Is your [PMM Server](../install-pmm/install-pmm-server/index.md) installed and running with a known IP address accessible from the client node?

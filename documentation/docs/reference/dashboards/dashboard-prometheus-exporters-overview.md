@@ -64,4 +64,4 @@ Virtual CPUs
 You can click the value of the **CPU Used**, **Memory Used**, or **Exporters Running** columns to open the [Prometheus Exporter Status](dashboard-prometheus-exporter-status.md) dashboard for further analysis.
 
 !!! seealso alert alert-info "See also"
-    [Percona blog: Understand Your Prometheus Exporters with Percona Monitoring and Management (PMM)](https://www.percona.com/blog/2018/02/20/understand-prometheus-exporters-percona-monitoring-management-pmm/)
+    [Percona blog: Understand Your Prometheus Exporters with Percona Monitoring and Management (PMM) :octicons-link-external-16:](https://www.percona.com/blog/2018/02/20/understand-prometheus-exporters-percona-monitoring-management-pmm/){:target="_blank"}

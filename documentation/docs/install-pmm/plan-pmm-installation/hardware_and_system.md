@@ -49,7 +49,7 @@ To reduce storage usage, consider [disable table statistics](../install-pmm-clie
 
 ### PMM Server 
 
-- **CPU**: must support the [`SSE4.2`](https://wikipedia.org/wiki/SSE4#SSE4.2), which is required for Query Analytics (QAN).
+- **CPU**: must support the [`SSE4.2` :octicons-link-external-16:](https://wikipedia.org/wiki/SSE4#SSE4.2){:target="_blank"}, which is required for Query Analytics (QAN).
 - **ARM64**: ensure your system uses a supported ARM64 architecture (such as ARMv8 or later). PMM Server is not currently available as a native ARM64 build. For ARM-based systems, use Docker or Podman to run x86_64 images via emulation. To explicitly force Docker to use the x86_64 image on an ARM system, use: `docker run --platform linux/amd64 ... <your_pmm_server_image>`. 
 
 ### PMM Client 
@@ -61,7 +61,7 @@ To reduce storage usage, consider [disable table statistics](../install-pmm-clie
 - **Architecture support**: Compatible with both x86_64 and ARM64 architectures
 - **Operating systems**: Compatible with modern 64-bit Linux distributions including Debian, Ubuntu, Oracle Linux, and "Red Hat" derivatives
 
-For specific version support details, see [Percona software support life cycle](https://www.percona.com/services/policies/percona-software-support-lifecycle#pt).
+For specific version support details, see [Percona software support life cycle :octicons-link-external-16:](https://www.percona.com/services/policies/percona-software-support-lifecycle#pt){:target="_blank"}.
 
 ### ARM-specific considerations
 

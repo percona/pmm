@@ -24,7 +24,7 @@ To create a new silence:
 6. Review the affected alert instances that will be silenced.
 7. Click **Save silece**.
 
-For more information on working with silences, see [About alerting silences](https://grafana.com/docs/grafana/latest/alerting/manage-notifications/create-silence/) in the Grafana documentation.
+For more information on working with silences, see [About alerting silences :octicons-link-external-16:](https://grafana.com/docs/grafana/latest/alerting/manage-notifications/create-silence/){:target="_blank"} in the Grafana documentation.
 
 ## Alerting compatibility
 
@@ -52,8 +52,8 @@ To see all the available options, check the scrip help using `ia_migration.py -h
 
 #### Script prerequisites
 
-- Python version 3.x, which you can download from [Python Downloads centre](https://www.python.org/downloads/).
-- [Requests library](https://requests.readthedocs.io/en/latest/user/install/#install), which you can install with the following command: ```pip3 install requests```.
+- Python version 3.x, which you can download from [Python Downloads centre :octicons-link-external-16:](https://www.python.org/downloads/){:target="_blank"}.
+- [Requests library :octicons-link-external-16:](https://requests.readthedocs.io/en/latest/user/install/#install){:target="_blank"}, which you can install with the following command: ```pip3 install requests```.
 
 !!! caution alert alert-warning "Important"
     The script sets all migrated alert rules to Active. Make sure to silence any alerts that should not be firing.

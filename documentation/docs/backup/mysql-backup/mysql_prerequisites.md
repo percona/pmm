@@ -29,11 +29,11 @@ Before creating MySQL backups, make sure to:
 
 9. Check that the latest versions of the following packages are installed and included in the `$PATH` environment variable:
 
-    - [`xtrabackup`](https://www.percona.com/software/mysql-database/percona-xtrabackup), which includes:
+    - [`xtrabackup` :octicons-link-external-16:](https://www.percona.com/software/mysql-database/percona-xtrabackup){:target="_blank"}, which includes:
 
-        - [`xbcloud`](https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html)
+        - [`xbcloud` :octicons-link-external-16:](https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html){:target="_blank"}
 
-        - [`xbstream`](https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html)
+        - [`xbstream` :octicons-link-external-16:](https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html){:target="_blank"}
 
     - [`qpress`][PERCONA_QPRESS].
 

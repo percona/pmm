@@ -139,7 +139,7 @@ Choose the option that best fits your infrastructure and requirements:
 
     Before you begin:
 
-     - [Install and configure Docker](https://docs.docker.com/get-docker/).
+     - [Install and configure Docker :octicons-link-external-16:](https://docs.docker.com/get-docker/){:target="_blank"}.
      - Prepare your environment:
          - for testing > run services on a single machine.
          - for production > deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.

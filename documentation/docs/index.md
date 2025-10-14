@@ -12,7 +12,7 @@ Key features:
 - Easy setup with just two components: Server and Client
 
 ## Try PMM Demo
-Want to see PMM in action before installing? Visit our [live demo](https://pmmdemo.percona.com/) to explore PMM's features and interface with sample data.
+Want to see PMM in action before installing? Visit our [live demo :octicons-link-external-16:](https://pmmdemo.percona.com/){:target="_blank"} to explore PMM's features and interface with sample data.
 
 <div data-grid markdown><div data-banner markdown>
 
@@ -44,7 +44,7 @@ Are you ready to begin configuring PMM  but need help figuring out how to begin?
 
 Looking for reliable and easy-to-use resources to tackle your daily challenges with database monitoring and management?
 
-[Additional resources :material-arrow-right:](https://www.percona.com/resources){ .md-button .md-button--primary }
+[Additional resources :material-arrow-right: :octicons-link-external-16:](https://www.percona.com/resources){:target="_blank"}{ .md-button .md-button--primary }
 
 </div>
 </div>

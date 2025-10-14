@@ -23,7 +23,7 @@ pmm-admin add proxysql --username=pmm --password=pmm
 ```
 
 where `username` and `password` are credentials for the administration interface of the monitored ProxySQL instance. 
-You should configure a read-only account for monitoring using the [`admin-stats_credentials`](https://proxysql.com/documentation/global-variables/admin-variables/#admin-stats_credentials) variable in ProxySQL
+You should configure a read-only account for monitoring using the [`admin-stats_credentials` :octicons-link-external-16:](https://proxysql.com/documentation/global-variables/admin-variables/#admin-stats_credentials){:target="_blank"} variable in ProxySQL
 
 Additionally, two positional arguments can be appended to the command line flags: a service name to be used by PMM, and a service address. If not specified, they are substituted automatically as `<node>-proxysql` and `127.0.0.1:6032`.
 

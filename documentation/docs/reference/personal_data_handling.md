@@ -22,7 +22,7 @@ The following questions are being answered related to personal and confidential 
 
 3. What is the purpose and nature of data processing?
 
-    As per our [Privacy Policy](https://www.percona.com/privacy-policy), the data collection purposes are to provide the services and product enhancements.
+    As per our [Privacy Policy :octicons-link-external-16:](https://www.percona.com/privacy-policy){:target="_blank"}, the data collection purposes are to provide the services and product enhancements.
 
     Although, PMM does not collect nor transfer personal data explicitly, in case query analytics is enabled and query examples collection is not disabled, we gather SQL query examples with real data and personal data may appear there if it is stored in DB.  All QAN data always remains within the PMM Server, and is never transmitted anywhere else.
 
@@ -55,5 +55,5 @@ The following questions are being answered related to personal and confidential 
     - PMM Server to remote database (optionally, depending on user configuration)
     - End-user to PMM Server web interface/api (self-signed by default)
 
-    For more information about Percona security posture, please refer to our [Trust Center here](https://trust.percona.com/).
+    For more information about Percona security posture, please refer to our [Trust Center here :octicons-link-external-16:](https://trust.percona.com/){:target="_blank"}.
 

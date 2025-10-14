@@ -15,7 +15,7 @@ To connect your PMM Server to Percona Platform:
 4. On the **Profile Settings page**, copy the code from the **Percona Platform Access Token** field.
 5. Back into PMM, paste the Access Token into the **Percona Platform Access Token** field, and click  **Connect**.
 
-To confirm that you have successfully connected the server and check the list of all servers currently connected to an organization, go to [Percona Platform](https://portal.percona.com) > **Dashboard** tab and click **View Instances** next to the **Connect your PMM** step.
+To confirm that you have successfully connected the server and check the list of all servers currently connected to an organization, go to [Percona Platform :octicons-link-external-16:](https://portal.percona.com){:target="_blank"} > **Dashboard** tab and click **View Instances** next to the **Connect your PMM** step.
 
 ## Check Percona Portal entitlements
 
@@ -38,7 +38,7 @@ If you are a PMM Admin, you can terminate any connections to Percona Platform, e
 
 If you do disconnect servers without being connected with a Percona Account, you'll have to manually remove the unavailable servers from Percona Platform. This ensures that your list of connected PMM instances stays up-to-date in Percona Platform. 
 
-To do this, go to [PMM instances](https://portal.percona.com/login), and remove any servers that you have already disconnected from PMM.
+To do this, go to [PMM instances :octicons-link-external-16:](https://portal.percona.com/login){:target="_blank"}, and remove any servers that you have already disconnected from PMM.
 
 
 ## Sign into PMM with your Percona Account
