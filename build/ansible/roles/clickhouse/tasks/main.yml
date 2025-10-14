@@ -62,4 +62,3 @@
     state: absent
   loop:
     - clickhouse-odbc-bridge
-    - clickhouse-diagnostics
