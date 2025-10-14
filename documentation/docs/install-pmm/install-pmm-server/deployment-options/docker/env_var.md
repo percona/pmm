@@ -63,7 +63,7 @@ This gives you centralized control over resource usage, logging, and storage set
 
 ##### Essential variables
 
-These environment variables prevent the most common deployment challenges. For all available configuration options, see [Victoria metrics command-line flags](https://docs.victoriametrics.com/#list-of-command-line-flags).
+These environment variables prevent the most common deployment challenges. For all available configuration options, see [Victoria metrics command-line flags](https://docs.victoriametrics.com/#list-of-command-line-flags){:target="_blank"}.
 
 
 | Variable | Purpose | Example | Default | Notes |

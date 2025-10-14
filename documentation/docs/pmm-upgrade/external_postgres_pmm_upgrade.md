@@ -1,6 +1,6 @@
 # Migrate external PostgreSQL configuration for PMM 3.2.0+ upgrades
 
-If you're using an external PostgreSQL database with PMM, you will need to update your configuration before upgrading to PMM 3.2.0. This is due to a [regression issue in Grafana](https://github.com/grafana/grafana/issues/102337), where the single `GF_DATABASE_URL` environment variable is no longer sufficient for configuring the database.
+If you're using an external PostgreSQL database with PMM, you will need to update your configuration before upgrading to PMM 3.2.0. This is due to a [regression issue in Grafana](https://github.com/grafana/grafana/issues/102337){:target="_blank"}, where the single `GF_DATABASE_URL` environment variable is no longer sufficient for configuring the database.
 
 To upgrade to PMM 3.2.0 successfully, convert your configuration to use individual environment variables instead of `GF_DATABASE_URL`: 
 

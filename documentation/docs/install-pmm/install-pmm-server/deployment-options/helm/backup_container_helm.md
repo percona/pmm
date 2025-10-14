@@ -10,14 +10,14 @@ Create backups of your PMM Server Kubernetes deployment to protect your monitori
 
 ## Understanding Kubernetes storage for PMM Server
 
-PMM Server Helm chart uses [PersistentVolume and PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) to allocate storage in the Kubernetes cluster.
+PMM Server Helm chart uses [PersistentVolume and PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/){:target="_blank"} to allocate storage in the Kubernetes cluster.
 
 Volumes could be pre-provisioned and dynamic. PMM chart supports both and exposes it through [PMM storage configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration).
 
 Backups for the PMM Server currently support only storage layer backups and thus require:
 
- - a [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) that supports volume snapshots
- - a [VolumeSnapshotClass](https://kubernetes.io/docs/concepts/storage/volume-snapshot-classes/) configured for your environment
+ - a [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/){:target="_blank"} that supports volume snapshots
+ - a [VolumeSnapshotClass](https://kubernetes.io/docs/concepts/storage/volume-snapshot-classes/){:target="_blank"} configured for your environment
 
 ## Verify snapshot support
 

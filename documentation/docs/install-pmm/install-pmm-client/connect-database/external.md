@@ -64,7 +64,7 @@ Connection schema of external serverless exporter:
 
 ## Add a service not supported by PMM
 
-PMM can collect any metrics in [Open metrics](https://openmetrics.io) or [Prometheus exposition](https://prometheus.io/docs/instrumenting/exposition_formats/) format. You must specify the host and port of these metrics using the `pmm-admin add external` or `pmm-admin add external-serverless` commands.
+PMM can collect any metrics in [Open metrics](https://openmetrics.io){:target="_blank"} or [Prometheus exposition](https://prometheus.io/docs/instrumenting/exposition_formats/){:target="_blank"} format. You must specify the host and port of these metrics using the `pmm-admin add external` or `pmm-admin add external-serverless` commands.
 
 From this point, PMM will collect and store available metrics.
 
@@ -72,17 +72,17 @@ To browse and visualize collected metrics as a first step, we can look at the Ad
 
 ![Advanced Data Exploration dashboard](../../../images/PMM_Advanced_Data_Exploration.jpg)
 
-Another way is to create a [new Grafana Dashboard to PMM as needed](https://grafana.com/docs/grafana/latest/best-practices/best-practices-for-creating-dashboards/).
+Another way is to create a [new Grafana Dashboard to PMM as needed](https://grafana.com/docs/grafana/latest/best-practices/best-practices-for-creating-dashboards/){:target="_blank"}.
 
 One more way is to search for an already created dashboard at <https://grafana.com/grafana/dashboards> for the added exporter and import it into PMM.
 
 ### Third-party exporters
 
-You can find more exporters on the [official Prometheus page](https://prometheus.io/docs/instrumenting/exporters/).
+You can find more exporters on the [official Prometheus page](https://prometheus.io/docs/instrumenting/exporters/){:target="_blank"}.
 
 ### Custom exporter
 
-You can create a custom external exporter or extend your application to expose metrics in [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/). This gives you complete control over what metrics are collected and how they're exposed. To learn how to build your own exporter, see [Writing Exporter in the Prometheus Docs](https://prometheus.io/docs/instrumenting/writing_exporters).
+You can create a custom external exporter or extend your application to expose metrics in [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/){:target="_blank"}. This gives you complete control over what metrics are collected and how they're exposed. To learn how to build your own exporter, see [Writing Exporter in the Prometheus Docs](https://prometheus.io/docs/instrumenting/writing_exporters){:target="_blank"}.
 
 ??? info "Example: Add an HTTP exporter"
 

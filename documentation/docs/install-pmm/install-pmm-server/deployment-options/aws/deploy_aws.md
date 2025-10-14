@@ -6,7 +6,7 @@ After [planning your instance size, storage, and network requirements](../aws/pl
 To launch  PMM Server via AWS Marketplace:
 {.power-number}
 
-1. Go to [AWS Marketplace](https://aws.amazon.com/marketplace) and search for **Percona Monitoring and Management Server** or [access the PMM Server listing](https://aws.amazon.com/marketplace/pp/prodview-uww55ejutsnom) directly.
+1. Go to [AWS Marketplace](https://aws.amazon.com/marketplace){:target="_blank"} and search for **Percona Monitoring and Management Server** or [access the PMM Server listing](https://aws.amazon.com/marketplace/pp/prodview-uww55ejutsnom){:target="_blank"} directly.
 
 2. Click **View purchase options** on the PMM Server listing page, review the terms and conditions, then click **Continue to Configuration**.
 
@@ -16,7 +16,7 @@ To launch  PMM Server via AWS Marketplace:
 
 5. In the **EC2 Instance Type** field, select an appropriate instance type based on your monitoring needs and anticipated load. For information on instance sizing and storage, see [Plan PMM Server deployment from AWS](../aws/plan_aws.md).
 
-6. In the **VPC Settings** field, choose an existing VPC or create a new one to host your PMM Server. Ensure that the selected VPC has an [Internet Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html) attached to it to be reachable over the Internet
+6. In the **VPC Settings** field, choose an existing VPC or create a new one to host your PMM Server. Ensure that the selected VPC has an [Internet Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html){:target="_blank"} attached to it to be reachable over the Internet
 
 7. In the **Subnet Settings** field, select an existing subnet or create a new one within your VPC.
 
@@ -32,7 +32,7 @@ To launch  PMM Server via AWS Marketplace:
 Monitor the deployment progress and access your instance through the EC2 console:
 {.power-number}
 
-1. Click the **EC2 Console** link that appears at the top of the confirmation page after launching, or go directly to the [EC2 Console](https://console.aws.amazon.com/ec2/) <!-- linkspector ignore -->
+1. Click the **EC2 Console** link that appears at the top of the confirmation page after launching, or go directly to the [EC2 Console](https://console.aws.amazon.com/ec2/){:target="_blank"} <!-- linkspector ignore -->
 
 2. Locate your new PMM instance in the EC2 instances table. Initially, its Status shows **Pending** while launching and the Name will be empty. 
 
@@ -71,7 +71,7 @@ Once your instance status shows "Running" and passes all status checks in the AW
 After initial access, configure your PMM Server's security groups and IP addressing.
 
 ### SSH access
-For SSH access instructions, see [Connecting to Your Linux Instance Using SSH](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html).
+For SSH access instructions, see [Connecting to Your Linux Instance Using SSH](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html){:target="_blank"}.
 
 Replace the user name `ec2-user` with `admin`. You can also add SSH keys later through the **PMM Configuration > Settings > SSH Key** page.
 

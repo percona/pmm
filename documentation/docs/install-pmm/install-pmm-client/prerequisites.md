@@ -38,7 +38,7 @@ For a complete list of ports and detailed network configuration options, see [Ne
 
 - Ensure these packages are installed before proceeding: curl, gnupg, sudo, wget.
 
-- For Docker-based deployment, you'll also need [Docker Engine](https://docs.docker.com/get-started/get-docker/) properly installed and configured. 
+- For Docker-based deployment, you'll also need [Docker Engine](https://docs.docker.com/get-started/get-docker/){:target="_blank"} properly installed and configured. 
 
 ## Database monitoring requirements
 

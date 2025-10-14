@@ -1,6 +1,6 @@
 # Run PMM Client as a Docker container
 
-The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) provides a convenient way to run PMM Client as a pre-configured container without installing software directly on your host system.
+The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/){:target="_blank"} provides a convenient way to run PMM Client as a pre-configured container without installing software directly on your host system.
 
 Using the Docker container approach offers several advantages:
 
@@ -14,7 +14,7 @@ Using the Docker container approach offers several advantages:
 Complete these essential steps before installation:
 {.power-number}
 
-1. Install [Docker Engine](https://docs.docker.com/get-docker/).
+1. Install [Docker Engine](https://docs.docker.com/get-docker/){:target="_blank"}.
 
 2. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
