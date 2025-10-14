@@ -10,7 +10,7 @@ import {
   Alert,
 } from '@mui/material';
 import { FC, useState } from 'react';
-import { formatTimestamp } from 'utils/formatTimestamp';
+import { formatTimestamp } from 'lib/utils/datetime.utils';
 import { PMM_HOME_URL } from 'lib/constants';
 import { Messages } from './UpdateCard.messages';
 import { FetchingIcon } from 'components/fetching-icon';
@@ -23,7 +23,7 @@ import { UpdateInfo } from '../update-info';
 import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useUpdates } from 'contexts/updates';
 import { ChangeLog } from '../change-log';
-import { capitalize } from 'utils/textUtils';
+import { capitalize } from 'lib/utils/text.utils';
 
 export const UpdateCard: FC = () => {
   const { inProgress, status, setStatus } = useUpdates();

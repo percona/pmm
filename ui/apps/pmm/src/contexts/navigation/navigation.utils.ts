@@ -39,7 +39,7 @@ import {
   NAV_THEME_TOGGLE,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
-import { capitalize } from 'utils/textUtils';
+import { capitalize } from 'lib/utils/text.utils';
 import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 

@@ -10,7 +10,7 @@ import {
 
 // Mock the snooze hook
 const mockSnoozeUpdate = vi.fn();
-vi.mock('hooks/snooze', () => ({
+vi.mock('hooks/updates', () => ({
   useSnooze: () => ({
     snoozeUpdate: mockSnoozeUpdate,
     snoozeActive: false,
@@ -22,7 +22,7 @@ const mockVersionInfo = {
   installed: {
     version: '3.0.0',
     fullVersion: '3.0.0',
-    timestamp: '2024-07-23T00:00:00Z',
+    timestamp: new Date().toISOString(),
   },
   latest: {
     version: '3.1.0',

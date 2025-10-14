@@ -1,5 +1,5 @@
 import { CurrentInfo, LatestInfo } from 'types/updates.types';
-import { formatTimestamp } from 'utils/formatTimestamp';
+import { formatTimestamp } from 'lib/utils/datetime.utils';
 
 export const formatVersion = ({
   version,

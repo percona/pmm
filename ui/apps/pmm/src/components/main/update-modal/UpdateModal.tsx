@@ -13,7 +13,7 @@ import Snackbar from '@mui/material/Snackbar';
 import CloseIcon from '@mui/icons-material/Close';
 import Card from '@mui/material/Card';
 import IconButton from '@mui/material/IconButton';
-import { useSnooze } from 'hooks/snooze';
+import { useSnooze } from 'hooks/updates';
 
 const UpdateModal: FC = () => {
   const { isLoading, versionInfo } = useUpdates();
