@@ -1,11 +1,13 @@
 # Linkspector configuration file
-# Ignore HTTP 429 (Too Many Requests) errors from rate limiting
+# Treat 429 (Too Many Requests) as a valid status code
 
-ignoreStatusCodes:
-    - 429
+aliveStatusCodes:
+    - 200
+    - 201
+    - 204
+    - 429  # Treat rate limiting as "alive" to avoid CI failures
   
   # Explicitly ignore URLs that return 429 errors
-  ignoreUrls:
-    - "https://developer.hashicorp.com/nomad"
-    - "https://www.nomadproject.io/"
-    - "https://developer.hashicorp.com/nomad/docs"
+  ignorePatterns:
+    - pattern: '^https://developer\.hashicorp\.com/nomad'
+    - pattern: '^https://www\.nomadproject\.io/'
