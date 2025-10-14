@@ -4,7 +4,7 @@ import { diffFromNow } from './datetime.utils';
 // 1 hour = 3,600,000 ms
 const HOUR_MS = 3_600_000;
 
-describe.only('diffFromNow', () => {
+describe('diffFromNow', () => {
   beforeEach(() => {
     // Mock Date.now() to have consistent test results
     vi.useFakeTimers();
