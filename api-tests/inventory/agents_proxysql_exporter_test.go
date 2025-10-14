@@ -456,7 +456,7 @@ func TestProxySQLExporter(t *testing.T) {
 		assert.False(t, changeProxySQLExporterOK.Payload.ProxysqlExporter.Disabled)
 
 		// Verify password change with username change
-		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{

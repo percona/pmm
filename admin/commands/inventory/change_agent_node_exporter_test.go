@@ -207,6 +207,7 @@ Configuration changes applied:
 		originalClient := client.Default
 		transport := httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme})
 		client.Default = client.New(transport, nil)
+
 		defer func() { client.Default = originalClient }()
 
 		cmd := &ChangeAgentNodeExporterCommand{
@@ -215,12 +216,13 @@ Configuration changes applied:
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		agentID := "test-agent-no-flags"
+
 		var capturedRequestBody string
 
 		_, cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)

@@ -148,6 +148,7 @@ func (cmd *ChangeAgentPostgresExporterCommand) RunCmd() (commands.Result, error)
 		body.CustomLabels = &agents.ChangeAgentParamsBodyPostgresExporterCustomLabels{
 			Values: *customLabels,
 		}
+
 		changes = append(changes, "updated custom labels")
 	}
 

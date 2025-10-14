@@ -123,6 +123,7 @@ func TestAzureDatabaseExporterChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_INFO"
 			}
 		}`
+
 		_, cleanup := setupChangeAgentTestServer(t, "test-agent-azure-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 

@@ -162,7 +162,9 @@ func ParseKeyValuePair(labels *map[string]string) *map[string]string {
 	if labels == nil {
 		return nil
 	}
+
 	result := make(map[string]string)
+
 	for k, v := range *labels {
 		v = strings.TrimSpace(v)
 		if v == "" {
@@ -212,7 +214,9 @@ func FormatLogLevel(logLevel string) string {
 	if logLevel == "" {
 		return ""
 	}
+
 	logLevel = strings.TrimPrefix(logLevel, "LOG_LEVEL_")
+
 	return strings.ToLower(logLevel)
 }
 
@@ -226,11 +230,15 @@ func FormatCustomLabels(labels interface{}) string {
 		if len(labelMap) == 0 {
 			return "(none)"
 		}
+
 		var pairs []string
+
 		for key, value := range labelMap {
 			pairs = append(pairs, fmt.Sprintf("%s=%s", key, value))
 		}
+
 		sort.Strings(pairs)
+
 		return strings.Join(pairs, ", ")
 	}
 

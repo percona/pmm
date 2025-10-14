@@ -504,7 +504,7 @@ func TestExternalExporter(t *testing.T) {
 		assert.False(t, changeExternalExporterOK.Payload.ExternalExporter.Disabled)
 
 		// Test changing scheme and metrics path
-		changeExternalExporterOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{

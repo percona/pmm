@@ -39,5 +39,6 @@ func (c CommentsParsingChangeFlags) CommentsParsingDisabled() *bool {
 
 	// Return true (disabled) if "off", false (enabled) if "on"
 	disabled := *c.CommentsParsing == "off"
+
 	return &disabled
 }

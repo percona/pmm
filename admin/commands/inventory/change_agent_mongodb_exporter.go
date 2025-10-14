@@ -121,6 +121,7 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS certificate key file: %w", err)
 		}
+
 		tlsCertificateKey = &content
 	}
 

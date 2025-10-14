@@ -391,7 +391,7 @@ func TestNodeExporter(t *testing.T) {
 		assert.False(t, changeNodeExporterOK.Payload.NodeExporter.Disabled)
 
 		// Test changing collectors and expose settings
-		changeNodeExporterOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{

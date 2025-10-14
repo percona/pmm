@@ -139,6 +139,7 @@ func TestExternalExporterChangeAgent(t *testing.T) {
 				}
 			}
 		}`
+
 		_, cleanup := setupChangeAgentTestServer(t, "test-agent-external-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 

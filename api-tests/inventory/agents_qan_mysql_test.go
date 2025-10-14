@@ -209,7 +209,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 		assert.False(t, changeQANAgentOK.Payload.QANMysqlPerfschemaAgent.Disabled)
 
 		// Verify password change with username change
-		changeQANAgentOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{

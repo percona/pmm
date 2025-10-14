@@ -114,12 +114,14 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 			assert.Len(t, changeResult.Changes, 2) // Should have both "disabled agent" and the collectors change
 			// Check that there's a change about collectors
 			foundCollectorsChange := false
+
 			for _, change := range changeResult.Changes {
 				if strings.Contains(change, "disabled collectors") {
 					foundCollectorsChange = true
 					break
 				}
 			}
+
 			assert.True(t, foundCollectorsChange, "Should have a change about disabled collectors")
 		})
 	})
@@ -133,13 +135,16 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 			w.WriteHeader(http.StatusNotFound)
 			response := `{"code": 5, "error": "Agent not found"}`
 			_, err := w.Write([]byte(response))
-			require.NoError(t, err)
+			if err != nil {
+				t.Error(err)
+			}
 		}))
 		defer server.Close()
 
 		// Setup client to use test server
 		serverURL, _ := url.Parse(server.URL)
 		originalClient := client.Default
+
 		transport := httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme})
 		client.Default = client.New(transport, nil)
 		defer func() { client.Default = originalClient }()
@@ -290,6 +295,7 @@ Configuration changes applied:
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		agentID := "test-mysqld-minimal"
+
 		var capturedRequestBody string
 
 		_, cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)

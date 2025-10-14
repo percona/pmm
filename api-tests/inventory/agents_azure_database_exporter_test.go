@@ -372,7 +372,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		assert.False(t, changeAzureDatabaseExporterOK.Payload.AzureDatabaseExporter.Disabled)
 
 		// Test Azure client ID and secret rotation together
-		changeAzureDatabaseExporterOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{

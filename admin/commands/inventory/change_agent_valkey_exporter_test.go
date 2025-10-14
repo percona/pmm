@@ -222,7 +222,7 @@ Configuration changes applied:
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 

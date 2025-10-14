@@ -142,6 +142,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_INFO"
 			}
 		}`
+
 		_, cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
 		defer cleanup()
 

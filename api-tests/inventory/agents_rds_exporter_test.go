@@ -375,7 +375,7 @@ func TestRDSExporter(t *testing.T) {
 		assert.False(t, changeRDSExporterOK.Payload.RDSExporter.Disabled)
 
 		// Test AWS access key and secret key rotation together
-		changeRDSExporterOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{

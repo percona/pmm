@@ -130,7 +130,7 @@ func (cmd *ChangeAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result,
 		TLSCa:                  tlsCa,
 		MaxQueryLength:         cmd.MaxQueryLength,
 		DisableQueryExamples:   cmd.DisableQueryExamples,
-		DisableCommentsParsing: cmd.CommentsParsingChangeFlags.CommentsParsingDisabled(),
+		DisableCommentsParsing: cmd.CommentsParsingDisabled(),
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
 	}
 
@@ -200,8 +200,8 @@ func (cmd *ChangeAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result,
 			changes = append(changes, "enabled query examples")
 		}
 	}
-	if cmd.CommentsParsingChangeFlags.CommentsParsing != nil {
-		if *cmd.CommentsParsingChangeFlags.CommentsParsingDisabled() {
+	if cmd.CommentsParsing != nil {
+		if *cmd.CommentsParsingDisabled() {
 			changes = append(changes, "disabled comments parsing")
 		} else {
 			changes = append(changes, "enabled comments parsing")

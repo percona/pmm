@@ -140,9 +140,11 @@ func (cmd *ChangeAgentAzureDatabaseExporterCommand) RunCmd() (commands.Result, e
 	if cmd.AzureSubscriptionID != nil {
 		changes = append(changes, "updated azure_subscription_id")
 	}
+
 	if cmd.AzureResourceGroup != nil {
 		changes = append(changes, "updated azure_resource_group")
 	}
+
 	if cmd.PushMetrics != nil {
 		if *cmd.PushMetrics {
 			changes = append(changes, "enabled push metrics")

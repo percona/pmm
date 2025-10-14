@@ -25,7 +25,6 @@ import (
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 )
@@ -37,6 +36,7 @@ var clientMutex sync.Mutex
 // If responseJSON is empty, a default minimal response is used.
 // Returns the server and a cleanup function that must be called to restore the original client.
 func setupChangeAgentTestServer(t *testing.T, agentID string, responseJSON string, capturedRequestBody *string) (*httptest.Server, func()) {
+	t.Helper()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Verify the actual API method and path
 		assert.Equal(t, "PUT", r.Method)
@@ -45,7 +45,9 @@ func setupChangeAgentTestServer(t *testing.T, agentID string, responseJSON strin
 		// Capture request body if requested
 		if capturedRequestBody != nil {
 			body, err := io.ReadAll(r.Body)
-			require.NoError(t, err)
+			if err != nil {
+				t.Error(err)
+			}
 			*capturedRequestBody = string(body)
 		}
 
@@ -66,12 +68,15 @@ func setupChangeAgentTestServer(t *testing.T, agentID string, responseJSON strin
 		}
 
 		_, err := w.Write([]byte(response))
-		require.NoError(t, err)
+		if err != nil {
+			t.Error(err)
+		}
 	}))
 
 	// Setup client to use test server - all operations under mutex to avoid race conditions
 	clientMutex.Lock()
 	originalClient := client.Default
+
 	serverURL, _ := url.Parse(server.URL)
 	transport := httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme})
 	client.Default = client.New(transport, nil)
