@@ -45,3 +45,20 @@
   vertical-align: middle;
 }
 
+/* External link icon styling */
+a[href^="http"]:not([href*="docs.percona.com"]):not([href*="percona.com"]):not([href*="github.com/percona/pmm"])::after {
+  content: "\f08e";
+  font-family: "FontAwesome";
+  font-size: 0.8em;
+  margin-left: 0.3em;
+  opacity: 0.7;
+  vertical-align: super;
+}
+
+/* Hide external link icon in print mode */
+@media print {
+  a[href^="http"]:not([href*="docs.percona.com"]):not([href*="percona.com"]):not([href*="github.com/percona/pmm"])::after {
+    display: none;
+  }
+}
+
