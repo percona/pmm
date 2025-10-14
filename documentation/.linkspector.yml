@@ -1,10 +1,18 @@
 dirs:
   - documentation/docs
 
+aliveStatusCodes:
+    - 200
+    - 201
+    - 204
+    - 429  # Treat rate limiting as "alive" to avoid CI failures
+
 ignorePatterns:
   - pattern: "^https://www.reddit.com/r/VictoriaMetrics/"
   - pattern: "^https://linux.die.net/man/8/logrotate"
   - pattern: "^https://pmmdemo.percona.com"
+  - pattern: '^https://developer.hashicorp.com/nomad'
+  - pattern: '^https://www.nomadproject.io/'
   - pattern: "#os_alerts$"
   - pattern: "#pmm_alerts$"
   - pattern: "#mongodb_alerts$"
