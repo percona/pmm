@@ -71,7 +71,13 @@ jobs:
       - name: Check out code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Set up Go release
+      - name: Clean up disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android/
+          sudo rm -rf /usr/share/dotnet/
+          sudo rm -rf /usr/local/share/chromium/
+
+      - name: Set up Go
         uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
@@ -110,7 +116,7 @@ jobs:
       - name: Upload coverage results
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
-          file: cover.out
+          files: cover.out
           flags: agent
           env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
@@ -119,8 +125,6 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          env
-          go version
-          go env
-          pwd
+          env | sort
+          go env | sort
           git status
