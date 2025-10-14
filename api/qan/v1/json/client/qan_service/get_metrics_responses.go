@@ -8,6 +8,7 @@ package qan_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type GetMetricsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetMetricsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetMetricsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetMetricsOK()
@@ -107,7 +108,7 @@ func (o *GetMetricsOK) readResponse(response runtime.ClientResponse, consumer ru
 	o.Payload = new(GetMetricsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(GetMetricsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -274,11 +275,15 @@ func (o *GetMetricsBody) validateLabels(formats strfmt.Registry) error {
 
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -311,11 +316,15 @@ func (o *GetMetricsBody) contextValidateLabels(ctx context.Context, formats strf
 			}
 
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -383,11 +392,15 @@ func (o *GetMetricsDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -420,11 +433,15 @@ func (o *GetMetricsDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -460,7 +477,7 @@ type GetMetricsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// get metrics default body details items0
-	GetMetricsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	GetMetricsDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -487,9 +504,9 @@ func (o *GetMetricsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -624,11 +641,15 @@ func (o *GetMetricsOKBody) validateMetrics(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Metrics[k]; ok {
 			if err := val.Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getMetricsOk" + "." + "metrics" + "." + k)
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getMetricsOk" + "." + "metrics" + "." + k)
 				}
+
 				return err
 			}
 		}
@@ -650,11 +671,15 @@ func (o *GetMetricsOKBody) validateSparkline(formats strfmt.Registry) error {
 
 		if o.Sparkline[i] != nil {
 			if err := o.Sparkline[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -676,11 +701,15 @@ func (o *GetMetricsOKBody) validateTotals(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Totals[k]; ok {
 			if err := val.Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getMetricsOk" + "." + "totals" + "." + k)
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getMetricsOk" + "." + "totals" + "." + k)
 				}
+
 				return err
 			}
 		}
@@ -697,11 +726,15 @@ func (o *GetMetricsOKBody) validateMetadata(formats strfmt.Registry) error {
 
 	if o.Metadata != nil {
 		if err := o.Metadata.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("getMetricsOk" + "." + "metadata")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("getMetricsOk" + "." + "metadata")
 			}
+
 			return err
 		}
 	}
@@ -756,11 +789,15 @@ func (o *GetMetricsOKBody) contextValidateSparkline(ctx context.Context, formats
 			}
 
 			if err := o.Sparkline[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -789,11 +826,15 @@ func (o *GetMetricsOKBody) contextValidateMetadata(ctx context.Context, formats 
 		}
 
 		if err := o.Metadata.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("getMetricsOk" + "." + "metadata")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("getMetricsOk" + "." + "metadata")
 			}
+
 			return err
 		}
 	}
