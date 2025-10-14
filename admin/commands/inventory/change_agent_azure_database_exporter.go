@@ -88,7 +88,7 @@ func (cmd *ChangeAgentAzureDatabaseExporterCommand) RunCmd() (commands.Result, e
 	var changes []string
 
 	// Parse custom labels if provided
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	body := &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
 		Enable:              cmd.Enable,

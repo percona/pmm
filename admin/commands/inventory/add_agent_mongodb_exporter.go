@@ -15,6 +15,8 @@
 package inventory
 
 import (
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -71,7 +73,7 @@ type AddAgentMongodbExporterCommand struct {
 
 // RunCmd executes the AddAgentMongodbExporterCommand and returns the result.
 func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -90,7 +92,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				Username:                      cmd.Username,
 				Password:                      cmd.Password,
 				AgentPassword:                 cmd.AgentPassword,
-				CustomLabels:                  *customLabels,
+				CustomLabels:                  pointer.Get(customLabels),
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				TLS:                           cmd.TLS,
 				TLSSkipVerify:                 cmd.TLSSkipVerify,

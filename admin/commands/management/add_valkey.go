@@ -15,6 +15,8 @@
 package management
 
 import (
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -89,7 +91,7 @@ func (cmd *AddValkeyCommand) GetSocket() string {
 
 // RunCmd runs the command for AddValkeyCommand.
 func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -146,7 +148,7 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				Username:       cmd.Username,
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
-				CustomLabels:   customLabels,
+				CustomLabels:   pointer.Get(customLabels),
 
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 

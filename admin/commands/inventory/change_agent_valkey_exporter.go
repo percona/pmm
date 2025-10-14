@@ -95,7 +95,7 @@ func (cmd *ChangeAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 	var changes []string
 
 	// Parse custom labels if provided
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	// Read TLS files if provided
 	var tlsCa, tlsCert, tlsKey *string

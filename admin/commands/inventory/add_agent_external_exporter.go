@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -63,7 +65,7 @@ type AddAgentExternalExporterCommand struct {
 
 // RunCmd executes the AddAgentExternalExporterCommand and returns the result.
 func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
@@ -79,7 +81,7 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 				Scheme:        cmd.Scheme,
 				MetricsPath:   cmd.MetricsPath,
 				ListenPort:    cmd.ListenPort,
-				CustomLabels:  *customLabels,
+				CustomLabels:  pointer.Get(customLabels),
 				PushMetrics:   cmd.PushMetrics,
 				TLSSkipVerify: cmd.TLSSkipVerify,
 			},
