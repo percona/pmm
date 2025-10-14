@@ -13,7 +13,7 @@ type mockTemplatesService struct {
 	mock.Mock
 }
 
-// GetTemplates provides a mock function with given fields:
+// GetTemplates provides a mock function with no fields
 func (_m *mockTemplatesService) GetTemplates() map[string]models.Template {
 	ret := _m.Called()
 

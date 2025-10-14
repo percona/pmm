@@ -31,7 +31,7 @@ func (_m *mockAlertmanagerService) IsReady(ctx context.Context) error {
 	return r0
 }
 
-// RequestConfigurationUpdate provides a mock function with given fields:
+// RequestConfigurationUpdate provides a mock function with no fields
 func (_m *mockAlertmanagerService) RequestConfigurationUpdate() {
 	_m.Called()
 }

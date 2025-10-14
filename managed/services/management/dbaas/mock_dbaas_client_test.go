@@ -33,7 +33,7 @@ func (_m *mockDbaasClient) Connect(ctx context.Context) error {
 	return r0
 }
 
-// Disconnect provides a mock function with given fields:
+// Disconnect provides a mock function with no fields
 func (_m *mockDbaasClient) Disconnect() error {
 	ret := _m.Called()
 
