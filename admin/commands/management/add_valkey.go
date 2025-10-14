@@ -64,7 +64,6 @@ type AddValkeyCommand struct {
 
 	AddCommonFlags
 	flags.MetricsModeFlags
-	flags.CommentsParsingFlags
 	flags.LogLevelNoFatalFlags
 }
 
@@ -90,7 +89,7 @@ func (cmd *AddValkeyCommand) GetSocket() string {
 
 // RunCmd runs the command for AddValkeyCommand.
 func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -147,17 +146,17 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				Username:       cmd.Username,
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
-				CustomLabels:   *customLabels,
+				CustomLabels:   customLabels,
 
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 
-				TLS:               cmd.TLS,
-				TLSSkipVerify:     cmd.TLSSkipVerify,
-				TLSCa:             tlsCa,
-				TLSCert:           tlsCert,
-				TLSKey:            tlsKey,
-				MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
-				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
+				TLS:           cmd.TLS,
+				TLSSkipVerify: cmd.TLSSkipVerify,
+				TLSCa:         tlsCa,
+				TLSCert:       tlsCert,
+				TLSKey:        tlsKey,
+				MetricsMode:   cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				LogLevel:      cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

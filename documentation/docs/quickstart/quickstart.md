@@ -11,16 +11,16 @@ This is the simplest and most efficient way to install PMM with Docker.
     - [Deploy based on a Docker image](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
     - [Deploy on Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
     - [Deploy on Kubernetes via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
-   <!--- - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)-->
+    - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md)
 
 #### Prerequisites
 
-Before you start installing PMM, verify that your system meets the compatibility requirements.
+Before you start installing PMM, verify that your system meets the compatibility requirements:
 
 ??? info "Verify system compatibility"
-    - **Disk**: Approximately 1 GB of storage per monitored database node with data retention set to one week. By default, retention is 30 days.
-    - **Memory**: A minimum of 2 GB per monitored database node. The increase in memory usage is not proportional to the number of nodes. For example, the data from 20 nodes should be easily handled with 16 GB.
-    - **Ports**: Your system’s firewall should allow TCP traffic on port 443.
+    - System: Linux-compatible system with `sudo` privileges or `root` access
+    - Network: Internet connectivity to download PMM components
+    - Ports: Your system's firewall should allow TCP traffic on port `443`
 
 ## Install PMM
 
@@ -242,49 +242,58 @@ Once PMM is set up, choose the database or the application that you want it to m
  
         ```
         db.createRole({
-            "role":"explainRole",
-            "privileges":[
-                {
-                    "resource":{
-                        "db":"",
-                        "collection":""
-                    },
-                    "actions":[
-                        "collStats",
-                        "dbHash",
-                        "dbStats",
-                        "find",
-                        "listIndexes",
-                        "listCollections"
-                    ]
-                }
+            "role": "pmmMonitor",
+            "privileges":
+            [
+               { 
+                 "resource": { "db": "", "collection": "" },
+                 "actions": [ "collStats", "dbHash", "dbStats", "indexStats", "find", "listIndexes", "listCollections" ]
+               },
+               {
+                 "resource": { "db": "", "collection": "system.version" },
+                 "actions": [ "find" ]
+               },
+               {
+                 "resource": { "db": "", "collection": "system.profile" },
+                 "actions": [ "dbStats", "collStats", "indexStats" ]
+               }                  
             ],
-            "roles":[]
+            "roles": []
         })
         ```
 
     2. Create a user and grant it the role created above:
 
-        ```
-        db.getSiblingDB("admin").createUser({
-            "user":"pmm",
-            "pwd":"<your_password>",
-            "roles":[
-                {
-                    "role":"explainRole",
-                    "db":"admin"
-                },
-                {
-                    "role":"clusterMonitor",
-                    "db":"admin"
-                },
-                {
-                    "role":"read",
-                    "db":"local"
-                }
-            ]
-        })
-        ```
+        === "MongoDB 8.0+"
+          
+            MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the `directShardOperations` role to collect complete metrics from all cluster components.
+          
+            ```javascript
+              db.getSiblingDB("admin").createUser({
+                  "user": "pmm",
+                  "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
+                  "roles": [
+                      { "db": "admin", "role": "pmmMonitor" },
+                      { "db": "local", "role": "read" },
+                      { "db": "admin", "role": "clusterMonitor" },
+                      { "db": "admin", "role": "directShardOperations" }
+                  ]
+              })
+            ```
+
+        === "MongoDB <8.0"
+
+            ```javascript
+            db.getSiblingDB("admin").createUser({
+                  "user": "pmm",
+                  "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
+                  "roles": [
+                      { "db": "admin", "role": "pmmMonitor" },
+                      { "db": "local", "role": "read" },
+                      { "db": "admin", "role": "clusterMonitor" }
+                  ]
+              })
+            ```
 
     3. To optimize server-side resources, install PMM Client via Package Manager on the database node:
         { .power-number}     
@@ -342,7 +351,7 @@ Once PMM is set up, choose the database or the application that you want it to m
     5. Add the MongoDB database:
 
         ```
-        pmm-admin add mongodb --username=pmm --password=<your_password>
+        pmm-admin add mongodb --username=pmm --password=<your_password> --cluster <your_cluster_or_replica_set_name>
         ```
    
     For detailed instructions, see [Adding a MongoDB database for monitoring](../install-pmm/install-pmm-client/connect-database/mongodb.md).

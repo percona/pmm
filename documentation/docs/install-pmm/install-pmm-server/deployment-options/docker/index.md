@@ -14,18 +14,21 @@ Before installation, ensure you have:
 - [Sufficient system resources](../../../plan-pmm-installation/hardware_and_system.md) (recommended: 2+ CPU cores, 4+ GB RAM, 100+ GB disk space)
 
 ### Watchtower security requirements
+
+Watchtower requires access to the Docker socket to monitor and update containers. Since the Docker socket provides root-level access to the host system, it's critical to limit Watchtower's exposure to prevent potential security vulnerabilities.
+
 To ensure a secure setup when using Watchtower:
  
- - Limit Watchtower' access to Docker network or localhost
- - Configure network to ensure only PMM Server is exposed externally
- - Secure Docker socket access for Watchtower
- - Place both Watchtower and PMM Server on the same Docker network
+ - limit Watchtower's access to Docker network or localhost to prevent unauthorized external connections. See [Container network isolation guide](https://docs.docker.com/network/drivers/bridge/#use-user-defined-bridge-networks).
+ - configure network to ensure only PMM Server is exposed externally. See [Docker networking best practices](https://docs.docker.com/network/bridge/#manage-a-user-defined-bridge).
+ - secure Docker socket access for Watchtower. See [Docker socket security](https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface).
+ - place both Watchtower and PMM Server on the same Docker network. See [Watchtower network configuration](https://containrrr.dev/watchtower/usage-overview/#docker_host).
 
 ## Installation options
 
 ### Container setup summary
 
-!!! info "Container setup at a glance"
+??? info "Container setup at a glance"
     - **Pull the Docker image**: `docker pull percona/pmm-server:3`
     - **Choose storage**: Docker volumes (recommended) or host directory
     - **Run the container**: Using the appropriate `docker run` command
@@ -81,36 +84,36 @@ You can install PMM Server with Watchtower using one of two methods:
          - [Run Docker with host directory](../docker/run_with_host_dir.md)
          - [Run Docker with volume](../docker/run_with_vol.md)
 
-## Configuration options
+    ## Configuration options
 
-### Storage configuration
+    ### Storage configuration
 
-You can choose either of two storage options offered by PMM Server:
+    You can choose either of two storage options offered by PMM Server:
 
-| Option | Suitable for | Command |
-|--------|-------------|---------|
-| [Docker volumes](../docker/run_with_vol.md) (Recommended) | Production environments | `--volume pmm-data:/srv` |
-| [Host directory](../docker/run_with_host_dir.md) | Development/testing | `--volume /path/on/host:/srv` |
+    | Option | Suitable for | Docker parameter |
+    |--------|-------------|---------|
+    | [Docker volumes](../docker/run_with_vol.md) (Recommended) | Production environments | `--volume pmm-data:/srv` |
+    | [Host directory](../docker/run_with_host_dir.md) | Development/testing | `--volume /path/on/host:/srv` |
 
 
-### Environment variables
+    ### Environment variables
 
-Configure PMM Server's behavior using environment variables:
+    Configure PMM Server's behavior using environment variables:
 
-```sh
-docker run -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=true percona/pmm-server:3
-```
+    ```sh
+    docker run -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=true percona/pmm-server:3
+    ```
 
-Common variables:
+    Common variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
-| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
-| `PMM_ENABLE_UPDATES` | `true` | Allow version checks and UI updates |
-| `PMM_ENABLE_TELEMETRY` | `true` | Send usage statistics |
+    | Variable | Default | Description |
+    |----------|---------|-------------|
+    | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data |
+    | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
+    | `PMM_ENABLE_UPDATES` | `true` | Allow version checks and UI updates |
+    | `PMM_ENABLE_TELEMETRY` | `true` | Send usage statistics |
 
-For a complete list, see the [environment variables](../docker/env_var.md).
+    For a complete list, see the [environment variables](../docker/env_var.md).
 
 ## Access PMM Server
 
@@ -140,5 +143,4 @@ After basic installation, you may want to customize your PMM Server setup:
 
 ## Next steps
 - [Install PMM Client on hosts you want to monitor](../../../install-pmm-client/index.md)
-- [Register Client nodes with your PMM Server](../../../register-client-node/index.md)
 - [Connect databases for monitoring](../../../install-pmm-client/connect-database/index.md)

@@ -105,7 +105,6 @@ var databaseSchema = [][]string{
 			container_name VARCHAR CHECK (container_name <> ''),
 
 			-- RemoteAmazonRDS
-			-- RDS instance is stored in address
 			region VARCHAR CHECK (region <> ''),
 
 			PRIMARY KEY (node_id),
@@ -1139,8 +1138,15 @@ var databaseSchema = [][]string{
 		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
 	},
 	110: {
+		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
+		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
+	},
+	111: {
 		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
 		`UPDATE agents SET valkey_options = '{}'::jsonb`,
+	},
+	112: {
+		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
 	},
 }
 
@@ -1510,10 +1516,14 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
+
+	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
+	ap.Disabled = true
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

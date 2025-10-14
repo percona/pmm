@@ -126,15 +126,6 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 		ExternalGroup: req.ExternalGroup,
 	}
 
-	agentToAPI := func(agent *models.Agent) *managementv1.UniversalAgent {
-		return &managementv1.UniversalAgent{
-			AgentId:     agent.AgentID,
-			AgentType:   string(agent.AgentType),
-			Status:      agent.Status,
-			IsConnected: s.r.IsConnected(agent.AgentID),
-		}
-	}
-
 	query := `pg_up{collector="exporter",job=~".*_hr$"}
 		or mysql_up{job=~".*_hr$"}
 		or mongodb_up{job=~".*_hr$"}
@@ -250,7 +241,11 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 
 		for _, agent := range agents {
 			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
-				uAgents = append(uAgents, agentToAPI(agent))
+				ag, err := s.agentToAPI(agent)
+				if err != nil {
+					return nil, err
+				}
+				uAgents = append(uAgents, ag)
 			}
 		}
 

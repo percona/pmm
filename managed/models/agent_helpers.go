@@ -41,15 +41,29 @@ type MySQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
+	GetExtraDsnParams() map[string]string
 }
 
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
-func MySQLOptionsFromRequest(params MySQLOptionsParams) MySQLOptions {
-	return MySQLOptions{
-		TLSCa:   params.GetTlsCa(),
-		TLSCert: params.GetTlsCert(),
-		TLSKey:  params.GetTlsKey(),
+func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
+	if params.GetExtraDsnParams() != nil {
+		// keep a list of "supported" parameters and fail early if there are unsupported ones.
+		// this prevents unsupported parameters from being passed to the mysql config.
+		for k := range params.GetExtraDsnParams() {
+			switch k {
+			case "allowCleartextPasswords":
+				continue
+			default:
+				return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Unsupported DSN parameter: %s", k)
+			}
+		}
 	}
+	return MySQLOptions{
+		TLSCa:          params.GetTlsCa(),
+		TLSCert:        params.GetTlsCert(),
+		TLSKey:         params.GetTlsKey(),
+		ExtraDSNParams: params.GetExtraDsnParams(),
+	}, nil
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
@@ -755,6 +769,7 @@ type CreateAgentParams struct {
 	TLS               bool
 	TLSSkipVerify     bool
 	LogLevel          string
+	Disabled          bool
 	ExporterOptions   ExporterOptions
 	QANOptions        QANOptions
 	AWSOptions        AWSOptions
@@ -903,6 +918,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		PostgreSQLOptions: params.PostgreSQLOptions,
 		ValkeyOptions:     params.ValkeyOptions,
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
+		Disabled:          params.Disabled,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err

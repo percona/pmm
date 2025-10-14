@@ -15,7 +15,6 @@ on:
       - 'admin/**'
       - 'agent/**'
       - 'api-tests/**'
-      - 'cli-tests/**'
       - 'docs/**'
       - "documentation/**"
       - 'qan-api2/**'
@@ -23,100 +22,84 @@ on:
       - 'vmproxy/**'
       - "ui/**"
 
-permissions:
-  contents: read
+permissions: read-all
 
 jobs:
   test:
     name: Managed tests
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    permissions:
-      packages: write    
 
     env:
       PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
-      PMM_CACHE_IMAGE: ghcr.io/percona/pmm:dev-cache
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       PMM_DEV_OAUTH_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       PMM_DEV_OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
-      BUILD_CACHE: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'v3' }} # change to `main` once v3 goes GA
+      PMM_CONTAINER: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Launch PMM Server (see docker-compose.yml)
+      - name: Enable Go build and module cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            ~/go-build-cache
+            ~/go-mod-cache
+          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
+
+      - name: Launch PMM Server
         run: |
-          make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
-          docker exec -t pmm-server id || :
+          docker run -d \
+            --platform linux/amd64 \
+            --name pmm-server \
+            --hostname pmm-server \
+            --network default \
+            -p 443:8443 \
+            -e AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-} \
+            -e AWS_SECRET_KEY=${AWS_SECRET_KEY:-} \
+            -e PMM_RELEASE_PATH=/root/go/bin \
+            -e PMM_ENABLE_ACCESS_CONTROL=1 \
+            -e PMM_ENABLE_TELEMETRY=0 \
+            -e PMM_RELEASE_VERSION=3.0.0 \
+            -e GOMODCACHE=/home/pmm/.cache/go/mod \
+            -w /root/go/src/github.com/percona/pmm \
+            -v ./:/root/go/src/github.com/percona/pmm \
+            -v ~/go-mod-cache:/home/pmm/.cache/go/mod \
+            -v ~/go-build-cache:/home/pmm/.cache/go-build \
+            -v ./managed/data/advisors/:/usr/local/percona/advisors/ \
+            -v ./managed/data/checks/:/usr/local/percona/checks/ \
+            -v ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/ \
+            -v ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro \
+            ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+          sleep 20
+          docker exec -t pmm-server id
           docker logs pmm-server
 
       - name: Mark the root directory of pmm as safe
-        run: docker exec -i pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
-
-      - name: Pull the cache image and inject cache to PMM Server
-        continue-on-error: true
-        run: |
-          if docker pull --platform linux/amd64 ${{ env.PMM_CACHE_IMAGE }}; then
-            docker run --rm --volumes-from pmm-server ${{ env.PMM_CACHE_IMAGE }} sh -c "cp -rf /mod-cache/* /root/go/pkg/mod; cp -rf /build-cache/* /root/.cache/go-build"
-            docker exec -t pmm-server du -sh /root/.cache/go-build
-            docker exec -t pmm-server du -sh /root/go/pkg/mod
-          fi
-
-      - name: Remove the cache image
-        continue-on-error: true
-        run: docker image rm ${{ env.PMM_CACHE_IMAGE }}
+        run: docker exec -i -u root pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Rebuild the binaries
-        run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy run-qan
+        run: docker exec -i -u root pmm-server make run-managed-ci run-agent run-vmproxy run-qan
 
       - name: Check the status of components
         continue-on-error: true
         run: docker exec -t pmm-server supervisorctl status
 
       - name: Run tests
-        run: docker exec -i pmm-server make -C managed test-cover
+        run: docker exec -i -u root pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           files: managed/cover.out
           flags: managed
           env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Run PMM Server update test
-        run: |
-          echo "PMM Server update test will be refactored once we have a new update mechanism."
-          # docker exec -i pmm-server make -C managed test-update
-
-      - name: Save PMM Go module and build cache as an image
-        if: ${{ fromJSON(env.BUILD_CACHE) }}
-        run: |
-          df -h | grep -A 1 Filesystem
-          # We need to free up some space, see more https://github.com/actions/runner-images/issues/2840
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          df -h | grep -A 1 Filesystem
-          docker run --name pmm-cache --volumes-from pmm-server busybox sh -c "mkdir /mod-cache /build-cache; cp -r /root/go/pkg/mod/* /mod-cache; cp -r /root/.cache/go-build/* /build-cache"
-          docker commit pmm-cache ${{ env.PMM_CACHE_IMAGE }}
-          docker rm -v pmm-cache
-
-      - name: Login to ghcr.io registry
-        if: ${{ fromJSON(env.BUILD_CACHE) }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push the image to ghcr.io
-        if: ${{ fromJSON(env.BUILD_CACHE) }}
-        run: docker push ${{ env.PMM_CACHE_IMAGE }}
 
       - name: Run debug commands
         if: ${{ always() }}
@@ -130,6 +113,8 @@ jobs:
           services=$(docker exec pmm-server supervisorctl status | awk '{print $1}')
           services=(`echo ${services}`)
           for service in "${services[@]}"; do
-            echo "Logs for $service:"
-            docker exec pmm-server supervisorctl tail $service || true
+            if [ "$service" != "clickhouse" ]; then
+              echo "Logs for $service:"
+              docker exec pmm-server supervisorctl tail $service || true
+            fi
           done
