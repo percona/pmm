@@ -133,13 +133,15 @@ Currently, we use three different sets of icons:
 
 The preference should be given to Mkdocs Material icons, since they were initially designed for `mkdocs` project and work very well with it. In rare cases, when an icon cannot be found in Mkdocs Material, you can find a suitable one on Iconscout. FontAwesome icons do not play well with Mkdocs, so use them with caution and don't forget to apply additional CSS styles in case they don't render well in PDF.
 
-Ideally, we should migrate to using just the two first sets.
+Ideally, we should migrate to using just the first set, which offers 10,000+ icons, that are more than sufficient for all our documentation needs.
 
 Use HTML for icons:
 
 - For Material Theme Icons (`:` prefix and suffix), go to <https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/>, find an icon, select it and copy the code here.
 - For PMM UI (Grafana) icons (`uil-` prefix), go to <https://iconscout.com/unicons/explore/line>, find an icon, select 'Font' and copy the code here.
 - For Font Awesome (`fa-` prefix), go to <https://fontawesome.com/icons>, find an icon, copy the code.
+
+Note: the following list is WIP and will be updated as we go along.
 
 | Unicons icon code                            | Description                        | Used where                           |
 | -------------------------------------------- | ---------------------------------- | ------------------------------------ |
@@ -151,7 +153,13 @@ Use HTML for icons:
 | <i class="uil uil-bolt"></i>                 | Lightening flash/bolt              | PMM UI - Nodes compare               |
 | <i class="uil uil-caret-right"></i>          | Right caret                        | General                              |
 | <i class="uil uil-clock-nine"></i>           | Clock (at nine)                    | PMM UI - Time range selector         |
-| <i class="uil uil-cog"></i>                  | Cog wheel                          | PMM UI Configuration                 |
+| :material-cog:                               | Cog wheel                          | PMM UI Configuration                 |
+| :material-cog-outline:                       | Cog wheel                          | PMM UI Configuration->Settings       |
+| :material-clipboard-list-outline:            | Clipboard list                     | PMM UI - Inventory                   |
+| :material-dots-horizontal:                   | Triple dots, aligned horizontally  | PMM UI - Backup in progress          |
+| :material-magnify-expand:                    | Advisors                           | PMM UI - Advisors                    |
+| :material-view-dashboard:                    | Abstract blocks assembly           | PMM UI - Dashboards                  |
+| :material-dots-circle:                       | A circle surrounded by smaller ones| PMM UI - Node dashboards             |
 | <i class="uil uil-comment-alt-share"></i>    | Share comment symbol               | PMM UI - Share dashboard image       |
 | <i class="uil uil-compass"></i>              | Compass                            | PMM UI - Explore                     |
 | <i class="uil uil-copy"></i>                 | Copy                               | PMM UI - Copy (e.g. backup schedule) |
@@ -171,7 +179,6 @@ Use HTML for icons:
 | <i class="uil uil-question-circle"></i>      | Question mark in circle            | PMM UI - Help                        |
 | <i class="uil uil-search-minus"></i>         | Minus in magnifying glass          | PMM UI - Time range zoom out         |
 | <i class="uil uil-search"></i>               | Magnifying glass                   | PMM UI - Search                      |
-| <i class="uil uil-setting"></i>              | Cog wheel                          | PMM UI Configuration->Settings       |
 | <i class="uil uil-share-alt"></i>            | Share symbol                       | PMM UI - Share dashboard             |
 | <i class="uil uil-shield"></i>               | Shield                             | PMM UI - Server admin                |
 | <i class="uil uil-star"></i>                 | Star                               | PMM UI - Dashboard favourites        |
@@ -182,17 +189,6 @@ Use HTML for icons:
 | <i class="uil uil-toggle-off"></i>           | Toggle (off)                       | PMM UI - Toggle switch               |
 | <i class="uil uil-toggle-on"></i>            | Toggle (on)                        | PMM UI - Toggle switch               |
 | <i class="uil uil-trash-alt"></i>            | Trash can                          | PMM UI - Various 'Delete' operation  |
-
-Custom (in-house design) icons are defined as SVG code in `variables.yml`.
-
-| Usage                  | Description                          | Used where                       |
-| ---------------------- | ------------------------------------ | -------------------------------- |
-| `{{icon.addinstance}}` | Thin + in circle                     | PMM Add Instance                 |
-| `{{icon.checks}}`      | Checkbox list items                  | Inventory list                   |
-| `{{icon.inventory}}`   | Checkbox list items                  | PMM Inventory & Inventory List   |
-| `{{icon.dashboards}}`  | Abstract blocks assembly             | PMM Dashboards                   |
-| `{{icon.node}}`        | Circle surrounded by smaller circles | Node dashboards                  |
-| `{{icon.percona}}`     | Percona logo                         | Wherever PMM home icon is needed |
 
 ## Symbols
 

@@ -29,4 +29,7 @@ var (
 
 	// ErrAzureDisabled means Azure Monitoring is disabled and its APIs can't be called.
 	ErrAzureDisabled = errors.New("Azure monitoring is disabled")
+
+	// ErrPMMUpdatesDisabled means PMM server updates are disabled and calls to query/start updates are not allowed.
+	ErrPMMUpdatesDisabled = errors.New("PMM updates are disabled")
 )

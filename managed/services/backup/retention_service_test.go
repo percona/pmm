@@ -122,13 +122,13 @@ func TestEnsureRetention(t *testing.T) {
 			return len(artifacts)
 		}
 
-		deleteArtifacts := func(args mock.Arguments) {
+		deleteArtifacts := func(_ mock.Arguments) {
 			artifacts, err := models.FindArtifacts(db.Querier, models.ArtifactFilters{
 				ScheduleID: task.ID,
 				Status:     models.SuccessBackupStatus,
 			})
 			require.NoError(t, err)
-			require.NotEqual(t, len(artifacts), 0)
+			require.NotEmpty(t, artifacts)
 
 			err = models.DeleteArtifact(db.Querier, artifacts[0].ID)
 			require.NoError(t, err)
@@ -236,7 +236,7 @@ func TestEnsureRetention(t *testing.T) {
 			require.NoError(t, err)
 
 			err = retentionService.EnforceRetention(task.ID)
-			require.NotNil(t, err)
+			require.Error(t, err)
 			assert.Equal(t, "Can be only one artifact entity for PITR in the database but found 2", err.Error())
 		})
 	})

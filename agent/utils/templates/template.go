@@ -23,6 +23,7 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
@@ -69,12 +70,19 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 	}
 
 	textFiles := make(map[string]string, len(tr.TextFiles)) // template name => full file path
-	for name, text := range tr.TextFiles {
+
+	for name := range tr.TextFiles {
 		// avoid /, .., ., \, and other special symbols
 		if !textFileRE.MatchString(name) {
 			return nil, errors.Errorf("invalid text file name %q", name)
 		}
 
+		path := filepath.Join(tr.TempDir, name)
+		textFiles[name] = path
+	}
+	templateParams["TextFiles"] = textFiles
+
+	for name, text := range tr.TextFiles {
 		b, err := tr.RenderTemplate(name, text, templateParams)
 		if err != nil {
 			return nil, err
@@ -84,9 +92,7 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 		if err = os.WriteFile(path, b, 0o600); err != nil {
 			return nil, errors.WithStack(err)
 		}
-		textFiles[name] = path
 	}
-	templateParams["TextFiles"] = textFiles
 	return templateParams, nil
 }
 
@@ -112,4 +118,13 @@ func RenderDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, er
 		dsn = string(b)
 	}
 	return dsn, nil
+}
+
+// CleanupTempDir removes the temporary directory.
+func CleanupTempDir(tempDir string, logger *logrus.Entry) {
+	if err := os.RemoveAll(tempDir); err != nil {
+		if logger != nil {
+			logger.Debugf("failed to remove the temporary directory: %s", err)
+		}
+	}
 }

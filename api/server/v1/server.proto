@@ -181,10 +181,36 @@ message Settings {
   uint32 default_role_id = 18;
 }
 
+// ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
+message ReadOnlySettings {
+  // True if updates are enabled.
+  bool updates_enabled = 1;
+  // True if telemetry is enabled.
+  bool telemetry_enabled = 2;
+  // True if Advisor is enabled.
+  bool advisor_enabled = 3;
+  // True if Alerting is enabled.
+  bool alerting_enabled = 4;
+  // PMM Server public address.
+  string pmm_public_address = 5;
+  // True if Backup Management is enabled.
+  bool backup_management_enabled = 6;
+  // True if Azure Discover is enabled.
+  bool azurediscover_enabled = 7;
+  // True if Access Control is enabled.
+  bool enable_access_control = 8;
+}
+
 message GetSettingsRequest {}
+
+message GetReadOnlySettingsRequest {}
 
 message GetSettingsResponse {
   Settings settings = 1;
+}
+
+message GetReadOnlySettingsResponse {
+  ReadOnlySettings settings = 1;
 }
 
 message ChangeSettingsRequest {
@@ -286,6 +312,14 @@ service ServerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get settings"
       description: "Returns current PMM Server settings."
+    };
+  }
+  // GetReadOnlySettings returns a limited number of PMM settings that is opened to authenticated users of all roles.
+  rpc GetReadOnlySettings(GetReadOnlySettingsRequest) returns (GetReadOnlySettingsResponse) {
+    option (google.api.http) = {get: "/v1/server/settings/readonly"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get read-only settings"
+      description: "Returns a stripped version of PMM Server settings."
     };
   }
   // ChangeSettings changes PMM Server settings.

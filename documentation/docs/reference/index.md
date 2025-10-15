@@ -8,7 +8,7 @@ PMM is a client/server application built by Percona comprising its own and third
 
 ## PMM Server
 
-PMM Server is the heart of PMM. It receives data from clients, collects it, and stores it. Metrics are drawn as tables, charts and graphs within [_dashboards_](../use/dashboards-panels/index.md), each a part of the web-based [user interface](../reference/ui/index.md).
+PMM Server is the heart of PMM. It receives data from clients, collects it, and stores it. Metrics are drawn as tables, charts and graphs within [_dashboards_](../use/dashboards-panels/index.md), each a part of the web-based [user interface](../reference/ui/ui_components.md).
 
 ## PMM Client
 
@@ -62,7 +62,7 @@ PMM Server includes the following tools:
 
 The PMM Client package consists of the following:
 
-- `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. ([Read more](../details/commands/pmm-admin.md)).
+- `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. ([Read more](../use/commands/pmm-admin.md)).
 
 - `pmm-agent` is a client-side component of a minimal command-line interface, which is a central entry point in charge of bringing the client functionality: it carries on client’s authentication, gets the client configuration stored on the PMM Server, manages exporters and other agents.
 

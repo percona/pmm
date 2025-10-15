@@ -36,6 +36,10 @@ const (
 	lowersValue                    = int64(0)
 	highestValue                   = int64(1_000 * 60 * 10) // 10 min
 	numberOfSignificantValueDigits = 5
+	p95ThresholdSlow               = 1_000
+	p95ThresholdVerySlow           = 5_000
+	p95ThresholdExtreme            = 10_000
+	p95Percentile                  = 95
 )
 
 // Service provides facility for storing UI events.
@@ -96,7 +100,7 @@ func (s *Service) ScheduleCleanup(ctx context.Context) {
 }
 
 // FetchMetrics fetches metrics for the service based on the provided context and telemetry configuration.
-func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*telemetryv1.GenericReport_Metric, error) { //nolint:unparam
+func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*telemetryv1.GenericReport_Metric, error) {
 	s.stateM.RLock()
 	defer s.stateM.RUnlock()
 
@@ -148,19 +152,19 @@ func (s *Service) processDashboardMetrics() *telemetryv1.GenericReport_Metric {
 
 	// SlowDashboardsP95
 	sort.SliceStable(keys, func(i, j int) bool {
-		return s.dashboardUsage[keys[i]].loadTime.ValueAtPercentile(95) > s.dashboardUsage[keys[j]].loadTime.ValueAtPercentile(95)
+		return s.dashboardUsage[keys[i]].loadTime.ValueAtPercentile(p95Percentile) > s.dashboardUsage[keys[j]].loadTime.ValueAtPercentile(p95Percentile)
 	})
 	for i := 0; i < len(keys); i++ {
 		sortedKey := keys[i]
 		stat := s.dashboardUsage[sortedKey]
-		p95 := stat.loadTime.ValueAtPercentile(95)
-		if p95 >= 1_000 {
+		p95 := stat.loadTime.ValueAtPercentile(p95Percentile)
+		if p95 >= p95ThresholdSlow {
 			dashboardStat.SlowDashboardsP95_1s = append(dashboardStat.SlowDashboardsP95_1s, stat.uid)
 		}
-		if p95 >= 5_000 {
+		if p95 >= p95ThresholdVerySlow {
 			dashboardStat.SlowDashboardsP95_5s = append(dashboardStat.SlowDashboardsP95_5s, stat.uid)
 		}
-		if p95 >= 10_000 {
+		if p95 >= p95ThresholdExtreme {
 			dashboardStat.SlowDashboardsP95_10s = append(dashboardStat.SlowDashboardsP95_10s, stat.uid)
 		}
 	}
@@ -199,19 +203,19 @@ func (s *Service) processComponentMetrics() *telemetryv1.GenericReport_Metric {
 		keys = append(keys, key)
 	}
 	sort.SliceStable(keys, func(i, j int) bool {
-		return s.componentsUsage[keys[i]].loadTime.ValueAtPercentile(95) > s.componentsUsage[keys[j]].loadTime.ValueAtPercentile(95)
+		return s.componentsUsage[keys[i]].loadTime.ValueAtPercentile(p95Percentile) > s.componentsUsage[keys[j]].loadTime.ValueAtPercentile(p95Percentile)
 	})
 	for i := 0; i < len(keys); i++ {
 		sortedKey := keys[i]
 		stat := s.componentsUsage[sortedKey]
-		p95 := stat.loadTime.ValueAtPercentile(95)
-		if p95 >= 1_000 {
+		p95 := stat.loadTime.ValueAtPercentile(p95Percentile)
+		if p95 >= p95ThresholdSlow {
 			componentsStat.SlowComponentsP95_1s = append(componentsStat.SlowComponentsP95_1s, stat.uid)
 		}
-		if p95 >= 5_000 {
+		if p95 >= p95ThresholdVerySlow {
 			componentsStat.SlowComponentsP95_5s = append(componentsStat.SlowComponentsP95_5s, stat.uid)
 		}
-		if p95 >= 10_000 {
+		if p95 >= p95ThresholdExtreme {
 			componentsStat.SlowComponentsP95_10s = append(componentsStat.SlowComponentsP95_10s, stat.uid)
 		}
 	}
@@ -242,7 +246,7 @@ func (s *Service) processUserFlowEvents() []*telemetryv1.GenericReport_Metric {
 }
 
 // Store stores metrics for further processing and sending to Portal.
-func (s *Service) Store(_ context.Context, request *uieventsv1.StoreRequest) (*uieventsv1.StoreResponse, error) { //nolint:unparam
+func (s *Service) Store(_ context.Context, request *uieventsv1.StoreRequest) (*uieventsv1.StoreResponse, error) {
 	s.stateM.Lock()
 	defer s.stateM.Unlock()
 

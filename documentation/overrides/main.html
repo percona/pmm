@@ -1,12 +1,6 @@
 {# Import the theme's layout. #}
 {% extends "base.html" %}
 
-{% block announce %}
-  This is an Beta version of Percona Monitoring and Management 3.0.0 and it is 
-  <strong>not recommended for production environments</strong> yet. We encourage you to test it and give your feedback.
-  This will help us improve the product and make it production-ready faster.
-{% endblock %}
-
 {% block scripts %}
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 {{ super() }}
@@ -37,7 +31,7 @@
                       {% include "partials/nav.html" %}
                       <br>
                       <label class="md-nav__title" for="__drawer">
-                        <a href="https://learn.percona.com/download-percona-monitoring-and-management-pmm-manual-2-2" onclick="_gaq.push(['b._trackEvent', 'Percona Monitoring and Management', 'Download', 'Download Manual Percona Monitoring and Management']);" class="md-nav__link md-nav__link--active" style="font-size: .7rem;">
+                        <a href="https://learn.percona.com/download-percona-monitoring-and-management-manual-3" onclick="_gaq.push(['b._trackEvent', 'Percona Monitoring and Management', 'Download', 'Download Manual Percona Monitoring and Management']);" class="md-nav__link md-nav__link--active" style="font-size: .7rem;">
                           Download PDF
                         </a>
                       </label> 
@@ -53,6 +47,9 @@
                   <div class="md-sidebar__scrollwrap">
                     <div class="md-sidebar__inner">
                       {% include "partials/toc.html" %}
+                    </div>
+                    <div class="md-sidebar__inner">
+                      {% include "partials/banner.html" %}
                     </div>
                   </div>
                 </div>

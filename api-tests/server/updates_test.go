@@ -118,6 +118,27 @@ func TestCheckUpdates(t *testing.T) {
 		assert.Equal(t, resForce.Payload.Latest.Tag != "", resForce.Payload.UpdateAvailable)
 		assert.NotEqual(t, res.Payload.LastCheck, resForce.Payload.LastCheck)
 	})
+
+	t.Run("forced with updates disabled", func(t *testing.T) {
+		defer restoreSettingsDefaults(t)
+		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableUpdates: pointer.ToBool(false),
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, settingsRes.Payload.Settings.UpdatesEnabled)
+		params = &server.CheckUpdatesParams{
+			Force:   pointer.ToBool(true),
+			Context: pmmapitests.Context,
+		}
+		params.SetTimeout(slow) // that call with force can be slow
+		_, err = serverClient.Default.ServerService.CheckUpdates(params)
+		require.Error(t, err)
+
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `PMM updates are disabled`)
+	})
 }
 
 func TestListUpdates(t *testing.T) {
@@ -144,6 +165,25 @@ func TestListUpdates(t *testing.T) {
 		assert.True(t, strings.HasPrefix(res.Payload.Updates[0].Version, "3."),
 			"installed.version = %q should have '3.' prefix", res.Payload.Updates[0].Version)
 	}
+
+	t.Run("with updates disabled", func(t *testing.T) {
+		defer restoreSettingsDefaults(t)
+		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableUpdates: pointer.ToBool(false),
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, settingsRes.Payload.Settings.UpdatesEnabled)
+		params := &server.ListChangeLogsParams{
+			Context: pmmapitests.Context,
+		}
+		params.SetTimeout(slow)
+		_, err = serverClient.Default.ServerService.ListChangeLogs(params)
+		require.Error(t, err)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `PMM updates are disabled`)
+	})
 }
 
 func TestUpdate(t *testing.T) {
@@ -172,6 +212,22 @@ func TestUpdate(t *testing.T) {
 	// without authentication
 	_, err = noAuthClient.ServerService.StartUpdate(nil)
 	pmmapitests.AssertAPIErrorf(t, err, 401, codes.Unauthenticated, "Unauthorized")
+
+	t.Run("with PMM updates disabled", func(t *testing.T) {
+		defer restoreSettingsDefaults(t)
+		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableUpdates: pointer.ToBool(false),
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, settingsRes.Payload.Settings.UpdatesEnabled)
+
+		_, err = serverClient.Default.ServerService.StartUpdate(nil)
+		require.Error(t, err)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "PMM updates are disabled")
+	})
 
 	// with authentication
 	startRes, err := serverClient.Default.ServerService.StartUpdate(nil)
@@ -243,9 +299,9 @@ func TestUpdate(t *testing.T) {
 		}
 
 		retries = 0
-		assert.True(t, statusRes.Payload.LogOffset > logOffset,
-			"expected statusRes.Payload.LogOffset (%d) > logOffset (%d)",
-			statusRes.Payload.LogOffset, logOffset)
+		assert.Greaterf(t, statusRes.Payload.LogOffset, logOffset,
+			"expected log offset to be greater than %d, got %d",
+			logOffset, statusRes.Payload.LogOffset)
 		require.NotEmpty(t, statusRes.Payload.LogLines, "pmm-managed should delay response until some lines are available")
 		logOffset = statusRes.Payload.LogOffset
 		lastLine = statusRes.Payload.LogLines[len(statusRes.Payload.LogLines)-1]
@@ -276,7 +332,7 @@ func TestUpdate(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.True(t, statusRes.Payload.Done, "should be done")
-	assert.Equal(t, int(logOffset), len(strings.Join(statusRes.Payload.LogLines, "\n")+"\n"))
+	assert.Len(t, strings.Join(statusRes.Payload.LogLines, "\n")+"\n", int(logOffset))
 	assert.Equal(t, logOffset, statusRes.Payload.LogOffset)
 	lastLine = statusRes.Payload.LogLines[len(statusRes.Payload.LogLines)-1]
 	t.Logf("lastLine = %q", lastLine)

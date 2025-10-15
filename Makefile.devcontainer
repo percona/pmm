@@ -47,10 +47,10 @@ run-qan: release-qan
 	echo -n > /srv/logs/qan-api2.log
 	supervisorctl start qan-api2
 
-run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
+run-all: run-agent run-managed run-qan run-vmproxy      ## Run all go services
 
-run:                                 ## Deprecated
-	echo "Deprecated: please use run-all"
+run: run-all                         ## Aliased to "run-all"
+	echo "run is aliased to run-all"
 
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.

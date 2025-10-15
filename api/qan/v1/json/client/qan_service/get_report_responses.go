@@ -8,6 +8,7 @@ package qan_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type GetReportReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetReportReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetReportReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetReportOK()
@@ -107,7 +108,7 @@ func (o *GetReportOK) readResponse(response runtime.ClientResponse, consumer run
 	o.Payload = new(GetReportOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *GetReportDefault) readResponse(response runtime.ClientResponse, consume
 	o.Payload = new(GetReportDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -283,11 +284,15 @@ func (o *GetReportBody) validateLabels(formats strfmt.Registry) error {
 
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -320,11 +325,15 @@ func (o *GetReportBody) contextValidateLabels(ctx context.Context, formats strfm
 			}
 
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -392,11 +401,15 @@ func (o *GetReportDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("GetReport default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("GetReport default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -429,11 +442,15 @@ func (o *GetReportDefaultBody) contextValidateDetails(ctx context.Context, forma
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("GetReport default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("GetReport default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -469,7 +486,7 @@ type GetReportDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// get report default body details items0
-	GetReportDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	GetReportDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -496,9 +513,9 @@ func (o *GetReportDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -615,11 +632,15 @@ func (o *GetReportOKBody) validateRows(formats strfmt.Registry) error {
 
 		if o.Rows[i] != nil {
 			if err := o.Rows[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getReportOk" + "." + "rows" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getReportOk" + "." + "rows" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -652,11 +673,15 @@ func (o *GetReportOKBody) contextValidateRows(ctx context.Context, formats strfm
 			}
 
 			if err := o.Rows[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getReportOk" + "." + "rows" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getReportOk" + "." + "rows" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -746,11 +771,15 @@ func (o *GetReportOKBodyRowsItems0) validateMetrics(formats strfmt.Registry) err
 		}
 		if val, ok := o.Metrics[k]; ok {
 			if err := val.Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("metrics" + "." + k)
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("metrics" + "." + k)
 				}
+
 				return err
 			}
 		}
@@ -772,11 +801,15 @@ func (o *GetReportOKBodyRowsItems0) validateSparkline(formats strfmt.Registry) e
 
 		if o.Sparkline[i] != nil {
 			if err := o.Sparkline[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("sparkline" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("sparkline" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -825,11 +858,15 @@ func (o *GetReportOKBodyRowsItems0) contextValidateSparkline(ctx context.Context
 			}
 
 			if err := o.Sparkline[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("sparkline" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("sparkline" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -886,11 +923,15 @@ func (o *GetReportOKBodyRowsItems0MetricsAnon) validateStats(formats strfmt.Regi
 
 	if o.Stats != nil {
 		if err := o.Stats.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("stats")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("stats")
 			}
+
 			return err
 		}
 	}
@@ -920,11 +961,15 @@ func (o *GetReportOKBodyRowsItems0MetricsAnon) contextValidateStats(ctx context.
 		}
 
 		if err := o.Stats.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("stats")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("stats")
 			}
+
 			return err
 		}
 	}
@@ -1142,6 +1187,36 @@ type GetReportOKBodyRowsItems0SparklineItems0 struct {
 
 	// The number of scanned documents.
 	MDocsScannedSumPerSec float32 `json:"m_docs_scanned_sum_per_sec,omitempty"`
+
+	// Total number of documents scanned during query execution.
+	MDocsExaminedSumPerSec float32 `json:"m_docs_examined_sum_per_sec,omitempty"`
+
+	// Total number of index keys scanned during query execution.
+	MKeysExaminedSumPerSec float32 `json:"m_keys_examined_sum_per_sec,omitempty"`
+
+	// Number of times a global read lock was acquired during query execution.
+	MLocksGlobalAcquireCountReadSharedSumPerSec float32 `json:"m_locks_global_acquire_count_read_shared_sum_per_sec,omitempty"`
+
+	// Number of times a global write lock was acquired during query execution.
+	MLocksGlobalAcquireCountWriteSharedSumPerSec float32 `json:"m_locks_global_acquire_count_write_shared_sum_per_sec,omitempty"`
+
+	// Number of times a read lock was acquired at the database level during query execution.
+	MLocksDatabaseAcquireCountReadSharedSumPerSec float32 `json:"m_locks_database_acquire_count_read_shared_sum_per_sec,omitempty"`
+
+	// Number of times a read lock at the database level was requested but had to wait before being granted.
+	MLocksDatabaseAcquireWaitCountReadSharedSumPerSec float32 `json:"m_locks_database_acquire_wait_count_read_shared_sum_per_sec,omitempty"`
+
+	// Indicates the time, spent acquiring a read lock at the database level during an operation.
+	MLocksDatabaseTimeAcquiringMicrosReadSharedSumPerSec float32 `json:"m_locks_database_time_acquiring_micros_read_shared_sum_per_sec,omitempty"`
+
+	// Number of times a read lock was acquired on a specific collection during operations.
+	MLocksCollectionAcquireCountReadSharedSumPerSec float32 `json:"m_locks_collection_acquire_count_read_shared_sum_per_sec,omitempty"`
+
+	// Total number of bytes read from storage during a specific operation.
+	MStorageBytesReadSumPerSec float32 `json:"m_storage_bytes_read_sum_per_sec,omitempty"`
+
+	// Indicates the time, spent reading data from storage during an operation.
+	MStorageTimeReadingMicrosSumPerSec float32 `json:"m_storage_time_reading_micros_sum_per_sec,omitempty"`
 
 	// Total number of shared block cache hits by the statement.
 	MSharedBlksHitSumPerSec float32 `json:"m_shared_blks_hit_sum_per_sec,omitempty"`

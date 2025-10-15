@@ -24,7 +24,7 @@ env-compose-up: env-update-image
 	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 100
 
 env-devcontainer:
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server .devcontainer/setup.py
+	docker exec -it --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server python .devcontainer/setup.py
 
 env-down:							## Stop devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
@@ -39,6 +39,10 @@ TARGET ?= _bash
 env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server make $(TARGET)
+
+env-root:								## Run `make TARGET` in devcontainer (`make env-root TARGET=help`); TARGET defaults to bash
+	COMPOSE_PROFILES=$(PROFILES) \
+	docker exec -it --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server make $(TARGET)
 
 rotate-encryption: 							## Rotate encryption key
 	go run ./encryption-rotation/main.go

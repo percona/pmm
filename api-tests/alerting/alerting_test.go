@@ -166,7 +166,7 @@ func TestRulesAPI(t *testing.T) {
 	})
 }
 
-func TestTemplatesAPI(t *testing.T) {
+func TestModifyTemplatesAPI(t *testing.T) {
 	t.Parallel()
 	client := alertingClient.Default.AlertingService
 
@@ -423,7 +423,16 @@ func TestTemplatesAPI(t *testing.T) {
 			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf("Template with name \"%s\" not found.", name))
 		})
 	})
+}
 
+// TestListTemplatesAPI tests listing templates with and without pagination.
+// We keep it separate from the tests in TestModifyTemplatesAPI to avoid
+// race conditions when other tests add or remove templates while we are listing them.
+func TestListTemplatesAPI(t *testing.T) {
+	client := alertingClient.Default.AlertingService
+
+	templateData, err := os.ReadFile("../testdata/alerting/template.yaml")
+	require.NoError(t, err)
 	t.Run("list", func(t *testing.T) {
 		t.Run("without pagination", func(t *testing.T) {
 			name := uuid.New().String()
@@ -436,7 +445,9 @@ func TestTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, name)
+			})
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
 				Reload:  pointer.ToBool(true),
@@ -452,7 +463,7 @@ func TestTemplatesAPI(t *testing.T) {
 
 			templateNames := make(map[string]struct{})
 
-			for i := 0; i < templatesCount; i++ {
+			for range templatesCount {
 				name := uuid.New().String()
 				expr := uuid.New().String()
 				_, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
@@ -466,22 +477,23 @@ func TestTemplatesAPI(t *testing.T) {
 
 				templateNames[name] = struct{}{}
 			}
-			defer func() {
+			t.Cleanup(func() {
 				for name := range templateNames {
 					deleteTemplate(t, client, name)
 				}
-			}()
+			})
 
 			// list rules, so they are all on the first page
 			listAllTemplates, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				PageSize:  pointer.ToInt32(30),
+				PageSize:  pointer.ToInt32(100),
 				PageIndex: pointer.ToInt32(0),
 				Context:   pmmapitests.Context,
+				Reload:    pointer.ToBool(true),
 			})
 			require.NoError(t, err)
 
 			assert.GreaterOrEqual(t, len(listAllTemplates.Payload.Templates), templatesCount)
-			assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.TotalItems)
+			assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.TotalItems) //nolint:gosec // Templates is an int32
 			assert.Equal(t, int32(1), listAllTemplates.Payload.TotalPages)
 
 			assertFindTemplate := func(list []*alerting.ListTemplatesOKBodyTemplatesItems0, name string) func() bool {
@@ -503,7 +515,7 @@ func TestTemplatesAPI(t *testing.T) {
 			// last iteration checks that there is no elements for inexistent page.
 			for pageIndex := 0; pageIndex <= len(listAllTemplates.Payload.Templates); pageIndex++ {
 				listOneTemplate, err := client.ListTemplates(&alerting.ListTemplatesParams{
-					PageIndex: pointer.ToInt32(int32(pageIndex)),
+					PageIndex: pointer.ToInt32(int32(pageIndex)), //nolint:gosec // pageIndex is an int32
 					PageSize:  pointer.ToInt32(1),
 					Context:   pmmapitests.Context,
 				})
@@ -516,7 +528,7 @@ func TestTemplatesAPI(t *testing.T) {
 					require.Len(t, listOneTemplate.Payload.Templates, 1)
 					assert.Equal(t, listAllTemplates.Payload.Templates[pageIndex].Name, listOneTemplate.Payload.Templates[0].Name)
 				} else {
-					assert.Len(t, listOneTemplate.Payload.Templates, 0)
+					assert.Empty(t, listOneTemplate.Payload.Templates)
 				}
 			}
 		})
@@ -599,7 +611,7 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 
 	expectedYAML, err := alert.ToYAML([]alert.Template{expectedTemplate})
 	require.NoError(t, err)
-	assert.Equal(t, expectedYAML, tmpl.Yaml)
+	assert.YAMLEq(t, expectedYAML, tmpl.Yaml)
 
 	assert.NotEmpty(t, tmpl.CreatedAt)
 }

@@ -116,5 +116,5 @@ func TestRunMongoDBExplain(t *testing.T) {
 	m := make(map[string]interface{})
 	err = json.Unmarshal([]byte(actionOK.Payload.Output), &m)
 	assert.NoError(t, err)
-	assert.Equal(t, m["queryPlanner"], want)
+	assert.Equal(t, want, m["queryPlanner"])
 }

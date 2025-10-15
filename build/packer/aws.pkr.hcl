@@ -40,7 +40,7 @@ source "amazon-ebs" "agent" {
   }
   launch_block_device_mappings {
     device_name = "/dev/sda1"
-    volume_size = 50
+    volume_size = 60
     volume_type = "gp3"
     delete_on_termination = true
   }
@@ -86,7 +86,7 @@ source "amazon-ebs" "arm-agent" {
   }
   launch_block_device_mappings {
     device_name           = "/dev/sda1"
-    volume_size           = 30
+    volume_size           = 60
     volume_type           = "gp3"
     delete_on_termination = true
   }

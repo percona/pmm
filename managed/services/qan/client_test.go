@@ -235,6 +235,8 @@ func TestClient(t *testing.T) {
 					MResponseLengthSum: 60,
 					MResponseLengthMin: 60,
 					MResponseLengthMax: 60,
+					MDocsExaminedSum:   20,
+					MKeysExaminedSum:   10,
 				},
 			},
 		}
@@ -266,6 +268,8 @@ func TestClient(t *testing.T) {
 				MResponseLengthSum: 60,
 				MResponseLengthMin: 60,
 				MResponseLengthMax: 60,
+				MDocsExaminedSum:   20,
+				MKeysExaminedSum:   10,
 			},
 		}}
 		c.AssertCalled(t, "Collect", ctx, expectedRequest)

@@ -301,6 +301,35 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	if all {
+		switch v := interface{}(m.GetValkeyOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UniversalAgentValidationError{
+					field:  "ValkeyOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UniversalAgentValidationError{
+					field:  "ValkeyOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetValkeyOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UniversalAgentValidationError{
+				field:  "ValkeyOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)
 	}
@@ -315,7 +344,7 @@ type UniversalAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -419,7 +448,7 @@ type ListAgentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -555,7 +584,7 @@ type ListAgentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -665,7 +694,7 @@ type AgentVersionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AgentVersionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -765,7 +794,7 @@ type ListAgentVersionsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentVersionsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -901,7 +930,7 @@ type ListAgentVersionsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentVersionsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -991,6 +1020,8 @@ func (m *UniversalAgent_MySQLOptions) validate(all bool) error {
 
 	// no validation rules for IsTlsKeySet
 
+	// no validation rules for ExtraDsnParams
+
 	if len(errors) > 0 {
 		return UniversalAgent_MySQLOptionsMultiError(errors)
 	}
@@ -1005,7 +1036,7 @@ type UniversalAgent_MySQLOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_MySQLOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1118,7 +1149,7 @@ type UniversalAgent_AzureOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_AzureOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1233,7 +1264,7 @@ type UniversalAgent_MongoDBOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_MongoDBOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1344,7 +1375,7 @@ type UniversalAgent_PostgreSQLOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_PostgreSQLOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1410,3 +1441,106 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = UniversalAgent_PostgreSQLOptionsValidationError{}
+
+// Validate checks the field values on UniversalAgent_ValkeyOptions with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UniversalAgent_ValkeyOptions) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UniversalAgent_ValkeyOptions with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UniversalAgent_ValkeyOptionsMultiError, or nil if none found.
+func (m *UniversalAgent_ValkeyOptions) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UniversalAgent_ValkeyOptions) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return UniversalAgent_ValkeyOptionsMultiError(errors)
+	}
+
+	return nil
+}
+
+// UniversalAgent_ValkeyOptionsMultiError is an error wrapping multiple
+// validation errors returned by UniversalAgent_ValkeyOptions.ValidateAll() if
+// the designated constraints aren't met.
+type UniversalAgent_ValkeyOptionsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UniversalAgent_ValkeyOptionsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UniversalAgent_ValkeyOptionsMultiError) AllErrors() []error { return m }
+
+// UniversalAgent_ValkeyOptionsValidationError is the validation error returned
+// by UniversalAgent_ValkeyOptions.Validate if the designated constraints
+// aren't met.
+type UniversalAgent_ValkeyOptionsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UniversalAgent_ValkeyOptionsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UniversalAgent_ValkeyOptionsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UniversalAgent_ValkeyOptionsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UniversalAgent_ValkeyOptionsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UniversalAgent_ValkeyOptionsValidationError) ErrorName() string {
+	return "UniversalAgent_ValkeyOptionsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UniversalAgent_ValkeyOptionsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUniversalAgent_ValkeyOptions.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UniversalAgent_ValkeyOptionsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UniversalAgent_ValkeyOptionsValidationError{}

@@ -44,28 +44,25 @@ const (
 )
 
 // RotateEncryptionKey will stop PMM server, decrypt data, create new encryption key and encrypt them and start PMM Server again.
-func RotateEncryptionKey(sqlDB *sql.DB, dbName string) int {
+func RotateEncryptionKey(sqlDB *sql.DB, dbName string) (int, error) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	err := stopPMMServer()
 	if err != nil {
-		logrus.Errorf("Failed to stop PMM Server: %+v", err)
-		return codePMMStopFailed
+		return codePMMStopFailed, fmt.Errorf("failed to stop PMM Server: %w", err)
 	}
 
 	err = rotateEncryptionKey(db, dbName)
 	if err != nil {
-		logrus.Errorf("Failed to rotate encryption key: %+v", err)
-		return codeEncryptionFailed
+		return codeEncryptionFailed, fmt.Errorf("failed to rotate encryption key: %w", err)
 	}
 
 	err = startPMMServer()
 	if err != nil {
-		logrus.Errorf("Failed to start PMM Server: %+v", err)
-		return codePMMStartFailed
+		return codePMMStartFailed, fmt.Errorf("failed to start PMM Server: %w", err)
 	}
 
-	return codeOK
+	return codeOK, nil
 }
 
 func startPMMServer() error {

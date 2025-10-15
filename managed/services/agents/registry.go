@@ -18,13 +18,13 @@ package agents
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -186,14 +186,23 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		return nil, err
 	}
 
-	if r.IsConnected(agentMD.ID) {
+	currentAgent, err := r.get(agentMD.ID)
+	if err == nil {
 		// pmm-agent with the same ID can still be connected in two cases:
 		//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
 		//   2. pmm-agent detects broken connection and reconnects,
 		//      but pmm-managed still thinks that the previous connection is okay.
-		// In both cases, kick it.
-		l.Warnf("Another pmm-agent with ID %q is already connected.", agentMD.ID)
+		// If agent respond with pong (no error) new connection is not established,
+		// so we return AlreadyExists error. Otherwise we kick the previous connection
+		// and proceed with the new one.
+		err := r.ping(ctx, currentAgent)
+		if err == nil {
+			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
+		}
+
+		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
 		r.Kick(ctx, agentMD.ID)
+		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
 	}
 	r.rw.Lock()
 	defer r.rw.Unlock()
@@ -219,7 +228,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 		if status.Code(err) == codes.NotFound {
 			return nil, status.Errorf(codes.PermissionDenied, "No Agent with ID %q.", md.ID)
 		}
-		return nil, errors.Wrap(err, "failed to find agent")
+		return nil, fmt.Errorf("failed to find agent: %w", err)
 	}
 
 	if agent.AgentType != models.PMMAgentType {
@@ -237,13 +246,17 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 		return nil, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
 	}
 
-	if err := r.addOrRemoveVMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
+	if err := r.addOrRemoveVMAgent(q, md.ID, runsOnNodeID); err != nil {
+		return nil, err
+	}
+
+	if err := r.addNomadAgentToPMMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
 		return nil, err
 	}
 
 	agent.Version = &md.Version
 	if err := q.Update(agent); err != nil {
-		return nil, errors.Wrap(err, "failed to update agent")
+		return nil, fmt.Errorf("failed to update agent: %w", err)
 	}
 
 	node, err := models.FindNodeByID(q, runsOnNodeID)
@@ -275,6 +288,7 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
+// Returns true if pong is received, false if there is no pong or error occurred.
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
@@ -283,7 +297,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return err
 	}
 	if resp == nil {
-		return nil
+		return errors.New("pong is not received, response is nil")
 	}
 	roundtrip := time.Since(start)
 	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
@@ -300,17 +314,11 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 // addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent not exists yet,
 // otherwise ensures that vmAgent not exist for pmm-agent and pmm-agent's agents don't have push_metrics mode,
 // removes it if needed.
-func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
-	if pmmAgentVersion.Less(models.PMMAgentWithPushMetricsSupport) {
-		// ensure that vmagent not exists and agents dont have push_metrics.
-		return removeVMAgentFromPMMAgent(q, pmmAgentID)
-	}
+func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
 	return r.addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
 }
 
 func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
-	// TODO remove it after fix
-	// https://jira.percona.com/browse/PMM-4420
 	if runsOnNodeID == "pmm-server" && !r.isExternalVM {
 		return nil
 	}
@@ -327,36 +335,26 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 				PushMetrics: true,
 			},
 		}); err != nil {
-			return errors.Wrapf(err, "Can't create 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
+			return fmt.Errorf("can't create 'vmAgent' for pmm-agent with ID %q: %w", pmmAgentID, err)
 		}
 	}
 	return nil
 }
 
-func removeVMAgentFromPMMAgent(q *reform.Querier, pmmAgentID string) error {
-	vmAgentType := models.VMAgentType
-	vmAgent, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &vmAgentType})
+func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
+	if !pmmAgentVersion.IsFeatureSupported(version.NomadAgentSupportVersion) {
+		return nil
+	}
+	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: pointer.To(models.NomadAgentType)})
 	if err != nil {
-		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
+		return status.Errorf(codes.Internal, "Can't get 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
 	}
-	if len(vmAgent) != 0 {
-		for _, agent := range vmAgent {
-			if _, err := models.RemoveAgent(q, agent.AgentID, models.RemoveRestrict); err != nil {
-				return errors.Wrapf(err, "Can't remove 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
-			}
-		}
-	}
-	agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID})
-	if err != nil {
-		return errors.Wrapf(err, "Can't find agents for pmm-agent with ID %q", pmmAgentID)
-	}
-	for _, agent := range agents {
-		if agent.ExporterOptions.PushMetrics {
-			logrus.Warnf("disabling push_metrics for agent with unsupported version ID %q with pmm-agent ID %q", agent.AgentID, pmmAgentID)
-			agent.ExporterOptions.PushMetrics = false
-			if err := q.Update(agent); err != nil {
-				return errors.Wrapf(err, "Can't set push_metrics=false for agent %q at pmm-agent with ID %q", agent.AgentID, pmmAgentID)
-			}
+	if len(nomadClient) == 0 {
+		if _, err := models.CreateAgent(q, models.NomadAgentType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgentID,
+			NodeID:     runsOnNodeID,
+		}); err != nil {
+			return fmt.Errorf("can't create 'nomadClient' for pmm-agent with ID %q: %w", pmmAgentID, err)
 		}
 	}
 	return nil

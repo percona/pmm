@@ -52,12 +52,8 @@ func TestStartChecks(t *testing.T) {
 }
 
 func TestGetAdvisorCheckResults(t *testing.T) {
-	if !pmmapitests.RunAdvisorTests {
-		t.Skip("Skipping Advisor tests until we have environment: https://jira.percona.com/browse/PMM-5106")
-	}
-
 	t.Run("with disabled Advisors", func(t *testing.T) {
-		toggleAdvisorChecks(t, true)
+		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)

@@ -47,15 +47,14 @@
     copy:
       src: maintenance.html
       dest: /usr/share/pmm-server/maintenance/
-      owner: pmm
-      group: pmm
-      mode: 0644
+      mode: 0664
 
   - name: Wait for PostgreSQL to become responsive
     wait_for:
       host: 127.0.0.1
       port: 5432
       timeout: 150
+    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
 
   - name: Create Grafana DB
     block:
@@ -85,8 +84,6 @@
     file:
       path: /srv/backup
       state: directory
-      owner: pmm
-      group: pmm
       mode: 0775
     when: need_upgrade
 

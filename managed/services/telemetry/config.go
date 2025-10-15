@@ -84,7 +84,7 @@ type DSConfigVM struct {
 }
 
 // DSConfigPMMDB telemetry config.
-type DSConfigPMMDB struct { //nolint:musttag
+type DSConfigPMMDB struct {
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
 	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
@@ -248,13 +248,13 @@ func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
 		c.l.Info("Using default metrics config")
 		config = []byte(defaultConfig)
 	}
-	if err := yaml.Unmarshal(config, &fileCfg); err != nil {
+	if err := yaml.Unmarshal(config, &fileCfg); err != nil { //nolint:musttag // false positive
 		return nil, errors.Wrap(err, "cannot unmarshal default config")
 	}
 	fileConfigs = append(fileConfigs, fileCfg)
 
 	if err := c.validateConfig(fileConfigs); err != nil {
-		c.l.Errorf(err.Error())
+		c.l.Errorf("failed to validate config: %s", err)
 	}
 
 	return c.merge(fileConfigs), nil

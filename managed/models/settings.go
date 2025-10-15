@@ -19,7 +19,7 @@ import (
 	"database/sql/driver"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/endpoints"
+	"github.com/AlekSi/pointer"
 )
 
 // Default values for settings. These values are used when settings are not set.
@@ -32,6 +32,7 @@ const (
 	VictoriaMetricsCacheEnabledDefault = false
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
+	awsPartitionID                     = "aws"
 )
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
@@ -85,6 +86,10 @@ type Settings struct {
 	} `json:"victoria_metrics"`
 
 	SaaS Advisors `json:"sass"` // sic :(
+
+	Nomad struct {
+		Enabled *bool `json:"enabled"`
+	}
 
 	Alerting struct {
 		Enabled *bool `json:"enabled"`
@@ -155,6 +160,11 @@ func (s *Settings) IsAdvisorsEnabled() bool {
 	return AdvisorsEnabledDefault
 }
 
+// IsNomadEnabled returns true if Nomad is enabled.
+func (s *Settings) IsNomadEnabled() bool {
+	return pointer.GetBool(s.Nomad.Enabled) && s.PMMPublicAddress != ""
+}
+
 // IsAzureDiscoverEnabled returns true if Azure discovery is enabled.
 func (s *Settings) IsAzureDiscoverEnabled() bool {
 	if s.Azurediscover.Enabled != nil {
@@ -206,7 +216,7 @@ func (s *Settings) fillDefaults() {
 	}
 
 	if len(s.AWSPartitions) == 0 {
-		s.AWSPartitions = []string{endpoints.AwsPartitionID}
+		s.AWSPartitions = []string{awsPartitionID}
 	}
 
 	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {

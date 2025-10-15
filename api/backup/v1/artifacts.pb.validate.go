@@ -157,7 +157,7 @@ type ArtifactMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ArtifactMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -257,7 +257,7 @@ type ListArtifactsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListArtifactsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -393,7 +393,7 @@ type ListArtifactsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListArtifactsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -508,7 +508,7 @@ type DeleteArtifactRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteArtifactRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -610,7 +610,7 @@ type DeleteArtifactResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteArtifactResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -770,7 +770,7 @@ type PitrTimerangeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PitrTimerangeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -881,7 +881,7 @@ type ListPitrTimerangesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListPitrTimerangesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1017,7 +1017,7 @@ type ListPitrTimerangesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListPitrTimerangesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -17,7 +17,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"path/filepath"
 	"strconv"
@@ -164,6 +163,8 @@ func (c *Client) Run(ctx context.Context) error {
 		}
 		return ctx.Err()
 	}
+
+	c.backoff.Reset()
 
 	defer func() {
 		if err := dialResult.conn.Close(); err != nil {
@@ -378,7 +379,6 @@ LOOP:
 			case *agentv1.StartActionRequest:
 				responsePayload = &agentv1.StartActionResponse{}
 				if err := c.handleStartActionRequest(p); err != nil {
-					responsePayload = nil
 					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
@@ -420,7 +420,7 @@ LOOP:
 				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 				responsePayload = &agentv1.AgentLogsResponse{
 					Logs:                     logs,
-					AgentConfigLogLinesCount: uint32(configLogLinesCount),
+					AgentConfigLogLinesCount: uint32(configLogLinesCount), //nolint:gosec // log lines count is not expected to overflow uint32
 				}
 			default:
 				c.l.Errorf("Unhandled server request: %v.", req)
@@ -563,7 +563,7 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
+		return errors.Wrapf(agenterrors.ErrActionUnimplemented, "invalid action type request: %T", params)
 	}
 
 	if err != nil {
@@ -693,8 +693,9 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 }
 
 func (c *Client) getMongoDSN(dsn string, files *agentv1.TextFiles, jobID string) (string, error) {
-	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1)) //nolint:gocritic
+	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.ReplaceAll(jobID, "/", "_"))
 	res, err := templates.RenderDSN(dsn, files, tempDir)
+	defer templates.CleanupTempDir(tempDir, c.l)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
@@ -865,11 +866,11 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	var resp agentv1.ServerResponsePayload
 	resp, err = channel.SendAndWaitResponse(&agentv1.Ping{})
 	if err != nil {
-		return
+		return latency, clockDrift, err
 	}
 	if resp == nil {
 		err = channel.Wait()
-		return
+		return latency, clockDrift, err
 	}
 	roundtrip := time.Since(start)
 	currentTime := resp.(*agentv1.Pong).CurrentTime //nolint:forcetypeassert
@@ -877,11 +878,11 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	err = currentTime.CheckValid()
 	if err != nil {
 		err = errors.Wrap(err, "Failed to decode Ping")
-		return
+		return latency, clockDrift, err
 	}
 	latency = roundtrip / 2
 	clockDrift = serverTime.Sub(start) - latency
-	return
+	return latency, clockDrift, err
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
@@ -891,11 +892,11 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 	c.rw.RUnlock()
 	if channel == nil {
 		err = errors.New("not connected")
-		return
+		return latency, clockDrift, err
 	}
 
 	latency, clockDrift, err = getNetworkInformation(channel)
-	return
+	return latency, clockDrift, err
 }
 
 // GetServerConnectMetadata returns current server's metadata, or nil.
@@ -970,7 +971,7 @@ func argListFromMongoDBParams(pParams *agentv1.StartActionRequest_PTMongoDBSumma
 
 	if pParams.Password != "" {
 		// TODO change this line when pt-mongodb-summary is updated
-		args = append(args, fmt.Sprintf("--password=%s", pParams.Password))
+		args = append(args, "--password="+pParams.Password)
 	}
 
 	if pParams.Host != "" {
@@ -994,8 +995,10 @@ func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
 	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
 		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
-	default:
+	case errors.Is(agentErr, agenterrors.ErrActionUnimplemented):
 		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
+	default:
+		status = grpcstatus.New(codes.Internal, agentErr.Error())
 	}
 	return status
 }

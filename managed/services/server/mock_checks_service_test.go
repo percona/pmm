@@ -14,14 +14,9 @@ type mockChecksService struct {
 	mock.Mock
 }
 
-// CleanupAlerts provides a mock function with given fields:
+// CleanupAlerts provides a mock function with no fields
 func (_m *mockChecksService) CleanupAlerts() {
 	_m.Called()
-}
-
-// CollectAdvisors provides a mock function with given fields: ctx
-func (_m *mockChecksService) CollectAdvisors(ctx context.Context) {
-	_m.Called(ctx)
 }
 
 // StartChecks provides a mock function with given fields: checkNames
@@ -40,6 +35,11 @@ func (_m *mockChecksService) StartChecks(checkNames []string) error {
 	}
 
 	return r0
+}
+
+// UpdateAdvisorsList provides a mock function with given fields: ctx
+func (_m *mockChecksService) UpdateAdvisorsList(ctx context.Context) {
+	_m.Called(ctx)
 }
 
 // UpdateIntervals provides a mock function with given fields: rare, standard, frequent

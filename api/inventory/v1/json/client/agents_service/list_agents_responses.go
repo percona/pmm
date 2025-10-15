@@ -8,6 +8,7 @@ package agents_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListAgentsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAgentsOK()
@@ -107,7 +108,7 @@ func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer ru
 	o.Payload = new(ListAgentsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(ListAgentsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *ListAgentsDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *ListAgentsDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type ListAgentsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list agents default body details items0
-	ListAgentsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListAgentsDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -442,6 +451,9 @@ type ListAgentsOKBody struct {
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent []*ListAgentsOKBodyQANMongodbProfilerAgentItems0 `json:"qan_mongodb_profiler_agent"`
 
+	// qan mongodb mongolog agent
+	QANMongodbMongologAgent []*ListAgentsOKBodyQANMongodbMongologAgentItems0 `json:"qan_mongodb_mongolog_agent"`
+
 	// qan postgresql pgstatements agent
 	QANPostgresqlPgstatementsAgent []*ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 `json:"qan_postgresql_pgstatements_agent"`
 
@@ -456,6 +468,12 @@ type ListAgentsOKBody struct {
 
 	// azure database exporter
 	AzureDatabaseExporter []*ListAgentsOKBodyAzureDatabaseExporterItems0 `json:"azure_database_exporter"`
+
+	// nomad agent
+	NomadAgent []*ListAgentsOKBodyNomadAgentItems0 `json:"nomad_agent"`
+
+	// valkey exporter
+	ValkeyExporter []*ListAgentsOKBodyValkeyExporterItems0 `json:"valkey_exporter"`
 }
 
 // Validate validates this list agents OK body
@@ -502,6 +520,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateQANMongodbMongologAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateQANPostgresqlPgstatementsAgent(formats); err != nil {
 		res = append(res, err)
 	}
@@ -519,6 +541,14 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateAzureDatabaseExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateNomadAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkeyExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -540,11 +570,15 @@ func (o *ListAgentsOKBody) validatePMMAgent(formats strfmt.Registry) error {
 
 		if o.PMMAgent[i] != nil {
 			if err := o.PMMAgent[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -566,11 +600,15 @@ func (o *ListAgentsOKBody) validateVMAgent(formats strfmt.Registry) error {
 
 		if o.VMAgent[i] != nil {
 			if err := o.VMAgent[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "vm_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "vm_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -592,11 +630,15 @@ func (o *ListAgentsOKBody) validateNodeExporter(formats strfmt.Registry) error {
 
 		if o.NodeExporter[i] != nil {
 			if err := o.NodeExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "node_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "node_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -618,11 +660,15 @@ func (o *ListAgentsOKBody) validateMysqldExporter(formats strfmt.Registry) error
 
 		if o.MysqldExporter[i] != nil {
 			if err := o.MysqldExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -644,11 +690,15 @@ func (o *ListAgentsOKBody) validateMongodbExporter(formats strfmt.Registry) erro
 
 		if o.MongodbExporter[i] != nil {
 			if err := o.MongodbExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -670,11 +720,15 @@ func (o *ListAgentsOKBody) validatePostgresExporter(formats strfmt.Registry) err
 
 		if o.PostgresExporter[i] != nil {
 			if err := o.PostgresExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "postgres_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "postgres_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -696,11 +750,15 @@ func (o *ListAgentsOKBody) validateProxysqlExporter(formats strfmt.Registry) err
 
 		if o.ProxysqlExporter[i] != nil {
 			if err := o.ProxysqlExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "proxysql_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "proxysql_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -722,11 +780,15 @@ func (o *ListAgentsOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Regist
 
 		if o.QANMysqlPerfschemaAgent[i] != nil {
 			if err := o.QANMysqlPerfschemaAgent[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -748,11 +810,15 @@ func (o *ListAgentsOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry)
 
 		if o.QANMysqlSlowlogAgent[i] != nil {
 			if err := o.QANMysqlSlowlogAgent[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_slowlog_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_mysql_slowlog_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -774,11 +840,45 @@ func (o *ListAgentsOKBody) validateQANMongodbProfilerAgent(formats strfmt.Regist
 
 		if o.QANMongodbProfilerAgent[i] != nil {
 			if err := o.QANMongodbProfilerAgent[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mongodb_profiler_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_mongodb_profiler_agent" + "." + strconv.Itoa(i))
 				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateQANMongodbMongologAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.QANMongodbMongologAgent); i++ {
+		if swag.IsZero(o.QANMongodbMongologAgent[i]) { // not required
+			continue
+		}
+
+		if o.QANMongodbMongologAgent[i] != nil {
+			if err := o.QANMongodbMongologAgent[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "qan_mongodb_mongolog_agent" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "qan_mongodb_mongolog_agent" + "." + strconv.Itoa(i))
+				}
+
 				return err
 			}
 		}
@@ -800,11 +900,15 @@ func (o *ListAgentsOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt
 
 		if o.QANPostgresqlPgstatementsAgent[i] != nil {
 			if err := o.QANPostgresqlPgstatementsAgent[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatements_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatements_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -826,11 +930,15 @@ func (o *ListAgentsOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfm
 
 		if o.QANPostgresqlPgstatmonitorAgent[i] != nil {
 			if err := o.QANPostgresqlPgstatmonitorAgent[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -852,11 +960,15 @@ func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) err
 
 		if o.ExternalExporter[i] != nil {
 			if err := o.ExternalExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -878,11 +990,15 @@ func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
 
 		if o.RDSExporter[i] != nil {
 			if err := o.RDSExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -904,11 +1020,75 @@ func (o *ListAgentsOKBody) validateAzureDatabaseExporter(formats strfmt.Registry
 
 		if o.AzureDatabaseExporter[i] != nil {
 			if err := o.AzureDatabaseExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "azure_database_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "azure_database_exporter" + "." + strconv.Itoa(i))
 				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateNomadAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.NomadAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.NomadAgent); i++ {
+		if swag.IsZero(o.NomadAgent[i]) { // not required
+			continue
+		}
+
+		if o.NomadAgent[i] != nil {
+			if err := o.NomadAgent[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "nomad_agent" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "nomad_agent" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateValkeyExporter(formats strfmt.Registry) error {
+	if swag.IsZero(o.ValkeyExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.ValkeyExporter); i++ {
+		if swag.IsZero(o.ValkeyExporter[i]) { // not required
+			continue
+		}
+
+		if o.ValkeyExporter[i] != nil {
+			if err := o.ValkeyExporter[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "valkey_exporter" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "valkey_exporter" + "." + strconv.Itoa(i))
+				}
+
 				return err
 			}
 		}
@@ -962,6 +1142,10 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateQANMongodbMongologAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateQANPostgresqlPgstatementsAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -982,6 +1166,14 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateNomadAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkeyExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -997,11 +1189,15 @@ func (o *ListAgentsOKBody) contextValidatePMMAgent(ctx context.Context, formats 
 			}
 
 			if err := o.PMMAgent[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1019,11 +1215,15 @@ func (o *ListAgentsOKBody) contextValidateVMAgent(ctx context.Context, formats s
 			}
 
 			if err := o.VMAgent[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "vm_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "vm_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1041,11 +1241,15 @@ func (o *ListAgentsOKBody) contextValidateNodeExporter(ctx context.Context, form
 			}
 
 			if err := o.NodeExporter[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "node_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "node_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1063,11 +1267,15 @@ func (o *ListAgentsOKBody) contextValidateMysqldExporter(ctx context.Context, fo
 			}
 
 			if err := o.MysqldExporter[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1085,11 +1293,15 @@ func (o *ListAgentsOKBody) contextValidateMongodbExporter(ctx context.Context, f
 			}
 
 			if err := o.MongodbExporter[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1107,11 +1319,15 @@ func (o *ListAgentsOKBody) contextValidatePostgresExporter(ctx context.Context, 
 			}
 
 			if err := o.PostgresExporter[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "postgres_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "postgres_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1129,11 +1345,15 @@ func (o *ListAgentsOKBody) contextValidateProxysqlExporter(ctx context.Context, 
 			}
 
 			if err := o.ProxysqlExporter[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "proxysql_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "proxysql_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1151,11 +1371,15 @@ func (o *ListAgentsOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Co
 			}
 
 			if err := o.QANMysqlPerfschemaAgent[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1173,11 +1397,15 @@ func (o *ListAgentsOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Conte
 			}
 
 			if err := o.QANMysqlSlowlogAgent[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_slowlog_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_mysql_slowlog_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1195,11 +1423,41 @@ func (o *ListAgentsOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Co
 			}
 
 			if err := o.QANMongodbProfilerAgent[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_mongodb_profiler_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_mongodb_profiler_agent" + "." + strconv.Itoa(i))
 				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.QANMongodbMongologAgent); i++ {
+		if o.QANMongodbMongologAgent[i] != nil {
+
+			if swag.IsZero(o.QANMongodbMongologAgent[i]) { // not required
+				return nil
+			}
+
+			if err := o.QANMongodbMongologAgent[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "qan_mongodb_mongolog_agent" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "qan_mongodb_mongolog_agent" + "." + strconv.Itoa(i))
+				}
+
 				return err
 			}
 		}
@@ -1217,11 +1475,15 @@ func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx con
 			}
 
 			if err := o.QANPostgresqlPgstatementsAgent[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatements_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatements_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1239,11 +1501,15 @@ func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx co
 			}
 
 			if err := o.QANPostgresqlPgstatmonitorAgent[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1261,11 +1527,15 @@ func (o *ListAgentsOKBody) contextValidateExternalExporter(ctx context.Context, 
 			}
 
 			if err := o.ExternalExporter[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1283,11 +1553,15 @@ func (o *ListAgentsOKBody) contextValidateRDSExporter(ctx context.Context, forma
 			}
 
 			if err := o.RDSExporter[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1305,11 +1579,67 @@ func (o *ListAgentsOKBody) contextValidateAzureDatabaseExporter(ctx context.Cont
 			}
 
 			if err := o.AzureDatabaseExporter[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentsOk" + "." + "azure_database_exporter" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "azure_database_exporter" + "." + strconv.Itoa(i))
 				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) contextValidateNomadAgent(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.NomadAgent); i++ {
+		if o.NomadAgent[i] != nil {
+
+			if swag.IsZero(o.NomadAgent[i]) { // not required
+				return nil
+			}
+
+			if err := o.NomadAgent[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "nomad_agent" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "nomad_agent" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.ValkeyExporter); i++ {
+		if o.ValkeyExporter[i] != nil {
+
+			if swag.IsZero(o.ValkeyExporter[i]) { // not required
+				return nil
+			}
+
+			if err := o.ValkeyExporter[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "valkey_exporter" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "valkey_exporter" + "." + strconv.Itoa(i))
+				}
+
 				return err
 			}
 		}
@@ -1369,7 +1699,7 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -1415,7 +1745,7 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) Validate(formats strfmt.Re
 	return nil
 }
 
-var listAgentsOkBodyAzureDatabaseExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyAzureDatabaseExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1475,7 +1805,7 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) validateStatus(formats str
 	return nil
 }
 
-var listAgentsOkBodyAzureDatabaseExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyAzureDatabaseExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1536,11 +1866,15 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) validateMetricsResolutions
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -1570,11 +1904,15 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) contextValidateMetricsReso
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -1681,6 +2019,9 @@ type ListAgentsOKBodyExternalExporterItems0 struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyExternalExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -1706,11 +2047,15 @@ func (o *ListAgentsOKBodyExternalExporterItems0) validateMetricsResolutions(form
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -1740,11 +2085,15 @@ func (o *ListAgentsOKBodyExternalExporterItems0) contextValidateMetricsResolutio
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -1855,7 +2204,7 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -1911,7 +2260,7 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) Validate(formats strfmt.Registry
 	return nil
 }
 
-var listAgentsOkBodyMongodbExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyMongodbExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1971,7 +2320,7 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var listAgentsOkBodyMongodbExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyMongodbExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2032,11 +2381,15 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) validateMetricsResolutions(forma
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2066,11 +2419,15 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) contextValidateMetricsResolution
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2198,7 +2555,7 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2220,6 +2577,9 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -2247,7 +2607,7 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var listAgentsOkBodyMysqldExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyMysqldExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2307,7 +2667,7 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) validateStatus(formats strfmt.Reg
 	return nil
 }
 
-var listAgentsOkBodyMysqldExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyMysqldExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2368,11 +2728,15 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) validateMetricsResolutions(format
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2402,11 +2766,15 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) contextValidateMetricsResolutions
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2505,7 +2873,7 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2551,7 +2919,7 @@ func (o *ListAgentsOKBodyNodeExporterItems0) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var listAgentsOkBodyNodeExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyNodeExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2611,7 +2979,7 @@ func (o *ListAgentsOKBodyNodeExporterItems0) validateStatus(formats strfmt.Regis
 	return nil
 }
 
-var listAgentsOkBodyNodeExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyNodeExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2672,11 +3040,15 @@ func (o *ListAgentsOKBodyNodeExporterItems0) validateMetricsResolutions(formats 
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2706,11 +3078,15 @@ func (o *ListAgentsOKBodyNodeExporterItems0) contextValidateMetricsResolutions(c
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2772,6 +3148,136 @@ func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) MarshalBinary() (
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyNodeExporterItems0MetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyNomadAgentItems0 list agents OK body nomad agent items0
+swagger:model ListAgentsOKBodyNomadAgentItems0
+*/
+type ListAgentsOKBodyNomadAgentItems0 struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+}
+
+// Validate validates this list agents OK body nomad agent items0
+func (o *ListAgentsOKBodyNomadAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listAgentsOkBodyNomadAgentItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyNomadAgentItems0TypeStatusPropEnum = append(listAgentsOkBodyNomadAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ListAgentsOKBodyNomadAgentItems0StatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyNomadAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyNomadAgentItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyNomadAgentItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this list agents OK body nomad agent items0 based on context it is used
+func (o *ListAgentsOKBodyNomadAgentItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyNomadAgentItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyNomadAgentItems0) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyNomadAgentItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2870,7 +3376,7 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2922,7 +3428,7 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) Validate(formats strfmt.Registr
 	return nil
 }
 
-var listAgentsOkBodyPostgresExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyPostgresExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2982,7 +3488,7 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) validateStatus(formats strfmt.R
 	return nil
 }
 
-var listAgentsOkBodyPostgresExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyPostgresExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3043,11 +3549,15 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) validateMetricsResolutions(form
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3077,11 +3587,15 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) contextValidateMetricsResolutio
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3192,7 +3706,7 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3238,7 +3752,7 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) Validate(formats strfmt.Registr
 	return nil
 }
 
-var listAgentsOkBodyProxysqlExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyProxysqlExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3298,7 +3812,7 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) validateStatus(formats strfmt.R
 	return nil
 }
 
-var listAgentsOkBodyProxysqlExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyProxysqlExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3359,11 +3873,15 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) validateMetricsResolutions(form
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3393,11 +3911,15 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) contextValidateMetricsResolutio
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3467,6 +3989,215 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) UnmarshalBina
 }
 
 /*
+ListAgentsOKBodyQANMongodbMongologAgentItems0 QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+swagger:model ListAgentsOKBodyQANMongodbMongologAgentItems0
+*/
+type ListAgentsOKBodyQANMongodbMongologAgentItems0 struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this list agents OK body QAN mongodb mongolog agent items0
+func (o *ListAgentsOKBodyQANMongodbMongologAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listAgentsOkBodyQanMongodbMongologAgentItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyQanMongodbMongologAgentItems0TypeStatusPropEnum = append(listAgentsOkBodyQanMongodbMongologAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0StatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyQANMongodbMongologAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyQanMongodbMongologAgentItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyQANMongodbMongologAgentItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listAgentsOkBodyQanMongodbMongologAgentItems0TypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyQanMongodbMongologAgentItems0TypeLogLevelPropEnum = append(listAgentsOkBodyQanMongodbMongologAgentItems0TypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ListAgentsOKBodyQANMongodbMongologAgentItems0LogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyQANMongodbMongologAgentItems0) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyQanMongodbMongologAgentItems0TypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyQANMongodbMongologAgentItems0) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this list agents OK body QAN mongodb mongolog agent items0 based on context it is used
+func (o *ListAgentsOKBodyQANMongodbMongologAgentItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyQANMongodbMongologAgentItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyQANMongodbMongologAgentItems0) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyQANMongodbMongologAgentItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 ListAgentsOKBodyQANMongodbProfilerAgentItems0 QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model ListAgentsOKBodyQANMongodbProfilerAgentItems0
 */
@@ -3505,7 +4236,7 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3538,7 +4269,7 @@ func (o *ListAgentsOKBodyQANMongodbProfilerAgentItems0) Validate(formats strfmt.
 	return nil
 }
 
-var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3598,7 +4329,7 @@ func (o *ListAgentsOKBodyQANMongodbProfilerAgentItems0) validateStatus(formats s
 	return nil
 }
 
-var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3729,7 +4460,7 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3742,6 +4473,9 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mysql perfschema agent items0
@@ -3762,7 +4496,7 @@ func (o *ListAgentsOKBodyQANMysqlPerfschemaAgentItems0) Validate(formats strfmt.
 	return nil
 }
 
-var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3822,7 +4556,7 @@ func (o *ListAgentsOKBodyQANMysqlPerfschemaAgentItems0) validateStatus(formats s
 	return nil
 }
 
-var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3956,7 +4690,7 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3969,6 +4703,9 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mysql slowlog agent items0
@@ -3989,7 +4726,7 @@ func (o *ListAgentsOKBodyQANMysqlSlowlogAgentItems0) Validate(formats strfmt.Reg
 	return nil
 }
 
-var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4049,7 +4786,7 @@ func (o *ListAgentsOKBodyQANMysqlSlowlogAgentItems0) validateStatus(formats strf
 	return nil
 }
 
-var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4168,7 +4905,7 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4201,7 +4938,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0) Validate(formats 
 	return nil
 }
 
-var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4261,7 +4998,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0) validateStatus(fo
 	return nil
 }
 
-var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4383,7 +5120,7 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4416,7 +5153,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0) Validate(formats
 	return nil
 }
 
-var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4476,7 +5213,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0) validateStatus(f
 	return nil
 }
 
-var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4583,7 +5320,7 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4638,7 +5375,7 @@ func (o *ListAgentsOKBodyRDSExporterItems0) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var listAgentsOkBodyRdsExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyRdsExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4698,7 +5435,7 @@ func (o *ListAgentsOKBodyRDSExporterItems0) validateStatus(formats strfmt.Regist
 	return nil
 }
 
-var listAgentsOkBodyRdsExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyRdsExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4759,11 +5496,15 @@ func (o *ListAgentsOKBodyRDSExporterItems0) validateMetricsResolutions(formats s
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4793,11 +5534,15 @@ func (o *ListAgentsOKBodyRDSExporterItems0) contextValidateMetricsResolutions(ct
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4886,7 +5631,7 @@ type ListAgentsOKBodyVMAgentItems0 struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4912,7 +5657,7 @@ func (o *ListAgentsOKBodyVMAgentItems0) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var listAgentsOkBodyVmAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyVmAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4988,6 +5733,266 @@ func (o *ListAgentsOKBodyVMAgentItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyVMAgentItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyVMAgentItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyValkeyExporterItems0 ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
+swagger:model ListAgentsOKBodyValkeyExporterItems0
+*/
+type ListAgentsOKBodyValkeyExporterItems0 struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Valkey username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyValkeyExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
+}
+
+// Validate validates this list agents OK body valkey exporter items0
+func (o *ListAgentsOKBodyValkeyExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listAgentsOkBodyValkeyExporterItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyValkeyExporterItems0TypeStatusPropEnum = append(listAgentsOkBodyValkeyExporterItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ListAgentsOKBodyValkeyExporterItems0StatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyValkeyExporterItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyValkeyExporterItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyValkeyExporterItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyValkeyExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body valkey exporter items0 based on the context it is used
+func (o *ListAgentsOKBodyValkeyExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyValkeyExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyValkeyExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyValkeyExporterItems0) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyValkeyExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyValkeyExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyValkeyExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyValkeyExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body valkey exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyValkeyExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body valkey exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyValkeyExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyValkeyExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyValkeyExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyValkeyExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

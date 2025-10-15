@@ -16,7 +16,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 
 	"google.golang.org/grpc/credentials"
 )
@@ -28,7 +27,7 @@ type tokenAuth struct {
 // GetRequestMetadata implements credentials.PerRPCCredentials interface.
 func (t *tokenAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) { //nolint:revive
 	return map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %s", t.token),
+		"Authorization": "Bearer " + t.token,
 	}, nil
 }
 

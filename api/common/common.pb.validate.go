@@ -70,7 +70,7 @@ type StringArrayMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StringArrayMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -171,7 +171,7 @@ type StringMapMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StringMapMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

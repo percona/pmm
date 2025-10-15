@@ -13,7 +13,7 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 
 Make sure you have the following installed:
 
-- [node 18](https://nodejs.org/en) (you can also use [nvm](https://github.com/nvm-sh/nvm) to manage node versions)
+- [node 22](https://nodejs.org/en) (you can also use [nvm](https://github.com/nvm-sh/nvm) to manage node versions)
 - [yarn](https://yarnpkg.com/)
 
 ## Stack

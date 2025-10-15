@@ -255,7 +255,7 @@ func TestJobLogs(t *testing.T) {
 				JobID: jobID,
 			})
 			assert.NoError(t, err)
-			assert.Len(t, logs, 0)
+			assert.Empty(t, logs)
 		}
 	})
 }

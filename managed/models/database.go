@@ -105,7 +105,6 @@ var databaseSchema = [][]string{
 			container_name VARCHAR CHECK (container_name <> ''),
 
 			-- RemoteAmazonRDS
-			-- RDS instance is stored in address
 			region VARCHAR CHECK (region <> ''),
 
 			PRIMARY KEY (node_id),
@@ -1094,12 +1093,13 @@ var databaseSchema = [][]string{
 
 		`UPDATE agents SET postgresql_options = '{}'::jsonb WHERE postgresql_options IS NULL`,
 
-		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{expose_exporter}', to_jsonb(expose_exporter));`,
-		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{push_metrics}', to_jsonb(push_metrics));`,
-		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{disabled_collectors}', to_jsonb(disabled_collectors));`,
-		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{metrics_resolutions}', to_jsonb(metrics_resolutions));`,
-		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{metrics_path}', to_jsonb(metrics_path));`,
-		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{metrics_scheme}', to_jsonb(metrics_scheme));`,
+		`UPDATE agents SET exporter_options['expose_exporter'] = to_jsonb(expose_exporter)`,
+		`UPDATE agents SET exporter_options['push_metrics'] = to_jsonb(push_metrics)`,
+		`UPDATE agents SET exporter_options['disabled_collectors'] = to_jsonb(disabled_collectors)`,
+		`UPDATE agents SET exporter_options['metrics_resolutions'] = to_jsonb(metrics_resolutions)`,
+		`UPDATE agents SET exporter_options['metrics_path'] = to_jsonb(metrics_path)`,
+		`UPDATE agents SET exporter_options['metrics_scheme'] = to_jsonb(metrics_scheme)`,
+
 		`ALTER TABLE agents DROP COLUMN expose_exporter`,
 		`ALTER TABLE agents DROP COLUMN push_metrics`,
 		`ALTER TABLE agents DROP COLUMN disabled_collectors`,
@@ -1107,42 +1107,46 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents DROP COLUMN metrics_path`,
 		`ALTER TABLE agents DROP COLUMN metrics_scheme`,
 
-		`UPDATE agents SET qan_options = jsonb_set(qan_options, '{max_query_length}', to_jsonb(max_query_length));`,
-		`UPDATE agents SET qan_options = jsonb_set(qan_options, '{max_query_log_size}', to_jsonb(max_query_log_size));`,
-		`UPDATE agents SET qan_options = jsonb_set(qan_options, '{query_examples_disabled}', to_jsonb(query_examples_disabled));`,
-		`UPDATE agents SET qan_options = jsonb_set(qan_options, '{comments_parsing_disabled}', to_jsonb(comments_parsing_disabled));`,
+		`UPDATE agents SET qan_options['max_query_length'] = to_jsonb(max_query_length)`,
+		`UPDATE agents SET qan_options['max_query_log_size'] = to_jsonb(max_query_log_size)`,
+		`UPDATE agents SET qan_options['query_examples_disabled'] = to_jsonb(query_examples_disabled)`,
+		`UPDATE agents SET qan_options['comments_parsing_disabled'] = to_jsonb(comments_parsing_disabled)`,
 		`ALTER TABLE agents DROP COLUMN max_query_length`,
 		`ALTER TABLE agents DROP COLUMN max_query_log_size`,
 		`ALTER TABLE agents DROP COLUMN query_examples_disabled`,
 		`ALTER TABLE agents DROP COLUMN comments_parsing_disabled`,
 
-		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{aws_access_key}', to_jsonb(aws_access_key));`,
-		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{aws_secret_key}', to_jsonb(aws_secret_key));`,
-		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{rds_basic_metrics_disabled}', to_jsonb(rds_basic_metrics_disabled));`,
-		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{rds_enhanced_metrics_disabled}', to_jsonb(rds_enhanced_metrics_disabled));`,
+		`UPDATE agents SET aws_options['aws_access_key'] = to_jsonb(aws_access_key);`,
+		`UPDATE agents SET aws_options['aws_secret_key'] = to_jsonb(aws_secret_key);`,
+		`UPDATE agents SET aws_options['rds_basic_metrics_disabled'] = to_jsonb(rds_basic_metrics_disabled);`,
+		`UPDATE agents SET aws_options['rds_enhanced_metrics_disabled'] = to_jsonb(rds_enhanced_metrics_disabled);`,
 		`ALTER TABLE agents DROP COLUMN aws_access_key`,
 		`ALTER TABLE agents DROP COLUMN aws_secret_key`,
 		`ALTER TABLE agents DROP COLUMN rds_basic_metrics_disabled`,
 		`ALTER TABLE agents DROP COLUMN rds_enhanced_metrics_disabled`,
 
-		`UPDATE agents SET mysql_options = jsonb_set(mysql_options, '{table_count}', to_jsonb(table_count));`,
-		`UPDATE agents SET mysql_options = jsonb_set(mysql_options, '{table_count_tablestats_group_limit}', to_jsonb(table_count_tablestats_group_limit));`,
+		`UPDATE agents SET mysql_options['table_count'] = to_jsonb(table_count);`,
+		`UPDATE agents SET mysql_options['table_count_tablestats_group_limit'] = to_jsonb(table_count_tablestats_group_limit);`,
 		`ALTER TABLE agents DROP COLUMN table_count`,
 		`ALTER TABLE agents DROP COLUMN table_count_tablestats_group_limit`,
-
-		`UPDATE settings SET settings = jsonb_set(settings, '{encrypted_items}', 
-			'[
-				"pmm-managed.agents.username", 
-				"pmm-managed.agents.password", 
-				"pmm-managed.agents.agent_password", 
-				"pmm-managed.agents.aws_options", 
-				"pmm-managed.agents.azure_options", 
-				"pmm-managed.agents.mongo_options",
-				"pmm-managed.agents.mysql_options", 
-				"pmm-managed.agents.postgresql_options"
-			]'::jsonb
-		)
-		WHERE settings ? 'encrypted_items';`,
+	},
+	108: {
+		`ALTER TABLE user_flags
+			ADD COLUMN snoozed_api_keys_migration BOOLEAN NOT NULL DEFAULT false`,
+	},
+	109: {
+		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
+	},
+	110: {
+		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
+		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
+	},
+	111: {
+		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
+		`UPDATE agents SET valkey_options = '{}'::jsonb`,
+	},
+	112: {
+		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
 	},
 }
 
@@ -1407,13 +1411,13 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			}
 		}
 
+		if params.SetupFixtures == SkipFixtures {
+			return nil
+		}
+
 		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
 		if err != nil {
 			return err
-		}
-
-		if params.SetupFixtures == SkipFixtures {
-			return nil
 		}
 
 		// fill settings with defaults
@@ -1512,10 +1516,14 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
+
+	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
+	ap.Disabled = true
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

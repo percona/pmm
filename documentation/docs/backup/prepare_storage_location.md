@@ -46,7 +46,7 @@ A sample [IAM](https://aws.amazon.com/iam/) policy is:
         }
         ```
    
-## [Create the storage location](#create-a-storage-location)
+## Create the storage location
 
 1. Go to **Backup > Storage Locations**:
 

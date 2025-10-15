@@ -68,7 +68,6 @@ func TestCreateDBURL(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -111,7 +110,6 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), "", BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")

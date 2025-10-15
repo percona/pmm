@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+//nolint:lll
 var statusResultT = ParseTemplate(`
 Agent ID : {{ .PMMAgentStatus.AgentID }}
 Node ID  : {{ .PMMAgentStatus.NodeID }}
@@ -46,7 +47,7 @@ PMM Client:
 	pmm-admin version: {{ .PMMVersion }}
 	pmm-agent version: {{ .PMMAgentStatus.AgentVersion }}
 Agents:
-{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ printf "%-29s" (.AgentType | $.HumanReadableAgentType) }} {{ printf "%-15s" (.Status | $.NiceAgentStatus) }} {{ .Port }}
+{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ printf "%-30s" (.AgentType | $.HumanReadableAgentType) }} {{ printf "%-14s" (.Status | $.NiceAgentStatus) }} {{ .Port }}
 {{ end }}
 `)
 

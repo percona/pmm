@@ -109,9 +109,10 @@ type AddMySQLCommand struct {
 	Cluster                string            `help:"Cluster name"`
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	ExtraDSNParams         map[string]string `name:"extra-dsn-params" mapsep:"," help:"Additional DSN parameters, e.g. 'param1=value1,param2=value2'"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify          bool              `help:"Skip TLS certificate verification"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
@@ -147,11 +148,12 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 
 // RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	extraDSNParams := commands.ParseKeyValuePair(cmd.ExtraDSNParams)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
-			"'https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mysql.html#create-a-database-account-for-pmm'")
+			"'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql.html#create-a-database-account-for-pmm'")
 	}
 
 	var (
@@ -219,6 +221,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
 				CustomLabels:   customLabels,
+				ExtraDsnParams: extraDSNParams,
 
 				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,

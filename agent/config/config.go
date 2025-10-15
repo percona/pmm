@@ -89,7 +89,7 @@ func (s *Server) FilteredURL() string {
 	return strings.ReplaceAll(u.String(), ":%2A%2A%2A@", ":***@")
 }
 
-// Paths represents binaries paths configuration.
+// Paths represents binary paths configuration.
 type Paths struct {
 	PathsBase        string `yaml:"paths_base"`
 	ExportersBase    string `yaml:"exporters_base"`
@@ -100,6 +100,7 @@ type Paths struct {
 	ProxySQLExporter string `yaml:"proxysql_exporter"`
 	RDSExporter      string `yaml:"rds_exporter"`
 	AzureExporter    string `yaml:"azure_exporter"`
+	ValkeyExporter   string `yaml:"valkey_exporter"`
 
 	VMAgent string `yaml:"vmagent"`
 	Nomad   string `yaml:"nomad"`
@@ -147,7 +148,7 @@ type Setup struct {
 // Config represents pmm-agent's configuration.
 //
 //nolint:maligned
-type Config struct { //nolint:musttag
+type Config struct {
 	// no config file there
 
 	ID                             string `yaml:"id"`
@@ -164,7 +165,8 @@ type Config struct { //nolint:musttag
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	LogLinesCount uint `json:"log-lines-count"`
+	LogLinesCount         uint   `json:"log-lines-count"`
+	PerfschemaRefreshRate uint16 `yaml:"perfschema-refresh-rate,omitempty"`
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
 
@@ -219,12 +221,16 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		if cfg.WindowConnectedTime == 0 {
 			cfg.WindowConnectedTime = time.Hour
 		}
+		if cfg.PerfschemaRefreshRate == 0 {
+			cfg.PerfschemaRefreshRate = 5
+		}
 
 		for sp, v := range map[*string]string{
 			&cfg.Paths.NodeExporter:     "node_exporter",
 			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
 			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
 			&cfg.Paths.PostgresExporter: "postgres_exporter",
+			&cfg.Paths.ValkeyExporter:   "valkey_exporter",
 			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
 			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.AzureExporter:    "azure_exporter",
@@ -287,6 +293,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			"mysqld_exporter":   &cfg.Paths.MySQLdExporter,
 			"mongodb_exporter":  &cfg.Paths.MongoDBExporter,
 			"postgres_exporter": &cfg.Paths.PostgresExporter,
+			"valkey_exporter":   &cfg.Paths.ValkeyExporter,
 			"proxysql_exporter": &cfg.Paths.ProxySQLExporter,
 			"rds_exporter":      &cfg.Paths.RDSExporter,
 			"azure_exporter":    &cfg.Paths.AzureExporter,
@@ -346,7 +353,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 // Application returns kingpin application that will parse command-line flags and environment variables
 // (but not configuration file) into cfg except --config-file/PMM_AGENT_CONFIG_FILE that is returned separately.
 func Application(cfg *Config) (*kingpin.Application, *string) {
-	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s", version.Version))
+	app := kingpin.New("pmm-agent", "Version "+version.Version)
 	app.HelpFlag.Short('h')
 
 	app.Command("run", "Run pmm-agent (default command)").Default()
@@ -396,6 +403,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").StringVar(&cfg.Paths.ProxySQLExporter)
 	app.Flag("paths-azure_exporter", "Path to azure_exporter to use [PMM_AGENT_PATHS_AZURE_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_AZURE_EXPORTER").StringVar(&cfg.Paths.AzureExporter)
+	app.Flag("paths-valkey-exporter", "Path to valkey_exporter to use [PMM_AGENT_PATHS_VALKEY_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_VALKEY_EXPORTER").StringVar(&cfg.Paths.ValkeyExporter)
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)
 	app.Flag("paths-pt-pg-summary", "Path to pt-pg-summary to use [PMM_AGENT_PATHS_PT_PG_SUMMARY]").
@@ -428,6 +437,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	app.Flag("log-lines-count",
 		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
 		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
+	app.Flag("perfschema-refresh-rate",
+		"Change how often PMM scrapes data from Performance Schema (in seconds) [PMM_AGENT_PERFSCHEMA_REFRESH_RATE]").
+		Envar("PMM_AGENT_PERFSCHEMA_REFRESH_RATE").Uint16Var(&cfg.PerfschemaRefreshRate)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
 		return nil
@@ -524,7 +536,7 @@ func loadFromFile(path string) (*Config, error) {
 		return nil, err
 	}
 	cfg := &Config{}
-	if err = yaml.Unmarshal(b, cfg); err != nil {
+	if err = yaml.Unmarshal(b, cfg); err != nil { //nolint:musttag // false positive
 		return nil, err
 	}
 	return cfg, nil
@@ -533,7 +545,7 @@ func loadFromFile(path string) (*Config, error) {
 // SaveToFile saves configuration to file.
 // No special cases.
 func SaveToFile(path string, cfg *Config, comment string) error {
-	b, err := yaml.Marshal(cfg)
+	b, err := yaml.Marshal(cfg) //nolint:musttag // false positive
 	if err != nil {
 		return err
 	}

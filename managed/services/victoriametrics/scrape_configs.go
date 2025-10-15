@@ -67,7 +67,7 @@ func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 		JobName:        "grafana",
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/metrics",
+		MetricsPath:    "/graph/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
 				Targets: []string{"127.0.0.1:3000"},
@@ -105,6 +105,53 @@ func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
 			}},
 		},
 	}
+}
+
+func scrapeConfigForNomadServer(resolution time.Duration) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "nomad",
+		ScrapeInterval: config.Duration(resolution),
+		ScrapeTimeout:  scrapeTimeout(resolution),
+		MetricsPath:    "/v1/metrics?format=prometheus",
+		Scheme:         "https",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{"127.0.0.1:4646"},
+				Labels:  map[string]string{"instance": "pmm-server"},
+			}},
+		},
+		HTTPClientConfig: config.HTTPClientConfig{
+			TLSConfig: config.TLSConfig{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+}
+
+func scrapeConfigsForNomadAgent(m *models.MetricsResolutions, s *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	labels, err := mergeLabels(s.node, s.service, s.agent)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg := &config.ScrapeConfig{
+		JobName:        jobName(s.agent, "mr"),
+		ScrapeInterval: config.Duration(m.MR),
+		ScrapeTimeout:  scrapeTimeout(m.MR),
+		MetricsPath:    "/v1/metrics",
+	}
+
+	port := int(*s.agent.ListenPort)
+	hostport := net.JoinHostPort(s.host, strconv.Itoa(port))
+
+	cfg.ServiceDiscoveryConfig = config.ServiceDiscoveryConfig{
+		StaticConfigs: []*config.Group{{
+			Targets: []string{hostport},
+			Labels:  labels,
+		}},
+	}
+
+	return []*config.ScrapeConfig{cfg}, nil
 }
 
 func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent) (map[string]string, error) {
@@ -461,6 +508,19 @@ func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.Scr
 	return r, nil
 }
 
+func scrapeConfigForValkeyExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	return r, nil
+}
+
 func scrapeConfigsForProxySQLExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil) // TODO https://jira.percona.com/browse/PMM-4619
 	if err != nil {
@@ -542,12 +602,13 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 	}
 
 	if pointer.GetString(params.agent.Username) != "" {
-		cfg.HTTPClientConfig = config.HTTPClientConfig{
-			BasicAuth: &config.BasicAuth{
-				Username: pointer.GetString(params.agent.Username),
-				Password: pointer.GetString(params.agent.Password),
-			},
+		cfg.HTTPClientConfig.BasicAuth = &config.BasicAuth{
+			Username: pointer.GetString(params.agent.Username),
+			Password: pointer.GetString(params.agent.Password),
 		}
+	}
+	if params.agent.TLSSkipVerify {
+		cfg.HTTPClientConfig.TLSConfig.InsecureSkipVerify = true
 	}
 
 	port := int(*params.agent.ListenPort)

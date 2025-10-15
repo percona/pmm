@@ -43,9 +43,9 @@ import (
 )
 
 const (
-	retainStatStatements    = 25 * time.Hour // make it work for daily queries
-	statStatementsCacheSize = 5000           // cache size rows limit
-	queryStatStatements     = time.Minute
+	retainStatStatements = 25 * time.Hour // make it work for daily queries
+	defaultPgssCacheSize = 5000           // cache size rows limit
+	queryStatStatements  = time.Minute
 )
 
 var (
@@ -76,7 +76,10 @@ type Params struct {
 	TextFiles              *agentv1.TextFiles
 }
 
-const queryTag = "agent='pgstatstatements'"
+const (
+	queryTag     = "agent='pgstatstatements'"
+	pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
+)
 
 // New creates new PGStatStatementsQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
@@ -94,8 +97,20 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, params.DisableCommentsParsing, l)
 }
 
+func getPgStatStatementsCacheSize(q *reform.Querier, l *logrus.Entry) uint {
+	var pgSSCacheSize uint
+	err := q.QueryRow(pgssMaxQuery).Scan(&pgSSCacheSize)
+	if err != nil {
+		l.WithError(err).Error("failed to get pg_stat_statements.max")
+		return defaultPgssCacheSize
+	}
+
+	return pgSSCacheSize
+}
+
 func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
-	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, statStatementsCacheSize, l)
+	cacheSize := getPgStatStatementsCacheSize(q, l)
+	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
@@ -143,7 +158,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	if current, _, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength); err == nil {
+	if current, _, err := m.getStatStatementsExtended(ctx); err == nil {
 		if err = m.statementsCache.Set(current); err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
 			running = true
@@ -204,8 +219,6 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 // and the previous cashed state.
 func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	ctx context.Context,
-	q *reform.Querier,
-	maxQueryLength int32,
 ) (statementsMap, statementsMap, error) {
 	var totalN, newN, newSharedN, oldN int
 	var err error
@@ -220,6 +233,8 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	if err := m.statementsCache.Get(prev); err != nil {
 		return nil, nil, err
 	}
+
+	q := m.q
 
 	// load all databases and usernames first as we can't use querier while iterating over rows below
 	databases := queryDatabases(q)
@@ -251,6 +266,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 			pgStatStatements: *row,
 			Database:         databases[row.DBID],
 			Username:         usernames[row.UserID],
+			RealQuery:        row.Query,
 		}
 
 		if p := prev[c.QueryID]; p != nil {
@@ -262,7 +278,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 		} else {
 			newN++
 
-			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, maxQueryLength, truncate.GetDefaultMaxQueryLength())
+			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
 		}
 
 		current[c.QueryID] = c
@@ -278,7 +294,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 }
 
 func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
-	current, prev, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength)
+	current, prev, err := m.getStatStatementsExtended(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -336,7 +352,7 @@ func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentv
 		}
 
 		if len(currentPSS.Tables) == 0 {
-			currentPSS.Tables = extractTables(currentPSS.Query, m.maxQueryLength, l)
+			currentPSS.Tables = extractTables(currentPSS.RealQuery, m.maxQueryLength, l)
 		}
 
 		if !m.disableCommentsParsing {

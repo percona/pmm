@@ -178,7 +178,7 @@ type RestoreHistoryItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestoreHistoryItemMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -280,7 +280,7 @@ type ListRestoresRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListRestoresRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -416,7 +416,7 @@ type ListRestoresResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListRestoresResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -533,7 +533,7 @@ type RestoreServiceGetLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestoreServiceGetLogsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -672,7 +672,7 @@ type RestoreServiceGetLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestoreServiceGetLogsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -826,7 +826,7 @@ type RestoreBackupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestoreBackupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -930,7 +930,7 @@ type RestoreBackupResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestoreBackupResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

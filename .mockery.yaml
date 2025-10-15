@@ -4,7 +4,7 @@ with-expecter: False
 inpackage: True
 dir: "{{.InterfaceDir}}"
 filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
-mockname: "mock{{ .InterfaceName | camelcase }}"
+mockname: "mock{{ .InterfaceName | camelcase | firstUpper }}"
 packages:
   # managed
   github.com/percona/pmm/managed/services/backup:
@@ -16,7 +16,7 @@ packages:
       removalService:
       Storage:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
+          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"
       versioner:
   github.com/percona/pmm/managed/services/checks:
     interfaces:
@@ -77,11 +77,12 @@ packages:
       telemetryService:
       templatesService:
       vmAlertExternalRules:
+      nomadService:
   github.com/percona/pmm/managed/services/versioncache:
     interfaces:
       Versioner:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
+          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"
   github.com/percona/pmm/managed/services/telemetry:
     interfaces:
       DataSource:
@@ -93,7 +94,7 @@ packages:
     interfaces:
       Functions:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
+          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"
   # agent
   github.com/percona/pmm/agent/agentlocal:
     interfaces:
@@ -108,4 +109,4 @@ packages:
     interfaces:
       ExecFunctions:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
+          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"

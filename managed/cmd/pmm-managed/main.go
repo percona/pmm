@@ -91,7 +91,7 @@ import (
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
-	"github.com/percona/pmm/managed/services/platform"
+	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
@@ -296,8 +296,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
-	platformv1.RegisterPlatformServiceServer(gRPCServer, platformService)
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
 	// run server until it is stopped gracefully or not
@@ -457,7 +455,7 @@ func runDebugServer(ctx context.Context) {
 	if err != nil {
 		l.Panic(err)
 	}
-	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
@@ -500,7 +498,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	deps.l.Infof("Updating settings...")
 	env := os.Environ()
 	sort.Strings(env)
-	if errs := deps.server.UpdateSettingsFromEnv(env); len(errs) != 0 {
+	if errs := deps.server.UpdateSettingsFromEnv(ctx, env); len(errs) != 0 {
 		// This should be impossible in the normal workflow.
 		// An invalid environment variable must be caught with pmm-managed-init
 		// and the docker run must be terminated.
@@ -698,6 +696,8 @@ func main() { //nolint:maintidx,cyclop
 
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
+	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
@@ -750,7 +750,7 @@ func main() { //nolint:maintidx,cyclop
 	pmmdb := ds.PmmDBSelect
 	pmmdb.Credentials.Username = *postgresDBUsernameF
 	pmmdb.Credentials.Password = *postgresDBPasswordF
-	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
+	pmmdb.DSN.Scheme = "postgres"
 	pmmdb.DSN.Host = *postgresAddrF
 	pmmdb.DSN.DB = *postgresDBNameF
 	q := make(url.Values)
@@ -768,10 +768,15 @@ func main() { //nolint:maintidx,cyclop
 	grafanadb.DSN.DB = "grafana"
 	grafanadb.DSN.Params = q.Encode()
 
-	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
+	chURI := url.URL{
+		Scheme: "tcp",
+		User:   url.UserPassword(*clickhouseUsernameF, *clickhousePasswordF),
+		Host:   *clickhouseAddrF,
+		Path:   *clickHouseDatabaseF,
+	}
 
 	qanDB := ds.QanDBSelect
-	qanDB.DSN = clickhouseDSN
+	qanDB.DSN = chURI.String()
 
 	ds.VM.Address = *victoriaMetricsURLF
 
@@ -835,7 +840,7 @@ func main() { //nolint:maintidx,cyclop
 	agentsRegistry := agents.NewRegistry(db, vmParams)
 
 	// TODO remove once PMM cluster will be Active-Active
-	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() {
+	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
 		agentsRegistry.KickAll(ctx)
 	}))
 
@@ -851,7 +856,7 @@ func main() { //nolint:maintidx,cyclop
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize)
+	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize, db)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
@@ -872,8 +877,12 @@ func main() { //nolint:maintidx,cyclop
 			HAParams: haParams,
 		})
 
-	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
-		return supervisord.StartSupervisedService("pmm-agent")
+	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
+		err := supervisord.StartSupervisedService("pmm-agent")
+		if err != nil {
+			l.Warnf("couldn't start pmm-agent: %q", err)
+		}
+		return err
 	}, func() {
 		err := supervisord.StopSupervisedService("pmm-agent")
 		if err != nil {
@@ -906,9 +915,13 @@ func main() { //nolint:maintidx,cyclop
 
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
+	nomad, err := nomad.New(db)
+	if err != nil {
+		l.Fatalf("Could not create Nomad client: %s", err)
+	}
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
+	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, nomad)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
@@ -918,15 +931,15 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
 
-	clickhouseClient, err := newClickhouseDB(clickhouseDSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
+	clickhouseClient, err := newClickhouseDB(qanDB.DSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
 
-	checksService := checks.New(db, platformClient, actionsService, v1.NewAPI(vmClient), clickhouseClient)
+	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
-	alertingService, err := alerting.NewService(db, platformClient, grafanaClient)
+	alertingService, err := alerting.NewService(db, grafanaClient)
 	if err != nil {
 		l.Fatalf("Could not create alerting service: %s", err)
 	}
@@ -943,7 +956,10 @@ func main() { //nolint:maintidx,cyclop
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 
-	dumpService := dump.New(db)
+	dumpService := dump.New(db, &dump.URLs{
+		ClickhouseURL: chURI.String(),
+		VMURL:         *victoriaMetricsURLF,
+	})
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -958,6 +974,8 @@ func main() { //nolint:maintidx,cyclop
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
 		Dus:                  dus,
+		HAService:            haService,
+		Nomad:                nomad,
 	}
 
 	server, err := server.NewServer(serverParams)

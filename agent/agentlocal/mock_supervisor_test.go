@@ -13,7 +13,7 @@ type mockSupervisor struct {
 	mock.Mock
 }
 
-// AgentsList provides a mock function with given fields:
+// AgentsList provides a mock function with no fields
 func (_m *mockSupervisor) AgentsList() []*agentlocalv1.AgentInfo {
 	ret := _m.Called()
 
@@ -33,7 +33,7 @@ func (_m *mockSupervisor) AgentsList() []*agentlocalv1.AgentInfo {
 	return r0
 }
 
-// AgentsLogs provides a mock function with given fields:
+// AgentsLogs provides a mock function with no fields
 func (_m *mockSupervisor) AgentsLogs() map[string][]string {
 	ret := _m.Called()
 

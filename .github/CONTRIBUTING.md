@@ -60,7 +60,7 @@ This project relies on the following dependencies:
 
 ## Run PMM-Server in Docker
 
-1. Run `docker run -d -p 80:80 -p 443:443  --name pmm-server public.ecr.aws/e7j3v3n0/pmm-server:3-dev-latest`.
+1. Run `docker run -d -p 80:8080 -p 443:8443  --name pmm-server public.ecr.aws/e7j3v3n0/pmm-server:3-dev-latest`.
 2. Open http://localhost/.
 
 Please note, the use of port 80 is discouraged and should be avoided. For optimal security, use port 443 along with a valid SSL certificate.

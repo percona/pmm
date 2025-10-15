@@ -695,7 +695,6 @@ func TestSettings(t *testing.T) {
 					"1d":  "", // d suffix => error
 					"1w":  "", // w suffix => error
 				} {
-					change, get := change, get
 					t.Run(change, func(t *testing.T) {
 						defer restoreSettingsDefaults(t)
 

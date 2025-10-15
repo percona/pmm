@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -37,6 +38,7 @@ type mongodbExplainAction struct {
 	timeout time.Duration
 	params  *agentv1.StartActionRequest_MongoDBExplainParams
 	dsn     string
+	tmpDir  string
 }
 
 type explain struct {
@@ -52,7 +54,8 @@ var errCannotExplain = fmt.Errorf("cannot explain this type of query")
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
 func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MongoDBExplainParams, tempDir string) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, filepath.Join(tempDir, mongoDBExplainActionType, id))
+	tmpDir := filepath.Join(tempDir, mongoDBExplainActionType, id)
+	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, tmpDir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -62,6 +65,7 @@ func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentv1.S
 		timeout: timeout,
 		params:  params,
 		dsn:     dsn,
+		tmpDir:  tmpDir,
 	}, nil
 }
 
@@ -87,6 +91,8 @@ func (a *mongodbExplainAction) DSN() string {
 
 // Run runs an action and returns output and error.
 func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
+	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", mongoDBExplainActionType))
+
 	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -158,27 +164,59 @@ func (e explain) prepareCommand() (bson.D, error) {
 		return dropDBField(command), nil
 	case "command":
 		command = dropDBField(command)
-
 		if len(command) == 0 {
 			return command, nil
 		}
-
-		switch command[0].Key {
-		// Not supported commands.
-		case "dbStats":
-			return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
-		case "group":
-		default:
-			return command, nil
+		if command[0].Key == "group" {
+			return fixReduceField(command), nil
 		}
 
-		return fixReduceField(command), nil
+		// https://www.mongodb.com/docs/manual/tutorial/use-database-commands/?utm_source=chatgpt.com#database-command-form
+		res, isExplainable := reorderToCommandFirst(command)
+		if !isExplainable {
+			return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
+		}
+		return res, nil
 	// Not supported operations.
 	case "insert", "drop":
 		return nil, errors.Errorf("operation %s is not supported for explain", e.Op)
 	}
 
 	return command, nil
+}
+
+func reorderToCommandFirst(doc bson.D) (bson.D, bool) {
+	recognized := map[string]struct{}{
+		"find": {}, "findandmodify": {}, "insert": {}, "update": {}, "delete": {},
+		"aggregate": {}, "count": {}, "distinct": {}, "mapReduce": {}, "dbStats": {},
+		"collStats": {}, "listIndexes": {}, "currentOp": {}, "explain": {},
+		"getMore": {}, "killCursors": {}, "create": {}, "drop": {},
+		"listCollections": {}, "listDatabases": {}, "validate": {},
+	}
+
+	explainable := map[string]struct{}{
+		"find": {}, "findandmodify": {}, "update": {}, "aggregate": {},
+		"count": {}, "distinct": {}, "mapReduce": {}, "getMore": {},
+	}
+
+	var first bson.E
+	rest := []bson.E{}
+	for _, e := range doc {
+		if _, ok := recognized[e.Key]; ok && first.Key == "" {
+			first = e
+			continue
+		}
+
+		rest = append(rest, e)
+	}
+
+	if first.Key != "" {
+		reordered := append(bson.D{first}, rest...)
+		_, isExplainable := explainable[first.Key]
+		return reordered, isExplainable
+	}
+
+	return doc, false
 }
 
 func (e explain) getDB() string {

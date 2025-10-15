@@ -37,7 +37,6 @@ func TestVersion(t *testing.T) {
 		"v1/server/version",
 	}
 	for _, path := range paths {
-		path := path
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 

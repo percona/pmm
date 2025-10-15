@@ -46,14 +46,12 @@ func (res *registerResult) String() string {
 }
 
 // RegisterCommand is used by Kong for CLI flags and commands.
-//
-//nolint:lll
 type RegisterCommand struct {
-	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${default})"`
+	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
 	NodeType          string            `arg:"" enum:"generic,container" default:"generic" help:"Node type. One of: [${enum}]. Default: ${default}"`
-	NodeName          string            `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${default})"`
-	MachineID         string            `default:"${defaultMachineID}" help:"Node machine-id (autodetected, default: ${default})"`
-	Distro            string            `default:"${distro}" help:"Node OS distribution (autodetected, default: ${default})"`
+	NodeName          string            `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${hostname})"`
+	MachineID         string            `default:"${defaultMachineID}" help:"Node machine-id (autodetected, default: ${defaultMachineID})"`
+	Distro            string            `default:"${distro}" help:"Node OS distribution (autodetected, default: ${distro})"`
 	ContainerID       string            `help:"Container ID"`
 	ContainerName     string            `help:"Container name"`
 	NodeModel         string            `help:"Node model"`
@@ -69,7 +67,7 @@ type RegisterCommand struct {
 
 // RunCmd runs the command for RegisterCommand.
 func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	params := &mservice.RegisterNodeParams{
 		Body: mservice.RegisterNodeBody{

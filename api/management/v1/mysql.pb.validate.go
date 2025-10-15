@@ -177,6 +177,8 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for ExtraDsnParams
+
 	if len(errors) > 0 {
 		return AddMySQLServiceParamsMultiError(errors)
 	}
@@ -191,7 +193,7 @@ type AddMySQLServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLServiceParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -411,7 +413,7 @@ type MySQLServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MySQLServiceResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

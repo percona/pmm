@@ -33,12 +33,14 @@ is_build_needed() {
     if [ -n "$RPM_EPOCH" ]; then
         aws s3 sync \
             --region us-east-2 \
+            --no-progress \
             --no-sign-request \
             s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     else
         aws s3 sync \
             --region us-east-2 \
+            --no-progress \
             --no-sign-request \
             s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
@@ -97,10 +99,16 @@ build() {
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
 
+    local volume_mounts="-v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS"
+    volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
+    volume_mounts+=" -v pmm-yarn:/home/builder/.cache/yarn"
+    volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
+    volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
+
     if  [[ -n "${FORCE_REBUILD}" ]] || is_build_needed "${spec_name}" "${rpm_version}"; then
         echo "RPM Build Dir: ${rpmbuild_dir}, Docker image: ${rpmbuild_docker_image}"
 
-        docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
+        docker run --rm ${volume_mounts} ${rpmbuild_docker_image} sh -c "
             set -o errexit
             set -o xtrace
             echo \"spec_name: ${spec_name}\"
@@ -124,13 +132,16 @@ build() {
               sleep 1
             done
 
-            sudo yum-builddep -y SOURCES/${spec_name}.spec
+            if [[ ${spec_name} =~ ^grafana|^percona-dashboards ]]; then
+                sudo dnf builddep -y SOURCES/${spec_name}.spec
+            fi
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
             rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
                       --define 'dist .${rpmbuild_dist}' \
                       --define 'debug_package %{nil}' \
-                      -ba SOURCES/${spec_name}.spec
+                      -bb SOURCES/${spec_name}.spec \
+                      --rmspec
 
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
@@ -139,12 +150,14 @@ build() {
         if [ -n "$RPM_EPOCH" ]; then
             aws s3 sync \
                 --region us-east-2 \
+                --no-progress \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
                 s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
         else
             aws s3 sync \
                 --region us-east-2 \
+                --no-progress \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
                 s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :

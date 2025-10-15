@@ -26,7 +26,7 @@ func (_m *mockClient) Describe(_a0 chan<- *prometheus.Desc) {
 	_m.Called(_a0)
 }
 
-// GetConnectionUpTime provides a mock function with given fields:
+// GetConnectionUpTime provides a mock function with no fields
 func (_m *mockClient) GetConnectionUpTime() float32 {
 	ret := _m.Called()
 
@@ -44,7 +44,7 @@ func (_m *mockClient) GetConnectionUpTime() float32 {
 	return r0
 }
 
-// GetNetworkInformation provides a mock function with given fields:
+// GetNetworkInformation provides a mock function with no fields
 func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, error) {
 	ret := _m.Called()
 
@@ -79,7 +79,7 @@ func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, err
 	return r0, r1, r2
 }
 
-// GetServerConnectMetadata provides a mock function with given fields:
+// GetServerConnectMetadata provides a mock function with no fields
 func (_m *mockClient) GetServerConnectMetadata() *agentv1.ServerConnectMetadata {
 	ret := _m.Called()
 

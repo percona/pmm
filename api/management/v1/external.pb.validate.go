@@ -138,6 +138,8 @@ func (m *AddExternalServiceParams) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for TlsSkipVerify
+
 	if len(errors) > 0 {
 		return AddExternalServiceParamsMultiError(errors)
 	}
@@ -152,7 +154,7 @@ type AddExternalServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalServiceParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -312,7 +314,7 @@ type ExternalServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExternalServiceResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

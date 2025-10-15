@@ -35,7 +35,6 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
-	"github.com/percona/pmm/utils/grafana"
 	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
@@ -50,8 +49,6 @@ func TestAuth(t *testing.T) {
 			nil:                              401,
 			url.UserPassword("bad", "wrong"): 401,
 		} {
-			user := user
-			code := code
 			t.Run(fmt.Sprintf("%s/%d", user, code), func(t *testing.T) {
 				t.Parallel()
 
@@ -83,8 +80,6 @@ func TestAuth(t *testing.T) {
 			codes.Unauthenticated:  401,
 			codes.PermissionDenied: 403,
 		} {
-			grpcCode := grpcCode
-			httpCode := httpCode
 			t.Run(fmt.Sprintf("%s/%d", grpcCode, httpCode), func(t *testing.T) {
 				t.Parallel()
 
@@ -107,8 +102,6 @@ func TestSwagger(t *testing.T) {
 		"swagger.json",
 		"swagger/swagger.json",
 	} {
-		path := path
-
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 			t.Run("NoAuth", func(t *testing.T) {
@@ -126,14 +119,26 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
+				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				assert.Equal(t, 200, resp.StatusCode)
+				defer resp.Body.Close() //nolint:errcheck
+
+				assert.Equal(t, 401, resp.StatusCode)
 			})
 
 			t.Run("Auth", func(t *testing.T) {
 				t.Parallel()
+
+				// Create a client that preserves credentials during redirects
+				client := &http.Client{
+					CheckRedirect: func(req *http.Request, via []*http.Request) error {
+						// Copy authentication from original request
+						if len(via) > 0 && via[0].URL.User != nil {
+							req.URL.User = via[0].URL.User
+						}
+						return nil
+					},
+				}
 
 				uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
 					Path: path,
@@ -142,9 +147,10 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
+				resp, err := client.Do(req)
 				require.NoError(t, err)
+				defer resp.Body.Close() //nolint:errcheck
+
 				assert.Equal(t, 200, resp.StatusCode)
 			})
 		})
@@ -183,18 +189,9 @@ func TestBasicAuthPermissions(t *testing.T) {
 	adminID := createUserWithRole(t, admin, "Admin")
 	defer deleteUser(t, adminID)
 
-	const apiPrefix = "api"
-	viewerAPIKeyID, viewerAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, viewer), "Viewer")
-	defer deleteAPIKey(t, viewerAPIKeyID)
-	editorAPIKeyID, editorAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, editor), "Editor")
-	defer deleteAPIKey(t, editorAPIKeyID)
-	adminAPIKeyID, adminAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, admin), "Admin")
-	defer deleteAPIKey(t, adminAPIKeyID)
-
 	type userCase struct {
 		userType   string
 		login      string
-		apiKey     string
 		statusCode int
 	}
 
@@ -206,70 +203,20 @@ func TestBasicAuthPermissions(t *testing.T) {
 	}{
 		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
-			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
-			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 200},
-		}},
-		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
-			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
-			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
-			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 400}, // We send a bad request, but have access to endpoint
+			{userType: "viewer", login: viewer, statusCode: 401},
+			{userType: "editor", login: editor, statusCode: 401},
+			{userType: "admin", login: admin, statusCode: 200},
 		}},
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				user := user
-				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword(user.login, user.login)
-					u.Path = test.url
-
-					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
-					require.NoError(t, err)
-
-					resp, err := http.DefaultClient.Do(req)
-					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-
-					assert.Equal(t, user.statusCode, resp.StatusCode)
-				})
-
-				t.Run(fmt.Sprintf("API Key auth %s", user.userType), func(t *testing.T) {
-					if user.apiKey == "" {
-						t.Skip("API Key does not exist")
-					}
-					// make a BaseURL without authentication
-					u, err := url.Parse(pmmapitests.BaseURL.String())
-					require.NoError(t, err)
-					u.User = nil
-					u.Path = test.url
-
-					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
-					require.NoError(t, err)
-
-					req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user.apiKey))
-
-					resp, err := http.DefaultClient.Do(req)
-					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-
-					assert.Equal(t, user.statusCode, resp.StatusCode)
-				})
-
-				t.Run(fmt.Sprintf("API Key Basic auth %s", user.userType), func(t *testing.T) {
-					if user.apiKey == "" {
-						t.Skip("API Key does not exist")
-					}
-					// make a BaseURL without authentication
-					u, err := url.Parse(pmmapitests.BaseURL.String())
-					require.NoError(t, err)
-					u.User = url.UserPassword("api_key", user.apiKey)
 					u.Path = test.url
 
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
@@ -403,18 +350,12 @@ func TestServiceAccountPermissions(t *testing.T) {
 			{userType: "editor", serviceToken: editorToken, statusCode: 401},
 			{userType: "admin", serviceToken: adminToken, statusCode: 200},
 		}},
-		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
-			{userType: "default", statusCode: 401},
-			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
-			{userType: "editor", serviceToken: editorToken, statusCode: 401},
-			{userType: "admin", serviceToken: adminToken, statusCode: 400}, // We are sending a bad request, but we still have access to the endpoint
-		}},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -433,7 +374,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
 
-				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword("service_token", user.serviceToken)
@@ -453,68 +394,6 @@ func TestServiceAccountPermissions(t *testing.T) {
 	}
 }
 
-func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
-	t.Helper()
-	u, err := url.Parse(pmmapitests.BaseURL.String())
-	require.NoError(t, err)
-	u.Path = "/graph/api/auth/keys"
-
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#create-api-key
-	data, err := json.Marshal(map[string]string{
-		"name": name,
-		"role": role,
-	})
-	require.NoError(t, err)
-
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, u.String(), bytes.NewReader(data))
-	require.NoError(t, err)
-
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
-	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
-
-	var m map[string]interface{}
-	err = json.Unmarshal(b, &m)
-	require.NoError(t, err)
-	apiKey := m["key"].(string)
-
-	u.User = nil
-	u.Path = "/graph/api/auth/key"
-	req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), bytes.NewReader(data))
-	require.NoError(t, err)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-
-	resp1, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
-	require.Equalf(t, http.StatusOK, resp1.StatusCode, "failed to get API key, status code: %d, response: %s", resp1.StatusCode, b)
-
-	var k map[string]interface{}
-	err = json.Unmarshal(b, &k)
-	require.NoError(t, err)
-
-	apiKeyID := int(k["id"].(float64))
-
-	return apiKeyID, apiKey
-}
-
-func deleteAPIKey(t *testing.T, apiKeyID int) {
-	t.Helper()
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
-	u, err := url.Parse(pmmapitests.BaseURL.String())
-	require.NoError(t, err)
-	u.Path = "/graph/api/auth/keys/" + strconv.Itoa(apiKeyID)
-
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
-	require.NoError(t, err)
-
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-
-	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete API Key, status code: %d, response: %s", resp.StatusCode, b)
-}
-
 func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -523,7 +402,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	name := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": grafana.SanitizeSAName(name),
+		"name": name,
 		"role": role,
 	})
 	require.NoError(t, err)
@@ -585,7 +464,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	name := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": grafana.SanitizeSAName(name),
+		"name": name,
 	})
 	require.NoError(t, err)
 

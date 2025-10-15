@@ -46,7 +46,8 @@ import (
 const (
 	defaultClickhouseDatabase           = "pmm"
 	defaultClickhouseAddr               = "127.0.0.1:9000"
-	defaultClickhouseDataSourceAddr     = "127.0.0.1:8123"
+	defaultClickhouseUser               = "default"
+	defaultClickhousePassword           = "clickhouse"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -177,17 +178,6 @@ func (s *Service) Run(ctx context.Context) {
 	}
 }
 
-func (s *Service) subscribe(program string, eventTypes ...eventType) chan *event {
-	ch := make(chan *event, 1)
-	s.eventsM.Lock()
-	s.subs[ch] = sub{
-		program:    program,
-		eventTypes: eventTypes,
-	}
-	s.eventsM.Unlock()
-	return ch
-}
-
 func (s *Service) supervisorctl(args ...string) ([]byte, error) {
 	if s.supervisorctlPath == "" {
 		return nil, errors.New("supervisorctl not found")
@@ -219,41 +209,6 @@ func parseStatus(status string) *bool {
 	return nil
 }
 
-// UpdateRunning returns true if given supervisord program is running or being restarted,
-// false if it is not running / failed.
-func (s *Service) programRunning(program string) bool {
-	// First check with status command is case we missed that event during maintail or pmm-managed restart.
-	// See http://supervisord.org/subprocess.html#process-states
-	b, err := s.supervisorctl("status", program)
-	if err != nil {
-		s.l.Warn(err)
-	}
-	s.l.Debugf("Status result for %q: %q", program, string(b))
-	if status := parseStatus(string(b)); status != nil {
-		s.l.Debugf("Status result for %q parsed: %v", program, *status)
-		return *status
-	}
-
-	s.eventsM.Lock()
-	lastEvent := s.lastEvents[program]
-	s.eventsM.Unlock()
-
-	s.l.Debugf("Status result for %q not parsed, inspecting last event %q.", program, lastEvent)
-	switch lastEvent {
-	case stopping, starting, running:
-		return true
-	case exitedUnexpected: // will be restarted
-		return true
-	case exitedExpected, fatal: // will not be restarted
-		return false
-	case stopped: // we don't know
-		fallthrough
-	default:
-		s.l.Warnf("Unhandled status result for %q (last event %q), assuming it is not running.", program, lastEvent)
-		return false
-	}
-}
-
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
 	if _, err := s.supervisorctl("reread"); err != nil {
@@ -263,29 +218,22 @@ func (s *Service) reload(name string) error {
 	return err
 }
 
-func getValueFromENV(envName string, defaultValue string) string {
-	value, ok := os.LookupEnv(envName)
-	if !ok {
-		value = defaultValue
-	}
-	return value
-}
-
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
-	clickhouseDatabase := getValueFromENV("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
-	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
+	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
+	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
-	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
-	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
-	vmSearchLatencyOffset := getValueFromENV("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
-	vmSearchMaxUniqueTimeseries := getValueFromENV("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
-	vmSearchMaxSamplesPerQuery := getValueFromENV("VM_search_maxSamplesPerQuery", defaultVMSearchMaxSamplesPerQuery)
-	vmSearchMaxQueueDuration := getValueFromENV("VM_search_maxQueueDuration", defaultVMSearchMaxQueueDuration)
-	vmSearchMaxQueryDuration := getValueFromENV("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
-	vmSearchLogSlowQueryDuration := getValueFromENV("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
-	vmPromscrapeStreamParse := getValueFromENV("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
+	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
+	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
+	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
+	vmSearchMaxUniqueTimeseries := envvars.GetEnv("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
+	vmSearchMaxSamplesPerQuery := envvars.GetEnv("VM_search_maxSamplesPerQuery", defaultVMSearchMaxSamplesPerQuery)
+	vmSearchMaxQueueDuration := envvars.GetEnv("VM_search_maxQueueDuration", defaultVMSearchMaxQueueDuration)
+	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
+	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
+	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
 
 	templateParams := map[string]interface{}{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
@@ -304,10 +252,11 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
-		"ClickhouseDataSourceAddr":     clickhouseDataSourceAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
+		"ClickhouseUser":               clickhouseUser,
+		"ClickhousePassword":           clickhousePassword,
 	}
 
 	s.addPostgresParams(templateParams)
@@ -317,7 +266,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	if settings.PMMPublicAddress != "" {
 		pmmPublicAddress := settings.PMMPublicAddress
 		if !strings.HasPrefix(pmmPublicAddress, "https://") && !strings.HasPrefix(pmmPublicAddress, "http://") {
-			pmmPublicAddress = fmt.Sprintf("https://%s", pmmPublicAddress)
+			pmmPublicAddress = "https://" + pmmPublicAddress
 		}
 		publicURL, err := url.Parse(pmmPublicAddress)
 		if err != nil {
@@ -336,6 +285,12 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		templateParams["IssuerDomain"] = u.Host
 	} else {
 		templateParams["PerconaSSODetails"] = nil
+	}
+
+	if settings.IsNomadEnabled() {
+		templateParams["NomadEnabled"] = "true"
+	} else {
+		templateParams["NomadEnabled"] = "false"
 	}
 
 	var buf bytes.Buffer
@@ -400,7 +355,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	restore := true
 	defer func() {
 		if restore {
-			if err = os.WriteFile(path, oldCfg, 0o644); err != nil { //nolint:gosec
+			if err = os.WriteFile(path, oldCfg, 0o664); err != nil { //nolint:gosec
 				s.l.Errorf("Failed to restore: %s.", err)
 			}
 			if err = s.reload(name); err != nil {
@@ -410,7 +365,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	if err = os.WriteFile(path, cfg, 0o644); err != nil { //nolint:gosec
+	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
 		return false, errors.WithStack(err)
 	}
 	if err = s.reload(name); err != nil {
@@ -501,7 +456,6 @@ command =
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -523,14 +477,12 @@ command =
 		--external.url={{ .VMURL }}
 		--datasource.url={{ .VMURL }}
 		--remoteRead.url={{ .VMURL }}
-		--remoteRead.ignoreRestoreErrors=false
 		--remoteWrite.url={{ .VMURL }}
 		--rule=/srv/prometheus/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
 {{- end }}
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -552,7 +504,6 @@ command =
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -574,9 +525,10 @@ command =
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
 
 
-user = pmm
 autorestart = true
 autostart = true
 startretries = 1000
@@ -620,9 +572,10 @@ environment =
     PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
     PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
-    PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
+    PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+    PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
@@ -631,7 +584,6 @@ environment =
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
     {{- end}}
-user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true
@@ -642,6 +594,22 @@ stopwaitsecs = 300
 stdout_logfile = /srv/logs/grafana.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
+redirect_stderr = true
+{{end}}
+
+{{define "nomad-server"}}
+[program:nomad-server]
+priority = 5
+command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
+autorestart = {{ .NomadEnabled }}
+autostart = {{ .NomadEnabled }}
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/nomad-server.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 `))

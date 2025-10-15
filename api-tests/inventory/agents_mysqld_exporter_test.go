@@ -66,6 +66,9 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams: map[string]string{
+					"allowCleartextPasswords": "1",
+				},
 				SkipConnectionCheck:       true,
 				TablestatsGroupTableLimit: 2000,
 			},
@@ -90,6 +93,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{"allowCleartextPasswords": "1"},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
@@ -118,9 +122,10 @@ func TestMySQLdExporter(t *testing.T) {
 				PMMAgentID:                pmmAgentID,
 				Disabled:                  true,
 				TablestatsGroupTableLimit: 2000,
-				Status:                    &AgentStatusUnknown,
+				Status:                    &AgentStatusDone,
 				DisabledCollectors:        make([]string, 0),
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{"allowCleartextPasswords": "1"},
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
@@ -151,8 +156,9 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"new_label": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{"allowCleartextPasswords": "1"},
 				TablestatsGroupTableLimit: 2000,
-				Status:                    &AgentStatusUnknown,
+				Status:                    &AgentStatusDone,
 				DisabledCollectors:        make([]string, 0),
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
@@ -185,7 +191,7 @@ func TestMySQLdExporter(t *testing.T) {
 		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotZerof(t, len(res.Payload.PMMAgent), "There should be at least one service")
+		require.NotEmpty(t, res.Payload.PMMAgent, "There should be at least one service")
 
 		pmmAgentID := ""
 		for _, agent := range res.Payload.PMMAgent {
@@ -211,7 +217,7 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 			},
 		})
-		assert.Greater(t, mySqldExporter.MysqldExporter.TableCount, int32(0))
+		assert.Positive(t, mySqldExporter.MysqldExporter.TableCount)
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
 		agentID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
@@ -402,6 +408,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{},
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
@@ -431,6 +438,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
@@ -458,6 +466,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{},
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,

@@ -34,7 +34,7 @@ func TestLabels(t *testing.T) {
 		var b []byte
 		err := setLabels(map[string]string{"_1foo": "bar", "baz": "  "}, &b)
 		assert.NoError(t, err)
-		assert.Equal(t, `{"_1foo":"bar","baz":""}`, string(b))
+		assert.JSONEq(t, `{"_1foo":"bar","baz":""}`, string(b))
 		m, err := getLabels(b)
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]string{"_1foo": "bar", "baz": ""}, m)

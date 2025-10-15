@@ -160,6 +160,16 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 				metricsResolution: &mr,
 			})
 
+		case models.ValkeyExporterType:
+			scfgs, err = scrapeConfigForValkeyExporter(&scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				streamParse:       true,
+				metricsResolution: &mr,
+			})
+
 		case models.ProxySQLExporterType:
 			scfgs, err = scrapeConfigsForProxySQLExporter(&scrapeConfigParams{
 				host:              paramsHost,
@@ -171,7 +181,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 
 		case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
 			continue
-		case models.QANMongoDBProfilerAgentType:
+		case models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType:
 			continue
 		case models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			continue
@@ -212,7 +222,14 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 				agent:             agent,
 				metricsResolution: &mr,
 			})
-
+		case models.NomadAgentType:
+			scfgs, err = scrapeConfigsForNomadAgent(&mr, &scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				metricsResolution: &mr,
+			})
 		default:
 			l.Warnf("Skipping scrape config for %s.", agent)
 			continue

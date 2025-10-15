@@ -114,7 +114,6 @@ func TestDeleteArtifact(t *testing.T) {
 			Status:     models.SuccessRestoreStatus,
 		})
 		require.NoError(t, err)
-
 		go func() {
 			tx, err := db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
 			require.NoError(t, err)
@@ -123,7 +122,6 @@ func TestDeleteArtifact(t *testing.T) {
 			require.NoError(t, err)
 
 			time.Sleep(time.Second * 3)
-
 			err = tx.Commit()
 			assert.NoError(t, err)
 		}()
@@ -317,7 +315,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, artifact)
 		assert.Equal(t, models.PendingBackupStatus, artifact.Status)
-		assert.Equal(t, 3, len(artifact.MetadataList))
+		assert.Len(t, artifact.MetadataList, 3)
 	})
 
 	t.Run("error during removing files sets artifact status", func(t *testing.T) {
@@ -336,7 +334,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, artifact)
 		assert.Equal(t, models.SuccessBackupStatus, artifact.Status)
-		assert.Equal(t, 3, len(artifact.MetadataList))
+		assert.Len(t, artifact.MetadataList, 3)
 	})
 
 	t.Run("successful", func(t *testing.T) {
@@ -373,7 +371,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, artifact)
 		assert.Equal(t, models.SuccessBackupStatus, artifact.Status)
-		assert.Equal(t, 2, len(artifact.MetadataList))
+		assert.Len(t, artifact.MetadataList, 2)
 	})
 
 	mockedStorage.AssertExpectations(t)

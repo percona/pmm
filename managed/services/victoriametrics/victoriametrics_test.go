@@ -83,7 +83,9 @@ func TestVictoriaMetrics(t *testing.T) {
 		check := require.New(t)
 		db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
-		err := models.SaveSettings(db.Querier, &models.Settings{})
+		settings := &models.Settings{}
+		settings.Nomad.Enabled = pointer.ToBool(true)
+		err := models.SaveSettings(db.Querier, settings)
 		check.NoError(err)
 
 		for _, str := range []reform.Struct{
@@ -108,7 +110,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				Version:      pointer.ToString("2.26.0"),
 			},
 
-			// listen port not known
+			// listen port is not known
 			&models.Agent{
 				AgentID:    "711674c2-36e6-42d5-8e63-5d7c84c9053a",
 				AgentType:  models.NodeExporterType,
@@ -144,6 +146,16 @@ func TestVictoriaMetrics(t *testing.T) {
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address:      pointer.ToString("5.6.7.8"),
 				Port:         pointer.ToUint16(27017),
+				CustomLabels: []byte(`{"_service_label": "bam"}`),
+			},
+
+			&models.Service{
+				ServiceID:    "a04c391a-b3d0-40c2-95c5-3cfec462c8e5",
+				ServiceType:  models.ValkeyServiceType,
+				ServiceName:  "test-valkey",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("1.3.5.7"),
+				Port:         pointer.ToUint16(6379),
 				CustomLabels: []byte(`{"_service_label": "bam"}`),
 			},
 
@@ -194,6 +206,25 @@ func TestVictoriaMetrics(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			},
 
+			&models.Agent{
+				AgentID:      "fd2dcf41-0718-4319-9fa9-b7a509787c98",
+				AgentType:    models.ValkeyExporterType,
+				PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    pointer.ToString("a04c391a-b3d0-40c2-95c5-3cfec462c8e5"),
+				CustomLabels: []byte(`{"_agent_label": "valkey-baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+			},
+
+			&models.Agent{
+				AgentID:       "75bb30d3-ef4a-4147-97a8-621a996612dd",
+				AgentType:     models.ExternalExporterType,
+				PMMAgentID:    pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:     pointer.ToString("014647c3-b2f5-44eb-94f4-d943260a968c"),
+				CustomLabels:  []byte(`{"_agent_label": "baz"}`),
+				ListenPort:    pointer.ToUint16(22345),
+				TLSSkipVerify: true,
+			},
+
 			// disabled
 			&models.Agent{
 				AgentID:    "4226ddb5-8197-443c-9891-7772b38324a7",
@@ -201,7 +232,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				PMMAgentID: pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
 				NodeID:     pointer.ToString("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 				Disabled:   true,
-				ListenPort: pointer.ToUint16(12345),
+				ListenPort: pointer.ToUint16(12346),
 			},
 
 			// PMM Agent without version
@@ -249,7 +280,12 @@ func TestVictoriaMetrics(t *testing.T) {
 				},
 			},
 		} {
-			check.NoError(db.Insert(str), "%+v", str)
+			if str, ok := str.(*models.Agent); ok {
+				*str = models.EncryptAgent(*str)
+			}
+
+			err := db.Insert(str)
+			check.NoError(err, "%+v", str)
 		}
 
 		check.NoError(svc.updateConfiguration(context.Background()))
@@ -287,7 +323,7 @@ scrape_configs:
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
-      metrics_path: /metrics
+      metrics_path: /graph/metrics
       static_configs:
         - targets:
             - 127.0.0.1:3000
@@ -326,6 +362,43 @@ scrape_configs:
             - 127.0.0.1:9363
           labels:
             instance: pmm-server
+      follow_redirects: false
+    - job_name: nomad
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /v1/metrics?format=prometheus
+      scheme: https
+      static_configs:
+        - targets:
+            - 127.0.0.1:4646
+          labels:
+            instance: pmm-server
+      tls_config:
+        insecure_skip_verify: true
+      follow_redirects: false
+    - job_name: external-exporter_75bb30d3-ef4a-4147-97a8-621a996612dd_mr
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      static_configs:
+        - targets:
+            - 1.2.3.4:22345
+          labels:
+            _agent_label: baz
+            _node_label: foo
+            _service_label: bar
+            agent_id: 75bb30d3-ef4a-4147-97a8-621a996612dd
+            agent_type: external-exporter
+            instance: 75bb30d3-ef4a-4147-97a8-621a996612dd
+            node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+            service_id: 014647c3-b2f5-44eb-94f4-d943260a968c
+            service_name: test-mysql
+            service_type: mysql
+      tls_config:
+        insecure_skip_verify: true
       follow_redirects: false
     - job_name: mongodb_exporter_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
       honor_timestamps: false
@@ -727,6 +800,32 @@ scrape_configs:
         password: 29e14468-d479-4b4d-bfb7-4ac2fb865bac
       follow_redirects: false
       stream_parse: true
+    - job_name: valkey_exporter_fd2dcf41-0718-4319-9fa9-b7a509787c98_hr
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: valkey-baz
+            _node_label: foo
+            _service_label: bam
+            agent_id: fd2dcf41-0718-4319-9fa9-b7a509787c98
+            agent_type: valkey_exporter
+            instance: fd2dcf41-0718-4319-9fa9-b7a509787c98
+            node_id: cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+            service_id: a04c391a-b3d0-40c2-95c5-3cfec462c8e5
+            service_name: test-valkey
+            service_type: valkey
+      basic_auth:
+        username: pmm
+        password: fd2dcf41-0718-4319-9fa9-b7a509787c98
+      follow_redirects: false
+      stream_parse: true
 `) + "\n"
 		actual, err := os.ReadFile(configPath)
 		check.NoError(err)
@@ -843,7 +942,7 @@ scrape_configs:
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
-      metrics_path: /metrics
+      metrics_path: /graph/metrics
       static_configs:
         - targets:
             - 127.0.0.1:3000

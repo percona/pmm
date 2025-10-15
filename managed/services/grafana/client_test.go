@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -31,7 +32,8 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	// logrus.SetLevel(logrus.TraceLevel)
+	logrus.SetLevel(logrus.TraceLevel)
+	l := logrus.WithField("test", t.Name())
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
@@ -43,7 +45,7 @@ func TestClient(t *testing.T) {
 
 	t.Run("getRole", func(t *testing.T) {
 		t.Run("GrafanaAdmin", func(t *testing.T) {
-			u, err := c.getAuthUser(ctx, authHeaders)
+			u, err := c.getAuthUser(ctx, authHeaders, l)
 			role := u.role
 			assert.NoError(t, err)
 			assert.Equal(t, grafanaAdmin, role)
@@ -54,7 +56,7 @@ func TestClient(t *testing.T) {
 			// See [auth.anonymous] in grafana.ini.
 			// Even if anonymous access is enabled, returned role is None, not org_role.
 
-			u, err := c.getAuthUser(ctx, nil)
+			u, err := c.getAuthUser(ctx, nil, l)
 			role := u.role
 			clientError, _ := errors.Cause(err).(*clientError) //nolint:errorlint
 			require.NotNil(t, clientError, "got role %s", role)
@@ -63,7 +65,7 @@ func TestClient(t *testing.T) {
 			body := clientError.Body
 			body = strings.ReplaceAll(body, "\n", "") // different grafana versions format response differently
 			body = strings.ReplaceAll(body, " ", "")  // so we cleanup response from spaces and newlines to get unified result
-			assert.Equal(t, "{\"extra\":null,\"message\":\"Unauthorized\",\"messageId\":\"auth.unauthorized\",\"statusCode\":401,\"traceID\":\"\"}", body)
+			assert.JSONEq(t, `{"extra":null,"message":"Unauthorized","messageId":"auth.unauthorized","statusCode":401,"traceID":""}`, body)
 			assert.Equal(t, `Unauthorized`, clientError.ErrorMessage)
 			assert.Equal(t, none, role)
 			assert.Equal(t, "None", role.String())
@@ -88,7 +90,7 @@ func TestClient(t *testing.T) {
 			req.SetBasicAuth(login, login)
 			userAuthHeaders := req.Header
 
-			u, err := c.getAuthUser(ctx, userAuthHeaders)
+			u, err := c.getAuthUser(ctx, userAuthHeaders, l)
 			actualRole := u.role
 			assert.NoError(t, err)
 			assert.Equal(t, viewer, actualRole)
@@ -96,8 +98,6 @@ func TestClient(t *testing.T) {
 		})
 
 		for _, role := range []role{viewer, editor, admin} {
-			role := role
-
 			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
@@ -115,30 +115,7 @@ func TestClient(t *testing.T) {
 				req.SetBasicAuth(login, login)
 				userAuthHeaders := req.Header
 
-				u, err := c.getAuthUser(ctx, userAuthHeaders)
-				actualRole := u.role
-				require.NoError(t, err)
-				assert.Equal(t, role, actualRole)
-				assert.Equal(t, role.String(), actualRole.String())
-			})
-
-			t.Run(fmt.Sprintf("API Key auth %s", role.String()), func(t *testing.T) {
-				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
-				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
-				require.NoError(t, err)
-				require.NotZero(t, apiKeyID)
-				require.NotEmpty(t, apiKey)
-				if err != nil {
-					defer func() {
-						err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
-						require.NoError(t, err)
-					}()
-				}
-
-				apiKeyAuthHeaders := http.Header{}
-				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-
-				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
+				u, err := c.getAuthUser(ctx, userAuthHeaders, l)
 				actualRole := u.role
 				require.NoError(t, err)
 				assert.Equal(t, role, actualRole)
@@ -167,7 +144,7 @@ func TestClient(t *testing.T) {
 
 				serviceTokenAuthHeaders := http.Header{}
 				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
-				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders)
+				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders, l)
 				assert.NoError(t, err)
 				actualRole := u.role
 				assert.Equal(t, role, actualRole)

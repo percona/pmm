@@ -3,7 +3,7 @@
 Before creating MySQL backups, make sure to:
 {.power-number}
 
-1. Check that **Backup Management** is enabled and the <i class="uil uil-history"></i> Backup option is available on the side menu. If Backup Managemt has been disabled on your instance, go to <i class="uil uil-cog"></i> **Configuration > PMM Settings > Advanced Settings**, re-enable **Backup Management** then click **Apply changes**.
+1. Check that **Backup Management** is enabled and the <i class="uil uil-history"></i> Backup option is available on the side menu. If Backup Managemt has been disabled on your instance, go to :material-cog: **Configuration > PMM Settings > Advanced Settings**, re-enable **Backup Management** then click **Apply changes**.
    !!! caution alert alert-warning "Important"
     If PMM Server runs as a Docker container, enable backup features at container creation time by adding `-e ENABLE_BACKUP_MANAGEMENT=1` to your `docker run` command.
 

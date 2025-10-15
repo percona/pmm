@@ -344,12 +344,12 @@ func readLogUnlimited(name string) ([]byte, time.Time, error) {
 		if err == io.EOF {
 			// A special case when the last line does not end with a new line
 			if len(b) != 0 {
-				res = append(res, b...) //nolint:makezero
+				res = append(res, b...)
 			}
 			break
 		}
 
-		res = append(res, b...) //nolint:makezero
+		res = append(res, b...)
 
 		if err != nil {
 			return nil, m, errors.WithStack(err)

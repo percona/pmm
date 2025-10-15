@@ -134,6 +134,8 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for QanMongodbProfiler
 
+	// no validation rules for QanMongodbMongolog
+
 	// no validation rules for CustomLabels
 
 	// no validation rules for SkipConnectionCheck
@@ -180,7 +182,7 @@ type AddMongoDBServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMongoDBServiceParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -355,6 +357,35 @@ func (m *MongoDBServiceResult) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetQanMongodbMongolog()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MongoDBServiceResultValidationError{
+					field:  "QanMongodbMongolog",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MongoDBServiceResultValidationError{
+					field:  "QanMongodbMongolog",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetQanMongodbMongolog()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MongoDBServiceResultValidationError{
+				field:  "QanMongodbMongolog",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MongoDBServiceResultMultiError(errors)
 	}
@@ -369,7 +400,7 @@ type MongoDBServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MongoDBServiceResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

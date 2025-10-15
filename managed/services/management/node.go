@@ -54,7 +54,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			return err
 		}
 
-		node, err = models.CheckUniqueNodeInstanceRegion(tx.Querier, req.Address, &req.Region)
+		node, err = models.CheckUniqueNodeAddressRegion(tx.Querier, req.Address, &req.Region)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			// nothing
@@ -81,6 +81,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			ContainerID:   pointer.ToStringOrNil(req.ContainerId),
 			ContainerName: pointer.ToStringOrNil(req.ContainerName),
 			CustomLabels:  req.CustomLabels,
+			InstanceID:    req.InstanceId,
 			Address:       req.Address,
 			Region:        pointer.ToStringOrNil(req.Region),
 		})
@@ -111,9 +112,12 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			return err
 		}
 		res.PmmAgent = a.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
-		_, err = models.
-			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
-				req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
+
+		_, err = models.CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
+			req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
+		if err != nil {
+			return err
+		}
 		return err
 	})
 	if e != nil {
@@ -134,7 +138,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 	return res, nil
 }
 
-// Unregister do unregistration of the node.
+// UnregisterNode unregisters the node.
 func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
@@ -223,17 +227,25 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 
-		nodes, err = models.FindNodes(s.db.Querier, filters)
+		nodes, err = models.FindNodes(tx.Querier, filters)
 		if err != nil {
 			return err
 		}
 
-		agents, err = models.FindAgents(s.db.Querier, models.AgentFilters{})
+		agentFilters := models.AgentFilters{}
+
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		agentFilters.IgnoreNomad = !settings.IsNomadEnabled()
+
+		agents, err = models.FindAgents(tx.Querier, agentFilters)
 		if err != nil {
 			return err
 		}
 
-		services, err = models.FindServices(s.db.Querier, models.ServiceFilters{})
+		services, err = models.FindServices(tx.Querier, models.ServiceFilters{})
 		if err != nil {
 			return err
 		}
@@ -312,6 +324,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			NodeModel:     node.NodeModel,
 			Region:        pointer.GetString(node.Region),
 			UpdatedAt:     timestamppb.New(node.UpdatedAt),
+			InstanceId:    node.InstanceID,
 		}
 
 		if metric, ok := metrics[node.NodeID]; ok {

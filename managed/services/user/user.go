@@ -68,7 +68,7 @@ func (s *Service) GetUser(ctx context.Context, _ *userv1.GetUserRequest) (*userv
 	}
 
 	resp := &userv1.GetUserResponse{
-		UserId:                uint32(userInfo.ID),
+		UserId:                uint32(userInfo.ID), //nolint:gosec // user ID is not expected to overflow uint32
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
@@ -115,7 +115,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 	}
 
 	resp := &userv1.UpdateUserResponse{
-		UserId:                uint32(userInfo.ID),
+		UserId:                uint32(userInfo.ID), //nolint:gosec // user ID is not expected to overflow uint32
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,

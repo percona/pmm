@@ -37,7 +37,7 @@ func TestSettings(t *testing.T) {
 	t.Run("Defaults", func(t *testing.T) {
 		actual, err := models.GetSettings(sqlDB)
 		require.NoError(t, err)
-		require.NotEmpty(t, actual.EncryptedItems)
+		require.Empty(t, actual.EncryptedItems)
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Second,

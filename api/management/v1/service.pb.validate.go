@@ -349,6 +349,47 @@ func (m *AddServiceRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddServiceRequest_Valkey:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkey()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkey()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceRequestValidationError{
+					field:  "Valkey",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -367,7 +408,7 @@ type AddServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -743,6 +784,47 @@ func (m *AddServiceResponse) validate(all bool) error {
 			}
 		}
 
+	case *AddServiceResponse_Valkey:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkey()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkey()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceResponseValidationError{
+					field:  "Valkey",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -761,7 +843,7 @@ type AddServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -867,7 +949,7 @@ type RemoveServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -969,7 +1051,7 @@ type RemoveServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1195,7 +1277,7 @@ type UniversalServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1301,7 +1383,7 @@ type ListServicesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServicesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1437,7 +1519,7 @@ type ListServicesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServicesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

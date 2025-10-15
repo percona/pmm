@@ -16,7 +16,6 @@ on:
       - "admin/**"
       - "agent/**"
       - "api-tests/**"
-      - "cli-tests/**"
       - "docs/**"
       - "documentation/**"
       - "managed/**"
@@ -36,23 +35,20 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup nodejs
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ui/.nvmrc
           cache: yarn
-          cache-dependency-path: ui
+          cache-dependency-path: ui/yarn.lock
 
       - name: Run lint
-        run: |
-          make lint
+        run: make lint
 
       - name: Run unit tests
-        run: |
-          make test
+        run: make test
 
       - name: Build application
-        run: |
-          make build
+        run: make build

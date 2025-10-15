@@ -269,14 +269,14 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
 		TextFiles: map[string]string{
-			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-password\n",
+			"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 		},
 	}
 	require.NoError(t, err)
@@ -300,7 +300,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=col1,col2,col3",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -329,7 +329,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=col1,col2,col3",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -359,7 +359,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -388,7 +388,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -419,7 +419,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -460,14 +460,14 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
 		TextFiles: map[string]string{
-			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-password\n",
+			"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 		},
 	}
 	require.NoError(t, err)
@@ -502,7 +502,7 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -719,7 +719,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		"--discovering-mode",
 		"--mongodb.global-conn-pool",
 		"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-		"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		"--web.config={{ .TextFiles.webConfig }}",
 	}
 
 	expectedEnv := []string{
@@ -746,7 +746,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			TemplateRightDelim: "}}",
 			Args:               expectedArgs,
 			TextFiles: map[string]string{
-				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-custom-password\n",
+				"webConfig": "basic_auth_users:\n    pmm: agent-custom-password\n",
 			},
 			Env:         expectedEnv,
 			RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-custom-password"},
@@ -776,7 +776,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			TemplateRightDelim: "}}",
 			Args:               expectedArgs,
 			TextFiles: map[string]string{
-				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+				"webConfig": "basic_auth_users:\n    pmm: agent-id\n",
 			},
 			Env:         expectedEnv,
 			RedactWords: []string{"s3cur3 p@$$w0r4."},

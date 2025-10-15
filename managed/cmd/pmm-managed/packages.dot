@@ -31,6 +31,7 @@ digraph packages {
 	"/services/qan" -> "/models";
 	"/services/qan.test" -> "/services/qan";
 	"/services/server" -> "/models";
+	"/services/server" -> "/services";
 	"/services/server.test" -> "/services/server";
 	"/services/supervisord" -> "/models";
 	"/services/supervisord.test" -> "/services/supervisord";

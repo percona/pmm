@@ -72,10 +72,10 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 	// Check user ID is unique
 	row := &UserDetails{ID: params.UserID}
 	err := q.Reload(row)
-	switch err { //nolint:errorlint
-	case nil:
+	switch {
+	case err == nil:
 		return nil, ErrUserAlreadyExists
-	case reform.ErrNoRows:
+	case errors.Is(err, reform.ErrNoRows):
 		break
 	default:
 		return nil, errors.WithStack(err)

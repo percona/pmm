@@ -134,6 +134,8 @@ func (m *AddHAProxyServiceParams) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for TlsSkipVerify
+
 	if len(errors) > 0 {
 		return AddHAProxyServiceParamsMultiError(errors)
 	}
@@ -148,7 +150,7 @@ type AddHAProxyServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddHAProxyServiceParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -308,7 +310,7 @@ type HAProxyServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HAProxyServiceResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -9,7 +9,7 @@ type mockVersionCache struct {
 	mock.Mock
 }
 
-// RequestSoftwareVersionsUpdate provides a mock function with given fields:
+// RequestSoftwareVersionsUpdate provides a mock function with no fields
 func (_m *mockVersionCache) RequestSoftwareVersionsUpdate() {
 	_m.Called()
 }

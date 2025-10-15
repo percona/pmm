@@ -117,7 +117,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	transport.Context = context.Background()
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
 		b, _ := io.ReadAll(reader)
 		return nginxError(string(b))
 	})
@@ -140,12 +140,12 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	managementClient.Default.SetTransport(transport)
 }
 
-// ParseCustomLabels parses --custom-labels flag value.
+// ParseKeyValuePair parses --custom-labels flag value.
 //
 // Note that quotes around value are parsed and removed by shell before this function is called.
 // For example, the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
 // as [[region=us-east1, mylabel=mylab-22]].
-func ParseCustomLabels(labels string) (map[string]string, error) {
+func ParseKeyValuePair(labels string) (map[string]string, error) {
 	result := make(map[string]string)
 	parts := strings.Split(labels, ",")
 	for _, part := range parts {
@@ -179,7 +179,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 		}
 	}
 
-	customLabels, err := ParseCustomLabels(cfgSetup.CustomLabels)
+	customLabels, err := ParseKeyValuePair(cfgSetup.CustomLabels)
 	if err != nil {
 		return "", "", err
 	}

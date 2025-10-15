@@ -20,7 +20,6 @@ import (
 	"context"
 	"database/sql"
 	"net/url"
-	"time"
 
 	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
@@ -56,7 +55,6 @@ func (d *dsGrafanaDBSelect) Init(ctx context.Context) error { //nolint:revive
 	if err != nil {
 		return err
 	}
-
 	d.db = db
 	return nil
 }
@@ -82,10 +80,10 @@ func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB
 		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
 	}
 
-	db.SetConnMaxIdleTime(time.Second * 30)
-	db.SetConnMaxLifetime(time.Second * 180)
-	db.SetMaxIdleConns(1)
-	db.SetMaxOpenConns(1)
+	db.SetConnMaxIdleTime(defaultConnMaxIdleTime)
+	db.SetConnMaxLifetime(defaultConnMaxLifetime)
+	db.SetMaxIdleConns(defaultMaxIdleConns)
+	db.SetMaxOpenConns(defaultMaxOpenConns)
 
 	if err := db.Ping(); err != nil {
 		l.Warnf("Grafana DB is not reachable [%s]: %s", config.DSN.Host, err)
