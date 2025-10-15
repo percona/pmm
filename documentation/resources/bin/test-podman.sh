@@ -22,27 +22,43 @@ After=nss-user-lookup.target nss-lookup.target
 After=time-sync.target
 [Service]
 EnvironmentFile=%h/.config/systemd/user/pmm-server.env
-Environment=PMM_VOLUME_NAME=pmm-data
 TimeoutStartSec=480
 Restart=on-failure
 RestartSec=20
 ExecStart=/usr/bin/podman run \
-    --volume=${PMM_VOLUME_NAME}:/srv \
     --rm --replace=true --name %N \
+    --volume=PMM_VOLUME=pmm-data:/srv \
     --env-file=%h/.config/systemd/user/pmm-server.env \
-    --net pmm_default \
+    --network=pmm_default \
     --cap-add=net_admin,net_raw \
-    --userns=keep-id:uid=1000,gid=1000 \
-    -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
+    -p 443:8443/tcp --ulimit=host \
+    PMM_IMAGE=docker.io/percona/pmm-server:3
 ExecStop=/usr/bin/podman stop -t 10 %N
 [Install]
 WantedBy=default.target
 EOF
 
-echo "PMM_IMAGE=docker.io/percona/pmm-server:3" > ~/.config/systemd/user/pmm-server.env
+cat > ~/.config/systemd/user/pmm-server.env <<EOF
+GF_SECURITY_ADMIN_PASSWORD=strong-password
+PMM_ENABLE_ACCESS_CCONTROL=1
+EOF
 
 systemctl --user enable --now pmm-server
 
-timeout 60 podman wait --condition=running pmm-server
+# Give it some time to download the image and start
+sleep 60
 
-podman ps --all
+podman wait --condition=running pmm-server
+
+if ! podman ps | grep pmm-server; then
+  echo "pmm-server container is NOT running"
+  exit 1
+fi
+
+if [ "$(curl -sk -o /dev/null -w "%{http_code}" https://127.0.0.1:443/v1/server/readyz)" -ne 200 ]; then
+  echo "pmm-server container is NOT ready"
+  exit 1
+fi
+
+echo "pmm-server container is running and accepting connections"
+echo "🍏 pmm-server container is running and accepting connections 🍏"

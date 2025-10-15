@@ -1,4 +1,4 @@
-name: Test podman.md
+name: Podman
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-22.04
 
     steps:
@@ -29,7 +29,11 @@ jobs:
         if: ${{ failure() }}
         run: |
           podman version
+          podman image ls
           podman ps --all
           systemctl --user status pmm-server.service || true
+          echo "Logs for pmm-server container:"
+          podman logs pmm-server || true
+          echo "Inspecting pmm-server container:"
           podman inspect pmm-server || true
           journalctl --user -xe

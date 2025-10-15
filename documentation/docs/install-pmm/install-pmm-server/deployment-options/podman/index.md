@@ -87,19 +87,18 @@ When you initiate an update in the UI with Podman:
         After=time-sync.target
         [Service]
         EnvironmentFile=%h/.config/systemd/user/pmm-server.env
-        Environment=PMM_VOLUME_NAME=pmm-data
+        Environment=PMM_VOLUME=pmm-data
         TimeoutStartSec=480
         Restart=on-failure
         RestartSec=20
         ExecStart=/usr/bin/podman run \
-            --volume %h/.config/systemd/user/:/home/pmm/update/ \
-            --volume=${PMM_VOLUME_NAME}:/srv \
             --rm --replace=true --name %N \
+            --volume=%E{PMM_VOLUME}:/srv \
             --env-file=%h/.config/systemd/user/pmm-server.env \
-            --net pmm_default \
+            --network=pmm_default \
             --cap-add=net_admin,net_raw \
-            --userns=keep-id:uid=1000,gid=1000 \
-            -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
+            -p 443:8443/tcp --ulimit=host \
+            %E{PMM_IMAGE}
         ExecStop=/usr/bin/podman stop -t 10 %N
         [Install]
         WantedBy=default.target
@@ -126,13 +125,14 @@ When you initiate an update in the UI with Podman:
         EnvironmentFile=%h/.config/systemd/user/watchtower.env
         Restart=on-failure
         RestartSec=20
-        ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
-            -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
+        ExecStart=/usr/bin/podman run \
+            --rm --replace=true --name %N \
+            --volume=%E{XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
             --env-file=%h/.config/systemd/user/watchtower.env \
-            --net pmm_default \
+            --network=pmm_default \
             --security-opt label=type:container_runtime_t \
             --cap-add=net_admin,net_raw \
-            ${WATCHTOWER_IMAGE}
+            %E{WATCHTOWER_IMAGE}
         ExecStop=/usr/bin/podman stop -t 10 %N
         [Install]
         WantedBy=default.target
@@ -178,18 +178,19 @@ When you initiate an update in the UI with Podman:
         After=time-sync.target
         [Service]
         EnvironmentFile=%h/.config/systemd/user/pmm-server.env
-        Environment=PMM_VOLUME_NAME=pmm-data
+        Environment=PMM_VOLUME=pmm-data
+        Environment=PMM_IMAGE=docker.io/percona/pmm-server:3
         TimeoutStartSec=480
         Restart=on-failure
         RestartSec=20
         ExecStart=/usr/bin/podman run \
-            --volume=${PMM_VOLUME_NAME}:/srv \
             --rm --replace=true --name %N \
+            --volume=%E{PMM_VOLUME}:/srv \
             --env-file=%h/.config/systemd/user/pmm-server.env \
-            --net pmm_default \
+            --network=pmm_default \
             --cap-add=net_admin,net_raw \
-            --userns=keep-id:uid=1000,gid=1000 \
-            -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
+            -p 443:8443/tcp --ulimit=host \
+            %E{PMM_IMAGE}
         ExecStop=/usr/bin/podman stop -t 10 %N
         [Install]
         WantedBy=default.target
@@ -198,7 +199,8 @@ When you initiate an update in the UI with Podman:
     3. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
 
         ```sh
-        PMM_IMAGE=docker.io/percona/pmm-server:3
+        GF_SECURITY_ADMIN_PASSWORD=strong-password
+        PMM_ENABLE_ACCESS_CCONTROL=1
         ```
 
     4. Enable and start the PMM Server service:
@@ -221,11 +223,3 @@ For information on manually upgrading, see [Upgrade PMM Server using Podman](../
 - [Restore PMM Server Podman container](restore_container_podman.md)
 - [Remove PMM Server Podman container](remove_container_podman.md) 
 - [Install PMM Client](../../../install-pmm-client/index.md) 
-
-<div hidden>
-```sh
-# first pull can take time
-sleep 80
-timeout 60 podman wait --condition=running pmm-server
-```
-</div>
