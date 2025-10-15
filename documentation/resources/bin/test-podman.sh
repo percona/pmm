@@ -50,15 +50,9 @@ sleep 60
 
 podman wait --condition=running pmm-server
 
-if ! podman ps | grep pmm-server; then
-  echo "pmm-server container is NOT running"
-  exit 1
-fi
-
 if [ "$(curl -sk -o /dev/null -w "%{http_code}" https://127.0.0.1:443/v1/server/readyz)" -ne 200 ]; then
   echo "pmm-server container is NOT ready"
   exit 1
 fi
 
-echo "pmm-server container is running and accepting connections"
 echo "🍏 pmm-server container is running and accepting connections 🍏"
