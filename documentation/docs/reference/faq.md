@@ -205,8 +205,7 @@ If you are trying to log into PMM via a third-party authentication provider whic
 **Solution**: we recommend logging into PMM using a Percona Account, as this is a highly secure authentication method.
 **Workaround**: if you need to log into PMM via a third-party authentication provider which doesn’t support a unique ID field, you can use the following workaround to log into PMM:
 
-  - pass the `GF_AUTH_OAUTH_ALLOW_INSECURE_EMAIL_LOOKUP=1` environment variable to the PMM container **OR**
-  - set the `oauth_allow_insecure_email_lookup` config key in the auth section of the `grafana.ini` file. Keep in mind that any changes you make to this file are lost when upgrading PMM, so make sure to manually update this file after each upgrade.
+  - pass the `GF_AUTH_OAUTH_ALLOW_INSECURE_EMAIL_LOOKUP=1` environment variable to the PMM container.
 
 !!! caution alert alert-warning "Important"
     We do not recommend using the above workaround for an extended period. Instead, ensure user uniqueness across multiple identity providers, while also encouraging your identity provider to support a unique ID field, or choose a provider who does.
