@@ -1,6 +1,6 @@
 # VictoriaMetrics
 
-[VictoriaMetrics](https://victoriametrics.github.io/) is a third-party monitoring solution and time-series database.
+[VictoriaMetrics](https://victoriametrics.github.io/){:target="_blank"} is a third-party monitoring solution and time-series database.
 
 ## Push/Pull modes
 
@@ -31,7 +31,7 @@ As a result of the move to VictoriaMetrics some direct Prometheus paths are no l
 
 ## Environment variables
 
-PMM predefines certain flags that allow users to set all other [VictoriaMetrics parameters](https://docs.victoriametrics.com/#list-of-command-line-flags) as environment variables:
+PMM predefines certain flags that allow users to set all other [VictoriaMetrics parameters](https://docs.victoriametrics.com/#list-of-command-line-flags){:target="_blank"} as environment variables:
 
 The environment variable must be prepended with `VM_`.
 
@@ -43,7 +43,7 @@ To set downsampling, use the `downsampling.period` parameter as follows:
 -e VM_downsampling_period=20d:10m,120d:2h
 ```
 
-This instructs VictoriaMetrics to [deduplicate](https://docs.victoriametrics.com/#deduplication) samples older than 20 days with 10 minute intervals and samples older than 120 days with two hour intervals.
+This instructs VictoriaMetrics to [deduplicate](https://docs.victoriametrics.com/#deduplication){:target="_blank"} samples older than 20 days with 10 minute intervals and samples older than 120 days with two hour intervals.
 
 ## Using VictoriaMetrics external database instance
 
@@ -78,11 +78,11 @@ When external VictoriaMetrics is configured, internal VictoriaMetrics stops. In 
 
 ## Troubleshooting
 
-To troubleshoot issues, see the VictoriaMetrics [troubleshooting documentation](https://victoriametrics.github.io/#troubleshooting).
+To troubleshoot issues, see the VictoriaMetrics [troubleshooting documentation](https://victoriametrics.github.io/#troubleshooting){:target="_blank"}.
 
 You can also contact the VictoriaMetrics team via:
 
-- [Google Groups](https://groups.google.com/forum/#!forum/victorametrics-users)
-- [Slack](http://slack.victoriametrics.com/)
-- [Reddit](https://www.reddit.com/r/VictoriaMetrics/)
-- [Telegram](https://t.me/VictoriaMetrics_en)
+- [Google Groups](https://groups.google.com/forum/#!forum/victorametrics-users){:target="_blank"}
+- [Slack](http://slack.victoriametrics.com/){:target="_blank"}
+- [Reddit](https://www.reddit.com/r/VictoriaMetrics/){:target="_blank"}
+- [Telegram](https://t.me/VictoriaMetrics_en){:target="_blank"}

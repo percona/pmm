@@ -49,7 +49,7 @@ If you are a Percona Customer, you can securely share PMM data dumps with Percon
 1. From the top-right corner of the PMM home page, go to <i class="uil uil-question-circle"></i>  **Help > PMM Dump**.
 2. Select the PMM dump entry which you want to send to Support.
 3. In the **Options** column, expand the table row to check the PMM Service associated with the dataset, click the ellipsis (three vertical dots) and select **Send to Support**.
-4. Fill in the [details of the SFTP server](https://percona.service-now.com/percona?id=kb_article_view&sysparm_article=KB0010247&sys_kb_id=bebd04da87e329504035b8c9cebb35a7&spa=1), then click **Send**.
+4. Fill in the [details of the SFTP server](https://percona.service-now.com/percona?id=kb_article_view&sysparm_article=KB0010247&sys_kb_id=bebd04da87e329504035b8c9cebb35a7&spa=1){:target="_blank"}, then click **Send**.
 5. Update your Support ticket to let Percona know that you've uploaded the dataset on the SFTP server.
 
 ## Troubleshoot access issues

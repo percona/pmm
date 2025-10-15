@@ -6,7 +6,7 @@ Before adding HAProxy to PMM, ensure:
 {.power-number}
 
 1. HAProxy configured with metrics endpoint. 
-    - HAProxy must expose Prometheus metrics. See [How to configure HAProxy](https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint).
+    - HAProxy must expose Prometheus metrics. See [How to configure HAProxy](https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint){:target="_blank"}.
     - Default metrics endpoint: `http://localhost:8404/metrics`
     - Verify metrics are accessible: `curl http://localhost:8404/metrics`
 

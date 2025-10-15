@@ -2,12 +2,12 @@
 
 Deploy PMM Server on Kubernetes using Helm for scalable, orchestrated monitoring in containerized environments.
 
-[Helm](https://github.com/helm/helm) is the package manager for Kubernetes. You can find Percona Helm charts in [our GitHub repository](https://github.com/percona/percona-helm-charts). 
+[Helm](https://github.com/helm/helm){:target="_blank"} is the package manager for Kubernetes. You can find Percona Helm charts in [our GitHub repository](https://github.com/percona/percona-helm-charts). 
 
 ## Prerequisites
 
-  - [Helm v3](https://docs.helm.sh/using_helm/#installing-helm)
-  - Kubernetes cluster running a [supported version](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [supported Helm](https://helm.sh/docs/topics/version_skew/) versions
+  - [Helm v3](https://docs.helm.sh/using_helm/#installing-helm){:target="_blank"}
+  - Kubernetes cluster running a [supported version](https://kubernetes.io/releases/version-skew-policy/#supported-versions){:target="_blank"} and [supported Helm](https://helm.sh/docs/topics/version_skew/){:target="_blank"} versions
   - storage driver with snapshot support (for backups)
   - `kubectl` configured to communicate with your cluster
 
@@ -36,7 +36,7 @@ For optimal monitoring in production environments:
     - using separate Kubernetes clusters for monitoring and databases.
     - configuring workload separation through node configurations, affinity rules, and label selectors.
 
-2. Enable [High Availability](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/) to ensure continuous monitoring during node failures.
+2. Enable [High Availability](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/){:target="_blank"} to ensure continuous monitoring during node failures.
 
 3.  Openshift considerations:   
 
@@ -229,7 +229,7 @@ To enhance security, you have two options:
         dhparam.pem: <content>
     ```
 
-2. Use [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls). See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration) for details.
+2. Use [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls){:target="_blank"}. See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration) for details.
 
 ## Next steps
 

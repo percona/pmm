@@ -48,7 +48,7 @@ Download and install PMM Server using `cURL` or `wget`:
 If you encounter Docker installation issues with the Easy-install script (such as `ERROR: Unsupported distribution 'rocky' on Rocky Linux`):
 {.power-number}
 
- 1. [Install Docker manually](https://docs.docker.com/engine/install/)
+ 1. [Install Docker manually](https://docs.docker.com/engine/install/){:target="_blank"}
  2. Run the Easy-install script above again
 
 This two-step approach resolves most installation issues, especially on Rocky Linux where automatic installation may fail.

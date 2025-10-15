@@ -4,7 +4,7 @@ Prepare a storage location as a backup destination for creating and storing your
 
 PMM supports the following types of storage:
 
-- **Amazon S3-compatible**: enables you to use not only AWS S3, but also other storage solutions that support S3 API, like [min.io](https://min.io/).
+- **Amazon S3-compatible**: enables you to use not only AWS S3, but also other storage solutions that support S3 API, like [min.io](https://min.io/){:target="_blank"}.
 - **Local storage**: currently only available for MongoDB backups.
 
 ## Prepare a location for local backups
@@ -13,12 +13,12 @@ If you prefer storing your MongoDB backup artifacts on a remote filesystem, make
 For more information, see the [Percona Backup for MongoDB (PBM) documentation](https://docs.percona.com/percona-backup-mongodb/details/storage-configuration.html#remote-filesystem-server-storage).
 
 ## Prepare a location for S3-compatible storage
-If you want to store backup artifacts in S3-compatible storage, you can use [Amazon S3](https://aws.amazon.com/s3/), [Min.io](https://min.io/) or any other storage solution with S3-compatible API.
+If you want to store backup artifacts in S3-compatible storage, you can use [Amazon S3](https://aws.amazon.com/s3/){:target="_blank"}, [Min.io](https://min.io/){:target="_blank"} or any other storage solution with S3-compatible API.
 
 Before creating a cloud storage location for our future backups, make sure you have your S3-compatible storage ready. In addition to bucket location details, you will also need to ensure proper S3 permissions.
 
 The general minimum permissions are **LIST**/**PUT**/**GET**/**DELETE**.
-A sample [IAM](https://aws.amazon.com/iam/) policy is:
+A sample [IAM](https://aws.amazon.com/iam/){:target="_blank"} policy is:
 
         ```json
         {

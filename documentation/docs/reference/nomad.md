@@ -2,7 +2,7 @@
 
 Percona Monitoring and Management (PMM) includes HashiCorp Nomad to enable future extensibility and enhanced service capabilities.
 
-[Nomad](https://www.nomadproject.io/) is a workload orchestrator designed to deploy and manage containers and non-containerized applications. In PMM, Nomad provides the underlying infrastructure to:
+[Nomad](https://www.nomadproject.io/){:target="_blank"} is a workload orchestrator designed to deploy and manage containers and non-containerized applications. In PMM, Nomad provides the underlying infrastructure to:
 
 - improve resource allocation across monitoring components
 - enable future PMM extensibility 
@@ -98,4 +98,4 @@ Nomad is included in PMM to support future extensibility features. Nomad will re
 
 ## Related links
 
-- [Nomad documentation](https://developer.hashicorp.com/nomad/docs)
+- [Nomad documentation](https://developer.hashicorp.com/nomad/docs){:target="_blank"}

@@ -55,7 +55,7 @@ Required ports:
 
 PMM Server software is free, but plan for AWS infrastructure costs depending on your instance size and storage needs.
 
-Use the [AWS pricing calculator](https://calculator.aws/#/) to estimate monthly costs based on your planned configuration.
+Use the [AWS pricing calculator](https://calculator.aws/#/){:target="_blank"} to estimate monthly costs based on your planned configuration.
 
 ## Plan backups
 
@@ -63,7 +63,7 @@ PMM Server uses a simple backup architecture - all monitoring data is stored in 
 
 When planning your deployment, consider that you'll need to create point-in-time snapshots of the EBS volume containing the `/home/admin/volume` partition. Plan for snapshot storage costs and determine your backup frequency and retention requirements.
 
-Follow the AWS documentation for [Create Amazon EBS snapshots](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-creating-snapshot.html) to understand the backup process you'll implement after deployment.
+Follow the AWS documentation for [Create Amazon EBS snapshots](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-creating-snapshot.html){:target="_blank"} to understand the backup process you'll implement after deployment.
 
 ## Next steps
 

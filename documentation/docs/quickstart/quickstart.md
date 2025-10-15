@@ -360,7 +360,7 @@ Once PMM is set up, choose the database or the application that you want it to m
     To connect a ProxySQL service:
     { .power-number}
 
-    1. Configure a read-only account for monitoring using the [`admin-stats_credentials`](https://proxysql.com/documentation/global-variables/admin-variables/#admin-stats_credentials) variable in ProxySQL.
+    1. Configure a read-only account for monitoring using the [`admin-stats_credentials`](https://proxysql.com/documentation/global-variables/admin-variables/#admin-stats_credentials){:target="_blank"} variable in ProxySQL.
 
     2. To optimize server-side resources, install PMM Client via Package Manager on the database node:
         { .power-number}     
@@ -427,7 +427,7 @@ Once PMM is set up, choose the database or the application that you want it to m
     To connect an HAProxy service:
     { .power-number}
 
-    1. [Set up an HAproxy instance](https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint). 
+    1. [Set up an HAproxy instance](https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint){:target="_blank"}. 
     2. Add the instance to PMM (default address is <http://localhost:8404/metrics>), and use the `haproxy` alias to enable HAProxy metrics monitoring.
     3. To optimize server-side resources, install PMM Client via Package Manager on the database node: 
         

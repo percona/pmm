@@ -1,10 +1,10 @@
 # Install PMM Server with Podman 
 
-Run PMM Server with Podman based on our [Docker image](https://hub.docker.com/r/percona/pmm-server) when you need enhanced security, rootless container execution, or are working in environments where Docker daemon is not preferred. Podman provides improved security isolation while maintaining compatibility with Docker commands and workflows.
+Run PMM Server with Podman based on our [Docker image](https://hub.docker.com/r/percona/pmm-server){:target="_blank"} when you need enhanced security, rootless container execution, or are working in environments where Docker daemon is not preferred. Podman provides improved security isolation while maintaining compatibility with Docker commands and workflows.
 
 ## About Podman
 
-Podman is an open-source, daemonless container engine for developing, managing, and running Open Container Initiative (OCI) containers and container images on Linux systems. It is widely supported across Linux distributions and hosted on [GitHub](https://github.com/containers/podman).
+Podman is an open-source, daemonless container engine for developing, managing, and running Open Container Initiative (OCI) containers and container images on Linux systems. It is widely supported across Linux distributions and hosted on [GitHub](https://github.com/containers/podman){:target="_blank"}.
 
 One of Podman's advantages is that it allows non-privileged users to run containers, enhancing security by avoiding elevated permissions. Podman is compatible with Docker; by using an alias (`alias docker=podman`), you can run Docker commands seamlessly with Podman. All instructions in the Docker section apply to Podman as well.
 
@@ -24,8 +24,8 @@ Choose Podman deployment when:
 Before installing PMM Server with Podman, ensure you have:
 {.power-number}
 
-1. Install [Podman](https://podman.io/getting-started/installation).
-2. Configure [rootless](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) Podman.
+1. Install [Podman](https://podman.io/getting-started/installation){:target="_blank"}.
+2. Configure [rootless](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md){:target="_blank"} Podman.
 3. Create the Podman volume for PMM:
   ```sh
   podman volume create pmm-data
@@ -215,7 +215,7 @@ For information on manually upgrading, see [Upgrade PMM Server using Podman](../
 ## Related topics
 
 - [Docker installation alternative](../docker/index.md) 
-- [Available image tags](https://hub.docker.com/r/percona/pmm-server/tags)
+- [Available image tags](https://hub.docker.com/r/percona/pmm-server/tags){:target="_blank"}
 - [Upgrade PMM Server using Podman](../../../../pmm-upgrade/upgrade_podman.md) 
 - [Back up PMM Server Podman container](backup_container_podman.md) 
 - [Restore PMM Server Podman container](restore_container_podman.md)

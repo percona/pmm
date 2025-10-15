@@ -34,7 +34,7 @@ PMM 3 introduces significant architectural changes that require gradual transiti
 If you encounter errors such as `ERROR: Unsupported distribution` when running the, follow these steps:
 {.power-number}
 
-1. [Install Docker manually](https://docs.docker.com/engine/install/).
+1. [Install Docker manually](https://docs.docker.com/engine/install/){:target="_blank"}.
 2. Run the [PMM Easy-install script](../install-pmm/install-pmm-server/deployment-options/docker/easy-install.md) again.
 
 ## Retention
@@ -83,7 +83,7 @@ When you remove a monitoring service, previously collected data remains availabl
 
 ## Can I add an AWS RDS MySQL or Aurora MySQL instance from a non-default AWS partition?
 
-By default, the RDS discovery works with the default `aws` partition. But you can switch to special regions, like the [GovCloud](https://aws.amazon.com/govcloud-us/) one, with the alternative [AWS partitions](https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants) (e.g. `aws-us-gov`) adding them to the *Settings* via the PMM Server [API](../api/index.md).
+By default, the RDS discovery works with the default `aws` partition. But you can switch to special regions, like the [GovCloud](https://aws.amazon.com/govcloud-us/){:target="_blank"} one, with the alternative [AWS partitions](https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants){:target="_blank"} (e.g. `aws-us-gov`) adding them to the *Settings* via the PMM Server [API](../api/index.md).
 
 ![!image](../images/aws-partitions-in-api.png)
 
@@ -112,11 +112,11 @@ For this, you must configure alerting rules that define conditions under which a
 Percona templated alerts enable you to create alerts based on built-in or custom templates to simplify the alert setup process. Grafana managed alerts allows attaching rules to your dashboard panel and enables you to create more sophisticated alerting rules. In addition, it can be easier to manage installations with a large number of hosts. This additional flexibility comes at the expense of simplicity.
 
 !!! seealso alert alert-info "See also"
-    [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/)
+    [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/){:target="_blank"}
 
 ## How do I use a custom Prometheus configuration file?
 
-Normally, PMM Server fully manages the [Prometheus configuration file](https://prometheus.io/docs/prometheus/latest/configuration/configuration/).
+Normally, PMM Server fully manages the [Prometheus configuration file](https://prometheus.io/docs/prometheus/latest/configuration/configuration/){:target="_blank"}.
 
 However, some users may want to change the generated configuration to add additional scrape jobs, configure remote storage, etc.
 
@@ -198,7 +198,7 @@ Read our [Privacy Policy](https://www.percona.com/privacy-policy) to learn how P
 
 ## Why am I getting a "User already exists" error when logging back into PMM?
 
-Following [CVE fix 2023-3128](https://grafana.com/blog/2023/06/22/grafana-security-release-for-cve-2023-3128/) in the 2.38 release, PMM increases security by only allowing authentications based on the unique user ID provided by the identity provider.
+Following [CVE fix 2023-3128](https://grafana.com/blog/2023/06/22/grafana-security-release-for-cve-2023-3128/){:target="_blank"} in the 2.38 release, PMM increases security by only allowing authentications based on the unique user ID provided by the identity provider.
 
 If you are trying to log into PMM via a third-party authentication provider which doesn't support a unique ID field, PMM will show this error on second and subsequent authentications.
 
