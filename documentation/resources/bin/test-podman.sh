@@ -46,7 +46,7 @@ EOF
 systemctl --user enable --now pmm-server
 
 # Give it some time to download the image and start
-sleep 35
+sleep 60
 
 podman wait --condition=running pmm-server
 
