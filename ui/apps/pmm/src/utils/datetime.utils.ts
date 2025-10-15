@@ -5,7 +5,7 @@ export const diffFromNow = (timestamp: string): number => {
   const timestampDate = new Date(timestamp);
   const now = new Date();
 
-  return timestampDate.getTime() - now.getTime();
+  return now.getTime() - timestampDate.getTime();
 };
 
 export const formatTimestamp = (timestamp: string) =>

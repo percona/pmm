@@ -24,14 +24,14 @@ export const useSnooze = () => {
     if (
       latest?.version !== user?.info.snoozedPmmVersion ||
       !user?.info.snoozedAt ||
-      !settings?.updatesSnoozeDuration
+      !settings?.updateSnoozeDuration
     ) {
       return false;
     }
 
     return (
       diffFromNow(user?.info.snoozedAt) <=
-      parseDuration(settings.updatesSnoozeDuration)
+      parseDuration(settings.updateSnoozeDuration)
     );
   }, [latest, user, settings]);
 

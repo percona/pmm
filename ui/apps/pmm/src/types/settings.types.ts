@@ -15,7 +15,7 @@ export interface GetReadonlySettingsResponse {
 }
 
 export interface Settings extends ReadonlySettings {
-  updatesSnoozeDuration: string;
+  updateSnoozeDuration: string;
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}

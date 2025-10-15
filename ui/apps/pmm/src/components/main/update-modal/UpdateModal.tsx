@@ -5,8 +5,7 @@ import { Messages } from './UpdateModal.messages';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import Link from '@mui/material/Link';
-import { Link as RouterLink } from 'react-router-dom';
-import Box from '@mui/material/Box';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { PMM_NEW_NAV_UPDATES_PATH } from 'lib/constants';
 import Snackbar from '@mui/material/Snackbar';
@@ -19,6 +18,7 @@ const UpdateModal: FC = () => {
   const { isLoading, versionInfo } = useUpdates();
   const [open, setIsOpen] = useState(true);
   const { snoozeUpdate, snoozeActive, snoozeCount } = useSnooze();
+  const location = useLocation();
 
   const handleClose = () => {
     setIsOpen(false);
@@ -30,7 +30,9 @@ const UpdateModal: FC = () => {
     isLoading ||
     !versionInfo ||
     snoozeActive ||
-    !versionInfo.updateAvailable
+    !versionInfo.updateAvailable ||
+    // don't show if already on updates page
+    location.pathname.endsWith('/updates')
   ) {
     return null;
   }
@@ -57,6 +59,7 @@ const UpdateModal: FC = () => {
             <Stack direction="row">
               <Typography>
                 <Typography
+                  component="span"
                   fontWeight="bold"
                   display="inline-block"
                   data-testid="update-modal-title"
@@ -111,23 +114,11 @@ const UpdateModal: FC = () => {
         <Typography data-testid="update-modal-description">
           {Messages.descriptionModal}
         </Typography>
-        <Typography variant="h6" data-testid="update-modal-highlights-title">
-          {Messages.highlights}
-        </Typography>
-        <Box sx={{ my: 1 }} data-testid="update-modal-highlights-section">
-          <Box
-            sx={{
-              mb: 1,
-
-              '& p': {
-                m: 0,
-              },
-            }}
-            data-testid="update-modal-highlights-generic"
-          >
-            {Messages.highlightsGeneric}
-          </Box>
-          <span data-testid="update-modal-more-text">{Messages.more}</span>
+        <Typography
+          data-testid="update-modal-description-release-notes"
+          sx={{ py: 2 }}
+        >
+          {Messages.check}
           <Link
             href={versionInfo.latest.releaseNotesUrl}
             target="_blank"
@@ -136,8 +127,13 @@ const UpdateModal: FC = () => {
           >
             {Messages.releaseNotes}
           </Link>
-        </Box>
-        <Stack direction="row" justifyContent="end" sx={{ gap: 1, pt: 2 }}>
+          {Messages.toSee}
+        </Typography>
+        <Stack
+          direction="row"
+          justifyContent="end"
+          sx={{ gap: 1, pt: 2, alignSelf: 'flex-end' }}
+        >
           <Button
             data-testid="update-modal-remind-me-button"
             variant="text"

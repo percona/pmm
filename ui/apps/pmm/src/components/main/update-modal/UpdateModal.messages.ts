@@ -1,12 +1,10 @@
 export const Messages = {
   title: (version?: string) => 'Update to PMM ' + version,
   descriptionModal:
-    'This release introduces powerful new features and essential improvements to keep your databases running smoothly.',
-  highlights: 'Highlights',
-  highlightsGeneric:
-    'This release also includes performance enhancements and key bug fixes.',
-  more: 'But there are more changes: ',
-  releaseNotes: 'View Full Release Notes',
+    'A new PMM update is ready to install! Update now for the latest features, improvements, and optimal performance.',
+  check: 'Check the ',
+  releaseNotes: 'Release Notes',
+  toSee: ' to see what’s new.',
   remindMe: 'Remind me later',
   goToUpdates: 'Go To Updates',
   descriptionSnack:

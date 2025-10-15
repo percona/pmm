@@ -14,24 +14,24 @@ describe('diffFromNow', () => {
     vi.useRealTimers();
   });
 
-  it('should return positive milliseconds when timestamp is in the future', () => {
+  it('should return negative milliseconds when timestamp is in the future', () => {
     const now = new Date('2024-01-01T12:00:00.000Z');
     vi.setSystemTime(now);
 
     const futureTimestamp = '2024-01-01T12:00:01.000Z';
     const result = diffFromNow(futureTimestamp);
 
-    expect(result).toBe(1000); // 1 second = 1000 milliseconds
+    expect(result).toBe(-1000); // 1 second in future = -1000 milliseconds
   });
 
-  it('should return negative milliseconds when timestamp is in the past', () => {
+  it('should return positive milliseconds when timestamp is in the past', () => {
     const now = new Date('2024-01-01T12:00:00.000Z');
     vi.setSystemTime(now);
 
     const pastTimestamp = '2024-01-01T11:59:59.000Z';
     const result = diffFromNow(pastTimestamp);
 
-    expect(result).toBe(-1000); // 1 second ago = -1000 milliseconds
+    expect(result).toBe(1000); // 1 second ago = 1000 milliseconds
   });
 
   it('should return 0 when timestamp is exactly now', () => {
@@ -50,11 +50,11 @@ describe('diffFromNow', () => {
 
     // Test with ISO string format
     const isoTimestamp = '2024-01-01T12:00:00.500Z';
-    expect(diffFromNow(isoTimestamp)).toBe(500);
+    expect(diffFromNow(isoTimestamp)).toBe(-500);
 
     // Test with date string format (this will be interpreted as local time)
     const dateString = '2024-01-01T12:00:00.500Z'; // Use UTC format for consistency
-    expect(diffFromNow(dateString)).toBe(500);
+    expect(diffFromNow(dateString)).toBe(-500);
   });
 
   it('should handle edge cases with milliseconds precision', () => {
@@ -63,10 +63,10 @@ describe('diffFromNow', () => {
 
     // Test with very small differences
     const smallFuture = '2024-01-01T12:00:00.001Z';
-    expect(diffFromNow(smallFuture)).toBe(1);
+    expect(diffFromNow(smallFuture)).toBe(-1);
 
     const smallPast = '2024-01-01T11:59:59.999Z';
-    expect(diffFromNow(smallPast)).toBe(-1);
+    expect(diffFromNow(smallPast)).toBe(1);
   });
 
   it('should handle large time differences', () => {
@@ -75,10 +75,10 @@ describe('diffFromNow', () => {
 
     // Test with 1 hour difference
     const oneHourFuture = '2024-01-01T13:00:00.000Z';
-    expect(diffFromNow(oneHourFuture)).toBe(HOUR_MS);
+    expect(diffFromNow(oneHourFuture)).toBe(-HOUR_MS);
 
     const oneHourPast = '2024-01-01T11:00:00.000Z';
-    expect(diffFromNow(oneHourPast)).toBe(-HOUR_MS);
+    expect(diffFromNow(oneHourPast)).toBe(HOUR_MS);
   });
 
   it('should handle different timezones correctly', () => {
@@ -87,14 +87,14 @@ describe('diffFromNow', () => {
 
     // Test with UTC timestamp
     const utcTimestamp = '2024-01-01T12:00:01.000Z';
-    expect(diffFromNow(utcTimestamp)).toBe(1000);
+    expect(diffFromNow(utcTimestamp)).toBe(-1000);
 
     // Test with another UTC timestamp for consistency
     const anotherUtcTimestamp = '2024-01-01T12:00:01.000Z';
-    expect(diffFromNow(anotherUtcTimestamp)).toBe(1000);
+    expect(diffFromNow(anotherUtcTimestamp)).toBe(-1000);
 
     const plusOneTimestamp = '2024-01-01T12:00:00.000-01:00';
-    expect(diffFromNow(plusOneTimestamp)).toBe(HOUR_MS);
+    expect(diffFromNow(plusOneTimestamp)).toBe(-HOUR_MS);
   });
 
   it('should handle invalid timestamp strings gracefully', () => {
@@ -116,6 +116,6 @@ describe('diffFromNow', () => {
     const result2 = diffFromNow(timestamp);
 
     expect(result1).toBe(result2);
-    expect(result1).toBe(1000);
+    expect(result1).toBe(-1000);
   });
 });
