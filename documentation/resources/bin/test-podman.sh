@@ -27,12 +27,12 @@ Restart=on-failure
 RestartSec=20
 ExecStart=/usr/bin/podman run \
     --rm --replace=true --name %N \
-    --volume=PMM_VOLUME=pmm-data:/srv \
+    --volume=pmm-data:/srv \
     --env-file=%h/.config/systemd/user/pmm-server.env \
     --network=pmm_default \
     --cap-add=net_admin,net_raw \
     -p 443:8443/tcp --ulimit=host \
-    PMM_IMAGE=docker.io/percona/pmm-server:3
+    docker.io/percona/pmm-server:3
 ExecStop=/usr/bin/podman stop -t 10 %N
 [Install]
 WantedBy=default.target
@@ -46,7 +46,7 @@ EOF
 systemctl --user enable --now pmm-server
 
 # Give it some time to download the image and start
-sleep 60
+sleep 35
 
 podman wait --condition=running pmm-server
 
