@@ -36,16 +36,17 @@ const (
 
 // NewDB return updated db.
 func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
+	dsnURL, err := url.Parse(dsn)
+	if err != nil {
+		log.Fatalf("error parsing DSN: %v", err)
+	}
+
 	// If ClickHouse is a cluster, wait until the cluster is ready.
 	if isCluster {
 		log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
-		dsnURL, err := url.Parse(dsn)
-		if err != nil {
-			log.Fatalf("error parsing DSN: %v", err)
-		}
 		dsnURL.Path = "/default"
 		dsnDefault := dsnURL.String()
-		log.Printf("DSN for cluster check: %s", dsnDefault)
+		log.Printf("DSN for cluster check: %s", dsnURL.Redacted())
 
 		for {
 			isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
@@ -62,7 +63,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		}
 	}
 
-	log.Printf("new connection with DSN: %s", dsn)
+	log.Printf("new connection with DSN: %s", dsnURL.Redacted())
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		log.Printf("error connecting to clickhouse: %v", err)
@@ -72,7 +73,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 			if err != nil {
 				log.Fatalf("database wasn't created: %v", err)
 			}
-			log.Printf("database created, connecting again %s", dsn)
+			log.Printf("database created, connecting again %s", dsnURL.Redacted())
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
 				log.Fatalf("connection: %v", err)
