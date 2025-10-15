@@ -7,12 +7,17 @@ Advisors are grouped by category: Security, Configuration, Performance and Query
 ## Enable/Disable
 Advisors are bundled with every PMM installation and automatically loaded by PMM Server when starting up. PMM runs automatic advisor checks in the background when the **Advisors** option is enabled under **Configuration > Settings > Advanced Settings**. This option is enabled by default, but you can disable it at any time if you do not need to check the health and performance of your connected databases.
 
-
 ## Automatic checks
 Advisor checks can be executed manually or automatically.
 By default, PMM runs all the checks available for your PMM instances every 24 hours.
 
 Check results *always* remain on the PMM Server. They are never sent as part of Telemetry.
+
+## Configure execution intervals
+To control when and how often advisor checks run:
+
+- for all checks: Navigate to **PMM Configuration > Settings > Execution Intervals** to set global default intervals.
+- for individual checks: Navigate to the specific advisor category (such as **Advisors > Security Advisors**, **Configuration Advisors**, **Query Advisors**, or **Performance Advisors**), then click the Edit icon in the **Actions** column to override the global setting for specific checks.
 
 ### Change run interval for automatic advisors
 You can change the standard 24-hour interval to a custom frequency for each advisor check:
@@ -44,7 +49,7 @@ To run checks manually:
 3. Click **Run checks** to run all the available checks for this advisor group, or expand an advisor and click **Run** next to each check that you want to run individually.
 ![!Actions options](../images/PMM_Checks_Actions.png)
 
-## s results
+## Advisor results
 The results are sent to PMM Server where you can review any failed checks on the Home dashboard. The summary count of failed checks is classified as:
 
 - <b style="color:#e02f44;">Critical</b>, which also includes checks tagged as **Alert** and **Emergency**
