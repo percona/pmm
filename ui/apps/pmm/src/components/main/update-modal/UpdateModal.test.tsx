@@ -7,16 +7,16 @@ import {
   wrapWithQueryProvider,
   wrapWithSettings,
 } from 'utils/testUtils';
-import { useSnooze } from 'hooks/updates';
 
 // Mock the snooze hook
 const mockSnoozeUpdate = vi.fn();
-
-vi.mock('hooks/updates', () => ({
-  useSnooze: vi.fn(),
+const mocks = vi.hoisted(() => ({
+  mockUseSnooze: vi.fn(),
 }));
 
-const mockUseSnooze = useSnooze as any;
+vi.mock('hooks/updates', () => ({
+  useSnooze: mocks.mockUseSnooze,
+}));
 
 const mockVersionInfo = {
   installed: {
@@ -48,8 +48,9 @@ const renderUpdateModal = (
   };
 
   // Update the mock to return the specified snooze count
-  mockUseSnooze.mockReturnValue({
+  mocks.mockUseSnooze.mockReturnValue({
     snoozeUpdate: mockSnoozeUpdate,
+    snoozedAt: '',
     snoozeActive: false,
     snoozeCount,
   });
