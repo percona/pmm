@@ -6,13 +6,14 @@ on:
       - v3
   pull_request:
     paths:
-      - 'documentation/docs/install-pmm/install-pmm-server/baremetal/podman/index.md'
+      - documentation/docs/install-pmm/install-pmm-server/deployment-options/podman/index.md
+      - documentation/resources/bin/test-podman.sh
 
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Check out code
@@ -21,6 +22,7 @@ jobs:
           fetch-depth: 1
 
       - name: Run podman tests
+        shell: bash
         run: ./documentation/resources/bin/test-podman.sh
 
       - name: Get debug
