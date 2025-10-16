@@ -57,7 +57,6 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
       const next: 'light' | 'dark' = paletteMode === 'dark' ? 'light' : 'dark';
       await setTheme(next);
     } catch (err) {
-      // Keep a safe console signal without breaking UX.
       // eslint-disable-next-line no-console
       console.warn('[NavItem] Theme toggle failed:', err);
     }

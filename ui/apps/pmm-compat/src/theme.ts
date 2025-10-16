@@ -7,16 +7,12 @@ import { config, getAppEvents, ThemeChangedEvent } from '@grafana/runtime';
  * Based on public/app/core/services/theme.ts in Grafana
  * @param themeId
  */
-console.log('[pmm-compat] compat.ts loaded');
-
-
 export const changeTheme = async (themeId: 'light' | 'dark'): Promise<void> => {
   const oldTheme = config.theme2;
 
-  console.log('Changing theme from', oldTheme, 'to', themeId);
-
   const newTheme = getThemeById(themeId);
 
+  // Publish Grafana ThemeChangedEvent
   getAppEvents().publish(new ThemeChangedEvent(newTheme));
 
   // Add css file for new theme
@@ -25,15 +21,11 @@ export const changeTheme = async (themeId: 'light' | 'dark'): Promise<void> => {
     newCssLink.rel = 'stylesheet';
     newCssLink.href = config.bootData.assets[newTheme.colors.mode];
     newCssLink.onload = () => {
-      // Remove old css file
-      const bodyLinks = document.getElementsByTagName('link');
-      for (let i = 0; i < bodyLinks.length; i++) {
-        const link = bodyLinks[i];
-
+      // Remove old css file after the new one has loaded to avoid flicker
+      const links = document.getElementsByTagName('link');
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
         if (link.href && link.href.includes(`build/grafana.${oldTheme.colors.mode}`)) {
-          // Remove existing link once the new css has loaded to avoid flickering
-          // If we add new css at the same time we remove current one the page will be rendered without css
-          // As the new css file is loading
           link.remove();
         }
       }
@@ -42,31 +34,81 @@ export const changeTheme = async (themeId: 'light' | 'dark'): Promise<void> => {
   }
 };
 
-getAppEvents().subscribe(ThemeChangedEvent, (evt) => {
+/* ---------------------------
+ * Right → left theme wiring
+ * --------------------------*/
+
+// Normalize and apply <html> attributes so CSS-based nav updates immediately
+function applyHtmlTheme(modeRaw: unknown) {
+  const mode: 'light' | 'dark' = String(modeRaw).toLowerCase() === 'dark' ? 'dark' : 'light';
+  const html = document.documentElement;
+  const scheme = mode === 'dark' ? 'percona-dark' : 'percona-light';
+
+  if (html.getAttribute('data-theme') !== mode) {
+    html.setAttribute('data-theme', mode);
+  }
+  if (html.getAttribute('data-md-color-scheme') !== scheme) {
+    html.setAttribute('data-md-color-scheme', scheme);
+  }
+  (html.style as any).colorScheme = mode;
+
+  return mode;
+}
+
+function isDevHost(host: string) {
+  return host === 'localhost' || host === '127.0.0.1' || /^\d+\.\d+\.\d+\.\d+$/.test(host);
+}
+
+function resolveTargetOrigin(): string {
+  try {
+    const u = new URL(window.location.href);
+    if (isDevHost(u.hostname)) {
+      return '*';
+    }
+  } catch (err) {
+    console.error('[pmm-compat] theme.ts not found', err);
+  }
+  try {
+    const r = new URL(document.referrer);
+    return `${r.protocol}//${r.host}`;
+  } catch {
+    return '*';
+  }
+}
+
+const targetOrigin = resolveTargetOrigin();
+let lastSentMode: 'light' | 'dark' | null = null;
+
+// Initial apply from current Grafana theme and notify parent once
+(function initThemeBridge() {
+  const initial: 'light' | 'dark' = config?.theme2?.colors?.mode === 'dark' ? 'dark' : 'light';
+  const mode = applyHtmlTheme(initial);
+  try {
+    const target = window.top && window.top !== window ? window.top : window.parent || window;
+    if (lastSentMode !== mode) {
+      target?.postMessage({ type: 'grafana.theme.changed', payload: { mode } }, targetOrigin);
+      lastSentMode = mode;
+    }
+  } catch (err) {
+    console.warn('[pmm-compat] failed to post initial grafana.theme.changed:', err);
+  }
+})();
+
+// React to Grafana ThemeChangedEvent (Preferences change/changeTheme())
+getAppEvents().subscribe(ThemeChangedEvent, (evt: any) => {
   try {
     // payload is GrafanaTheme2, not { theme: ... }
-    const payload: any = evt?.payload;
-    const isDark: boolean =
-      typeof payload?.isDark === 'boolean'
-        ? payload.isDark
-        : payload?.colors?.mode === 'dark';
+    const payload = evt?.payload;
+    const next = payload?.colors?.mode ?? (payload?.isDark ? 'dark' : 'light') ?? 'light';
 
-    const mode: 'light' | 'dark' = isDark ? 'dark' : 'light';
+    const mode = applyHtmlTheme(next);
 
-    console.log('[pmm-compat] ThemeChangedEvent payload:', {
-      isDark,
-      mode,
-      payloadMode: payload?.colors?.mode,
-    });
-
-    const parentOrigin = document.referrer ? new URL(document.referrer).origin : '*';
-    console.log('[pmm-compat] Sending grafana.theme.changed → parent', { parentOrigin, mode });
-
-    window.parent?.postMessage({ type: 'grafana.theme.changed', payload: { mode } }, parentOrigin);
-
-    console.log('[pmm-compat] grafana.theme.changed sent');
+    const target = window.top && window.top !== window ? window.top : window.parent || window;
+    if (lastSentMode !== mode) {
+      target?.postMessage({ type: 'grafana.theme.changed', payload: { mode } }, targetOrigin);
+      lastSentMode = mode;
+    }
   } catch (err) {
-    console.warn('[pmm-compat] Failed to post grafana.theme.changed:', err);
+    console.warn('[pmm-compat] Failed to handle ThemeChangedEvent/postMessage:', err);
   }
 });
-

@@ -44,7 +44,6 @@ export const ThemeProvider: FC<PropsWithChildren> = ({ children }) => {
 };
 
 // ----- helpers (iframe context) -----
-// comments in English only
 
 function applyIframeDomTheme(mode: Mode): void {
   // Update DOM attributes used by CSS variables / tokens inside Grafana iframe.
@@ -59,8 +58,5 @@ function postModeToHost(mode: Mode): void {
   // Inform the parent (host) window. We intentionally use "*" here because
   // host and iframe share origin in PMM, but in dev/proxy setups origin may differ.
   // Host side should still validate origin.
-  window.parent?.postMessage(
-    { type: 'grafana.theme.changed', payload: { mode } },
-    '*'
-  );
+  window.parent?.postMessage({ type: 'grafana.theme.changed', payload: { mode } }, '*');
 }
