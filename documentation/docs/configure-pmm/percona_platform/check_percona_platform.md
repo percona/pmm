@@ -6,7 +6,7 @@
     
     All advisors and alert templates are now built directly into PMM as free, offline features. Platform connectivity, Percona Account sign-in, and account information features (Entitlements and Support tickets) in PMM will be removed. 
     
-    Make sure to switch to [local PMM authentication](../../reference/ui/log_in.md) and [upgrade to 3.5.0+](../../pmm-upgrade/index.md).
+    [Migrate to a supported authentication method](../admin/manage-users/edit_users.html#migrating-from-percona-account-authentication-deprecated) before March 2026.
     
     **Need help?** Contact [Percona Support](https://www.percona.com/services/support) for migration assistance.
 

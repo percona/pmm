@@ -10,6 +10,6 @@ The following features make Percona Monitoring and Management a powerful tool fo
 
 -  **[Alerting](../use/dashboards-panels/index.md)**: PMM enables setting up alerts based on predefined thresholds for various metrics. When these thresholds are exceeded, PMM sends notifications via email or other channels, facilitating proactive management and quick resolution.
 
--  **[Percona Advisors](../advisors/advisors.md)**: Built-in Advisors run regular checks on the databases connected to PMM. The checks identify and alert you of potential security threats, performance degradation, data loss, and data corruption.
+-  **[Percona Advisors](../advisors/advisors.md)**: PMM includes built-in advisors that run regular checks on your databases—completely offline, with no subscription required. Advisors identify and alert you of potential security threats, performance degradation, data loss, and data corruption.
 
 -  **[Backup and restore](../backup/index.md)**: PMM enables you to back up critical data with zero downtime and minimal performance impact. Furthermore, you can schedule various backups (hot, incremental, physical) and restore databases up to a specific moment with the Point-in-Time-Recovery feature.
