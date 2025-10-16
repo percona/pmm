@@ -8,6 +8,7 @@ package agents_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ChangeAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeAgentOK()
@@ -107,7 +108,7 @@ func (o *ChangeAgentOK) readResponse(response runtime.ClientResponse, consumer r
 	o.Payload = new(ChangeAgentOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ChangeAgentDefault) readResponse(response runtime.ClientResponse, consu
 	o.Payload = new(ChangeAgentDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -322,11 +323,15 @@ func (o *ChangeAgentBody) validateAzureDatabaseExporter(formats strfmt.Registry)
 
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "azure_database_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "azure_database_exporter")
 			}
+
 			return err
 		}
 	}
@@ -341,11 +346,15 @@ func (o *ChangeAgentBody) validateExternalExporter(formats strfmt.Registry) erro
 
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -360,11 +369,15 @@ func (o *ChangeAgentBody) validateMongodbExporter(formats strfmt.Registry) error
 
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -379,11 +392,15 @@ func (o *ChangeAgentBody) validateMysqldExporter(formats strfmt.Registry) error 
 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -398,11 +415,15 @@ func (o *ChangeAgentBody) validateNodeExporter(formats strfmt.Registry) error {
 
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "node_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter")
 			}
+
 			return err
 		}
 	}
@@ -417,11 +438,15 @@ func (o *ChangeAgentBody) validateNomadAgent(formats strfmt.Registry) error {
 
 	if o.NomadAgent != nil {
 		if err := o.NomadAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "nomad_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "nomad_agent")
 			}
+
 			return err
 		}
 	}
@@ -436,11 +461,15 @@ func (o *ChangeAgentBody) validatePostgresExporter(formats strfmt.Registry) erro
 
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -455,11 +484,15 @@ func (o *ChangeAgentBody) validateProxysqlExporter(formats strfmt.Registry) erro
 
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -474,11 +507,15 @@ func (o *ChangeAgentBody) validateQANMongodbMongologAgent(formats strfmt.Registr
 
 	if o.QANMongodbMongologAgent != nil {
 		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
 			}
+
 			return err
 		}
 	}
@@ -493,11 +530,15 @@ func (o *ChangeAgentBody) validateQANMongodbProfilerAgent(formats strfmt.Registr
 
 	if o.QANMongodbProfilerAgent != nil {
 		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
 			}
+
 			return err
 		}
 	}
@@ -512,11 +553,15 @@ func (o *ChangeAgentBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registr
 
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
 			}
+
 			return err
 		}
 	}
@@ -531,11 +576,15 @@ func (o *ChangeAgentBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) 
 
 	if o.QANMysqlSlowlogAgent != nil {
 		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
 			}
+
 			return err
 		}
 	}
@@ -550,11 +599,15 @@ func (o *ChangeAgentBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.
 
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -569,11 +622,15 @@ func (o *ChangeAgentBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt
 
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -588,11 +645,15 @@ func (o *ChangeAgentBody) validateRDSExporter(formats strfmt.Registry) error {
 
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -607,11 +668,15 @@ func (o *ChangeAgentBody) validateValkeyExporter(formats strfmt.Registry) error 
 
 	if o.ValkeyExporter != nil {
 		if err := o.ValkeyExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -701,11 +766,15 @@ func (o *ChangeAgentBody) contextValidateAzureDatabaseExporter(ctx context.Conte
 		}
 
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "azure_database_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "azure_database_exporter")
 			}
+
 			return err
 		}
 	}
@@ -721,11 +790,15 @@ func (o *ChangeAgentBody) contextValidateExternalExporter(ctx context.Context, f
 		}
 
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -741,11 +814,15 @@ func (o *ChangeAgentBody) contextValidateMongodbExporter(ctx context.Context, fo
 		}
 
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -761,11 +838,15 @@ func (o *ChangeAgentBody) contextValidateMysqldExporter(ctx context.Context, for
 		}
 
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -781,11 +862,15 @@ func (o *ChangeAgentBody) contextValidateNodeExporter(ctx context.Context, forma
 		}
 
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "node_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter")
 			}
+
 			return err
 		}
 	}
@@ -801,11 +886,15 @@ func (o *ChangeAgentBody) contextValidateNomadAgent(ctx context.Context, formats
 		}
 
 		if err := o.NomadAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "nomad_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "nomad_agent")
 			}
+
 			return err
 		}
 	}
@@ -821,11 +910,15 @@ func (o *ChangeAgentBody) contextValidatePostgresExporter(ctx context.Context, f
 		}
 
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -841,11 +934,15 @@ func (o *ChangeAgentBody) contextValidateProxysqlExporter(ctx context.Context, f
 		}
 
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -861,11 +958,15 @@ func (o *ChangeAgentBody) contextValidateQANMongodbMongologAgent(ctx context.Con
 		}
 
 		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
 			}
+
 			return err
 		}
 	}
@@ -881,11 +982,15 @@ func (o *ChangeAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Con
 		}
 
 		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
 			}
+
 			return err
 		}
 	}
@@ -901,11 +1006,15 @@ func (o *ChangeAgentBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Con
 		}
 
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
 			}
+
 			return err
 		}
 	}
@@ -921,11 +1030,15 @@ func (o *ChangeAgentBody) contextValidateQANMysqlSlowlogAgent(ctx context.Contex
 		}
 
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
 			}
+
 			return err
 		}
 	}
@@ -941,11 +1054,15 @@ func (o *ChangeAgentBody) contextValidateQANPostgresqlPgstatementsAgent(ctx cont
 		}
 
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -961,11 +1078,15 @@ func (o *ChangeAgentBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx con
 		}
 
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -981,11 +1102,15 @@ func (o *ChangeAgentBody) contextValidateRDSExporter(ctx context.Context, format
 		}
 
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1001,11 +1126,15 @@ func (o *ChangeAgentBody) contextValidateValkeyExporter(ctx context.Context, for
 		}
 
 		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1072,11 +1201,15 @@ func (o *ChangeAgentDefaultBody) validateDetails(formats strfmt.Registry) error 
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeAgent default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1109,11 +1242,15 @@ func (o *ChangeAgentDefaultBody) contextValidateDetails(ctx context.Context, for
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeAgent default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1149,7 +1286,7 @@ type ChangeAgentDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// change agent default body details items0
-	ChangeAgentDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ChangeAgentDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -1176,9 +1313,9 @@ func (o *ChangeAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -1386,11 +1523,15 @@ func (o *ChangeAgentOKBody) validateAzureDatabaseExporter(formats strfmt.Registr
 
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "azure_database_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "azure_database_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1405,11 +1546,15 @@ func (o *ChangeAgentOKBody) validateExternalExporter(formats strfmt.Registry) er
 
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1424,11 +1569,15 @@ func (o *ChangeAgentOKBody) validateMongodbExporter(formats strfmt.Registry) err
 
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1443,11 +1592,15 @@ func (o *ChangeAgentOKBody) validateMysqldExporter(formats strfmt.Registry) erro
 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1462,11 +1615,15 @@ func (o *ChangeAgentOKBody) validateNodeExporter(formats strfmt.Registry) error 
 
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "node_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "node_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1481,11 +1638,15 @@ func (o *ChangeAgentOKBody) validateNomadAgent(formats strfmt.Registry) error {
 
 	if o.NomadAgent != nil {
 		if err := o.NomadAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "nomad_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "nomad_agent")
 			}
+
 			return err
 		}
 	}
@@ -1500,11 +1661,15 @@ func (o *ChangeAgentOKBody) validatePostgresExporter(formats strfmt.Registry) er
 
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1519,11 +1684,15 @@ func (o *ChangeAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) er
 
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1538,11 +1707,15 @@ func (o *ChangeAgentOKBody) validateQANMongodbMongologAgent(formats strfmt.Regis
 
 	if o.QANMongodbMongologAgent != nil {
 		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_mongolog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_mongolog_agent")
 			}
+
 			return err
 		}
 	}
@@ -1557,11 +1730,15 @@ func (o *ChangeAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Regis
 
 	if o.QANMongodbProfilerAgent != nil {
 		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
+
 			return err
 		}
 	}
@@ -1576,11 +1753,15 @@ func (o *ChangeAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Regis
 
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mysql_perfschema_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mysql_perfschema_agent")
 			}
+
 			return err
 		}
 	}
@@ -1595,11 +1776,15 @@ func (o *ChangeAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry
 
 	if o.QANMysqlSlowlogAgent != nil {
 		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mysql_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mysql_slowlog_agent")
 			}
+
 			return err
 		}
 	}
@@ -1614,11 +1799,15 @@ func (o *ChangeAgentOKBody) validateQANPostgresqlPgstatementsAgent(formats strfm
 
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -1633,11 +1822,15 @@ func (o *ChangeAgentOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strf
 
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -1652,11 +1845,15 @@ func (o *ChangeAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1671,11 +1868,15 @@ func (o *ChangeAgentOKBody) validateValkeyExporter(formats strfmt.Registry) erro
 
 	if o.ValkeyExporter != nil {
 		if err := o.ValkeyExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1765,11 +1966,15 @@ func (o *ChangeAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Con
 		}
 
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "azure_database_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "azure_database_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1785,11 +1990,15 @@ func (o *ChangeAgentOKBody) contextValidateExternalExporter(ctx context.Context,
 		}
 
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1805,11 +2014,15 @@ func (o *ChangeAgentOKBody) contextValidateMongodbExporter(ctx context.Context, 
 		}
 
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1825,11 +2038,15 @@ func (o *ChangeAgentOKBody) contextValidateMysqldExporter(ctx context.Context, f
 		}
 
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1845,11 +2062,15 @@ func (o *ChangeAgentOKBody) contextValidateNodeExporter(ctx context.Context, for
 		}
 
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "node_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "node_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1865,11 +2086,15 @@ func (o *ChangeAgentOKBody) contextValidateNomadAgent(ctx context.Context, forma
 		}
 
 		if err := o.NomadAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "nomad_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "nomad_agent")
 			}
+
 			return err
 		}
 	}
@@ -1885,11 +2110,15 @@ func (o *ChangeAgentOKBody) contextValidatePostgresExporter(ctx context.Context,
 		}
 
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1905,11 +2134,15 @@ func (o *ChangeAgentOKBody) contextValidateProxysqlExporter(ctx context.Context,
 		}
 
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1925,11 +2158,15 @@ func (o *ChangeAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.C
 		}
 
 		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_mongolog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_mongolog_agent")
 			}
+
 			return err
 		}
 	}
@@ -1945,11 +2182,15 @@ func (o *ChangeAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.C
 		}
 
 		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
+
 			return err
 		}
 	}
@@ -1965,11 +2206,15 @@ func (o *ChangeAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.C
 		}
 
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mysql_perfschema_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mysql_perfschema_agent")
 			}
+
 			return err
 		}
 	}
@@ -1985,11 +2230,15 @@ func (o *ChangeAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Cont
 		}
 
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mysql_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mysql_slowlog_agent")
 			}
+
 			return err
 		}
 	}
@@ -2005,11 +2254,15 @@ func (o *ChangeAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx co
 		}
 
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -2025,11 +2278,15 @@ func (o *ChangeAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx c
 		}
 
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -2045,11 +2302,15 @@ func (o *ChangeAgentOKBody) contextValidateRDSExporter(ctx context.Context, form
 		}
 
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -2065,11 +2326,15 @@ func (o *ChangeAgentOKBody) contextValidateValkeyExporter(ctx context.Context, f
 		}
 
 		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -2174,7 +2439,7 @@ func (o *ChangeAgentOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registr
 	return nil
 }
 
-var changeAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
+var changeAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2234,7 +2499,7 @@ func (o *ChangeAgentOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.R
 	return nil
 }
 
-var changeAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2295,11 +2560,15 @@ func (o *ChangeAgentOKBodyAzureDatabaseExporter) validateMetricsResolutions(form
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2329,11 +2598,15 @@ func (o *ChangeAgentOKBodyAzureDatabaseExporter) contextValidateMetricsResolutio
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2468,11 +2741,15 @@ func (o *ChangeAgentOKBodyExternalExporter) validateMetricsResolutions(formats s
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2502,11 +2779,15 @@ func (o *ChangeAgentOKBodyExternalExporter) contextValidateMetricsResolutions(ct
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2673,7 +2954,7 @@ func (o *ChangeAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var changeAgentOkBodyMongodbExporterTypeStatusPropEnum []interface{}
+var changeAgentOkBodyMongodbExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2733,7 +3014,7 @@ func (o *ChangeAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registr
 	return nil
 }
 
-var changeAgentOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyMongodbExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2794,11 +3075,15 @@ func (o *ChangeAgentOKBodyMongodbExporter) validateMetricsResolutions(formats st
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2828,11 +3113,15 @@ func (o *ChangeAgentOKBodyMongodbExporter) contextValidateMetricsResolutions(ctx
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3012,7 +3301,7 @@ func (o *ChangeAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-var changeAgentOkBodyMysqldExporterTypeStatusPropEnum []interface{}
+var changeAgentOkBodyMysqldExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3072,7 +3361,7 @@ func (o *ChangeAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry
 	return nil
 }
 
-var changeAgentOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3133,11 +3422,15 @@ func (o *ChangeAgentOKBodyMysqldExporter) validateMetricsResolutions(formats str
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3167,11 +3460,15 @@ func (o *ChangeAgentOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx 
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3316,7 +3613,7 @@ func (o *ChangeAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var changeAgentOkBodyNodeExporterTypeStatusPropEnum []interface{}
+var changeAgentOkBodyNodeExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3376,7 +3673,7 @@ func (o *ChangeAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) 
 	return nil
 }
 
-var changeAgentOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyNodeExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3437,11 +3734,15 @@ func (o *ChangeAgentOKBodyNodeExporter) validateMetricsResolutions(formats strfm
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3471,11 +3772,15 @@ func (o *ChangeAgentOKBodyNodeExporter) contextValidateMetricsResolutions(ctx co
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3591,7 +3896,7 @@ func (o *ChangeAgentOKBodyNomadAgent) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var changeAgentOkBodyNomadAgentTypeStatusPropEnum []interface{}
+var changeAgentOkBodyNomadAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3768,7 +4073,7 @@ func (o *ChangeAgentOKBodyPostgresExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var changeAgentOkBodyPostgresExporterTypeStatusPropEnum []interface{}
+var changeAgentOkBodyPostgresExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3828,7 +4133,7 @@ func (o *ChangeAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Regist
 	return nil
 }
 
-var changeAgentOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyPostgresExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3889,11 +4194,15 @@ func (o *ChangeAgentOKBodyPostgresExporter) validateMetricsResolutions(formats s
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3923,11 +4232,15 @@ func (o *ChangeAgentOKBodyPostgresExporter) contextValidateMetricsResolutions(ct
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4084,7 +4397,7 @@ func (o *ChangeAgentOKBodyProxysqlExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var changeAgentOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
+var changeAgentOkBodyProxysqlExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4144,7 +4457,7 @@ func (o *ChangeAgentOKBodyProxysqlExporter) validateStatus(formats strfmt.Regist
 	return nil
 }
 
-var changeAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4205,11 +4518,15 @@ func (o *ChangeAgentOKBodyProxysqlExporter) validateMetricsResolutions(formats s
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4239,11 +4556,15 @@ func (o *ChangeAgentOKBodyProxysqlExporter) contextValidateMetricsResolutions(ct
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4384,7 +4705,7 @@ func (o *ChangeAgentOKBodyQANMongodbMongologAgent) Validate(formats strfmt.Regis
 	return nil
 }
 
-var changeAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum []interface{}
+var changeAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4444,7 +4765,7 @@ func (o *ChangeAgentOKBodyQANMongodbMongologAgent) validateStatus(formats strfmt
 	return nil
 }
 
-var changeAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4593,7 +4914,7 @@ func (o *ChangeAgentOKBodyQANMongodbProfilerAgent) Validate(formats strfmt.Regis
 	return nil
 }
 
-var changeAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []interface{}
+var changeAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4653,7 +4974,7 @@ func (o *ChangeAgentOKBodyQANMongodbProfilerAgent) validateStatus(formats strfmt
 	return nil
 }
 
-var changeAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4820,7 +5141,7 @@ func (o *ChangeAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Regis
 	return nil
 }
 
-var changeAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+var changeAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4880,7 +5201,7 @@ func (o *ChangeAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt
 	return nil
 }
 
-var changeAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5050,7 +5371,7 @@ func (o *ChangeAgentOKBodyQANMysqlSlowlogAgent) Validate(formats strfmt.Registry
 	return nil
 }
 
-var changeAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []interface{}
+var changeAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5110,7 +5431,7 @@ func (o *ChangeAgentOKBodyQANMysqlSlowlogAgent) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var changeAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5262,7 +5583,7 @@ func (o *ChangeAgentOKBodyQANPostgresqlPgstatementsAgent) Validate(formats strfm
 	return nil
 }
 
-var changeAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
+var changeAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5322,7 +5643,7 @@ func (o *ChangeAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats
 	return nil
 }
 
-var changeAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5477,7 +5798,7 @@ func (o *ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent) Validate(formats strf
 	return nil
 }
 
-var changeAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
+var changeAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5537,7 +5858,7 @@ func (o *ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(format
 	return nil
 }
 
-var changeAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5699,7 +6020,7 @@ func (o *ChangeAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var changeAgentOkBodyRdsExporterTypeStatusPropEnum []interface{}
+var changeAgentOkBodyRdsExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5759,7 +6080,7 @@ func (o *ChangeAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) e
 	return nil
 }
 
-var changeAgentOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var changeAgentOkBodyRdsExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5820,11 +6141,15 @@ func (o *ChangeAgentOKBodyRDSExporter) validateMetricsResolutions(formats strfmt
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -5854,11 +6179,15 @@ func (o *ChangeAgentOKBodyRDSExporter) contextValidateMetricsResolutions(ctx con
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6005,7 +6334,7 @@ func (o *ChangeAgentOKBodyValkeyExporter) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-var changeAgentOkBodyValkeyExporterTypeStatusPropEnum []interface{}
+var changeAgentOkBodyValkeyExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -6072,11 +6401,15 @@ func (o *ChangeAgentOKBodyValkeyExporter) validateMetricsResolutions(formats str
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6106,11 +6439,15 @@ func (o *ChangeAgentOKBodyValkeyExporter) contextValidateMetricsResolutions(ctx 
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6301,11 +6638,15 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporter) validateCustomLabels(format
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -6320,11 +6661,15 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporter) validateMetricsResolutions(
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6358,11 +6703,15 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporter) contextValidateCustomLabels
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -6378,11 +6727,15 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporter) contextValidateMetricsResol
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6543,11 +6896,15 @@ func (o *ChangeAgentParamsBodyExternalExporter) validateCustomLabels(formats str
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -6562,11 +6919,15 @@ func (o *ChangeAgentParamsBodyExternalExporter) validateMetricsResolutions(forma
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6600,11 +6961,15 @@ func (o *ChangeAgentParamsBodyExternalExporter) contextValidateCustomLabels(ctx 
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -6620,11 +6985,15 @@ func (o *ChangeAgentParamsBodyExternalExporter) contextValidateMetricsResolution
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6885,11 +7254,15 @@ func (o *ChangeAgentParamsBodyMongodbExporter) validateCustomLabels(formats strf
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -6904,11 +7277,15 @@ func (o *ChangeAgentParamsBodyMongodbExporter) validateMetricsResolutions(format
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6942,11 +7319,15 @@ func (o *ChangeAgentParamsBodyMongodbExporter) contextValidateCustomLabels(ctx c
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -6962,11 +7343,15 @@ func (o *ChangeAgentParamsBodyMongodbExporter) contextValidateMetricsResolutions
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -7215,11 +7600,15 @@ func (o *ChangeAgentParamsBodyMysqldExporter) validateCustomLabels(formats strfm
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -7234,11 +7623,15 @@ func (o *ChangeAgentParamsBodyMysqldExporter) validateMetricsResolutions(formats
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -7272,11 +7665,15 @@ func (o *ChangeAgentParamsBodyMysqldExporter) contextValidateCustomLabels(ctx co
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -7292,11 +7689,15 @@ func (o *ChangeAgentParamsBodyMysqldExporter) contextValidateMetricsResolutions(
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -7515,11 +7916,15 @@ func (o *ChangeAgentParamsBodyNodeExporter) validateCustomLabels(formats strfmt.
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "node_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -7534,11 +7939,15 @@ func (o *ChangeAgentParamsBodyNodeExporter) validateMetricsResolutions(formats s
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "node_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -7572,11 +7981,15 @@ func (o *ChangeAgentParamsBodyNodeExporter) contextValidateCustomLabels(ctx cont
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "node_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -7592,11 +8005,15 @@ func (o *ChangeAgentParamsBodyNodeExporter) contextValidateMetricsResolutions(ct
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "node_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -7885,11 +8302,15 @@ func (o *ChangeAgentParamsBodyPostgresExporter) validateCustomLabels(formats str
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -7904,11 +8325,15 @@ func (o *ChangeAgentParamsBodyPostgresExporter) validateMetricsResolutions(forma
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -7942,11 +8367,15 @@ func (o *ChangeAgentParamsBodyPostgresExporter) contextValidateCustomLabels(ctx 
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -7962,11 +8391,15 @@ func (o *ChangeAgentParamsBodyPostgresExporter) contextValidateMetricsResolution
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -8200,11 +8633,15 @@ func (o *ChangeAgentParamsBodyProxysqlExporter) validateCustomLabels(formats str
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -8219,11 +8656,15 @@ func (o *ChangeAgentParamsBodyProxysqlExporter) validateMetricsResolutions(forma
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -8257,11 +8698,15 @@ func (o *ChangeAgentParamsBodyProxysqlExporter) contextValidateCustomLabels(ctx 
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -8277,11 +8722,15 @@ func (o *ChangeAgentParamsBodyProxysqlExporter) contextValidateMetricsResolution
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -8524,11 +8973,15 @@ func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) validateCustomLabels(form
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -8543,11 +8996,15 @@ func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) validateMetricsResolution
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -8581,11 +9038,15 @@ func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) contextValidateCustomLabe
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -8601,11 +9062,15 @@ func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) contextValidateMetricsRes
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -8848,11 +9313,15 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) validateCustomLabels(form
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -8867,11 +9336,15 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) validateMetricsResolution
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -8905,11 +9378,15 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) contextValidateCustomLabe
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -8925,11 +9402,15 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) contextValidateMetricsRes
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -9175,11 +9656,15 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) validateCustomLabels(form
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -9194,11 +9679,15 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) validateMetricsResolution
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -9232,11 +9721,15 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) contextValidateCustomLabe
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -9252,11 +9745,15 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) contextValidateMetricsRes
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -9505,11 +10002,15 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) validateCustomLabels(formats
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -9524,11 +10025,15 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) validateMetricsResolutions(f
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -9562,11 +10067,15 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) contextValidateCustomLabels(
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -9582,11 +10091,15 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) contextValidateMetricsResolu
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -9826,11 +10339,15 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) validateCustomLabe
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -9845,11 +10362,15 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) validateMetricsRes
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -9883,11 +10404,15 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) contextValidateCus
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -9903,11 +10428,15 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) contextValidateMet
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -10150,11 +10679,15 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) validateCustomLab
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -10169,11 +10702,15 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) validateMetricsRe
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -10207,11 +10744,15 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) contextValidateCu
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -10227,11 +10768,15 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) contextValidateMe
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -10456,11 +11001,15 @@ func (o *ChangeAgentParamsBodyRDSExporter) validateCustomLabels(formats strfmt.R
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -10475,11 +11024,15 @@ func (o *ChangeAgentParamsBodyRDSExporter) validateMetricsResolutions(formats st
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -10513,11 +11066,15 @@ func (o *ChangeAgentParamsBodyRDSExporter) contextValidateCustomLabels(ctx conte
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -10533,11 +11090,15 @@ func (o *ChangeAgentParamsBodyRDSExporter) contextValidateMetricsResolutions(ctx
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -10780,11 +11341,15 @@ func (o *ChangeAgentParamsBodyValkeyExporter) validateCustomLabels(formats strfm
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -10799,11 +11364,15 @@ func (o *ChangeAgentParamsBodyValkeyExporter) validateMetricsResolutions(formats
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -10837,11 +11406,15 @@ func (o *ChangeAgentParamsBodyValkeyExporter) contextValidateCustomLabels(ctx co
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey_exporter" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey_exporter" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -10857,11 +11430,15 @@ func (o *ChangeAgentParamsBodyValkeyExporter) contextValidateMetricsResolutions(
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}

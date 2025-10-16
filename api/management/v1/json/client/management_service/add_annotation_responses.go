@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type AddAnnotationReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddAnnotationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddAnnotationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddAnnotationOK()
@@ -55,7 +56,7 @@ AddAnnotationOK describes a response with status code 200, with default header v
 A successful response.
 */
 type AddAnnotationOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this add annotation Ok response has a 2xx status code
@@ -98,13 +99,13 @@ func (o *AddAnnotationOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/annotations][%d] addAnnotationOk %s", 200, payload)
 }
 
-func (o *AddAnnotationOK) GetPayload() interface{} {
+func (o *AddAnnotationOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *AddAnnotationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,7 +178,7 @@ func (o *AddAnnotationDefault) readResponse(response runtime.ClientResponse, con
 	o.Payload = new(AddAnnotationDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -271,11 +272,15 @@ func (o *AddAnnotationDefaultBody) validateDetails(formats strfmt.Registry) erro
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -308,11 +313,15 @@ func (o *AddAnnotationDefaultBody) contextValidateDetails(ctx context.Context, f
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -348,7 +357,7 @@ type AddAnnotationDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// add annotation default body details items0
-	AddAnnotationDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	AddAnnotationDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -375,9 +384,9 @@ func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

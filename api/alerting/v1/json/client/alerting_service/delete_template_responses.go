@@ -8,6 +8,7 @@ package alerting_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type DeleteTemplateReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DeleteTemplateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DeleteTemplateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDeleteTemplateOK()
@@ -55,7 +56,7 @@ DeleteTemplateOK describes a response with status code 200, with default header 
 A successful response.
 */
 type DeleteTemplateOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this delete template Ok response has a 2xx status code
@@ -98,13 +99,13 @@ func (o *DeleteTemplateOK) String() string {
 	return fmt.Sprintf("[DELETE /v1/alerting/templates/{name}][%d] deleteTemplateOk %s", 200, payload)
 }
 
-func (o *DeleteTemplateOK) GetPayload() interface{} {
+func (o *DeleteTemplateOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *DeleteTemplateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,7 +178,7 @@ func (o *DeleteTemplateDefault) readResponse(response runtime.ClientResponse, co
 	o.Payload = new(DeleteTemplateDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -225,11 +226,15 @@ func (o *DeleteTemplateDefaultBody) validateDetails(formats strfmt.Registry) err
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("DeleteTemplate default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("DeleteTemplate default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -262,11 +267,15 @@ func (o *DeleteTemplateDefaultBody) contextValidateDetails(ctx context.Context, 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("DeleteTemplate default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("DeleteTemplate default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -302,7 +311,7 @@ type DeleteTemplateDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// delete template default body details items0
-	DeleteTemplateDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	DeleteTemplateDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -329,9 +338,9 @@ func (o *DeleteTemplateDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
