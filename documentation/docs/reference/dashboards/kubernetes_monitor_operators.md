@@ -7,7 +7,7 @@ Monitoring the state of the database is crucial to timely identify and react to 
 
 However, the database state also depends on the state of the Kubernetes cluster itself. Hence it’s important to have metrics that can depict the state of the Kubernetes cluster.
 
-For information on setting up monitoring for the Kubernetes cluster health, see [documentation](https://docs.percona.com/percona-operator-for-mysql/pxc/monitor-kubernetes.html). 
+For information on setting up monitoring for the Kubernetes cluster health, see [documentation :octicons-link-external-16:](https://docs.percona.com/percona-operator-for-mysql/pxc/monitor-kubernetes.html){:target="_blank"}. 
 
 This setup has been tested with the PMM Server as the centralized data storage and the Victoria Metrics Kubernetes monitoring stack as the metrics collector. These steps may also apply if you use another Prometheus-compatible storage.
 

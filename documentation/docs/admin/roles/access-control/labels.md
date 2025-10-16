@@ -63,6 +63,6 @@ PMM allows modifying certain standard labels after a service is created:
 
 For other standard labels that cannot be modified directly, you must remove the service and re-add it with the desired labels.
 
-This can be done either via PMM UI or via an [API endpoint](https://percona-pmm.readme.io/reference/changeservice).
+This can be done either via PMM UI or via an [API endpoint :octicons-link-external-16:](https://percona-pmm.readme.io/reference/changeservice){:target="_blank"}.
 
-Modifying the custom labels can be done as well via PMM UI of via the same [API endpoint](https://percona-pmm.readme.io/reference/changeservice).
+Modifying the custom labels can be done as well via PMM UI of via the same [API endpoint :octicons-link-external-16:](https://percona-pmm.readme.io/reference/changeservice){:target="_blank"}.

@@ -6,7 +6,7 @@ Each Advisor includes a set of automated checks, which investigate a specific ra
 
 This page presents the complete list of database Advisors along with the corresponding subscription tier for which they are available.
 
-You can also access this list through the [**Advisor checks for PMM**](https://portal.percona.com/advisors) section in the Percona Portal documentation, as the Advisors are hosted on the Percona Platform. PMM Server automatically downloads them from this source when the Advisors and Telemetry options are enabled in PMM under **Configuration > Settings > Advanced Settings**. Both options are enabled by default.
+You can also access this list through the [**Advisor checks for PMM** :octicons-link-external-16:](https://portal.percona.com/advisors){:target="_blank"} section in the Percona Portal documentation, as the Advisors are hosted on the Percona Platform. PMM Server automatically downloads them from this source when the Advisors and Telemetry options are enabled in PMM under **Configuration > Settings > Advanced Settings**. Both options are enabled by default.
 
 ### Configuration Advisors
 

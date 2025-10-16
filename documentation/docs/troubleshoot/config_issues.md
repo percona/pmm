@@ -12,7 +12,7 @@ PMM can also generate diagnostics data that can be examined and/or shared with o
 
 Logs obtained in this way include PMM Client logs and logs received from the PMM Server, and stored separately in the `client` and `server` folders. The `server` folder also contains its `client` subfolder with the self-monitoring client information collected on the PMM Server.
 
-For additional debugging information, use the `--pprof` flag to include [pprof](https://github.com/google/pprof) debug profiles: `pmm-admin summary --pprof`.
+For additional debugging information, use the `--pprof` flag to include [pprof :octicons-link-external-16:](https://github.com/google/pprof){:target="_blank"} debug profiles: `pmm-admin summary --pprof`.
 
 You can get PMM Server logs with either of these methods:
 
@@ -37,7 +37,7 @@ When adding a service, the host might not be detected if the password contains s
 
 In such cases, you should convert any password, replacing special characters with their escape sequence equivalents.
 
-One way to do this is to use the [`encodeURIComponent`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent) JavaScript function in your browser's web console (commonly found under a *Development Tools* menu). Run the function with your password as the parameter. For example:
+One way to do this is to use the [`encodeURIComponent` :octicons-link-external-16:](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent){:target="_blank"} JavaScript function in your browser's web console (commonly found under a *Development Tools* menu). Run the function with your password as the parameter. For example:
 
 ```js
 > encodeURIComponent("s3cR#tpa$$worD")

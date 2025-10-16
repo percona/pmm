@@ -924,7 +924,7 @@ This is in fact the layer between the Storage Engine and MySQL.
 
 **Top Command Counters**
 
-The `Com_{{xxx}}` statement counter variables indicate the number of times each `xxx` statement has been executed. There is one status variable for each type of statement. For example, `Com_delete` and `Com_update` count [`DELETE`](https://dev.mysql.com/doc/refman/5.7/en/delete.html) and [`UPDATE`](https://dev.mysql.com/doc/refman/5.7/en/update.html) statements, respectively. `Com_delete_multi` and `Com_update_multi` are similar but apply to [`DELETE`](https://dev.mysql.com/doc/refman/5.7/en/delete.html) and [`UPDATE`](https://dev.mysql.com/doc/refman/5.7/en/update.html) statements that use multiple-table syntax.
+The `Com_{{xxx}}` statement counter variables indicate the number of times each `xxx` statement has been executed. There is one status variable for each type of statement. For example, `Com_delete` and `Com_update` count [`DELETE` :octicons-link-external-16:](https://dev.mysql.com/doc/refman/5.7/en/delete.html){:target="_blank"} and [`UPDATE` :octicons-link-external-16:](https://dev.mysql.com/doc/refman/5.7/en/update.html){:target="_blank"} statements, respectively. `Com_delete_multi` and `Com_update_multi` are similar but apply to [`DELETE` :octicons-link-external-16:](https://dev.mysql.com/doc/refman/5.7/en/delete.html){:target="_blank"} and [`UPDATE` :octicons-link-external-16:](https://dev.mysql.com/doc/refman/5.7/en/update.html){:target="_blank"} statements that use multiple-table syntax.
 
 ### MySQL Network Traffic
 

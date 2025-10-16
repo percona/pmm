@@ -34,12 +34,12 @@ To learn how to create and restore backups, check out subtopics below:
 ??? info "Additional resources"
     Here are some external resources for learning more about databases backups:
 
-    - [Amazon Web Services S3](https://aws.amazon.com/s3/)
-    - [Percona Backup for MongoDB](https://www.percona.com/doc/percona-backup-mongodb/installation.html)
-    - [PERCONA_QPRESS](https://docs.percona.com/percona-xtrabackup/2.4/backup_scenarios/compressed_backup.html)
-    - [PERCONA_XBCLOUD](https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html)
-    - [PERCONA_XBSTREAM](https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html)
-    - [PERCONA_XTRABACKUP](https://www.percona.com/software/mysql-database/percona-xtrabackup)
-    - [oplog slices](https://www.percona.com/doc/percona-backup-mongodb/glossary.html#term-oplog-slice)
-    - [Percona Server for MongoDB](https://www.percona.com/software/mongo-database/percona-server-for-mongodb)
-    - [MongoDB Replication](https://docs.mongodb.com/manual/replication/)
+    - [Amazon Web Services S3 :octicons-link-external-16:](https://aws.amazon.com/s3/){:target="_blank"}
+    - [Percona Backup for MongoDB :octicons-link-external-16:](https://www.percona.com/doc/percona-backup-mongodb/installation.html){:target="_blank"}
+    - [PERCONA_QPRESS :octicons-link-external-16:](https://docs.percona.com/percona-xtrabackup/2.4/backup_scenarios/compressed_backup.html){:target="_blank"}
+    - [PERCONA_XBCLOUD :octicons-link-external-16:](https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html){:target="_blank"}
+    - [PERCONA_XBSTREAM :octicons-link-external-16:](https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html){:target="_blank"}
+    - [PERCONA_XTRABACKUP :octicons-link-external-16:](https://www.percona.com/software/mysql-database/percona-xtrabackup){:target="_blank"}
+    - [oplog slices :octicons-link-external-16:](https://www.percona.com/doc/percona-backup-mongodb/glossary.html#term-oplog-slice){:target="_blank"}
+    - [Percona Server for MongoDB :octicons-link-external-16:](https://www.percona.com/software/mongo-database/percona-server-for-mongodb){:target="_blank"}
+    - [MongoDB Replication :octicons-link-external-16:](https://docs.mongodb.com/manual/replication/){:target="_blank"}

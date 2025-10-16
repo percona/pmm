@@ -17,7 +17,7 @@ The PMM Server OVA works with:
     To download an OVA file from the UI:
     {.power-number}
 
-    1. Visit the [Percona Downloads page](https://www.percona.com/downloads) from a web browser.
+    1. Visit the [Percona Downloads page :octicons-link-external-16:](https://www.percona.com/downloads){:target="_blank"} from a web browser.
     2. Make sure PMM 3 is selected, then choose a PMM version and select **SERVER - VIRTUAL APPLIANCE OVF**.
     3. Click the **DOWNLOAD** link for `pmm-server-{{release}}.ova` and note where your browser saves it.
     4. Right-click the link for `pmm-server-{{release}}.sha256sum` and save it in the same place as the `.ova` file.

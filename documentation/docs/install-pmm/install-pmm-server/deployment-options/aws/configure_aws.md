@@ -122,7 +122,7 @@ By default, your EC2 instance will have a private IP for internal VPC network ac
     !!! note
         Associating a new Elastic IP to an instance with an existing Elastic IP will disassociate the old one, but it will remain allocated to your account.
 
-For detailed information on EC2 instance IP addressing, see the [AWS documentation on using instance addressing](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html).
+For detailed information on EC2 instance IP addressing, see the [AWS documentation on using instance addressing :octicons-link-external-16:](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html){:target="_blank"}.
 
 ## Expand storage capacity
 
@@ -131,7 +131,7 @@ For detailed information on EC2 instance IP addressing, see the [AWS documentati
 When monitoring more hosts or extending data retention, you may need additional storage space:
 {.power-number}
 
-1. Increase the EBS volume size in the AWS Console following the [AWS documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html). 
+1. Increase the EBS volume size in the AWS Console following the [AWS documentation :octicons-link-external-16:](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html){:target="_blank"}. 
 
 2. Expand the file system to use the additional space:
 
@@ -230,7 +230,7 @@ If the root filesystem runs low on space:
 ### Upgrade EC2 instance class
 Scale your PMM Server by upgrading to a larger instance when CPU or memory usage becomes a bottleneck. 
 
-PMM fully supports resizing EC2 instances, as long as you follow the steps outlined in the [AWS EC2 resizing guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html).
+PMM fully supports resizing EC2 instances, as long as you follow the steps outlined in the [AWS EC2 resizing guide :octicons-link-external-16:](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html){:target="_blank"}.
 
 
 !!! note "Data safety"

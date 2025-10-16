@@ -71,8 +71,8 @@ When configuring PMM to use an external ClickHouse instance, make sure to enforc
     echo -n "$PASSWORD" | sha256sum | tr -d '-'
     ```
 
-For more details, see the [ClickHouse user and roles settings](https://clickhouse.com/docs/operations/settings/settings-users).
+For more details, see the [ClickHouse user and roles settings :octicons-link-external-16:](https://clickhouse.com/docs/operations/settings/settings-users){:target="_blank"}.
 
 ## Troubleshooting
 
-To troubleshoot issues, see the ClickHouse [troubleshooting documentation](https://clickhouse.com/docs/guides/troubleshooting).
+To troubleshoot issues, see the ClickHouse [troubleshooting documentation :octicons-link-external-16:](https://clickhouse.com/docs/guides/troubleshooting){:target="_blank"}.

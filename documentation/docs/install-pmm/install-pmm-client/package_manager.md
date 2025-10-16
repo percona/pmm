@@ -62,7 +62,7 @@ Choose your preferred method to configure the Percona repositories:
     Download packages directly without configuring repositories:
     {.power-number}
 
-    1. Visit the [PMM download page](https://www.percona.com/downloads/).
+    1. Visit the [PMM download page :octicons-link-external-16:](https://www.percona.com/downloads/){:target="_blank"}.
     2. Select PMM 3 and choose specific version (usually the latest).
     3. Under **Select Platform**, select the item matching your software platform and architecture (x86_64 or ARM64).
     4. Download the package file or copy the link and use `wget` to download it.

@@ -16,7 +16,7 @@ Get your MySQL instance connected to PMM in just a few steps:
     ```
 
    **Note:**
-   If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user.
+   If you are using an [Administrative Connection :octicons-link-external-16:](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html){:target="_blank"}, you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user.
 
 3. Register your MySQL instance with PMM:
 

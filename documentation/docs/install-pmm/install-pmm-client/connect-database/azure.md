@@ -14,7 +14,7 @@ The Microsoft Azure feature is turned off by default. To turn it on:
 
 ## Prerequisites
 
-PMM can monitor [Azure](https://azure.microsoft.com) database instances similar to other remote instances. In this case, the PMM Client is not installed on the host where the database server is deployed. 
+PMM can monitor [Azure :octicons-link-external-16:](https://azure.microsoft.com){:target="_blank"} database instances similar to other remote instances. In this case, the PMM Client is not installed on the host where the database server is deployed. 
 
 By using the PMM web interface, you connect to the Azure DB instance. Discovery is not yet implemented in PMM but it is possible to add known instances by providing the connection parameters.
 {.power-number}

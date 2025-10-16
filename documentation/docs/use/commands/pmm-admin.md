@@ -830,8 +830,8 @@ pmm-admin add mysql --disable-collectors='heartbeat,global_status,info_schema.in
 
 For other collectors that you can disable with the `--disable-collectors` option, please visit the official repositories for each exporter:
 
-- [`node_exporter`](https://github.com/percona/node_exporter)
-- [`mysqld_exporter`](https://github.com/percona/mysqld_exporter)
-- [`mongodb_exporter`](https://github.com/percona/mongodb_exporter)
-- [`postgres_exporter`](https://github.com/percona/postgres_exporter)
-- [`proxysql_exporter`](https://github.com/percona/proxysql_exporter)
+- [`node_exporter` :octicons-link-external-16:](https://github.com/percona/node_exporter){:target="_blank"}
+- [`mysqld_exporter` :octicons-link-external-16:](https://github.com/percona/mysqld_exporter){:target="_blank"}
+- [`mongodb_exporter` :octicons-link-external-16:](https://github.com/percona/mongodb_exporter){:target="_blank"}
+- [`postgres_exporter` :octicons-link-external-16:](https://github.com/percona/postgres_exporter){:target="_blank"}
+- [`proxysql_exporter` :octicons-link-external-16:](https://github.com/percona/proxysql_exporter){:target="_blank"}

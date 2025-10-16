@@ -29,13 +29,13 @@ We do not gather anything that can identify your system, but consider the follow
 
 The first telemetry reporting of a new PMM Server instance is delayed by 24 hours to allow enough time to disable the service for those that do not wish to share any information.
 
-The landing page for this service, [check.percona.com](https://check.percona.com), explains what this service is.
+The landing page for this service, [check.percona.com :octicons-link-external-16:](https://check.percona.com){:target="_blank"}, explains what this service is.
 
-Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest/administration/configuration/#reporting-enabled) is not managed by PMM. To activate it, you must change the PMM Server container configuration after each update.
+Grafana’s [anonymous usage statistics :octicons-link-external-16:](https://grafana.com/docs/grafana/latest/administration/configuration/#reporting-enabled){:target="_blank"} is not managed by PMM. To activate it, you must change the PMM Server container configuration after each update.
 
 As well as via the **PMM Settings** page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
-For information on the various config parameters for telemetry, see the [config file](https://github.com/percona/pmm/blob/main/managed/services/telemetry/config.default.yml).
+For information on the various config parameters for telemetry, see the [config file :octicons-link-external-16:](https://github.com/percona/pmm/blob/main/managed/services/telemetry/config.default.yml){:target="_blank"}.
 
 ## Check for updates
 

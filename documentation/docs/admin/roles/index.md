@@ -8,7 +8,7 @@ For more granular data access control, see [Labels for access control](../roles/
 
 ## Role types in PMM
 
-PMM inherits its basic role structure from [Grafana](https://grafana.com/docs/grafana/latest/administration/roles-and-permissions/) but with customizations specific to database monitoring. PMM has three main role types:
+PMM inherits its basic role structure from [Grafana :octicons-link-external-16:](https://grafana.com/docs/grafana/latest/administration/roles-and-permissions/){:target="_blank"} but with customizations specific to database monitoring. PMM has three main role types:
 
 - **Admin**: Has access to all resources and features within a PMM instance. This role can manage all aspects of PMM including users, teams, data sources, dashboards, and server settings.
 - **Editor**: Can view and edit dashboards, create custom visualizations, work with alerts, and manage specific configurations. Editors cannot modify server-wide settings or manage users.

@@ -9,7 +9,7 @@ As a developer, you can create custom checks to cover additional use cases, rele
 A check is a combination of:
 
 - A query for extracting data from the database.
-- Python script for converting extracted data into check results. This is actually a [Starlark](https://github.com/google/starlark-go) script, which is a Python dialect that adds more imperative features than Python. The script's execution environment is sandboxed, and no I/O can be done from it.
+- Python script for converting extracted data into check results. This is actually a [Starlark :octicons-link-external-16:](https://github.com/google/starlark-go){:target="_blank"} script, which is a Python dialect that adds more imperative features than Python. The script's execution environment is sandboxed, and no I/O can be done from it.
 
 All checks are self-contained in the first phase, as well as in most of the planned phases.
 
@@ -192,13 +192,13 @@ Expand the table below for the list of checks types that you can use to define y
     | MYSQL_SELECT    |     Executes 'SELECT …' clause against MySQL database.  |Yes|
     | POSTGRESQL_SHOW     |    Executes 'SHOW ALL' command against PosgreSQL database.    |No|
     | POSTGRESQL_SELECT      | Executes 'SELECT …' clause against PosgreSQL database.  |Yes|
-    | MONGODB_GETPARAMETER     | Executes db.adminCommand( { getParameter: "*" } ) against MongoDB's "admin" database. For more information, see [getParameter](https://docs.mongodb.com/manual/reference/command/getParameter/)| No|
-    | MONGODB_BUILDINFO    | Executes db.adminCommand( { buildInfo:  1 } ) against MongoDB's "admin" database. For more information, see [buildInfo](https://docs.mongodb.com/manual/reference/command/buildInfo/) | No|
-    | MONGODB_GETCMDLINEOPTS          |    Executes db.adminCommand( { getCmdLineOpts: 1 } ) against MongoDB's "admin" database. For more information, see [getCmdLineOpts](https://docs.mongodb.com/manual/reference/command/getCmdLineOpts/) |No|
-    | MONGODB_REPLSETGETSTATUS     |   Executes db.adminCommand( { replSetGetStatus: 1 } ) against MongoDB's "admin" database. For more information, see  [replSetGetStatus](https://docs.mongodb.com/manual/reference/command/replSetGetStatus/) |No|
-    | MONGODB_GETDIAGNOSTICDATA |Executes db.adminCommand( { getDiagnosticData: 1 } ) against MongoDB's "admin" database. For more information, see [MongoDB Performance](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#full-time-diagnostic-data-capture)| No|
-    | METRICS_INSTANT |Executes instant [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about instant queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries).|Yes|
-    | METRICS_RANGE |Executes range [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about range queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).|Yes|
+    | MONGODB_GETPARAMETER     | Executes db.adminCommand( { getParameter: "*" } ) against MongoDB's "admin" database. For more information, see [getParameter :octicons-link-external-16:](https://docs.mongodb.com/manual/reference/command/getParameter/){:target="_blank"}| No|
+    | MONGODB_BUILDINFO    | Executes db.adminCommand( { buildInfo:  1 } ) against MongoDB's "admin" database. For more information, see [buildInfo :octicons-link-external-16:](https://docs.mongodb.com/manual/reference/command/buildInfo/){:target="_blank"} | No|
+    | MONGODB_GETCMDLINEOPTS          |    Executes db.adminCommand( { getCmdLineOpts: 1 } ) against MongoDB's "admin" database. For more information, see [getCmdLineOpts :octicons-link-external-16:](https://docs.mongodb.com/manual/reference/command/getCmdLineOpts/){:target="_blank"} |No|
+    | MONGODB_REPLSETGETSTATUS     |   Executes db.adminCommand( { replSetGetStatus: 1 } ) against MongoDB's "admin" database. For more information, see  [replSetGetStatus :octicons-link-external-16:](https://docs.mongodb.com/manual/reference/command/replSetGetStatus/){:target="_blank"} |No|
+    | MONGODB_GETDIAGNOSTICDATA |Executes db.adminCommand( { getDiagnosticData: 1 } ) against MongoDB's "admin" database. For more information, see [MongoDB Performance :octicons-link-external-16:](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#full-time-diagnostic-data-capture){:target="_blank"}| No|
+    | METRICS_INSTANT |Executes instant [MetricsQL :octicons-link-external-16:](https://docs.victoriametrics.com/MetricsQL.html){:target="_blank"} query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about instant queries, check out the [Prometheus docs :octicons-link-external-16:](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries){:target="_blank"}.|Yes|
+    | METRICS_RANGE |Executes range [MetricsQL :octicons-link-external-16:](https://docs.victoriametrics.com/MetricsQL.html){:target="_blank"} query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about range queries, check out the [Prometheus docs :octicons-link-external-16:](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries){:target="_blank"}.|Yes|
     | CLICKHOUSE_SELECT |Executes 'SELECT ...' statements against PMM's [Query Analytics](../use/qan/index.md) ClickHouse database. Queries can use the {% raw %} **{{.ServiceName**}} and **{{.ServiceID}}**  {% endraw %} placeholders in query string. They match the target service name and service ID respectively.|Yes|
 
 ## Query parameters
@@ -206,8 +206,8 @@ Expand the table below for the list of checks types that you can use to define y
     - **lookback** (duration, optional): specifies how far in past to look back to metrics history. If this parameter is not specified, then query executed on the latest data. Example values: `30s`, `5m`, `8h`.
 - `METRICS_RANGE`
     - **lookback** (duration, optional): specifies how far in past to look back to metrics history. If this parameter is not specified, then query executed on the latest data. Example values: `30s`, `5m`, `8h`.
-    - **range** (duration, required): specifies time window of the query. This parameter is equal to [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).
-    - **step** (duration, required): query resolution. This parameter is equal to [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).
+    - **range** (duration, required): specifies time window of the query. This parameter is equal to [Prometheus API :octicons-link-external-16:](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries){:target="_blank"}.
+    - **step** (duration, required): query resolution. This parameter is equal to [Prometheus API :octicons-link-external-16:](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries){:target="_blank"}.
 - `POSTGRESQL_SELECT`
     - **all_dbs** (boolean, optional): execute query on all available databases in PostgreSQL instance. If this parameter is not specified, then query executed on the default database (the one that was specified when service was added to PMM).
 
@@ -219,7 +219,7 @@ Expand the table below for the list of checks types that you can use to define y
 To develop custom checks for PMM:
 {.power-number}
 
-1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#).
+1. Install the latest PMM Server and PMM Client builds following the [installation instructions :octicons-link-external-16:](https://www.percona.com/software/pmm/quickstart#){:target="_blank"}.
 2. Run PMM Server with special environment variables:
 
     - `PMM_DEV_ADVISOR_CHECKS_FILE=/srv/custom-checks.yml` to use checks from the local files instead of downloading them from Percona Platform.
@@ -276,4 +276,4 @@ There are two ways to reload your check file after making changes:
 - From command line (always works): SSH into PMM Server and execute: `supervisorctl restart pmm-managed`.
 
 ## Submit feedback
-We welcome your feedback on the current process for developing and debugging checks. Send us your comments or post a question on the [Percona Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84).
+We welcome your feedback on the current process for developing and debugging checks. Send us your comments or post a question on the [Percona Forums :octicons-link-external-16:](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84){:target="_blank"}.

@@ -114,7 +114,7 @@ Choose:
 | **Drawbacks** | • No aggregated statistics or histograms<br>• No Query Examples<br>• Limited metrics collection | • Slightly higher resource overhead<br>• Requires separate installation<br>• More complex configuration |
 | **Known Issues** | None | **⚠️ PMM v2.x/v3.x**: Query plan metrics cause incorrect time measurements (off by 1000x+) |
 
-For a more detailed comparison of extensions, see the [pg_stat_monitor documentation](https://docs.percona.com/pg-stat-monitor/user_guide.html).
+For a more detailed comparison of extensions, see the [pg_stat_monitor documentation :octicons-link-external-16:](https://docs.percona.com/pg-stat-monitor/user_guide.html){:target="_blank"}.
 
 ### Configure monitoring extension
 

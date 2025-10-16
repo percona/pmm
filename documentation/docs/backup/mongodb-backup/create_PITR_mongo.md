@@ -1,6 +1,6 @@
 # Create MongoDB PITR backups
 
-Point-in-Time Recovery (PITR) restores databases up to a specific moment in time. PITR includes restoring the data from a backup snapshot and replaying all events that occurred to this data up to a specified moment from [oplog slices](https://docs.percona.com/percona-backup-mongodb/reference/glossary.html#oplog-slice).
+Point-in-Time Recovery (PITR) restores databases up to a specific moment in time. PITR includes restoring the data from a backup snapshot and replaying all events that occurred to this data up to a specified moment from [oplog slices :octicons-link-external-16:](https://docs.percona.com/percona-backup-mongodb/reference/glossary.html#oplog-slice){:target="_blank"}.
 
 Point-in-Time Recovery helps you prevent data loss during a disaster such as crashed database, accidental data deletion or drop of tables, or unwanted update of multiple fields instead of a single one.
 
@@ -10,7 +10,7 @@ PMM introduced the option to create PITR Backups for MongoDB in version 2.23, as
 Percona Backup for MongoDB is a distributed, low-impact solution for achieving consistent backups of MongoDB sharded clusters and replica sets.
 Restoring PITR backups is available for backups based on pbm ≤ 2.0.1. To restore PITR backups, make sure you have pbm ≥ 2.0.1 installed.
 
- Percona Backup for MongoDB supports [Percona Server for MongoDB](https://www.percona.com/software/mongodb/percona-server-for-mongodb) and MongoDB Community ≤ 3.6, with [MongoDB Replication](https://docs.mongodb.com/manual/replication/) enabled. For more information, see the [Percona Backup for MongoDB documentation](https://docs.percona.com/percona-backup-mongodb/installation.html).
+ Percona Backup for MongoDB supports [Percona Server for MongoDB :octicons-link-external-16:](https://www.percona.com/software/mongodb/percona-server-for-mongodb){:target="_blank"} and MongoDB Community ≤ 3.6, with [MongoDB Replication :octicons-link-external-16:](https://docs.mongodb.com/manual/replication/){:target="_blank"} enabled. For more information, see the [Percona Backup for MongoDB documentation :octicons-link-external-16:](https://docs.percona.com/percona-backup-mongodb/installation.html){:target="_blank"}.
 
 ## How does it work?
 
