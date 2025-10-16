@@ -109,17 +109,17 @@
     state: installed
     enablerepo: local
 
-- name: Create grafana config
+- name: Configure grafana
   include_role:
     name: grafana
-
-- name: Install clickhouse
-  include_role:
-    name: clickhouse
 
 - name: Install nginx
   include_role:
     name: nginx
+
+- name: Install clickhouse
+  include_role:
+    name: clickhouse
 
 - name: Install postgres
   include_role:
