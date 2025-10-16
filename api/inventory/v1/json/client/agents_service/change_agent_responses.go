@@ -6577,7 +6577,7 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporter) Validate(formats strfmt.Reg
 	return nil
 }
 
-var changeAgentParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7193,7 +7193,7 @@ func (o *ChangeAgentParamsBodyMongodbExporter) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var changeAgentParamsBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyMongodbExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7539,7 +7539,7 @@ func (o *ChangeAgentParamsBodyMysqldExporter) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var changeAgentParamsBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7855,7 +7855,7 @@ func (o *ChangeAgentParamsBodyNodeExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var changeAgentParamsBodyNodeExporterTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyNodeExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -8241,7 +8241,7 @@ func (o *ChangeAgentParamsBodyPostgresExporter) Validate(formats strfmt.Registry
 	return nil
 }
 
-var changeAgentParamsBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyPostgresExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -8572,7 +8572,7 @@ func (o *ChangeAgentParamsBodyProxysqlExporter) Validate(formats strfmt.Registry
 	return nil
 }
 
-var changeAgentParamsBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyProxysqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -8912,7 +8912,7 @@ func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) Validate(formats strfmt.R
 	return nil
 }
 
-var changeAgentParamsBodyQanMongodbMongologAgentTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyQanMongodbMongologAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -9252,7 +9252,7 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) Validate(formats strfmt.R
 	return nil
 }
 
-var changeAgentParamsBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -9595,7 +9595,7 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.R
 	return nil
 }
 
-var changeAgentParamsBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -9941,7 +9941,7 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) Validate(formats strfmt.Regi
 	return nil
 }
 
-var changeAgentParamsBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -10278,7 +10278,7 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) Validate(formats s
 	return nil
 }
 
-var changeAgentParamsBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -10618,7 +10618,7 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) Validate(formats 
 	return nil
 }
 
-var changeAgentParamsBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -10940,7 +10940,7 @@ func (o *ChangeAgentParamsBodyRDSExporter) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var changeAgentParamsBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyRdsExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -11280,7 +11280,7 @@ func (o *ChangeAgentParamsBodyValkeyExporter) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var changeAgentParamsBodyValkeyExporterTypeLogLevelPropEnum []interface{}
+var changeAgentParamsBodyValkeyExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

@@ -8490,7 +8490,7 @@ func (o *AddAgentParamsBodyValkeyExporter) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var addAgentParamsBodyValkeyExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyValkeyExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
