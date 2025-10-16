@@ -109,7 +109,6 @@ func (tfs *TemplateFS) ReadFile(name string) ([]byte, error) {
 		return nil, err
 	}
 
-	// Apply templating using the same logic as in the user's example
 	upSQL := string(content)
 
 	// Extract just the filename from the path for template name
