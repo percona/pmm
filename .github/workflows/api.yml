@@ -30,11 +30,11 @@ jobs:
           echo "ID=$ID" >> $GITHUB_ENV
 
       - name: API
-        uses: readmeio/rdme@749271894dda391c0862c3df06605280ca0673ae # v10.5.0
+        uses: readmeio/rdme@953bc36acdd6a0eb9efdff7855a802a8f62878c9 # v10.5.2
         with:
           rdme: openapi ./api/swagger/swagger.json --version=${{ env.VERSION }} --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
 
       - name: Markdown docs
-        uses: readmeio/rdme@749271894dda391c0862c3df06605280ca0673ae # v10.5.0
+        uses: readmeio/rdme@953bc36acdd6a0eb9efdff7855a802a8f62878c9 # v10.5.2
         with:
           rdme: docs docs/api --version=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_security_user_super_not_local
+    summary: User(s) has/have Super privileges with remote and too open access
+    description: User has Super privileges but is not connecting from local or the host is not fully restricted (ie 192.168.%).
+    interval: standard
+    advisor: security_authentication
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, count(user) found,group_concat( concat(user,'@',host) separator'; ') user  from mysql.user where Super_priv = 'Y' and user not in('mysql.pxc.internal.session', 'mysql.pxc.sst.role', 'mysql.session','mysql.infoschema','mysql.pxc.sst.user','mysql.sys') and plugin != 'auth_socket' and host like '%'and host not in ('127.0.0.1','localhost') group by version;"
+    script: |
+      def check_super(doc,read_url):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            user = row["user"]
+            found = row["found"]
+
+            if found > 0 :
+               return {
+                 "summary": "User(s) has/have Super privileges with remote and too open access",
+                 "description": "User has Super privileges but is not connecting from local or the host is not fully restricted (ie 192.168.%). User list = {} ;".format(user),
+                 "severity": "notice",
+                 "read_more_url": read_url.format("security-non-root-accounts-super-privileges"),
+                 "labels": {
+                    "mysql_version": "{}".format(version),
+                     "service": "{}".format(service),
+                    }
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = check_super(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

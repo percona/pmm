@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_configuration_innodb_file_maxlimit
+    summary: InnoDB Tablespace size has a maximum limit.
+    description: Check if InnoDB is configured with recommended auto-extend
+    interval: standard
+    advisor: configuration_innodb
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, VARIABLE_NAME as name, VARIABLE_VALUE as value from performance_schema.global_variables where VARIABLE_NAME in ('innodb_data_file_path');"
+    script: |
+      def check_innodb_conf(doc,read_url):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            name = row["name"]
+            value = row["value"]
+
+            if ":max" in value :
+               return {
+                 "summary": "InnoDB Tablespace size has a maximum limit",
+                 "description": "InnoDB Tablespace can not grow because of this limit. Current setting: {} = {} ;".format(name,value),
+                 "severity": "notice",
+                 "read_more_url": read_url.format("configuration-check-innodb-data-file-path"),
+                 "labels": {
+                    "mysql_version": "{}".format(version),
+                     "service": "{}".format(service),
+                    }
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = check_innodb_conf(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

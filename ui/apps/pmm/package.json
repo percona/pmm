@@ -28,7 +28,7 @@
     "@percona/ui-lib": "^1.0.0",
     "@pmm/shared": "*",
     "@tanstack/react-query": "^5.45.1",
-    "axios": "^1.8.2",
+    "axios": "^1.12.2",
     "axios-case-converter": "^1.1.1",
     "date-fns": "^2.30.0",
     "react": "^18.3.1",
