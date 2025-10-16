@@ -18,7 +18,8 @@ To add a MySQL instance on Google Cloud:
     ```sh
     gcloud sql instances patch <instance_name> --database-flags performance_schema=on
     ```
-4. **(Optional) For SSL/TLS connections:** Download the server CA certificate from the GCP Console under your Cloud SQL instance > **Connections > Security**.
+
+4. (Optional) For SSL/TLS connections, download the server CA certificate from the GCP Console under your Cloud SQL instance > **Connections > Security**.
 
 5. Log into the PMM user interface.
 
