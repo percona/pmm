@@ -18,15 +18,84 @@ To add a MySQL instance on Google Cloud:
     ```sh
     gcloud sql instances patch <instance_name> --database-flags performance_schema=on
     ```
+4. **(Optional) For SSL/TLS connections:** Download the server CA certificate from the GCP Console under your Cloud SQL instance > **Connections > Security**.
 
-4. Log into the PMM user interface.
+5. Log into the PMM user interface.
 
-5. Select **PMM Configuration > PMM Inventory >  Service > Add Service > MySQL**.
+6. Select **PMM Configuration > PMM Inventory >  Service > Add Service > MySQL**.
 
-6. Fill in the details for the remote MySQL instance and make sure to enable the **Use performance schema** option.
-7. Click **Add service**.
+7. Fill in the details for the remote MySQL instance and make sure to enable the **Use performance schema** option.
 
-8. Go to **Dashboards** and check for values in the **MySQL Instance Summary** dashboard and in **Query Analytics**.
+8. Click **Add service**.
+
+9. Go to **Dashboards** and check for values in the **MySQL Instance Summary** dashboard and in **Query Analytics**.
+
+### Direct connection with TLS
+
+For secure direct connections to Google Cloud SQL MySQL instances, you can use TLS with partial certificate support. 
+
+Google Cloud SQL MySQL requires only the CA certificate for TLS connections. Client certificate and key are optional and only needed if you've explicitly configured client certificate authentication.
+
+=== "Add instance via UI"
+
+    To add a GCP Cloud SQL MySQL instance with TLS via the UI:
+    {.power-number}
+
+    1. Go to **PMM Configuration > PMM Inventory > Add Service > MySQL**.
+    2. Fill in the connection details (host, port, username, password).
+    3. Enable **Use performance schema** option.
+    4. Check **Use TLS for database connections**.
+    5. Paste the server CA certificate content in the **TLS CA** field.
+    6. Click **Add service**.
+
+=== "Add instance via command line"
+
+    **With TLS (CA certificate only - recommended):**
+    
+    ```sh
+        pmm-admin add mysql \
+        --username=pmm \
+        --password=secure \
+        --host=<YOUR_GCP_SQL_IP> \
+        --port=3306 \
+        --service-name=MySQL-GCP \
+        --query-source=perfschema \
+        --tls \
+        --tls-ca=/path/to/server-ca.pem
+    ```
+
+    **With TLS and client authentication (if configured):**
+    ```sh
+    pmm-admin add mysql \
+      --username=pmm \
+      --password=secure \
+      --host=<YOUR_GCP_SQL_IP> \
+      --port=3306 \
+      --service-name=MySQL-GCP \
+      --query-source=perfschema \
+      --tls \
+      --tls-ca=/path/to/server-ca.pem \
+      --tls-cert=/path/to/client-cert.pem \
+      --tls-key=/path/to/client-key.pem
+    ```
+
+    **Without TLS:**
+    ```sh
+    pmm-admin add mysql \
+      --username=pmm \
+      --password=secure \
+      --host=<YOUR_GCP_SQL_IP> \
+      --port=3306 \
+      --service-name=MySQL-GCP \
+      --query-source=perfschema
+    ```
+
+### Certificate file location
+When using TLS certificates with Google Cloud SQL MySQL, make sure to:
+
+- store the downloaded server CA certificate file on the server where PMM Client is installed
+- provide the full path to the certificate in the `--tls-ca` parameter
+- use `--tls-skip-verify` only in development/testing environments to skip hostname validation
 
 ## PostgreSQL
 
