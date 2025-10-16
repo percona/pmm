@@ -156,7 +156,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		return errors.WithStack(cErr)
 	}
 
-	if len(b) > 0 && target != nil {
+	if len(b) != 0 && target != nil {
 		if err = json.Unmarshal(b, target); err != nil {
 			return errors.WithStack(err)
 		}
