@@ -4,7 +4,7 @@
   become: true
   vars:
     docker_compose_version: "2.26.1"
-    kubectl_version: "1.29.2"
+    kubectl_version: "1.33.5"
     doctl_version: "1.105.0"
     node_version: "22.x"
     goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
@@ -104,7 +104,7 @@
 
     - name: Install kubectl
       get_url:
-        url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubectl_version }}/bin/linux/{{ ansible_architecture_alt }}/kubectl
+        url: https://dl.k8s.io/release/v{{ kubectl_version }}/bin/linux/{{ ansible_architecture_alt }}/kubectl
         dest: /usr/local/bin/kubectl
         mode: "u+x,g+x,o+x"
 
