@@ -661,30 +661,30 @@ func main() { //nolint:maintidx,cyclop
 		String()
 
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
-		Envar("PMM_TEST_HA_ENABLE").
+		Envar("PMM_HA_ENABLE").
 		Bool()
 	haBootstrap := kingpin.Flag("ha-bootstrap", "Bootstrap HA cluster").
-		Envar("PMM_TEST_HA_BOOTSTRAP").
+		Envar("PMM_HA_BOOTSTRAP").
 		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
-		Envar("PMM_TEST_HA_NODE_ID").
+		Envar("PMM_HA_NODE_ID").
 		String()
 	haAdvertiseAddress := kingpin.Flag("ha-advertise-address", "HA Advertise address").
-		Envar("PMM_TEST_HA_ADVERTISE_ADDRESS").
+		Envar("PMM_HA_ADVERTISE_ADDRESS").
 		String()
 	haPeers := kingpin.Flag("ha-peers", "HA Peers").
-		Envar("PMM_TEST_HA_PEERS").
+		Envar("PMM_HA_PEERS").
 		String()
 	haRaftPort := kingpin.Flag("ha-raft-port", "HA raft port").
-		Envar("PMM_TEST_HA_RAFT_PORT").
+		Envar("PMM_HA_RAFT_PORT").
 		Default("9760").
 		Int()
 	haGossipPort := kingpin.Flag("ha-gossip-port", "HA gossip port").
-		Envar("PMM_TEST_HA_GOSSIP_PORT").
+		Envar("PMM_HA_GOSSIP_PORT").
 		Default("9761").
 		Int()
 	haGrafanaGossipPort := kingpin.Flag("ha-grafana-gossip-port", "HA Grafana gossip port").
-		Envar("PMM_TEST_HA_GRAFANA_GOSSIP_PORT").
+		Envar("PMM_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
 
