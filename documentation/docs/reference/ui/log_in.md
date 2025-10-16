@@ -1,7 +1,7 @@
 # Log into PMM
 
 !!! note "Percona Platform deprecation"
-    Starting with PMM 3.7.0, the **Sign in with Percona Account** option will be removed as part of Percona Platform discontinuation. [Migrate to a supported authentication method](../admin/manage-users/edit_users.html#migrating-from-percona-account-authentication-deprecated) before March 2026.
+    Starting with PMM 3.7.0, the **Sign in with Percona Account** option will be removed as part of Percona Platform discontinuation. [Migrate to a supported authentication method](../../admin/manage-users/edit_users.md#migrate-from-percona-account-authentication-deprecated) before March 2026.
 
 PMM supports multiple authentication methods. The most common are:
 
@@ -46,7 +46,7 @@ For setup instructions, see [Grafana's authentication documentation](https://gra
 !!! warning "Deprecated feature"
     This authentication method is deprecated as of PMM 3.5.0 and will be removed in PMM 3.7.0 (March 2026).
 
-If you currently use Percona Account authentication, [migrate to a supported authentication method](../admin/manage-users/edit_users.html#migrating-from-percona-account-authentication-deprecated) before the Platform shutdown.
+If you currently use Percona Account authentication, [migrate to a supported authentication method](../../admin/manage-users/edit_users.md#migrate-from-percona-account-authentication-deprecated) before the Platform shutdown.
 
 ## Next steps
 
