@@ -8,6 +8,7 @@ package server_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type VersionReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *VersionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *VersionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewVersionOK()
@@ -107,7 +108,7 @@ func (o *VersionOK) readResponse(response runtime.ClientResponse, consumer runti
 	o.Payload = new(VersionOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *VersionDefault) readResponse(response runtime.ClientResponse, consumer 
 	o.Payload = new(VersionDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *VersionDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *VersionDefaultBody) contextValidateDetails(ctx context.Context, formats
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -416,7 +425,7 @@ type VersionDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// version default body details items0
-	VersionDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	VersionDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -470,9 +479,9 @@ func (o *VersionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -613,7 +622,7 @@ func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var versionOkBodyTypeDistributionMethodPropEnum []interface{}
+var versionOkBodyTypeDistributionMethodPropEnum []any
 
 func init() {
 	var res []string
@@ -674,11 +683,15 @@ func (o *VersionOKBody) validateManaged(formats strfmt.Registry) error {
 
 	if o.Managed != nil {
 		if err := o.Managed.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("versionOk" + "." + "managed")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("versionOk" + "." + "managed")
 			}
+
 			return err
 		}
 	}
@@ -693,11 +706,15 @@ func (o *VersionOKBody) validateServer(formats strfmt.Registry) error {
 
 	if o.Server != nil {
 		if err := o.Server.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("versionOk" + "." + "server")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("versionOk" + "." + "server")
 			}
+
 			return err
 		}
 	}
@@ -731,11 +748,15 @@ func (o *VersionOKBody) contextValidateManaged(ctx context.Context, formats strf
 		}
 
 		if err := o.Managed.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("versionOk" + "." + "managed")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("versionOk" + "." + "managed")
 			}
+
 			return err
 		}
 	}
@@ -751,11 +772,15 @@ func (o *VersionOKBody) contextValidateServer(ctx context.Context, formats strfm
 		}
 
 		if err := o.Server.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("versionOk" + "." + "server")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("versionOk" + "." + "server")
 			}
+
 			return err
 		}
 	}
