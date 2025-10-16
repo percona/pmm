@@ -8,8 +8,8 @@
     doctl_version: "1.105.0"
     node_version: "22.x"
     goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
-    eksctl_version: "0.191.0"
-    helm_version: "3.16.3"
+    eksctl_version: "0.215.0"
+    helm_version: "3.19.0"
 
   tasks:
     - name: Detect vm architecture
