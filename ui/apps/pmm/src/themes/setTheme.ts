@@ -65,7 +65,6 @@ export function useSetTheme() {
     try {
       localStorage.setItem('colorMode', next);
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.warn('[useSetTheme] Failed to save theme to localStorage:', err);
     }
   };
@@ -88,7 +87,6 @@ export function useSetTheme() {
       try {
         await grafanaApi.put('/user/preferences', { theme: next });
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.warn(
           '[useSetTheme] Failed to persist theme to Grafana preferences:',
           err
@@ -104,7 +102,6 @@ export function useSetTheme() {
           payload: { theme: next },
         });
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.warn('[useSetTheme] Failed to send CHANGE_THEME message:', err);
       }
     }

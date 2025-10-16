@@ -128,11 +128,12 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   // If outer theme changes (our hook updates <html>), reflect it to Grafana quickly
   useEffect(() => {
     if (!isLoaded) return;
-    const mode = readHtmlMode(); // canonical
+    const mode = readHtmlMode();
     if (lastSentThemeRef.current !== mode) {
       lastSentThemeRef.current = mode;
       messenger.sendMessage({ type: 'CHANGE_THEME', payload: { theme: mode } });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, location]); // re-evaluate on navigation; inexpensive and safe
 
   // Hard guarantee: listen for grafana.theme.changed on /graph/* pages and apply locally (no persist/broadcast).

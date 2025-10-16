@@ -27,14 +27,12 @@ export const useColorMode = () => {
     try {
       mutate({ theme: next });
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.warn('[useColorMode] Persist to preferences failed:', err);
     }
 
     try {
       localStorage.setItem('colorMode', next);
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.warn('[useColorMode] localStorage set failed:', err);
     }
   };
