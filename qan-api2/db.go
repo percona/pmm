@@ -16,19 +16,18 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"log"
 	"net/url"
 	"strings"
+	"time"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
-	"github.com/golang-migrate/migrate/v4"
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2"          // register database/sql driver
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
-	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
+	"github.com/jmoiron/sqlx"                                    // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
-	"github.com/pkg/errors"
+
+	"github.com/percona/pmm/qan-api2/migrations"
 )
 
 const (
@@ -36,20 +35,51 @@ const (
 )
 
 // NewDB return updated db.
-func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
+func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
+	dsnURL, err := url.Parse(dsn)
+	if err != nil {
+		log.Fatalf("error parsing DSN: %v", err)
+	}
+
+	// If ClickHouse is a cluster, wait until the cluster is ready.
+	if isCluster {
+		log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
+		dsnURL.Path = "/default"
+		dsnDefault := dsnURL.String()
+		log.Printf("DSN for cluster check: %s", dsnURL.Redacted())
+
+		for {
+			isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
+			if err != nil {
+				log.Fatalf("error checking ClickHouse cluster status: %v", err)
+			}
+			if isClusterReady {
+				log.Println("ClickHouse cluster is ready")
+				break
+			}
+
+			log.Println("waiting for ClickHouse cluster to be ready... (system.clusters where remote_hosts > 0)")
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	log.Printf("new connection with DSN: %s", dsnURL.Redacted())
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
+		log.Printf("error connecting to clickhouse: %v", err)
 		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
-			err = createDB(dsn)
+			log.Println("one of expected errors - database does not exist, creating")
+			err = createDB(dsn, clusterName)
 			if err != nil {
-				log.Fatalf("Database wasn't created: %v", err)
+				log.Fatalf("database wasn't created: %v", err)
 			}
+			log.Printf("database created, connecting again %s", dsnURL.Redacted())
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
-				log.Fatalf("Connection: %v", err)
+				log.Fatalf("connection: %v", err)
 			}
 		} else {
-			log.Fatalf("Connection: %v", err)
+			log.Fatalf("connection: %v", err)
 		}
 	}
 
@@ -65,14 +95,22 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	if err := runMigrations(dsn); err != nil {
-		log.Fatal("Migrations: ", err)
+	data := map[string]any{
+		"engine": migrations.GetEngine(dsn),
 	}
-	log.Println("Migrations applied.")
+	if clusterName != "" {
+		log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
+	}
+	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
+		log.Fatalf("migrations: %v", err)
+	}
+	log.Println("migrations applied")
+
 	return db
 }
 
-func createDB(dsn string) error {
+func createDB(dsn string, clusterName string) error {
 	log.Println("Creating database")
 	clickhouseURL, err := url.Parse(dsn)
 	if err != nil {
@@ -87,36 +125,22 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
+	sql := fmt.Sprintf("CREATE DATABASE %s", databaseName)
+	if clusterName != "" {
+		log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
+	}
+	sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
+
+	result, err := defaultDB.Exec(sql)
 	if err != nil {
 		log.Printf("Result: %v", result)
 		return err
 	}
 	log.Println("Database was created")
-	return nil
+
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
-}
-
-//go:embed migrations/sql/*.sql
-var fs embed.FS
-
-func runMigrations(dsn string) error {
-	d, err := iofs.New(fs, "migrations/sql")
-	if err != nil {
-		return err
-	}
-
-	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
-	if err != nil {
-		return err
-	}
-
-	// run up to the latest migration
-	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
-		return nil
-	}
-	return err
+	return nil
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
