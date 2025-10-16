@@ -439,7 +439,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 func (s *Service) AddLeaderService(leaderService LeaderService) {
 	err := s.services.Add(leaderService)
 	if err != nil {
-		s.l.Errorf("couldn't add HA service: +%v", err)
+		s.l.Errorf("couldn't add HA service: %+v", err)
 	}
 }
 
