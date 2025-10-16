@@ -163,7 +163,7 @@ func TestParseKeyValuePair(t *testing.T) {
 			t.Parallel()
 
 			extraDSNParams := ParseKeyValuePair(&tt.input)
-			assert.Equal(t, tt.expected, extraDSNParams)
+			assert.Equal(t, tt.expected, *extraDSNParams)
 		})
 	}
 }

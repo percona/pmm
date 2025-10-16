@@ -38,7 +38,6 @@ Expose exporter       : {{ .Agent.ExposeExporter }}
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ formatCustomLabels .Agent.CustomLabels }}
 Process exec path     : {{ .Agent.ProcessExecPath }}
-Log level             : {{ formatLogLevel .Agent.LogLevel }}
 
 {{- if .Changes}}
 Configuration changes applied:

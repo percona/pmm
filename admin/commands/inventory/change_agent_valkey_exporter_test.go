@@ -192,7 +192,6 @@ Expose exporter       : true
 Disabled              : false
 Custom labels         : env=test, team=valkey
 Process exec path     : /usr/bin/valkey_exporter
-Log level             : debug
 Configuration changes applied:
   - enabled agent
   - updated username

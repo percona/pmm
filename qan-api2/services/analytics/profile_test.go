@@ -291,7 +291,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		}
 
 		test.in.GroupBy = "unknown dimension"
-		expectedErr := fmt.Errorf("unknown group dimension: %s", "unknown dimension")
+		expectedErr := fmt.Errorf("unknown group dimension: %q", "unknown dimension")
 		_, err := s.GetReport(makeContext(t), test.in)
 		if err.Error() != expectedErr.Error() {
 			t.Errorf("Service.GetReport() unexpected error = %v, wantErr %v", err, expectedErr)
