@@ -1148,6 +1148,18 @@ var databaseSchema = [][]string{
 	112: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
 	},
+	113: {
+		`ALTER TABLE user_flags
+			ADD COLUMN snoozed_at TIMESTAMP,
+			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0`,
+	},
+	// Default snooze duration - 7 days
+	114: {
+		`UPDATE settings
+			SET settings = settings || '{"updates": {"snooze_duration": 604800000000000}}'
+			WHERE settings->'updates' IS NULL
+			OR settings->'updates'->'snooze_duration' IS NULL`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

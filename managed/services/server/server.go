@@ -495,8 +495,9 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
-		EnableAccessControl: settings.IsAccessControlEnabled(),
-		DefaultRoleId:       uint32(settings.DefaultRoleID),
+		EnableAccessControl:  settings.IsAccessControlEnabled(),
+		DefaultRoleId:        uint32(settings.DefaultRoleID),
+		UpdateSnoozeDuration: durationpb.New(settings.Updates.SnoozeDuration),
 	}
 
 	return res
@@ -591,6 +592,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
+	}
+
+	if !canUpdateDurationSetting(req.UpdateSnoozeDuration.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
+		return status.Error(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
 	}
 
 	return nil

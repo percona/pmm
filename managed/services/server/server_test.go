@@ -27,6 +27,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -103,6 +104,7 @@ func TestServer(t *testing.T) {
 				"PMM_METRICS_RESOLUTION_LR=3s",
 				"PMM_DATA_RETENTION=240h",
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
+				"PMM_UPDATE_SNOOZE_DURATION=24h",
 			})
 			require.Empty(t, errs)
 			assert.True(t, *s.envSettings.EnableUpdates)
@@ -112,6 +114,7 @@ func TestServer(t *testing.T) {
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
 			assert.Equal(t, 10*24*time.Hour, s.envSettings.DataRetention)
 			assert.Equal(t, "1.2.3.4:5678", *s.envSettings.PMMPublicAddress)
+			assert.Equal(t, 24*time.Hour, s.envSettings.UpdateSnoozeDuration)
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
@@ -206,6 +209,15 @@ func TestServer(t *testing.T) {
 		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableUpdates: pointer.ToBool(true),
+		}))
+
+		s.envSettings.UpdateSnoozeDuration = 24 * time.Hour
+		expected = status.New(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			UpdateSnoozeDuration: durationpb.New(12 * time.Hour),
+		}))
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			UpdateSnoozeDuration: durationpb.New(24 * time.Hour),
 		}))
 
 		s.envSettings.EnableTelemetry = pointer.ToBool(true)

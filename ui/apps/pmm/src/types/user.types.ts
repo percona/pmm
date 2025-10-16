@@ -19,6 +19,7 @@ export interface User {
   isEditor: boolean;
   isPMMAdmin: boolean;
   orgs: UserOrg[];
+  info: UserInfo;
 }
 
 // comes from grafana
@@ -45,4 +46,26 @@ export interface UserOrg {
 
 export interface UpdatePreferencesBody {
   theme: ColorMode;
+}
+
+export interface UserInfo {
+  userId: number;
+  alertingTourCompleted: boolean;
+  productTourCompleted: boolean;
+  snoozedAt: string | null;
+  snoozeCount: number;
+  snoozedPmmVersion: string;
+}
+
+export type UpdateUserInfoPayload = Partial<
+  Omit<UserInfo, 'userId' | 'snoozeCount' | 'snoozedAt'>
+>;
+
+export interface SnoozeUpdateBody {
+  snoozedPmmVersion: string;
+}
+
+export interface SnoozeUpdateResponse extends SnoozeUpdateBody {
+  snoozedAt: string;
+  snoozeCount: number;
 }

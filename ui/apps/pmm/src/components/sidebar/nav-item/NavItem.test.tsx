@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { wrapWithRouter } from 'utils/testUtils';
 import NavItem from './NavItem';
 import { NavItemProps } from './NavItem.types';
-import { NavItem as NavTreeItem } from 'lib/types';
+import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
 
@@ -109,5 +109,38 @@ describe('NavItem', () => {
 
     expect(level0Collapse).not.toHaveClass(collapseClasses.hidden);
     expect(level1Collapse).not.toHaveClass(collapseClasses.hidden);
+  });
+
+  it('renders badge if item has badge', () => {
+    renderNavItem({
+      item: { id: 'with-badge', badge: { label: 'badge-label' } },
+    });
+
+    const badge = screen.getByText('badge-label');
+    expect(badge).toBeInTheDocument();
+  });
+
+  it('shows dot on root if children has a badge and is hidden', async () => {
+    renderNavItem(
+      {
+        item: {
+          id: 'with-badge',
+          icon: 'home',
+          url: '/root',
+          children: [
+            {
+              id: 'with-badge-child',
+              url: '/root/child',
+              badge: { label: 'badge-label' },
+            },
+          ],
+        },
+      },
+      { initialEntries: ['/root'] }
+    );
+
+    fireEvent.click(screen.getByTestId('navitem-with-badge-toggle'));
+
+    expect(screen.getByTestId('navitem-dot')).toBeInTheDocument();
   });
 });

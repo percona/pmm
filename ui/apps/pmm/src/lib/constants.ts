@@ -9,6 +9,7 @@ export const PMM_NEW_NAV_GRAFANA_PATH = `${PMM_NEW_NAV_PATH}${GRAFANA_SUB_PATH}`
 export const PMM_HOME_URL = `${GRAFANA_SUB_PATH}/d/pmm-home`;
 export const PMM_LOGIN_URL = `${GRAFANA_SUB_PATH}/login`;
 export const PMM_SETTINGS_URL = `${GRAFANA_SUB_PATH}/settings/advanced-settings`;
+export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
@@ -40,3 +41,8 @@ export const ALL_SERVICE_TYPES = [
   ServiceType.posgresql,
   ServiceType.proxysql,
 ];
+
+// 5 seconds
+export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
+// 1 hour
+export const SHOW_UPDATE_MODAL_AFTER_MS = 86_400_000;

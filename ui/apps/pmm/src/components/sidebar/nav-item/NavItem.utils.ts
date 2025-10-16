@@ -1,4 +1,4 @@
-import { NavItem } from 'lib/types';
+import { NavItem } from 'types/navigation.types';
 import { Link } from 'react-router-dom';
 
 export const getLinkProps = (item: NavItem, url?: string) => {
@@ -19,4 +19,14 @@ export const getLinkProps = (item: NavItem, url?: string) => {
     relative: false,
     component: Link,
   };
+};
+
+export const shouldShowBadge = (item: NavItem, expanded: boolean): boolean => {
+  if (item.badge && !expanded) {
+    return true;
+  }
+
+  return (
+    item.children?.some((child) => shouldShowBadge(child, expanded)) || false
+  );
 };

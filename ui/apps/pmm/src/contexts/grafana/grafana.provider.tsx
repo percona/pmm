@@ -9,7 +9,7 @@ import {
 import { DocumentTitleUpdateMessage, LocationChangeMessage } from '@pmm/shared';
 import messenger from 'lib/messenger';
 import { getLocationUrl } from './grafana.utils';
-import { updateDocumentTitle } from 'lib/utils/document.utils';
+import { updateDocumentTitle } from 'utils/document.utils';
 import { useColorMode } from 'hooks/theme';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
 

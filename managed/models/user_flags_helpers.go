@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -35,6 +36,8 @@ type UpdateUserParams struct {
 	Tour              *bool
 	AlertingTour      *bool
 	SnoozedPMMVersion *string
+	SnoozedAt         *time.Time
+	SnoozeCount       *int
 }
 
 // GetOrCreateUser returns user and optionally creates it, if not in database yet.
@@ -109,6 +112,12 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 	}
 	if params.SnoozedPMMVersion != nil {
 		row.SnoozedPMMVersion = *params.SnoozedPMMVersion
+	}
+	if params.SnoozedAt != nil {
+		row.SnoozedAt = params.SnoozedAt
+	}
+	if params.SnoozeCount != nil {
+		row.SnoozeCount = *params.SnoozeCount
 	}
 
 	if err = q.Update(row); err != nil {

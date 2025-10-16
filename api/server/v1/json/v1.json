@@ -307,6 +307,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "update_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -478,6 +483,11 @@
                   "title": "Enable Access Control",
                   "x-nullable": true,
                   "x-order": 12
+                },
+                "update_snooze_duration": {
+                  "description": "A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 13
                 }
               }
             }
@@ -615,6 +625,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "update_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0

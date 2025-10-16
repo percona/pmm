@@ -16,6 +16,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // UpdateUserReader is a Reader for the UpdateUser structure.
@@ -465,10 +466,38 @@ type UpdateUserOKBody struct {
 
 	// Snooze update alert for a PMM version
 	SnoozedPMMVersion string `json:"snoozed_pmm_version,omitempty"`
+
+	// snoozed at
+	// Format: date-time
+	SnoozedAt strfmt.DateTime `json:"snoozed_at,omitempty"`
+
+	// snooze count
+	SnoozeCount int64 `json:"snooze_count,omitempty"`
 }
 
 // Validate validates this update user OK body
 func (o *UpdateUserOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateSnoozedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdateUserOKBody) validateSnoozedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.SnoozedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updateUserOk"+"."+"snoozed_at", "body", "date-time", o.SnoozedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

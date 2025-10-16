@@ -2,21 +2,8 @@ import { screen, render } from '@testing-library/react';
 import { Page } from './Page';
 import { TestWrapper } from 'utils/testWrapper';
 import { UserContext } from 'contexts/user';
-import { OrgRole, User } from 'types/user.types';
 import { Messages } from './Page.messages';
-
-const MOCK_USER: User = {
-  id: 1,
-  isAuthorized: true,
-  orgId: 1,
-  orgRole: OrgRole.Admin,
-  name: 'admin',
-  login: 'admin',
-  isViewer: true,
-  isEditor: true,
-  isPMMAdmin: true,
-  orgs: [],
-};
+import { TEST_USER_ADMIN } from 'utils/testStubs';
 
 describe('Page', () => {
   it('it shows page content when authorized', () => {
@@ -25,7 +12,7 @@ describe('Page', () => {
         <UserContext.Provider
           value={{
             isLoading: false,
-            user: MOCK_USER,
+            user: TEST_USER_ADMIN,
           }}
         >
           <Page>
@@ -44,7 +31,7 @@ describe('Page', () => {
         <UserContext.Provider
           value={{
             isLoading: false,
-            user: { ...MOCK_USER, isAuthorized: false },
+            user: { ...TEST_USER_ADMIN, isAuthorized: false },
           }}
         >
           <Page>

@@ -63,7 +63,8 @@ type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
 
 	Updates struct {
-		Enabled *bool `json:"enabled"`
+		Enabled        *bool         `json:"enabled"`
+		SnoozeDuration time.Duration `json:"snooze_duration"`
 	} `json:"updates"`
 
 	Telemetry struct {
@@ -229,5 +230,10 @@ func (s *Settings) fillDefaults() {
 
 	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
 		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour
+	}
+
+	if s.Updates.SnoozeDuration == 0 {
+		// 7 days
+		s.Updates.SnoozeDuration = 7 * 24 * time.Hour
 	}
 }
