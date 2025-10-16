@@ -64,7 +64,7 @@ const UpdateModal: FC = () => {
                   display="inline-block"
                   data-testid="update-modal-title"
                 >
-                  {Messages.title(versionInfo.latest.version)}
+                  {Messages.title(versionInfo.latest.version || '')}
                 </Typography>
                 <span data-testid="update-modal-snackbar-description">
                   {Messages.descriptionSnack}
@@ -105,7 +105,7 @@ const UpdateModal: FC = () => {
 
   return (
     <Modal
-      title={Messages.title(versionInfo.latest.version)}
+      title={Messages.title(versionInfo.latest.version || '')}
       open={open}
       onClose={handleClose}
       disableAutoFocus
@@ -114,21 +114,23 @@ const UpdateModal: FC = () => {
         <Typography data-testid="update-modal-description">
           {Messages.descriptionModal}
         </Typography>
-        <Typography
-          data-testid="update-modal-description-release-notes"
-          sx={{ py: 2 }}
-        >
-          {Messages.check}
-          <Link
-            href={versionInfo.latest.releaseNotesUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-testid="update-modal-release-notes-link"
+        {!!versionInfo.latest.releaseNotesUrl && (
+          <Typography
+            data-testid="update-modal-description-release-notes"
+            sx={{ py: 2 }}
           >
-            {Messages.releaseNotes}
-          </Link>
-          {Messages.toSee}
-        </Typography>
+            {Messages.check}
+            <Link
+              href={versionInfo.latest.releaseNotesUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="update-modal-release-notes-link"
+            >
+              {Messages.releaseNotes}
+            </Link>
+            {Messages.toSee}
+          </Typography>
+        )}
         <Stack
           direction="row"
           justifyContent="end"

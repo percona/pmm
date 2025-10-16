@@ -177,12 +177,6 @@ func (s *Service) SnoozeUpdate(ctx context.Context, req *userv1.SnoozeUpdateRequ
 		return nil, err
 	}
 
-	res := &userv1.SnoozeUpdateResponse{
-		SnoozedPmmVersion: userInfo.SnoozedPMMVersion,
-		SnoozedAt:         timestamppb.New(pointer.Get(userInfo.SnoozedAt)),
-		SnoozeCount:       uint32(userInfo.SnoozeCount),
-	}
-
 	params := &models.UpdateUserParams{
 		UserID:            userInfo.ID,
 		SnoozedPMMVersion: &req.SnoozedPmmVersion,
@@ -201,9 +195,11 @@ func (s *Service) SnoozeUpdate(ctx context.Context, req *userv1.SnoozeUpdateRequ
 		return nil, err
 	}
 
-	res.SnoozedPmmVersion = userInfo.SnoozedPMMVersion
-	res.SnoozedAt = timestamppb.New(*userInfo.SnoozedAt)
-	res.SnoozeCount = uint32(userInfo.SnoozeCount)
+	res := &userv1.SnoozeUpdateResponse{
+		SnoozedPmmVersion: userInfo.SnoozedPMMVersion,
+		SnoozedAt:         timestamppb.New(*userInfo.SnoozedAt),
+		SnoozeCount:       uint32(userInfo.SnoozeCount),
+	}
 
 	return res, nil
 }

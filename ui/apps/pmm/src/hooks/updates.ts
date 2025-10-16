@@ -14,6 +14,10 @@ export const useSnooze = () => {
   const { mutateAsync } = useSnoozeUpdate();
   const latest = versionInfo?.latest || null;
   const snoozeActive = useMemo(() => {
+    if (!latest || !user || !settings) {
+      return true;
+    }
+
     if (
       latest?.timestamp &&
       diffFromNow(latest.timestamp) < SHOW_UPDATE_MODAL_AFTER_MS
@@ -22,15 +26,14 @@ export const useSnooze = () => {
     }
 
     if (
-      latest?.version !== user?.info.snoozedPmmVersion ||
-      !user?.info.snoozedAt ||
-      !settings?.updateSnoozeDuration
+      latest.version !== user.info.snoozedPmmVersion ||
+      !user.info.snoozedAt
     ) {
       return false;
     }
 
     return (
-      diffFromNow(user?.info.snoozedAt) <=
+      diffFromNow(user.info.snoozedAt) <=
       parseDuration(settings.updateSnoozeDuration)
     );
   }, [latest, user, settings]);

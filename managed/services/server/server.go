@@ -595,7 +595,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	}
 
 	if !canUpdateDurationSetting(req.UpdateSnoozeDuration.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
-		return status.Error(codes.FailedPrecondition, "Updates snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
+		return status.Error(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
 	}
 
 	return nil

@@ -212,7 +212,7 @@ func TestServer(t *testing.T) {
 		}))
 
 		s.envSettings.UpdateSnoozeDuration = 24 * time.Hour
-		expected = status.New(codes.FailedPrecondition, "Updates snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
+		expected = status.New(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			UpdateSnoozeDuration: durationpb.New(12 * time.Hour),
 		}))

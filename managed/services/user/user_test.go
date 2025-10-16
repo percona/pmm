@@ -33,7 +33,6 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-// mockGrafanaClient is a mock implementation of grafanaClient interface
 type mockGrafanaClient struct {
 	mock.Mock
 }
@@ -59,6 +58,7 @@ func TestSnoozeUpdate(t *testing.T) {
 
 		mockClient := &mockGrafanaClient{}
 		mockClient.Test(t)
+		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		service := NewUserService(db, mockClient)
 
@@ -72,10 +72,8 @@ func TestSnoozeUpdate(t *testing.T) {
 	}
 
 	t.Run("user info returns snooze information", func(t *testing.T) {
-		service, mockClient, cleanup := setup(t)
+		service, _, cleanup := setup(t)
 		defer cleanup()
-
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		resp, err := service.GetUser(ctx, &userv1.GetUserRequest{})
 
@@ -88,10 +86,8 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("user info support snooze for backwards compatibility", func(t *testing.T) {
-		service, mockClient, cleanup := setup(t)
+		service, _, cleanup := setup(t)
 		defer cleanup()
-
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		_, err := service.GetUser(ctx, &userv1.GetUserRequest{})
 
@@ -110,10 +106,8 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("user info returns updated snooze information", func(t *testing.T) {
-		service, mockClient, cleanup := setup(t)
+		service, _, cleanup := setup(t)
 		defer cleanup()
-
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		req := &userv1.SnoozeUpdateRequest{
 			SnoozedPmmVersion: "1.0.0",
@@ -134,10 +128,8 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("user info supports incrementing snooze count", func(t *testing.T) {
-		service, mockClient, cleanup := setup(t)
+		service, _, cleanup := setup(t)
 		defer cleanup()
-
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		_, err := service.GetUser(ctx, &userv1.GetUserRequest{})
 
@@ -158,10 +150,8 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("user info resets counts on version change", func(t *testing.T) {
-		service, mockClient, cleanup := setup(t)
+		service, _, cleanup := setup(t)
 		defer cleanup()
-
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		_, err := service.GetUser(ctx, &userv1.GetUserRequest{})
 
@@ -191,10 +181,8 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("user info returns updated snooze information", func(t *testing.T) {
-		service, mockClient, cleanup := setup(t)
+		service, _, cleanup := setup(t)
 		defer cleanup()
-
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		req := &userv1.SnoozeUpdateRequest{
 			SnoozedPmmVersion: "1.0.0",
@@ -217,9 +205,6 @@ func TestSnoozeUpdate(t *testing.T) {
 	t.Run("snooze an update", func(t *testing.T) {
 		service, mockClient, cleanup := setup(t)
 		defer cleanup()
-
-		// Mock GetUserID to return our test user ID
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		// Create a user first to simulate existing user
 		userInfo, err := models.GetOrCreateUser(db.Querier, userID)
@@ -257,9 +242,6 @@ func TestSnoozeUpdate(t *testing.T) {
 	t.Run("snooze the same update to increase snooze count", func(t *testing.T) {
 		service, mockClient, cleanup := setup(t)
 		defer cleanup()
-
-		// Mock GetUserID to return our test user ID
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		// Create a user with existing snooze data
 		userInfo, err := models.GetOrCreateUser(db.Querier, userID)
@@ -307,9 +289,6 @@ func TestSnoozeUpdate(t *testing.T) {
 		service, mockClient, cleanup := setup(t)
 		defer cleanup()
 
-		// Mock GetUserID to return our test user ID
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
-
 		// Create a user with existing snooze data for different version
 		userInfo, err := models.GetOrCreateUser(db.Querier, userID)
 		require.NoError(t, err)
@@ -345,6 +324,7 @@ func TestSnoozeUpdate(t *testing.T) {
 		// Verify the database was updated
 		updatedUser, err := models.FindUser(db.Querier, userID)
 		require.NoError(t, err)
+
 		assert.Equal(t, "2.0.0", updatedUser.SnoozedPMMVersion)
 		assert.WithinDuration(t, time.Now(), *updatedUser.SnoozedAt, 1*time.Second)
 		assert.Equal(t, 1, updatedUser.SnoozeCount)
@@ -355,9 +335,6 @@ func TestSnoozeUpdate(t *testing.T) {
 	t.Run("multiple subsequent snoozes with same version", func(t *testing.T) {
 		service, mockClient, cleanup := setup(t)
 		defer cleanup()
-
-		// Mock GetUserID to return our test user ID
-		mockClient.On("GetUserID", ctx).Return(userID, nil)
 
 		// Create a user
 		_, err := models.GetOrCreateUser(db.Querier, userID)

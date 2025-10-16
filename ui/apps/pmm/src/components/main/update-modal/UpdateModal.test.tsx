@@ -187,9 +187,7 @@ describe('UpdateModal', () => {
 
       renderUpdateModal({ versionInfo: versionInfoWithoutReleaseNotes }, 0);
 
-      expect(
-        screen.getByTestId('update-modal-release-notes-link')
-      ).toBeInTheDocument();
+      expect(screen.queryByTestId('update-modal-release-notes-link')).toBeNull();
     });
 
     it('handles version info with null latest version in modal', () => {
@@ -205,7 +203,7 @@ describe('UpdateModal', () => {
 
       const titleElement = screen.getByTestId('modal-title');
       expect(titleElement).toBeInTheDocument();
-      expect(titleElement).toHaveTextContent('Update to PMM null');
+      expect(titleElement).toHaveTextContent('Update to PMM');
     });
 
     it('handles version info with null latest version in snackbar', () => {
@@ -221,7 +219,7 @@ describe('UpdateModal', () => {
 
       const titleElement = screen.getByTestId('update-modal-title');
       expect(titleElement).toBeInTheDocument();
-      expect(titleElement).toHaveTextContent('Update to PMM null');
+      expect(titleElement).toHaveTextContent('Update to PMM');
     });
   });
 
