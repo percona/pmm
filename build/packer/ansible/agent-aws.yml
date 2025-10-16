@@ -5,9 +5,9 @@
   vars:
     docker_compose_version: "2.26.1"
     kubectl_version: "1.33.5"
-    doctl_version: "1.105.0"
+    doctl_version: "1.145.0"
     node_version: "22.x"
-    goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
+    goreleaser_version: "2.12.5" # https://github.com/goreleaser/goreleaser/releases
     eksctl_version: "0.215.0"
     helm_version: "3.19.0"
 
@@ -47,7 +47,7 @@
       systemd:
         name: docker
         enabled: yes
-        state: started
+        state: stopped # we start it later after copying daemon.json
 
     - name: Install packages
       dnf:
@@ -132,7 +132,7 @@
         state: present
         disable_gpg_check: yes
 
-    - name: install latest YQ (YAML processor)
+    - name: Install latest YQ (YAML processor) 
       get_url:
         url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         dest: /usr/bin/yq
@@ -171,12 +171,12 @@
         name: "{{ item }}"
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==24.7.0
+        - pyaml==24.12.1
         - GitPython==3.1.43
-        - PyGithub==2.3.0
+        - PyGithub==2.5.0
         - python-digitalocean==1.17.0
         - docker==7.1.0
-        - linode-cli==5.50.0
+        - linode-cli==5.55.0
 
     - name: Copy docker daemon config
       copy:
@@ -222,6 +222,7 @@
       loop:
         - debian:bullseye
         - debian:bookworm
+        - debian:trixie
         - ubuntu:jammy
         - ubuntu:noble
         - oraclelinux:8
@@ -229,6 +230,25 @@
         - oraclelinux:10
         - public.ecr.aws/e7j3v3n0/rpmbuild:3
         - public.ecr.aws/e7j3v3n0/rpmbuild:3-ol8
+
+    - name: Install AWS Session Manager
+      dnf:
+        state: present
+        disable_gpg_check: true
+        name: https://s3.us-east-2.amazonaws.com/amazon-ssm-us-east-2/latest/linux_{{ ansible_architecture_alt }}/amazon-ssm-agent.rpm
+
+    - name: Enable Session Manager Service
+      systemd_service:
+        name: amazon-ssm-agent
+        state: started
+        enabled: true
+
+    - name: Add ssm-user to "docker" group
+      user:
+        name: "ssm-user"
+        groups:
+          - docker
+        append: yes
 
     - name: Turn off swap
       sysctl:
