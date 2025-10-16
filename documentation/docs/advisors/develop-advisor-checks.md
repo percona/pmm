@@ -4,6 +4,8 @@ PMM offers sets of checks that can detect common security threats, performance d
 
 As a developer, you can create custom checks to cover additional use cases, relevant to your specific database infrastructure.
 
+Starting with PMM 3.5.0, all advisor checks are built-in and use the v2 check format. Custom checks must also use the v2 format.
+
 ## Check components
 
 A check is a combination of:
@@ -164,7 +166,7 @@ PMM groups failed checks by their severity, and displays them under **Advisors C
 
 Checks can include the following fields:
 
-- **Version** (integer, required): defines what other properties are expected, what types are supported, what is expected from the script and what it can expect from the execution environment, etc.
+- **Version** (integer, required): must be set to `2`. Defines what other properties are expected, what types are supported, what is expected from the script and what it can expect from the execution environment, etc.
 - **Name** (string, required): defines machine-readable name (ID).
 - **Summary** (string, required): defines short human-readable description.
 - **Description** (string, required): defines long human-readable description.
