@@ -18,27 +18,42 @@ package ha
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
+	"os"
+	"path/filepath"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/raft"
+	raftboltdb "github.com/hashicorp/raft-boltdb/v2"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
 )
 
 const (
-	defaultNodeEventChanSize = 5
-	defaultRaftRetries       = 3
-	defaultTransportTimeout  = 10 * time.Second
-	defaultLeaveTimeout      = 5 * time.Second
-	defaultTickerInterval    = 5 * time.Second
-	defaultApplyTimeout      = 3 * time.Second
+	defaultNodeEventChanSize  = 5
+	defaultRaftRetries        = 3
+	defaultTransportTimeout   = 10 * time.Second
+	defaultLeaveTimeout       = 5 * time.Second
+	defaultTickerInterval     = 5 * time.Second
+	defaultApplyTimeout       = 3 * time.Second
+	defaultRaftDataDir        = "/srv/ha"
+	defaultRaftDataDirPerm    = 0o750
+	defaultSnapshotRetention  = 3
+	defaultSnapshotThreshold  = 8192
+	defaultTrailingLogs       = 10240
+	defaultHeartbeatTimeout   = 1000 * time.Millisecond
+	defaultElectionTimeout    = 1000 * time.Millisecond
+	defaultCommitTimeout      = 50 * time.Millisecond
+	defaultLeaderLeaseTimeout = 500 * time.Millisecond
+	defaultSnapshotInterval   = 120 * time.Second
+	defaultServerOpTimeout    = 10 * time.Second
 )
 
 // Service represents the high-availability service.
@@ -48,9 +63,8 @@ type Service struct {
 
 	services *services
 
-	receivedMessages chan []byte
-	nodeCh           chan memberlist.NodeEvent
-	leaderCh         chan raft.Observation
+	nodeCh   chan memberlist.NodeEvent
+	leaderCh chan raft.Observation
 
 	l  *logrus.Entry
 	wg *sync.WaitGroup
@@ -61,20 +75,83 @@ type Service struct {
 }
 
 // Apply applies a log entry to the high-availability service.
+// Currently only used for Raft consensus, not for state replication.
 func (s *Service) Apply(logEntry *raft.Log) interface{} {
-	s.l.Printf("raft: got a message: %s", string(logEntry.Data))
-	s.receivedMessages <- logEntry.Data
+	s.l.Debugf("raft: applied log entry: index=%d, data=%s", logEntry.Index, string(logEntry.Data))
 	return nil
 }
 
 // Snapshot returns a snapshot of the high-availability service.
+// Since PMM HA uses Raft for leader election only (not state replication),
+// the FSM has no state to snapshot. Cluster configuration (voters) is
+// automatically stored by Raft in the snapshot metadata.
 func (s *Service) Snapshot() (raft.FSMSnapshot, error) { //nolint:ireturn
-	return nil, nil //nolint:nilnil
+	return &fsmSnapshot{}, nil
 }
 
 // Restore restores the high availability service to a previous state.
-func (s *Service) Restore(_ io.ReadCloser) error {
-	return nil
+// Since PMM HA is stateless (leader election only), there's nothing to restore.
+// Cluster configuration (voters) is automatically restored by Raft from snapshot metadata.
+func (s *Service) Restore(rc io.ReadCloser) error {
+	// FSM has no state, but we need to consume the reader
+	// Raft automatically restores cluster configuration from metadata
+	s.l.Debug("Restore called - FSM is stateless, cluster config restored by Raft")
+	return rc.Close()
+}
+
+// fsmSnapshot implements raft.FSMSnapshot for stateless PMM HA.
+type fsmSnapshot struct{}
+
+// Persist writes an empty snapshot since PMM HA FSM is stateless.
+// Cluster configuration (voters, etc.) is automatically persisted by Raft in metadata.
+func (f *fsmSnapshot) Persist(sink raft.SnapshotSink) error {
+	// Write empty snapshot - Raft handles cluster configuration in metadata
+	// This allows log compaction while maintaining stateless FSM
+	return sink.Close()
+}
+
+// Release is called when we are finished with the snapshot.
+func (f *fsmSnapshot) Release() {
+	// Nothing to release for stateless FSM
+}
+
+// setupRaftStorage sets up persistent storage for Raft.
+func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, *raft.FileSnapshotStore, error) {
+	// Create the Raft data directory for this node
+	raftDir := filepath.Join(defaultRaftDataDir, nodeID)
+	if err := os.MkdirAll(raftDir, defaultRaftDataDirPerm); err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to create Raft data directory: %w", err)
+	}
+	l.Infof("Using Raft data directory: %s", raftDir)
+
+	// Create BoltDB-based log store
+	logStore, err := raftboltdb.NewBoltStore(filepath.Join(raftDir, "raft-log.db"))
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to create BoltDB log store: %w", err)
+	}
+
+	// Create BoltDB-based stable store
+	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(raftDir, "raft-stable.db"))
+	if err != nil {
+		if cerr := logStore.Close(); cerr != nil {
+			l.Errorf("failed to close logStore after stableStore error: %v", cerr)
+		}
+		return nil, nil, nil, fmt.Errorf("failed to create BoltDB stable store: %w", err)
+	}
+
+	// Create file-based snapshot store
+	snapshotStore, err := raft.NewFileSnapshotStore(raftDir, defaultSnapshotRetention, os.Stderr)
+	if err != nil {
+		if cerr := logStore.Close(); cerr != nil {
+			l.Errorf("failed to close logStore after snapshotStore error: %v", cerr)
+		}
+		if cerr := stableStore.Close(); cerr != nil {
+			l.Errorf("failed to close stableStore after snapshotStore error: %v", cerr)
+		}
+		return nil, nil, nil, fmt.Errorf("failed to create file snapshot store: %w", err)
+	}
+
+	return logStore, stableStore, snapshotStore, nil
 }
 
 // New provides a new instance of the high availability service.
@@ -85,7 +162,6 @@ func New(params *models.HAParams) *Service {
 		services:         newServices(),
 		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
-		receivedMessages: make(chan []byte),
 		l:                logrus.WithField("component", "ha"),
 		wg:               &sync.WaitGroup{},
 	}
@@ -122,7 +198,25 @@ func (s *Service) Run(ctx context.Context) error {
 	// Create the Raft configuration
 	raftConfig := raft.DefaultConfig()
 	raftConfig.LocalID = raft.ServerID(s.params.NodeID)
-	raftConfig.LogLevel = "DEBUG"
+
+	// Set log level based on environment
+	if os.Getenv("PMM_DEBUG") == "1" {
+		raftConfig.LogLevel = "DEBUG"
+	} else {
+		raftConfig.LogLevel = "WARN"
+	}
+
+	// Configure timeouts for better cluster stability
+	raftConfig.HeartbeatTimeout = defaultHeartbeatTimeout
+	raftConfig.ElectionTimeout = defaultElectionTimeout
+	raftConfig.CommitTimeout = defaultCommitTimeout
+	raftConfig.LeaderLeaseTimeout = defaultLeaderLeaseTimeout
+
+	// Configure snapshots for log compaction
+	// Since PMM HA is stateless (leader election only), snapshots are minimal
+	raftConfig.SnapshotInterval = defaultSnapshotInterval
+	raftConfig.SnapshotThreshold = defaultSnapshotThreshold
+	raftConfig.TrailingLogs = defaultTrailingLogs
 
 	// Create a new Raft transport
 	raa, err := net.ResolveTCPAddr("", net.JoinHostPort(s.params.AdvertiseAddress, strconv.Itoa(s.params.RaftPort)))
@@ -134,9 +228,27 @@ func (s *Service) Run(ctx context.Context) error {
 		return err
 	}
 
-	// Create a new Raft node
+	// Set up persistent storage for Raft
+	logStore, stableStore, snapshotStore, err := setupRaftStorage(s.params.NodeID, s.l)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if logStore != nil {
+			if closeErr := logStore.Close(); closeErr != nil {
+				s.l.Errorf("error closing log store: %v", closeErr)
+			}
+		}
+		if stableStore != nil {
+			if closeErr := stableStore.Close(); closeErr != nil {
+				s.l.Errorf("error closing stable store: %v", closeErr)
+			}
+		}
+	}()
+
+	// Create a new Raft node with persistent storage
 	s.rw.Lock()
-	s.raftNode, err = raft.NewRaft(raftConfig, s, raft.NewInmemStore(), raft.NewInmemStore(), raft.NewInmemSnapshotStore(), raftTrans)
+	s.raftNode, err = raft.NewRaft(raftConfig, s, logStore, stableStore, snapshotStore, raftTrans)
 	s.rw.Unlock()
 	if err != nil {
 		return err
@@ -188,7 +300,11 @@ func (s *Service) Run(ctx context.Context) error {
 			},
 		}
 		if err := s.raftNode.BootstrapCluster(cfg).Error(); err != nil {
-			return fmt.Errorf("failed to bootstrap Raft cluster: %w", err)
+			// Cluster might already be bootstrapped with persistent storage
+			if !errors.Is(err, raft.ErrCantBootstrap) {
+				return fmt.Errorf("failed to bootstrap Raft cluster: %w", err)
+			}
+			s.l.Info("Cluster already bootstrapped, skipping")
 		}
 	}
 	if len(s.params.Nodes) != 0 {
@@ -219,6 +335,7 @@ func (s *Service) Run(ctx context.Context) error {
 
 func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 	t := time.NewTicker(defaultTickerInterval)
+	defer t.Stop()
 
 	for {
 		select {
@@ -239,7 +356,15 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 			if !s.IsLeader() {
 				continue
 			}
-			servers := s.raftNode.GetConfiguration().Configuration().Servers
+
+			// Get Raft configuration with error handling
+			configFuture := s.raftNode.GetConfiguration()
+			if err := configFuture.Error(); err != nil {
+				s.l.Errorf("failed to get raft configuration: %v", err)
+				continue
+			}
+
+			servers := configFuture.Configuration().Servers
 			raftServers := make(map[string]struct{})
 			for _, server := range servers {
 				raftServers[string(server.ID)] = struct{}{}
@@ -252,7 +377,6 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				}
 			}
 		case <-ctx.Done():
-			t.Stop()
 			return
 		}
 	}
@@ -261,7 +385,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	err := s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, 10*time.Second).Error()
+	err := s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, defaultServerOpTimeout).Error()
 	if err != nil {
 		s.l.Errorln(err)
 	}
@@ -270,7 +394,8 @@ func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	err := s.raftNode.AddVoter(raft.ServerID(node.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort)), 0, 10*time.Second).Error()
+	serverAddress := raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort))
+	err := s.raftNode.AddVoter(raft.ServerID(node.Name), serverAddress, 0, defaultServerOpTimeout).Error()
 	if err != nil {
 		s.l.Errorf("couldn't add a server node %s: %q", node.Name, err)
 	}
@@ -278,6 +403,8 @@ func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
 
 func (s *Service) runLeaderObserver(ctx context.Context) {
 	t := time.NewTicker(defaultTickerInterval)
+	defer t.Stop()
+
 	for {
 		s.rw.RLock()
 		node := s.raftNode
@@ -317,14 +444,20 @@ func (s *Service) AddLeaderService(leaderService LeaderService) {
 }
 
 // BroadcastMessage broadcasts a message from the high availability service.
-func (s *Service) BroadcastMessage(message []byte) {
-	if s.params.Enabled {
-		s.rw.RLock()
-		defer s.rw.RUnlock()
-		s.raftNode.Apply(message, defaultApplyTimeout)
-	} else {
-		s.receivedMessages <- message
+// Note: Currently unused. Reserved for future cluster-wide message distribution.
+func (s *Service) BroadcastMessage(message []byte) error {
+	if !s.params.Enabled {
+		return fmt.Errorf("HA is disabled")
 	}
+
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	future := s.raftNode.Apply(message, defaultApplyTimeout)
+	if err := future.Error(); err != nil {
+		return fmt.Errorf("failed to apply log to raft: %w", err)
+	}
+	return nil
 }
 
 // IsLeader checks if the current instance of the high availability service is the leader.
