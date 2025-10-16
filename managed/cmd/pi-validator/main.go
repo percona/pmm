@@ -192,6 +192,7 @@ func loadAndValidateChecks(dir string) (map[string]check.Check, error) {
 
 		if len(checks) != 1 {
 			validationErrors = append(validationErrors, fmt.Errorf("expected exactly one check in %s", fileName))
+			return nil, errors.Join(validationErrors...)
 		}
 		c := checks[0]
 
