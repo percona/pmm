@@ -8,6 +8,8 @@
     doctl_version: "1.105.0"
     node_version: "22.x"
     goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
+    eksctl_version: "0.191.0"
+    helm_version: "3.16.3"
 
   tasks:
     - name: Detect vm architecture
@@ -136,6 +138,31 @@
         dest: /usr/bin/yq
         mode: "555"
 
+    - name: Download eksctl
+      get_url:
+        url: "https://github.com/eksctl-io/eksctl/releases/download/v{{ eksctl_version }}/eksctl_Linux_{{ ansible_architecture_alt }}.tar.gz"
+        dest: /tmp/eksctl.tar.gz
+
+    - name: Unarchive and install eksctl
+      unarchive:
+        src: /tmp/eksctl.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: "u+x,g+x,o+x"
+
+    - name: Download Helm
+      get_url:
+        url: "https://get.helm.sh/helm-v{{ helm_version }}-linux-{{ ansible_architecture_alt }}.tar.gz"
+        dest: /tmp/helm.tar.gz
+
+    - name: Unarchive and install Helm
+      unarchive:
+        src: /tmp/helm.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+        mode: "u+x,g+x,o+x"
+
     - name: Install Python's virtualenv
       command: python3 -m venv /home/ec2-user/venv
 
@@ -178,6 +205,8 @@
       loop:
         - /tmp/doctl.tar.gz
         - /tmp/aws
+        - /tmp/eksctl.tar.gz
+        - /tmp/helm.tar.gz
 
     - name: Add ec2-user user to "docker" group
       user:
