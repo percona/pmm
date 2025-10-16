@@ -6,14 +6,14 @@
      For stable, production-ready configuration options, see the main [Environment variables for PMM Server](../docker/env_var.md) documentation.
 | Variable                               | Description
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------
-| `PMM_TEST_HA_ENABLE`                  | Enable PMM to run in High Availability (HA) mode.
-| `PMM_TEST_HA_BOOTSTRAP`                | Bootstrap HA cluster.
-| `PMM_TEST_HA_NODE_ID`                  | HA Node ID.
-| `PMM_TEST_HA_ADVERTISE_ADDRESS`        | HA Advertise address.
-| `PMM_TEST_HA_GOSSIP_PORT`              | HA gossip port.
-| `PMM_TEST_HA_RAFT_PORT`                | HA raft port.
-| `PMM_TEST_HA_GRAFANA_GOSSIP_PORT`      | HA Grafana gossip port.
-| `PMM_TEST_HA_PEERS`                    | HA Peers.
+| `PMM_HA_ENABLE`                  | Enable PMM to run in High Availability (HA) mode.
+| `PMM_HA_BOOTSTRAP`                | Bootstrap HA cluster.
+| `PMM_HA_NODE_ID`                  | HA Node ID.
+| `PMM_HA_ADVERTISE_ADDRESS`        | HA Advertise address.
+| `PMM_HA_GOSSIP_PORT`              | HA gossip port.
+| `PMM_HA_RAFT_PORT`                | HA raft port.
+| `PMM_HA_GRAFANA_GOSSIP_PORT`      | HA Grafana gossip port.
+| `PMM_HA_PEERS`                    | HA Peers.
 
 ## Available preview variables
 
