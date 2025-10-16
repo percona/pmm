@@ -61,6 +61,9 @@ func (res *changeAgentValkeyExporterResult) String() string {
 
 // ChangeAgentValkeyExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentValkeyExporterCommand struct {
+	// Embedded flags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"Valkey Exporter Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -85,9 +88,6 @@ type ChangeAgentValkeyExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentValkeyExporterCommand and returns the result.

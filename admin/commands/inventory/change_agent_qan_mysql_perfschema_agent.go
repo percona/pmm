@@ -58,6 +58,10 @@ func (res *changeAgentQANMySQLPerfSchemaAgentResult) String() string {
 
 // ChangeAgentQANMySQLPerfSchemaAgentCommand is used by Kong for CLI flags and commands.
 type ChangeAgentQANMySQLPerfSchemaAgentCommand struct {
+	// Embedded flags
+	flags.CommentsParsingChangeFlags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"QAN MySQL PerfSchema Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -80,9 +84,6 @@ type ChangeAgentQANMySQLPerfSchemaAgentCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	flags.CommentsParsingChangeFlags
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentQANMySQLPerfSchemaAgentCommand and returns the result.
@@ -100,6 +101,7 @@ func (cmd *ChangeAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result,
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS CA file: %w", err)
 		}
+
 		tlsCa = &content
 	}
 
@@ -108,6 +110,7 @@ func (cmd *ChangeAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result,
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS cert file: %w", err)
 		}
+
 		tlsCert = &content
 	}
 

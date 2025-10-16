@@ -59,6 +59,9 @@ func (res *changeAgentAzureDatabaseExporterResult) String() string {
 
 // ChangeAgentAzureDatabaseExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentAzureDatabaseExporterCommand struct {
+	// Embedded flags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"Azure Database Exporter Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -78,9 +81,6 @@ type ChangeAgentAzureDatabaseExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentAzureDatabaseExporterCommand and returns the result.
@@ -128,15 +128,19 @@ func (cmd *ChangeAgentAzureDatabaseExporterCommand) RunCmd() (commands.Result, e
 			changes = append(changes, "disabled agent")
 		}
 	}
+
 	if cmd.AzureClientID != nil {
 		changes = append(changes, "updated azure_client_id")
 	}
+
 	if cmd.AzureClientSecret != nil {
 		changes = append(changes, "updated azure_client_secret")
 	}
+
 	if cmd.AzureTenantID != nil {
 		changes = append(changes, "updated azure_tenant_id")
 	}
+
 	if cmd.AzureSubscriptionID != nil {
 		changes = append(changes, "updated azure_subscription_id")
 	}
@@ -152,9 +156,11 @@ func (cmd *ChangeAgentAzureDatabaseExporterCommand) RunCmd() (commands.Result, e
 			changes = append(changes, "disabled push metrics")
 		}
 	}
+
 	if cmd.LogLevel != nil {
 		changes = append(changes, fmt.Sprintf("changed log level to %s", *cmd.LogLevel))
 	}
+
 	if customLabels != nil {
 		if len(*customLabels) != 0 {
 			changes = append(changes, "updated custom labels")

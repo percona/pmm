@@ -23,7 +23,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"sort"
 	"strings"
 	"text/template"
@@ -154,8 +153,6 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 
 	return strings.TrimSpace(buf.String()) + "\n"
 }
-
-var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`) //nolint:unused,varcheck
 
 // ParseKeyValuePair parses values in key-value pair flags (e.g --custom-labels and --extra-dsn-params).
 func ParseKeyValuePair(labels *map[string]string) *map[string]string {

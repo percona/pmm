@@ -124,10 +124,10 @@ func (cmd *ChangeAgentExternalExporterCommand) RunCmd() (commands.Result, error)
 		changes = append(changes, fmt.Sprintf("changed listen port to %d", *cmd.ListenPort))
 	}
 	if cmd.MetricsScheme != nil {
-		changes = append(changes, fmt.Sprintf("changed metrics scheme to %s", *cmd.MetricsScheme))
+		changes = append(changes, "changed metrics scheme to "+*cmd.MetricsScheme)
 	}
 	if cmd.MetricsPath != nil {
-		changes = append(changes, fmt.Sprintf("changed metrics path to %s", *cmd.MetricsPath))
+		changes = append(changes, "changed metrics path to "+*cmd.MetricsPath)
 	}
 	if cmd.PushMetrics != nil {
 		if *cmd.PushMetrics {

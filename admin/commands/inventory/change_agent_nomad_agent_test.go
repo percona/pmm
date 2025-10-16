@@ -32,7 +32,7 @@ func TestNomadAgentChangeAgent(t *testing.T) {
 
 		t.Run("EnableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-enable", `{"nomad_agent": {"agent_id": "test-agent-nomad-enable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-enable", `{"nomad_agent": {"agent_id": "test-agent-nomad-enable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentNomadAgentCommand{
@@ -58,7 +58,7 @@ func TestNomadAgentChangeAgent(t *testing.T) {
 
 		t.Run("DisableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-disable", `{"nomad_agent": {"agent_id": "test-agent-nomad-disable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-disable", `{"nomad_agent": {"agent_id": "test-agent-nomad-disable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentNomadAgentCommand{
@@ -84,7 +84,7 @@ func TestNomadAgentChangeAgent(t *testing.T) {
 
 		t.Run("NoChangeWhenNoFlags", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-nochange", `{"nomad_agent": {"agent_id": "test-agent-nomad-nochange"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-nochange", `{"nomad_agent": {"agent_id": "test-agent-nomad-nochange"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentNomadAgentCommand{
@@ -120,7 +120,8 @@ func TestNomadAgentChangeAgent(t *testing.T) {
 				"process_exec_path": "/usr/bin/nomad"
 			}
 		}`
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-comprehensive", mockResponse, &capturedRequestBody)
+
+		cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-comprehensive", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "nomad-agent", "test-agent-nomad-comprehensive", "--enable"}
@@ -162,7 +163,7 @@ Configuration changes applied:
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent-nomad", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent-nomad", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentNomadAgentCommand{
@@ -171,13 +172,13 @@ Configuration changes applied:
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-minimal", `{"nomad_agent": {"agent_id": "test-agent-nomad-minimal"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-nomad-minimal", `{"nomad_agent": {"agent_id": "test-agent-nomad-minimal"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "nomad-agent", "test-agent-nomad-minimal"}
@@ -213,7 +214,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -227,7 +228,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "enable")
 		})
 	})

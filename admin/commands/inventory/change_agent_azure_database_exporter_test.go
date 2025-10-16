@@ -34,7 +34,7 @@ func TestAzureDatabaseExporterChangeAgent(t *testing.T) {
 
 		t.Run("UpdateCredentialsAndSettings", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-azure-update", `{"azure_database_exporter": {"agent_id": "test-agent-azure-update"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-azure-update", `{"azure_database_exporter": {"agent_id": "test-agent-azure-update"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentAzureDatabaseExporterCommand{
@@ -79,7 +79,7 @@ func TestAzureDatabaseExporterChangeAgent(t *testing.T) {
 
 		t.Run("DisableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-azure-disable", `{"azure_database_exporter": {"agent_id": "test-agent-azure-disable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-azure-disable", `{"azure_database_exporter": {"agent_id": "test-agent-azure-disable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentAzureDatabaseExporterCommand{
@@ -124,7 +124,7 @@ func TestAzureDatabaseExporterChangeAgent(t *testing.T) {
 			}
 		}`
 
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-azure-all-flags", mockResponse, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-azure-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -207,7 +207,7 @@ Configuration changes applied:
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent-azure", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent-azure", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentAzureDatabaseExporterCommand{
@@ -216,13 +216,13 @@ Configuration changes applied:
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-azure-minimal", `{"azure_database_exporter": {"agent_id": "test-agent-azure-minimal"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-azure-minimal", `{"azure_database_exporter": {"agent_id": "test-agent-azure-minimal"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "azure-database-exporter", "test-agent-azure-minimal"}
@@ -247,7 +247,7 @@ Configuration changes applied:
 
 	t.Run("KongParsingWithEnableOnly", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-azure-enable-only", `{"azure_database_exporter": {"agent_id": "test-agent-azure-enable-only"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-azure-enable-only", `{"azure_database_exporter": {"agent_id": "test-agent-azure-enable-only"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "azure-database-exporter", "test-agent-azure-enable-only", "--enable"}
@@ -285,7 +285,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -299,7 +299,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
 		})
 	})

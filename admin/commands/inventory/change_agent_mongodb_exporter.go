@@ -62,6 +62,9 @@ func (res *changeAgentMongodbExporterResult) String() string {
 
 // ChangeAgentMongodbExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentMongodbExporterCommand struct {
+	// Embedded flags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"MongoDB Exporter Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -92,13 +95,10 @@ type ChangeAgentMongodbExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentMongodbExporterCommand and returns the result.
-func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
+func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) { //nolint:cyclop
 	var changes []string
 
 	// Parse custom labels if provided
@@ -130,6 +130,7 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS CA file: %w", err)
 		}
+
 		tlsCa = &content
 	}
 
@@ -213,13 +214,13 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		changes = append(changes, "updated TLS CA certificate")
 	}
 	if cmd.AuthenticationMechanism != nil {
-		changes = append(changes, fmt.Sprintf("changed authentication mechanism to %s", *cmd.AuthenticationMechanism))
+		changes = append(changes, "changed authentication mechanism to "+*cmd.AuthenticationMechanism)
 	}
 	if cmd.AuthenticationDatabase != nil {
-		changes = append(changes, fmt.Sprintf("changed authentication database to %s", *cmd.AuthenticationDatabase))
+		changes = append(changes, "changed authentication database to "+*cmd.AuthenticationDatabase)
 	}
 	if cmd.StatsCollections != nil {
-		changes = append(changes, fmt.Sprintf("updated stats collections: %s", *cmd.StatsCollections))
+		changes = append(changes, "updated stats collections: "+*cmd.StatsCollections)
 	}
 	if cmd.CollectionsLimit != nil {
 		changes = append(changes, fmt.Sprintf("changed collections limit to %d", *cmd.CollectionsLimit))

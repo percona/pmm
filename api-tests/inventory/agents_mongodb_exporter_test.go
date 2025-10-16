@@ -455,6 +455,7 @@ func TestMongoDBExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+
 		agentID := res.Payload.MongodbExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
@@ -671,6 +672,7 @@ func TestMongoDBExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+
 		agentID := res.Payload.MongodbExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
@@ -789,6 +791,7 @@ func TestMongoDBExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+
 		agentID := res.Payload.MongodbExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 

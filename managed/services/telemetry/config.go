@@ -17,7 +17,7 @@
 package telemetry
 
 import (
-	_ "embed" //nolint:golint
+	_ "embed"
 	"os"
 	"strconv"
 	"time"

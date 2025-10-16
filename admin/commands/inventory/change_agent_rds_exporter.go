@@ -59,6 +59,9 @@ func (res *changeAgentRDSExporterResult) String() string {
 
 // ChangeAgentRDSExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentRDSExporterCommand struct {
+	// Embedded flags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"RDS Exporter Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -79,9 +82,6 @@ type ChangeAgentRDSExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentRDSExporterCommand and returns the result.

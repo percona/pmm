@@ -60,6 +60,10 @@ func (res *changeAgentQANPostgreSQLPgStatementsAgentResult) String() string {
 
 // ChangeAgentQANPostgreSQLPgStatementsAgentCommand is used by Kong for CLI flags and commands.
 type ChangeAgentQANPostgreSQLPgStatementsAgentCommand struct {
+	// Embedded flags
+	flags.CommentsParsingChangeFlags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"QAN PostgreSQL PgStatements Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -81,9 +85,6 @@ type ChangeAgentQANPostgreSQLPgStatementsAgentCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	flags.CommentsParsingChangeFlags
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentQANPostgreSQLPgStatementsAgentCommand and returns the result.
@@ -130,7 +131,7 @@ func (cmd *ChangeAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.
 		TLSCert:                tlsCert,
 		TLSKey:                 tlsKey,
 		MaxQueryLength:         cmd.MaxQueryLength,
-		DisableCommentsParsing: cmd.CommentsParsingChangeFlags.CommentsParsingDisabled(),
+		DisableCommentsParsing: cmd.CommentsParsingDisabled(),
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
 	}
 
@@ -193,8 +194,8 @@ func (cmd *ChangeAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.
 	if cmd.MaxQueryLength != nil {
 		changes = append(changes, fmt.Sprintf("changed max query length to %d", *cmd.MaxQueryLength))
 	}
-	if cmd.CommentsParsingChangeFlags.CommentsParsing != nil {
-		if *cmd.CommentsParsingChangeFlags.CommentsParsingDisabled() {
+	if cmd.CommentsParsing != nil {
+		if *cmd.CommentsParsingDisabled() {
 			changes = append(changes, "disabled comments parsing")
 		} else {
 			changes = append(changes, "enabled comments parsing")

@@ -34,7 +34,7 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 
 		t.Run("UpdateCredentialsAndTLS", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-valkey-update", `{"valkey_exporter": {"agent_id": "test-agent-valkey-update"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-valkey-update", `{"valkey_exporter": {"agent_id": "test-agent-valkey-update"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentValkeyExporterCommand{
@@ -75,7 +75,7 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 
 		t.Run("DisableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-valkey-disable", `{"valkey_exporter": {"agent_id": "test-agent-valkey-disable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-valkey-disable", `{"valkey_exporter": {"agent_id": "test-agent-valkey-disable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentValkeyExporterCommand{
@@ -122,7 +122,7 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_DEBUG"
 			}
 		}`
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-valkey-all-flags", mockResponse, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-valkey-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -213,7 +213,7 @@ Configuration changes applied:
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent-valkey", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent-valkey", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentValkeyExporterCommand{
@@ -228,7 +228,7 @@ Configuration changes applied:
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-valkey-minimal", `{"valkey_exporter": {"agent_id": "test-agent-valkey-minimal"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-valkey-minimal", `{"valkey_exporter": {"agent_id": "test-agent-valkey-minimal"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "valkey-exporter", "test-agent-valkey-minimal"}
@@ -266,7 +266,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -280,7 +280,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
 		})
 	})

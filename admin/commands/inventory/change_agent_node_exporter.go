@@ -57,6 +57,9 @@ func (res *changeAgentNodeExporterResult) String() string {
 
 // ChangeAgentNodeExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentNodeExporterCommand struct {
+	// Embedded flags
+	flags.LogLevelNoFatalChangeFlags
+
 	AgentID string `arg:"" help:"Node Exporter Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -71,9 +74,6 @@ type ChangeAgentNodeExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelNoFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentNodeExporterCommand and returns the result.

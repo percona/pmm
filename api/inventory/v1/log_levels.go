@@ -24,5 +24,6 @@ func LogLevelAPIValue(l *string) LogLevel {
 	if l == nil {
 		return LogLevel_LOG_LEVEL_UNSPECIFIED
 	}
+
 	return LogLevel(LogLevel_value[enums.ConvertEnum("LOG_LEVEL", *l)])
 }

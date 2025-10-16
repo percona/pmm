@@ -21,5 +21,6 @@ func convertLogLevelPtr(level *flags.LogLevel) *string {
 	if level == nil {
 		return nil
 	}
+
 	return level.EnumValue()
 }

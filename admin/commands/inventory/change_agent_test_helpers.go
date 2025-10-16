@@ -34,8 +34,8 @@ var clientMutex sync.Mutex
 // setupChangeAgentTestServer creates a test HTTP server for change agent tests.
 // If capturedRequestBody is provided, the request body will be captured for verification.
 // If responseJSON is empty, a default minimal response is used.
-// Returns the server and a cleanup function that must be called to restore the original client.
-func setupChangeAgentTestServer(t *testing.T, agentID string, responseJSON string, capturedRequestBody *string) (*httptest.Server, func()) {
+// Returns a cleanup function that must be called to restore the original client.
+func setupChangeAgentTestServer(t *testing.T, agentID string, responseJSON string, capturedRequestBody *string) func() {
 	t.Helper()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Verify the actual API method and path
@@ -84,8 +84,9 @@ func setupChangeAgentTestServer(t *testing.T, agentID string, responseJSON strin
 	cleanup := func() {
 		server.Close()
 		client.Default = originalClient
+
 		clientMutex.Unlock()
 	}
 
-	return server, cleanup
+	return cleanup
 }

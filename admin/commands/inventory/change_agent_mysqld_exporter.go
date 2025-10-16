@@ -61,6 +61,9 @@ func (res *changeAgentMysqldExporterResult) String() string {
 
 // ChangeAgentMysqldExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentMysqldExporterCommand struct {
+	// Embedded flags
+	flags.LogLevelNoFatalChangeFlags
+
 	AgentID string `arg:"" help:"MySQL Exporter Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -86,9 +89,6 @@ type ChangeAgentMysqldExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelNoFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentMysqldExporterCommand and returns the result.
@@ -106,6 +106,7 @@ func (cmd *ChangeAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS CA file: %w", err)
 		}
+
 		tlsCa = &content
 	}
 
@@ -114,6 +115,7 @@ func (cmd *ChangeAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS cert file: %w", err)
 		}
+
 		tlsCert = &content
 	}
 
@@ -122,6 +124,7 @@ func (cmd *ChangeAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS key file: %w", err)
 		}
+
 		tlsKey = &content
 	}
 

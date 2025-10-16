@@ -61,6 +61,9 @@ func (res *changeAgentPostgresExporterResult) String() string {
 
 // ChangeAgentPostgresExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentPostgresExporterCommand struct {
+	// Embedded flags
+	flags.LogLevelNoFatalChangeFlags
+
 	AgentID string `arg:"" help:"PostgreSQL Exporter Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -87,9 +90,6 @@ type ChangeAgentPostgresExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelNoFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentPostgresExporterCommand and returns the result.
@@ -107,6 +107,7 @@ func (cmd *ChangeAgentPostgresExporterCommand) RunCmd() (commands.Result, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS CA file: %w", err)
 		}
+
 		tlsCa = &content
 	}
 
@@ -115,6 +116,7 @@ func (cmd *ChangeAgentPostgresExporterCommand) RunCmd() (commands.Result, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS cert file: %w", err)
 		}
+
 		tlsCert = &content
 	}
 
@@ -123,6 +125,7 @@ func (cmd *ChangeAgentPostgresExporterCommand) RunCmd() (commands.Result, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS key file: %w", err)
 		}
+
 		tlsKey = &content
 	}
 

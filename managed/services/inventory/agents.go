@@ -408,7 +408,11 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 }
 
 // ChangeMongoDBExporter updates mongo_exporter Agent with given parameters.
-func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeMongoDBExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+func (as *AgentsService) ChangeMongoDBExporter(
+	ctx context.Context,
+	agentID string,
+	p *inventoryv1.ChangeMongoDBExporterParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -1732,15 +1736,16 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 	return nil
 }
 
-// Helper function to convert custom labels from protobuf to model format
+// Helper function to convert custom labels from protobuf to model format.
 func convertCustomLabels(customLabels *common.StringMap) *map[string]string {
 	if customLabels != nil {
 		return &customLabels.Values
 	}
+
 	return nil
 }
 
-// Helper function to convert log level from protobuf to model format
+// Helper function to convert log level from protobuf to model format.
 func convertLogLevel(logLevel *inventoryv1.LogLevel) *string {
 	if logLevel != nil {
 		// Convert from "LOG_LEVEL_DEBUG" to "debug"
@@ -1749,12 +1754,14 @@ func convertLogLevel(logLevel *inventoryv1.LogLevel) *string {
 			simplified := strings.ToLower(strings.TrimPrefix(fullName, "LOG_LEVEL_"))
 			return &simplified
 		}
+
 		return &fullName
 	}
+
 	return nil
 }
 
-// Helper function to convert metrics resolutions from protobuf to model format
+// Helper function to convert metrics resolutions from protobuf to model format.
 func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMetricsResolutionsParams {
 	if mrs == nil {
 		return nil
@@ -1764,18 +1771,21 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 	if hr := mrs.GetHr(); hr != nil {
 		result.HR = pointer.ToDuration(hr.AsDuration())
 	}
+
 	if mr := mrs.GetMr(); mr != nil {
 		result.MR = pointer.ToDuration(mr.AsDuration())
 	}
 	if lr := mrs.GetLr(); lr != nil {
 		result.LR = pointer.ToDuration(lr.AsDuration())
 	}
+
 	return result
 }
 
-// Helper function to execute agent change and build response
-func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) {
+// Helper function to execute agent change and build response.
+func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
 	var agent inventoryv1.Agent
+
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
@@ -1783,7 +1793,9 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 		}
 
 		agent, err = toInventoryAgent(tx.Querier, row, as.r)
+
 		return err
 	})
+
 	return agent, err
 }

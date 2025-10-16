@@ -61,6 +61,10 @@ func (res *changeAgentQANPostgreSQLPgStatMonitorAgentResult) String() string {
 
 // ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand is used by Kong for CLI flags and commands.
 type ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
+	// Embedded flags
+	flags.CommentsParsingChangeFlags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"QAN PostgreSQL PgStatMonitor Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -83,9 +87,6 @@ type ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	flags.CommentsParsingChangeFlags
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand and returns the result.
@@ -133,7 +134,7 @@ func (cmd *ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands
 		TLSKey:                 tlsKey,
 		MaxQueryLength:         cmd.MaxQueryLength,
 		DisableQueryExamples:   cmd.DisableQueryExamples,
-		DisableCommentsParsing: cmd.CommentsParsingChangeFlags.CommentsParsingDisabled(),
+		DisableCommentsParsing: cmd.CommentsParsingDisabled(),
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
 	}
 
@@ -203,8 +204,8 @@ func (cmd *ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands
 			changes = append(changes, "enabled query examples")
 		}
 	}
-	if cmd.CommentsParsingChangeFlags.CommentsParsing != nil {
-		if *cmd.CommentsParsingChangeFlags.CommentsParsingDisabled() {
+	if cmd.CommentsParsing != nil {
+		if *cmd.CommentsParsingDisabled() {
 			changes = append(changes, "disabled comments parsing")
 		} else {
 			changes = append(changes, "enabled comments parsing")

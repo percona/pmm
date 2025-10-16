@@ -330,6 +330,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		node := addRemoteAzureDatabaseNode(t, pmmapitests.TestString(t, "Remote Azure Database node for credential rotation test"))
+
 		nodeID := node.RemoteAzureDatabase.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
@@ -408,6 +409,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
+
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
@@ -474,6 +476,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 

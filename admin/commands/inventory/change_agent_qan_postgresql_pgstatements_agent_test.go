@@ -34,7 +34,7 @@ func TestQANPostgreSQLPgStatementsAgentChangeAgent(t *testing.T) {
 
 		t.Run("UpdateCredentialsAndSettings", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-pgstat-update", `{"qan_postgresql_pgstatements_agent": {"agent_id": "test-agent-qan-pgstat-update"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-qan-pgstat-update", `{"qan_postgresql_pgstatements_agent": {"agent_id": "test-agent-qan-pgstat-update"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentQANPostgreSQLPgStatementsAgentCommand{
@@ -81,7 +81,7 @@ func TestQANPostgreSQLPgStatementsAgentChangeAgent(t *testing.T) {
 
 		t.Run("DisableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-pgstat-disable", `{"qan_postgresql_pgstatements_agent": {"agent_id": "test-agent-qan-pgstat-disable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-qan-pgstat-disable", `{"qan_postgresql_pgstatements_agent": {"agent_id": "test-agent-qan-pgstat-disable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentQANPostgreSQLPgStatementsAgentCommand{
@@ -128,7 +128,8 @@ func TestQANPostgreSQLPgStatementsAgentChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_INFO"
 			}
 		}`
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-pgstat-all-flags", mockResponse, &capturedRequestBody)
+
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-pgstat-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -212,7 +213,7 @@ Configuration changes applied:
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent-qan-pgstat", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent-qan-pgstat", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentQANPostgreSQLPgStatementsAgentCommand{
@@ -227,7 +228,7 @@ Configuration changes applied:
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-pgstat-minimal", `{"qan_postgresql_pgstatements_agent": {"agent_id": "test-agent-qan-pgstat-minimal"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-pgstat-minimal", `{"qan_postgresql_pgstatements_agent": {"agent_id": "test-agent-qan-pgstat-minimal"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "qan-postgresql-pgstatements-agent", "test-agent-qan-pgstat-minimal"}
@@ -263,7 +264,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -277,7 +278,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
 		})
 	})

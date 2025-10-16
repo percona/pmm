@@ -36,7 +36,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			t.Parallel()
 
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-id", `{"mongodb_exporter": {"agent_id": "test-agent-id"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-id", `{"mongodb_exporter": {"agent_id": "test-agent-id"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentMongodbExporterCommand{
@@ -93,7 +93,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			t.Parallel()
 
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-id", `{"mongodb_exporter": {"agent_id": "test-agent-id"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-id", `{"mongodb_exporter": {"agent_id": "test-agent-id"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentMongodbExporterCommand{
@@ -143,7 +143,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			}
 		}`
 
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -246,7 +246,7 @@ Configuration changes applied:
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentMongodbExporterCommand{
@@ -255,7 +255,7 @@ Configuration changes applied:
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
@@ -263,7 +263,7 @@ Configuration changes applied:
 		t.Parallel()
 
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-id", `{"mongodb_exporter": {"agent_id": "test-agent-id"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-id", `{"mongodb_exporter": {"agent_id": "test-agent-id"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "mongodb-exporter", "test-agent-id", "--enable"}
@@ -302,7 +302,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -316,7 +316,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
 		})
 	})

@@ -1058,7 +1058,7 @@ type ChangeAgentParams struct {
 }
 
 // ChangeAgent changes agent parameters based on agent type.
-func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) {
+func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
 	row, err := FindAgentByID(q, agentID)
 	if err != nil {
 		return nil, err
@@ -1091,6 +1091,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.ExporterOptions.MetricsResolutions.MR != nil {
 			row.ExporterOptions.MetricsResolutions.MR = *params.ExporterOptions.MetricsResolutions.MR
 		}
+
 		if params.ExporterOptions.MetricsResolutions.HR != nil {
 			row.ExporterOptions.MetricsResolutions.HR = *params.ExporterOptions.MetricsResolutions.HR
 		}
@@ -1102,11 +1103,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	}
 
 	// Update ExporterOptions fields
-	if params.ExporterOptions != nil {
+	if params.ExporterOptions != nil { //nolint:nestif
 		if params.ExporterOptions.PushMetrics != nil {
 			row.ExporterOptions.PushMetrics = *params.ExporterOptions.PushMetrics
 			if row.AgentType == ExternalExporterType {
-				if err := updateExternalExporterParams(q, row); err != nil {
+				err := updateExternalExporterParams(q, row)
+				if err != nil {
 					return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")
 				}
 			}
@@ -1141,6 +1143,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.ValkeyOptions.SSLCa != nil {
 			row.ValkeyOptions.SSLCa = *params.ValkeyOptions.SSLCa
 		}
+
 		if params.ValkeyOptions.SSLCert != nil {
 			row.ValkeyOptions.SSLCert = *params.ValkeyOptions.SSLCert
 		}
@@ -1154,6 +1157,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.QANOptions.MaxQueryLength != nil {
 			row.QANOptions.MaxQueryLength = *params.QANOptions.MaxQueryLength
 		}
+
 		if params.QANOptions.QueryExamplesDisabled != nil {
 			row.QANOptions.QueryExamplesDisabled = *params.QANOptions.QueryExamplesDisabled
 		}
@@ -1176,6 +1180,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.AWSOptions.RDSBasicMetricsDisabled != nil {
 			row.AWSOptions.RDSBasicMetricsDisabled = *params.AWSOptions.RDSBasicMetricsDisabled
 		}
+
 		if params.AWSOptions.RDSEnhancedMetricsDisabled != nil {
 			row.AWSOptions.RDSEnhancedMetricsDisabled = *params.AWSOptions.RDSEnhancedMetricsDisabled
 		}
@@ -1189,6 +1194,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.AzureOptions.ClientID != nil {
 			row.AzureOptions.ClientID = *params.AzureOptions.ClientID
 		}
+
 		if params.AzureOptions.ClientSecret != nil {
 			row.AzureOptions.ClientSecret = *params.AzureOptions.ClientSecret
 		}
@@ -1205,9 +1211,11 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.MySQLOptions.TLSCa != nil {
 			row.MySQLOptions.TLSCa = *params.MySQLOptions.TLSCa
 		}
+
 		if params.MySQLOptions.TLSCert != nil {
 			row.MySQLOptions.TLSCert = *params.MySQLOptions.TLSCert
 		}
+
 		if params.MySQLOptions.TLSKey != nil {
 			row.MySQLOptions.TLSKey = *params.MySQLOptions.TLSKey
 		}
@@ -1224,6 +1232,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.PostgreSQLOptions.SSLCert != nil {
 			row.PostgreSQLOptions.SSLCert = *params.PostgreSQLOptions.SSLCert
 		}
+
 		if params.PostgreSQLOptions.SSLKey != nil {
 			row.PostgreSQLOptions.SSLKey = *params.PostgreSQLOptions.SSLKey
 		}
@@ -1236,7 +1245,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	}
 
 	// Update MongoDBOptions fields
-	if params.MongoDBOptions != nil {
+	if params.MongoDBOptions != nil { //nolint:nestif
 		if params.MongoDBOptions.TLSCertificateKey != nil {
 			row.MongoDBOptions.TLSCertificateKey = *params.MongoDBOptions.TLSCertificateKey
 		}
@@ -1246,15 +1255,18 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.MongoDBOptions.TLSCa != nil {
 			row.MongoDBOptions.TLSCa = *params.MongoDBOptions.TLSCa
 		}
+
 		if params.MongoDBOptions.AuthenticationMechanism != nil {
 			row.MongoDBOptions.AuthenticationMechanism = *params.MongoDBOptions.AuthenticationMechanism
 		}
 		if params.MongoDBOptions.AuthenticationDatabase != nil {
 			row.MongoDBOptions.AuthenticationDatabase = *params.MongoDBOptions.AuthenticationDatabase
 		}
+
 		if params.MongoDBOptions.StatsCollections != nil {
 			row.MongoDBOptions.StatsCollections = params.MongoDBOptions.StatsCollections
 		}
+
 		if params.MongoDBOptions.CollectionsLimit != nil {
 			row.MongoDBOptions.CollectionsLimit = *params.MongoDBOptions.CollectionsLimit
 		}
@@ -1273,7 +1285,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 
 	// Update ListenPort for external exporter
 	if params.ListenPort != nil {
-		port := uint16(*params.ListenPort)
+		port := uint16(*params.ListenPort) //nolint:gosec
 		row.ListenPort = &port
 	}
 

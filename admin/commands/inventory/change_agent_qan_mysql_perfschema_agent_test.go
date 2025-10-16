@@ -34,7 +34,7 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 
 		t.Run("UpdateCredentialsAndSettings", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-perfschema-update", `{"qan_mysql_perfschema_agent": {"agent_id": "test-agent-qan-perfschema-update"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-qan-perfschema-update", `{"qan_mysql_perfschema_agent": {"agent_id": "test-agent-qan-perfschema-update"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentQANMySQLPerfSchemaAgentCommand{
@@ -83,7 +83,7 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 
 		t.Run("DisableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-perfschema-disable", `{"qan_mysql_perfschema_agent": {"agent_id": "test-agent-qan-perfschema-disable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-qan-perfschema-disable", `{"qan_mysql_perfschema_agent": {"agent_id": "test-agent-qan-perfschema-disable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentQANMySQLPerfSchemaAgentCommand{
@@ -109,7 +109,7 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent-qan-perfschema", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent-qan-perfschema", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentQANMySQLPerfSchemaAgentCommand{
@@ -118,7 +118,7 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
@@ -142,7 +142,8 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_INFO"
 			}
 		}`
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-perfschema-flags", mockResponse, &capturedRequestBody)
+
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-perfschema-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -226,7 +227,7 @@ Configuration changes applied:
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-perfschema-minimal", `{"qan_mysql_perfschema_agent": {"agent_id": "test-agent-qan-perfschema-minimal"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-perfschema-minimal", `{"qan_mysql_perfschema_agent": {"agent_id": "test-agent-qan-perfschema-minimal"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "qan-mysql-perfschema-agent", "test-agent-qan-perfschema-minimal"}
@@ -262,7 +263,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -276,7 +277,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
 		})
 	})

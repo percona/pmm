@@ -56,7 +56,7 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 			}
 		}`
 
-		_, cleanup := setupChangeAgentTestServer(t, agentID, responseJSON, nil)
+		cleanup := setupChangeAgentTestServer(t, agentID, responseJSON, nil)
 		defer cleanup()
 
 		t.Run("UpdateCredentialsAndTLS", func(t *testing.T) {
@@ -128,12 +128,14 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 
 	t.Run("ErrorHandling", func(t *testing.T) {
 		agentID := "invalid-id"
+
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			assert.Equal(t, "PUT", r.Method)
 			assert.Equal(t, "/v1/inventory/agents/"+agentID, r.URL.Path)
 
 			w.WriteHeader(http.StatusNotFound)
 			response := `{"code": 5, "error": "Agent not found"}`
+
 			_, err := w.Write([]byte(response))
 			if err != nil {
 				t.Error(err)
@@ -147,6 +149,7 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 
 		transport := httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme})
 		client.Default = client.New(transport, nil)
+
 		defer func() { client.Default = originalClient }()
 
 		cmd := &ChangeAgentMysqldExporterCommand{
@@ -155,12 +158,12 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("TLSFilesValidation", func(t *testing.T) {
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-id", "", nil)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-id", "", nil)
 		defer cleanup()
 
 		t.Run("NonExistentTLSFiles", func(t *testing.T) {
@@ -172,7 +175,7 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 			}
 
 			result, err := cmd.RunCmd()
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Nil(t, result)
 			assert.Contains(t, err.Error(), "failed to read TLS")
 		})
@@ -201,7 +204,8 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_DEBUG"
 			}
 		}`
-		_, cleanup := setupChangeAgentTestServer(t, "test-mysqld-all-flags", mockResponse, &capturedRequestBody)
+
+		cleanup := setupChangeAgentTestServer(t, "test-mysqld-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		// Use Kong to parse CLI arguments into command struct
@@ -298,7 +302,7 @@ Configuration changes applied:
 
 		var capturedRequestBody string
 
-		_, cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)
 		defer cleanup()
 
 		// Use Kong to parse minimal CLI arguments (only required AgentID)
@@ -346,7 +350,7 @@ Configuration changes applied:
 
 			// Missing required AgentID argument
 			_, err := parser.Parse([]string{"--enable"})
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "agent-id")
 		})
 
@@ -355,7 +359,7 @@ Configuration changes applied:
 			parser := kong.Must(&cmd)
 
 			_, err := parser.Parse([]string{"test-id", "--log-level=invalid"})
-			assert.Error(t, err)
+			require.Error(t, err)
 		})
 	})
 }

@@ -59,6 +59,9 @@ func (res *changeAgentQANMongoDBProfilerAgentResult) String() string {
 
 // ChangeAgentQANMongoDBProfilerAgentCommand is used by Kong for CLI flags and commands.
 type ChangeAgentQANMongoDBProfilerAgentCommand struct {
+	// Embedded flags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"QAN MongoDB Profiler Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -84,9 +87,6 @@ type ChangeAgentQANMongoDBProfilerAgentCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentQANMongoDBProfilerAgentCommand and returns the result.
@@ -104,6 +104,7 @@ func (cmd *ChangeAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result,
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS certificate key file: %w", err)
 		}
+
 		tlsCertificateKey = &content
 	}
 
@@ -112,6 +113,7 @@ func (cmd *ChangeAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result,
 		if err != nil {
 			return nil, fmt.Errorf("failed to read TLS CA file: %w", err)
 		}
+
 		tlsCa = &content
 	}
 
@@ -187,10 +189,10 @@ func (cmd *ChangeAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result,
 		changes = append(changes, "updated TLS CA certificate")
 	}
 	if cmd.AuthenticationMechanism != nil {
-		changes = append(changes, fmt.Sprintf("changed authentication mechanism to %s", *cmd.AuthenticationMechanism))
+		changes = append(changes, "changed authentication mechanism to "+*cmd.AuthenticationMechanism)
 	}
 	if cmd.AuthenticationDatabase != nil {
-		changes = append(changes, fmt.Sprintf("changed authentication database to %s", *cmd.AuthenticationDatabase))
+		changes = append(changes, "changed authentication database to "+*cmd.AuthenticationDatabase)
 	}
 	if cmd.MaxQueryLength != nil {
 		changes = append(changes, fmt.Sprintf("changed max query length to %d", *cmd.MaxQueryLength))

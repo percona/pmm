@@ -50,7 +50,7 @@ func TestNodeExporterChangeAgent(t *testing.T) {
 			}
 		}`
 
-		_, cleanup := setupChangeAgentTestServer(t, agentID, responseJSON, nil)
+		cleanup := setupChangeAgentTestServer(t, agentID, responseJSON, nil)
 		defer cleanup()
 
 		t.Run("EnableAgent", func(t *testing.T) {
@@ -119,7 +119,8 @@ func TestNodeExporterChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_DEBUG"
 			}
 		}`
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-all-flags", mockResponse, &capturedRequestBody)
+
+		cleanup := setupChangeAgentTestServer(t, "test-agent-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		// Use Kong to parse CLI arguments into command struct
@@ -191,14 +192,18 @@ Configuration changes applied:
 
 	t.Run("ErrorHandling", func(t *testing.T) {
 		agentID := "invalid-id"
+
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			assert.Equal(t, "PUT", r.Method)
 			assert.Equal(t, "/v1/inventory/agents/"+agentID, r.URL.Path)
 
 			w.WriteHeader(http.StatusNotFound)
 			response := `{"code": 5, "error": "Agent not found", "message": "Agent with ID 'invalid-id' not found."}`
+
 			_, err := w.Write([]byte(response))
-			require.NoError(t, err)
+			if err != nil {
+				t.Error(err)
+			}
 		}))
 		defer server.Close()
 
@@ -225,7 +230,7 @@ Configuration changes applied:
 
 		var capturedRequestBody string
 
-		_, cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)
 		defer cleanup()
 
 		// Use Kong to parse minimal CLI arguments (only required AgentID)
@@ -267,7 +272,7 @@ Configuration changes applied:
 
 			// Missing required AgentID argument
 			_, err := parser.Parse([]string{"--enable"})
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "agent-id")
 		})
 
@@ -276,7 +281,7 @@ Configuration changes applied:
 			parser := kong.Must(&cmd)
 
 			_, err := parser.Parse([]string{"test-id", "--log-level=invalid"})
-			assert.Error(t, err)
+			require.Error(t, err)
 		})
 	})
 }

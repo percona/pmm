@@ -58,6 +58,10 @@ func (res *changeAgentQANMySQLSlowlogAgentResult) String() string {
 
 // ChangeAgentQANMySQLSlowlogAgentCommand is used by Kong for CLI flags and commands.
 type ChangeAgentQANMySQLSlowlogAgentCommand struct {
+	// Embedded flags
+	flags.CommentsParsingChangeFlags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"QAN MySQL SlowLog Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -81,9 +85,6 @@ type ChangeAgentQANMySQLSlowlogAgentCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	flags.CommentsParsingChangeFlags
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentQANMySQLSlowlogAgentCommand and returns the result.
@@ -132,7 +133,7 @@ func (cmd *ChangeAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, er
 		MaxSlowlogFileSize:     cmd.MaxSlowlogFileSize,
 		MaxQueryLength:         cmd.MaxQueryLength,
 		DisableQueryExamples:   cmd.DisableQueryExamples,
-		DisableCommentsParsing: cmd.CommentsParsingChangeFlags.CommentsParsingDisabled(),
+		DisableCommentsParsing: cmd.CommentsParsingDisabled(),
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
 	}
 
@@ -193,7 +194,7 @@ func (cmd *ChangeAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, er
 		changes = append(changes, "updated TLS certificate key")
 	}
 	if cmd.MaxSlowlogFileSize != nil {
-		changes = append(changes, fmt.Sprintf("changed max slowlog file size to %s", *cmd.MaxSlowlogFileSize))
+		changes = append(changes, "changed max slowlog file size to "+*cmd.MaxSlowlogFileSize)
 	}
 	if cmd.MaxQueryLength != nil {
 		changes = append(changes, fmt.Sprintf("changed max query length to %d", *cmd.MaxQueryLength))
@@ -205,8 +206,8 @@ func (cmd *ChangeAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, er
 			changes = append(changes, "enabled query examples")
 		}
 	}
-	if cmd.CommentsParsingChangeFlags.CommentsParsing != nil {
-		if *cmd.CommentsParsingChangeFlags.CommentsParsingDisabled() {
+	if cmd.CommentsParsing != nil {
+		if *cmd.CommentsParsingDisabled() {
 			changes = append(changes, "disabled comments parsing")
 		} else {
 			changes = append(changes, "enabled comments parsing")

@@ -34,7 +34,7 @@ func TestQANMySQLSlowlogAgentChangeAgent(t *testing.T) {
 
 		t.Run("UpdateCredentialsAndSettings", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-update", `{"qan_mysql_slowlog_agent": {"agent_id": "test-agent-qan-slowlog-update"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-update", `{"qan_mysql_slowlog_agent": {"agent_id": "test-agent-qan-slowlog-update"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentQANMySQLSlowlogAgentCommand{
@@ -85,7 +85,7 @@ func TestQANMySQLSlowlogAgentChangeAgent(t *testing.T) {
 
 		t.Run("DisableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-disable", `{"qan_mysql_slowlog_agent": {"agent_id": "test-agent-qan-slowlog-disable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-disable", `{"qan_mysql_slowlog_agent": {"agent_id": "test-agent-qan-slowlog-disable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentQANMySQLSlowlogAgentCommand{
@@ -136,7 +136,8 @@ func TestQANMySQLSlowlogAgentChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_DEBUG"
 			}
 		}`
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-all-flags", mockResponse, &capturedRequestBody)
+
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -224,7 +225,7 @@ Configuration changes applied:
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent-qan-slowlog", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent-qan-slowlog", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentQANMySQLSlowlogAgentCommand{
@@ -233,13 +234,13 @@ Configuration changes applied:
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-minimal", `{"qan_mysql_slowlog_agent": {"agent_id": "test-agent-qan-slowlog-minimal"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-minimal", `{"qan_mysql_slowlog_agent": {"agent_id": "test-agent-qan-slowlog-minimal"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "qan-mysql-slowlog-agent", "test-agent-qan-slowlog-minimal"}
@@ -264,7 +265,7 @@ Configuration changes applied:
 
 	t.Run("KongParsingWithLogLevel", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-with-log", `{"qan_mysql_slowlog_agent": {"agent_id": "test-agent-qan-slowlog-with-log"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-slowlog-with-log", `{"qan_mysql_slowlog_agent": {"agent_id": "test-agent-qan-slowlog-with-log"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "qan-mysql-slowlog-agent", "test-agent-qan-slowlog-with-log", "--enable", "--log-level=debug"}
@@ -303,7 +304,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -317,7 +318,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
 		})
 	})

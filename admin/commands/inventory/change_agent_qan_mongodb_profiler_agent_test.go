@@ -34,7 +34,7 @@ func TestQANMongoDBProfilerAgentChangeAgent(t *testing.T) {
 
 		t.Run("UpdateCredentialsAndSettings", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-mongodb-update", `{"qan_mongodb_profiler_agent": {"agent_id": "test-agent-qan-mongodb-update"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-qan-mongodb-update", `{"qan_mongodb_profiler_agent": {"agent_id": "test-agent-qan-mongodb-update"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentQANMongoDBProfilerAgentCommand{
@@ -83,7 +83,7 @@ func TestQANMongoDBProfilerAgentChangeAgent(t *testing.T) {
 
 		t.Run("DisableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-mongodb-disable", `{"qan_mongodb_profiler_agent": {"agent_id": "test-agent-qan-mongodb-disable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-qan-mongodb-disable", `{"qan_mongodb_profiler_agent": {"agent_id": "test-agent-qan-mongodb-disable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentQANMongoDBProfilerAgentCommand{
@@ -127,7 +127,8 @@ func TestQANMongoDBProfilerAgentChangeAgent(t *testing.T) {
 				"log_level": "LOG_LEVEL_INFO"
 			}
 		}`
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-mongodb-all-flags", mockResponse, &capturedRequestBody)
+
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-mongodb-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -216,7 +217,7 @@ Configuration changes applied:
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent-qan-mongodb", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent-qan-mongodb", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentQANMongoDBProfilerAgentCommand{
@@ -225,13 +226,13 @@ Configuration changes applied:
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-qan-mongodb-minimal", `{"qan_mongodb_profiler_agent": {"agent_id": "test-agent-qan-mongodb-minimal"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-qan-mongodb-minimal", `{"qan_mongodb_profiler_agent": {"agent_id": "test-agent-qan-mongodb-minimal"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "qan-mongodb-profiler-agent", "test-agent-qan-mongodb-minimal"}
@@ -267,7 +268,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -281,7 +282,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
 		})
 	})

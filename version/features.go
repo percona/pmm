@@ -17,9 +17,9 @@ package version
 
 // Versions list.
 var (
-	V2_36_0 = MustParse("2.36.0-0") //nolint:revive,stylecheck
-	V3_0_0  = MustParse("3.0.0-0")  //nolint:revive,stylecheck
-	V3_2_0  = MustParse("3.2.0-0")  //nolint:revive,stylecheck
+	V2_36_0 = MustParse("2.36.0-0") //nolint:revive
+	V3_0_0  = MustParse("3.0.0-0")  //nolint:revive
+	V3_2_0  = MustParse("3.2.0-0")  //nolint:revive
 )
 
 // FeatureVersion represents a minimum version feature being supported.

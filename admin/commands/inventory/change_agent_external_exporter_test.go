@@ -32,7 +32,7 @@ func TestExternalExporterChangeAgent(t *testing.T) {
 
 		t.Run("UpdateConfigurationAndMetrics", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-external-update", `{"external_exporter": {"agent_id": "test-agent-external-update"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-external-update", `{"external_exporter": {"agent_id": "test-agent-external-update"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentExternalExporterCommand{
@@ -71,7 +71,7 @@ func TestExternalExporterChangeAgent(t *testing.T) {
 
 		t.Run("DisableAgent", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-external-disable", `{"external_exporter": {"agent_id": "test-agent-external-disable"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-external-disable", `{"external_exporter": {"agent_id": "test-agent-external-disable"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentExternalExporterCommand{
@@ -95,7 +95,7 @@ func TestExternalExporterChangeAgent(t *testing.T) {
 
 		t.Run("UpdateOnlyMetricsConfiguration", func(t *testing.T) {
 			var capturedRequestBody string
-			_, cleanup := setupChangeAgentTestServer(t, "test-agent-external-metrics", `{"external_exporter": {"agent_id": "test-agent-external-metrics"}}`, &capturedRequestBody)
+			cleanup := setupChangeAgentTestServer(t, "test-agent-external-metrics", `{"external_exporter": {"agent_id": "test-agent-external-metrics"}}`, &capturedRequestBody)
 			defer cleanup()
 
 			cmd := &ChangeAgentExternalExporterCommand{
@@ -140,7 +140,7 @@ func TestExternalExporterChangeAgent(t *testing.T) {
 			}
 		}`
 
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-external-all-flags", mockResponse, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-external-all-flags", mockResponse, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -215,7 +215,7 @@ Configuration changes applied:
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		_, cleanup := setupChangeAgentTestServer(t, "invalid-agent-external", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
+		cleanup := setupChangeAgentTestServer(t, "invalid-agent-external", `{"error": "Agent not found", "code": 404, "message": "Agent not found"}`, nil)
 		defer cleanup()
 
 		cmd := &ChangeAgentExternalExporterCommand{
@@ -224,13 +224,13 @@ Configuration changes applied:
 		}
 
 		result, err := cmd.RunCmd()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("KongParsingWithMinimalFlags", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-external-minimal", `{"external_exporter": {"agent_id": "test-agent-external-minimal"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-external-minimal", `{"external_exporter": {"agent_id": "test-agent-external-minimal"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{"change-agent", "external-exporter", "test-agent-external-minimal"}
@@ -255,7 +255,7 @@ Configuration changes applied:
 
 	t.Run("KongParsingMetricsConfigurationOnly", func(t *testing.T) {
 		var capturedRequestBody string
-		_, cleanup := setupChangeAgentTestServer(t, "test-agent-external-metrics-only", `{"external_exporter": {"agent_id": "test-agent-external-metrics-only"}}`, &capturedRequestBody)
+		cleanup := setupChangeAgentTestServer(t, "test-agent-external-metrics-only", `{"external_exporter": {"agent_id": "test-agent-external-metrics-only"}}`, &capturedRequestBody)
 		defer cleanup()
 
 		cli := []string{
@@ -299,7 +299,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
@@ -313,7 +313,7 @@ Configuration changes applied:
 			require.NoError(t, err)
 
 			_, err = parser.Parse(cli[2:])
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "listen-port")
 		})
 	})

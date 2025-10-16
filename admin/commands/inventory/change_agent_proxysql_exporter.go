@@ -61,6 +61,9 @@ func (res *changeAgentProxysqlExporterResult) String() string {
 
 // ChangeAgentProxysqlExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentProxysqlExporterCommand struct {
+	// Embedded flags
+	flags.LogLevelFatalChangeFlags
+
 	AgentID string `arg:"" help:"ProxySQL Exporter Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
@@ -82,9 +85,6 @@ type ChangeAgentProxysqlExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-
-	// Log level
-	flags.LogLevelFatalChangeFlags
 }
 
 // RunCmd executes the ChangeAgentProxysqlExporterCommand and returns the result.
