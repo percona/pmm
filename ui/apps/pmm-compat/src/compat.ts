@@ -112,7 +112,6 @@ export const initialize = () => {
  * Wires Grafana theme changes (ThemeChangedEvent) to Percona CSS scheme.
  * Ensures <html> has the attribute our CSS reads and informs the parent frame.
  */
-// comments in English only
 function setupThemeWiring() {
   // Resolve parent origin robustly (dev vs prod)
   const getParentOrigin = (): string => {
