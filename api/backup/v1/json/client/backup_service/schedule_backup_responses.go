@@ -8,6 +8,7 @@ package backup_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ScheduleBackupReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ScheduleBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ScheduleBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewScheduleBackupOK()
@@ -107,7 +108,7 @@ func (o *ScheduleBackupOK) readResponse(response runtime.ClientResponse, consume
 	o.Payload = new(ScheduleBackupOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ScheduleBackupDefault) readResponse(response runtime.ClientResponse, co
 	o.Payload = new(ScheduleBackupDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -270,7 +271,7 @@ func (o *ScheduleBackupBody) validateStartTime(formats strfmt.Registry) error {
 	return nil
 }
 
-var scheduleBackupBodyTypeModePropEnum []interface{}
+var scheduleBackupBodyTypeModePropEnum []any
 
 func init() {
 	var res []string
@@ -318,7 +319,7 @@ func (o *ScheduleBackupBody) validateMode(formats strfmt.Registry) error {
 	return nil
 }
 
-var scheduleBackupBodyTypeDataModelPropEnum []interface{}
+var scheduleBackupBodyTypeDataModelPropEnum []any
 
 func init() {
 	var res []string
@@ -427,11 +428,15 @@ func (o *ScheduleBackupDefaultBody) validateDetails(formats strfmt.Registry) err
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ScheduleBackup default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ScheduleBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -464,11 +469,15 @@ func (o *ScheduleBackupDefaultBody) contextValidateDetails(ctx context.Context, 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ScheduleBackup default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ScheduleBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -504,7 +513,7 @@ type ScheduleBackupDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// schedule backup default body details items0
-	ScheduleBackupDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ScheduleBackupDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -531,9 +540,9 @@ func (o *ScheduleBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
