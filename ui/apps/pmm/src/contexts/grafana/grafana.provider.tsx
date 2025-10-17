@@ -178,7 +178,6 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
       // Apply locally only to avoid ping-pong; persistence is handled by left action.
       setFromGrafana(desired).catch((err) =>
-        // eslint-disable-next-line no-console
         console.warn('[GrafanaProvider] setFromGrafana failed:', err)
       );
     };

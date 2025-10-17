@@ -31,8 +31,8 @@ export function useGrafanaThemeSyncOnce(
     // ----- origin allow-list -------------------------------------------------
     // By default allow current host (PMM UI) and optional Grafana origin
     const allowed = new Set<string>([window.location.origin]);
-    const grafanaOrigin =
-      (import.meta as ImportMeta).env.VITE_GRAFANA_ORIGIN as string | undefined;
+    const grafanaOrigin = (import.meta as ImportMeta).env
+      .VITE_GRAFANA_ORIGIN as string | undefined;
     if (grafanaOrigin) allowed.add(grafanaOrigin);
 
     const isTrustedOrigin = (origin: string) =>
@@ -41,21 +41,20 @@ export function useGrafanaThemeSyncOnce(
 
     const ensureMode = (desired: Mode) => {
       setFromGrafana(desired).catch((err) => {
-        // eslint-disable-next-line no-console
         console.warn('[useGrafanaThemeSyncOnce] apply failed:', err);
       });
       colorModeRef.current = desired;
       try {
         localStorage.setItem('colorMode', desired);
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.warn('[useGrafanaThemeSyncOnce] localStorage set failed:', err);
       }
     };
 
     fetch('/graph/api/user/preferences', { credentials: 'include' })
-      .then(async (r): Promise<GrafanaPreferences | null> =>
-        r.ok ? ((await r.json()) as GrafanaPreferences) : null
+      .then(
+        async (r): Promise<GrafanaPreferences | null> =>
+          r.ok ? ((await r.json()) as GrafanaPreferences) : null
       )
       .then((prefs) => {
         if (!prefs) return;
@@ -63,7 +62,6 @@ export function useGrafanaThemeSyncOnce(
         ensureMode(desired);
       })
       .catch((err) => {
-        // eslint-disable-next-line no-console
         console.warn('[useGrafanaThemeSyncOnce] read prefs failed:', err);
       });
 
