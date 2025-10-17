@@ -74,8 +74,8 @@ require (
 	golang.org/x/crypto v0.42.0
 	golang.org/x/sync v0.17.0
 	golang.org/x/sys v0.36.0
-	golang.org/x/text v0.29.0
-	golang.org/x/tools v0.36.0
+	golang.org/x/text v0.30.0
+	golang.org/x/tools v0.37.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250804133106-a7a43d27e69b
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b
 	google.golang.org/grpc v1.76.0
@@ -194,6 +194,6 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
-	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/net v0.44.0 // indirect
 )
