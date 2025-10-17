@@ -413,24 +413,6 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 	return err
 }
 
-// RestartSupervisedService restarts given service.
-func (s *Service) RestartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("restart", serviceName)
-	return err
-}
-
-// StartSupervisedService starts given service.
-func (s *Service) StartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("start", serviceName)
-	return err
-}
-
-// StopSupervisedService stops given service.
-func (s *Service) StopSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("stop", serviceName)
-	return err
-}
-
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 

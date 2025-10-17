@@ -839,11 +839,6 @@ func main() { //nolint:maintidx,cyclop
 
 	agentsRegistry := agents.NewRegistry(db, vmParams)
 
-	// TODO remove once PMM cluster will be Active-Active
-	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
-		agentsRegistry.KickAll(ctx)
-	}))
-
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
@@ -876,19 +871,6 @@ func main() { //nolint:maintidx,cyclop
 			},
 			HAParams: haParams,
 		})
-
-	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
-		err := supervisord.StartSupervisedService("pmm-agent")
-		if err != nil {
-			l.Warnf("couldn't start pmm-agent: %q", err)
-		}
-		return err
-	}, func() {
-		err := supervisord.StopSupervisedService("pmm-agent")
-		if err != nil {
-			l.Warnf("couldn't stop pmm-agent: %q", err)
-		}
-	}))
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
