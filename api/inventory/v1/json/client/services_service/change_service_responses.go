@@ -8,6 +8,7 @@ package services_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type ChangeServiceReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeServiceOK()
@@ -106,7 +107,7 @@ func (o *ChangeServiceOK) readResponse(response runtime.ClientResponse, consumer
 	o.Payload = new(ChangeServiceOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -179,7 +180,7 @@ func (o *ChangeServiceDefault) readResponse(response runtime.ClientResponse, con
 	o.Payload = new(ChangeServiceDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *ChangeServiceBody) validateCustomLabels(formats strfmt.Registry) error 
 
 	if o.CustomLabels != nil {
 		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -262,11 +267,15 @@ func (o *ChangeServiceBody) contextValidateCustomLabels(ctx context.Context, for
 		}
 
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "custom_labels")
 			}
+
 			return err
 		}
 	}
@@ -333,11 +342,15 @@ func (o *ChangeServiceDefaultBody) validateDetails(formats strfmt.Registry) erro
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeService default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -370,11 +383,15 @@ func (o *ChangeServiceDefaultBody) contextValidateDetails(ctx context.Context, f
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeService default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -410,7 +427,7 @@ type ChangeServiceDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// change service default body details items0
-	ChangeServiceDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ChangeServiceDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -437,9 +454,9 @@ func (o *ChangeServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -584,11 +601,15 @@ func (o *ChangeServiceOKBody) validateExternal(formats strfmt.Registry) error {
 
 	if o.External != nil {
 		if err := o.External.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "external")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "external")
 			}
+
 			return err
 		}
 	}
@@ -603,11 +624,15 @@ func (o *ChangeServiceOKBody) validateHaproxy(formats strfmt.Registry) error {
 
 	if o.Haproxy != nil {
 		if err := o.Haproxy.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "haproxy")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "haproxy")
 			}
+
 			return err
 		}
 	}
@@ -622,11 +647,15 @@ func (o *ChangeServiceOKBody) validateMongodb(formats strfmt.Registry) error {
 
 	if o.Mongodb != nil {
 		if err := o.Mongodb.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "mongodb")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "mongodb")
 			}
+
 			return err
 		}
 	}
@@ -641,11 +670,15 @@ func (o *ChangeServiceOKBody) validateMysql(formats strfmt.Registry) error {
 
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "mysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "mysql")
 			}
+
 			return err
 		}
 	}
@@ -660,11 +693,15 @@ func (o *ChangeServiceOKBody) validatePostgresql(formats strfmt.Registry) error 
 
 	if o.Postgresql != nil {
 		if err := o.Postgresql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "postgresql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "postgresql")
 			}
+
 			return err
 		}
 	}
@@ -679,11 +716,15 @@ func (o *ChangeServiceOKBody) validateProxysql(formats strfmt.Registry) error {
 
 	if o.Proxysql != nil {
 		if err := o.Proxysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "proxysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "proxysql")
 			}
+
 			return err
 		}
 	}
@@ -698,11 +739,15 @@ func (o *ChangeServiceOKBody) validateValkey(formats strfmt.Registry) error {
 
 	if o.Valkey != nil {
 		if err := o.Valkey.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "valkey")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "valkey")
 			}
+
 			return err
 		}
 	}
@@ -756,11 +801,15 @@ func (o *ChangeServiceOKBody) contextValidateExternal(ctx context.Context, forma
 		}
 
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "external")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "external")
 			}
+
 			return err
 		}
 	}
@@ -776,11 +825,15 @@ func (o *ChangeServiceOKBody) contextValidateHaproxy(ctx context.Context, format
 		}
 
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "haproxy")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "haproxy")
 			}
+
 			return err
 		}
 	}
@@ -796,11 +849,15 @@ func (o *ChangeServiceOKBody) contextValidateMongodb(ctx context.Context, format
 		}
 
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "mongodb")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "mongodb")
 			}
+
 			return err
 		}
 	}
@@ -816,11 +873,15 @@ func (o *ChangeServiceOKBody) contextValidateMysql(ctx context.Context, formats 
 		}
 
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "mysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "mysql")
 			}
+
 			return err
 		}
 	}
@@ -836,11 +897,15 @@ func (o *ChangeServiceOKBody) contextValidatePostgresql(ctx context.Context, for
 		}
 
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "postgresql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "postgresql")
 			}
+
 			return err
 		}
 	}
@@ -856,11 +921,15 @@ func (o *ChangeServiceOKBody) contextValidateProxysql(ctx context.Context, forma
 		}
 
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "proxysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "proxysql")
 			}
+
 			return err
 		}
 	}
@@ -876,11 +945,15 @@ func (o *ChangeServiceOKBody) contextValidateValkey(ctx context.Context, formats
 		}
 
 		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeServiceOk" + "." + "valkey")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeServiceOk" + "." + "valkey")
 			}
+
 			return err
 		}
 	}
