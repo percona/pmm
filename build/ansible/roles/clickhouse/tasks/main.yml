@@ -19,6 +19,12 @@
     enablerepo: clickhouse
   ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
 
+- name: Generate SSL certificates
+  command: openssl req -newkey rsa:2048 -days 1095 -nodes -x509 -extensions v3_req -config /etc/nginx/ssl/certificate.conf -keyout /etc/clickhouse-server/server.key -out /etc/clickhouse-server/server.crt
+  args:
+    creates: /etc/clickhouse-server/server.key
+  no_log: true
+
 - name: Change ownership of clickhouse directories
   file:
     path: "{{ item }}"
@@ -34,7 +40,7 @@
     - /var/log/clickhouse-server
     - /run/clickhouse-server
 
-- name: Copy customized clickhouse config files
+- name: Copy customized clickhouse config files and dhparam.pem
   copy:
     src: "{{ item }}"
     dest: "/etc/clickhouse-server/{{ item }}"
@@ -44,6 +50,7 @@
   loop:
     - config.xml
     - users.xml
+    - dhparam.pem
 
 # We need to remove capabilities because we run PMM in an unprivileged container
 - name: Remove cap_ipc_lock from clickhouse binary
