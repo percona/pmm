@@ -1,6 +1,7 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
 import { isActive } from 'lib/utils/navigation.utils';
 import { FC, useCallback, useEffect, useState } from 'react';
+import type { ComponentProps } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -19,6 +20,7 @@ import NavItemIcon from './nav-item-icon/NavItemIcon';
 import IconButton from '@mui/material/IconButton';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
+import { useSetTheme } from 'themes/setTheme.ts';
 
 const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const location = useLocation();
@@ -31,6 +33,34 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const children = item.children?.filter((i) => !i.hidden);
   const dataTestid = `navitem-${item.id}`;
   const navigate = useNavigate();
+
+  // Detect "theme-toggle" item and compute dynamic label/icon from current palette mode.
+  const isThemeToggle = item.id === 'theme-toggle';
+  const paletteMode = (theme.palette?.mode ?? 'light') as 'light' | 'dark';
+  const themeToggleLabel =
+    paletteMode === 'dark' ? 'Change to Light Theme' : 'Change to Dark Theme';
+  const themeToggleIcon = paletteMode === 'dark' ? 'theme-light' : 'theme-dark';
+
+  // Use the exact prop type from NavItemIcon to keep the union type.
+  type IconName = NonNullable<ComponentProps<typeof NavItemIcon>['icon']>;
+
+  // Resolve icon for this item; make sure it's never undefined when passed down.
+  const resolvedIcon: IconName | undefined = isThemeToggle
+    ? (themeToggleIcon as IconName)
+    : (item.icon as IconName | undefined);
+
+  const { setTheme } = useSetTheme();
+
+  // Handle click for the action item: instant UI update + persist + iframe sync.
+  const handleThemeToggleClick = useCallback(async () => {
+    try {
+      const next: 'light' | 'dark' = paletteMode === 'dark' ? 'light' : 'dark';
+      await setTheme(next);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('[NavItem] Theme toggle failed:', err);
+    }
+  }, [paletteMode, setTheme]);
 
   useEffect(() => {
     if (active && drawerOpen) {
@@ -74,24 +104,19 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
             direction="row"
             alignItems="center"
             justifyContent="space-between"
-            sx={{
-              width: level === 0 ? DRAWER_WIDTH : undefined,
-            }}
+            sx={{ width: level === 0 ? DRAWER_WIDTH : undefined }}
           >
             <ListItemButton
               color="primary.main"
               disableGutters
-              sx={[
-                styles.listItemButton,
-                level === 0 && styles.navItemRootCollapsible,
-              ]}
+              sx={[styles.listItemButton, level === 0 && styles.navItemRootCollapsible]}
               onClick={handleOpenCollapsible}
               data-testid={dataTestid}
               data-navlevel={level}
             >
               {item.icon && (
                 <ListItemIcon sx={styles.listItemIcon}>
-                  <NavItemIcon icon={item.icon} />
+                  <NavItemIcon icon={item.icon as IconName} />
                 </ListItemIcon>
               )}
               <ListItemText
@@ -104,9 +129,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
               <IconButton
                 data-testid={`${dataTestid}-toggle`}
                 onClick={handleToggle}
-                sx={{
-                  mr: 1,
-                }}
+                sx={{ mr: 1 }}
               >
                 <KeyboardArrowDownIcon
                   sx={(theme) => ({
@@ -152,36 +175,30 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
 
   return (
     <NavItemTooltip
-      key={item.url}
+      key={item.url || item.id /* ensure stable key for action items */}
       drawerOpen={drawerOpen}
       item={item}
       level={level}
     >
-      <ListItem
-        disablePadding
-        sx={{
-          width: level === 0 ? DRAWER_WIDTH : undefined,
-        }}
-      >
+      <ListItem disablePadding sx={{ width: level === 0 ? DRAWER_WIDTH : undefined }}>
         <ListItemButton
           disableGutters
-          sx={[
-            styles.listItemButton,
-            styles.leafItem,
-            level === 0 && styles.navItemRoot,
-          ]}
-          selected={active}
-          {...linkProps}
+          sx={[styles.listItemButton, styles.leafItem, level === 0 && styles.navItemRoot]}
+          // Action items must not be highlighted as "selected"
+          selected={!isThemeToggle && active}
+          // Links keep linkProps; action item uses explicit onClick
+          {...(!isThemeToggle ? linkProps : {})}
+          onClick={isThemeToggle ? handleThemeToggleClick : linkProps?.onClick}
           data-testid={dataTestid}
           data-navlevel={level}
         >
-          {item.icon && (
+          {resolvedIcon && (
             <ListItemIcon sx={styles.listItemIcon}>
-              <NavItemIcon icon={item.icon} />
+              <NavItemIcon icon={resolvedIcon} />
             </ListItemIcon>
           )}
           <ListItemText
-            primary={item.text}
+            primary={isThemeToggle ? themeToggleLabel : item.text}
             className="navitem-primary-text"
             sx={styles.text}
           />

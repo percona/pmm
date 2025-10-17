@@ -1,3 +1,4 @@
+import React from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -7,6 +8,7 @@ import { ThemeContextProvider } from '@percona/design';
 import { NotistackMuiSnackbar } from '@percona/ui-lib';
 import { SnackbarProvider } from 'notistack';
 import pmmThemeOptions from 'themes/PmmTheme';
+import { useGrafanaThemeSyncOnce } from 'hooks/useGrafanaThemeSyncOnce';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,11 +18,19 @@ const queryClient = new QueryClient({
   },
 });
 
+const ThemeSyncGuard: React.FC = () => {
+  const ref = React.useRef<'light' | 'dark'>('light');
+  // Mount the Grafana→PMM theme bridge under the SAME ThemeContextProvider
+   useGrafanaThemeSyncOnce(ref);
+  return null;
+};
+
 const App = () => (
   <ThemeContextProvider
     themeOptions={pmmThemeOptions}
     saveColorModeOnLocalStorage
   >
+    <ThemeSyncGuard />
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <SnackbarProvider
         maxSnack={3}
