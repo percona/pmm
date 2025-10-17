@@ -122,8 +122,11 @@ func runMigrations(dsn string) error {
 	if errors.As(err, &errDirty) {
 		log.Printf("Migration %d was unsuccessful, trying to fix it...", errDirty.Version)
 
-		// Note: -1 is a valid version to force to
 		ver := errDirty.Version - 1
+		if ver == 0 {
+			// Note: since 0th migration does not exist, we set it to -1, which means "start from scratch"
+			ver = -1
+		}
 		fErr := m.Force(ver)
 		if fErr != nil {
 			return fmt.Errorf("can't force the migration %d: %w", ver, fErr)
