@@ -18,10 +18,12 @@ import { Link } from 'react-router-dom';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { useUser } from 'contexts/user';
+import { useTour } from 'contexts/tour';
 
 // todo: work in progress - see PMM-14190 and PMM-13707
 const WelcomeCard: FC = () => {
   const { user } = useUser();
+  const { startTour } = useTour();
 
   if (!user) {
     return null;
@@ -98,6 +100,7 @@ const WelcomeCard: FC = () => {
           startIcon={<MapOutlinedIcon />}
           variant="contained"
           data-testid="welcome-card-start-tour"
+          onClick={() => startTour('product')}
         >
           {Messages.startTour}
         </Button>

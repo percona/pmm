@@ -4,6 +4,7 @@ export interface HelpCardButton {
   url?: string;
   to?: string;
   startIconName?: string;
+  onClick?: () => void;
 }
 
 export interface HelpCard {

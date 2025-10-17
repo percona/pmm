@@ -72,17 +72,21 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
               sx={{ mr: 1 }}
               startIcon={getButtonStartIcon(button.startIconName)}
               endIcon={button.target && <NorthEast />}
-              {...(button.to
+              {...(button.onClick
                 ? {
-                    component: Link,
-                    to: button.to,
+                    onClick: button.onClick,
                   }
-                : {
-                    component: 'a',
-                    target: button.target,
-                    rel: 'noopener noreferrer',
-                    href: button.url,
-                  })}
+                : button.to
+                  ? {
+                      component: Link,
+                      to: button.to,
+                    }
+                  : {
+                      component: 'a',
+                      target: button.target,
+                      rel: 'noopener noreferrer',
+                      href: button.url,
+                    })}
             >
               {button.text}
             </Button>

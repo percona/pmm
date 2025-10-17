@@ -16,7 +16,11 @@ export const START_ICON = {
   map: 'map',
 };
 
-export const CARDS_DATA: HelpCard[] = [
+export const getCardData = ({
+  startProductTour,
+}: {
+  startProductTour: () => void;
+}): HelpCard[] => [
   {
     id: CARD_IDS.pmmDocs,
     title: 'PMM Documentation',
@@ -101,6 +105,7 @@ export const CARDS_DATA: HelpCard[] = [
       {
         text: 'Start PMM tour',
         startIconName: START_ICON.map,
+        onClick: startProductTour,
       },
     ],
   },
