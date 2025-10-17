@@ -63,7 +63,7 @@ Enable this setting to troubleshoot PMM Server performance issues, monitor resou
 
 When enabled, navigate to **Dashboards > Query Analytics** and filter by the `pmm-server-postgresql` service to view PMM Server queries. 
 
-You'll see queries related to PMM's inventory, settings, advisor checks, alerts, backups, and authentication. These queries are typically lightweight—any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
+You'll see queries related to PMM's inventory, settings, advisor checks, alerts, backups, and authentication. These queries are typically lightweight so any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
 
 !!! warning
     The default `postgres` database should only be used by PMM's internal operations. Applications should always use dedicated databases.
