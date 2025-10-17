@@ -16,7 +16,12 @@ The **Services** tab displays the individual services, the nodes on which they r
 |--------------|--------------------------------|
 | Service name|The name or identifier associated with the service being monitored.|                                        
 | Node name | Name or identifier associated with a specific node.| 
-| Monitoring status| The **Monitoring** column summarizes the status of all the Agents assigned to the service.             | 
+| Monitoring status| The **Monitoring** column summarizes the status of all the Agents assigned to the service. Possible statuses are:
+- **OK** (green) - all agents are healthy
+- **Warning** (orange) - multiple agents are disabled
+- **Failed** (red) - one or more agents are failing
+- **Disabled** (grey) - agent is intentionally disabled
+- **Stopped** (grey) - agent has stopped but is not disabled. |
 |  Address         | The IP address or DNS where the service is currently running. For RDS instances, this shows the actual database endpoint. |
 |  Port         | The port number on which the service is running. ||
 |  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the **<image src="../../images/dots-three-vertical.ico" width="15px" aria-label="triple dots"/>** icon </br> </br> * You can also check additional information about the service, by clicking on the **<image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/>** icon. This expands the service entry to show reference information like service labels and IDs.|
@@ -49,9 +54,31 @@ Example
 - `node_exporter` is assigned to an agent that extracts the node metrics
 - `mysqld_exporter` and `qan-mysql-perfschema-agent` are assigned to agents that extract metrics from mysql and its performance schema respectively.
 
-To view the agents running on a service and their health status, click **OK** or **Failed** under the **Monitoring** column. Furthermore, you can also check the properties of a particular agent by clicking the <image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
+To view the agents running on a service and their health status, click the status indicator (**OK**, **Warning**, **Failed**, **Disabled**, or **Stopped**) under the **Monitoring** column.
+
+Furthermore, you can also check the properties of a particular agent by clicking the <image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
 
 ![!image](../images/PMM_Inventory_Service_Agent_Properties.png)
+
+#### Agent status indicators
+
+Agents in PMM Inventory display the following status indicators:
+
+| Status | Color | Description |
+|--------|-------|-------------|
+| **Running** | Green | Agent is actively collecting metrics |
+| **Disabled** | Grey | Agent is intentionally disabled by user |
+| **Stopped** | Grey | Agent has stopped but is not disabled |
+| **Starting** | Yellow | Agent is in the process of starting |
+| **Waiting** | Orange | Agent encountered an error and will restart automatically |
+| **Unknown** | Grey | Agent status cannot be determined (connection issue) |
+| **Failed** | Red | Agent encountered a critical error |
+
+The **Monitoring** status for services aggregates individual agent statuses:
+
+- **OK** (green): All agents are running normally
+- **Warning** (orange): Multiple agents are disabled but the service remains operational
+- **Failed** (red): One or more agents are failing
 
 #### Node-service relationship
 
@@ -69,7 +96,8 @@ Understanding the relationship between nodes and services is key to gaining insi
 
 ### Editing labels for a service
 
-You can edit the labels as follows:
+To edit the labels:
+{.power-number}
 
 1. From the **Main** menu, go to **PMM Configuration > PMM Inventory > Services**.
 
@@ -78,7 +106,6 @@ You can edit the labels as follows:
 3. Click **Edit** to change the labels, then click **Save Changes**. 
 
     ![!](../images/PMM_access_edit_labels.png)
-
 
 5. Click **Confirm and save changes**. You will be taken back to the **Inventory/Services** page.
 
@@ -111,7 +138,7 @@ Click the downward arrow to view cluster details, including the services running
 
 ![!image](../images/PMM_Inventory_cluster_view_details.png)
 
-Furthermore, you can filter the clusters by criteria such as Cluster name, Status, Service name, Node name, Monitoring, Address, and Port. 
+Furthermore, you can filter the clusters by criteria such as **Cluster name**, **Status**, **Service name**, **Node name**, **Monitoring**, **Address**, and **Port**. 
 
 ![!image](../images/PMM_Inventory_cluster_view_filter.png)
 
@@ -124,6 +151,7 @@ The **Nodes** tab helps you monitor where services and agents are running across
 - An optional `instance_id` attribute for RDS nodes that stores the AWS RDS Instance ID. 
 
 To see node information:
+
 - Click the expand icon in the **Options** column to see node labels and attributes.
 - Click any node to view its connected agents.
 - Click links in the **Services** column to see running services.
@@ -131,8 +159,8 @@ To see node information:
 To see agent details:
 {.power-number}
 
-1. In the **Nodes** tab, under the **Monitoring** column, click **OK** or **Failed** based on the node’s status to view information about the total number of agents deployed on that node:
-     
+1. In the **Nodes** tab, under the **Monitoring** column, click the status indicator to view information about the total number of agents deployed on that node:
+
      ![!image](../images/PMM_Inventory_Node_Selection.png)
 
 2. Click on the <image src="../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column to view the properties of a specific agent.
@@ -140,7 +168,6 @@ To see agent details:
 3.  On the **Nodes** tab, under the **Options** column, click on the <image src="../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon for the selected node to check the properties and the current health status of an agent.       
      
      ![!image](../images/PMM_Inventory_Node_Agent_Properties.png)
-
 
 ## Remove items from the inventory
 
