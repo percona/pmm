@@ -179,7 +179,7 @@ func (s *Service) Run(ctx context.Context) error {
 					s.services.StartAllServices(ctx)
 				}
 			case <-ctx.Done():
-				s.services.StopRunningServices()
+				s.services.StopAllServices()
 				return
 			}
 		}
@@ -424,7 +424,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 				}
 			} else {
 				s.l.Printf("I am not a leader!")
-				s.services.StopRunningServices()
+				s.services.StopAllServices()
 			}
 		case <-t.C:
 			address, serverID := s.raftNode.LeaderWithID()
