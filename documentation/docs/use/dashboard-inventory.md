@@ -138,7 +138,7 @@ Click the downward arrow to view cluster details, including the services running
 
 ![!image](../images/PMM_Inventory_cluster_view_details.png)
 
-Furthermore, you can filter the clusters by criteria such as **Cluster name**, **Status**, **Service name**, **Node name**, **Monitoring**, **Address**, and **Port**. 
+You can also filter the clusters by criteria such as **Cluster name**, **Status**, **Service name**, **Node name**, **Monitoring**, **Address**, and **Port**. 
 
 ![!image](../images/PMM_Inventory_cluster_view_filter.png)
 
@@ -146,15 +146,15 @@ Furthermore, you can filter the clusters by criteria such as **Cluster name**, *
 
 The **Nodes** tab helps you monitor where services and agents are running across your infrastructure. Each node has:
 
-- A unique `node_id` linked to its `machine_id` (from `/etc/machine-id`)
-- A `node_type` attribute (e.g., generic, container, remote, remote_rds) indicating its nature
-- An optional `instance_id` attribute for RDS nodes that stores the AWS RDS Instance ID. 
+- a unique `node_id` linked to its `machine_id` (from `/etc/machine-id`)
+- a `node_type` attribute (e.g., generic, container, remote, remote_rds) indicating its nature
+- an optional `instance_id` attribute for RDS nodes that stores the AWS RDS Instance ID. 
 
 To see node information:
 
-- Click the expand icon in the **Options** column to see node labels and attributes.
-- Click any node to view its connected agents.
-- Click links in the **Services** column to see running services.
+- click the expand icon in the **Options** column to see node labels and attributes.
+- click any node to view its connected agents.
+- click links in the **Services** column to see running services.
 
 To see agent details:
 {.power-number}

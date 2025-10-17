@@ -16,7 +16,7 @@ The **Services** tab displays the individual services, the nodes on which they r
 |--------------|--------------------------------|
 | Service name|The name or identifier associated with the service being monitored.|                                        
 | Node name | Name or identifier associated with a specific node.| 
-| Monitoring status| The **Monitoring** column summarizes the status of all the Agents assigned to the service. Possible statuses are: <b style="color:#73BF69;">OK</b> - all agents are healthy; <b style="color:#FF9830;">Warning</b> - multiple agents are disabled; <b style="color:#e02f44;">Failed</b> - one or more agents are failing; <b style="color:#6C757D;">Disabled</b> - agent is intentionally disabled; <b style="color:#6C757D;">Stopped</b> - agent has stopped but is not disabled. |
+| Monitoring status| The **Monitoring** column summarizes the status of all the Agents assigned to the service. Possible statuses are: <br><br> • <b style="color:#73BF69;">OK</b> - all agents are healthy <br> • <b style="color:#FF9830;">Warning</b> - multiple agents are disabled <br> • <b style="color:#e02f44;">Failed</b> - one or more agents are failing <br> • <b style="color:#6C757D;">Disabled</b> - agent is intentionally disabled <br> • <b style="color:#6C757D;">Stopped</b> - agent has stopped but is not disabled |
 |  Address         | The IP address or DNS where the service is currently running. For RDS instances, this shows the actual database endpoint. |
 |  Port         | The port number on which the service is running. ||
 |  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the **<image src="../../images/dots-three-vertical.ico" width="15px" aria-label="triple dots"/>** icon </br> </br> * You can also check additional information about the service, by clicking on the **<image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/>** icon. This expands the service entry to show reference information like service labels and IDs.|
@@ -33,7 +33,7 @@ These are some of the attributes for a service:
 
 - Each instance of a service gets a `version` attribute to the response of the endpoint that provides a list of services being monitored by PMM. This makes it easy to visualize the database server version.
 
-    However, following are the imitations:
+    Limitations:
 
     - The version is not captured for the internal PostgreSQL database.
     - The version is only captured when a new service is being added to PMM and the agent installed on the client side is equal to or greater than v2.41.0.
@@ -43,7 +43,7 @@ These are some of the attributes for a service:
 
 Each binary (exporter, agent) running on a client will get an `agent_type` value. 
 
-Example
+Example:
 
 - `pmm-agent` is at the top of the tree, assigned to pmm-agent itself
 - `node_exporter` is assigned to an agent that extracts the node metrics
@@ -51,7 +51,7 @@ Example
 
 To view the agents running on a service and their health status, click the status indicator (<b style="color:#73BF69;">OK</b>, <b style="color:#FF9830;">Warning</b>, <b style="color:#e02f44;">Failed</b>, <b style="color:#6C757D;">Disabled</b>, or <b style="color:#6C757D;">Stopped</b>) under the **Monitoring** column.
 
-Furthermore, you can also check the properties of a particular agent by clicking the <image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
+You can also check the properties of a particular agent by clicking the <image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
 
 ![!image](../images/PMM_Inventory_Service_Agent_Properties.png)
 
@@ -91,7 +91,8 @@ Understanding the relationship between nodes and services is key to gaining insi
 
 ### Editing labels for a service
 
-You can edit the labels as follows:
+To edit the labels:
+{.power-number}
 
 1. From the **Main** menu, go to **PMM Configuration > PMM Inventory > Services**.
 
