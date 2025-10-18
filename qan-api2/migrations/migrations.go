@@ -95,12 +95,20 @@ func GetEngine(dsn string) string {
 
 func Run(dsn string, templateData map[string]any, isCluster bool, clusterName string) error {
 	if isCluster {
-		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsn)
+		u, err := url.Parse(dsn)
+		if err != nil {
+			return fmt.Errorf("could not parse DSN: %w", err)
+		}
+		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations; original DSN: %s", u.Redacted())
 		dsn, err := addClusterSchemaMigrationsParams(dsn, clusterName)
 		if err != nil {
 			return err
 		}
-		log.Printf("Adjusted DSN for migrations: %s", dsn)
+		u, err = url.Parse(dsn)
+		if err != nil {
+			return fmt.Errorf("could not parse DSN: %w", err)
+		}
+		log.Printf("Adjusted DSN for migrations: %s", u.Redacted())
 	}
 
 	// Prepare TemplateFS with provided template data
