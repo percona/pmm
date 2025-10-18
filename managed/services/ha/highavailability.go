@@ -460,14 +460,14 @@ func (s *Service) BroadcastMessage(message []byte) error {
 	return nil
 }
 
-// IsLeader checks if the current instance of the high availability service is the leader.
+// IsLeader checks if the current instance of HA service is the leader.
 func (s *Service) IsLeader() bool {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	return (s.raftNode != nil && s.raftNode.State() == raft.Leader) || !s.params.Enabled
 }
 
-// Bootstrap returns true if the high availability service should bootstrap.
+// Bootstrap returns true if HA service should bootstrap (true in non-HA setups).
 func (s *Service) Bootstrap() bool {
 	return s.params.Bootstrap || !s.params.Enabled
 }
