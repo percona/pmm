@@ -4,7 +4,6 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -38,7 +37,7 @@ func IsClickhouseCluster(dsn string, clusterName string) (bool, error) {
 	}
 	defer db.Close() //nolint:errcheck
 
-	log.Printf("Executing query: %s; args: %v", sql, args)
+	logrus.Infof("Executing query: %s; args: %v", sql, args)
 	rows, err := db.Queryx(fmt.Sprintf("%s;", sql), args...)
 	if err != nil {
 		return false, err
@@ -66,7 +65,7 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 
 	q := u.Query()
 	if clusterName != "" {
-		logrus.Printf("Using ClickHouse cluster name: %s", clusterName)
+		logrus.Infof("Using ClickHouse cluster name: %s", clusterName)
 		q.Set("x-cluster-name", clusterName)
 	}
 
@@ -99,7 +98,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 		if err != nil {
 			return fmt.Errorf("could not parse DSN: %w", err)
 		}
-		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations; original DSN: %s", u.Redacted())
+		logrus.Infof("ClickHouse cluster detected, adjusting DSN for migrations; original DSN: %s", u.Redacted())
 		dsn, err := addClusterSchemaMigrationsParams(dsn, clusterName)
 		if err != nil {
 			return err
@@ -108,7 +107,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 		if err != nil {
 			return fmt.Errorf("could not parse DSN: %w", err)
 		}
-		log.Printf("Adjusted DSN for migrations: %s", u.Redacted())
+		logrus.Infof("Adjusted DSN for migrations: %s", u.Redacted())
 	}
 
 	// Prepare TemplateFS with provided template data

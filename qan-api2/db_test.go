@@ -28,6 +28,7 @@ import (
 	_ "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -87,11 +88,12 @@ func TestDropOldPartition(t *testing.T) {
 	end := time.Date(2019, 1, 2, 0, 0, 0, 0, time.UTC)
 	difference := end.Sub(start)
 	daysNewestPartition := uint(math.Abs(difference.Hours()) / 24)
+	log := logrus.NewEntry(logrus.New())
 
 	t.Run("no so old partition", func(t *testing.T) {
 		partitions := []string{}
 		days := daysNewestPartition + 1
-		DropOldPartition(db, "pmm_test_parts", days)
+		DropOldPartition(db, "pmm_test_parts", days, log)
 		err := db.Select(
 			&partitions,
 			query)
@@ -104,7 +106,7 @@ func TestDropOldPartition(t *testing.T) {
 	t.Run("delete one day old partition", func(t *testing.T) {
 		partitions := []string{}
 		days := daysNewestPartition
-		DropOldPartition(db, "pmm_test_parts", days)
+		DropOldPartition(db, "pmm_test_parts", days, log)
 		err := db.Select(
 			&partitions,
 			query)
@@ -116,6 +118,8 @@ func TestDropOldPartition(t *testing.T) {
 }
 
 func TestCreateDbIfNotExists(t *testing.T) {
+	log := logrus.NewEntry(logrus.New())
+
 	t.Run("connect to db that doesnt exist", func(t *testing.T) {
 		dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 
@@ -124,7 +128,7 @@ func TestCreateDbIfNotExists(t *testing.T) {
 			dsn = "clickhouse://127.0.0.1:19000/pmm_created_db"
 		}
 
-		err := createDB(dsn, "")
+		err := createDB(dsn, "", log)
 
 		require.NoError(t, err, "Check connection after we create database")
 	})
