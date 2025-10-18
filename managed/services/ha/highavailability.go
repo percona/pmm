@@ -414,7 +414,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 			if isLeader {
 				s.services.StartAllServices(ctx)
 				// This node is the leader
-				s.l.Printf("I am the leader!")
+				s.l.Info("I am the leader!")
 				peers := s.memberlist.Members()
 				for _, peer := range peers {
 					if peer.Name == s.params.NodeID {
@@ -423,7 +423,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 					s.addMemberlistNodeToRaft(peer)
 				}
 			} else {
-				s.l.Printf("I am not a leader!")
+				s.l.Info("I am not a leader!")
 				s.services.StopAllServices()
 			}
 		case <-t.C:
@@ -467,7 +467,7 @@ func (s *Service) IsLeader() bool {
 	return (s.raftNode != nil && s.raftNode.State() == raft.Leader) || !s.params.Enabled
 }
 
-// Bootstrap performs the necessary steps to initialize the high availability service.
+// Bootstrap returns true if the high availability service should bootstrap.
 func (s *Service) Bootstrap() bool {
 	return s.params.Bootstrap || !s.params.Enabled
 }
