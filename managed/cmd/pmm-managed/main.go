@@ -823,10 +823,16 @@ func main() { //nolint:maintidx,cyclop
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
+
+	// This ensures scrape config regeneration happens when leadership changes
+	if haParams.Enabled {
+		haService.AddLeaderService(vmdb)
+	}
+
 	vmalert, err := vmalert.NewVMAlert(externalRules, *victoriaMetricsVMAlertURLF)
 	if err != nil {
 		l.Panicf("VictoriaMetrics VMAlert service problem: %+v", err)
