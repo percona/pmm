@@ -55,15 +55,7 @@ var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
 
 // HAService is an interface for checking HA leadership status.
 type HAService interface {
-	// IsLeader returns true if this node is the leader
 	IsLeader() bool
-}
-
-// noopHAService is a no-op implementation for non-HA mode (always returns true).
-type noopHAService struct{}
-
-func (n *noopHAService) IsLeader() bool {
-	return true
 }
 
 // Service is responsible for interactions with VictoriaMetrics.
@@ -154,23 +146,20 @@ func (svc *Service) RequestConfigurationUpdate() {
 	}
 }
 
-// Start implements ha.LeaderService interface.
-// Called when this node becomes the leader in HA mode.
-func (svc *Service) Start(ctx context.Context) error {
-	svc.l.Info("Became leader - triggering configuration update to include ExternalExporter agents")
+// Start is called when this node becomes the leader in HA mode.
+func (svc *Service) Start(_ context.Context) error { //nolint:unparam
+	svc.l.Info("Became leader - triggering configuration update to include external agents")
 	svc.RequestConfigurationUpdate()
 	return nil
 }
 
-// Stop implements ha.LeaderService interface.
-// Called when this node loses leadership in HA mode.
+// Stop is called when this node loses leadership in HA mode.
 func (svc *Service) Stop() {
-	svc.l.Info("Lost leadership - triggering configuration update to exclude ExternalExporter agents")
+	svc.l.Info("Lost leadership - triggering configuration update to exclude external agents")
 	svc.RequestConfigurationUpdate()
 }
 
-// ID implements ha.LeaderService interface.
-// Returns the service identifier.
+// ID returns the service identifier.
 func (svc *Service) ID() string {
 	return "victoriametrics"
 }
