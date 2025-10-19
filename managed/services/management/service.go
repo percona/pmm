@@ -83,12 +83,13 @@ func NewManagementService(
 
 // A map to check if the service is supported.
 // NOTE: known external services appear to match the vendor names,
-// (e.g. "mysql", "mongodb", "postgresql", "proxysql", "haproxy"),
+// (e.g. "mysql", "mongodb", "postgresql", "valkey", "proxysql", "haproxy"),
 // which is why ServiceType_EXTERNAL_SERVICE is not part of this map.
 var supportedServices = map[string]inventoryv1.ServiceType{
 	string(models.MySQLServiceType):      inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 	string(models.MongoDBServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 	string(models.PostgreSQLServiceType): inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+	string(models.ValkeyServiceType):     inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
 	string(models.ProxySQLServiceType):   inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }
@@ -110,8 +111,10 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 		return s.addExternal(ctx, req.GetExternal())
 	case *managementv1.AddServiceRequest_Rds:
 		return s.addRDS(ctx, req.GetRds())
+	case *managementv1.AddServiceRequest_Valkey:
+		return s.addValkey(ctx, req.GetValkey())
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetService())
+		return nil, status.Error(codes.InvalidArgument, "invalid service type")
 	}
 }
 
@@ -123,20 +126,12 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 		ExternalGroup: req.ExternalGroup,
 	}
 
-	agentToAPI := func(agent *models.Agent) *managementv1.UniversalAgent {
-		return &managementv1.UniversalAgent{
-			AgentId:     agent.AgentID,
-			AgentType:   string(agent.AgentType),
-			Status:      agent.Status,
-			IsConnected: s.r.IsConnected(agent.AgentID),
-		}
-	}
-
 	query := `pg_up{collector="exporter",job=~".*_hr$"}
 		or mysql_up{job=~".*_hr$"}
 		or mongodb_up{job=~".*_hr$"}
 		or proxysql_up{job=~".*_hr$"}
 		or haproxy_backend_status{state="UP"}
+		or redis_up{job=~".*_hr$"}
 	`
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
@@ -246,7 +241,11 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 
 		for _, agent := range agents {
 			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
-				uAgents = append(uAgents, agentToAPI(agent))
+				ag, err := s.agentToAPI(agent)
+				if err != nil {
+					return nil, err
+				}
+				uAgents = append(uAgents, ag)
 			}
 		}
 
