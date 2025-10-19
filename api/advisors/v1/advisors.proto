@@ -163,6 +163,16 @@ message GetFailedChecksResponse {
   repeated CheckResult results = 3;
 }
 
+message RunCheckFileRequest {
+  // YAML template file content.
+  string yaml = 1 [(validate.rules).string.min_len = 1];
+}
+
+message RunCheckFileResponse {
+  // Check results
+  repeated CheckResult results = 1;
+}
+
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
   // ListFailedServices returns a list of services with failed checks.
@@ -217,6 +227,18 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Advisor Checks"
       description: "Enables/disables advisor checks or changes their exec interval."
+    };
+  }
+
+  // RunCheckFile runs advisor checks defined in the provided YAML file content.
+  rpc RunCheckFile(RunCheckFileRequest) returns (RunCheckFileResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/checks:runFile"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Run Advisor Check File"
+      description: "Runs advisor checks defined in the provided YAML file content."
     };
   }
 }

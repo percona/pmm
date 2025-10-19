@@ -64,6 +64,8 @@ type ClientService interface {
 
 	ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error)
 
+	RunCheckFile(params *RunCheckFileParams, opts ...ClientOption) (*RunCheckFileOK, error)
+
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -285,6 +287,50 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListFailedServicesDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+RunCheckFile runs advisor check file
+
+Runs advisor checks defined in the provided YAML file content.
+*/
+func (a *Client) RunCheckFile(params *RunCheckFileParams, opts ...ClientOption) (*RunCheckFileOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewRunCheckFileParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "RunCheckFile",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/checks:runFile",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RunCheckFileReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*RunCheckFileOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*RunCheckFileDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

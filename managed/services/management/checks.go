@@ -225,6 +225,36 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 	return &advisorsv1.ListAdvisorChecksResponse{Checks: res}, nil
 }
 
+func (s *ChecksAPIService) RunCheckFile(ctx context.Context, req *advisorsv1.RunCheckFileRequest) (*advisorsv1.RunCheckFileResponse, error) {
+	results, err := s.checksService.RunCheckFile(ctx, req.Yaml)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to run check")
+	}
+	res := make([]*advisorsv1.CheckResult, 0, len(results))
+	for _, result := range results {
+		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
+		for k, v := range result.Result.Labels {
+			labels[k] = v
+		}
+		for k, v := range result.Target.Labels {
+			labels[k] = v
+		}
+
+		res = append(res, &advisorsv1.CheckResult{
+			Summary:     result.Result.Summary,
+			CheckName:   result.CheckName,
+			Description: result.Result.Description,
+			ReadMoreUrl: result.Result.ReadMoreURL,
+			Severity:    managementv1.Severity(result.Result.Severity),
+			Labels:      labels,
+			ServiceName: result.Target.ServiceName,
+			ServiceId:   result.Target.ServiceID,
+		})
+	}
+
+	return &advisorsv1.RunCheckFileResponse{Results: res}, nil
+}
+
 // ListAdvisors retrieves a list of advisors based on the provided request.
 func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()

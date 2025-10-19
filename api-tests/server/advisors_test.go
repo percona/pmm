@@ -238,6 +238,144 @@ func TestChangeAdvisorChecks(t *testing.T) {
 	})
 }
 
+func TestRuChecksFile(t *testing.T) {
+	toggleAdvisorChecks(t, true)
+
+	params := &advisor.RunCheckFileBody{
+		Yaml: `
+---
+checks:
+  - version: 2
+    name: test_postgresql_version_check
+    summary: Check for newer version of PostgreSQL. It is meant to be run on the PMM internal PostgreSQL instance.
+    description: Checks to see if the currently installed version is outdated for it's release level
+    advisor: configuration_version
+    interval: standard
+    family: POSTGRESQL
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: "setting, (setting::int / 10000) major, extract(epoch FROM NOW())::int AS today  FROM pg_settings WHERE name = 'server_version_num' "
+    script: |
+      latest_versions = {
+          "14": 140019,
+      }
+
+      version_expires = {
+          "14": 1731571200,
+      }
+
+      minver = 9
+
+      latestpg = 170006
+      latest_and_greatest = "17.6"
+
+      def days_left(major,today):
+          expires = version_expires[str(major)]
+          daysleft = expires - int(today)
+          daysleft = int(daysleft) // 86400
+
+          if daysleft <= 0:
+             daysleft = daysleft * -1
+             return "WARNING: The version currently installed expired {} days ago".format(daysleft)
+
+          if daysleft > 0:
+             return "NOTE: Support for current version will end in {} days.".format(daysleft)
+
+
+      def format_version(major, ver):
+          if major >= 10:
+             minor = int(ver) % 100
+             fmt_version = "{}.{}".format(major, minor)
+
+          if major <= 9:
+             minor = int(ver) // 100  % 100
+             patch = int(ver) % 100
+             fmt_version = "{}.{}.{}".format(major, minor, patch)
+
+          return fmt_version
+
+
+      def check_context(rows, context):
+           #fail(rows)
+           results = []
+           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           description = ""
+           daysleft = ""
+           minoroutdated = False
+           majoroutdated = False
+           for row in rows[0]:
+               print(row)
+               ver, major, today = row["setting"], row["major"], row["today"]
+
+               major = int(major)
+
+               #hard code for testing
+               #ver = 90022
+               #major = 9
+
+               if str(major) == "" or int(major) < minver:
+                  results.append({
+                      "summary": "Could not determine version information",
+                      "description": "Unknown version",
+                      "read_more_url": "",
+                      "severity": "warning",
+                      "labels": {},
+                  })
+                  return results
+
+               if major >= 10:
+                   current_version = format_version(major, ver)
+                   latest_for_current = latest_versions[str(major)]
+                   daysleft = days_left(major,today)
+                   if int(ver) < latest_for_current:
+                      latest_current = format_version(major, latest_for_current)
+                      description = "There is a newer minor version ({}) available. ".format(latest_current)
+                      description = description + daysleft
+                      minoroutdated = True
+
+               if major < 10:
+                   minor = int(ver) // 100  % 100
+                   realmajor = "{}.{}".format(major, minor)
+                   current_version = format_version(major, ver)
+                   latest_for_current = latest_versions[str(realmajor)]
+                   daysleft = days_left(realmajor,today)
+                   if int(ver) < latest_for_current:
+                      latest_current = format_version(major, latest_for_current)
+                      description = "There is a newer minor version ({}) available.".format(latest_current)
+                      description = description + daysleft
+                      minoroutdated = True
+
+               if int(ver) < int(latestpg) and minoroutdated == False:
+                      majoroutdated = True
+                      description = "Version ({}) is the latest release for this major/minor version.  However, there is a newer major verion ({}) available. ".format(current_version, latest_and_greatest)
+                      description = description + daysleft
+
+               results.append({
+                   "summary": "Currently installed version is ({})".format(current_version),
+                   "description": description,
+                   "read_more_url":read_url.format("postgresql-version-check"),
+                   "severity": "warning",
+                   "labels": {},
+               })
+
+
+           if minoroutdated == False and majoroutdated == False:
+              return []
+
+           return results
+`,
+	}
+	resp, err := advisorClient.Default.AdvisorService.RunCheckFile(&advisor.RunCheckFileParams{
+		Body:    *params,
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+	require.NotEmpty(t, resp.Payload.Results)
+	assert.Equal(t, "test_postgresql_version_check", resp.Payload.Results[0].CheckName)
+	assert.Equal(t, "https://docs.percona.com/percona-platform/advisors/checks/postgresql-version-check.html", resp.Payload.Results[0].ReadMoreURL)
+}
+
 func toggleAdvisorChecks(t *testing.T, enable bool) {
 	t.Helper()
 

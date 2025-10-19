@@ -190,6 +190,36 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 	return r0, r1
 }
 
+// RunCheckFile provides a mock function with given fields: ctx, yaml
+func (_m *mockChecksService) RunCheckFile(ctx context.Context, yaml string) ([]services.CheckResult, error) {
+	ret := _m.Called(ctx, yaml)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RunCheckFile")
+	}
+
+	var r0 []services.CheckResult
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]services.CheckResult, error)); ok {
+		return rf(ctx, yaml)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) []services.CheckResult); ok {
+		r0 = rf(ctx, yaml)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]services.CheckResult)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, yaml)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // StartChecks provides a mock function with given fields: checkNames
 func (_m *mockChecksService) StartChecks(checkNames []string) error {
 	ret := _m.Called(checkNames)

@@ -2181,3 +2181,252 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetFailedChecksResponseValidationError{}
+
+// Validate checks the field values on RunCheckFileRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RunCheckFileRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RunCheckFileRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RunCheckFileRequestMultiError, or nil if none found.
+func (m *RunCheckFileRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RunCheckFileRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetYaml()) < 1 {
+		err := RunCheckFileRequestValidationError{
+			field:  "Yaml",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return RunCheckFileRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// RunCheckFileRequestMultiError is an error wrapping multiple validation
+// errors returned by RunCheckFileRequest.ValidateAll() if the designated
+// constraints aren't met.
+type RunCheckFileRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RunCheckFileRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RunCheckFileRequestMultiError) AllErrors() []error { return m }
+
+// RunCheckFileRequestValidationError is the validation error returned by
+// RunCheckFileRequest.Validate if the designated constraints aren't met.
+type RunCheckFileRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RunCheckFileRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RunCheckFileRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RunCheckFileRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RunCheckFileRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RunCheckFileRequestValidationError) ErrorName() string {
+	return "RunCheckFileRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RunCheckFileRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRunCheckFileRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RunCheckFileRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RunCheckFileRequestValidationError{}
+
+// Validate checks the field values on RunCheckFileResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RunCheckFileResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RunCheckFileResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RunCheckFileResponseMultiError, or nil if none found.
+func (m *RunCheckFileResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RunCheckFileResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetResults() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, RunCheckFileResponseValidationError{
+						field:  fmt.Sprintf("Results[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, RunCheckFileResponseValidationError{
+						field:  fmt.Sprintf("Results[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RunCheckFileResponseValidationError{
+					field:  fmt.Sprintf("Results[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return RunCheckFileResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RunCheckFileResponseMultiError is an error wrapping multiple validation
+// errors returned by RunCheckFileResponse.ValidateAll() if the designated
+// constraints aren't met.
+type RunCheckFileResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RunCheckFileResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RunCheckFileResponseMultiError) AllErrors() []error { return m }
+
+// RunCheckFileResponseValidationError is the validation error returned by
+// RunCheckFileResponse.Validate if the designated constraints aren't met.
+type RunCheckFileResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RunCheckFileResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RunCheckFileResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RunCheckFileResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RunCheckFileResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RunCheckFileResponseValidationError) ErrorName() string {
+	return "RunCheckFileResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RunCheckFileResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRunCheckFileResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RunCheckFileResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RunCheckFileResponseValidationError{}

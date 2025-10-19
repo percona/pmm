@@ -26,6 +26,7 @@ const (
 	AdvisorService_ListAdvisorChecks_FullMethodName   = "/advisors.v1.AdvisorService/ListAdvisorChecks"
 	AdvisorService_ListAdvisors_FullMethodName        = "/advisors.v1.AdvisorService/ListAdvisors"
 	AdvisorService_ChangeAdvisorChecks_FullMethodName = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
+	AdvisorService_RunCheckFile_FullMethodName        = "/advisors.v1.AdvisorService/RunCheckFile"
 )
 
 // AdvisorServiceClient is the client API for AdvisorService service.
@@ -46,6 +47,8 @@ type AdvisorServiceClient interface {
 	ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
 	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
 	ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*ChangeAdvisorChecksResponse, error)
+	// RunCheckFile runs advisor checks defined in the provided YAML file content.
+	RunCheckFile(ctx context.Context, in *RunCheckFileRequest, opts ...grpc.CallOption) (*RunCheckFileResponse, error)
 }
 
 type advisorServiceClient struct {
@@ -116,6 +119,16 @@ func (c *advisorServiceClient) ChangeAdvisorChecks(ctx context.Context, in *Chan
 	return out, nil
 }
 
+func (c *advisorServiceClient) RunCheckFile(ctx context.Context, in *RunCheckFileRequest, opts ...grpc.CallOption) (*RunCheckFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RunCheckFileResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_RunCheckFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdvisorServiceServer is the server API for AdvisorService service.
 // All implementations must embed UnimplementedAdvisorServiceServer
 // for forward compatibility.
@@ -134,6 +147,8 @@ type AdvisorServiceServer interface {
 	ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error)
 	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
 	ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error)
+	// RunCheckFile runs advisor checks defined in the provided YAML file content.
+	RunCheckFile(context.Context, *RunCheckFileRequest) (*RunCheckFileResponse, error)
 	mustEmbedUnimplementedAdvisorServiceServer()
 }
 
@@ -166,6 +181,10 @@ func (UnimplementedAdvisorServiceServer) ListAdvisors(context.Context, *ListAdvi
 
 func (UnimplementedAdvisorServiceServer) ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeAdvisorChecks not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) RunCheckFile(context.Context, *RunCheckFileRequest) (*RunCheckFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RunCheckFile not implemented")
 }
 func (UnimplementedAdvisorServiceServer) mustEmbedUnimplementedAdvisorServiceServer() {}
 func (UnimplementedAdvisorServiceServer) testEmbeddedByValue()                        {}
@@ -296,6 +315,24 @@ func _AdvisorService_ChangeAdvisorChecks_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdvisorService_RunCheckFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RunCheckFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).RunCheckFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_RunCheckFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).RunCheckFile(ctx, req.(*RunCheckFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdvisorService_ServiceDesc is the grpc.ServiceDesc for AdvisorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -326,6 +363,10 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeAdvisorChecks",
 			Handler:    _AdvisorService_ChangeAdvisorChecks_Handler,
+		},
+		{
+			MethodName: "RunCheckFile",
+			Handler:    _AdvisorService_RunCheckFile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

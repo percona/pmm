@@ -1229,6 +1229,96 @@ func (x *GetFailedChecksResponse) GetResults() []*CheckResult {
 	return nil
 }
 
+type RunCheckFileRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// YAML template file content.
+	Yaml          string `protobuf:"bytes,1,opt,name=yaml,proto3" json:"yaml,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunCheckFileRequest) Reset() {
+	*x = RunCheckFileRequest{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunCheckFileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunCheckFileRequest) ProtoMessage() {}
+
+func (x *RunCheckFileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunCheckFileRequest.ProtoReflect.Descriptor instead.
+func (*RunCheckFileRequest) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *RunCheckFileRequest) GetYaml() string {
+	if x != nil {
+		return x.Yaml
+	}
+	return ""
+}
+
+type RunCheckFileResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Check results
+	Results       []*CheckResult `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunCheckFileResponse) Reset() {
+	*x = RunCheckFileResponse{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunCheckFileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunCheckFileResponse) ProtoMessage() {}
+
+func (x *RunCheckFileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunCheckFileResponse.ProtoReflect.Descriptor instead.
+func (*RunCheckFileResponse) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *RunCheckFileResponse) GetResults() []*CheckResult {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
 var File_advisors_v1_advisors_proto protoreflect.FileDescriptor
 
 const file_advisors_v1_advisors_proto_rawDesc = "" +
@@ -1325,7 +1415,11 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"totalItems\x12\x1f\n" +
 	"\vtotal_pages\x18\x02 \x01(\x05R\n" +
 	"totalPages\x122\n" +
-	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults*\xa9\x01\n" +
+	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults\"2\n" +
+	"\x13RunCheckFileRequest\x12\x1b\n" +
+	"\x04yaml\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04yaml\"J\n" +
+	"\x14RunCheckFileResponse\x122\n" +
+	"\aresults\x18\x01 \x03(\v2\x18.advisors.v1.CheckResultR\aresults*\xa9\x01\n" +
 	"\x14AdvisorCheckInterval\x12&\n" +
 	"\"ADVISOR_CHECK_INTERVAL_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_INTERVAL_STANDARD\x10\x01\x12#\n" +
@@ -1335,15 +1429,15 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	" ADVISOR_CHECK_FAMILY_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aADVISOR_CHECK_FAMILY_MYSQL\x10\x01\x12#\n" +
 	"\x1fADVISOR_CHECK_FAMILY_POSTGRESQL\x10\x02\x12 \n" +
-	"\x1cADVISOR_CHECK_FAMILY_MONGODB\x10\x032\xee\n" +
-	"\n" +
+	"\x1cADVISOR_CHECK_FAMILY_MONGODB\x10\x032\xc8\f\n" +
 	"\x0eAdvisorService\x12\xf3\x01\n" +
 	"\x12ListFailedServices\x12&.advisors.v1.ListFailedServicesRequest\x1a'.advisors.v1.ListFailedServicesResponse\"\x8b\x01\x92Ae\x12\x14List Failed Services\x1aMReturns a list of services with failed checks and a summary of check results.\x82\xd3\xe4\x93\x02\x1d\x12\x1b/v1/advisors/failedServices\x12\xd5\x01\n" +
 	"\x0fGetFailedChecks\x12#.advisors.v1.GetFailedChecksRequest\x1a$.advisors.v1.GetFailedChecksResponse\"w\x92AR\x12\x19Get Failed Advisor Checks\x1a5Returns the latest check results for a given service.\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/advisors/checks/failed\x12\xb0\x02\n" +
 	"\x12StartAdvisorChecks\x12&.advisors.v1.StartAdvisorChecksRequest\x1a'.advisors.v1.StartAdvisorChecksResponse\"\xc8\x01\x92A\xa0\x01\x12\x14Start Advisor Checks\x1a\x87\x01Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/advisors/checks:start\x12\xc3\x01\n" +
 	"\x11ListAdvisorChecks\x12%.advisors.v1.ListAdvisorChecksRequest\x1a&.advisors.v1.ListAdvisorChecksResponse\"_\x92AA\x12\x13List Advisor Checks\x1a*List advisor checks available to the user.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/advisors/checks\x12\xa1\x01\n" +
 	"\fListAdvisors\x12 .advisors.v1.ListAdvisorsRequest\x1a!.advisors.v1.ListAdvisorsResponse\"L\x92A5\x12\rList Advisors\x1a$List advisors available to the user.\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/advisors\x12\xf0\x01\n" +
-	"\x13ChangeAdvisorChecks\x12'.advisors.v1.ChangeAdvisorChecksRequest\x1a(.advisors.v1.ChangeAdvisorChecksResponse\"\x85\x01\x92AX\x12\x15Change Advisor Checks\x1a?Enables/disables advisor checks or changes their exec interval.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/advisors/checks:batchChangeB\xa0\x01\n" +
+	"\x13ChangeAdvisorChecks\x12'.advisors.v1.ChangeAdvisorChecksRequest\x1a(.advisors.v1.ChangeAdvisorChecksResponse\"\x85\x01\x92AX\x12\x15Change Advisor Checks\x1a?Enables/disables advisor checks or changes their exec interval.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/advisors/checks:batchChange\x12\xd7\x01\n" +
+	"\fRunCheckFile\x12 .advisors.v1.RunCheckFileRequest\x1a!.advisors.v1.RunCheckFileResponse\"\x81\x01\x92AX\x12\x16Run Advisor Check File\x1a>Runs advisor checks defined in the provided YAML file content.\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/advisors/checks:runFileB\xa0\x01\n" +
 	"\x0fcom.advisors.v1B\rAdvisorsProtoP\x01Z1github.com/percona/pmm/api/advisors/v1;advisorsv1\xa2\x02\x03AXX\xaa\x02\vAdvisors.V1\xca\x02\vAdvisors\\V1\xe2\x02\x17Advisors\\V1\\GPBMetadata\xea\x02\fAdvisors::V1b\x06proto3"
 
 var (
@@ -1360,7 +1454,7 @@ func file_advisors_v1_advisors_proto_rawDescGZIP() []byte {
 
 var (
 	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 20)
+	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 22)
 	file_advisors_v1_advisors_proto_goTypes   = []any{
 		(AdvisorCheckInterval)(0),           // 0: advisors.v1.AdvisorCheckInterval
 		(AdvisorCheckFamily)(0),             // 1: advisors.v1.AdvisorCheckFamily
@@ -1382,17 +1476,19 @@ var (
 		(*ListFailedServicesResponse)(nil),  // 17: advisors.v1.ListFailedServicesResponse
 		(*GetFailedChecksRequest)(nil),      // 18: advisors.v1.GetFailedChecksRequest
 		(*GetFailedChecksResponse)(nil),     // 19: advisors.v1.GetFailedChecksResponse
-		nil,                                 // 20: advisors.v1.AdvisorCheckResult.LabelsEntry
-		nil,                                 // 21: advisors.v1.CheckResult.LabelsEntry
-		(v1.Severity)(0),                    // 22: management.v1.Severity
+		(*RunCheckFileRequest)(nil),         // 20: advisors.v1.RunCheckFileRequest
+		(*RunCheckFileResponse)(nil),        // 21: advisors.v1.RunCheckFileResponse
+		nil,                                 // 22: advisors.v1.AdvisorCheckResult.LabelsEntry
+		nil,                                 // 23: advisors.v1.CheckResult.LabelsEntry
+		(v1.Severity)(0),                    // 24: management.v1.Severity
 	}
 )
 
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
-	22, // 0: advisors.v1.AdvisorCheckResult.severity:type_name -> management.v1.Severity
-	20, // 1: advisors.v1.AdvisorCheckResult.labels:type_name -> advisors.v1.AdvisorCheckResult.LabelsEntry
-	22, // 2: advisors.v1.CheckResult.severity:type_name -> management.v1.Severity
-	21, // 3: advisors.v1.CheckResult.labels:type_name -> advisors.v1.CheckResult.LabelsEntry
+	24, // 0: advisors.v1.AdvisorCheckResult.severity:type_name -> management.v1.Severity
+	22, // 1: advisors.v1.AdvisorCheckResult.labels:type_name -> advisors.v1.AdvisorCheckResult.LabelsEntry
+	24, // 2: advisors.v1.CheckResult.severity:type_name -> management.v1.Severity
+	23, // 3: advisors.v1.CheckResult.labels:type_name -> advisors.v1.CheckResult.LabelsEntry
 	0,  // 4: advisors.v1.AdvisorCheck.interval:type_name -> advisors.v1.AdvisorCheckInterval
 	1,  // 5: advisors.v1.AdvisorCheck.family:type_name -> advisors.v1.AdvisorCheckFamily
 	5,  // 6: advisors.v1.Advisor.checks:type_name -> advisors.v1.AdvisorCheck
@@ -1402,23 +1498,26 @@ var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	7,  // 10: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams
 	3,  // 11: advisors.v1.ListFailedServicesResponse.result:type_name -> advisors.v1.CheckResultSummary
 	4,  // 12: advisors.v1.GetFailedChecksResponse.results:type_name -> advisors.v1.CheckResult
-	16, // 13: advisors.v1.AdvisorService.ListFailedServices:input_type -> advisors.v1.ListFailedServicesRequest
-	18, // 14: advisors.v1.AdvisorService.GetFailedChecks:input_type -> advisors.v1.GetFailedChecksRequest
-	8,  // 15: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
-	10, // 16: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
-	12, // 17: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
-	14, // 18: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
-	17, // 19: advisors.v1.AdvisorService.ListFailedServices:output_type -> advisors.v1.ListFailedServicesResponse
-	19, // 20: advisors.v1.AdvisorService.GetFailedChecks:output_type -> advisors.v1.GetFailedChecksResponse
-	9,  // 21: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
-	11, // 22: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
-	13, // 23: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
-	15, // 24: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
-	19, // [19:25] is the sub-list for method output_type
-	13, // [13:19] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	4,  // 13: advisors.v1.RunCheckFileResponse.results:type_name -> advisors.v1.CheckResult
+	16, // 14: advisors.v1.AdvisorService.ListFailedServices:input_type -> advisors.v1.ListFailedServicesRequest
+	18, // 15: advisors.v1.AdvisorService.GetFailedChecks:input_type -> advisors.v1.GetFailedChecksRequest
+	8,  // 16: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
+	10, // 17: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
+	12, // 18: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
+	14, // 19: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
+	20, // 20: advisors.v1.AdvisorService.RunCheckFile:input_type -> advisors.v1.RunCheckFileRequest
+	17, // 21: advisors.v1.AdvisorService.ListFailedServices:output_type -> advisors.v1.ListFailedServicesResponse
+	19, // 22: advisors.v1.AdvisorService.GetFailedChecks:output_type -> advisors.v1.GetFailedChecksResponse
+	9,  // 23: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
+	11, // 24: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
+	13, // 25: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
+	15, // 26: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
+	21, // 27: advisors.v1.AdvisorService.RunCheckFile:output_type -> advisors.v1.RunCheckFileResponse
+	21, // [21:28] is the sub-list for method output_type
+	14, // [14:21] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_advisors_v1_advisors_proto_init() }
@@ -1434,7 +1533,7 @@ func file_advisors_v1_advisors_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_advisors_v1_advisors_proto_rawDesc), len(file_advisors_v1_advisors_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   20,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

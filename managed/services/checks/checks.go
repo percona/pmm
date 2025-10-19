@@ -288,6 +288,38 @@ func (s *Service) StartChecks(checkNames []string) error {
 	return nil
 }
 
+func (s *Service) RunCheckFile(ctx context.Context, yaml string) ([]services.CheckResult, error) {
+	// create a reader from the yaml string
+	r := strings.NewReader(yaml)
+	checks, err := check.ParseChecks(r, &check.ParseParams{
+		DisallowUnknownFields: true,
+		DisallowInvalidChecks: true,
+	})
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	if len(checks) > 1 {
+		return nil, fmt.Errorf("only one check can be run at a time")
+	}
+	c := checks[0]
+	targetType := models.ServiceType("")
+	switch c.Family {
+	case check.MySQL:
+		targetType = models.MySQLServiceType
+	case check.PostgreSQL:
+		targetType = models.PostgreSQLServiceType
+	case check.MongoDB:
+		targetType = models.MongoDBServiceType
+	default:
+		return nil, fmt.Errorf("unsupported check family: %s", c.Family)
+	}
+
+	results := s.executeChecksForTargetType(ctx, targetType, map[string]check.Check{c.Name: c})
+	s.l.Infof("Check results: %+v", results)
+	return results, nil
+}
+
 func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
 	if err := intervalGroup.Validate(); err != nil {
 		return err
@@ -1303,10 +1335,10 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 
 	for _, service := range monitoredServices {
 		// skip pmm own services
-		if service.NodeID == models.PMMServerNodeID {
+		/*if service.NodeID == models.PMMServerNodeID {
 			s.l.Debugf("Skip PMM service, name: %s, type: %s.", service.ServiceName, service.ServiceType)
 			continue
-		}
+		}*/
 
 		e := s.db.InTransaction(func(tx *reform.TX) error {
 			pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, service.ServiceID)

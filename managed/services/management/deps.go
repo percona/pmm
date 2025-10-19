@@ -60,6 +60,7 @@ type checksService interface {
 	DisableChecks(checkNames []string) error
 	EnableChecks(checkNames []string) error
 	ChangeInterval(params map[string]check.Interval) error
+	RunCheckFile(ctx context.Context, yaml string) ([]services.CheckResult, error)
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.
