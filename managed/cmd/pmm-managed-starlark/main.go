@@ -18,6 +18,7 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -145,11 +146,18 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 
 	var results []check.Result
 	contextFuncs := checks.GetAdditionalContext()
+	printFunc := l.Debugln
+	if data.Debug {
+		// Use simple stderr output for debug mode to avoid double-escaping when logs are captured
+		printFunc = func(args ...any) {
+			fmt.Fprintln(os.Stderr, args...)
+		}
+	}
 	switch data.Version {
 	case 1:
-		results, err = env.Run(data.Name, res[0], contextFuncs, l.Debugln)
+		results, err = env.Run(data.Name, res[0], contextFuncs, printFunc)
 	case 2:
-		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
+		results, err = env.Run(data.Name, res, contextFuncs, printFunc)
 	}
 	if err != nil {
 		return nil, errors.Wrap(err, "error running starlark env")

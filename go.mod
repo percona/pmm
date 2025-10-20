@@ -55,7 +55,7 @@ require (
 	github.com/percona/go-mysql v0.0.0-20250429063950-bc274ddba990
 	github.com/percona/percona-toolkit v0.0.0-20250623101308-06d5966106f5
 	github.com/percona/promconfig v0.2.5
-	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
+	github.com/percona/saas v0.0.0-20251019224301-16c0f6e77e1e
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6

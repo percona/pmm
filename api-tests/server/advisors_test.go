@@ -252,10 +252,12 @@ checks:
     advisor: configuration_version
     interval: standard
     family: POSTGRESQL
+    debug: true
     queries:
       - type: POSTGRESQL_SELECT
         query: "setting, (setting::int / 10000) major, extract(epoch FROM NOW())::int AS today  FROM pg_settings WHERE name = 'server_version_num' "
     script: |
+      print("Running PostgreSQL version check advisor")
       latest_versions = {
           "14": 140019,
       }
@@ -296,6 +298,7 @@ checks:
 
 
       def check_context(rows, context):
+           print(rows)
            #fail(rows)
            results = []
            read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
@@ -304,7 +307,6 @@ checks:
            minoroutdated = False
            majoroutdated = False
            for row in rows[0]:
-               print(row)
                ver, major, today = row["setting"], row["major"], row["today"]
 
                major = int(major)

@@ -1266,6 +1266,7 @@ type StarlarkScriptData struct {
 	Name           string `json:"name"`
 	Script         string `json:"script"`
 	QueriesResults []any  `json:"queries_results"`
+	Debug          bool   `json:"debug,omitempty"`
 }
 
 func (s *Service) processResults(ctx context.Context, aCheck check.Check, target services.Target, queryResults []any) ([]services.CheckResult, error) {
@@ -1279,6 +1280,7 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 		Name:           aCheck.Name,
 		Script:         aCheck.Script,
 		QueriesResults: queryResults,
+		Debug:          aCheck.Debug,
 	}
 
 	cmdCtx, cancel := context.WithTimeout(ctx, scriptExecutionTimeout)
@@ -1290,6 +1292,9 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	var stdin, stderr bytes.Buffer
 	cmd.Stdin = &stdin
 	cmd.Stderr = &stderr
+	if aCheck.Debug {
+		s.l.Infof("Executing starlark script for check %s", aCheck.Name)
+	}
 
 	encoder := json.NewEncoder(&stdin)
 	err := encoder.Encode(input)
@@ -1301,6 +1306,17 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	if err != nil {
 		l.Errorf("Check script failed:\n%s", stderr.String())
 		return nil, err
+	}
+
+	// Log stderr output when debug is enabled to show print statements
+	if aCheck.Debug && stderr.Len() > 0 {
+		// Split by lines and log each line separately for better readability
+		lines := strings.Split(strings.TrimSpace(stderr.String()), "\n")
+		for _, line := range lines {
+			if line != "" {
+				l.Infof("[script] %s", line)
+			}
+		}
 	}
 
 	var results []check.Result

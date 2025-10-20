@@ -460,6 +460,8 @@ github.com/percona/promconfig v0.2.5 h1:f/HN/CbECQs7d9RIB6MKVkuXstsrsqEDxRvf6yig
 github.com/percona/promconfig v0.2.5/go.mod h1:Y2uXi5QNk71+ceJHuI9poank+0S1kjxd3K105fXKVkg=
 github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e h1:xhk5ivxlTPat0SwLBqU1UdfqJb+2R3x4yAhjCf6WMEU=
 github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e/go.mod h1:UP4WqGWy8xeGhEoDFaB1aPNNtNs/TYXQ8MjUrN6rXis=
+github.com/percona/saas v0.0.0-20251019224301-16c0f6e77e1e h1:OigFrvWt8+oXFqXuDw1s4cQn4JPXJv436SbItJHLA7o=
+github.com/percona/saas v0.0.0-20251019224301-16c0f6e77e1e/go.mod h1:M1z14VG8WYak1LmLE6SUCRETTVBhqqMJVKevTGn9wk0=
 github.com/pganalyze/pg_query_go/v6 v6.1.0 h1:jG5ZLhcVgL1FAw4C/0VNQaVmX1SUJx71wBGdtTtBvls=
 github.com/pganalyze/pg_query_go/v6 v6.1.0/go.mod h1:nvTHIuoud6e1SfrUaFwHqT0i4b5Nr+1rPWVds3B5+50=
 github.com/pierrec/lz4/v4 v4.1.22 h1:cKFw6uJDK+/gfw5BcDL0JL5aBsAFdsIT18eRtLj7VIU=
