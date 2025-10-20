@@ -16,15 +16,15 @@ import (
 
 const (
 	metricsEngineSimple           = "MergeTree"
-	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/metrics', '{replica}')"
-	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/schema_migrations', '{replica}') ORDER BY version"
+	metricsEngineCluster          = "ReplicatedMergeTree"
+	schemaMigrationsEngineCluster = "ReplicatedMergeTree"
 )
 
 //go:embed sql/*.sql
 var migrationFS embed.FS
 
 func IsClickhouseCluster(dsn string, clusterName string) (bool, error) {
-	var args []interface{}
+	var args []any
 	sql := "SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters"
 	if clusterName != "" {
 		sql = fmt.Sprintf("%s WHERE cluster = ?", sql)
@@ -68,13 +68,9 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 		logrus.Infof("Using ClickHouse cluster name: %s", clusterName)
 		q.Set("x-cluster-name", clusterName)
 	}
+	q.Set("x-migrations-table-engine", schemaMigrationsEngineCluster)
 
-	encoded := q.Encode()
-	if encoded != "" {
-		u.RawQuery = encoded + "&x-migrations-table-engine=" + schemaMigrationsEngineCluster
-	} else {
-		u.RawQuery = "x-migrations-table-engine=" + schemaMigrationsEngineCluster
-	}
+	u.RawQuery = q.Encode()
 	logrus.Debugf("ClickHouse cluster detected, setting schema_migrations table engine to: %s", schemaMigrationsEngineCluster)
 
 	return u.String(), nil
