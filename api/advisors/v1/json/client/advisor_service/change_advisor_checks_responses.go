@@ -8,6 +8,7 @@ package advisor_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ChangeAdvisorChecksReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeAdvisorChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeAdvisorChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeAdvisorChecksOK()
@@ -56,7 +57,7 @@ ChangeAdvisorChecksOK describes a response with status code 200, with default he
 A successful response.
 */
 type ChangeAdvisorChecksOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this change advisor checks Ok response has a 2xx status code
@@ -99,13 +100,13 @@ func (o *ChangeAdvisorChecksOK) String() string {
 	return fmt.Sprintf("[POST /v1/advisors/checks:batchChange][%d] changeAdvisorChecksOk %s", 200, payload)
 }
 
-func (o *ChangeAdvisorChecksOK) GetPayload() interface{} {
+func (o *ChangeAdvisorChecksOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *ChangeAdvisorChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -178,7 +179,7 @@ func (o *ChangeAdvisorChecksDefault) readResponse(response runtime.ClientRespons
 	o.Payload = new(ChangeAdvisorChecksDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -220,11 +221,15 @@ func (o *ChangeAdvisorChecksBody) validateParams(formats strfmt.Registry) error 
 
 		if o.Params[i] != nil {
 			if err := o.Params[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -257,11 +262,15 @@ func (o *ChangeAdvisorChecksBody) contextValidateParams(ctx context.Context, for
 			}
 
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -329,11 +338,15 @@ func (o *ChangeAdvisorChecksDefaultBody) validateDetails(formats strfmt.Registry
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeAdvisorChecks default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeAdvisorChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -366,11 +379,15 @@ func (o *ChangeAdvisorChecksDefaultBody) contextValidateDetails(ctx context.Cont
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeAdvisorChecks default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeAdvisorChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -406,7 +423,7 @@ type ChangeAdvisorChecksDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// change advisor checks default body details items0
-	ChangeAdvisorChecksDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ChangeAdvisorChecksDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -433,9 +450,9 @@ func (o *ChangeAdvisorChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte)
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -538,7 +555,7 @@ func (o *ChangeAdvisorChecksParamsBodyParamsItems0) Validate(formats strfmt.Regi
 	return nil
 }
 
-var changeAdvisorChecksParamsBodyParamsItems0TypeIntervalPropEnum []interface{}
+var changeAdvisorChecksParamsBodyParamsItems0TypeIntervalPropEnum []any
 
 func init() {
 	var res []string
