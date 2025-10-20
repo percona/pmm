@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package serverpb;
+
+import "agent/v1/agent.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "api/serverpb;serverpb";
+
+// AgentForwarding service handles forwarding agent requests between PMM servers in HA mode.
+service AgentForwarding {
+  // ForwardRequest forwards any agent request to the server where the agent is connected.
+  // Handles actions, state updates, jobs, and connection checks.
+  rpc ForwardRequest(ForwardRequestRequest) returns (ForwardRequestResponse);
+
+  // SyncFullAgentState synchronizes full agent location state between servers.
+  // Used when a server joins the cluster or needs to recover state.
+  rpc SyncFullAgentState(FullStateSyncRequest) returns (FullStateSyncResponse);
+}
+
+// ForwardRequestRequest contains any agent request to be forwarded.
+// Works for actions, state updates, jobs, connection checks, etc.
+message ForwardRequestRequest {
+  // Agent ID to send the request to.
+  string agent_id = 1;
+
+  // Source server ID that initiated the forwarding (loop prevention).
+  string forwarded_by = 2;
+
+  // Original server message to be sent to the agent.
+  // Uses the standard pmm-agent protocol with built-in versioning and type safety.
+  agent.v1.ServerMessage message = 3;
+
+  // Protocol version for future compatibility.
+  int32 protocol_version = 4;
+
+  // Request ID for correlation and tracing.
+  string request_id = 5;
+
+  // Original request timeout.
+  google.protobuf.Duration timeout = 6;
+}
+
+// ForwardRequestResponse contains the response from the forwarded request.
+message ForwardRequestResponse {
+  // Response from the agent using standard pmm-agent protocol.
+  agent.v1.AgentMessage message = 1;
+
+  // Error message if the forwarding failed (network error, agent not found, etc).
+  // If set, the message field may be empty.
+  string error = 2;
+
+  // Server ID that processed the request.
+  string processed_by = 3;
+}
+
+// FullStateSyncRequest requests full agent location state from another server.
+message FullStateSyncRequest {
+  // Requesting server ID.
+  string requester_server_id = 1;
+}
+
+// FullStateSyncResponse contains full agent location state.
+message FullStateSyncResponse {
+  // Map of agent_id -> server_id showing where each agent is connected.
+  map<string, string> agent_locations = 1;
+
+  // Timestamp of this state snapshot.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // Total number of agents in the map.
+  int32 agent_count = 3;
+}

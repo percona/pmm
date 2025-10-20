@@ -39,13 +39,21 @@ var checkExternalExporterConnectionPMMVersion = version.MustParse("2.14.99")
 
 // ConnectionChecker checks if connection can be established to service.
 type ConnectionChecker struct {
-	r *Registry
+	r         *Registry
+	forwarder connectionForwarder
+}
+
+type connectionForwarder interface {
+	ForwardServerMessage(ctx context.Context, pmmAgentID string, message *agentv1.ServerMessage) (*agentv1.AgentMessage, error)
+	IsEnabled(ctx context.Context) bool
 }
 
 // NewConnectionChecker creates new connection checker.
-func NewConnectionChecker(r *Registry) *ConnectionChecker {
+// forwarder can be nil if HA forwarding is not enabled.
+func NewConnectionChecker(r *Registry, fwd connectionForwarder) *ConnectionChecker {
 	return &ConnectionChecker{
-		r: r,
+		r:         r,
+		forwarder: fwd,
 	}
 }
 

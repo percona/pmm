@@ -115,6 +115,12 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"access_control"`
 
+	// HighAvailability holds HA-related settings.
+	HighAvailability struct {
+		// ForwardingEnabled enables agent request forwarding in HA mode.
+		ForwardingEnabled *bool `json:"forwarding_enabled"`
+	} `json:"high_availability"`
+
 	// Contains all encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `json:"encrypted_items"`
 }
@@ -125,6 +131,15 @@ func (s *Settings) IsAlertingEnabled() bool {
 		return *s.Alerting.Enabled
 	}
 	return AlertingEnabledDefault
+}
+
+// IsHAForwardingEnabled returns true if HA forwarding is enabled.
+// Forwarding is disabled by default for safety.
+func (s *Settings) IsHAForwardingEnabled() bool {
+	if s.HighAvailability.ForwardingEnabled != nil {
+		return *s.HighAvailability.ForwardingEnabled
+	}
+	return false // Default: disabled for safety during rollout
 }
 
 // IsTelemetryEnabled returns true if telemetry is enabled.

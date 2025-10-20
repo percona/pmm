@@ -87,6 +87,22 @@ type Registry struct {
 	mAgents      prom.GaugeFunc
 
 	isExternalVM bool
+
+	// HA service for agent location tracking (nil if HA disabled)
+	haService HAService
+	nodeID    string
+}
+
+// HAService interface for agent location tracking in HA mode.
+type HAService interface {
+	BroadcastAgentConnect(agentID, serverID string)
+	BroadcastAgentDisconnect(agentID string)
+	GetAgentLocation(agentID string) string
+	GetPeerServers() []struct {
+		ID      string
+		Address string
+	}
+	GetServerAddress(serverID string) string
 }
 
 // NewRegistry creates a new registry with given database connection.
@@ -153,6 +169,15 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
+// SetHAService sets the HA service for agent location tracking in HA mode.
+// This should be called during initialization if HA is enabled.
+func (r *Registry) SetHAService(haService HAService, nodeID string) {
+	r.rw.Lock()
+	defer r.rw.Unlock()
+	r.haService = haService
+	r.nodeID = nodeID
+}
+
 func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
@@ -214,6 +239,12 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		kickChan:        make(chan struct{}),
 	}
 	r.agents[agentMD.ID] = agent
+
+	// Broadcast agent connection to cluster via gossip (if HA enabled)
+	if r.haService != nil && r.nodeID != "" {
+		r.haService.BroadcastAgentConnect(agentMD.ID, r.nodeID)
+	}
+
 	return agent, nil
 }
 
@@ -284,6 +315,12 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 
 	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
+
+	// Broadcast agent disconnection to cluster via gossip (if HA enabled)
+	if r.haService != nil {
+		r.haService.BroadcastAgentDisconnect(pmmAgentID)
+	}
+
 	return agent
 }
 

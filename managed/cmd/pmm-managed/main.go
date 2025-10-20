@@ -837,7 +837,15 @@ func main() { //nolint:maintidx,cyclop
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
+	// Pass HA service to registry for gossip integration
+	var registryHAService agents.HAService
+	if haParams.Enabled {
+		registryHAService = haService
+	}
 	agentsRegistry := agents.NewRegistry(db, vmParams)
+	if registryHAService != nil {
+		agentsRegistry.SetHAService(registryHAService, haParams.NodeID)
+	}
 
 	// TODO remove once PMM cluster will be Active-Active
 	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
@@ -853,7 +861,18 @@ func main() { //nolint:maintidx,cyclop
 	inventoryMetricsCollector := inventory.NewInventoryMetricsCollector(inventoryMetrics)
 	prom.MustRegister(inventoryMetricsCollector)
 
-	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
+	// Create forwarding client and forwarder for HA mode
+	var forwarder *ha.Forwarder
+	if haParams.Enabled {
+		forwardingClient, err := ha.NewForwardingClient()
+		if err != nil {
+			l.Warnf("Failed to create forwarding client: %v", err)
+		} else {
+			forwarder = ha.NewForwarder(haService, forwardingClient, &settingsGetter{db: db}, haParams.NodeID)
+		}
+	}
+
+	connectionCheck := agents.NewConnectionChecker(agentsRegistry, forwarder)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
 	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize, db)
@@ -924,7 +943,7 @@ func main() { //nolint:maintidx,cyclop
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, nomad)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
-	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
+	actionsService := agents.NewActionsService(qanClient, agentsRegistry, forwarder)
 
 	vmClient, err := metrics.NewClient(metrics.Config{Address: *victoriaMetricsURLF})
 	if err != nil {
@@ -1168,6 +1187,13 @@ func main() { //nolint:maintidx,cyclop
 	}()
 
 	wg.Wait()
+}
+
+// settingsGetter implements the settingsService interface for forwarder.
+type settingsGetter struct{ db *reform.DB }
+
+func (s *settingsGetter) GetSettings(ctx context.Context) (*models.Settings, error) {
+	return models.GetSettings(s.db.Querier)
 }
 
 func parseLoggerConfig(level string, debug, trace bool) logrus.Level {

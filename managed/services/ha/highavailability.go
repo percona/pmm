@@ -72,6 +72,16 @@ type Service struct {
 	rw         sync.RWMutex
 	raftNode   *raft.Raft
 	memberlist *memberlist.Memberlist
+
+	// Agent location tracking
+	agentLocationsMu sync.RWMutex
+	agentLocations   map[string]string // agent_id -> server_id
+
+	// Gossip delegate for custom messages
+	gossipDelegate *gossipDelegate
+
+	// Last gossip update timestamp for health checks
+	lastGossipUpdate time.Time
 }
 
 // Apply applies a log entry to the high-availability service.
@@ -156,7 +166,7 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 
 // New provides a new instance of the high availability service.
 func New(params *models.HAParams) *Service {
-	return &Service{
+	s := &Service{
 		params:           params,
 		bootstrapCluster: params.Bootstrap,
 		services:         newServices(),
@@ -164,7 +174,14 @@ func New(params *models.HAParams) *Service {
 		leaderCh:         make(chan raft.Observation),
 		l:                logrus.WithField("component", "ha"),
 		wg:               &sync.WaitGroup{},
+		agentLocations:   make(map[string]string),
+		lastGossipUpdate: time.Now(),
 	}
+
+	// Create gossip delegate for agent location tracking
+	s.gossipDelegate = newGossipDelegate(s)
+
+	return s
 }
 
 // Run runs the high availability service.
@@ -271,6 +288,7 @@ func (s *Service) Run(ctx context.Context) error {
 	memberlistConfig.AdvertiseAddr = raa.IP.String()
 	memberlistConfig.AdvertisePort = s.params.GossipPort
 	memberlistConfig.Events = &memberlist.ChannelEventDelegate{Ch: s.nodeCh}
+	memberlistConfig.Delegate = s.gossipDelegate // Add custom delegate for agent location tracking
 
 	// Create the memberlist
 	s.memberlist, err = memberlist.Create(memberlistConfig)
@@ -470,4 +488,223 @@ func (s *Service) IsLeader() bool {
 // Bootstrap performs the necessary steps to initialize the high availability service.
 func (s *Service) Bootstrap() bool {
 	return s.params.Bootstrap || !s.params.Enabled
+}
+
+// PeerServer represents a peer PMM server in the cluster.
+type PeerServer struct {
+	ID      string // Node ID (e.g., "pmm-server-active")
+	Address string // Pod IP:Port (e.g., "172.20.0.5:8443")
+}
+
+// GetAgentLocation returns the server ID where the specified agent is connected.
+// Returns empty string if agent location is unknown.
+func (s *Service) GetAgentLocation(agentID string) string {
+	if !s.params.Enabled {
+		return ""
+	}
+
+	s.agentLocationsMu.RLock()
+	defer s.agentLocationsMu.RUnlock()
+
+	return s.agentLocations[agentID]
+}
+
+// BroadcastAgentConnect broadcasts an agent connection event via gossip.
+func (s *Service) BroadcastAgentConnect(agentID, serverID string) {
+	if !s.params.Enabled {
+		return
+	}
+
+	event := &AgentConnectionEvent{
+		AgentID:   agentID,
+		ServerID:  serverID,
+		EventType: "connect",
+		Timestamp: time.Now(),
+	}
+
+	// Update local state immediately
+	s.updateAgentLocation(agentID, serverID, "connect")
+
+	// Broadcast to cluster
+	data, err := SerializeGossipMessage(GossipAgentConnect, event)
+	if err != nil {
+		s.l.Errorf("Failed to serialize agent connect event: %v", err)
+		return
+	}
+
+	if s.gossipDelegate != nil {
+		s.gossipDelegate.queueBroadcast(data)
+		s.l.Debugf("Broadcasted agent connect: agent=%s server=%s", agentID, serverID)
+	}
+}
+
+// BroadcastAgentDisconnect broadcasts an agent disconnection event via gossip.
+func (s *Service) BroadcastAgentDisconnect(agentID string) {
+	if !s.params.Enabled {
+		return
+	}
+
+	event := &AgentConnectionEvent{
+		AgentID:   agentID,
+		ServerID:  s.params.NodeID,
+		EventType: "disconnect",
+		Timestamp: time.Now(),
+	}
+
+	// Update local state immediately
+	s.updateAgentLocation(agentID, "", "disconnect")
+
+	// Broadcast to cluster
+	data, err := SerializeGossipMessage(GossipAgentDisconnect, event)
+	if err != nil {
+		s.l.Errorf("Failed to serialize agent disconnect event: %v", err)
+		return
+	}
+
+	if s.gossipDelegate != nil {
+		s.gossipDelegate.queueBroadcast(data)
+		s.l.Debugf("Broadcasted agent disconnect: agent=%s", agentID)
+	}
+}
+
+// GetPeerServers returns a list of all active peer servers in the cluster.
+func (s *Service) GetPeerServers() []struct {
+	ID      string
+	Address string
+} {
+	type PeerServerCompat = struct {
+		ID      string
+		Address string
+	}
+
+	if !s.params.Enabled || s.memberlist == nil {
+		return []PeerServerCompat{}
+	}
+
+	members := s.memberlist.Members()
+	peers := make([]PeerServerCompat, 0, len(members))
+
+	for _, member := range members {
+		// Skip self
+		if member.Name == s.params.NodeID {
+			continue
+		}
+
+		peers = append(peers, PeerServerCompat{
+			ID:      member.Name,
+			Address: fmt.Sprintf("%s:8443", member.Addr.String()), // Use port 8443 for gRPC
+		})
+	}
+
+	return peers
+}
+
+// GetServerAddress returns the address for a specific server ID.
+func (s *Service) GetServerAddress(serverID string) string {
+	if !s.params.Enabled || s.memberlist == nil {
+		return ""
+	}
+
+	members := s.memberlist.Members()
+	for _, member := range members {
+		if member.Name == serverID {
+			return fmt.Sprintf("%s:8443", member.Addr.String())
+		}
+	}
+
+	return ""
+}
+
+// GossipHealthCheck verifies that the gossip protocol is functioning correctly.
+func (s *Service) GossipHealthCheck() error {
+	if !s.params.Enabled {
+		return nil // Not an error if HA is disabled
+	}
+
+	if s.memberlist == nil {
+		return fmt.Errorf("memberlist not initialized")
+	}
+
+	// Check if we have any members
+	members := s.memberlist.Members()
+	if len(members) == 0 {
+		return fmt.Errorf("no members in cluster")
+	}
+
+	// Check if gossip is stale (no updates in last 60 seconds)
+	s.agentLocationsMu.RLock()
+	lastUpdate := s.lastGossipUpdate
+	s.agentLocationsMu.RUnlock()
+
+	if time.Since(lastUpdate) > 60*time.Second && len(members) > 1 {
+		s.l.Warnf("Gossip appears stale: last update %v ago", time.Since(lastUpdate))
+		// Don't fail health check, just warn
+	}
+
+	return nil
+}
+
+// GetAgentDistribution returns the agent count per server for monitoring.
+func (s *Service) GetAgentDistribution() map[string]int {
+	if !s.params.Enabled {
+		return nil
+	}
+
+	s.agentLocationsMu.RLock()
+	defer s.agentLocationsMu.RUnlock()
+
+	distribution := make(map[string]int)
+	for _, serverID := range s.agentLocations {
+		distribution[serverID]++
+	}
+
+	return distribution
+}
+
+// updateAgentLocation updates the local agent location map.
+// Called when receiving gossip events or local agent connect/disconnect.
+func (s *Service) updateAgentLocation(agentID, serverID, eventType string) {
+	s.agentLocationsMu.Lock()
+	defer s.agentLocationsMu.Unlock()
+
+	if eventType == "disconnect" {
+		delete(s.agentLocations, agentID)
+		s.l.Debugf("Agent location removed: agent=%s", agentID)
+	} else {
+		s.agentLocations[agentID] = serverID
+		s.l.Debugf("Agent location updated: agent=%s server=%s", agentID, serverID)
+	}
+
+	s.lastGossipUpdate = time.Now()
+}
+
+// mergeAgentLocations merges remote agent location state into local state.
+// Used during TCP push/pull or full state sync.
+func (s *Service) mergeAgentLocations(locations map[string]string) {
+	s.agentLocationsMu.Lock()
+	defer s.agentLocationsMu.Unlock()
+
+	for agentID, serverID := range locations {
+		s.agentLocations[agentID] = serverID
+	}
+
+	s.lastGossipUpdate = time.Now()
+	s.l.Infof("Merged agent locations: now tracking %d agents", len(s.agentLocations))
+}
+
+// getFullAgentState returns the full agent location state for TCP push/pull.
+func (s *Service) getFullAgentState() *FullStateSyncResponse {
+	s.agentLocationsMu.RLock()
+	defer s.agentLocationsMu.RUnlock()
+
+	// Make a copy of the map
+	locations := make(map[string]string, len(s.agentLocations))
+	for k, v := range s.agentLocations {
+		locations[k] = v
+	}
+
+	return &FullStateSyncResponse{
+		AgentLocations: locations,
+		Timestamp:      time.Now(),
+	}
 }

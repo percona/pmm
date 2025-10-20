@@ -1,0 +1,148 @@
+# PMM HA Request Forwarding Alerts
+# These alerts monitor the health and performance of HA request forwarding
+
+groups:
+  - name: pmm_ha_forwarding
+    interval: 30s
+    rules:
+      # Alert when forwarding is enabled but no agents are being tracked
+      - alert: HAForwardingNoAgentsTracked
+        expr: pmm_managed_agents_forwarding_enabled == 1 and pmm_managed_agents_location_cache_size == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: ha_forwarding
+        annotations:
+          summary: "HA forwarding enabled but no agents tracked"
+          description: "HA forwarding is enabled on {{ $labels.instance }} but no agent locations are being tracked in gossip. This may indicate a gossip protocol issue."
+
+      # Alert on high forwarding error rate
+      - alert: HAForwardingHighErrorRate
+        expr: rate(pmm_managed_agents_requests_forwarded_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: ha_forwarding
+        annotations:
+          summary: "High forwarding error rate detected"
+          description: "Forwarding error rate on {{ $labels.instance }} is {{ $value | humanize }} errors/sec. Check network connectivity and agent locations."
+
+      # Alert when all forwarding attempts are failing
+      - alert: HAForwardingAllServersFailed
+        expr: rate(pmm_managed_agents_requests_forwarded_errors_total{error_type="all_servers_failed"}[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: critical
+          component: ha_forwarding
+        annotations:
+          summary: "Forwarding failing to all servers"
+          description: "Agent requests on {{ $labels.instance }} are failing to forward to any server in the cluster. This indicates a critical HA infrastructure issue."
+
+      # Alert on high forwarding latency
+      - alert: HAForwardingHighLatency
+        expr: histogram_quantile(0.95, rate(pmm_managed_agents_forwarding_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: ha_forwarding
+        annotations:
+          summary: "High forwarding latency detected"
+          description: "95th percentile forwarding latency on {{ $labels.instance }} is {{ $value | humanize }}s. Expected <1s. Check network and target server load."
+
+      # Alert when forwarding is disabled but agents are on multiple servers
+      - alert: HAForwardingDisabledWithDistributedAgents
+        expr: pmm_managed_agents_forwarding_enabled == 0 and count(pmm_managed_agents_location_cache_size > 0) > 1
+        for: 10m
+        labels:
+          severity: info
+          component: ha_forwarding
+        annotations:
+          summary: "Agents distributed but forwarding disabled"
+          description: "Agents are connected to multiple PMM servers but forwarding is disabled. Some requests may fail. Consider enabling: settings.high_availability.forwarding_enabled = true"
+
+      # Alert on gossip event processing issues
+      - alert: HAGossipEventsLow
+        expr: rate(pmm_managed_agents_gossip_events_total[5m]) < 0.001 and pmm_managed_agents_location_cache_size > 10
+        for: 10m
+        labels:
+          severity: warning
+          component: ha_forwarding
+        annotations:
+          summary: "Gossip events not being processed"
+          description: "Gossip event rate on {{ $labels.instance }} is very low ({{ $value | humanize }} events/sec) despite having {{ $labels.cache_size }} agents. Gossip protocol may be stalled."
+
+      # Alert on forwarding success rate drop
+      - alert: HAForwardingSuccessRateLow
+        expr: |
+          (
+            rate(pmm_managed_agents_requests_forwarded_total{success="true"}[5m]) /
+            (rate(pmm_managed_agents_requests_forwarded_total{success="true"}[5m]) + 
+             rate(pmm_managed_agents_requests_forwarded_total{success="false"}[5m]))
+          ) < 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: ha_forwarding
+        annotations:
+          summary: "Low forwarding success rate"
+          description: "Forwarding success rate on {{ $labels.instance }} is {{ $value | humanizePercentage }}. Expected >90%. Check target server availability and network."
+
+      # Alert on circular forwarding attempts (should never happen)
+      - alert: HAForwardingLoopDetected
+        expr: rate(pmm_managed_agents_requests_forwarded_errors_total{error_type="circular_forwarding"}[1m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: ha_forwarding
+        annotations:
+          summary: "Circular forwarding detected"
+          description: "Circular forwarding attempts detected on {{ $labels.instance }}. This indicates a bug in the forwarding logic. Check logs immediately."
+
+      # Alert on agent location cache size mismatch across cluster
+      - alert: HAAgentLocationCacheMismatch
+        expr: stddev(pmm_managed_agents_location_cache_size) > (avg(pmm_managed_agents_location_cache_size) * 0.2)
+        for: 10m
+        labels:
+          severity: warning
+          component: ha_forwarding
+        annotations:
+          summary: "Agent location cache size mismatch in cluster"
+          description: "Agent location cache sizes vary significantly across cluster (stddev={{ $value | humanize }}). Gossip synchronization may be delayed."
+
+      # Alert when forwarding is taking multiple hops (inefficient)
+      - alert: HAForwardingInefficient
+        expr: |
+          (
+            sum(rate(pmm_managed_agents_requests_forwarded_total[5m])) / 
+            sum(rate(pmm_managed_agents_requests_forwarded_total{target_server=~".+"}[5m]))
+          ) > 0.3
+        for: 15m
+        labels:
+          severity: info
+          component: ha_forwarding
+        annotations:
+          summary: "High forwarding rate - consider agent rebalancing"
+          description: ">30% of requests require forwarding on {{ $labels.instance }}. Consider rebalancing agents or updating HAProxy to route directly to agent servers."
+
+      # Alert on gRPC connection issues
+      - alert: HAForwardingGRPCErrors
+        expr: rate(pmm_managed_agents_requests_forwarded_errors_total{error_type="grpc_error"}[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          component: ha_forwarding
+        annotations:
+          summary: "gRPC forwarding errors detected"
+          description: "gRPC errors on {{ $labels.instance }} at {{ $value | humanize }} errors/sec. Check inter-server connectivity and TLS certificates."
+
+      # Alert when feature flag changes unexpectedly
+      - alert: HAForwardingFeatureFlagChanged
+        expr: changes(pmm_managed_agents_forwarding_enabled[5m]) > 0
+        for: 1m
+        labels:
+          severity: info
+          component: ha_forwarding
+        annotations:
+          summary: "HA forwarding feature flag changed"
+          description: "Forwarding feature flag changed on {{ $labels.instance }}. Current value: {{ $value }}. Verify this was intentional."
+
