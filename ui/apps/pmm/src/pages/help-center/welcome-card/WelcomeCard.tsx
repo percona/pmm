@@ -1,6 +1,6 @@
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import WelcomeImage from 'assets/welcome-4x.jpg';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
@@ -19,13 +19,20 @@ import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { useUser } from 'contexts/user';
 import { useTour } from 'contexts/tour';
+import { useUpdateUserInfo } from 'hooks/api/useUser';
 
 // todo: work in progress - see PMM-14190 and PMM-13707
 const WelcomeCard: FC = () => {
   const { user } = useUser();
   const { startTour } = useTour();
+  const { mutate: updateUserInfo } = useUpdateUserInfo();
 
-  if (!user) {
+  const handleDismiss = useCallback(
+    () => updateUserInfo({ productTourCompleted: true }),
+    [updateUserInfo]
+  );
+
+  if (!user || user.info.productTourCompleted) {
     return null;
   }
 
@@ -114,7 +121,11 @@ const WelcomeCard: FC = () => {
             {Messages.addService}
           </Button>
         )}
-        <Button variant="text" data-testid="welcome-card-dismiss">
+        <Button
+          variant="text"
+          data-testid="welcome-card-dismiss"
+          onClick={handleDismiss}
+        >
           {Messages.dismiss}
         </Button>
       </CardActions>

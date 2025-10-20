@@ -26,6 +26,7 @@ import {
   NAV_USERS_AND_ACCESS,
 } from './navigation.constants';
 import { useFolders } from 'hooks/api/useFolders';
+import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { data: serviceTypes } = useServiceTypes({
@@ -36,6 +37,10 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { data: folders = [] } = useFolders();
   const { colorMode, toggleColorMode } = useColorMode();
   const { user } = useUser();
+  const [navOpen, setNavOpen] = useLocalStorage<boolean>(
+    'pmm-ui.sidebar.expanded',
+    true
+  );
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
@@ -103,6 +108,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     <NavigationContext.Provider
       value={{
         navTree,
+        navOpen,
+        setNavOpen,
       }}
     >
       {children}
