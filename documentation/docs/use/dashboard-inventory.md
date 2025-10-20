@@ -20,8 +20,7 @@ The **Services** tab displays the individual services, the nodes on which they r
 - **OK** (green) - all agents are healthy
 - **Warning** (orange) - multiple agents are disabled
 - **Failed** (red) - one or more agents are failing
-- **Disabled** (grey) - agent is intentionally disabled
-- **Stopped** (grey) - agent has stopped but is not disabled. |
+- **Done** (grey) - agent has stopped or was intentionally disabled
 |  Address         | The IP address or DNS where the service is currently running. For RDS instances, this shows the actual database endpoint. |
 |  Port         | The port number on which the service is running. ||
 |  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the **<image src="../../images/dots-three-vertical.ico" width="15px" aria-label="triple dots"/>** icon </br> </br> * You can also check additional information about the service, by clicking on the **<image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/>** icon. This expands the service entry to show reference information like service labels and IDs.|
@@ -54,7 +53,7 @@ Example
 - `node_exporter` is assigned to an agent that extracts the node metrics
 - `mysqld_exporter` and `qan-mysql-perfschema-agent` are assigned to agents that extract metrics from mysql and its performance schema respectively.
 
-To view the agents running on a service and their health status, click the status indicator (**OK**, **Warning**, **Failed**, **Disabled**, or **Stopped**) under the **Monitoring** column.
+To view the agents running on a service and their health status, click the status indicator (**OK**, **Warning**, **Failed**, **Done**) under the **Monitoring** column.
 
 Furthermore, you can also check the properties of a particular agent by clicking the <image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
 
@@ -67,11 +66,9 @@ Agents in PMM Inventory display the following status indicators:
 | Status | Color | Description |
 |--------|-------|-------------|
 | **Running** | Green | Agent is actively collecting metrics |
-| **Disabled** | Grey | Agent is intentionally disabled by user |
-| **Stopped** | Grey | Agent has stopped but is not disabled |
+| **Done** | Grey | Agent has stopped or was disabled |
 | **Starting** | Yellow | Agent is in the process of starting |
 | **Waiting** | Orange | Agent encountered an error and will restart automatically |
-| **Unknown** | Grey | Agent status cannot be determined (connection issue) |
 | **Failed** | Red | Agent encountered a critical error |
 
 The **Monitoring** status for services aggregates individual agent statuses:
