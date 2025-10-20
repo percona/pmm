@@ -8,6 +8,7 @@ package backup_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ChangeScheduledBackupReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeScheduledBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeScheduledBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeScheduledBackupOK()
@@ -56,7 +57,7 @@ ChangeScheduledBackupOK describes a response with status code 200, with default 
 A successful response.
 */
 type ChangeScheduledBackupOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this change scheduled backup Ok response has a 2xx status code
@@ -99,13 +100,13 @@ func (o *ChangeScheduledBackupOK) String() string {
 	return fmt.Sprintf("[PUT /v1/backups:changeScheduled][%d] changeScheduledBackupOk %s", 200, payload)
 }
 
-func (o *ChangeScheduledBackupOK) GetPayload() interface{} {
+func (o *ChangeScheduledBackupOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *ChangeScheduledBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -178,7 +179,7 @@ func (o *ChangeScheduledBackupDefault) readResponse(response runtime.ClientRespo
 	o.Payload = new(ChangeScheduledBackupDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -309,11 +310,15 @@ func (o *ChangeScheduledBackupDefaultBody) validateDetails(formats strfmt.Regist
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeScheduledBackup default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeScheduledBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -346,11 +351,15 @@ func (o *ChangeScheduledBackupDefaultBody) contextValidateDetails(ctx context.Co
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeScheduledBackup default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeScheduledBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -386,7 +395,7 @@ type ChangeScheduledBackupDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// change scheduled backup default body details items0
-	ChangeScheduledBackupDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ChangeScheduledBackupDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -413,9 +422,9 @@ func (o *ChangeScheduledBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
