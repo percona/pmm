@@ -15,6 +15,24 @@ import { useSetTheme } from 'themes/setTheme';
 
 type Mode = 'light' | 'dark';
 
+/** Minimal runtime shape of our messenger to avoid `any`. */
+type MessengerLike = {
+  setTargetWindow: (win: Window | null, fallbackSelector?: string) => MessengerLike;
+  register: () => MessengerLike;
+  unregister: () => void;
+  waitForMessage?: (type: string, timeoutMs?: number) => Promise<unknown>;
+  addListener?: <T extends string, P = unknown>(args: {
+    type: T;
+    onMessage: (message: { type: T; payload: P }) => void;
+  }) => void;
+  sendMessage?: <T extends string, P = unknown>(message: {
+    type: T;
+    payload?: P;
+  }) => void;
+};
+
+type NavState = { fromGrafana?: boolean } | null;
+
 const isBrowser = (): boolean =>
   typeof window !== 'undefined' && typeof window.addEventListener === 'function';
 
@@ -38,7 +56,6 @@ const normalizeMode = (v: unknown): Mode =>
 
 /** Resolve optional Grafana origin provided via env (e.g. https://pmm.example.com). */
 const resolveGrafanaOrigin = (): string | undefined => {
-  // Import meta may be undefined in tests; guard access.
   const raw = (import.meta as ImportMeta | undefined)?.env?.VITE_GRAFANA_ORIGIN as
     | string
     | undefined;
@@ -52,7 +69,6 @@ const resolveGrafanaOrigin = (): string | undefined => {
 
 /** Build a trust predicate for postMessage origins. */
 const makeIsTrustedOrigin = () => {
-  // In dev, accept any origin to support split hosts/ports (vite + docker)
   if ((import.meta as ImportMeta | undefined)?.env?.DEV) return () => true;
 
   if (!isBrowser()) return () => false;
@@ -79,11 +95,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const { setFromGrafana } = useSetTheme();
 
   // Remember last theme we sent to avoid resending the same value.
-  // Do not read document during initial render (tests/SSR friendly).
   const lastSentThemeRef = useRef<Mode>('light');
 
   // Keep messenger instance lazily loaded and scoped to browser only.
-  const messengerRef = useRef<any | null>(null);
+  const messengerRef = useRef<MessengerLike | null>(null);
 
   // Trusted-origin predicate for postMessage validation.
   const isTrustedOriginRef = useRef<(o: string) => boolean>(() => true);
@@ -106,10 +121,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
         const mod = await import('lib/messenger');
         if (!mounted) return;
 
-        const messenger = mod.default;
+        const messenger = mod.default as MessengerLike;
         messengerRef.current = messenger;
 
-        messenger.setTargetWindow(frameRef.current?.contentWindow!, '#grafana-iframe').register();
+        messenger.setTargetWindow(frameRef.current?.contentWindow ?? null, '#grafana-iframe').register();
 
         // Initialize lastSentThemeRef from DOM now that we are in browser.
         lastSentThemeRef.current = readHtmlMode();
@@ -127,10 +142,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
         });
 
         // Mirror Grafana → PMM route changes (except POP)
-        messenger.addListener?.({
+        messenger.addListener?.< 'LOCATION_CHANGE', LocationChangeMessage['payload'] >({
           type: 'LOCATION_CHANGE',
-          onMessage: ({ payload: loc }: LocationChangeMessage) => {
-            if (!loc || (loc as any).action === 'POP') return;
+          onMessage: ({ payload: loc }) => {
+            if (!loc || loc.action === 'POP') return;
             navigate(getLocationUrl(loc), {
               state: { fromGrafana: true },
               replace: true,
@@ -139,15 +154,14 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
         });
 
         // Mirror Grafana document title
-        messenger.addListener?.({
+        messenger.addListener?.< 'DOCUMENT_TITLE_CHANGE', DocumentTitleUpdateMessage['payload'] >({
           type: 'DOCUMENT_TITLE_CHANGE',
-          onMessage: ({ payload }: DocumentTitleUpdateMessage) => {
+          onMessage: ({ payload }) => {
             if (!payload) return;
             updateDocumentTitle(payload.title);
           },
         });
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.warn('[GrafanaProvider] lazy messenger setup failed:', err);
       }
     })();
@@ -167,10 +181,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   // Propagate location changes to Grafana (except POP from Grafana itself)
   useEffect(() => {
     if (!isBrowser()) return;
-    if (
-      !location.pathname.includes('/graph') ||
-      (location.state as any)?.fromGrafana
-    ) {
+
+    const state = location.state as NavState;
+    if (!location.pathname.includes('/graph') || state?.fromGrafana) {
       return;
     }
     const messenger = messengerRef.current;
@@ -219,7 +232,6 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
       // Apply locally only to avoid ping-pong; persistence is handled by left action.
       setFromGrafana(desired).catch((err) =>
-        // eslint-disable-next-line no-console
         console.warn('[GrafanaProvider] setFromGrafana failed:', err)
       );
     };
