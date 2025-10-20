@@ -5,7 +5,7 @@ templates:
     summary: PBM Backup Stale
     expr: |-
       (
-        time() - max by (cluster, replica_set) (
+        time() - max by (cluster) (
           max_over_time(
             mongodb_pbm_backup_last_transition_ts{status="done"}[30d]
           )
