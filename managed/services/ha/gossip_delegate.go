@@ -226,3 +226,4 @@ func (b *gossipBroadcast) Finished() {
 
 // check interface implementation.
 var _ memberlist.Delegate = (*gossipDelegate)(nil)
+

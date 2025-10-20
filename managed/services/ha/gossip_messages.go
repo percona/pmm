@@ -100,3 +100,4 @@ func ParseFullStateSyncResponse(data json.RawMessage) (*FullStateSyncResponse, e
 	}
 	return &response, nil
 }
+
