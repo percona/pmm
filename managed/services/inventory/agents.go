@@ -29,7 +29,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -1095,7 +1095,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
 	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
-	envVar, exists := os.LookupEnv(envvars.EnvEnableInternalPgQAN)
+	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
 	if exists && envVar != "" {
 		a, err := models.FindAgentByID(as.db.Querier, agentID)
 		if err != nil {

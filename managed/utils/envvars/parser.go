@@ -29,22 +29,14 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 )
 
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
-	envPlatformInsecure       = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
-	envPlatformPublicKey      = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
-	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
-	envEnableAccessControl    = "PMM_ENABLE_ACCESS_CONTROL"
-	envPlatformAPITimeout     = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
-	// EnvPlatformAddress is the environment variable name used to store the URL for Percona Platform.
-	EnvPlatformAddress = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
 	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
 	ENVvmAgentPrefix = "VMAGENT_"
-	// EnvEnableInternalPgQAN enables internal PostgreSQL QAN
-	EnvEnableInternalPgQAN = "PMM_ENABLE_INTERNAL_PG_QAN"
 )
 
 // InvalidDurationError invalid duration error.
@@ -125,7 +117,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableTelemetry = &b
-		case EnvEnableInternalPgQAN:
+		case pkgenv.EnableInternalPgQAN:
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
@@ -203,7 +195,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
-		case envEnableAccessControl:
+		case pkgenv.EnableAccessControl:
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
@@ -213,7 +205,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			envSettings.EnableAccessControl = &b
 
-		case envPlatformAPITimeout:
+		case pkgenv.PlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
@@ -287,7 +279,7 @@ func parsePlatformAPITimeout(d string) (time.Duration, string) {
 	if d == "" {
 		msg := fmt.Sprintf(
 			"Environment variable %q is not set, using %q as a default timeout for platform API.",
-			envPlatformAPITimeout,
+			pkgenv.PlatformAPITimeout,
 			defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
@@ -302,7 +294,7 @@ func parsePlatformAPITimeout(d string) (time.Duration, string) {
 
 // GetPlatformAPITimeout returns timeout duration for requests to Platform.
 func GetPlatformAPITimeout(l *logrus.Entry) time.Duration {
-	d := os.Getenv(envPlatformAPITimeout)
+	d := os.Getenv(pkgenv.PlatformAPITimeout)
 	duration, msg := parsePlatformAPITimeout(d)
 	l.Info(msg)
 	return duration
@@ -311,7 +303,7 @@ func GetPlatformAPITimeout(l *logrus.Entry) time.Duration {
 // GetPlatformAddress returns Percona Platform address env variable value if it's present and valid.
 // Otherwise returns default Percona Platform address.
 func GetPlatformAddress() (string, error) {
-	address := os.Getenv(EnvPlatformAddress)
+	address := os.Getenv(pkgenv.PlatformAddress)
 	if address == "" {
 		logrus.Infof("Using default Percona Platform address %q.", defaultPlatformAddress)
 		return defaultPlatformAddress, nil
@@ -327,14 +319,14 @@ func GetPlatformAddress() (string, error) {
 
 // GetPlatformInsecure returns true if invalid/self-signed TLS certificates allowed. Default is false.
 func GetPlatformInsecure() bool {
-	insecure, _ := strconv.ParseBool(os.Getenv(envPlatformInsecure))
+	insecure, _ := strconv.ParseBool(os.Getenv(pkgenv.PlatformInsecure))
 
 	return insecure
 }
 
 // GetPlatformPublicKeys returns public keys used to verify signatures of files downloaded form Percona Portal.
 func GetPlatformPublicKeys() []string {
-	if v := os.Getenv(envPlatformPublicKey); v != "" {
+	if v := os.Getenv(pkgenv.PlatformPublicKey); v != "" {
 		return strings.Split(v, ",")
 	}
 
@@ -343,7 +335,7 @@ func GetPlatformPublicKeys() []string {
 
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
-	return GetEnv(evnInterfaceToBind, "127.0.0.1")
+	return GetEnv(pkgenv.InterfaceToBind, "127.0.0.1")
 }
 
 // GetEnv returns env with fallback option.

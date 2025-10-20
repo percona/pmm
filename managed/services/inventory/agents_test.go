@@ -32,7 +32,7 @@ import (
 	"github.com/percona/pmm/api/common"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
@@ -825,7 +825,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		t.Cleanup(func() { teardown(t) })
 
 		// Set the environment variable
-		t.Setenv(envvars.EnvEnableInternalPgQAN, "true")
+		t.Setenv(env.EnableInternalPgQAN, "true")
 
 		// Try to change the internal PostgreSQL QAN agent (pmm-server's agent)
 		// The agent with ID "00000000-0000-4000-8000-000000000004" is the internal PostgreSQL QAN agent
@@ -843,7 +843,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 
 		// Ensure the environment variable is not set
 		// (It shouldn't be set by default, but we explicitly unset it to be safe)
-		t.Setenv(envvars.EnvEnableInternalPgQAN, "")
+		t.Setenv(env.EnableInternalPgQAN, "")
 
 		// Mock the state update request
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
