@@ -7,7 +7,6 @@ import {
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
 import { DocumentTitleUpdateMessage, LocationChangeMessage } from '@pmm/shared';
-import messenger from 'lib/messenger';
 import { getLocationUrl } from './grafana.utils';
 import { updateDocumentTitle } from 'lib/utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
@@ -16,13 +15,18 @@ import { useSetTheme } from 'themes/setTheme';
 
 type Mode = 'light' | 'dark';
 
+const isBrowser = (): boolean =>
+  typeof window !== 'undefined' && typeof window.addEventListener === 'function';
+
 /** Reads canonical mode from <html> attributes set by our theme hook. */
-const readHtmlMode = (): Mode =>
-  document.documentElement
+const readHtmlMode = (): Mode => {
+  if (!isBrowser()) return 'light';
+  return document.documentElement
     .getAttribute('data-md-color-scheme')
     ?.includes('dark')
     ? 'dark'
     : 'light';
+};
 
 /** Normalizes any incoming value to 'light' | 'dark'. */
 const normalizeMode = (v: unknown): Mode =>
@@ -34,7 +38,8 @@ const normalizeMode = (v: unknown): Mode =>
 
 /** Resolve optional Grafana origin provided via env (e.g. https://pmm.example.com). */
 const resolveGrafanaOrigin = (): string | undefined => {
-  const raw = (import.meta as ImportMeta)?.env?.VITE_GRAFANA_ORIGIN as
+  // Import meta may be undefined in tests; guard access.
+  const raw = (import.meta as ImportMeta | undefined)?.env?.VITE_GRAFANA_ORIGIN as
     | string
     | undefined;
   if (!raw) return undefined;
@@ -47,9 +52,10 @@ const resolveGrafanaOrigin = (): string | undefined => {
 
 /** Build a trust predicate for postMessage origins. */
 const makeIsTrustedOrigin = () => {
-  // In dev, we accept any origin to support split hosts/ports (vite + docker)
-  if (import.meta.env.DEV) return () => true;
+  // In dev, accept any origin to support split hosts/ports (vite + docker)
+  if ((import.meta as ImportMeta | undefined)?.env?.DEV) return () => true;
 
+  if (!isBrowser()) return () => false;
   const set = new Set<string>([window.location.origin]);
   const grafanaOrigin = resolveGrafanaOrigin();
   if (grafanaOrigin) set.add(grafanaOrigin);
@@ -73,7 +79,11 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const { setFromGrafana } = useSetTheme();
 
   // Remember last theme we sent to avoid resending the same value.
-  const lastSentThemeRef = useRef<Mode>(readHtmlMode());
+  // Do not read document during initial render (tests/SSR friendly).
+  const lastSentThemeRef = useRef<Mode>('light');
+
+  // Keep messenger instance lazily loaded and scoped to browser only.
+  const messengerRef = useRef<any | null>(null);
 
   // Trusted-origin predicate for postMessage validation.
   const isTrustedOriginRef = useRef<(o: string) => boolean>(() => true);
@@ -86,16 +96,87 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     if (isGrafanaPage) setIsLoaded(true);
   }, [isGrafanaPage]);
 
+  // Lazily import and register messenger when iframe area is ready (browser only).
+  useEffect(() => {
+    if (!isLoaded || !isBrowser()) return;
+
+    let mounted = true;
+    (async () => {
+      try {
+        const mod = await import('lib/messenger');
+        if (!mounted) return;
+
+        const messenger = mod.default;
+        messengerRef.current = messenger;
+
+        messenger.setTargetWindow(frameRef.current?.contentWindow!, '#grafana-iframe').register();
+
+        // Initialize lastSentThemeRef from DOM now that we are in browser.
+        lastSentThemeRef.current = readHtmlMode();
+
+        // Send the current canonical theme to Grafana once messenger is ready.
+        messenger.waitForMessage?.('MESSENGER_READY').then(() => {
+          const mode = readHtmlMode();
+          if (lastSentThemeRef.current !== mode) {
+            lastSentThemeRef.current = mode;
+            messenger.sendMessage?.({
+              type: 'CHANGE_THEME',
+              payload: { theme: mode },
+            });
+          }
+        });
+
+        // Mirror Grafana → PMM route changes (except POP)
+        messenger.addListener?.({
+          type: 'LOCATION_CHANGE',
+          onMessage: ({ payload: loc }: LocationChangeMessage) => {
+            if (!loc || (loc as any).action === 'POP') return;
+            navigate(getLocationUrl(loc), {
+              state: { fromGrafana: true },
+              replace: true,
+            });
+          },
+        });
+
+        // Mirror Grafana document title
+        messenger.addListener?.({
+          type: 'DOCUMENT_TITLE_CHANGE',
+          onMessage: ({ payload }: DocumentTitleUpdateMessage) => {
+            if (!payload) return;
+            updateDocumentTitle(payload.title);
+          },
+        });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn('[GrafanaProvider] lazy messenger setup failed:', err);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+      try {
+        messengerRef.current?.unregister?.();
+      } catch {
+        // no-op
+      }
+      messengerRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
+
   // Propagate location changes to Grafana (except POP from Grafana itself)
   useEffect(() => {
+    if (!isBrowser()) return;
     if (
       !location.pathname.includes('/graph') ||
-      (location.state?.fromGrafana && navigationType !== 'POP')
+      (location.state as any)?.fromGrafana
     ) {
       return;
     }
+    const messenger = messengerRef.current;
+    if (!messenger) return;
 
-    messenger.sendMessage({
+    messenger.sendMessage?.({
       type: 'LOCATION_CHANGE',
       payload: {
         ...location,
@@ -105,62 +186,22 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     });
   }, [location, navigationType]);
 
-  // Set up messenger and standard listeners once iframe area is ready
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    messenger
-      .setTargetWindow(frameRef.current?.contentWindow!, '#grafana-iframe')
-      .register();
-
-    // Send the current canonical theme to Grafana once messenger is ready.
-    messenger.waitForMessage('MESSENGER_READY').then(() => {
-      const mode = readHtmlMode(); // take from <html>, already synced with Grafana Prefs
-      if (lastSentThemeRef.current !== mode) {
-        lastSentThemeRef.current = mode;
-        messenger.sendMessage({
-          type: 'CHANGE_THEME',
-          payload: { theme: mode },
-        });
-      }
-    });
-
-    // Mirror Grafana → PMM route changes (except POP)
-    messenger.addListener({
-      type: 'LOCATION_CHANGE',
-      onMessage: ({ payload: loc }: LocationChangeMessage) => {
-        if (!loc || loc.action === 'POP') return;
-        navigate(getLocationUrl(loc), {
-          state: { fromGrafana: true },
-          replace: true,
-        });
-      },
-    });
-
-    // Mirror Grafana document title
-    messenger.addListener({
-      type: 'DOCUMENT_TITLE_CHANGE',
-      onMessage: ({ payload }: DocumentTitleUpdateMessage) => {
-        if (!payload) return;
-        updateDocumentTitle(payload.title);
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded]);
-
   // If outer theme changes (our hook updates <html>), reflect it to Grafana quickly
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || !isBrowser()) return;
     const mode = readHtmlMode(); // canonical
     if (lastSentThemeRef.current !== mode) {
       lastSentThemeRef.current = mode;
-      messenger.sendMessage({ type: 'CHANGE_THEME', payload: { theme: mode } });
+      messengerRef.current?.sendMessage?.({
+        type: 'CHANGE_THEME',
+        payload: { theme: mode },
+      });
     }
   }, [isLoaded, location]); // re-evaluate on navigation; inexpensive and safe
 
   // Hard guarantee: listen for grafana.theme.changed on /graph/* pages and apply locally (no persist/broadcast).
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || !isBrowser()) return;
 
     const onMsg = (
       e: MessageEvent<{
@@ -178,6 +219,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
       // Apply locally only to avoid ping-pong; persistence is handled by left action.
       setFromGrafana(desired).catch((err) =>
+        // eslint-disable-next-line no-console
         console.warn('[GrafanaProvider] setFromGrafana failed:', err)
       );
     };
