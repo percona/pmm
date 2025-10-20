@@ -20,12 +20,15 @@ import AddIcon from '@mui/icons-material/Add';
 import { useUser } from 'contexts/user';
 import { useTour } from 'contexts/tour';
 import { useUpdateUserInfo } from 'hooks/api/useUser';
+import { useServices } from 'hooks/api/useServices';
+import { shouldShowAddService } from './WelcomeCard.utils';
 
-// todo: work in progress - see PMM-14190 and PMM-13707
 const WelcomeCard: FC = () => {
   const { user } = useUser();
   const { startTour } = useTour();
   const { mutate: updateUserInfo } = useUpdateUserInfo();
+  const services = useServices();
+  const showAddService = shouldShowAddService(services.data);
 
   const handleDismiss = useCallback(
     () => updateUserInfo({ productTourCompleted: true }),
@@ -111,7 +114,7 @@ const WelcomeCard: FC = () => {
         >
           {Messages.startTour}
         </Button>
-        {user?.isPMMAdmin && (
+        {user?.isPMMAdmin && showAddService && (
           <Button
             startIcon={<AddIcon />}
             component={Link}

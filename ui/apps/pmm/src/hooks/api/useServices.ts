@@ -1,6 +1,10 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { getServiceTypes } from 'api/services';
-import { ListTypesResponse } from 'types/services.types';
+import { getServiceTypes, listServices } from 'api/services';
+import {
+  ListServicesParams,
+  ListServicesResponse,
+  ListTypesResponse,
+} from 'types/services.types';
 
 export const useServiceTypes = (
   options?: Partial<UseQueryOptions<ListTypesResponse>>
@@ -8,5 +12,16 @@ export const useServiceTypes = (
   useQuery({
     queryKey: ['services:getTypes'],
     queryFn: () => getServiceTypes(),
+    ...options,
+  });
+
+export const useServices = (
+  params: ListServicesParams = {},
+  options?: Partial<UseQueryOptions<ListServicesResponse>>
+) =>
+  useQuery({
+    queryKey: ['services:list', params],
+    queryFn: ({ queryKey: [_, params] }) =>
+      listServices(params as ListServicesParams),
     ...options,
   });
