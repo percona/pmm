@@ -100,7 +100,7 @@ To edit the labels:
 
 3. Click **Edit** to change the labels, then click **Save Changes**. 
 
-    ![!](../images/PMM_access_edit_labels.png)
+    ![PMM - editing labels](../images/PMM_access_edit_labels.png)
 
 5. Click **Confirm and save changes**. You will be taken back to the **Inventory/Services** page.
 
