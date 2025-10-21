@@ -51,7 +51,15 @@ export const getProductTourSteps = (user?: User): StepType[] => {
           <Typography>{Messages.alerts.builtin}</Typography>
           <Typography>{Messages.alerts.templates}</Typography>
           <Typography>
-            <Link color="inherit">{Messages.alerts.readMore}</Link>
+            <Link
+              color="inherit"
+              // todo: add in alert templates link
+              href="TODO"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {Messages.alerts.readMore}
+            </Link>
           </Typography>
         </TourStep>
       ),
@@ -62,7 +70,14 @@ export const getProductTourSteps = (user?: User): StepType[] => {
         <TourStep title={Messages.advisors.title}>
           <Typography>{Messages.advisors.checks}</Typography>
           <Typography>
-            <Link color="inherit">{Messages.advisors.readMore}</Link>
+            <Link
+              color="inherit"
+              href="https://per.co.na/advisors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {Messages.advisors.readMore}
+            </Link>
           </Typography>
         </TourStep>
       ),
@@ -80,7 +95,14 @@ export const getProductTourSteps = (user?: User): StepType[] => {
         <TourStep title={Messages.management.title}>
           <Typography>{Messages.management.inventory}</Typography>
           <Typography>
-            <Link color="inherit">{Messages.management.readMore}</Link>
+            <Link
+              color="inherit"
+              href="https://per.co.na/backup_management"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {Messages.management.readMore}
+            </Link>
           </Typography>
         </TourStep>
       ),
@@ -97,7 +119,14 @@ export const getProductTourSteps = (user?: User): StepType[] => {
           <Typography>{Messages.configurations.settings}</Typography>
           <Typography>{Messages.configurations.access}</Typography>
           <Typography>
-            <Link color="inherit">{Messages.configurations.readMore}</Link>
+            <Link
+              color="inherit"
+              href="https://per.co.na/configure"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {Messages.configurations.readMore}
+            </Link>
           </Typography>
         </TourStep>
       ),
