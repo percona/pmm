@@ -20,8 +20,8 @@ templates:
     for: 1m
     severity: critical
     annotations:
-      summary: Last PBM backup is stale for cluster={{ $labels.cluster }}, replica_set={{ $labels.replica_set }}
+      summary: Last PBM backup is stale for cluster={{ $labels.cluster }}
       description: |-
-        Last PBM backup is stale for cluster={{ $labels.cluster }}, replica_set={{ $labels.replica_set }}
+        Last PBM backup is stale for cluster={{ $labels.cluster }}
         Age: {{ $value | humanizeDuration }} (exceeds [[ .threshold ]] seconds).
         
