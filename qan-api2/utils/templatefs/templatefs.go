@@ -19,20 +19,17 @@ package templatefs
 import (
 	"bytes"
 	"embed"
-	"io"
 	iofs "io/fs"
 	"path/filepath"
 	"text/template"
-	"time"
 )
 
-// TemplateFS wraps an embed.FS and applies templating to file content during reads.
-// It implements the fs.FS interface and delegates most operations to the underlying embed.FS,
-// but applies Go text/template processing when reading file content via ReadFile.
+// TemplateFS provides a filesystem interface with templating support.
+// It wraps an embed.FS and applies Go text/template processing when reading file content via ReadFile.
 type TemplateFS struct {
-	// EmbedFS is the underlying embedded filesystem
+	// EmbedFS is the underlying embedded filesystem.
 	EmbedFS embed.FS
-	// Data contains template data that will be used for all files
+	// Data contains template data that will be used for all files.
 	Data map[string]any
 }
 
@@ -44,55 +41,11 @@ func NewTemplateFS(embedFS embed.FS, data map[string]any) *TemplateFS {
 	}
 }
 
-// Open opens the named file for reading and returns a file with templated content.
+// Open opens the named file for reading and returns the original iofs.File from embed.FS.
+// No templating is applied here - use ReadFile for templated content.
 func (tfs *TemplateFS) Open(name string) (iofs.File, error) {
-	// Render the file content using the template logic
-	content, err := tfs.ReadFile(name)
-	if err != nil {
-		return nil, err
-	}
-	// Return a file-like object from the rendered content
-	return &templateFile{
-		name:    name,
-		content: content,
-		offset:  0,
-	}, nil
+	return tfs.EmbedFS.Open(name)
 }
-
-// templateFile implements iofs.File for a byte slice (rendered template content)
-type templateFile struct {
-	name    string
-	content []byte
-	offset  int64
-}
-
-func (f *templateFile) Stat() (iofs.FileInfo, error) {
-	return &templateFileInfo{name: f.name, size: int64(len(f.content))}, nil
-}
-
-func (f *templateFile) Read(p []byte) (int, error) {
-	if f.offset >= int64(len(f.content)) {
-		return 0, io.EOF
-	}
-	n := copy(p, f.content[f.offset:])
-	f.offset += int64(n)
-	return n, nil
-}
-
-func (f *templateFile) Close() error { return nil }
-
-// templateFileInfo implements iofs.FileInfo for templateFile
-type templateFileInfo struct {
-	name string
-	size int64
-}
-
-func (fi *templateFileInfo) Name() string        { return fi.name }
-func (fi *templateFileInfo) Size() int64         { return fi.size }
-func (fi *templateFileInfo) Mode() iofs.FileMode { return 0o444 }
-func (fi *templateFileInfo) ModTime() time.Time  { return time.Time{} }
-func (fi *templateFileInfo) IsDir() bool         { return false }
-func (fi *templateFileInfo) Sys() interface{}    { return nil }
 
 // ReadDir reads the named directory and returns a list of directory entries.
 // This delegates directly to the underlying embed.FS.
@@ -109,6 +62,7 @@ func (tfs *TemplateFS) ReadFile(name string) ([]byte, error) {
 		return nil, err
 	}
 
+	// Apply templating using the same logic as in the user's example
 	upSQL := string(content)
 
 	// Extract just the filename from the path for template name

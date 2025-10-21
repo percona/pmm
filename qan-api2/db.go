@@ -16,6 +16,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -50,7 +51,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		l.Infof("DSN for cluster check: %s", dsnURL.Redacted())
 
 		for {
-			isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
+			isClusterReady, err := migrations.IsClickhouseClusterReady(dsnDefault, clusterName)
 			if err != nil {
 				l.Fatalf("error checking ClickHouse cluster status: %v", err)
 			}
@@ -68,7 +69,9 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		l.Errorf("error connecting to clickhouse: %v", err)
-		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
+		var exception *clickhouse.Exception
+		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
+			l.Info("one of expected errors - database does not exist, creating")
 			err = createDB(dsn, clusterName, l)
 			if err != nil {
 				l.Fatalf("database wasn't created: %v", err)
@@ -96,7 +99,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db.SetMaxOpenConns(maxOpenConns)
 
 	data := map[string]any{
-		"engine": migrations.GetEngine(dsn),
+		"engine": migrations.GetEngine(dsn, clusterName),
 	}
 	if clusterName != "" {
 		l.Infof("Using ClickHouse cluster name: %s", clusterName)
