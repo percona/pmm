@@ -40,7 +40,7 @@ const TourNavigation: FC<Props> = ({
     >
       {!isFirstStep && (
         <Button
-          data-testid="tour-next-step-button"
+          data-testid="tour-previous-step-button"
           variant="text"
           onClick={previousStep}
           startIcon={<ArrowBack />}
