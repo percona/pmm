@@ -29,7 +29,7 @@ import (
 // AddScrapeConfigs - adds agents scrape configuration to given scrape config,
 // pmm_agent_id and push_metrics used for filtering.
 func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //nolint:cyclop,maintidx
-	globalResolutions *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool,
+	globalResolutions *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool, skipExternalAgents bool,
 ) error {
 	agents, err := models.FindAgentsForScrapeConfig(q, pmmAgentID, pushMetrics)
 	if err != nil {
@@ -187,6 +187,10 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			continue
 
 		case models.RDSExporterType:
+			if skipExternalAgents && pointer.GetString(agent.RunsOnNodeID) == models.PMMServerNodeID {
+				l.Debugf("Skip the scrape config for RDSExporter %s running on PMM Server in HA non-leader mode", agent.AgentID)
+				continue
+			}
 			rdsParams = append(rdsParams, &scrapeConfigParams{
 				host:              paramsHost,
 				node:              paramsNode,
@@ -197,6 +201,10 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			continue
 
 		case models.ExternalExporterType:
+			if skipExternalAgents && pointer.GetString(agent.RunsOnNodeID) == models.PMMServerNodeID {
+				l.Debugf("Skip the scrape config for ExternalExporter %s running on PMM Server in HA non-leader mode", agent.AgentID)
+				continue
+			}
 			scfgs, err = scrapeConfigsForExternalExporter(&mr, &scrapeConfigParams{
 				host:              paramsHost,
 				node:              paramsNode,

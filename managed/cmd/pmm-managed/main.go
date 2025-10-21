@@ -796,6 +796,7 @@ func main() { //nolint:maintidx,cyclop
 		SSLCAPath:   *postgresSSLCAPathF,
 		SSLKeyPath:  *postgresSSLKeyPathF,
 		SSLCertPath: *postgresSSLCertPathF,
+		HANodeID:    *haNodeID,
 	}
 
 	sqlDB, err := models.OpenDB(setupParams)
@@ -823,10 +824,16 @@ func main() { //nolint:maintidx,cyclop
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
+
+	// This ensures scrape config regeneration happens when leadership changes
+	if haParams.Enabled {
+		haService.AddLeaderService(vmdb)
+	}
+
 	vmalert, err := vmalert.NewVMAlert(externalRules, *victoriaMetricsVMAlertURLF)
 	if err != nil {
 		l.Panicf("VictoriaMetrics VMAlert service problem: %+v", err)
@@ -838,11 +845,6 @@ func main() { //nolint:maintidx,cyclop
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db, vmParams)
-
-	// TODO remove once PMM cluster will be Active-Active
-	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
-		agentsRegistry.KickAll(ctx)
-	}))
 
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
@@ -876,19 +878,6 @@ func main() { //nolint:maintidx,cyclop
 			},
 			HAParams: haParams,
 		})
-
-	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
-		err := supervisord.StartSupervisedService("pmm-agent")
-		if err != nil {
-			l.Warnf("couldn't start pmm-agent: %q", err)
-		}
-		return err
-	}, func() {
-		err := supervisord.StopSupervisedService("pmm-agent")
-		if err != nil {
-			l.Warnf("couldn't stop pmm-agent: %q", err)
-		}
-	}))
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {

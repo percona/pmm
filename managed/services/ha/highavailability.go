@@ -179,7 +179,7 @@ func (s *Service) Run(ctx context.Context) error {
 					s.services.StartAllServices(ctx)
 				}
 			case <-ctx.Done():
-				s.services.StopRunningServices()
+				s.services.StopAllServices()
 				return
 			}
 		}
@@ -413,8 +413,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 		case isLeader := <-node.LeaderCh():
 			if isLeader {
 				s.services.StartAllServices(ctx)
-				// This node is the leader
-				s.l.Printf("I am the leader!")
+				s.l.Info("I am the leader!")
 				peers := s.memberlist.Members()
 				for _, peer := range peers {
 					if peer.Name == s.params.NodeID {
@@ -423,8 +422,8 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 					s.addMemberlistNodeToRaft(peer)
 				}
 			} else {
-				s.l.Printf("I am not a leader!")
-				s.services.StopRunningServices()
+				s.l.Info("I am not a leader!")
+				s.services.StopAllServices()
 			}
 		case <-t.C:
 			address, serverID := s.raftNode.LeaderWithID()
@@ -439,7 +438,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 func (s *Service) AddLeaderService(leaderService LeaderService) {
 	err := s.services.Add(leaderService)
 	if err != nil {
-		s.l.Errorf("couldn't add HA service: +%v", err)
+		s.l.Errorf("couldn't add HA service: %+v", err)
 	}
 }
 
@@ -460,14 +459,14 @@ func (s *Service) BroadcastMessage(message []byte) error {
 	return nil
 }
 
-// IsLeader checks if the current instance of the high availability service is the leader.
+// IsLeader checks if the current instance of HA service is the leader.
 func (s *Service) IsLeader() bool {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	return (s.raftNode != nil && s.raftNode.State() == raft.Leader) || !s.params.Enabled
 }
 
-// Bootstrap performs the necessary steps to initialize the high availability service.
+// Bootstrap returns true if HA service should bootstrap (true in non-HA setups).
 func (s *Service) Bootstrap() bool {
 	return s.params.Bootstrap || !s.params.Enabled
 }

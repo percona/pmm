@@ -35,6 +35,7 @@ type services struct {
 	l *logrus.Entry
 }
 
+// newServices creates a new services manager.
 func newServices() *services {
 	return &services{
 		all:     make(map[string]LeaderService),
@@ -44,13 +45,14 @@ func newServices() *services {
 	}
 }
 
+// Add registers a new leader service.
 func (s *services) Add(service LeaderService) error {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
 	id := service.ID()
 	if _, ok := s.all[id]; ok {
-		return fmt.Errorf("service with id %s is already exist", id)
+		return fmt.Errorf("service with id %s already exists", id)
 	}
 	s.all[id] = service
 	select {
@@ -60,6 +62,7 @@ func (s *services) Add(service LeaderService) error {
 	return nil
 }
 
+// StartAllServices starts all registered services that are not currently running.
 func (s *services) StartAllServices(ctx context.Context) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
@@ -80,7 +83,8 @@ func (s *services) StartAllServices(ctx context.Context) {
 	}
 }
 
-func (s *services) StopRunningServices() {
+// StopAllServices stops all running services.
+func (s *services) StopAllServices() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
@@ -92,14 +96,17 @@ func (s *services) StopRunningServices() {
 	}
 }
 
+// Refresh returns a channel that signals when services should be refreshed.
 func (s *services) Refresh() chan struct{} {
 	return s.refresh
 }
 
+// Wait waits for all services to stop.
 func (s *services) Wait() {
 	s.wg.Wait()
 }
 
+// removeService removes a service from the registry of running services.
 func (s *services) removeService(id string) {
 	s.rw.Lock()
 	defer s.rw.Unlock()

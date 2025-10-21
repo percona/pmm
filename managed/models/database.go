@@ -1213,6 +1213,7 @@ type SetupDBParams struct {
 	SSLCAPath        string
 	SSLKeyPath       string
 	SSLCertPath      string
+	HANodeID         string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
 }
@@ -1462,14 +1463,19 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 	if params.Address != DefaultPostgreSQLAddr {
+		nodeName := PMMServerPostgreSQLNodeName
+		if params.HANodeID != "" {
+			nodeName = params.HANodeID
+		}
 		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
-			NodeName: PMMServerPostgreSQLNodeName,
+			NodeName: nodeName,
 			Address:  address,
 		}); err != nil {
 			return err
 		}
 	} else {
-		params.Name = "" // using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		// using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		params.Name = ""
 	}
 
 	// create PostgreSQL Service and associated Agents

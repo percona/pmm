@@ -170,7 +170,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     jsonBindF,
-		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
+		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runJSONServer: ", 0),
 		Handler:  mux,
 	}
 	go func() {
@@ -232,7 +232,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     debugBindF,
-		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
+		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runDebugServer: ", 0),
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -251,7 +251,6 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 func main() {
 	log.SetFlags(0)
-	log.SetPrefix("stdlog: ")
 
 	kingpin.Version(version.ShortInfo())
 	kingpin.HelpFlag.Short('h')
@@ -273,10 +272,10 @@ func main() {
 
 	kingpin.Parse()
 
-	log.Printf("%s.", version.ShortInfo())
-	log.Printf("Clickhouse address: %s", *clickhouseAddrF)
-
 	logger.SetupGlobalLogger()
+
+	logrus.Printf("%s.", version.ShortInfo())
+	logrus.Printf("Clickhouse address: %s", *clickhouseAddrF)
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
@@ -316,7 +315,7 @@ func main() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		log.Printf("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
+		l.Infof("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 
@@ -360,7 +359,7 @@ func main() {
 		defer wg.Done()
 		for {
 			// Drop old partitions once in 24h.
-			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
+			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF, l)
 			select {
 			case <-ctx.Done():
 				return
