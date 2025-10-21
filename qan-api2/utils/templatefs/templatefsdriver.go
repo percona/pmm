@@ -45,7 +45,7 @@ func NewDriver(fs *TemplateFS, dir string) (*Driver, error) {
 }
 
 // Open returns the driver itself for the given URL (required by source.Driver interface).
-func (d *Driver) Open(url string) (source.Driver, error) {
+func (d *Driver) Open(_ string) (source.Driver, error) {
 	return d, nil
 }
 
@@ -134,7 +134,7 @@ func (d *Driver) ReadDown(version uint) (r io.ReadCloser, identifier string, err
 }
 
 // SetVersion is a no-op for this driver.
-func (d *Driver) SetVersion(version uint, dirty bool) error {
+func (d *Driver) SetVersion(_ uint, _ bool) error {
 	return nil
 }
 
