@@ -39,17 +39,33 @@ const TourNavigation: FC<Props> = ({
       mt={4}
     >
       {!isFirstStep && (
-        <Button variant="text" onClick={previousStep} startIcon={<ArrowBack />}>
+        <Button
+          data-testid="tour-next-step-button"
+          variant="text"
+          onClick={previousStep}
+          startIcon={<ArrowBack />}
+        >
           {Messages.prev}
         </Button>
       )}
-      <Box>{Messages.tip(currentStep + 1, stepCount)}</Box>
+      <Box data-testid="tour-counter">
+        {Messages.tip(currentStep + 1, stepCount)}
+      </Box>
       {isLastStep ? (
-        <Button variant="contained" onClick={endTour}>
+        <Button
+          data-testid="tour-end-tour-button"
+          variant="contained"
+          onClick={endTour}
+        >
           {Messages.end}
         </Button>
       ) : (
-        <Button variant="text" onClick={nextStep} endIcon={<ArrowForward />}>
+        <Button
+          data-testid="tour-next-step-button"
+          variant="text"
+          onClick={nextStep}
+          endIcon={<ArrowForward />}
+        >
           {Messages.next}
         </Button>
       )}

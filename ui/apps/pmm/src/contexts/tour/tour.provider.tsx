@@ -25,13 +25,13 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   const theme = useTheme();
   const { user } = useUser();
   const [tourName, setTourName] = useState<TourName>('product');
-  const { mutateAsync } = useUpdateUserInfo();
+  const { mutateAsync: updateUserInfoAsync } = useUpdateUserInfo();
   const stepsMap = useMemo<StepsMap>(
     () => ({
       product: getProductTourSteps(user),
       alerting: getAlertingTourSteps(user),
     }),
-    [user?.isPMMAdmin]
+    [user]
   );
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -61,12 +61,12 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const endTour = useCallback(async () => {
     if (tourName === 'alerting') {
-      await mutateAsync({ alertingTourCompleted: true });
+      await updateUserInfoAsync({ alertingTourCompleted: true });
     } else if (tourName === 'product') {
-      await mutateAsync({ productTourCompleted: true });
+      await updateUserInfoAsync({ productTourCompleted: true });
     }
     setIsOpen(false);
-  }, [tourName]);
+  }, [tourName, updateUserInfoAsync]);
 
   useEffect(() => {
     if (isOpen || !user?.info) {
@@ -79,7 +79,7 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
     ) {
       startTour('alerting');
     }
-  }, [isOpen, location.pathname, user?.info]);
+  }, [isOpen, location.pathname, user?.info, startTour]);
 
   return (
     <TourContext.Provider
@@ -88,8 +88,8 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
         endTour,
       }}
     >
-      {/* Need to conditionaly render the provider since the defaultOpen property doesn't react on isOpen change */}
-      {isOpen ? (
+      {/* Conditionaly render the provider since the defaultOpen property doesn't react on isOpen change */}
+      {isOpen && (
         <ReactTourProvider
           defaultOpen
           steps={steps}
@@ -127,11 +127,11 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
             }),
           }}
         >
-          {children}
+          {/* Render outside of the main tree to keep the grafana iframe from re-mounting */}
+          <></>
         </ReactTourProvider>
-      ) : (
-        children
       )}
+      {children}
     </TourContext.Provider>
   );
 };

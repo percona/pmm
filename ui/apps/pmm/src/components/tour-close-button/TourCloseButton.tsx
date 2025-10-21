@@ -15,7 +15,7 @@ const TourCloseButton: FC<Props> = ({ endTour }) => (
       right: theme.spacing(1),
     })}
   >
-    <IconButton onClick={endTour}>
+    <IconButton data-testid="tour-close-button" onClick={endTour}>
       <Close />
     </IconButton>
   </Box>

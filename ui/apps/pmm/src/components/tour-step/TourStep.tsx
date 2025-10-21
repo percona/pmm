@@ -7,8 +7,10 @@ interface Props extends PropsWithChildren {
 
 const TourStep: FC<Props> = ({ title, children }) => (
   <Stack>
-    <Typography variant="h5">{title}</Typography>
-    <Stack mt={2} gap={2}>
+    <Typography data-testid="tour-step-title" variant="h5">
+      {title}
+    </Typography>
+    <Stack data-testid="tour-step-body" mt={2} gap={2}>
       {children}
     </Stack>
   </Stack>
