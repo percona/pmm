@@ -504,7 +504,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
             - `KiB`, `MiB`, `GiB`, `TiB` for base 2 units (1024, 1048576, etc).
 
         `--disable-queryexamples`
-        : Disable collection of query examples.
+        : Disable collection of query examples. Prevents PMM from storing actual query values in Query Analytics while maintaining all performance metrics. Recommended for databases handling sensitive data. This option can also be configured via the UI when adding services.
 
         `--disable-tablestats`
         : Disable table statistics collection.
@@ -609,7 +609,8 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : Source of SQL queries, one of: `pgstatements`, `pgstatmonitor`, `none` (default: `pgstatements`).
 
         `--disable-queryexamples`
-        : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`.
+        : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`. Prevents PMM from storing actual query values in Query Analytics while maintaining all performance metrics. When using `pgstatements`, query examples are never collected by design. You can also configure this option via the UI when adding services.
+
         
         `--environment=<environment>`
         : Environment name.
