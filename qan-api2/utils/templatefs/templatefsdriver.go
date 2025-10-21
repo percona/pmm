@@ -133,21 +133,6 @@ func (d *Driver) ReadDown(version uint) (r io.ReadCloser, identifier string, err
 	return nil, "", io.EOF
 }
 
-// SetVersion is a no-op for this driver.
-func (d *Driver) SetVersion(_ uint, _ bool) error {
-	return nil
-}
-
-// Version always returns 0, false, nil for this driver.
-func (d *Driver) Version() (version uint, dirty bool, err error) {
-	return 0, false, nil
-}
-
-// Drop is a no-op for this driver.
-func (d *Driver) Drop() error {
-	return nil
-}
-
 // parseVersion extracts the migration version from the filename.
 func parseVersion(name string) (uint, error) {
 	parts := strings.SplitN(name, "_", 2)
