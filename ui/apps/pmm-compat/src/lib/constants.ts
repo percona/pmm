@@ -11,4 +11,6 @@ export const LOCATORS = {
 export const GRAFANA_SUB_PATH = '/graph';
 export const GRAFANA_LOGIN_PATH = '/graph/login';
 export const GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY = 'grafana.navigation.open';
-export const PMM_UI_PATH = `/pmm-ui/next${GRAFANA_SUB_PATH}`;
+export const PMM_UI_PATH = '/pmm-ui/next';
+export const PMM_UI_GRAFANA_PATH = `${PMM_UI_PATH}${GRAFANA_SUB_PATH}`;
+export const PMM_UI_HELP_PATH = `${PMM_UI_PATH}/help`;
