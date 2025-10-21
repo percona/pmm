@@ -7,7 +7,7 @@ Easily connect your MySQL databasesâ€”whether self-hosted or running on AWS EC2â
 Get your MySQL instance connected to PMM in just a few steps:
 {.power-number}
 
-1. Create a dedicated MySQL user with the required permissions:
+1. Create a dedicated MySQL user with the required permissions.  If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user:
 
     ```sql
     -- Create PMM user with required permissions
@@ -15,10 +15,7 @@ Get your MySQL instance connected to PMM in just a few steps:
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
     ```
 
-   **Note:**
-   If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user.
-
-3. Register your MySQL instance with PMM:
+2. Register your MySQL instance with PMM:
 
     ```sh
     # Add MySQL service to PMM
@@ -32,7 +29,7 @@ Get your MySQL instance connected to PMM in just a few steps:
       MySQL-Primary
     ```
 
-4. Verify the connection is working:
+3. Verify the connection is working:
 
     ```sh
     pmm-admin status
@@ -435,7 +432,7 @@ After creating your PMM database user, you can quickly add your MySQL service to
     4. Click **Add Service**.
 
     5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
-    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
+    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
 
 === "Via command line "
 
@@ -612,7 +609,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
        pmm-admin status
        ```
 
-=== "Via web UI"
+=== "Via UI"
     To verify your service in the web interface:
     {.power-number}
 
@@ -644,17 +641,17 @@ Once the service is confirmed as active, verify that metrics are being properly 
     If you installed the Query Response Time plugin, verify it:
     {.power-number}
 
-    1. Open the **MySQL Query Response Time Details** dashboard
-    2. Select your service from the dropdown
-    3. Alternatively, go to **Query Analytics**, select a query, and check for the **Query time distribution** bar
+    1. Open the **MySQL Query Response Time Details** dashboard.
+    2. Select your service from the dropdown.
+    3. Alternatively, go to **Query Analytics**, select a query, and check for the **Query time distribution** bar.
     
     **For Percona XtraDB Cluster:**
     To verify XtraDB Cluster monitoring:
     {.power-number}
 
-    1. Open the [**PXC/Galera Cluster Summary** dashboard][DASH_PXCGALERACLUSTER]
-    2. Select your cluster service from the dropdown
-    3. Verify that cluster-specific metrics are being displayed
+    1. Open the [**PXC/Galera Cluster Summary** dashboard][DASH_PXCGALERACLUSTER].
+    2. Select your cluster service from the dropdown.
+    3. Verify that cluster-specific metrics are being displayed.
 
 ## Related topics
 

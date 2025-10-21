@@ -1,6 +1,5 @@
 # Data handling in PMM
 
-
 The following questions are being answered related to personal and confidential data handling in PMM:
 {.power-number}
 

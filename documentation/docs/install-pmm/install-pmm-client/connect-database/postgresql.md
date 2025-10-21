@@ -249,7 +249,7 @@ For `pg_stat_statements`, query examples are never collected by design, providin
 
 After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this either through the PMM user interface or via the command line.
 
-=== "Via web UI"
+=== "Via UI"
 
     To add the service from the user interface:
     {.power-number}
@@ -306,7 +306,7 @@ After configuring your database server with the appropriate extension, you need 
         pmm-admin add postgresql --socket=/var/run/postgresql
         ```
         
-        Where:
+        where:
 
         - `/var/run/postgresql`: Directory containing the socket
     
@@ -355,10 +355,10 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
     
     How the limit works:
     
-    - If number of databases > Auto-discovery limit: Auto-discovery is **OFF**
-    - If number of databases <= Auto-discovery limit: Auto-discovery is **ON**
-    - If Auto-discovery limit is not defined: Default value is 0 (server-defined with limit 10)
-    - If Auto-discovery limit < 0: Auto-discovery is **OFF**
+    - if number of databases > Auto-discovery limit: Auto-discovery is **OFF**
+    - if number of databases <= Auto-discovery limit: Auto-discovery is **ON**
+    - if Auto-discovery limit is not defined: Default value is 0 (server-defined with limit 10)
+    - if Auto-discovery limit < 0: Auto-discovery is **OFF**
     
     **Example**:
     
@@ -371,7 +371,7 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
     
     If your PostgreSQL instance has 11 databases, automatic discovery will be disabled.
 
-=== "Via web UI"
+=== "Via UI"
 
     By default, **Auto-discovery** is enabled with a server-defined limit of 10 databases.
     
@@ -383,8 +383,6 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
     
     For a custom value, select **Custom** and enter your preferred limit.
     
-    ![Auto-discovery Custom](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_custom.png)
-
 ## Check the service
 
 After adding a PostgreSQL service, verify that it's properly connected and sending data to PMM.
@@ -405,7 +403,7 @@ After adding a PostgreSQL service, verify that it's properly connected and sendi
     
     Look for your PostgreSQL service in the output and verify that its status is "RUNNING".
 
-=== "Via web UI"
+=== "Via UI"
 
     Use the UI to confirm that your service was added and is actively monitored:
     {.power-number}
