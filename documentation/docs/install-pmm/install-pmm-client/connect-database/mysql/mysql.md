@@ -383,6 +383,31 @@ User activity, individual table and index access details are shown on the [MySQL
     - Session: `SET GLOBAL userstat = ON;`
 
 
+### Disable query example collection 
+
+PMM can collect query examples to help analyze query performance with real-world data. However, you can disable this collection when handling sensitive information.
+
+When query examples are disabled, Query Analytics continues to function normally with query fingerprints and performance metrics. Only the **Examples** tab will not display actual query values, and the Explain functionality will use placeholders for sensitive data.
+
+To disable query examples for data privacy:
+
+=== "Via UI"
+    When adding a MySQL service through the PMM UI, expand **Advanced Settings** and check **Disable query examples**. This prevents PMM from storing actual query values while maintaining all other Query Analytics functionality.
+
+=== "Via Command Line"
+    Use the `--disable-queryexamples` flag when adding a MySQL service:
+
+    ```bash
+        pmm-admin add mysql \
+        --username=pmm \
+        --password=StrongPassword \
+        --host=localhost \
+        --port=3306 \
+        --query-source=slowlog \
+        --disable-queryexamples \
+        MySQL-Private
+    ```
+
 ### Add service to PMM
 
 After creating your PMM database user, you can quickly add your MySQL service to PMM. You can do this either through the PMM user interface or via the command line.
@@ -397,6 +422,7 @@ After creating your PMM database user, you can quickly add your MySQL service to
     2. Select **MySQL** service type.
     
     3. Enter or select values for the fields:
+
         - **Service Name**: A descriptive name for your MySQL instance
         - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
         - **Port**: MySQL port (default: 3306)
@@ -404,7 +430,8 @@ After creating your PMM database user, you can quickly add your MySQL service to
         - **Password**: Your PMM user password
         - **Query Source**: Choose between **Slow Log** or **Performance Schema**
         - **PMM Agent**: Select which PMM agent should monitor this instance
-    
+        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+
     4. Click **Add Service**.
 
     5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 

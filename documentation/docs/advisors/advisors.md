@@ -19,7 +19,8 @@ The **Services** tab displays the individual services, the nodes on which they r
 | Monitoring status| The **Monitoring** column summarizes the status of all the Agents assigned to the service. Possible statuses are: <br><br> • <b style="color:#73BF69;">OK</b> - all agents are healthy <br> • <b style="color:#FF9830;">Warning</b> - multiple agents are disabled <br> • <b style="color:#e02f44;">Failed</b> - one or more agents are failing <br> • <b style="color:#6C757D;">Disabled</b> - agent is intentionally disabled <br> • <b style="color:#6C757D;">Stopped</b> - agent has stopped but is not disabled |
 |  Address         | The IP address or DNS where the service is currently running. For RDS instances, this shows the actual database endpoint. |
 |  Port         | The port number on which the service is running. ||
-|  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the **<image src="../../images/dots-three-vertical.ico" width="15px" aria-label="triple dots"/>** icon </br> </br> * You can also check additional information about the service, by clicking on the **<image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/>** icon. This expands the service entry to show reference information like service labels and IDs.|
+|  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the **<image src="../../images/dots-three-vertical.ico" width="15px" aria-label="triple dots"/>** icon </br> </br> * You can also check additional information about the service, by clicking on the <span class="material-icons">expand_more</span> icon. This expands the service entry to show reference information like service labels and IDs.|
+
 
 ![!image](../images/PMM_Inventory_Service_Selection.png)
 

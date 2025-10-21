@@ -221,6 +221,30 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
         !!! note "Best practice"
             Create the extension in the `postgres` database to access statistics from all databases without configuring each one individually.
 
+==== INSERT NEW SECTION HERE ====
+## Query examples and data privacy
+
+PostgreSQL query example collection depends on your chosen query source.
+
+### Disabling query examples with pgstatmonitor
+
+When using `pgstatmonitor`, query examples are collected by default but can be disabled for privacy. 
+
+For `pg_stat_statements`, query examples are never collected by design, providing inherent privacy without requiring any configuration. 
+
+=== "Via UI"
+    When adding a PostgreSQL service through the PMM UI, expand **Advanced Settings** and check **Disable query examples**. This prevents PMM from storing actual query values while maintaining all other Query Analytics functionality.
+
+=== "Via command line"
+    Use the `--disable-queryexamples` flag:
+    ```sh
+        pmm-admin add postgresql \
+        --username=pmm \
+        --password=password \
+        --query-source=pgstatmonitor \
+        --disable-queryexamples \
+        PostgreSQL-Private
+    ```
 
 ## Add service to PMM
 
@@ -234,11 +258,13 @@ After configuring your database server with the appropriate extension, you need 
     1. Go to  **PMM Configuration > Add Service > PostgreSQL**.
     
     2. Enter or select values for the fields.
-    
-    3. Click **Add service**.
+
+    3. (Optional) If using `pgstatmonitor`, check **Disable query examples** under **Additional options** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.    
+
+    4. Click **Add service**.
     ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
 
-    4. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
     For TLS connection, make sure SSL is configured in your PostgreSQL instance. 
     
     Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
