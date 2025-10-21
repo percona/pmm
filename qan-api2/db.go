@@ -98,7 +98,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db.SetMaxOpenConns(maxOpenConns)
 
 	data := map[string]any{
-		"engine": migrations.GetEngine(dsn),
+		"engine": migrations.GetEngine(dsn, clusterName),
 	}
 	if clusterName != "" {
 		log.Printf("Using ClickHouse cluster name: %s", clusterName)

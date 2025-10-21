@@ -83,8 +83,8 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 	return u.String(), nil
 }
 
-func GetEngine(dsn string) string {
-	isCluster, err := IsClickhouseClusterReady(dsn, "")
+func GetEngine(dsn string, clusterName string) string {
+	isCluster, err := IsClickhouseClusterReady(dsn, clusterName)
 	if err != nil {
 		logrus.Fatalf("Error checking ClickHouse cluster status: %v", err)
 	}
