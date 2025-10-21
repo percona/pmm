@@ -127,12 +127,12 @@ func runMigrations(dsn string) error {
 			// Note: since 0th migration does not exist, we set it to -1, which means "start from scratch"
 			ver = -1
 		}
-		fErr := m.Force(ver)
-		if fErr != nil {
-			return fmt.Errorf("can't force the migration %d: %w", ver, fErr)
+		err = m.Force(ver)
+		if err != nil {
+			return fmt.Errorf("can't force the migration %d: %w", ver, err)
 		}
 
-		// try to run migrations again
+		// try to run migrations again, starting from the forced version
 		err = m.Up()
 		if errors.Is(err, migrate.ErrNoChange) {
 			return nil
