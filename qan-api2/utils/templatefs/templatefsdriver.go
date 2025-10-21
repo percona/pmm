@@ -26,12 +26,15 @@ import (
 	"github.com/golang-migrate/migrate/v4/source"
 )
 
+// Driver implements the golang-migrate source.Driver interface for TemplateFS.
+// It allows golang-migrate to use TemplateFS as a migration source with runtime templating.
 type Driver struct {
 	fs    *TemplateFS
 	files []fs.DirEntry
 	dir   string
 }
 
+// NewDriver creates a new Driver for the given TemplateFS and directory.
 func NewDriver(fs *TemplateFS, dir string) (*Driver, error) {
 	files, err := fs.ReadDir(dir)
 	if err != nil {
@@ -41,14 +44,17 @@ func NewDriver(fs *TemplateFS, dir string) (*Driver, error) {
 	return &Driver{fs: fs, files: files, dir: dir}, nil
 }
 
+// Open returns the driver itself for the given URL (required by source.Driver interface).
 func (d *Driver) Open(url string) (source.Driver, error) {
 	return d, nil
 }
 
+// Close closes the driver (no-op for TemplateFS).
 func (d *Driver) Close() error {
 	return nil
 }
 
+// First returns the version of the first migration.
 func (d *Driver) First() (version uint, err error) {
 	for _, f := range d.files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".up.sql") {
@@ -59,6 +65,7 @@ func (d *Driver) First() (version uint, err error) {
 	return 0, io.EOF
 }
 
+// Prev returns the previous migration version before the given version.
 func (d *Driver) Prev(version uint) (prevVersion uint, err error) {
 	var last uint
 	for _, f := range d.files {
@@ -75,6 +82,7 @@ func (d *Driver) Prev(version uint) (prevVersion uint, err error) {
 	return last, nil
 }
 
+// Next returns the next migration version after the given version.
 func (d *Driver) Next(version uint) (nextVersion uint, err error) {
 	found := false
 	for _, f := range d.files {
@@ -91,6 +99,7 @@ func (d *Driver) Next(version uint) (nextVersion uint, err error) {
 	return 0, io.EOF
 }
 
+// ReadUp returns an io.ReadCloser for the up migration of the given version.
 func (d *Driver) ReadUp(version uint) (r io.ReadCloser, identifier string, err error) {
 	for _, f := range d.files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".up.sql") {
@@ -107,6 +116,7 @@ func (d *Driver) ReadUp(version uint) (r io.ReadCloser, identifier string, err e
 	return nil, "", io.EOF
 }
 
+// ReadDown returns an io.ReadCloser for the down migration of the given version.
 func (d *Driver) ReadDown(version uint) (r io.ReadCloser, identifier string, err error) {
 	for _, f := range d.files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".down.sql") {
@@ -123,18 +133,22 @@ func (d *Driver) ReadDown(version uint) (r io.ReadCloser, identifier string, err
 	return nil, "", io.EOF
 }
 
+// SetVersion is a no-op for this driver.
 func (d *Driver) SetVersion(version uint, dirty bool) error {
 	return nil
 }
 
+// Version always returns 0, false, nil for this driver.
 func (d *Driver) Version() (version uint, dirty bool, err error) {
 	return 0, false, nil
 }
 
+// Drop is a no-op for this driver.
 func (d *Driver) Drop() error {
 	return nil
 }
 
+// parseVersion extracts the migration version from the filename.
 func parseVersion(name string) (uint, error) {
 	parts := strings.SplitN(name, "_", 2)
 	if len(parts) < 2 {

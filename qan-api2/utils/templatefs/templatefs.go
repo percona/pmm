@@ -24,13 +24,12 @@ import (
 	"text/template"
 )
 
-// TemplateFS wraps an embed.FS and applies templating to file content during reads.
-// It implements the fs.FS interface and delegates most operations to the underlying embed.FS,
-// but applies Go text/template processing when reading file content via ReadFile.
+// TemplateFS provides a filesystem interface with templating support.
+// It wraps an embed.FS and applies Go text/template processing when reading file content via ReadFile.
 type TemplateFS struct {
-	// EmbedFS is the underlying embedded filesystem
+	// EmbedFS is the underlying embedded filesystem.
 	EmbedFS embed.FS
-	// Data contains template data that will be used for all files
+	// Data contains template data that will be used for all files.
 	Data map[string]any
 }
 
