@@ -53,8 +53,7 @@ export const getProductTourSteps = (user?: User): StepType[] => {
           <Typography>
             <Link
               color="inherit"
-              // todo: add in alert templates link
-              href="TODO"
+              href="https://per.co.na/alert_templates"
               target="_blank"
               rel="noopener noreferrer"
             >
