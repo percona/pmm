@@ -384,8 +384,7 @@ User activity, individual table and index access details are shown on the [MySQL
 
 PMM can collect query examples to help analyze query performance with real-world data. However, you can disable this collection when handling sensitive information.
 
-When query examples are disabled, Query Analytics continues to function normally with query fingerprints and performance metrics. Only the **Examples** tab will not display actual query values, and the Explain functionality will use placeholders for sensitive data.
-
+When query examples are disabled, Query Analytics continues to function normally with query fingerprints and performance metrics. However, the **Examples** tab will not display query examples, and the Explain functionality will use placeholders instead of actual data values.
 To disable query examples for data privacy:
 
 === "Via UI"
