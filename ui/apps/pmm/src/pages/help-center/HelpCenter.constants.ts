@@ -120,8 +120,7 @@ export const getCardData = ({
       {
         text: 'Share your thoughts',
         target: '_blank',
-        // TODO: add survey url
-        url: '',
+        url: 'https://per.co.na/pmm3_feedback',
       },
     ],
   },
