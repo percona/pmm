@@ -21,7 +21,7 @@ export const useServices = (
 ) =>
   useQuery({
     queryKey: ['services:list', params],
-    queryFn: ({ queryKey: [_, params] }) =>
+    queryFn: ({ queryKey: [, params] }) =>
       listServices(params as ListServicesParams),
     ...options,
   });

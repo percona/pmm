@@ -41,6 +41,7 @@ const WelcomeCard: FC = () => {
 
   return (
     <Card
+      data-testid="welcome-card"
       variant="outlined"
       sx={{
         md: 2,

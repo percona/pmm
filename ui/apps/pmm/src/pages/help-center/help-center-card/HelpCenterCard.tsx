@@ -75,6 +75,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
               {...(button.onClick
                 ? {
                     onClick: button.onClick,
+                    'data-testid': button.dataTestId,
                   }
                 : button.to
                   ? {

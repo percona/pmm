@@ -5,6 +5,7 @@ export interface HelpCardButton {
   to?: string;
   startIconName?: string;
   onClick?: () => void;
+  dataTestId?: string;
 }
 
 export interface HelpCard {

@@ -105,6 +105,7 @@ export const getCardData = ({
       {
         text: 'Start PMM tour',
         startIconName: START_ICON.map,
+        dataTestId: 'tips-card-start-product-tour-button',
         onClick: startProductTour,
       },
     ],

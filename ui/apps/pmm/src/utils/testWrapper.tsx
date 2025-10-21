@@ -4,7 +4,7 @@ import { UserContext, UserContextProps } from 'contexts/user';
 import { FC, PropsWithChildren } from 'react';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
 import pmmThemeOptions from 'themes/PmmTheme';
-import { OrgRole } from 'types/user.types';
+import { TEST_USER_ADMIN } from './testStubs';
 
 interface TestWrapperProps extends PropsWithChildren {
   authContext?: AuthContextProps;
@@ -17,18 +17,7 @@ export const TestWrapper: FC<TestWrapperProps> = ({
   authContext = { isLoading: false, isLoggedIn: true },
   userContext = {
     isLoading: false,
-    user: {
-      id: 1,
-      login: 'admin',
-      name: 'admin',
-      isAuthorized: true,
-      isViewer: true,
-      isEditor: true,
-      isPMMAdmin: true,
-      orgId: 1,
-      orgRole: OrgRole.Admin,
-      orgs: [],
-    },
+    user: TEST_USER_ADMIN,
   },
   routerProps = {},
 }) => (
