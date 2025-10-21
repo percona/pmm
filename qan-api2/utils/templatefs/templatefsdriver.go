@@ -55,7 +55,7 @@ func (d *Driver) Close() error {
 }
 
 // First returns the version of the first migration.
-func (d *Driver) First() (version uint, err error) {
+func (d *Driver) First() (uint, error) {
 	for _, f := range d.files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".up.sql") {
 			v, err := parseVersion(f.Name())
@@ -66,7 +66,7 @@ func (d *Driver) First() (version uint, err error) {
 }
 
 // Prev returns the previous migration version before the given version.
-func (d *Driver) Prev(version uint) (prevVersion uint, err error) {
+func (d *Driver) Prev(version uint) (uint, error) {
 	var last uint
 	for _, f := range d.files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".up.sql") {
@@ -83,7 +83,7 @@ func (d *Driver) Prev(version uint) (prevVersion uint, err error) {
 }
 
 // Next returns the next migration version after the given version.
-func (d *Driver) Next(version uint) (nextVersion uint, err error) {
+func (d *Driver) Next(version uint) (uint, error) {
 	found := false
 	for _, f := range d.files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".up.sql") {
@@ -100,7 +100,7 @@ func (d *Driver) Next(version uint) (nextVersion uint, err error) {
 }
 
 // ReadUp returns an io.ReadCloser for the up migration of the given version.
-func (d *Driver) ReadUp(version uint) (r io.ReadCloser, identifier string, err error) {
+func (d *Driver) ReadUp(version uint) (io.ReadCloser, string, error) {
 	for _, f := range d.files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".up.sql") {
 			v, _ := parseVersion(f.Name())
@@ -117,7 +117,7 @@ func (d *Driver) ReadUp(version uint) (r io.ReadCloser, identifier string, err e
 }
 
 // ReadDown returns an io.ReadCloser for the down migration of the given version.
-func (d *Driver) ReadDown(version uint) (r io.ReadCloser, identifier string, err error) {
+func (d *Driver) ReadDown(version uint) (io.ReadCloser, string, error) {
 	for _, f := range d.files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".down.sql") {
 			v, _ := parseVersion(f.Name())
