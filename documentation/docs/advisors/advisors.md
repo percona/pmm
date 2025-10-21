@@ -53,7 +53,7 @@ To view the agents running on a service and their health status, click the statu
 
 You can also check the properties of a particular agent by clicking the <image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
 
-![!image](../images/PMM_Inventory_Service_Agent_Properties.png)
+![!PMM Inventory Service Agent Properties](../images/PMM_Inventory_Service_Agent_Properties.png)
 
 #### Agent status indicators
 
