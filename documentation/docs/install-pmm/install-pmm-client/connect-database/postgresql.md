@@ -221,7 +221,6 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
         !!! note "Best practice"
             Create the extension in the `postgres` database to access statistics from all databases without configuring each one individually.
 
-==== INSERT NEW SECTION HERE ====
 ## Query examples and data privacy
 
 PostgreSQL query example collection depends on your chosen query source.

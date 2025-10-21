@@ -394,7 +394,7 @@ To disable query examples for data privacy:
 === "Via UI"
     When adding a MySQL service through the PMM UI, expand **Advanced Settings** and check **Disable query examples**. This prevents PMM from storing actual query values while maintaining all other Query Analytics functionality.
 
-=== "Via Command Line"
+=== "Via command line"
     Use the `--disable-queryexamples` flag when adding a MySQL service:
 
     ```bash
@@ -412,7 +412,7 @@ To disable query examples for data privacy:
 
 After creating your PMM database user, you can quickly add your MySQL service to PMM. You can do this either through the PMM user interface or via the command line.
 
-=== "Using the PMM user interface"
+=== "Via UI"
 
     To add the service from the user interface:
     {.power-number}
@@ -437,7 +437,7 @@ After creating your PMM database user, you can quickly add your MySQL service to
     5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
     ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
 
-=== "Using the command line"
+=== "Via command line "
 
     === "Basic setup"
     
@@ -540,35 +540,35 @@ PMM supports flexible TLS certificate configurations for MySQL connections, enab
 
 === "Partial certificates (CA only)"
 
-For many cloud providers (Azure MySQL, Google Cloud SQL) and self-signed certificates, you only need the CA certificate to establish encrypted connections:
-```bash
-pmm-admin add mysql \
-  --username=pmm \
-  --password=StrongPassword \
-  --host=mysql-server.example.com \
-  --port=3306 \
-  --tls \
-  --tls-ca=/path/to/ca.pem \
-  --query-source=perfschema \
-  MySQL-Secure
-```
+    For many cloud providers (Azure MySQL, Google Cloud SQL) and self-signed certificates, you only need the CA certificate to establish encrypted connections:
+    ```bash
+    pmm-admin add mysql \
+    --username=pmm \
+    --password=StrongPassword \
+    --host=mysql-server.example.com \
+    --port=3306 \
+    --tls \
+    --tls-ca=/path/to/ca.pem \
+    --query-source=perfschema \
+    MySQL-Secure
+    ```
 
 === "Full certificates (with client authentication)"
 
-When your MySQL server requires client certificate authentication, provide all three certificate files:
-```bash
-pmm-admin add mysql \
-  --username=pmm \
-  --password=StrongPassword \
-  --host=mysql-server.example.com \
-  --port=3306 \
-  --tls \
-  --tls-ca=/path/to/ca.pem \
-  --tls-cert=/path/to/client-cert.pem \
-  --tls-key=/path/to/client-key.pem \
-  --query-source=perfschema \
-  MySQL-TLS-Full
-```
+    When your MySQL server requires client certificate authentication, provide all three certificate files:
+    ```bash
+    pmm-admin add mysql \
+    --username=pmm \
+    --password=StrongPassword \
+    --host=mysql-server.example.com \
+    --port=3306 \
+    --tls \
+    --tls-ca=/path/to/ca.pem \
+    --tls-cert=/path/to/client-cert.pem \
+    --tls-key=/path/to/client-key.pem \
+    --query-source=perfschema \
+    MySQL-TLS-Full
+    ```
 
 **Certificate requirements:**
 
