@@ -45,7 +45,7 @@ func NewDriver(fs *TemplateFS, dir string) (*Driver, error) {
 }
 
 // Open returns the driver itself for the given URL (required by source.Driver interface).
-func (d *Driver) Open(_ string) (source.Driver, error) {
+func (d *Driver) Open(_ string) (source.Driver, error) { //nolint:ireturn
 	return d, nil
 }
 
