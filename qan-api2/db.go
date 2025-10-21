@@ -16,6 +16,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -49,7 +50,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		log.Printf("DSN for cluster check: %s", dsnURL.Redacted())
 
 		for {
-			isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
+			isClusterReady, err := migrations.IsClickhouseClusterReady(dsnDefault, clusterName)
 			if err != nil {
 				log.Fatalf("error checking ClickHouse cluster status: %v", err)
 			}
@@ -67,7 +68,8 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		log.Printf("error connecting to clickhouse: %v", err)
-		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
+		var exception *clickhouse.Exception
+		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
 			log.Println("one of expected errors - database does not exist, creating")
 			err = createDB(dsn, clusterName)
 			if err != nil {

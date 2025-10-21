@@ -4,11 +4,11 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 
@@ -22,9 +22,9 @@ const (
 )
 
 //go:embed sql/*.sql
-var migrationFS embed.FS
+var eFS embed.FS
 
-func IsClickhouseCluster(dsn string, clusterName string) (bool, error) {
+func IsClickhouseClusterReady(dsn string, clusterName string) (bool, error) {
 	var args []interface{}
 	sql := "SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters"
 	if clusterName != "" {
@@ -64,6 +64,8 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 		return "", err
 	}
 
+	// Values x-cluster-name and x-migrations-table-engine goes as part of query.
+	// Since only x-migrations-table-engine contains special chars only this one is needed not to be escaped.
 	q := u.Query()
 	if clusterName != "" {
 		logrus.Printf("Using ClickHouse cluster name: %s", clusterName)
@@ -82,7 +84,7 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 }
 
 func GetEngine(dsn string) string {
-	isCluster, err := IsClickhouseCluster(dsn, "")
+	isCluster, err := IsClickhouseClusterReady(dsn, "")
 	if err != nil {
 		logrus.Fatalf("Error checking ClickHouse cluster status: %v", err)
 	}
@@ -94,33 +96,37 @@ func GetEngine(dsn string) string {
 }
 
 func Run(dsn string, templateData map[string]any, isCluster bool, clusterName string) error {
-	if isCluster {
+	// Use TemplateFS as the migration source for golang-migrate
+	tfs := templatefs.NewTemplateFS(eFS, templateData)
+	drv, err := templatefs.NewDriver(tfs, "sql")
+	if err != nil {
+		return err
+	}
+
+	isClusterReady, err := IsClickhouseClusterReady(dsn, clusterName)
+	if err != nil {
+		return err
+	}
+	if isClusterReady {
 		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsn)
-		dsn, err := addClusterSchemaMigrationsParams(dsn, clusterName)
+		dsn, err = addClusterSchemaMigrationsParams(dsn, clusterName)
 		if err != nil {
 			return err
 		}
 		log.Printf("Adjusted DSN for migrations: %s", dsn)
 	}
 
-	// Prepare TemplateFS with provided template data
-	tfs := templatefs.NewTemplateFS(migrationFS, templateData)
-
-	// Use TemplateFS directly with golang-migrate
-	d, err := iofs.New(tfs, "sql")
+	m, err := migrate.NewWithSourceInstance("templatefs", drv, dsn)
 	if err != nil {
 		return err
 	}
 
-	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
-	if err != nil {
-		return err
-	}
-
-	// run up to the latest migration
 	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
-		return nil
+	if err != nil {
+		if errors.Is(err, migrate.ErrNoChange) || errors.Is(err, io.EOF) {
+			return nil
+		}
+		logrus.Errorf("[Run] Migration failed: %v", err)
 	}
 
 	return err

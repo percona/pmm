@@ -77,7 +77,7 @@ func TestTemplateFS_ReadFile_WithoutTemplateData(t *testing.T) {
 }
 
 func TestTemplateFS_ReadFile_WithEmptyTemplateData(t *testing.T) {
-	data := make(map[string]any)
+	data := map[string]any{}
 	tfs := NewTemplateFS(testFS, data)
 	content, err := tfs.ReadFile("testdata/simple.sql")
 	require.NoError(t, err)
@@ -108,7 +108,7 @@ func TestTemplateFS_ReadDir(t *testing.T) {
 	entries, err := tfs.ReadDir("testdata")
 	require.NoError(t, err)
 	assert.NotEmpty(t, entries)
-	var names []string //nolint:prealloc
+	var names []string
 	for _, entry := range entries {
 		names = append(names, entry.Name())
 	}
