@@ -18,8 +18,8 @@ import (
 
 const (
 	metricsEngineSimple           = "MergeTree"
-	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/metrics', '{replica}')"
-	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/schema_migrations', '{replica}') ORDER BY version"
+	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/metrics', '{replica}')"
+	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/schema_migrations', '{replica}') ORDER BY version"
 )
 
 //go:embed sql/*.sql
@@ -93,13 +93,6 @@ func GetEngine(isCluster bool) string {
 }
 
 func Run(dsn string, templateData map[string]any, isCluster bool, clusterName string) error {
-	// Use TemplateFS as the migration source for golang-migrate
-	tfs := templatefs.NewTemplateFS(eFS, templateData)
-	drv, err := templatefs.NewDriver(tfs, "sql")
-	if err != nil {
-		return err
-	}
-
 	if isCluster {
 		isClusterReady, err := IsClickhouseClusterReady(dsn, clusterName)
 		if err != nil {
@@ -113,6 +106,13 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 			}
 			log.Printf("Adjusted DSN for migrations: %s", dsnutils.RedactDSN(dsn))
 		}
+	}
+
+	// Use TemplateFS as the migration source for golang-migrate
+	tfs := templatefs.NewTemplateFS(eFS, templateData)
+	drv, err := templatefs.NewDriver(tfs, "sql")
+	if err != nil {
+		return err
 	}
 
 	m, err := migrate.NewWithSourceInstance("templatefs", drv, dsn)
