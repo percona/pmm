@@ -13,11 +13,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package dsn provides DNS related utilities.
+// Package dsnutils provides DNS related utilities.
 package dsnutils
 
 import "net/url"
 
+// RedactDSN redacts sensitive information from the given DSN string.
 func RedactDSN(dsn string) string {
 	u, err := url.Parse(dsn)
 	if err != nil {
