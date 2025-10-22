@@ -13,6 +13,6 @@ export const getServiceTypes = async (): Promise<ListTypesResponse> => {
 export const listServices = async (
   params: ListServicesParams
 ): Promise<ListServicesResponse> => {
-  const res = await api.get('/inventory/services', { params: params });
+  const res = await api.get('/inventory/services', { params });
   return res.data;
 };

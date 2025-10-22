@@ -1,8 +1,9 @@
 import { StepType } from '@reactour/tour';
 import { Messages } from './product.messages';
 import { TourStep } from 'components/tour-step';
-import { Link, Typography } from '@mui/material';
 import { User } from 'types/user.types';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 
 export const getProductTourSteps = (user?: User): StepType[] => {
   const steps: StepType[] = [

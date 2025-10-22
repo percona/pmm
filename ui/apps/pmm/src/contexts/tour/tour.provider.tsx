@@ -10,7 +10,6 @@ import { TourProvider as ReactTourProvider, StepType } from '@reactour/tour';
 import { TourContext } from './tour.context';
 import { StepsMap, TourName } from './tour.context.types';
 import { TourNavigation } from 'components/tour-navigation';
-import { useTheme } from '@mui/material';
 import { DRAWER_WIDTH } from 'components/sidebar/drawer/Drawer.constants';
 import { waitForVisible } from 'utils/dom.utils';
 import { useUpdateUserInfo } from 'hooks/api/useUser';
@@ -20,6 +19,7 @@ import { getAlertingTourSteps } from './steps/alerting.steps';
 import { TourCloseButton } from 'components/tour-close-button';
 import { useNavigation } from 'contexts/navigation';
 import { useLocation } from 'react-router-dom';
+import useTheme from '@mui/material/styles/useTheme';
 
 export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   const theme = useTheme();
