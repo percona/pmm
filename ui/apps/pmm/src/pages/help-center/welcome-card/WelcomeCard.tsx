@@ -106,7 +106,7 @@ const WelcomeCard: FC = () => {
           {user?.isPMMAdmin ? Messages.tour : Messages.tourNonAdmin}
         </Typography>
       </CardContent>
-      <CardActions sx={{ pb: 3 }}>
+      <CardActions sx={{ p: 2, pt: 1 }}>
         <Button
           startIcon={<MapOutlinedIcon />}
           variant="contained"
