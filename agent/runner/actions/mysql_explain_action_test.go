@@ -108,7 +108,7 @@ func TestMySQLExplain(t *testing.T) {
 		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
 		case "9.5-oracle", "9.6-oracle":
 			// Explain output changed. More checks should be done. See: PMM-14426
-			require.Len(t, m.Get("warnings").InterSlice(), 0)
+			require.Empty(t, m.Get("warnings").InterSlice())
 		default:
 			assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
