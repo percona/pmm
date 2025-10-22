@@ -16,6 +16,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -28,6 +29,7 @@ import (
 	"github.com/jmoiron/sqlx/reflectx"
 
 	"github.com/percona/pmm/qan-api2/migrations"
+	"github.com/percona/pmm/utils/dsnutils"
 )
 
 const (
@@ -36,20 +38,19 @@ const (
 
 // NewDB return updated db.
 func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
-	dsnURL, err := url.Parse(dsn)
-	if err != nil {
-		log.Fatalf("error parsing DSN: %v", err)
-	}
-
 	// If ClickHouse is a cluster, wait until the cluster is ready.
 	if isCluster {
 		log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
+		dsnURL, err := url.Parse(dsn)
+		if err != nil {
+			log.Fatalf("error parsing DSN: %v", err)
+		}
 		dsnURL.Path = "/default"
 		dsnDefault := dsnURL.String()
-		log.Printf("DSN for cluster check: %s", dsnURL.Redacted())
+		log.Printf("DSN for cluster check: %s", dsnutils.RedactDSN(dsnDefault))
 
 		for {
-			isClusterReady, err := migrations.IsClickhouseCluster(dsnDefault, clusterName)
+			isClusterReady, err := migrations.IsClickhouseClusterReady(dsnDefault, clusterName)
 			if err != nil {
 				log.Fatalf("error checking ClickHouse cluster status: %v", err)
 			}
@@ -63,17 +64,18 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		}
 	}
 
-	log.Printf("new connection with DSN: %s", dsnURL.Redacted())
+	log.Printf("new connection with DSN: %s", dsnutils.RedactDSN(dsn))
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		log.Printf("error connecting to clickhouse: %v", err)
-		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
+		var exception *clickhouse.Exception
+		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
 			log.Println("one of expected errors - database does not exist, creating")
 			err = createDB(dsn, clusterName)
 			if err != nil {
 				log.Fatalf("database wasn't created: %v", err)
 			}
-			log.Printf("database created, connecting again %s", dsnURL.Redacted())
+			log.Printf("database created, connecting again %s", dsnutils.RedactDSN(dsn))
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
 				log.Fatalf("connection: %v", err)
@@ -96,7 +98,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db.SetMaxOpenConns(maxOpenConns)
 
 	data := map[string]any{
-		"engine": migrations.GetEngine(dsn),
+		"engine": migrations.GetEngine(isCluster),
 	}
 	if clusterName != "" {
 		log.Printf("Using ClickHouse cluster name: %s", clusterName)
