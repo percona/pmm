@@ -318,12 +318,12 @@ func TestMySQLExplain(t *testing.T) {
 				_, err = conn.ExecContext(ctx, "DROP FUNCTION IF EXISTS cleanup")
 				require.NoError(t, err)
 				_, err = conn.ExecContext(ctx, `CREATE FUNCTION cleanup() RETURNS char(50) CHARSET latin1
-					DETERMINISTIC
-					BEGIN
-					delete from world.test_explain_table;
-					RETURN 'OK';
-					END
-					`)
+				DETERMINISTIC
+				BEGIN
+				delete from world.test_explain_table;
+				RETURN 'OK';
+				END
+				`)
 				require.NoError(t, err)
 			}(t)
 
