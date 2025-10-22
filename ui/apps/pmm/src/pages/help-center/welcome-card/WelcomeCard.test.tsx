@@ -91,13 +91,9 @@ describe('WelcomeCard', () => {
   });
 
   it('shows just tour button for editor', async () => {
-    mocks.listServices.mockReturnValueOnce(
-      Promise.resolve(TEST_SERVICES_WITH_ONE_MYSQL)
-    );
-
     renderWelcomeCard(TEST_USER_EDITOR);
 
-    expect(mocks.listServices).toHaveBeenCalled();
+    expect(mocks.listServices).not.toHaveBeenCalled();
 
     await waitFor(() =>
       expect(
@@ -112,13 +108,9 @@ describe('WelcomeCard', () => {
   });
 
   it('shows just tour button for viewer', async () => {
-    mocks.listServices.mockReturnValueOnce(
-      Promise.resolve(TEST_SERVICES_WITH_ONE_MYSQL)
-    );
-
     renderWelcomeCard(TEST_USER_VIEWER);
 
-    expect(mocks.listServices).toHaveBeenCalled();
+    expect(mocks.listServices).not.toHaveBeenCalled();
 
     await waitFor(() =>
       expect(

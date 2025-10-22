@@ -27,7 +27,7 @@ const WelcomeCard: FC = () => {
   const { user } = useUser();
   const { startTour } = useTour();
   const { mutate: updateUserInfo } = useUpdateUserInfo();
-  const services = useServices();
+  const services = useServices({}, { enabled: !!user?.isPMMAdmin });
   const showAddService = shouldShowAddService(services.data);
 
   const handleDismiss = useCallback(
