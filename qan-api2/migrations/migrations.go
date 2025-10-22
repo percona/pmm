@@ -13,6 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/qan-api2/utils/templatefs"
+	"github.com/percona/pmm/utils/dsnutils"
 )
 
 const (
@@ -83,11 +84,7 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 	return u.String(), nil
 }
 
-func GetEngine(dsn string, clusterName string) string {
-	isCluster, err := IsClickhouseClusterReady(dsn, clusterName)
-	if err != nil {
-		logrus.Fatalf("Error checking ClickHouse cluster status: %v", err)
-	}
+func GetEngine(isCluster bool) string {
 	if isCluster {
 		return metricsEngineCluster
 	}
@@ -103,17 +100,19 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 		return err
 	}
 
-	isClusterReady, err := IsClickhouseClusterReady(dsn, clusterName)
-	if err != nil {
-		return err
-	}
-	if isClusterReady {
-		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsn)
-		dsn, err = addClusterSchemaMigrationsParams(dsn, clusterName)
+	if isCluster {
+		isClusterReady, err := IsClickhouseClusterReady(dsn, clusterName)
 		if err != nil {
 			return err
 		}
-		log.Printf("Adjusted DSN for migrations: %s", dsn)
+		if isClusterReady {
+			log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsnutils.RedactDSN(dsn))
+			dsn, err = addClusterSchemaMigrationsParams(dsn, clusterName)
+			if err != nil {
+				return err
+			}
+			log.Printf("Adjusted DSN for migrations: %s", dsnutils.RedactDSN(dsn))
+		}
 	}
 
 	m, err := migrate.NewWithSourceInstance("templatefs", drv, dsn)
