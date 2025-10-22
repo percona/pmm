@@ -14,7 +14,7 @@ It allows you to observe the health of your database systems, explore new patter
 
 
 !!! warning "Upgrade required" 
-    PMM 2 is no longer actively developed. For continued access to security updates, new features and ongoing support, [migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html).
+    PMM 2 is no longer actively developed and will reach end-of-life on October 31, 2025. For continued access to security updates, new features and ongoing support, [migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html).
 
 Here's how the home page looks on our <a href='https://pmmdemo.percona.com/' target='_blank'>free, live demo system</a>.
 
