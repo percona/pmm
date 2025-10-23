@@ -1849,6 +1849,135 @@ var _ interface {
 	ErrorName() string
 } = QANMongoDBMongologAgentValidationError{}
 
+// Validate checks the field values on MongoDBRealtimeAnalyticsAgent with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *MongoDBRealtimeAnalyticsAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MongoDBRealtimeAnalyticsAgent with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// MongoDBRealtimeAnalyticsAgentMultiError, or nil if none found.
+func (m *MongoDBRealtimeAnalyticsAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MongoDBRealtimeAnalyticsAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Username
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CollectionIntervalSeconds
+
+	// no validation rules for DisableQueryText
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for Status
+
+	// no validation rules for ProcessExecPath
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return MongoDBRealtimeAnalyticsAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// MongoDBRealtimeAnalyticsAgentMultiError is an error wrapping multiple
+// validation errors returned by MongoDBRealtimeAnalyticsAgent.ValidateAll()
+// if the designated constraints aren't met.
+type MongoDBRealtimeAnalyticsAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MongoDBRealtimeAnalyticsAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MongoDBRealtimeAnalyticsAgentMultiError) AllErrors() []error { return m }
+
+// MongoDBRealtimeAnalyticsAgentValidationError is the validation error
+// returned by MongoDBRealtimeAnalyticsAgent.Validate if the designated
+// constraints aren't met.
+type MongoDBRealtimeAnalyticsAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MongoDBRealtimeAnalyticsAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MongoDBRealtimeAnalyticsAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MongoDBRealtimeAnalyticsAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MongoDBRealtimeAnalyticsAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MongoDBRealtimeAnalyticsAgentValidationError) ErrorName() string {
+	return "MongoDBRealtimeAnalyticsAgentValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MongoDBRealtimeAnalyticsAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMongoDBRealtimeAnalyticsAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MongoDBRealtimeAnalyticsAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MongoDBRealtimeAnalyticsAgentValidationError{}
+
 // Validate checks the field values on QANPostgreSQLPgStatementsAgent with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3249,6 +3378,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetMongodbRealtimeAnalyticsAgent() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("MongodbRealtimeAnalyticsAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("MongodbRealtimeAnalyticsAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("MongodbRealtimeAnalyticsAgent[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	for idx, item := range m.GetQanPostgresqlPgstatementsAgent() {
 		_, _ = idx, item
 
@@ -4146,6 +4309,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "QanMongodbMongologAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_MongodbRealtimeAnalyticsAgent:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "MongodbRealtimeAnalyticsAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -5296,6 +5500,47 @@ func (m *AddAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentRequest_MongodbRealtimeAnalyticsAgent:
+		if v == nil {
+			err := AddAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentRequestValidationError{
+					field:  "MongodbRealtimeAnalyticsAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	case *AddAgentRequest_QanPostgresqlPgstatementsAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
@@ -6057,6 +6302,47 @@ func (m *AddAgentResponse) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentResponse_MongodbRealtimeAnalyticsAgent:
+		if v == nil {
+			err := AddAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentResponseValidationError{
+					field:  "MongodbRealtimeAnalyticsAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	case *AddAgentResponse_QanPostgresqlPgstatementsAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
@@ -6782,6 +7068,47 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeAgentRequestValidationError{
 					field:  "QanMongodbMongologAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_MongodbRealtimeAnalyticsAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "MongodbRealtimeAnalyticsAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -7545,6 +7872,47 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeAgentResponseValidationError{
 					field:  "QanMongodbMongologAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_MongodbRealtimeAnalyticsAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "MongodbRealtimeAnalyticsAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbRealtimeAnalyticsAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "MongodbRealtimeAnalyticsAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -8693,6 +9061,288 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddMongoDBExporterParamsValidationError{}
+
+// Validate checks the field values on AddMongoDBRealtimeAnalyticsAgentParams
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *AddMongoDBRealtimeAnalyticsAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// AddMongoDBRealtimeAnalyticsAgentParams with the rules defined in the proto
+// definition for this message. If any rules are violated, the result is a
+// list of violation errors wrapped in
+// AddMongoDBRealtimeAnalyticsAgentParamsMultiError, or nil if none found.
+func (m *AddMongoDBRealtimeAnalyticsAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddMongoDBRealtimeAnalyticsAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddMongoDBRealtimeAnalyticsAgentParamsValidationError{
+			field:  "PmmAgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := AddMongoDBRealtimeAnalyticsAgentParamsValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for TlsCertificateKey
+
+	// no validation rules for TlsCertificateKeyFilePassword
+
+	// no validation rules for TlsCa
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for SkipConnectionCheck
+
+	// no validation rules for AuthenticationMechanism
+
+	// no validation rules for AuthenticationDatabase
+
+	// no validation rules for AgentPassword
+
+	// no validation rules for CollectionIntervalSeconds
+
+	// no validation rules for DisableExamples
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return AddMongoDBRealtimeAnalyticsAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddMongoDBRealtimeAnalyticsAgentParamsMultiError is an error wrapping
+// multiple validation errors returned by
+// AddMongoDBRealtimeAnalyticsAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddMongoDBRealtimeAnalyticsAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddMongoDBRealtimeAnalyticsAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddMongoDBRealtimeAnalyticsAgentParamsMultiError) AllErrors() []error { return m }
+
+// AddMongoDBRealtimeAnalyticsAgentParamsValidationError is the validation
+// error returned by AddMongoDBRealtimeAnalyticsAgentParams.Validate if the
+// designated constraints aren't met.
+type AddMongoDBRealtimeAnalyticsAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddMongoDBRealtimeAnalyticsAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddMongoDBRealtimeAnalyticsAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddMongoDBRealtimeAnalyticsAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddMongoDBRealtimeAnalyticsAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddMongoDBRealtimeAnalyticsAgentParamsValidationError) ErrorName() string {
+	return "AddMongoDBRealtimeAnalyticsAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddMongoDBRealtimeAnalyticsAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddMongoDBRealtimeAnalyticsAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddMongoDBRealtimeAnalyticsAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddMongoDBRealtimeAnalyticsAgentParamsValidationError{}
+
+// Validate checks the field values on
+// ChangeMongoDBRealtimeAnalyticsAgentParams with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ChangeMongoDBRealtimeAnalyticsAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// ChangeMongoDBRealtimeAnalyticsAgentParams with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in
+// ChangeMongoDBRealtimeAnalyticsAgentParamsMultiError, or nil if none found.
+func (m *ChangeMongoDBRealtimeAnalyticsAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeMongoDBRealtimeAnalyticsAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CustomLabels
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if m.CollectionIntervalSeconds != nil {
+		// no validation rules for CollectionIntervalSeconds
+	}
+
+	if m.DisableExamples != nil {
+		// no validation rules for DisableExamples
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if len(errors) > 0 {
+		return ChangeMongoDBRealtimeAnalyticsAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeMongoDBRealtimeAnalyticsAgentParamsMultiError is an error wrapping
+// multiple validation errors returned by
+// ChangeMongoDBRealtimeAnalyticsAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeMongoDBRealtimeAnalyticsAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeMongoDBRealtimeAnalyticsAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeMongoDBRealtimeAnalyticsAgentParamsMultiError) AllErrors() []error { return m }
+
+// ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError is the validation
+// error returned by ChangeMongoDBRealtimeAnalyticsAgentParams.Validate if the
+// designated constraints aren't met.
+type ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError) ErrorName() string {
+	return "ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeMongoDBRealtimeAnalyticsAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeMongoDBRealtimeAnalyticsAgentParamsValidationError{}
 
 // Validate checks the field values on ChangeMongoDBExporterParams with the
 // rules defined in the proto definition for this message. If any rules are

@@ -71,6 +71,7 @@ const (
 	QANMySQLSlowlogAgentType            AgentType = "qan-mysql-slowlog-agent"
 	QANMongoDBProfilerAgentType         AgentType = "qan-mongodb-profiler-agent"
 	QANMongoDBMongologAgentType         AgentType = "qan-mongodb-mongolog-agent"
+	MongoDBRealtimeAnalyticsAgentType   AgentType = "mongodb-realtime-analytics-agent"
 	QANPostgreSQLPgStatementsAgentType  AgentType = "qan-postgresql-pgstatements-agent"
 	QANPostgreSQLPgStatMonitorAgentType AgentType = "qan-postgresql-pgstatmonitor-agent"
 	ExternalExporterType                AgentType = "external-exporter"
@@ -130,6 +131,24 @@ func (c QANOptions) IsEmpty() bool {
 		c.MaxQueryLogSize == 0 &&
 		!c.QueryExamplesDisabled &&
 		!c.CommentsParsingDisabled
+}
+
+// RealTimeAnalyticsOptions represents structure for special Real-Time Analytics options.
+type RealTimeAnalyticsOptions struct {
+	CollectionIntervalSeconds uint32 `json:"collection_interval_seconds"`
+	DisableExamples           bool   `json:"disable_examples"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c RealTimeAnalyticsOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *RealTimeAnalyticsOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all RealTimeAnalyticsOptions fields are unset or have zero values, otherwise returns false.
+func (c RealTimeAnalyticsOptions) IsEmpty() bool {
+	return c.CollectionIntervalSeconds == 0 &&
+		!c.DisableExamples
 }
 
 // AWSOptions represents structure for special AWS options.
@@ -319,8 +338,9 @@ type Agent struct {
 
 	LogLevel *string `reform:"log_level"`
 
-	ExporterOptions ExporterOptions `reform:"exporter_options"`
-	QANOptions      QANOptions      `reform:"qan_options"`
+	ExporterOptions          ExporterOptions          `reform:"exporter_options"`
+	QANOptions               QANOptions               `reform:"qan_options"`
+	RealTimeAnalyticsOptions RealTimeAnalyticsOptions `reform:"realtime_analytics_options"`
 
 	AWSOptions        AWSOptions        `reform:"aws_options"`
 	AzureOptions      AzureOptions      `reform:"azure_options"`
@@ -568,7 +588,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return cfg.FormatDSN()
 
-	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, MongoDBRealtimeAnalyticsAgentType:
 		q := make(url.Values)
 		if dsnParams.DialTimeout != 0 {
 			q.Set("connectTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
@@ -811,7 +831,7 @@ func (s Agent) Files() map[string]string {
 		return nil
 	case ProxySQLExporterType:
 		return nil
-	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, MongoDBRealtimeAnalyticsAgentType:
 		files := make(map[string]string)
 		if s.MongoDBOptions.TLSCa != "" {
 			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa

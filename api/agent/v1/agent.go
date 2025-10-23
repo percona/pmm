@@ -72,6 +72,11 @@ func (m *QANCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload 
 }
 
 // AgentMessageRequestPayload returns the payload for the AgentMessageRequest.
+func (m *RealTimeCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
+	return &AgentMessage_RealtimeCollect{RealtimeCollect: m}
+}
+
+// AgentMessageRequestPayload returns the payload for the AgentMessageRequest.
 func (m *ActionResultRequest) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_ActionResult{ActionResult: m}
 }
@@ -261,6 +266,8 @@ func (*Ping) sealed()                    {}
 func (*Pong) sealed()                    {}
 func (*QANCollectRequest) sealed()       {}
 func (*QANCollectResponse) sealed()      {}
+func (*RealTimeCollectRequest) sealed()  {}
+func (*RealTimeCollectResponse) sealed() {}
 func (*ServiceInfoRequest) sealed()      {}
 func (*ServiceInfoResponse) sealed()     {}
 func (*SetStateRequest) sealed()         {}
@@ -282,6 +289,7 @@ var (
 	_ AgentRequestPayload = (*Ping)(nil)
 	_ AgentRequestPayload = (*StateChangedRequest)(nil)
 	_ AgentRequestPayload = (*QANCollectRequest)(nil)
+	_ AgentRequestPayload = (*RealTimeCollectRequest)(nil)
 	_ AgentRequestPayload = (*ActionResultRequest)(nil)
 
 	// A list of AgentMessage response payloads.
@@ -328,5 +336,6 @@ type AgentParams interface {
 	sealedAgentParams()
 }
 
-func (*SetStateRequest_AgentProcess) sealedAgentParams() {}
-func (*SetStateRequest_BuiltinAgent) sealedAgentParams() {}
+func (*SetStateRequest_AgentProcess) sealedAgentParams()           {}
+func (*SetStateRequest_BuiltinAgent) sealedAgentParams()           {}
+func (*SetStateRequest_RealtimeAnalyticsAgent) sealedAgentParams() {}

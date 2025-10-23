@@ -70,6 +70,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
+	realtimev1 "github.com/percona/pmm/api/realtime/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -93,6 +94,8 @@ import (
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/qan"
+	"github.com/percona/pmm/managed/services/realtime"
+	realtimegrpc "github.com/percona/pmm/managed/services/realtime/grpc"
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
@@ -223,6 +226,7 @@ type gRPCServerDeps struct {
 	schedulerService     *scheduler.Service
 	supervisord          *supervisord.Service
 	server               *server.Server
+	realtimeService      *realtime.Service
 	uieventsService      *uievents.Service
 	versionCache         *versioncache.Service
 	vmdb                 *victoriametrics.Service
@@ -296,6 +300,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
+	realtimev1.RegisterRealTimeAnalyticsServiceServer(gRPCServer, realtimegrpc.NewRealTimeServer(deps.realtimeService))
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
 	// run server until it is stopped gracefully or not
@@ -384,6 +389,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dumpv1beta1.RegisterDumpServiceHandlerFromEndpoint,
 
 		platformv1.RegisterPlatformServiceHandlerFromEndpoint,
+		realtimev1.RegisterRealTimeAnalyticsServiceHandlerFromEndpoint,
 		uieventsv1.RegisterUIEventsServiceHandlerFromEndpoint,
 
 		userv1.RegisterUserServiceHandlerFromEndpoint,
@@ -924,6 +930,9 @@ func main() { //nolint:maintidx,cyclop
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, nomad)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
+	// Real-time analytics service (created after agentsStateUpdater)
+	realtimeService := realtime.NewService(db, agentsRegistry, connectionCheck, agentsStateUpdater)
+
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
 	vmClient, err := metrics.NewClient(metrics.Config{Address: *victoriaMetricsURLF})
@@ -1100,6 +1109,11 @@ func main() { //nolint:maintidx,cyclop
 		return nil
 	}))
 
+	haService.AddLeaderService(ha.NewContextService("realtimeCleanup", func(ctx context.Context) error {
+		realtimeService.StartCleanupRoutine(ctx)
+		return nil
+	}))
+
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -1124,6 +1138,7 @@ func main() { //nolint:maintidx,cyclop
 				minioClient:          minioClient,
 				pbmPITRService:       pbmPITRService,
 				platformClient:       platformClient,
+				realtimeService:      realtimeService,
 				schedulerService:     schedulerService,
 				server:               server,
 				serviceInfoBroker:    serviceInfoBroker,

@@ -186,7 +186,14 @@ func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint
 			pipelineStages, _ := pipeline.(bson.A)
 
 			for _, stage := range pipelineStages {
-				stageMap := stage.(bson.D).Map() //nolint:forcetypeassert,staticcheck // PMM-13964
+				var stageMap map[string]interface{}
+				if _, ok := stage.(bson.D); ok {
+					stageMap = stage.(bson.D).Map() //nolint:forcetypeassert,staticcheck // PMM-13964
+				} else if _, ok := stage.(bson.M); ok {
+					stageMap = stage.(bson.M) //nolint:forcetypeassert,staticcheck // PMM-13964
+				} else {
+					stageMap = stage.(map[string]interface{}) //nolint:forcetypeassert,staticcheck // PMM-13964
+				}
 				var stageJSON []byte
 				switch {
 				case stageMap["$match"] != nil:

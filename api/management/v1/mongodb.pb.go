@@ -63,6 +63,8 @@ type AddMongoDBServiceParams struct {
 	QanMongodbProfiler bool `protobuf:"varint,15,opt,name=qan_mongodb_profiler,json=qanMongodbProfiler,proto3" json:"qan_mongodb_profiler,omitempty"`
 	// If true, adds qan-mongodb-mongolog-agent for provided service.
 	QanMongodbMongolog bool `protobuf:"varint,35,opt,name=qan_mongodb_mongolog,json=qanMongodbMongolog,proto3" json:"qan_mongodb_mongolog,omitempty"`
+	// If true, adds mongodb-realtime-analytics-agent for provided service.
+	MongodbRealtimeAnalytics bool `protobuf:"varint,36,opt,name=mongodb_realtime_analytics,json=mongodbRealtimeAnalytics,proto3" json:"mongodb_realtime_analytics,omitempty"`
 	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `protobuf:"bytes,16,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Skip connection check.
@@ -243,6 +245,13 @@ func (x *AddMongoDBServiceParams) GetQanMongodbMongolog() bool {
 	return false
 }
 
+func (x *AddMongoDBServiceParams) GetMongodbRealtimeAnalytics() bool {
+	if x != nil {
+		return x.MongodbRealtimeAnalytics
+	}
+	return false
+}
+
 func (x *AddMongoDBServiceParams) GetCustomLabels() map[string]string {
 	if x != nil {
 		return x.CustomLabels
@@ -370,13 +379,14 @@ func (x *AddMongoDBServiceParams) GetExposeExporter() bool {
 }
 
 type MongoDBServiceResult struct {
-	state              protoimpl.MessageState      `protogen:"open.v1"`
-	Service            *v1.MongoDBService          `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
-	MongodbExporter    *v1.MongoDBExporter         `protobuf:"bytes,2,opt,name=mongodb_exporter,json=mongodbExporter,proto3" json:"mongodb_exporter,omitempty"`
-	QanMongodbProfiler *v1.QANMongoDBProfilerAgent `protobuf:"bytes,3,opt,name=qan_mongodb_profiler,json=qanMongodbProfiler,proto3" json:"qan_mongodb_profiler,omitempty"`
-	QanMongodbMongolog *v1.QANMongoDBMongologAgent `protobuf:"bytes,4,opt,name=qan_mongodb_mongolog,json=qanMongodbMongolog,proto3" json:"qan_mongodb_mongolog,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                    protoimpl.MessageState            `protogen:"open.v1"`
+	Service                  *v1.MongoDBService                `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
+	MongodbExporter          *v1.MongoDBExporter               `protobuf:"bytes,2,opt,name=mongodb_exporter,json=mongodbExporter,proto3" json:"mongodb_exporter,omitempty"`
+	QanMongodbProfiler       *v1.QANMongoDBProfilerAgent       `protobuf:"bytes,3,opt,name=qan_mongodb_profiler,json=qanMongodbProfiler,proto3" json:"qan_mongodb_profiler,omitempty"`
+	QanMongodbMongolog       *v1.QANMongoDBMongologAgent       `protobuf:"bytes,4,opt,name=qan_mongodb_mongolog,json=qanMongodbMongolog,proto3" json:"qan_mongodb_mongolog,omitempty"`
+	MongodbRealtimeAnalytics *v1.MongoDBRealtimeAnalyticsAgent `protobuf:"bytes,5,opt,name=mongodb_realtime_analytics,json=mongodbRealtimeAnalytics,proto3" json:"mongodb_realtime_analytics,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *MongoDBServiceResult) Reset() {
@@ -437,11 +447,18 @@ func (x *MongoDBServiceResult) GetQanMongodbMongolog() *v1.QANMongoDBMongologAge
 	return nil
 }
 
+func (x *MongoDBServiceResult) GetMongodbRealtimeAnalytics() *v1.MongoDBRealtimeAnalyticsAgent {
+	if x != nil {
+		return x.MongodbRealtimeAnalytics
+	}
+	return nil
+}
+
 var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x83\f\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xc1\f\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -459,7 +476,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\busername\x18\r \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x0e \x01(\tR\bpassword\x120\n" +
 	"\x14qan_mongodb_profiler\x18\x0f \x01(\bR\x12qanMongodbProfiler\x120\n" +
-	"\x14qan_mongodb_mongolog\x18# \x01(\bR\x12qanMongodbMongolog\x12]\n" +
+	"\x14qan_mongodb_mongolog\x18# \x01(\bR\x12qanMongodbMongolog\x12<\n" +
+	"\x1amongodb_realtime_analytics\x18$ \x01(\bR\x18mongodbRealtimeAnalytics\x12]\n" +
 	"\rcustom_labels\x18\x10 \x03(\v28.management.v1.AddMongoDBServiceParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
 	"\x15skip_connection_check\x18\x11 \x01(\bR\x13skipConnectionCheck\x12\x10\n" +
 	"\x03tls\x18\x13 \x01(\bR\x03tls\x12&\n" +
@@ -480,12 +498,13 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\" \x01(\bR\x0eexposeExporter\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xca\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xb5\x03\n" +
 	"\x14MongoDBServiceResult\x126\n" +
 	"\aservice\x18\x01 \x01(\v2\x1c.inventory.v1.MongoDBServiceR\aservice\x12H\n" +
 	"\x10mongodb_exporter\x18\x02 \x01(\v2\x1d.inventory.v1.MongoDBExporterR\x0fmongodbExporter\x12W\n" +
 	"\x14qan_mongodb_profiler\x18\x03 \x01(\v2%.inventory.v1.QANMongoDBProfilerAgentR\x12qanMongodbProfiler\x12W\n" +
-	"\x14qan_mongodb_mongolog\x18\x04 \x01(\v2%.inventory.v1.QANMongoDBMongologAgentR\x12qanMongodbMongologB\xad\x01\n" +
+	"\x14qan_mongodb_mongolog\x18\x04 \x01(\v2%.inventory.v1.QANMongoDBMongologAgentR\x12qanMongodbMongolog\x12i\n" +
+	"\x1amongodb_realtime_analytics\x18\x05 \x01(\v2+.inventory.v1.MongoDBRealtimeAnalyticsAgentR\x18mongodbRealtimeAnalyticsB\xad\x01\n" +
 	"\x11com.management.v1B\fMongodbProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (
@@ -503,33 +522,35 @@ func file_management_v1_mongodb_proto_rawDescGZIP() []byte {
 var (
 	file_management_v1_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 	file_management_v1_mongodb_proto_goTypes  = []any{
-		(*AddMongoDBServiceParams)(nil),    // 0: management.v1.AddMongoDBServiceParams
-		(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
-		nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
-		(*v1.MongoDBService)(nil),          // 6: inventory.v1.MongoDBService
-		(*v1.MongoDBExporter)(nil),         // 7: inventory.v1.MongoDBExporter
-		(*v1.QANMongoDBProfilerAgent)(nil), // 8: inventory.v1.QANMongoDBProfilerAgent
-		(*v1.QANMongoDBMongologAgent)(nil), // 9: inventory.v1.QANMongoDBMongologAgent
+		(*AddMongoDBServiceParams)(nil),          // 0: management.v1.AddMongoDBServiceParams
+		(*MongoDBServiceResult)(nil),             // 1: management.v1.MongoDBServiceResult
+		nil,                                      // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
+		(*AddNodeParams)(nil),                    // 3: management.v1.AddNodeParams
+		(MetricsMode)(0),                         // 4: management.v1.MetricsMode
+		(v1.LogLevel)(0),                         // 5: inventory.v1.LogLevel
+		(*v1.MongoDBService)(nil),                // 6: inventory.v1.MongoDBService
+		(*v1.MongoDBExporter)(nil),               // 7: inventory.v1.MongoDBExporter
+		(*v1.QANMongoDBProfilerAgent)(nil),       // 8: inventory.v1.QANMongoDBProfilerAgent
+		(*v1.QANMongoDBMongologAgent)(nil),       // 9: inventory.v1.QANMongoDBMongologAgent
+		(*v1.MongoDBRealtimeAnalyticsAgent)(nil), // 10: inventory.v1.MongoDBRealtimeAnalyticsAgent
 	}
 )
 
 var file_management_v1_mongodb_proto_depIdxs = []int32{
-	3, // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2, // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry
-	4, // 2: management.v1.AddMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	5, // 3: management.v1.AddMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6, // 4: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
-	7, // 5: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
-	8, // 6: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent
-	9, // 7: management.v1.MongoDBServiceResult.qan_mongodb_mongolog:type_name -> inventory.v1.QANMongoDBMongologAgent
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	3,  // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	2,  // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry
+	4,  // 2: management.v1.AddMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	5,  // 3: management.v1.AddMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	6,  // 4: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
+	7,  // 5: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
+	8,  // 6: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent
+	9,  // 7: management.v1.MongoDBServiceResult.qan_mongodb_mongolog:type_name -> inventory.v1.QANMongoDBMongologAgent
+	10, // 8: management.v1.MongoDBServiceResult.mongodb_realtime_analytics:type_name -> inventory.v1.MongoDBRealtimeAnalyticsAgent
+	9,  // [9:9] is the sub-list for method output_type
+	9,  // [9:9] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_mongodb_proto_init() }

@@ -189,3 +189,37 @@ func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent,
 		},
 	}
 }
+
+// mongoDBRealtimeAnalyticsAgentConfig returns desired configuration of mongodb-realtime-analytics-agent.
+func mongoDBRealtimeAnalyticsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_RealtimeAnalyticsAgent {
+	tdp := agent.TemplateDelimiters(service)
+
+	// Default configuration values
+	collectionInterval := uint32(1) // 1 second default
+	disableExamples := false        // Default to false
+
+	// Use RealTimeAnalyticsOptions if available
+	if !agent.RealTimeAnalyticsOptions.IsEmpty() {
+		if agent.RealTimeAnalyticsOptions.CollectionIntervalSeconds > 0 {
+			collectionInterval = agent.RealTimeAnalyticsOptions.CollectionIntervalSeconds
+		}
+		disableExamples = agent.RealTimeAnalyticsOptions.DisableExamples
+	} else {
+		// Fallback to QAN options for query text disabling
+		disableExamples = agent.QANOptions.QueryExamplesDisabled
+	}
+
+	return &agentv1.SetStateRequest_RealtimeAnalyticsAgent{
+		Type:                      inventoryv1.AgentType_AGENT_TYPE_MONGODB_REALTIME_ANALYTICS_AGENT,
+		Dsn:                       agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		CollectionIntervalSeconds: collectionInterval,
+		DisableExamples:           disableExamples,
+		Tls:                       agent.TLS,
+		TlsSkipVerify:             agent.TLSSkipVerify,
+		TextFiles: &agentv1.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+	}
+}

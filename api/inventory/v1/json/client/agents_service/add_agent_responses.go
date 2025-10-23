@@ -202,6 +202,9 @@ type AddAgentBody struct {
 	// mongodb exporter
 	MongodbExporter *AddAgentParamsBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
+	// mongodb realtime analytics agent
+	MongodbRealtimeAnalyticsAgent *AddAgentParamsBodyMongodbRealtimeAnalyticsAgent `json:"mongodb_realtime_analytics_agent,omitempty"`
+
 	// mysqld exporter
 	MysqldExporter *AddAgentParamsBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
@@ -255,6 +258,10 @@ func (o *AddAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMongodbExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMongodbRealtimeAnalyticsAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -378,6 +385,25 @@ func (o *AddAgentBody) validateMongodbExporter(formats strfmt.Registry) error {
 				return ce.ValidateName("body" + "." + "mongodb_exporter")
 			}
 
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentBody) validateMongodbRealtimeAnalyticsAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.MongodbRealtimeAnalyticsAgent) { // not required
+		return nil
+	}
+
+	if o.MongodbRealtimeAnalyticsAgent != nil {
+		if err := o.MongodbRealtimeAnalyticsAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongodb_realtime_analytics_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongodb_realtime_analytics_agent")
+			}
 			return err
 		}
 	}
@@ -700,6 +726,10 @@ func (o *AddAgentBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateMongodbRealtimeAnalyticsAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -823,6 +853,26 @@ func (o *AddAgentBody) contextValidateMongodbExporter(ctx context.Context, forma
 				return ce.ValidateName("body" + "." + "mongodb_exporter")
 			}
 
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentBody) contextValidateMongodbRealtimeAnalyticsAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.MongodbRealtimeAnalyticsAgent != nil {
+
+		if swag.IsZero(o.MongodbRealtimeAnalyticsAgent) { // not required
+			return nil
+		}
+
+		if err := o.MongodbRealtimeAnalyticsAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "mongodb_realtime_analytics_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "mongodb_realtime_analytics_agent")
+			}
 			return err
 		}
 	}
@@ -1402,6 +1452,9 @@ type AddAgentOKBody struct {
 	// mongodb exporter
 	MongodbExporter *AddAgentOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
+	// mongodb realtime analytics agent
+	MongodbRealtimeAnalyticsAgent *AddAgentOKBodyMongodbRealtimeAnalyticsAgent `json:"mongodb_realtime_analytics_agent,omitempty"`
+
 	// mysqld exporter
 	MysqldExporter *AddAgentOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
@@ -1455,6 +1508,10 @@ func (o *AddAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMongodbExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMongodbRealtimeAnalyticsAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1578,6 +1635,25 @@ func (o *AddAgentOKBody) validateMongodbExporter(formats strfmt.Registry) error 
 				return ce.ValidateName("addAgentOk" + "." + "mongodb_exporter")
 			}
 
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBody) validateMongodbRealtimeAnalyticsAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.MongodbRealtimeAnalyticsAgent) { // not required
+		return nil
+	}
+
+	if o.MongodbRealtimeAnalyticsAgent != nil {
+		if err := o.MongodbRealtimeAnalyticsAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addAgentOk" + "." + "mongodb_realtime_analytics_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addAgentOk" + "." + "mongodb_realtime_analytics_agent")
+			}
 			return err
 		}
 	}
@@ -1900,6 +1976,10 @@ func (o *AddAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateMongodbRealtimeAnalyticsAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -2023,6 +2103,26 @@ func (o *AddAgentOKBody) contextValidateMongodbExporter(ctx context.Context, for
 				return ce.ValidateName("addAgentOk" + "." + "mongodb_exporter")
 			}
 
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBody) contextValidateMongodbRealtimeAnalyticsAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.MongodbRealtimeAnalyticsAgent != nil {
+
+		if swag.IsZero(o.MongodbRealtimeAnalyticsAgent) { // not required
+			return nil
+		}
+
+		if err := o.MongodbRealtimeAnalyticsAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addAgentOk" + "." + "mongodb_realtime_analytics_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addAgentOk" + "." + "mongodb_realtime_analytics_agent")
+			}
 			return err
 		}
 	}
@@ -3183,6 +3283,218 @@ func (o *AddAgentOKBodyMongodbExporterMetricsResolutions) MarshalBinary() ([]byt
 // UnmarshalBinary interface implementation
 func (o *AddAgentOKBodyMongodbExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res AddAgentOKBodyMongodbExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentOKBodyMongodbRealtimeAnalyticsAgent MongoDBRealtimeAnalyticsAgent runs within pmm-agent and sends MongoDB real-time query data to the PMM Server.
+swagger:model AddAgentOKBodyMongodbRealtimeAnalyticsAgent
+*/
+type AddAgentOKBodyMongodbRealtimeAnalyticsAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting real-time query data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Collection interval in seconds.
+	CollectionIntervalSeconds int64 `json:"collection_interval_seconds,omitempty"`
+
+	// Disable query examples collection for privacy.
+	DisableQueryText bool `json:"disable_query_text,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this add agent OK body mongodb realtime analytics agent
+func (o *AddAgentOKBodyMongodbRealtimeAnalyticsAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentOkBodyMongodbRealtimeAnalyticsAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyMongodbRealtimeAnalyticsAgentTypeStatusPropEnum = append(addAgentOkBodyMongodbRealtimeAnalyticsAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyMongodbRealtimeAnalyticsAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyMongodbRealtimeAnalyticsAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyMongodbRealtimeAnalyticsAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addAgentOk"+"."+"mongodb_realtime_analytics_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addAgentOkBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum = append(addAgentOkBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyMongodbRealtimeAnalyticsAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyMongodbRealtimeAnalyticsAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"mongodb_realtime_analytics_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add agent OK body mongodb realtime analytics agent based on context it is used
+func (o *AddAgentOKBodyMongodbRealtimeAnalyticsAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentOKBodyMongodbRealtimeAnalyticsAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentOKBodyMongodbRealtimeAnalyticsAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyMongodbRealtimeAnalyticsAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -6791,6 +7103,157 @@ func (o *AddAgentParamsBodyMongodbExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddAgentParamsBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 	var res AddAgentParamsBodyMongodbExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyMongodbRealtimeAnalyticsAgent add agent params body mongodb realtime analytics agent
+swagger:model AddAgentParamsBodyMongodbRealtimeAnalyticsAgent
+*/
+type AddAgentParamsBodyMongodbRealtimeAnalyticsAgent struct {
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// MongoDB password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Client certificate and key.
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+
+	// Password for decrypting tls_certificate_key.
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Authentication mechanism.
+	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
+
+	// Authentication database.
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Collection interval in seconds.
+	CollectionIntervalSeconds int64 `json:"collection_interval_seconds,omitempty"`
+
+	// Disable query examples collection.
+	DisableExamples bool `json:"disable_examples,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this add agent params body mongodb realtime analytics agent
+func (o *AddAgentParamsBodyMongodbRealtimeAnalyticsAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentParamsBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentParamsBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum = append(addAgentParamsBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyMongodbRealtimeAnalyticsAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentParamsBodyMongodbRealtimeAnalyticsAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyMongodbRealtimeAnalyticsAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyMongodbRealtimeAnalyticsAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"mongodb_realtime_analytics_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add agent params body mongodb realtime analytics agent based on context it is used
+func (o *AddAgentParamsBodyMongodbRealtimeAnalyticsAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyMongodbRealtimeAnalyticsAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyMongodbRealtimeAnalyticsAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyMongodbRealtimeAnalyticsAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
