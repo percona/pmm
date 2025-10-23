@@ -701,6 +701,28 @@ func main() { //nolint:maintidx,cyclop
 
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
+	// Nomad garbage collection flags
+	nomadGCIntervalF := kingpin.Flag("nomad-gc-interval", "Interval at which Nomad attempts to garbage collect terminal allocation directories.").
+		Default("1m").
+		Envar("PMM_NOMAD_GC_INTERVAL").
+		Duration()
+	nomadGCDiskUsageThresholdF := kingpin.Flag("nomad-gc-disk-usage-threshold", "Disk usage percent which Nomad tries to maintain by garbage collecting terminal allocations.").
+		Default("80").
+		Envar("PMM_NOMAD_GC_DISK_USAGE_THRESHOLD").
+		Int()
+	nomadGCInodeUsageThresholdF := kingpin.Flag("nomad-gc-inode-usage-threshold", "Inode usage percent which Nomad tries to maintain by garbage collecting terminal allocations.").
+		Default("70").
+		Envar("PMM_NOMAD_GC_INODE_USAGE_THRESHOLD").
+		Int()
+	nomadGCMaxAllocsF := kingpin.Flag("nomad-gc-max-allocs", "Maximum number of allocations which a client will track before triggering a garbage collection of terminal allocations.").
+		Default("50").
+		Envar("PMM_NOMAD_GC_MAX_ALLOCS").
+		Int()
+	nomadGCParallelDestroysF := kingpin.Flag("nomad-gc-parallel-destroys", "Maximum number of parallel destroys allowed by the garbage collector.").
+		Default("2").
+		Envar("PMM_NOMAD_GC_PARALLEL_DESTROYS").
+		Int()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -915,7 +937,15 @@ func main() { //nolint:maintidx,cyclop
 
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
-	nomad, err := nomad.New(db)
+
+	nomadClientConfig := &models.NomadClient{
+		GCInterval:            *nomadGCIntervalF,
+		GCDiskUsageThreshold:  *nomadGCDiskUsageThresholdF,
+		GCInodeUsageThreshold: *nomadGCInodeUsageThresholdF,
+		GCMaxAllocs:           *nomadGCMaxAllocsF,
+		GCParallelDestroys:    *nomadGCParallelDestroysF,
+	}
+	nomad, err := nomad.New(db, nomadClientConfig)
 	if err != nil {
 		l.Fatalf("Could not create Nomad client: %s", err)
 	}

@@ -23,6 +23,7 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	qanv1 "github.com/percona/pmm/api/qan/v1"
+	"github.com/percona/pmm/managed/models"
 )
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.
@@ -69,4 +70,5 @@ type nomad interface {
 	GetCACert() (string, error)
 	GetClientCert() (string, error)
 	GetClientKey() (string, error)
+	GetClientConfig() models.NomadClient
 }
