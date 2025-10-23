@@ -1,6 +1,9 @@
 # Welcome
 
-<i info>:material-information: </i> This is the documentation for the latest PMM 2 release. For details, see the [PMM {{release}} release notes](release-notes/{{release}}.md).
+!!! warning "Upgrade required" 
+    PMM 2 is no longer actively developed and reaches end-of-life on October 31, 2025. For continued access to security updates, new features and ongoing support, [migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html).
+
+<i info>:material-information: </i> This is the documentation for the last PMM 2 release. For details, see the [PMM {{release}} release notes](release-notes/{{release}}.md).
 
 Percona Monitoring and Management (PMM) is an open-source database monitoring, management, and observability solution for MySQL, PostgreSQL, and MongoDB.
 
@@ -11,10 +14,6 @@ It allows you to observe the health of your database systems, explore new patter
 - The PMM [web UI](get-started/interface.md) **visualizes data** in [dashboards](details/dashboards/).
 
 - Additional features include [advisors for database health assessments](details/develop-checks/index.md).
-
-
-!!! warning "Upgrade required" 
-    PMM 2 is no longer actively developed. For continued access to security updates, new features and ongoing support, [migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html).
 
 Here's how the home page looks on our <a href='https://pmmdemo.percona.com/' target='_blank'>free, live demo system</a>.
 

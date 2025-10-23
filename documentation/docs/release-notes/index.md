@@ -1,5 +1,8 @@
 # Percona Monitoring and Management release notes index
 
+!!! warning "PMM 2 End-of-Life" 
+    PMM 2 reaches end-of-life on October 31, 2025, with no further development or support. For continued access to security updates, new features and ongoing support, [migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html).
+
 - [Percona Monitoring and Management 2.44.1 (2025-04-24)](2.44.1.md)
 - [Percona Monitoring and Management 2.44.0-1 (2025-02-10)](2.44.0.1.md)
 - [Percona Monitoring and Management 2.44.0 (2024-12-13)](2.44.0.md)
