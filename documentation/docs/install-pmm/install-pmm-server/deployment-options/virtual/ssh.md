@@ -2,7 +2,7 @@
 
 When you run PMM Server as a virtual machine (AMI or OVF), you can upload your public SSH key to access the server via SSH and manage or troubleshoot it directly.
 
-![PMM Settings SSH Key](../images/PMM_Settings_SSH_Key.jpg)
+![PMM Settings SSH Key](../../../../images/PMM_Settings_SSH_Key.jpg)
 
 ## Configure SSH access
 
@@ -14,7 +14,7 @@ To configure SSH access:
 
 This adds the key to the virtual machine so you can connect to your PMM Server instance via SSH.
 
-For more information on virtual machine deployments, see [virtual appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md).
+For more information on virtual machine deployments, see [virtual appliance](../virtual/index.md) index.md.
 
 ## Connect via SSH
 
