@@ -8,6 +8,7 @@ package agent_local_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type ReloadReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ReloadReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ReloadReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewReloadOK()
@@ -55,7 +56,7 @@ ReloadOK describes a response with status code 200, with default header values.
 A successful response.
 */
 type ReloadOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this reload Ok response has a 2xx status code
@@ -98,13 +99,13 @@ func (o *ReloadOK) String() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] reloadOk %s", 200, payload)
 }
 
-func (o *ReloadOK) GetPayload() interface{} {
+func (o *ReloadOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *ReloadOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,7 +178,7 @@ func (o *ReloadDefault) readResponse(response runtime.ClientResponse, consumer r
 	o.Payload = new(ReloadDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -225,11 +226,15 @@ func (o *ReloadDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("Reload default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("Reload default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -262,11 +267,15 @@ func (o *ReloadDefaultBody) contextValidateDetails(ctx context.Context, formats 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("Reload default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("Reload default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -302,7 +311,7 @@ type ReloadDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// reload default body details items0
-	ReloadDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ReloadDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -329,9 +338,9 @@ func (o *ReloadDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

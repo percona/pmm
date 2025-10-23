@@ -1146,9 +1146,12 @@ var databaseSchema = [][]string{
 		`UPDATE agents SET valkey_options = '{}'::jsonb`,
 	},
 	112: {
+		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
+	},
+  113: {
 		`ALTER TABLE agents ADD COLUMN realtime_analytics_options JSONB`,
 		`UPDATE agents SET realtime_analytics_options = '{}'::jsonb WHERE realtime_analytics_options IS NULL`,
-	},
+  },
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1517,10 +1520,14 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
+
+	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
+	ap.Disabled = true
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

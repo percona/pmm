@@ -4,11 +4,11 @@ checks:
     name: mongodb_version
     summary: MongoDB version check
     description: This check returns information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
-    interval: standard
     family: MONGODB
     advisor: configuration_version
-    #category: version configuration
+    #category: configuration
     #author: Parag Bhayani
+    interval: standard
     queries:
       - type: MONGODB_BUILDINFO
     script: |
@@ -17,19 +17,11 @@ checks:
               "4.4": 40429,  # https://www.percona.com/downloads/percona-server-mongodb-4.4/
               "5.0": 50029,  # https://www.percona.com/downloads/percona-server-mongodb-5.0/
               "6.0": 60025,  # https://www.percona.com/downloads/percona-server-mongodb-6.0/
-              "7.0": 70022,  # https://www.percona.com/downloads/percona-server-mongodb-7.0/
-              "8.0": 80008,  # https://www.percona.com/downloads/percona-server-mongodb-8.0/
+              "7.0": 70024,  # https://www.percona.com/downloads/percona-server-mongodb-7.0/
+              "8.0": 80012,  # https://www.percona.com/downloads/percona-server-mongodb-8.0/
           },
           "read_url": "https://docs.percona.com/percona-platform/advisors/checks/{}.html",
       }
-
-      def check(docs):
-          # for compatibility with PMM Server < 2.12
-          context = {
-              "format_version_num": format_version_num,
-              "parse_version": parse_version,
-          }
-          return check_context(docs, context)
 
       def check_context(docs, context):
           """

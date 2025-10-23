@@ -8,6 +8,7 @@ package agents_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type AddAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddAgentOK()
@@ -107,7 +108,7 @@ func (o *AddAgentOK) readResponse(response runtime.ClientResponse, consumer runt
 	o.Payload = new(AddAgentOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *AddAgentDefault) readResponse(response runtime.ClientResponse, consumer
 	o.Payload = new(AddAgentDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -329,11 +330,15 @@ func (o *AddAgentBody) validateAzureDatabaseExporter(formats strfmt.Registry) er
 
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "azure_database_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "azure_database_exporter")
 			}
+
 			return err
 		}
 	}
@@ -348,11 +353,15 @@ func (o *AddAgentBody) validateExternalExporter(formats strfmt.Registry) error {
 
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -367,11 +376,15 @@ func (o *AddAgentBody) validateMongodbExporter(formats strfmt.Registry) error {
 
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -405,11 +418,15 @@ func (o *AddAgentBody) validateMysqldExporter(formats strfmt.Registry) error {
 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -424,11 +441,15 @@ func (o *AddAgentBody) validateNodeExporter(formats strfmt.Registry) error {
 
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "node_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter")
 			}
+
 			return err
 		}
 	}
@@ -443,11 +464,15 @@ func (o *AddAgentBody) validatePMMAgent(formats strfmt.Registry) error {
 
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "pmm_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "pmm_agent")
 			}
+
 			return err
 		}
 	}
@@ -462,11 +487,15 @@ func (o *AddAgentBody) validatePostgresExporter(formats strfmt.Registry) error {
 
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -481,11 +510,15 @@ func (o *AddAgentBody) validateProxysqlExporter(formats strfmt.Registry) error {
 
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -500,11 +533,15 @@ func (o *AddAgentBody) validateQANMongodbMongologAgent(formats strfmt.Registry) 
 
 	if o.QANMongodbMongologAgent != nil {
 		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
 			}
+
 			return err
 		}
 	}
@@ -519,11 +556,15 @@ func (o *AddAgentBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) 
 
 	if o.QANMongodbProfilerAgent != nil {
 		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
 			}
+
 			return err
 		}
 	}
@@ -538,11 +579,15 @@ func (o *AddAgentBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry) 
 
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
 			}
+
 			return err
 		}
 	}
@@ -557,11 +602,15 @@ func (o *AddAgentBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) err
 
 	if o.QANMysqlSlowlogAgent != nil {
 		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
 			}
+
 			return err
 		}
 	}
@@ -576,11 +625,15 @@ func (o *AddAgentBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.Reg
 
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -595,11 +648,15 @@ func (o *AddAgentBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.Re
 
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -614,11 +671,15 @@ func (o *AddAgentBody) validateRDSExporter(formats strfmt.Registry) error {
 
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -633,11 +694,15 @@ func (o *AddAgentBody) validateValkeyExporter(formats strfmt.Registry) error {
 
 	if o.ValkeyExporter != nil {
 		if err := o.ValkeyExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -731,11 +796,15 @@ func (o *AddAgentBody) contextValidateAzureDatabaseExporter(ctx context.Context,
 		}
 
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "azure_database_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "azure_database_exporter")
 			}
+
 			return err
 		}
 	}
@@ -751,11 +820,15 @@ func (o *AddAgentBody) contextValidateExternalExporter(ctx context.Context, form
 		}
 
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -771,11 +844,15 @@ func (o *AddAgentBody) contextValidateMongodbExporter(ctx context.Context, forma
 		}
 
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -811,11 +888,15 @@ func (o *AddAgentBody) contextValidateMysqldExporter(ctx context.Context, format
 		}
 
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -831,11 +912,15 @@ func (o *AddAgentBody) contextValidateNodeExporter(ctx context.Context, formats 
 		}
 
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "node_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter")
 			}
+
 			return err
 		}
 	}
@@ -851,11 +936,15 @@ func (o *AddAgentBody) contextValidatePMMAgent(ctx context.Context, formats strf
 		}
 
 		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "pmm_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "pmm_agent")
 			}
+
 			return err
 		}
 	}
@@ -871,11 +960,15 @@ func (o *AddAgentBody) contextValidatePostgresExporter(ctx context.Context, form
 		}
 
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -891,11 +984,15 @@ func (o *AddAgentBody) contextValidateProxysqlExporter(ctx context.Context, form
 		}
 
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -911,11 +1008,15 @@ func (o *AddAgentBody) contextValidateQANMongodbMongologAgent(ctx context.Contex
 		}
 
 		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
 			}
+
 			return err
 		}
 	}
@@ -931,11 +1032,15 @@ func (o *AddAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Contex
 		}
 
 		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
 			}
+
 			return err
 		}
 	}
@@ -951,11 +1056,15 @@ func (o *AddAgentBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Contex
 		}
 
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
 			}
+
 			return err
 		}
 	}
@@ -971,11 +1080,15 @@ func (o *AddAgentBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, 
 		}
 
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
 			}
+
 			return err
 		}
 	}
@@ -991,11 +1104,15 @@ func (o *AddAgentBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context
 		}
 
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -1011,11 +1128,15 @@ func (o *AddAgentBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx contex
 		}
 
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -1031,11 +1152,15 @@ func (o *AddAgentBody) contextValidateRDSExporter(ctx context.Context, formats s
 		}
 
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1051,11 +1176,15 @@ func (o *AddAgentBody) contextValidateValkeyExporter(ctx context.Context, format
 		}
 
 		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1122,11 +1251,15 @@ func (o *AddAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("AddAgent default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("AddAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1159,11 +1292,15 @@ func (o *AddAgentDefaultBody) contextValidateDetails(ctx context.Context, format
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("AddAgent default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("AddAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -1199,7 +1336,7 @@ type AddAgentDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// add agent default body details items0
-	AddAgentDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	AddAgentDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -1226,9 +1363,9 @@ func (o *AddAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -1443,11 +1580,15 @@ func (o *AddAgentOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) 
 
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "azure_database_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "azure_database_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1462,11 +1603,15 @@ func (o *AddAgentOKBody) validateExternalExporter(formats strfmt.Registry) error
 
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1481,11 +1626,15 @@ func (o *AddAgentOKBody) validateMongodbExporter(formats strfmt.Registry) error 
 
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1519,11 +1668,15 @@ func (o *AddAgentOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1538,11 +1691,15 @@ func (o *AddAgentOKBody) validateNodeExporter(formats strfmt.Registry) error {
 
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "node_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "node_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1557,11 +1714,15 @@ func (o *AddAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "pmm_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "pmm_agent")
 			}
+
 			return err
 		}
 	}
@@ -1576,11 +1737,15 @@ func (o *AddAgentOKBody) validatePostgresExporter(formats strfmt.Registry) error
 
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1595,11 +1760,15 @@ func (o *AddAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) error
 
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1614,11 +1783,15 @@ func (o *AddAgentOKBody) validateQANMongodbMongologAgent(formats strfmt.Registry
 
 	if o.QANMongodbMongologAgent != nil {
 		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_mongolog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_mongolog_agent")
 			}
+
 			return err
 		}
 	}
@@ -1633,11 +1806,15 @@ func (o *AddAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry
 
 	if o.QANMongodbProfilerAgent != nil {
 		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_profiler_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
+
 			return err
 		}
 	}
@@ -1652,11 +1829,15 @@ func (o *AddAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry
 
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_mysql_perfschema_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mysql_perfschema_agent")
 			}
+
 			return err
 		}
 	}
@@ -1671,11 +1852,15 @@ func (o *AddAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) e
 
 	if o.QANMysqlSlowlogAgent != nil {
 		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_mysql_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mysql_slowlog_agent")
 			}
+
 			return err
 		}
 	}
@@ -1690,11 +1875,15 @@ func (o *AddAgentOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.R
 
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -1709,11 +1898,15 @@ func (o *AddAgentOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.
 
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -1728,11 +1921,15 @@ func (o *AddAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1747,11 +1944,15 @@ func (o *AddAgentOKBody) validateValkeyExporter(formats strfmt.Registry) error {
 
 	if o.ValkeyExporter != nil {
 		if err := o.ValkeyExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1845,11 +2046,15 @@ func (o *AddAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Contex
 		}
 
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "azure_database_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "azure_database_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1865,11 +2070,15 @@ func (o *AddAgentOKBody) contextValidateExternalExporter(ctx context.Context, fo
 		}
 
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1885,11 +2094,15 @@ func (o *AddAgentOKBody) contextValidateMongodbExporter(ctx context.Context, for
 		}
 
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1925,11 +2138,15 @@ func (o *AddAgentOKBody) contextValidateMysqldExporter(ctx context.Context, form
 		}
 
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1945,11 +2162,15 @@ func (o *AddAgentOKBody) contextValidateNodeExporter(ctx context.Context, format
 		}
 
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "node_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "node_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1965,11 +2186,15 @@ func (o *AddAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats st
 		}
 
 		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "pmm_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "pmm_agent")
 			}
+
 			return err
 		}
 	}
@@ -1985,11 +2210,15 @@ func (o *AddAgentOKBody) contextValidatePostgresExporter(ctx context.Context, fo
 		}
 
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -2005,11 +2234,15 @@ func (o *AddAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, fo
 		}
 
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -2025,11 +2258,15 @@ func (o *AddAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.Cont
 		}
 
 		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_mongolog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_mongolog_agent")
 			}
+
 			return err
 		}
 	}
@@ -2045,11 +2282,15 @@ func (o *AddAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Cont
 		}
 
 		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_profiler_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
+
 			return err
 		}
 	}
@@ -2065,11 +2306,15 @@ func (o *AddAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Cont
 		}
 
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_mysql_perfschema_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mysql_perfschema_agent")
 			}
+
 			return err
 		}
 	}
@@ -2085,11 +2330,15 @@ func (o *AddAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context
 		}
 
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_mysql_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mysql_slowlog_agent")
 			}
+
 			return err
 		}
 	}
@@ -2105,11 +2354,15 @@ func (o *AddAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx conte
 		}
 
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -2125,11 +2378,15 @@ func (o *AddAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx cont
 		}
 
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -2145,11 +2402,15 @@ func (o *AddAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats
 		}
 
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -2165,11 +2426,15 @@ func (o *AddAgentOKBody) contextValidateValkeyExporter(ctx context.Context, form
 		}
 
 		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -2228,7 +2493,7 @@ type AddAgentOKBodyAzureDatabaseExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2274,7 +2539,7 @@ func (o *AddAgentOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var addAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2334,7 +2599,7 @@ func (o *AddAgentOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Regi
 	return nil
 }
 
-var addAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2395,11 +2660,15 @@ func (o *AddAgentOKBodyAzureDatabaseExporter) validateMetricsResolutions(formats
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2429,11 +2698,15 @@ func (o *AddAgentOKBodyAzureDatabaseExporter) contextValidateMetricsResolutions(
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2568,11 +2841,15 @@ func (o *AddAgentOKBodyExternalExporter) validateMetricsResolutions(formats strf
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2602,11 +2879,15 @@ func (o *AddAgentOKBodyExternalExporter) contextValidateMetricsResolutions(ctx c
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2717,7 +2998,7 @@ type AddAgentOKBodyMongodbExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -2773,7 +3054,7 @@ func (o *AddAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var addAgentOkBodyMongodbExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyMongodbExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2833,7 +3114,7 @@ func (o *AddAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) 
 	return nil
 }
 
-var addAgentOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyMongodbExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2894,11 +3175,15 @@ func (o *AddAgentOKBodyMongodbExporter) validateMetricsResolutions(formats strfm
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2928,11 +3213,15 @@ func (o *AddAgentOKBodyMongodbExporter) contextValidateMetricsResolutions(ctx co
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3272,7 +3561,7 @@ type AddAgentOKBodyMysqldExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3324,7 +3613,7 @@ func (o *AddAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addAgentOkBodyMysqldExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyMysqldExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3384,7 +3673,7 @@ func (o *AddAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 	return nil
 }
 
-var addAgentOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3445,11 +3734,15 @@ func (o *AddAgentOKBodyMysqldExporter) validateMetricsResolutions(formats strfmt
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3479,11 +3772,15 @@ func (o *AddAgentOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx con
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3582,7 +3879,7 @@ type AddAgentOKBodyNodeExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3628,7 +3925,7 @@ func (o *AddAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addAgentOkBodyNodeExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyNodeExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3688,7 +3985,7 @@ func (o *AddAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) err
 	return nil
 }
 
-var addAgentOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyNodeExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3749,11 +4046,15 @@ func (o *AddAgentOKBodyNodeExporter) validateMetricsResolutions(formats strfmt.R
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3783,11 +4084,15 @@ func (o *AddAgentOKBodyNodeExporter) contextValidateMetricsResolutions(ctx conte
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -3947,7 +4252,7 @@ type AddAgentOKBodyPostgresExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -3999,7 +4304,7 @@ func (o *AddAgentOKBodyPostgresExporter) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addAgentOkBodyPostgresExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyPostgresExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4059,7 +4364,7 @@ func (o *AddAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Registry)
 	return nil
 }
 
-var addAgentOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyPostgresExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4120,11 +4425,15 @@ func (o *AddAgentOKBodyPostgresExporter) validateMetricsResolutions(formats strf
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4154,11 +4463,15 @@ func (o *AddAgentOKBodyPostgresExporter) contextValidateMetricsResolutions(ctx c
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4269,7 +4582,7 @@ type AddAgentOKBodyProxysqlExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4315,7 +4628,7 @@ func (o *AddAgentOKBodyProxysqlExporter) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addAgentOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyProxysqlExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4375,7 +4688,7 @@ func (o *AddAgentOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry)
 	return nil
 }
 
-var addAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4436,11 +4749,15 @@ func (o *AddAgentOKBodyProxysqlExporter) validateMetricsResolutions(formats strf
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4470,11 +4787,15 @@ func (o *AddAgentOKBodyProxysqlExporter) contextValidateMetricsResolutions(ctx c
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4582,7 +4903,7 @@ type AddAgentOKBodyQANMongodbMongologAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4615,7 +4936,7 @@ func (o *AddAgentOKBodyQANMongodbMongologAgent) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum []interface{}
+var addAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4675,7 +4996,7 @@ func (o *AddAgentOKBodyQANMongodbMongologAgent) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var addAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4791,7 +5112,7 @@ type AddAgentOKBodyQANMongodbProfilerAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -4824,7 +5145,7 @@ func (o *AddAgentOKBodyQANMongodbProfilerAgent) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []interface{}
+var addAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4884,7 +5205,7 @@ func (o *AddAgentOKBodyQANMongodbProfilerAgent) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var addAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5015,7 +5336,7 @@ type AddAgentOKBodyQANMysqlPerfschemaAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -5051,7 +5372,7 @@ func (o *AddAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+var addAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5111,7 +5432,7 @@ func (o *AddAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var addAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5245,7 +5566,7 @@ type AddAgentOKBodyQANMysqlSlowlogAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -5281,7 +5602,7 @@ func (o *AddAgentOKBodyQANMysqlSlowlogAgent) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var addAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []interface{}
+var addAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5341,7 +5662,7 @@ func (o *AddAgentOKBodyQANMysqlSlowlogAgent) validateStatus(formats strfmt.Regis
 	return nil
 }
 
-var addAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5460,7 +5781,7 @@ type AddAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -5493,7 +5814,7 @@ func (o *AddAgentOKBodyQANPostgresqlPgstatementsAgent) Validate(formats strfmt.R
 	return nil
 }
 
-var addAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
+var addAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5553,7 +5874,7 @@ func (o *AddAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats st
 	return nil
 }
 
-var addAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5675,7 +5996,7 @@ type AddAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -5708,7 +6029,7 @@ func (o *AddAgentOKBodyQANPostgresqlPgstatmonitorAgent) Validate(formats strfmt.
 	return nil
 }
 
-var addAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
+var addAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5768,7 +6089,7 @@ func (o *AddAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats s
 	return nil
 }
 
-var addAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5875,7 +6196,7 @@ type AddAgentOKBodyRDSExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -5930,7 +6251,7 @@ func (o *AddAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addAgentOkBodyRdsExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyRdsExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5990,7 +6311,7 @@ func (o *AddAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) erro
 	return nil
 }
 
-var addAgentOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyRdsExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -6051,11 +6372,15 @@ func (o *AddAgentOKBodyRDSExporter) validateMetricsResolutions(formats strfmt.Re
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6085,11 +6410,15 @@ func (o *AddAgentOKBodyRDSExporter) contextValidateMetricsResolutions(ctx contex
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6200,7 +6529,7 @@ type AddAgentOKBodyValkeyExporter struct {
 	//  - AGENT_STATUS_RUNNING: Agent is running.
 	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
@@ -6236,7 +6565,7 @@ func (o *AddAgentOKBodyValkeyExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addAgentOkBodyValkeyExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyValkeyExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -6303,11 +6632,15 @@ func (o *AddAgentOKBodyValkeyExporter) validateMetricsResolutions(formats strfmt
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6337,11 +6670,15 @@ func (o *AddAgentOKBodyValkeyExporter) contextValidateMetricsResolutions(ctx con
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6469,7 +6806,7 @@ func (o *AddAgentParamsBodyAzureDatabaseExporter) Validate(formats strfmt.Regist
 	return nil
 }
 
-var addAgentParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -6696,7 +7033,7 @@ func (o *AddAgentParamsBodyMongodbExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addAgentParamsBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyMongodbExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7003,7 +7340,7 @@ func (o *AddAgentParamsBodyMysqldExporter) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var addAgentParamsBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7121,7 +7458,7 @@ func (o *AddAgentParamsBodyNodeExporter) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addAgentParamsBodyNodeExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyNodeExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7315,7 +7652,7 @@ func (o *AddAgentParamsBodyPostgresExporter) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var addAgentParamsBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyPostgresExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7454,7 +7791,7 @@ func (o *AddAgentParamsBodyProxysqlExporter) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var addAgentParamsBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyProxysqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7601,7 +7938,7 @@ func (o *AddAgentParamsBodyQANMongodbMongologAgent) Validate(formats strfmt.Regi
 	return nil
 }
 
-var addAgentParamsBodyQanMongodbMongologAgentTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyQanMongodbMongologAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7748,7 +8085,7 @@ func (o *AddAgentParamsBodyQANMongodbProfilerAgent) Validate(formats strfmt.Regi
 	return nil
 }
 
-var addAgentParamsBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7896,7 +8233,7 @@ func (o *AddAgentParamsBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Regi
 	return nil
 }
 
-var addAgentParamsBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -8048,7 +8385,7 @@ func (o *AddAgentParamsBodyQANMysqlSlowlogAgent) Validate(formats strfmt.Registr
 	return nil
 }
 
-var addAgentParamsBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -8190,7 +8527,7 @@ func (o *AddAgentParamsBodyQANPostgresqlPgstatementsAgent) Validate(formats strf
 	return nil
 }
 
-var addAgentParamsBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -8335,7 +8672,7 @@ func (o *AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent) Validate(formats str
 	return nil
 }
 
-var addAgentParamsBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -8465,7 +8802,7 @@ func (o *AddAgentParamsBodyRDSExporter) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var addAgentParamsBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyRdsExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
