@@ -490,6 +490,16 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		close(done)
 	}()
 
+	//nolint:forcetypeassert
+	s.agentProcesses[agentID] = &agentProcessInfo{
+		cancel:          cancel,
+		done:            done,
+		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
+		listenPort:      port,
+		processExecPath: processParams.Path,
+		logStore:        logStore,
+	}
+
 	t := time.NewTimer(start_Process_Waiting)
 	defer t.Stop()
 	select {
@@ -499,16 +509,6 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 			return process.GetError()
 		}
 	case <-t.C:
-	}
-
-	//nolint:forcetypeassert
-	s.agentProcesses[agentID] = &agentProcessInfo{
-		cancel:          cancel,
-		done:            done,
-		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
-		listenPort:      port,
-		processExecPath: processParams.Path,
-		logStore:        logStore,
 	}
 	return nil
 }
