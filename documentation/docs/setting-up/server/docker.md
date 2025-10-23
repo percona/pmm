@@ -1,7 +1,7 @@
 # Docker
 
 !!! warning "PMM 2 End-of-Life" 
-    PMM 2 reaches end-of-life on October 31, 2025, with no further development or support. For continued access to security updates, new features and ongoing support, [migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html).    
+    PMM 2 reaches end-of-life on October 31, 2025, with no further development or support. For continued access to security updates, new features and ongoing support, [migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html).
     
 How to run PMM Server with Docker based on our [Docker image].
 
