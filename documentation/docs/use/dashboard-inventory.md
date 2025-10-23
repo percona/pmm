@@ -52,7 +52,7 @@ Example:
 
 To view the agents running on a service and their health status, click the status indicator (<b style="color:#73BF69;">OK</b>, <b style="color:#FF9830;">Warning</b>, <b style="color:#e02f44;">Failed</b>, <b style="color:#6C757D;">Disabled</b>, or <b style="color:#6C757D;">Stopped</b>) under the **Monitoring** column.
 
-You can also check the properties of a particular agent by clicking the <image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
+You can also check the properties of a particular agent by clicking the :material-arrow-downward: icon under the **Options** column.
 
 ![!PMM Inventory Service Agent Properties](../images/PMM_Inventory_Service_Agent_Properties.png)
 
@@ -159,9 +159,9 @@ To see agent details:
 
      ![!image](../images/PMM_Inventory_Node_Selection.png)
 
-2. Click on the <image src="../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column to view the properties of a specific agent.
+2. Click on the :material-arrow-downward: icon under the **Options** column to view the properties of a specific agent.
 
-3.  On the **Nodes** tab, under the **Options** column, click on the <image src="../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon for the selected node to check the properties and the current health status of an agent.       
+3.  On the **Nodes** tab, under the **Options** column, click on the :material-arrow-downward: icon for the selected node to check the properties and the current health status of an agent.       
      
      ![!image](../images/PMM_Inventory_Node_Agent_Properties.png)
 
