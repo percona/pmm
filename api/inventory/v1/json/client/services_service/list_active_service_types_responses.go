@@ -8,6 +8,7 @@ package services_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListActiveServiceTypesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListActiveServiceTypesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListActiveServiceTypesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListActiveServiceTypesOK()
@@ -107,7 +108,7 @@ func (o *ListActiveServiceTypesOK) readResponse(response runtime.ClientResponse,
 	o.Payload = new(ListActiveServiceTypesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ListActiveServiceTypesDefault) readResponse(response runtime.ClientResp
 	o.Payload = new(ListActiveServiceTypesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *ListActiveServiceTypesDefaultBody) validateDetails(formats strfmt.Regis
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListActiveServiceTypes default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListActiveServiceTypes default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *ListActiveServiceTypesDefaultBody) contextValidateDetails(ctx context.C
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListActiveServiceTypes default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListActiveServiceTypes default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type ListActiveServiceTypesDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list active service types default body details items0
-	ListActiveServiceTypesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListActiveServiceTypesDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *ListActiveServiceTypesDefaultBodyDetailsItems0) UnmarshalJSON(data []by
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -430,11 +439,11 @@ func (o *ListActiveServiceTypesOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var listActiveServiceTypesOkBodyServiceTypesItemsEnum []interface{}
+var listActiveServiceTypesOkBodyServiceTypesItemsEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_VALKEY_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
