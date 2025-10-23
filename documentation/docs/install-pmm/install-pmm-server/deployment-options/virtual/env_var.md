@@ -13,17 +13,10 @@ Your PMM Server runs as a systemd user service that launches a Podman container.
 To set environment variables for PMM Server on virtual machine deployments:
 {.power-number}
 
-1. Connect to your PMM Server virtual machine via SSH using the `admin` user:
-
-    === "For AWS AMI deployments"
-        ```bash
-        ssh -i your-key.pem admin@<ec2-instance-public-ip>
-        ```
-        
-    === "For Virtual Appliance (OVF) deployments"
-        ```bash
-        ssh admin@<pmm-server-ip>
-        ```
+1. Connect to your PMM Server virtual machine via SSH using the `admin` user (see [SSH configuration](../virtual/ssh.md) for authentication setup):
+    ```bash
+    ssh -i your-key admin@<pmm-server-ip>
+    ```
 
 2. Open `/home/admin/.config/systemd/user/pmm-server.env` and edit the environment variables file. This file is automatically loaded by the `systemd` service:
 
@@ -75,17 +68,17 @@ PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume e
 1. Add the following variables to your `pmm-server.env` file:
 
     ```bash
-    # Extend metrics retention beyond the default PMM_DATA_RETENTION
-    VM_retentionPeriod=90d
+    # Configure disk space limit per client during network outages
+    VMAGENT_remoteWrite_maxDiskUsagePerURL=52428800
 
-    # Limit memory usage (percentage of available system memory)
-    VM_memory.allowedPercent=60
+    # Configure temporary data storage path
+    VMAGENT_remoteWrite_tmpDataPath=/tmp/custom-vmagent
 
-    # Increase query timeout for complex queries in high-cardinality environments
-    VM_search.maxQueryDuration=300s
+    # Configure logging verbosity level
+    VMAGENT_loggerLevel=DEBUG
 
-    # Optimize for write-heavy workloads (optional)
-    VM_storage.maxMergeReadSpeed=1000MB
+    # Configure maximum scrape size per target
+    VMAGENT_promscrape_maxScrapeSize=128MiB
     ```
 
 2. Restart the PMM Server service after changing environment variables for VictoriaMetrics and monitor disk space when extending retention periods.
