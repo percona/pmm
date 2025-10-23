@@ -8,6 +8,7 @@ package advisor_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type GetFailedChecksReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetFailedChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetFailedChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetFailedChecksOK()
@@ -107,7 +108,7 @@ func (o *GetFailedChecksOK) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(GetFailedChecksOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *GetFailedChecksDefault) readResponse(response runtime.ClientResponse, c
 	o.Payload = new(GetFailedChecksDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *GetFailedChecksDefaultBody) validateDetails(formats strfmt.Registry) er
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("GetFailedChecks default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("GetFailedChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *GetFailedChecksDefaultBody) contextValidateDetails(ctx context.Context,
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("GetFailedChecks default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("GetFailedChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type GetFailedChecksDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// get failed checks default body details items0
-	GetFailedChecksDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	GetFailedChecksDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *GetFailedChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -448,11 +457,15 @@ func (o *GetFailedChecksOKBody) validateResults(formats strfmt.Registry) error {
 
 		if o.Results[i] != nil {
 			if err := o.Results[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getFailedChecksOk" + "." + "results" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getFailedChecksOk" + "." + "results" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -485,11 +498,15 @@ func (o *GetFailedChecksOKBody) contextValidateResults(ctx context.Context, form
 			}
 
 			if err := o.Results[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getFailedChecksOk" + "." + "results" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getFailedChecksOk" + "." + "results" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -564,7 +581,7 @@ func (o *GetFailedChecksOKBodyResultsItems0) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var getFailedChecksOkBodyResultsItems0TypeSeverityPropEnum []interface{}
+var getFailedChecksOkBodyResultsItems0TypeSeverityPropEnum []any
 
 func init() {
 	var res []string
