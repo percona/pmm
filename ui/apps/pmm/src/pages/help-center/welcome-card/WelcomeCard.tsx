@@ -1,6 +1,6 @@
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import WelcomeImage from 'assets/welcome-4x.jpg';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
@@ -18,17 +18,30 @@ import { Link } from 'react-router-dom';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { useUser } from 'contexts/user';
+import { useTour } from 'contexts/tour';
+import { useUpdateUserInfo } from 'hooks/api/useUser';
+import { useServices } from 'hooks/api/useServices';
+import { shouldShowAddService } from './WelcomeCard.utils';
 
-// todo: work in progress - see PMM-14190 and PMM-13707
 const WelcomeCard: FC = () => {
   const { user } = useUser();
+  const { startTour } = useTour();
+  const { mutate: updateUserInfo } = useUpdateUserInfo();
+  const services = useServices({}, { enabled: !!user?.isPMMAdmin });
+  const showAddService = shouldShowAddService(services.data);
 
-  if (!user) {
+  const handleDismiss = useCallback(
+    () => updateUserInfo({ productTourCompleted: true }),
+    [updateUserInfo]
+  );
+
+  if (!user || user.info.productTourCompleted) {
     return null;
   }
 
   return (
     <Card
+      data-testid="welcome-card"
       variant="outlined"
       sx={{
         md: 2,
@@ -93,15 +106,16 @@ const WelcomeCard: FC = () => {
           {user?.isPMMAdmin ? Messages.tour : Messages.tourNonAdmin}
         </Typography>
       </CardContent>
-      <CardActions sx={{ pb: 3 }}>
+      <CardActions sx={{ p: 2, pt: 1 }}>
         <Button
           startIcon={<MapOutlinedIcon />}
           variant="contained"
           data-testid="welcome-card-start-tour"
+          onClick={() => startTour('product')}
         >
           {Messages.startTour}
         </Button>
-        {user?.isPMMAdmin && (
+        {user?.isPMMAdmin && showAddService && (
           <Button
             startIcon={<AddIcon />}
             component={Link}
@@ -111,7 +125,11 @@ const WelcomeCard: FC = () => {
             {Messages.addService}
           </Button>
         )}
-        <Button variant="text" data-testid="welcome-card-dismiss">
+        <Button
+          variant="text"
+          data-testid="welcome-card-dismiss"
+          onClick={handleDismiss}
+        >
           {Messages.dismiss}
         </Button>
       </CardActions>

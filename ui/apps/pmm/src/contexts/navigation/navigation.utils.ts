@@ -10,6 +10,7 @@ import {
   NAV_ACCOUNT,
   NAV_ADVISORS,
   NAV_ADVISORS_INSIGHTS,
+  NAV_ALERTS_RULES,
   NAV_ALERTS,
   NAV_ALERTS_CONTACT_POINTS,
   NAV_ALERTS_FIRED,
@@ -36,6 +37,8 @@ import {
   NAV_PROXYSQL,
   NAV_SIGN_OUT,
   NAV_THEME_TOGGLE,
+  NAV_ALERTS_SILENCES,
+  NAV_ALERTS_GROUPS,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/textUtils';
@@ -121,9 +124,15 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
     children.push(NAV_ALERTS_FIRED);
   }
 
+  children.push(NAV_ALERTS_RULES);
   children.push(NAV_ALERTS_CONTACT_POINTS);
   children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
-  children.push(NAV_ALERTS_SETTINGS);
+  children.push(NAV_ALERTS_SILENCES);
+  children.push(NAV_ALERTS_GROUPS);
+
+  if (user?.isPMMAdmin) {
+    children.push(NAV_ALERTS_SETTINGS);
+  }
 
   if (enabled && user?.isEditor) {
     children.push(NAV_ALERTS_TEMPLATES);

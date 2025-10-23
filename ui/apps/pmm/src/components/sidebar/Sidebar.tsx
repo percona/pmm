@@ -4,18 +4,14 @@ import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { NavItem } from './nav-item';
 import List from '@mui/material/List';
-import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 
 export const Sidebar: FC = () => {
-  const { navTree } = useNavigation();
-  const [open, setIsOpen] = useLocalStorage<boolean>(
-    'pmm-ui.sidebar.expanded',
-    true
-  );
+  const { navTree, navOpen, setNavOpen } = useNavigation();
+
   const [animating, setAnimating] = useState(false);
 
   const toggleSidebar = useCallback(() => {
-    setIsOpen(!open);
+    setNavOpen(!navOpen);
 
     setAnimating(true);
 
@@ -24,16 +20,19 @@ export const Sidebar: FC = () => {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [open, setIsOpen]);
+  }, [navOpen, setNavOpen]);
 
   return (
     <Drawer
-      open={open}
+      open={navOpen}
       variant="permanent"
       anchor="left"
       data-testid="pmm-sidebar"
     >
-      <NavigationHeading sidebarOpen={open} onToggleSidebar={toggleSidebar} />
+      <NavigationHeading
+        sidebarOpen={navOpen}
+        onToggleSidebar={toggleSidebar}
+      />
       <List
         disablePadding
         sx={[
@@ -46,7 +45,7 @@ export const Sidebar: FC = () => {
         ]}
       >
         {navTree.map((item) => (
-          <NavItem key={item.id} item={item} drawerOpen={open} />
+          <NavItem key={item.id} item={item} drawerOpen={navOpen} />
         ))}
       </List>
     </Drawer>

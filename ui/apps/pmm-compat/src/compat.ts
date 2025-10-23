@@ -10,18 +10,30 @@ import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
   GRAFANA_LOGIN_PATH,
   GRAFANA_SUB_PATH,
-  PMM_UI_PATH,
+  PMM_UI_GRAFANA_PATH,
+  PMM_UI_HELP_PATH,
 } from 'lib/constants';
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver } from 'lib/utils/document';
+import { isFirstLogin, updateIsFirstLogin } from 'lib/utils/login';
 
 export const initialize = () => {
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
-    // redirect user to the new UI
-    window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_PATH));
+    const isHomePath =
+      window.location.pathname === GRAFANA_SUB_PATH || window.location.pathname === `${GRAFANA_SUB_PATH}/`;
+
+    // upon first login redirect user to the help page with welcome modal
+    if (isFirstLogin() && isHomePath) {
+      updateIsFirstLogin();
+
+      window.location.replace(PMM_UI_HELP_PATH);
+    } else {
+      // redirect user to the new UI
+      window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_GRAFANA_PATH));
+    }
     return;
   }
 

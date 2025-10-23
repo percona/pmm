@@ -16,7 +16,11 @@ export const START_ICON = {
   map: 'map',
 };
 
-export const CARDS_DATA: HelpCard[] = [
+export const getCardData = ({
+  startProductTour,
+}: {
+  startProductTour: () => void;
+}): HelpCard[] => [
   {
     id: CARD_IDS.pmmDocs,
     title: 'PMM Documentation',
@@ -101,6 +105,8 @@ export const CARDS_DATA: HelpCard[] = [
       {
         text: 'Start PMM tour',
         startIconName: START_ICON.map,
+        dataTestId: 'tips-card-start-product-tour-button',
+        onClick: startProductTour,
       },
     ],
   },
@@ -114,8 +120,7 @@ export const CARDS_DATA: HelpCard[] = [
       {
         text: 'Share your thoughts',
         target: '_blank',
-        // TODO: add survey url
-        url: '',
+        url: 'https://per.co.na/pmm3_feedback',
       },
     ],
   },
