@@ -30,6 +30,8 @@ message StartBackupRequest {
   DataModel data_model = 7;
   // Folder on storage for artifact.
   string folder = 8;
+  // Compression
+  BackupCompression compression = 9;
 }
 
 message StartBackupResponse {
@@ -101,6 +103,8 @@ message ScheduledBackup {
   BackupMode mode = 19;
   // Folder on storage for artifact.
   string folder = 20;
+  // Compression
+  BackupCompression compression = 21;
 }
 
 message ScheduleBackupRequest {
@@ -130,6 +134,8 @@ message ScheduleBackupRequest {
   DataModel data_model = 12;
   // Folder on storage for artifact.
   string folder = 13;
+  // Compression
+  BackupCompression compression = 14;
 }
 
 message ScheduleBackupResponse {

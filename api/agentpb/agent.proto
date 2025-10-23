@@ -528,6 +528,8 @@ message StartJobRequest {
     }
     // Folder to store artifact on a storage.
     string folder = 12;
+    // Compression
+    backup.v1.BackupCompression compression = 13;
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {
@@ -545,6 +547,8 @@ message StartJobRequest {
     }
     // Folder to store artifact on a storage.
     string folder = 12;
+    // Compression
+    backup.v1.BackupCompression compression = 13;
   }
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {
@@ -576,6 +580,8 @@ message StartJobRequest {
     string dsn = 13;
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 14;
+    // Compression
+    backup.v1.BackupCompression compression = 15;
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
   message MongoDBRestoreBackup {
@@ -607,6 +613,8 @@ message StartJobRequest {
     string dsn = 14;
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 15;
+    // Compression
+    backup.v1.BackupCompression compression = 16;
   }
 
   string job_id = 1;

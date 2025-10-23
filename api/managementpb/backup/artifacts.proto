@@ -51,6 +51,8 @@ message Artifact {
   string folder = 13;
   // List of artifact metadata.
   repeated backup.v1.Metadata metadata_list = 14;
+  // Compression
+  BackupCompression compression = 15;
 }
 
 message ListArtifactsRequest {}

@@ -118,6 +118,41 @@ func (m BackupMode) Validate() error {
 	return nil
 }
 
+// BackupCompression represents compression algorithm used for backup.
+type BackupCompression string
+
+// BackupCompression types.
+const (
+	None    BackupCompression = "none"
+	QuickLZ BackupCompression = "quicklz"
+	ZSTD    BackupCompression = "zstd"
+	LZ4     BackupCompression = "lz4"
+	S2      BackupCompression = "s2"
+	GZIP    BackupCompression = "gzip"
+	Snappy  BackupCompression = "snappy"
+	PGZIP   BackupCompression = "pgzip"
+)
+
+// Validate validates compression.
+func (c BackupCompression) Validate() error {
+	switch c {
+	case QuickLZ:
+	case LZ4:
+	case ZSTD:
+	case S2:
+	case GZIP:
+	case Snappy:
+	case PGZIP:
+	case None:
+	case "":
+		return NewInvalidArgumentError("empty compression")
+	default:
+		return NewInvalidArgumentError("invalid compression '%s'", c)
+	}
+
+	return nil
+}
+
 // File represents file or directory.
 type File struct {
 	Name        string `json:"name"`
@@ -155,22 +190,23 @@ func (p *MetadataList) Scan(src interface{}) error { return jsonScan(p, src) }
 //
 //reform:artifacts
 type Artifact struct {
-	ID               string       `reform:"id,pk"`
-	Name             string       `reform:"name"`
-	Vendor           string       `reform:"vendor"`
-	DBVersion        string       `reform:"db_version"`
-	LocationID       string       `reform:"location_id"`
-	ServiceID        string       `reform:"service_id"`
-	DataModel        DataModel    `reform:"data_model"`
-	Mode             BackupMode   `reform:"mode"`
-	Status           BackupStatus `reform:"status"`
-	Type             ArtifactType `reform:"type"`
-	ScheduleID       string       `reform:"schedule_id"`
-	CreatedAt        time.Time    `reform:"created_at"`
-	UpdatedAt        time.Time    `reform:"updated_at"`
-	IsShardedCluster bool         `reform:"is_sharded_cluster"`
-	Folder           string       `reform:"folder"`
-	MetadataList     MetadataList `reform:"metadata_list"`
+	ID               string            `reform:"id,pk"`
+	Name             string            `reform:"name"`
+	Vendor           string            `reform:"vendor"`
+	DBVersion        string            `reform:"db_version"`
+	LocationID       string            `reform:"location_id"`
+	ServiceID        string            `reform:"service_id"`
+	DataModel        DataModel         `reform:"data_model"`
+	Mode             BackupMode        `reform:"mode"`
+	Status           BackupStatus      `reform:"status"`
+	Type             ArtifactType      `reform:"type"`
+	Compression      BackupCompression `reform:"compression"`
+	ScheduleID       string            `reform:"schedule_id"`
+	CreatedAt        time.Time         `reform:"created_at"`
+	UpdatedAt        time.Time         `reform:"updated_at"`
+	IsShardedCluster bool              `reform:"is_sharded_cluster"`
+	Folder           string            `reform:"folder"`
+	MetadataList     MetadataList      `reform:"metadata_list"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

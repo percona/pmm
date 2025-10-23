@@ -55,6 +55,7 @@ type BackupTaskParams struct {
 	Retries       uint32
 	RetryInterval time.Duration
 	Folder        string
+	Compression   models.BackupCompression
 }
 
 // Validate checks backup task parameters for correctness.
@@ -72,6 +73,10 @@ func (p *BackupTaskParams) Validate() error {
 	}
 
 	if err := p.DataModel.Validate(); err != nil {
+		return err
+	}
+
+	if err := p.Compression.Validate(); err != nil {
 		return err
 	}
 
@@ -113,6 +118,7 @@ func (t *mySQLBackupTask) Run(ctx context.Context, scheduler *Service) error {
 		Retries:       t.Retries,
 		RetryInterval: t.RetryInterval,
 		Folder:        t.Folder,
+		Compression:   t.Compression,
 	})
 	return err
 }
@@ -136,6 +142,7 @@ func (t *mySQLBackupTask) Data() *models.ScheduledTaskData {
 				Retries:       t.Retries,
 				RetryInterval: t.RetryInterval,
 				Folder:        t.Folder,
+				Compression:   t.Compression,
 			},
 		},
 	}
@@ -176,6 +183,7 @@ func (t *mongoDBBackupTask) Run(ctx context.Context, scheduler *Service) error {
 		Retries:       t.Retries,
 		RetryInterval: t.RetryInterval,
 		Folder:        t.Folder,
+		Compression:   t.Compression,
 	})
 	return err
 }
@@ -199,6 +207,7 @@ func (t *mongoDBBackupTask) Data() *models.ScheduledTaskData {
 				Retries:       t.Retries,
 				RetryInterval: t.RetryInterval,
 				Folder:        t.Folder,
+				Compression:   t.Compression,
 			},
 		},
 	}
