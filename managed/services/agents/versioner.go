@@ -16,14 +16,14 @@
 package agents
 
 import (
-	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
-var pmmAgentMinVersionForSoftwareVersions = version.Must(version.NewVersion("2.22"))
+var pmmAgentMinVersionForSoftwareVersions = version.MustParse("2.22.0-0")
 
 // VersionerService provides methods for retrieving versions of different software.
 type VersionerService struct {

@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -28,12 +27,13 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/version"
 )
 
 func TestPMMAgentSupported(t *testing.T) {
 	t.Parallel()
 	prefix := "testing prefix"
-	minVersion := version.Must(version.NewVersion("2.30.5"))
+	minVersion := version.MustParse("2.30.5")
 
 	tests := []struct {
 		name         string
@@ -54,6 +54,11 @@ func TestPMMAgentSupported(t *testing.T) {
 			name:         "Less than min version",
 			agentVersion: "2.30.4",
 			errString:    "not supported by pmm-agent",
+		},
+		{
+			name:         "Feature build version",
+			agentVersion: "2.42.1-PMM-13288-honour-max-query-length-for-pg_stat_statements-92b683b89",
+			errString:    "",
 		},
 		{
 			name:         "Equals min version",
@@ -85,12 +90,12 @@ func TestPMMAgentSupported(t *testing.T) {
 	}
 
 	t.Run("No version info", func(t *testing.T) {
-		err := models.IsAgentSupported(&models.Agent{AgentID: "Test agent ID"}, prefix, version.Must(version.NewVersion("2.30.0")))
+		err := models.IsAgentSupported(&models.Agent{AgentID: "Test agent ID"}, prefix, version.MustParse("2.30.0"))
 		assert.Contains(t, err.Error(), "has no version info")
 	})
 
 	t.Run("Nil agent", func(t *testing.T) {
-		err := models.IsAgentSupported(nil, prefix, version.Must(version.NewVersion("2.30.0")))
+		err := models.IsAgentSupported(nil, prefix, version.MustParse("2.30.0"))
 		assert.Contains(t, err.Error(), "nil agent")
 	})
 }
