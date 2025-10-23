@@ -28,18 +28,13 @@ type keyStruct struct{}
 
 var key = keyStruct{}
 
-// Get returns logrus entry for given context. Set must be called before this method is called.
+// Get returns logrus entry for given context. SetEntry must be called before this method is called.
 func Get(ctx context.Context) *logrus.Entry {
 	v := ctx.Value(key)
 	if v == nil {
 		panic("context logger not set")
 	}
 	return v.(*logrus.Entry) //nolint:forcetypeassert
-}
-
-// Set returns derived context with set logrus entry with given request ID.
-func Set(ctx context.Context, requestID string) context.Context {
-	return SetEntry(ctx, logrus.WithField("request", requestID))
 }
 
 // SetEntry returns derived context with set given logrus entry.
