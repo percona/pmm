@@ -51,6 +51,7 @@ func TestServer(t *testing.T) {
 		mState := &mockAgentsStateUpdater{}
 		mState.Test(t)
 		mState.On("UpdateAgentsState", context.TODO()).Return(nil)
+		mState.On("RequestStateUpdate", context.TODO(), mock.Anything).Return(nil)
 
 		var mvmalert mockPrometheusService
 		mvmalert.Test(t)
@@ -215,6 +216,15 @@ func TestServer(t *testing.T) {
 		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableTelemetry: pointer.ToBool(true),
+		}))
+
+		s.envSettings.EnableInternalPgQAN = pointer.ToBool(true)
+		expected = status.New(codes.FailedPrecondition, "QAN for internal PostgreSQL is already configured via an environment variable.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableInternalPgQan: pointer.ToBool(false),
+		}))
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableInternalPgQan: pointer.ToBool(true),
 		}))
 
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{

@@ -38,6 +38,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/utils/encryption"
+	"github.com/percona/pmm/managed/utils/env"
 )
 
 const (
@@ -1518,7 +1519,9 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
-	ap.Disabled = true
+	// It can be enabled by setting PMM_ENABLE_INTERNAL_PG_QAN=1
+	// We rely on just the environment variable here since we run this set up before loading the server settings.
+	ap.Disabled = !env.GetBool(env.EnableInternalPgQAN)
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err

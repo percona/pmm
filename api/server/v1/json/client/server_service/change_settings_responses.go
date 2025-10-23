@@ -222,6 +222,9 @@ type ChangeSettingsBody struct {
 	// Enable Access Control
 	EnableAccessControl *bool `json:"enable_access_control,omitempty"`
 
+	// Enable Query Analytics for PMM's internal PG database.
+	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -979,6 +982,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// Default Access Control role ID for new users.
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
+
+	// True if Query Analytics for PMM's internal PG database is enabled.
+	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

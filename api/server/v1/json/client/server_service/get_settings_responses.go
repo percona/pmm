@@ -732,6 +732,9 @@ type GetSettingsOKBodySettings struct {
 	// Default Access Control role ID for new users.
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
 
+	// True if Query Analytics for PMM's internal PG database is enabled.
+	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 

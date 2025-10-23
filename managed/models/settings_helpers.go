@@ -92,6 +92,9 @@ type ChangeSettingsParams struct {
 	// Enable Backup Management features.
 	EnableBackupManagement *bool
 
+	// EnableInternalPgQAN enables Query Analytics for PMM's internal PG database.
+	EnableInternalPgQAN *bool
+
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID *int
 
