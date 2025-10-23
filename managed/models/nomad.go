@@ -18,6 +18,7 @@ package models
 
 import "time"
 
+// NomadClient represents configuration options for Nomad clients.
 type NomadClient struct {
 	GCInterval            time.Duration
 	GCDiskUsageThreshold  int

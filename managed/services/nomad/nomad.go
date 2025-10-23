@@ -267,6 +267,7 @@ func (c *Nomad) GetClientKey() (string, error) {
 	return string(file), nil
 }
 
+// GetClientConfig returns the Nomad client configuration.
 func (c *Nomad) GetClientConfig() models.NomadClient {
 	return c.clientConfig
 }
