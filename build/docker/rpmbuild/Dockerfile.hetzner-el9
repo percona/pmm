@@ -19,8 +19,6 @@ RUN curl -sL https://rpm.nodesource.com/setup_22.x | bash -
 RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
 
 RUN dnf update -y && \
-    dnf install -y crypto-policies-scripts && \
-    update-crypto-policies --set DEFAULT:SHA1 && \
     dnf install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
     yarn && \
@@ -45,7 +43,7 @@ RUN sed -i 's|metalink=|#metalink=|g' /etc/yum.repos.d/epel*.repo && \
     sed -i 's|#baseurl=.*|baseurl=https://ftp.fau.de/epel/9/Everything/$basearch/|g' /etc/yum.repos.d/epel.repo || true
 
 # keep that format for easier search
-ENV GO_VERSION=1.24.3
+ENV GO_VERSION=1.24.7
 ENV GO_RELEASER_VERSION=2.9.0
 
 RUN if [ "$(uname -m)" == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
@@ -70,5 +68,5 @@ RUN useradd builder -u 1000 -m -G users,wheel && \
 
 USER builder
 
-ENV FLAVOR=rpmbuild OS=rocky DIST=el9
+ENV DIST=el9
 WORKDIR /home/builder/rpm
