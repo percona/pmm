@@ -58,7 +58,7 @@ import (
 
 const (
 	shutdownTimeout = 1 * time.Second
-	serverZipFile   = "pmm-agent.log"
+	pmmAgentZipFile = "pmm-agent.log"
 )
 
 // configGetReloader allows to get and reload a config.
@@ -366,11 +366,28 @@ func addData(zipW *zip.Writer, name string, data []byte) error {
 }
 
 // ZipLogs Handle function for generate zip file with logs.
+// Supports optional "agent_id" query parameter(s) to filter logs for specific agent(s).
+// Multiple agent_id parameters can be provided to include logs for multiple agents.
 func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revive
 	zipBuffer := &bytes.Buffer{}
 	zipWriter := zip.NewWriter(zipBuffer)
 
+	// Get optional agent_id filter from query parameters (can be multiple)
+	agentIDFilters := r.URL.Query()["agent_id"]
+	filterAgents := len(agentIDFilters) > 0
+
+	// Create a set for O(1) lookup instead of O(n) loop
+	agentIDSet := make(map[string]struct{}, len(agentIDFilters))
+	for _, filterID := range agentIDFilters {
+		agentIDSet[filterID] = struct{}{}
+	}
+
 	for id, logs := range s.supervisor.AgentsLogs() {
+		// Skip if agent_id filter is specified and doesn't match any of them
+		if _, found := agentIDSet[id]; !found && filterAgents {
+			continue
+		}
+
 		agentFileBuffer := &bytes.Buffer{}
 		for _, l := range logs {
 			_, err := agentFileBuffer.WriteString(l)
@@ -388,10 +405,12 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revi
 		}
 	}
 
-	serverFileBuffer := &bytes.Buffer{}
-	serverLogs, _ := s.logStore.GetLogs()
-	for _, serverLog := range serverLogs {
-		_, err := serverFileBuffer.WriteString(serverLog)
+	// Always include pmm-agent server logs (useful for debugging even when filtering by agent_id)
+	pmmAgentFileBuffer := &bytes.Buffer{}
+	pmmAgentLogs, _ := s.logStore.GetLogs()
+	var err error
+	for _, pmmAgentLog := range pmmAgentLogs {
+		_, err = pmmAgentFileBuffer.WriteString(pmmAgentLog)
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, fmt.Sprintf("Cannot write to buffer err: %s", err), http.StatusInternalServerError)
@@ -399,7 +418,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revi
 		}
 	}
 
-	err := addData(zipWriter, serverZipFile, serverFileBuffer.Bytes())
+	err = addData(zipWriter, pmmAgentZipFile, pmmAgentFileBuffer.Bytes())
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)
