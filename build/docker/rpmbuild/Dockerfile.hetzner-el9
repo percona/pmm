@@ -45,8 +45,8 @@ RUN sed -i 's|metalink=|#metalink=|g' /etc/yum.repos.d/epel*.repo && \
     sed -i 's|#baseurl=.*|baseurl=https://ftp.fau.de/epel/9/Everything/$basearch/|g' /etc/yum.repos.d/epel.repo || true
 
 # keep that format for easier search
-ENV GO_VERSION=1.24.3
-ENV GO_RELEASER_VERSION=2.9.0
+ENV GO_VERSION=1.25.1
+ENV GO_RELEASER_VERSION=2.12.0
 
 RUN if [ "$(uname -m)" == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
