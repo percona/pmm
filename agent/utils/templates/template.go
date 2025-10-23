@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package templates contains all logic related to template rendering.
+// Package templates contain all logic related to template rendering.
 package templates
 
 import (

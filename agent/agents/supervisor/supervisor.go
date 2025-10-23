@@ -418,7 +418,7 @@ func filter(existing, ap map[string]agentv1.AgentParams) ([]string, []string, []
 	return toStart, toRestart, toStop
 }
 
-//nolint:golint,stylecheck,revive
+//nolint:revive
 const (
 	type_TEST_SLEEP       inventoryv1.AgentType = 998 // process
 	type_TEST_NOOP        inventoryv1.AgentType = 999 // built-in

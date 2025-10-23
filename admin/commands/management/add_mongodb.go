@@ -124,7 +124,7 @@ func (cmd *AddMongoDBCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -179,7 +179,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,
 				QANMongodbMongolog: cmd.QuerySource == MongodbQuerySourceMongolog,
 
-				CustomLabels:                  customLabels,
+				CustomLabels:                  *customLabels,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				MaxQueryLength:                cmd.MaxQueryLength,
 				TLS:                           cmd.TLS,

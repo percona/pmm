@@ -152,7 +152,7 @@ func (acs *AccessControlService) ListRoles(_ context.Context, _ *rolev1beta1.Lis
 	}
 
 	res := &rolev1beta1.ListRolesResponse{
-		Roles: make([]*rolev1beta1.ListRolesResponse_RoleData, 0, len(rows)), //nolint:nosnakecase
+		Roles: make([]*rolev1beta1.ListRolesResponse_RoleData, 0, len(rows)),
 	}
 
 	for _, row := range rows {
@@ -161,7 +161,6 @@ func (acs *AccessControlService) ListRoles(_ context.Context, _ *rolev1beta1.Lis
 			return nil, fmt.Errorf("%w: invalid role data in table", ErrInvalidRoleData)
 		}
 
-		//nolint:nosnakecase
 		res.Roles = append(res.Roles, &rolev1beta1.ListRolesResponse_RoleData{
 			RoleId:      role.ID,
 			Title:       role.Title,

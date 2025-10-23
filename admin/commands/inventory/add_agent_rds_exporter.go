@@ -62,7 +62,7 @@ type AddAgentRDSExporterCommand struct {
 
 // RunCmd executes the AddAgentRDSExporterCommand and returns the result.
 func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
@@ -70,7 +70,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				NodeID:                 cmd.NodeID,
 				AWSAccessKey:           cmd.AWSAccessKey,
 				AWSSecretKey:           cmd.AWSSecretKey,
-				CustomLabels:           customLabels,
+				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
 				DisableBasicMetrics:    cmd.DisableBasicMetrics,
 				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,

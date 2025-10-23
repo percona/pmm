@@ -751,7 +751,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 			})
 
 		default:
-			return nil, fmt.Errorf("unknown check type")
+			return nil, errors.New("unknown check type")
 		}
 	}
 
@@ -1109,6 +1109,7 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 	}
 
 	query = "SELECT " + query
+
 	rows, err := s.clickhouseDB.QueryContext(ctx, query)
 	if err != nil {
 		return "", fmt.Errorf("failed to execute query: %w", err)

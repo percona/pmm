@@ -64,7 +64,7 @@ type Response struct {
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
-type Channel struct { //nolint:maligned
+type Channel struct {
 	s agentv1.AgentService_ConnectClient
 	l *logrus.Entry
 

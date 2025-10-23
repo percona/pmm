@@ -49,7 +49,7 @@ jobs:
             ~/go-build-cache
             ~/go-mod-cache
           key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-              
+          restore-keys: ${{ runner.os }}-go-
 
       - name: Launch PMM Server
         run: |

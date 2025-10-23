@@ -23,6 +23,7 @@ linters:
     - wastedassign        # disabled because of generics
     - wrapcheck           # we do not use wrapping everywhere
     - wsl                 # too annoying
+    - wsl_v5              # too annoying
   settings:
     cyclop:
       max-complexity: 30

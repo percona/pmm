@@ -146,8 +146,6 @@ type Setup struct {
 }
 
 // Config represents pmm-agent's configuration.
-//
-//nolint:maligned
 type Config struct {
 	// no config file there
 
