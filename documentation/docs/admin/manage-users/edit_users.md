@@ -1,12 +1,11 @@
 # Edit users
 
-
 You can edit users by changing the information or settings for an individual user account.
 
 !!! caution alert alert-warning "Important"
     After changing the default admin password for the PMM Server, register the pmm-agent using the same credentials and add the services again. Otherwise, PMM will cease to monitor the service/nodes.
 
-## Grant or Revoke admin privileges
+## Grant or revoke admin privileges
 
 You can grant or revoke admin access to a user as follows:
 {.power-number}
@@ -19,9 +18,6 @@ You can grant or revoke admin access to a user as follows:
 
 4. Click **Change**.
 
-!!! caution alert alert-warning "Important"
-    After connecting your PMM instance to the Percona Platform, when you log in using your Percona account, you will be granted the *Viewer* access. For *Admin* access, log in to PMM as an admin, and change the permissions for this user.
-
 ## Change organization role
 
 You can change the organization role assigned to your user account.
@@ -33,7 +29,7 @@ To change the role:
 
 1. On the **Users** tab, click the user for whom you want to change the role.
 
-2. In the **Organisations** section, click **Change role**.
+2. In the **Organizations** section, click **Change role**.
 
 3. Select the role from the drop-down and click **Save**.
 
@@ -46,3 +42,37 @@ The following are the privileges for the various *roles*:
 - **Viewer** - Viewing dashboards
 
 For detailed information on the privileges for these roles and the different tasks that they can perform, see [Grafana organization roles](https://grafana.com/docs/grafana/latest/permissions/organization_roles/).
+
+## Migrate from Percona Account authentication (deprecated)
+
+!!! caution alert alert-warning "Percona Platform discontinuation"
+    **Percona Platform is deprecated as of PMM 3.5.0 and will be discontinued with PMM 3.7.0 (March 2026).**
+
+Previously, users could sign in to PMM using their Percona Account credentials. When logging in this way, users were automatically assigned **Viewer** role access. To grant these users **Admin** or **Editor** access, administrators would manually change their permissions after they logged in.
+
+This authentication method is being removed. All users must transition to a supported authentication method before March 2026.
+
+### Available authentication methods
+
+PMM supports all authentication methods available in Grafana. Choose the option that best fits your organization's needs:
+
+- **[Basic authentication](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/#basic-authentication)** - Create accounts with usernames and passwords stored in PMM
+- **[LDAP](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/ldap/)** - Integrate with your existing directory service
+- **[OAuth 2.0](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/#oauth-20-authentication)** - Use providers like GitHub, GitLab, Google, Azure AD, or Okta
+- **[SAML](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/saml/)** - Enterprise single sign-on integration
+- **[Other methods](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/)** - View all available authentication options
+
+### Migration steps
+
+If your organization currently uses Percona Account authentication:
+{.power-number}
+
+1. **Choose an authentication method** from the options above that fits your organization's security requirements.
+2. **Configure the authentication method** in PMM by following the Grafana documentation linked above.
+3. **Identify all users** who currently authenticate via Percona Accounts.
+4. **Create user accounts** in your chosen authentication system with appropriate PMM roles (Admin, Editor, or Viewer). If using basic authentication, [create local PMM accounts](../manage-users/add_users.md).
+5. **Test the new authentication** method with a few users before the full migration.
+6. **Communicate changes** to all affected users, including new login instructions and credentials (if applicable).
+7. **Update documentation** or processes that reference Percona Account sign-in.
+
+For more information, see [Log into PMM](../../reference/ui/log_in.md).RetryClaude can make mistakes. Please double-check responses. Sonnet 4.5
