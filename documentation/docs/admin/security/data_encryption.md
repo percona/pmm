@@ -10,14 +10,21 @@ PMM automatically manages encryption using a key file located at `/srv/pmm-encry
 
 For enhanced security control, PMM supports custom encryption keys.
 
-To set up a custom keys, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your custom key file.
+**Key format requirements:**
+
+- The key must be a 32-byte (256-bit) random value, suitable for AES-256-GCM encryption.
+- The key is used with the TINK output prefix type (AES256GCMKeyTemplate).
+
+Therefore, the file should contain exactly 32 random bytes (not just a hex-encoded or a base64-encoded string).
+
+To set up a custom key, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your custom key file.
 
 !!! hint alert alert-success "Important"
-    Make sure to set this configuration  **before** any data encryption occurs—specifically, either before upgrading to PMM 3 or before the initial startup of a new PMM 3.x container.
+    Make sure to set this configuration  **before** any data encryption occurs — specifically, either before upgrading to PMM 3 or before the initial startup of a new PMM 3.x instance.
 
 ### Key management requirements
 
-Once configured, PMM will use custom keys to encrypt and decrypt all sensitive data stored within the system.
+Once configured, PMM will use the custom key to encrypt and decrypt all sensitive data stored within the system.
 
 If the custom key is unavailable or misplaced, PMM will be unable to access and decrypt the stored data, which will prevent it from running correctly.
 
@@ -34,14 +41,14 @@ To rotate or regenerate the encryption key:
 
 1. Log in to the container that runs PMM Server.
 
-2. Run the Encryption Rotation Tool using the following the command:
+2. Run the Encryption Rotation Tool using the following command:
 
     ```bash
-   pmm-encryption-rotation
+     pmm-encryption-rotation
     ```
 
-      - Ensure `PMM_ENCRYPTION_KEY_PATH` is set to the current custom key if using one, so the tool can decrypt data before re-encryption.
-      - If using custom credentials/SSL for the PMM internal database, provide them with the appropriate flags.
+    - Ensure `PMM_ENCRYPTION_KEY_PATH` is set to the current custom key if using one, so the tool can decrypt data before re-encryption.
+    - If using custom credentials/SSL for the PMM internal database, provide them with the appropriate flags.
 
 3. Verify PMM functionality all components are functioning properly to ensure that the encryption key rotation was successful.
 
