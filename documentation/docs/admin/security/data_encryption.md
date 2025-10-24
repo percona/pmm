@@ -10,14 +10,14 @@ PMM automatically manages encryption using a key file located at `/srv/pmm-encry
 
 For enhanced security control, PMM supports custom encryption keys.
 
-To set up a custom keys, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your custom key file.
+To set up a custom key, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your custom key file.
 
 !!! hint alert alert-success "Important"
-    Make sure to set this configuration  **before** any data encryption occurs—specifically, either before upgrading to PMM 3 or before the initial startup of a new PMM 3.x container.
+    Make sure to set this configuration  **before** any data encryption occurs — specifically, either before upgrading to PMM 3 or before the initial startup of a new PMM 3.x instance.
 
 ### Key management requirements
 
-Once configured, PMM will use custom keys to encrypt and decrypt all sensitive data stored within the system.
+Once configured, PMM will use the custom key to encrypt and decrypt all sensitive data stored within the system.
 
 If the custom key is unavailable or misplaced, PMM will be unable to access and decrypt the stored data, which will prevent it from running correctly.
 
