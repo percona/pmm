@@ -10,6 +10,13 @@ PMM automatically manages encryption using a key file located at `/srv/pmm-encry
 
 For enhanced security control, PMM supports custom encryption keys.
 
+**Key format requirements:**
+
+- The key must be a 32-byte (256-bit) random value, suitable for AES-256-GCM encryption.
+- The key is used with the TINK output prefix type (AES256GCMKeyTemplate).
+
+Example: The file should contain exactly 32 random bytes (not a hex or base64 string).
+
 To set up a custom keys, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your custom key file.
 
 !!! hint alert alert-success "Important"
