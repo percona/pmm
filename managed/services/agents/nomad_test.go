@@ -17,6 +17,7 @@ package agents
 
 import (
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -38,7 +39,13 @@ func TestGenerateNomadAgentConfig(t *testing.T) {
 			LogLevel:   pointer.To("debug"),
 		}
 		tdp := models.TemplateDelimsPair()
-		config, err := generateNomadAgentConfig(node, agent, tdp)
+		config, err := generateNomadAgentConfig(node, agent, tdp, models.NomadClient{
+			GCInterval:            time.Minute * 1,
+			GCDiskUsageThreshold:  20,
+			GCInodeUsageThreshold: 30,
+			GCMaxAllocs:           40,
+			GCParallelDestroys:    50,
+		})
 		require.NoError(t, err)
 		expected := `log_level = "DEBUG"
 
@@ -81,6 +88,13 @@ client {
     "driver.denylist" = "docker,qemu,java,exec,storage,podman,containerd"
     "driver.allowlist" = "raw_exec"
   }
+
+  # Garbage collection settings
+  gc_interval = "1m0s"
+  gc_disk_usage_threshold = 20
+  gc_inode_usage_threshold = 30
+  gc_max_allocs = 40
+  gc_parallel_destroys = 50
 
   # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
