@@ -33,7 +33,7 @@ import (
 )
 
 func setup() *sqlx.DB {
-	cmdStr := `docker exec pmm-clickhouse-test clickhouse client -n --query='DROP DATABASE IF EXISTS pmm_test_parts; CREATE DATABASE pmm_test_parts;'`
+	cmdStr := `docker exec pmm-clickhouse-test clickhouse client -n --password=clickhouse --query='DROP DATABASE IF EXISTS pmm_test_parts; CREATE DATABASE pmm_test_parts;'`
 	if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil {
 		log.Printf("Docker create db: %v, %v", out, err)
 	}
@@ -41,7 +41,7 @@ func setup() *sqlx.DB {
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 	dsn = strings.Replace(dsn, "/pmm_test", "/pmm_test_parts", 1)
 	if !ok {
-		dsn = "clickhouse://127.0.0.1:19000/pmm_test_parts"
+		dsn = "clickhouse://default:clickhouse@127.0.0.1:19000/pmm_test_parts"
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
@@ -52,7 +52,7 @@ func setup() *sqlx.DB {
 		log.Fatal("Migration: ", err)
 	}
 
-	cmdStr = `cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test_parts --query="INSERT INTO metrics FORMAT JSONEachRow"`
+	cmdStr = `cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test_parts --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"`
 	if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil {
 		log.Fatalf("Docker load fixture: %v, %v", out, err)
 	}
@@ -63,7 +63,7 @@ func setup() *sqlx.DB {
 func cleanup() {
 	cleanupDatabases := []string{"pmm_test_parts", "pmm_created_db"}
 	for _, database := range cleanupDatabases {
-		cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --query='DROP DATABASE IF EXISTS %s;'`, database)
+		cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query='DROP DATABASE IF EXISTS %s;'`, database)
 		if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil { //nolint:gosec
 			log.Fatalf("Docker drop db: %v, %v", out, err)
 		}
@@ -115,7 +115,7 @@ func TestCreateDbIfNotExists(t *testing.T) {
 
 		dsn = strings.Replace(dsn, "/pmm_test", "/pmm_created_db", 1)
 		if !ok {
-			dsn = "clickhouse://127.0.0.1:19000/pmm_created_db"
+			dsn = "clickhouse://default:clickhouse@127.0.0.1:19000/pmm_created_db"
 		}
 
 		err := createDB(dsn)
