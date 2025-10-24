@@ -40,7 +40,6 @@ func TestCheckCompatibility(t *testing.T) {
 		&agents.Mysqld{},
 		&agents.Xtrabackup{},
 		&agents.Xbcloud{},
-		&agents.Qpress{},
 	}
 	require.Equal(t, expectedMysqlSoftware, mysqlSoftware)
 
@@ -65,7 +64,6 @@ func TestCheckCompatibility(t *testing.T) {
 				{Version: "8.0.25"},
 				{Version: ""},
 				{Version: ""},
-				{Version: "1.1"},
 			},
 			expectedError: ErrXtrabackupNotInstalled,
 		},
@@ -76,7 +74,6 @@ func TestCheckCompatibility(t *testing.T) {
 				{Version: "8.0.25"},
 				{Version: "8.0.24"},
 				{Version: "8.0.25"},
-				{Version: "1.1"},
 			},
 			expectedError: ErrInvalidXtrabackup,
 		},
@@ -87,20 +84,8 @@ func TestCheckCompatibility(t *testing.T) {
 				{Version: "8.0.25"},
 				{Version: "8.0.24"},
 				{Version: "8.0.24"},
-				{Version: "1.1"},
 			},
 			expectedError: ErrIncompatibleXtrabackup,
-		},
-		{
-			name:        "qpress no installed",
-			serviceType: models.MySQLServiceType,
-			versions: []agents.Version{
-				{Version: "8.0.25"},
-				{Version: "8.0.25"},
-				{Version: "8.0.25"},
-				{Version: ""},
-			},
-			expectedError: ErrIncompatibleService,
 		},
 		{
 			name:        "mysql no installed",
@@ -109,7 +94,6 @@ func TestCheckCompatibility(t *testing.T) {
 				{Version: ""},
 				{Version: "8.0.25"},
 				{Version: "8.0.25"},
-				{Version: "1.1"},
 			},
 			expectedError: ErrIncompatibleService,
 		},
@@ -120,7 +104,6 @@ func TestCheckCompatibility(t *testing.T) {
 				{Version: "8.0.25"},
 				{Version: "8.0.25", Error: "Some error"},
 				{Version: "8.0.25"},
-				{Version: "1.1"},
 			},
 			expectedError: ErrComparisonImpossible,
 		},
@@ -139,7 +122,6 @@ func TestCheckCompatibility(t *testing.T) {
 				{Version: "8.0.25"},
 				{Version: "8.0.25"},
 				{Version: "8.0.25"},
-				{Version: "1.1"},
 			},
 			expectedError: nil,
 		},
@@ -222,7 +204,6 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 					{Name: models.MysqldSoftwareName, Version: ""},
 					{Name: models.XtrabackupSoftwareName, Version: "8.0.25"},
 					{Name: models.XbcloudSoftwareName, Version: "8.0.25"},
-					{Name: models.QpressSoftwareName, Version: "1.1"},
 				},
 			},
 			{
@@ -231,7 +212,6 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 					{Name: models.MysqldSoftwareName, Version: "8.0.25"},
 					{Name: models.XtrabackupSoftwareName, Version: "8.0.24"},
 					{Name: models.XbcloudSoftwareName, Version: "8.0.25"},
-					{Name: models.QpressSoftwareName, Version: "1.1"},
 				},
 			},
 			{
@@ -240,16 +220,6 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 					{Name: models.MysqldSoftwareName, Version: "8.0.25"},
 					{Name: models.XtrabackupSoftwareName, Version: "8.0.25"},
 					{Name: models.XbcloudSoftwareName, Version: "8.0.24"},
-					{Name: models.QpressSoftwareName, Version: "1.1"},
-				},
-			},
-			{
-				ServiceID: "4",
-				SoftwareVersions: models.SoftwareVersions{
-					{Name: models.MysqldSoftwareName, Version: "8.0.25"},
-					{Name: models.XtrabackupSoftwareName, Version: "8.0.25"},
-					{Name: models.XbcloudSoftwareName, Version: "8.0.25"},
-					{Name: models.QpressSoftwareName, Version: ""},
 				},
 			},
 			{
@@ -258,7 +228,6 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 					{Name: models.MysqldSoftwareName, Version: "8.0.25"},
 					{Name: models.XtrabackupSoftwareName, Version: "8.0.25"},
 					{Name: models.XbcloudSoftwareName, Version: "8.0.25"},
-					{Name: models.QpressSoftwareName, Version: "1.1"},
 				},
 			},
 			{
@@ -267,7 +236,6 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 					{Name: models.MysqldSoftwareName, Version: "8.0.25"},
 					{Name: models.XtrabackupSoftwareName, Version: ""},
 					{Name: models.XbcloudSoftwareName, Version: "8.0.25"},
-					{Name: models.QpressSoftwareName, Version: "1.1"},
 				},
 			},
 			{
@@ -276,7 +244,6 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 					{Name: models.MysqldSoftwareName, Version: "8.0.24"},
 					{Name: models.XtrabackupSoftwareName, Version: "8.0.25"},
 					{Name: models.XbcloudSoftwareName, Version: "8.0.25"},
-					{Name: models.QpressSoftwareName, Version: "1.1"},
 				},
 			},
 			{
@@ -285,7 +252,6 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 					{Name: models.MysqldSoftwareName, Version: "8.0.25"},
 					{Name: models.XtrabackupSoftwareName, Version: "8.0.26"},
 					{Name: models.XbcloudSoftwareName, Version: "8.0.26"},
-					{Name: models.QpressSoftwareName, Version: "1.1"},
 				},
 			},
 		}
@@ -519,7 +485,6 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 				{Name: "mysqld", Version: "8.0.25"},
 				{Name: "xtrabackup", Version: "8.0.25"},
 				{Name: "xbcloud", Version: "8.0.25"},
-				{Name: "qpress", Version: "1.1"},
 			},
 		}
 
@@ -543,7 +508,6 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 					{Name: "mysqld", Version: "8.0.25"},
 					{Name: "xtrabackup", Version: "8.0.24"},
 					{Name: "xbcloud", Version: "8.0.24"},
-					{Name: "qpress", Version: "1.1"},
 				},
 			},
 		}
@@ -561,7 +525,6 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 				SoftwareVersions: models.SoftwareVersions{
 					{Name: "mysqld", Version: "8.0.25"},
 					{Name: "xtrabackup", Version: "8.0.25"},
-					{Name: "qpress", Version: "1.1"},
 				},
 			},
 		}
@@ -580,7 +543,6 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 					{Name: "mysqld", Version: "8.0.25"},
 					{Name: "xtrabackup", Version: "8.0.26"},
 					{Name: "xbcloud", Version: "8.0.26"},
-					{Name: "qpress", Version: "1.1"},
 				},
 			},
 		}
@@ -599,7 +561,6 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 					{Name: "mysqld", Version: "8.0.25"},
 					{Name: "xtrabackup", Version: "8.0.25"},
 					{Name: "xbcloud", Version: "8.0.25"},
-					{Name: "qpress", Version: "1.1"},
 				},
 			},
 		}

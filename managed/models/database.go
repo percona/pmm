@@ -1148,6 +1148,12 @@ var databaseSchema = [][]string{
 	112: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
 	},
+	113: {
+		`ALTER TABLE artifacts 
+		ADD COLUMN compression VARCHAR NOT NULL DEFAULT 'default'`,
+
+		`ALTER TABLE artifacts ALTER COLUMN compression DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

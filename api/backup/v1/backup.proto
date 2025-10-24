@@ -28,6 +28,8 @@ message StartBackupRequest {
   DataModel data_model = 7;
   // Folder on storage for artifact.
   string folder = 8;
+  // Compression
+  BackupCompression compression = 9;
 }
 
 message StartBackupResponse {
@@ -85,6 +87,8 @@ message ScheduledBackup {
   google.protobuf.Timestamp next_run = 18;
   // How many artifacts keep. 0 - unlimited.
   uint32 retention = 19;
+  // Compression
+  BackupCompression compression = 20;
 }
 
 message ScheduleBackupRequest {
@@ -114,6 +118,8 @@ message ScheduleBackupRequest {
   DataModel data_model = 12;
   // How many artifacts keep. 0 - unlimited.
   uint32 retention = 13;
+  // Compression
+  BackupCompression compression = 14;
 }
 
 message ScheduleBackupResponse {
@@ -162,6 +168,16 @@ message GetLogsRequest {
 message GetLogsResponse {
   repeated LogChunk logs = 1;
   bool end = 2;
+}
+
+message ListServiceCompressionRequest {
+  // Service identifier.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message ListServiceCompressionResponse {
+  // Available compression methods for the service.
+  repeated BackupCompression compression_methods = 1;
 }
 
 // Backups service handles backup operations to DB.
@@ -254,6 +270,15 @@ service BackupService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List PITR Timeranges"
       description: "Return a list of available MongoDB point-in-time-recovery timeranges."
+    };
+  }
+
+  // ListServiceCompression returns available compression methods for a service.
+  rpc ListServiceCompression(ListServiceCompressionRequest) returns (ListServiceCompressionResponse) {
+    option (google.api.http) = {get: "/v1/backups/services/{service_id}/compression"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Service Compression"
+      description: "Return a list of available compression methods for a service."
     };
   }
 }
