@@ -44,11 +44,11 @@ To rotate or regenerate the encryption key:
 2. Run the Encryption Rotation Tool using the following command:
 
     ```bash
-   pmm-encryption-rotation
+     pmm-encryption-rotation
     ```
 
-      - Ensure `PMM_ENCRYPTION_KEY_PATH` is set to the current custom key if using one, so the tool can decrypt data before re-encryption.
-      - If using custom credentials/SSL for the PMM internal database, provide them with the appropriate flags.
+    - Ensure `PMM_ENCRYPTION_KEY_PATH` is set to the current custom key if using one, so the tool can decrypt data before re-encryption.
+    - If using custom credentials/SSL for the PMM internal database, provide them with the appropriate flags.
 
 3. Verify PMM functionality all components are functioning properly to ensure that the encryption key rotation was successful.
 
