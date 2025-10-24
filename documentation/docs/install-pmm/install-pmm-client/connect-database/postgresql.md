@@ -221,12 +221,35 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
         !!! note "Best practice"
             Create the extension in the `postgres` database to access statistics from all databases without configuring each one individually.
 
+## Query examples and data privacy
+
+PostgreSQL query example collection depends on your chosen query source.
+
+### Disabling query examples with pgstatmonitor
+
+When using `pgstatmonitor`, query examples are collected by default but can be disabled for privacy. 
+
+For `pg_stat_statements`, query examples are never collected by design, providing inherent privacy without requiring any configuration. 
+
+=== "Via UI"
+    When adding a PostgreSQL service through the PMM UI, expand **Advanced Settings** and check **Disable query examples**. This prevents PMM from storing actual query values while maintaining all other Query Analytics functionality.
+
+=== "Via command line"
+    Use the `--disable-queryexamples` flag:
+    ```sh
+        pmm-admin add postgresql \
+        --username=pmm \
+        --password=password \
+        --query-source=pgstatmonitor \
+        --disable-queryexamples \
+        PostgreSQL-Private
+    ```
 
 ## Add service to PMM
 
 After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this either through the PMM user interface or via the command line.
 
-=== "Via web UI"
+=== "Via UI"
 
     To add the service from the user interface:
     {.power-number}
@@ -234,11 +257,13 @@ After configuring your database server with the appropriate extension, you need 
     1. Go to  **PMM Configuration > Add Service > PostgreSQL**.
     
     2. Enter or select values for the fields.
-    
-    3. Click **Add service**.
+
+    3. (Optional) If using `pgstatmonitor`, check **Disable query examples** under **Additional options** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.    
+
+    4. Click **Add service**.
     ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
 
-    4. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
     For TLS connection, make sure SSL is configured in your PostgreSQL instance. 
     
     Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
@@ -281,7 +306,7 @@ After configuring your database server with the appropriate extension, you need 
         pmm-admin add postgresql --socket=/var/run/postgresql
         ```
         
-        Where:
+        where:
 
         - `/var/run/postgresql`: Directory containing the socket
     
@@ -330,10 +355,10 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
     
     How the limit works:
     
-    - If number of databases > Auto-discovery limit: Auto-discovery is **OFF**
-    - If number of databases <= Auto-discovery limit: Auto-discovery is **ON**
-    - If Auto-discovery limit is not defined: Default value is 0 (server-defined with limit 10)
-    - If Auto-discovery limit < 0: Auto-discovery is **OFF**
+    - if number of databases > Auto-discovery limit: Auto-discovery is **OFF**
+    - if number of databases <= Auto-discovery limit: Auto-discovery is **ON**
+    - if Auto-discovery limit is not defined: Default value is 0 (server-defined with limit 10)
+    - if Auto-discovery limit < 0: Auto-discovery is **OFF**
     
     **Example**:
     
@@ -346,7 +371,7 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
     
     If your PostgreSQL instance has 11 databases, automatic discovery will be disabled.
 
-=== "Via web UI"
+=== "Via UI"
 
     By default, **Auto-discovery** is enabled with a server-defined limit of 10 databases.
     
@@ -358,8 +383,6 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
     
     For a custom value, select **Custom** and enter your preferred limit.
     
-    ![Auto-discovery Custom](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_custom.png)
-
 ## Check the service
 
 After adding a PostgreSQL service, verify that it's properly connected and sending data to PMM.
@@ -380,7 +403,7 @@ After adding a PostgreSQL service, verify that it's properly connected and sendi
     
     Look for your PostgreSQL service in the output and verify that its status is "RUNNING".
 
-=== "Via web UI"
+=== "Via UI"
 
     Use the UI to confirm that your service was added and is actively monitored:
     {.power-number}

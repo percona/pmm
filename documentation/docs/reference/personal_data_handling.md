@@ -1,6 +1,5 @@
 # Data handling in PMM
 
-
 The following questions are being answered related to personal and confidential data handling in PMM:
 {.power-number}
 
@@ -8,7 +7,7 @@ The following questions are being answered related to personal and confidential 
 
       |**Data collection source**                                       | **Data collected** |
       | --------------------------------------------------------------- | ------------------------------------------------------
-      | DB host to PMM                                                  | Database performance metrics <br/> SQL query examples for query analytics (optional).
+      | DB host to PMM                                                  | Database performance metrics <br/> SQL query examples for query analytics (optional - can be disabled via UI checkbox or CLI flag).
       | PMM to DB Host                                                  | DSN and credentials for database access. A separate DB user is used (limited access) to retrieve metrics from the database.
       | DB Host to S3 compatible storage location                       | Database backup - optional if PMM Administrator configures it with Public Cloud (AWS, GCP, etc) as a possible storage location.
       | PMM Server to Percona Cloud                                     | Telemetry data is collected. </br/> PMM Server collects varying amounts of data from version to version, and no personal or confidential information is collected. See [Telemetry](../configure-pmm/advanced_settings.md#telemetry) for details on the data being transmitted.
@@ -22,9 +21,17 @@ The following questions are being answered related to personal and confidential 
 
 3. What is the purpose and nature of data processing?
 
-    As per our [Privacy Policy](https://www.percona.com/privacy-policy), the data collection purposes are to provide the services and product enhancements.
+    As described in our [Privacy Policy](https://www.percona.com/privacy-policy), data is collected to provide Percona services and improve our products.
 
-    Although, PMM does not collect nor transfer personal data explicitly, in case query analytics is enabled and query examples collection is not disabled, we gather SQL query examples with real data and personal data may appear there if it is stored in DB.  All QAN data always remains within the PMM Server, and is never transmitted anywhere else.
+    PMM does not explicitly collect or transfer personal data. However, if Query Analytics (QAN) is enabled and query example collection is not disabled, SQL query examples with actual data values may be gathered. This means personal data could appear in query text if it exists within your database.
+
+    To prevent query example collection:
+
+    - From the UI: select the **Disable query examples** checkbox in the **Additional options** section when adding a MySQL or PostgreSQL service.
+
+    - From the command line: use the `--disable-queryexamples` flag when adding MySQL or PostgreSQL (with pgstatmonitor) services via CLI.
+
+    All QAN data always remains within the PMM Server, and is never transmitted anywhere else.
 
 4. What is the frequency and volume of processed data?
 

@@ -304,34 +304,34 @@ When you remove a service, collected data remains on PMM Server for the specifie
     :  Source of queries, one of: `profiler`, `mongolog`, `none` (default: `profiler`).
 
         `--environment=environment`
-        :  Environment name.
+        :  Environment name (e.g. dev, test, prod, etc.)
 
         `--cluster=cluster`
-        :  Cluster name.
+        :  Cluster name. Set to the replica set or the desired sharded cluster name.
 
         `--replication-set=replication-set`
-        :  Replication set name.
+        :  Replication set name. Use only if you need to override the auto-detected replica set name.
 
         `--custom-labels=custom-labels`
         :  Custom user-assigned labels.
 
         `--skip-connection-check`
-        :  Skip connection check.
+        :  Skip checking if pmm agent can connect to the local db when adding a service.
 
         `--tls`
         :  Use TLS to connect to the database.
 
         `--tls-skip-verify`
-        :  Skip TLS certificates validation.
+        :  Skip validation of the TLS certificate presented by the db server to the pmm agent.
 
         `--tls-certificate-key-file=PATHTOCERT`
-        : Path to TLS certificate file.
+        : Path to TLS certificate file to present to the db server by pmm agent.
 
         `--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET`
         : Password for TLS certificate file.
 
         `--tls-ca-file=PATHTOCACERT`
-        : Path to certificate authority file.
+        : Path to certificate authority file used to validate the db server certificate.
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
@@ -504,7 +504,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
             - `KiB`, `MiB`, `GiB`, `TiB` for base 2 units (1024, 1048576, etc).
 
         `--disable-queryexamples`
-        : Disable collection of query examples.
+        : Disable collection of query examples. Prevents PMM from storing actual query values in Query Analytics while maintaining all performance metrics. Recommended for databases handling sensitive data. This option can also be configured via the UI when adding services.
 
         `--disable-tablestats`
         : Disable table statistics collection.
@@ -609,7 +609,8 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : Source of SQL queries, one of: `pgstatements`, `pgstatmonitor`, `none` (default: `pgstatements`).
 
         `--disable-queryexamples`
-        : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`.
+        : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`. Prevents PMM from storing actual query values in Query Analytics while maintaining all performance metrics. When using `pgstatements`, query examples are never collected by design. You can also configure this option via the UI when adding services.
+
         
         `--environment=<environment>`
         : Environment name.
