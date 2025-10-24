@@ -20,3 +20,5 @@ ignorePatterns:
   - pattern: "#mysql_alerts$"
   - pattern: "#postgresql_alerts$"
   - pattern: "#proxysql_alerts$"
+  - pattern: "release-notes/\\{\\{release\\}\\}\\.md"
+
