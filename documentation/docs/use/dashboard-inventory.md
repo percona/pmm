@@ -159,7 +159,7 @@ To see agent details:
 
      ![!image](../images/PMM_Inventory_Node_Selection.png)
 
-2. Click on the :material-arrow-downward: icon under the **Options** column to view the properties of a specific agent.
+2. Click on the :material-arrow-down: icon under the **Options** column to view the properties of a specific agent.
 
 3.  On the **Nodes** tab, under the **Options** column, click on the :material-arrow-downward: icon for the selected node to check the properties and the current health status of an agent.       
      
