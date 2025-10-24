@@ -34,7 +34,7 @@ To rotate or regenerate the encryption key:
 
 1. Log in to the container that runs PMM Server.
 
-2. Run the Encryption Rotation Tool using the following the command:
+2. Run the Encryption Rotation Tool using the following command:
 
     ```bash
    pmm-encryption-rotation
