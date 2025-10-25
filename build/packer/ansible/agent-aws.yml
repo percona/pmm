@@ -243,11 +243,12 @@
         state: started
         enabled: true
 
-    - name: Add ssm-user to "docker" group
+    - name: Add ssm-user to some groups
       user:
         name: "ssm-user"
         groups:
           - docker
+          - systemd-journal
         append: yes
 
     - name: Grant ssm-user sudo privileges
@@ -255,6 +256,13 @@
         content: "ssm-user ALL=(ALL) NOPASSWD:ALL"
         dest: /etc/sudoers.d/ssm-agent-users
         mode: 0440
+
+    - name: Set SELinux context for ssm-user
+      seuser:
+        name: ssm-user
+        seuser: unconfined_u
+        serange: s0-s0:c0.c1023
+        state: present
 
     - name: Turn off swap
       sysctl:
