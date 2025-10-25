@@ -250,6 +250,12 @@
           - docker
         append: yes
 
+    - name: Grant ssm-user sudo privileges
+      copy:
+        content: "ssm-user ALL=(ALL) NOPASSWD:ALL"
+        dest: /etc/sudoers.d/ssm-agent-users
+        mode: 0440
+
     - name: Turn off swap
       sysctl:
         name: vm.swappiness
