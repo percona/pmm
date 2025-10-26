@@ -101,7 +101,7 @@ func New() *Encryption {
 	bytes, err := os.ReadFile(e.Path)
 	switch {
 	case os.IsNotExist(err):
-		err = e.generateKey()
+		err := e.generateAndPersistKey()
 		if err != nil {
 			logrus.Panicf("Encryption: %v", err)
 		}
@@ -153,19 +153,27 @@ func backupOldEncryptionKey() error {
 	return nil
 }
 
-func (e *Encryption) generateKey() error {
+func (e *Encryption) GenerateKey() (string, error) {
 	handle, err := keyset.NewHandle(aead.AES256GCMKeyTemplate())
 	if err != nil {
-		return fmt.Errorf("failed to create keyset: %w", err)
+		return "", fmt.Errorf("failed to create keyset: %w", err)
 	}
 
 	buff := &bytes.Buffer{}
 	err = insecurecleartextkeyset.Write(handle, keyset.NewBinaryWriter(buff))
 	if err != nil {
-		return fmt.Errorf("failed to write encryption key: %w", err)
+		return "", fmt.Errorf("failed to write encryption key: %w", err)
 	}
-	e.Key = base64.StdEncoding.EncodeToString(buff.Bytes())
 
+	return base64.StdEncoding.EncodeToString(buff.Bytes()), nil
+}
+
+func (e *Encryption) generateAndPersistKey() error {
+	key, err := e.GenerateKey()
+	if err != nil {
+		return err
+	}
+	e.Key = key
 	return e.saveKeyToFile()
 }
 
