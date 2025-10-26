@@ -48,12 +48,13 @@ func TestEncryptionGenerateKey(t *testing.T) {
 
 func TestEncryptionGenerateAndPersistKey(t *testing.T) {
 	// Create a temporary file path for testing
-	tempFile, err := os.CreateTemp("", "encryption_test_*.key")
+	tempFile, err := os.CreateTemp(t.TempDir(), "encryption_test_*.key")
 	require.NoError(t, err)
-	tempFile.Close()
+	err = tempFile.Close()
+	assert.NoError(t, err)
 
 	t.Cleanup(func() {
-		os.Remove(tempFile.Name())
+		_ = os.Remove(tempFile.Name())
 	})
 
 	e := &Encryption{Path: tempFile.Name()}

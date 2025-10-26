@@ -101,7 +101,7 @@ func New() *Encryption {
 	bytes, err := os.ReadFile(e.Path)
 	switch {
 	case os.IsNotExist(err):
-		err := e.generateAndPersistKey()
+		err = e.generateAndPersistKey()
 		if err != nil {
 			logrus.Panicf("Encryption: %v", err)
 		}
@@ -153,6 +153,7 @@ func backupOldEncryptionKey() error {
 	return nil
 }
 
+// GenerateKey generates a new encryption key.
 func (e *Encryption) GenerateKey() (string, error) {
 	handle, err := keyset.NewHandle(aead.AES256GCMKeyTemplate())
 	if err != nil {

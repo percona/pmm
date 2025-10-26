@@ -66,7 +66,7 @@ func main() {
 			logrus.Errorf("Failed to generate key: %v", err)
 			os.Exit(1)
 		}
-		fmt.Print(key)
+		fmt.Print(key) //nolint:forbidigo
 		os.Exit(0)
 	}
 
