@@ -38,8 +38,6 @@ func main() {
 
 	logger.SetupGlobalLogger()
 
-	logrus.Infof("PMM Encryption Rotation Tool version: %s", version.Version)
-
 	var opts flags
 	kong.Parse(
 		&opts,
