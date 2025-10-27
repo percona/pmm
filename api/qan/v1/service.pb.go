@@ -113,7 +113,7 @@ var File_qan_v1_service_proto protoreflect.FileDescriptor
 
 const file_qan_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x14qan/v1/service.proto\x12\x06qan.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x14qan/v1/filters.proto\x1a\x1bqan/v1/object_details.proto\x1a\x14qan/v1/profile.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x18\n" +
+	"\x14qan/v1/service.proto\x12\x06qan.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x14qan/v1/filters.proto\x1a\x1bqan/v1/object_details.proto\x1a\x14qan/v1/profile.proto\"\x18\n" +
 	"\x16GetMetricsNamesRequest\"\x91\x01\n" +
 	"\x17GetMetricsNamesResponse\x12=\n" +
 	"\x04data\x18\x01 \x03(\v2).qan.v1.GetMetricsNamesResponse.DataEntryR\x04data\x1a7\n" +
