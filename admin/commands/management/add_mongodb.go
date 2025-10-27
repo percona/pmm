@@ -82,6 +82,7 @@ type AddMongoDBCommand struct {
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit              int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
 	ExposeExporter                bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	AgentEnvVars                  map[string]string `name:"agent-env-vars" mapsep:"," help:"Additional environment variables for the exporter, e.g. 'VAR1=value1,VAR2=value2'"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -125,6 +126,7 @@ func (cmd *AddMongoDBCommand) GetCredentials() error {
 // RunCmd runs the command for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	agentVars := commands.ParseKeyValuePair(cmd.AgentEnvVars)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -180,6 +182,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				QANMongodbMongolog: cmd.QuerySource == MongodbQuerySourceMongolog,
 
 				CustomLabels:                  customLabels,
+				AgentEnvironmentVariables:     agentVars,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				MaxQueryLength:                cmd.MaxQueryLength,
 				TLS:                           cmd.TLS,

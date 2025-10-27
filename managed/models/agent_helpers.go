@@ -116,6 +116,7 @@ func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
 
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
 type MongoDBOptionsParams interface {
+	GetAgentEnvironmentVariables() map[string]string
 	GetTlsCertificateKey() string
 	GetTlsCertificateKeyFilePassword() string
 	GetTlsCa() string
@@ -134,6 +135,7 @@ type MongoDBExtendedOptionsParams interface {
 func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
 	mdbOptions := MongoDBOptions{}
 
+	mdbOptions.AgentEnvironmentVariables = params.GetAgentEnvironmentVariables()
 	mdbOptions.TLSCertificateKey = params.GetTlsCertificateKey()
 	mdbOptions.TLSCertificateKeyFilePassword = params.GetTlsCertificateKeyFilePassword()
 	mdbOptions.TLSCa = params.GetTlsCa()

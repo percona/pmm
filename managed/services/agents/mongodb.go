@@ -57,8 +57,10 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	sort.Strings(args)
 
 	database := exporter.MongoDBOptions.AuthenticationDatabase
-	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)),
+	env := make([]string, 0, 1+len(exporter.MongoDBOptions.AgentEnvironmentVariables))
+	env = append(env, fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)))
+	for k, v := range exporter.MongoDBOptions.AgentEnvironmentVariables {
+		env = append(env, fmt.Sprintf("%s=%s", k, v))
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -165,6 +167,7 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
+		Env:                  agent.MongoDBOptions.AgentEnvironmentVariables,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -182,6 +185,7 @@ func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
+		Env:                  agent.MongoDBOptions.AgentEnvironmentVariables,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

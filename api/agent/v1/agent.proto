@@ -80,6 +80,8 @@ message SetStateRequest {
     bool tls = 8;
     // TLS certificate wont be verified.
     bool tls_skip_verify = 9;
+    // environment variables to be passed to the built-in agent.
+    map<string, string> env = 10;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }

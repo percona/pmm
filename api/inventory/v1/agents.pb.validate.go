@@ -8614,6 +8614,8 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for AgentEnvironmentVariables
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
 	}
@@ -10268,6 +10270,8 @@ func (m *AddQANMongoDBProfilerAgentParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AgentEnvironmentVariables
+
 	if len(errors) > 0 {
 		return AddQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -10593,6 +10597,8 @@ func (m *AddQANMongoDBMongologAgentParams) validate(all bool) error {
 	// no validation rules for AuthenticationDatabase
 
 	// no validation rules for LogLevel
+
+	// no validation rules for AgentEnvironmentVariables
 
 	if len(errors) > 0 {
 		return AddQANMongoDBMongologAgentParamsMultiError(errors)

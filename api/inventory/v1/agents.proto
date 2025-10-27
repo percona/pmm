@@ -1030,6 +1030,8 @@ message AddMongoDBExporterParams {
   LogLevel log_level = 19;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 20;
+  // Environment variables to set for the exporter process.
+  map<string, string> agent_environment_variables = 21;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1269,8 +1271,10 @@ message AddQANMongoDBProfilerAgentParams {
   string authentication_mechanism = 13;
   // Authentication database.
   string authentication_database = 14;
-  // Log level for exporter.
+  // Log level for agent.
   LogLevel log_level = 15;
+  // Environment variables to set for the agent process.
+  map<string, string> agent_environment_variables = 16;
 }
 
 message ChangeQANMongoDBProfilerAgentParams {
@@ -1317,8 +1321,10 @@ message AddQANMongoDBMongologAgentParams {
   string authentication_mechanism = 13;
   // Authentication database.
   string authentication_database = 14;
-  // Log level for exporter.
+  // Log level for agent.
   LogLevel log_level = 15;
+  // Environment variables to set for the agent process.
+  map<string, string> agent_environment_variables = 16;
 }
 
 message ChangeQANMongoDBMongologAgentParams {

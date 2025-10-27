@@ -9581,6 +9581,9 @@ type AddServiceParamsBodyMongodb struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// Optionally, set environment variables that'll be passed to agent processes
+	AgentEnvironmentVariables map[string]string `json:"agent_environment_variables,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`
 }

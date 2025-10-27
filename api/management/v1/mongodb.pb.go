@@ -104,8 +104,10 @@ type AddMongoDBServiceParams struct {
 	LogLevel v1.LogLevel `protobuf:"varint,33,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,34,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Optionally, set environment variables that'll be passed to agent processes
+	AgentEnvironmentVariables map[string]string `protobuf:"bytes,36,rep,name=agent_environment_variables,json=agentEnvironmentVariables,proto3" json:"agent_environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *AddMongoDBServiceParams) Reset() {
@@ -369,6 +371,13 @@ func (x *AddMongoDBServiceParams) GetExposeExporter() bool {
 	return false
 }
 
+func (x *AddMongoDBServiceParams) GetAgentEnvironmentVariables() map[string]string {
+	if x != nil {
+		return x.AgentEnvironmentVariables
+	}
+	return nil
+}
+
 type MongoDBServiceResult struct {
 	state              protoimpl.MessageState      `protogen:"open.v1"`
 	Service            *v1.MongoDBService          `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -441,7 +450,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x83\f\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xd9\r\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -477,8 +486,12 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\x11collections_limit\x18\x1f \x01(\x05R\x10collectionsLimit\x122\n" +
 	"\x15enable_all_collectors\x18  \x01(\bR\x13enableAllCollectors\x123\n" +
 	"\tlog_level\x18! \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18\" \x01(\bR\x0eexposeExporter\x1a?\n" +
+	"\x0fexpose_exporter\x18\" \x01(\bR\x0eexposeExporter\x12\x85\x01\n" +
+	"\x1bagent_environment_variables\x18$ \x03(\v2E.management.v1.AddMongoDBServiceParams.AgentEnvironmentVariablesEntryR\x19agentEnvironmentVariables\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aL\n" +
+	"\x1eAgentEnvironmentVariablesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xca\x02\n" +
 	"\x14MongoDBServiceResult\x126\n" +
@@ -501,35 +514,37 @@ func file_management_v1_mongodb_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_management_v1_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_management_v1_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 	file_management_v1_mongodb_proto_goTypes  = []any{
 		(*AddMongoDBServiceParams)(nil),    // 0: management.v1.AddMongoDBServiceParams
 		(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
 		nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
-		(*v1.MongoDBService)(nil),          // 6: inventory.v1.MongoDBService
-		(*v1.MongoDBExporter)(nil),         // 7: inventory.v1.MongoDBExporter
-		(*v1.QANMongoDBProfilerAgent)(nil), // 8: inventory.v1.QANMongoDBProfilerAgent
-		(*v1.QANMongoDBMongologAgent)(nil), // 9: inventory.v1.QANMongoDBMongologAgent
+		nil,                                // 3: management.v1.AddMongoDBServiceParams.AgentEnvironmentVariablesEntry
+		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
+		(MetricsMode)(0),                   // 5: management.v1.MetricsMode
+		(v1.LogLevel)(0),                   // 6: inventory.v1.LogLevel
+		(*v1.MongoDBService)(nil),          // 7: inventory.v1.MongoDBService
+		(*v1.MongoDBExporter)(nil),         // 8: inventory.v1.MongoDBExporter
+		(*v1.QANMongoDBProfilerAgent)(nil), // 9: inventory.v1.QANMongoDBProfilerAgent
+		(*v1.QANMongoDBMongologAgent)(nil), // 10: inventory.v1.QANMongoDBMongologAgent
 	}
 )
 
 var file_management_v1_mongodb_proto_depIdxs = []int32{
-	3, // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2, // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry
-	4, // 2: management.v1.AddMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	5, // 3: management.v1.AddMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6, // 4: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
-	7, // 5: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
-	8, // 6: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent
-	9, // 7: management.v1.MongoDBServiceResult.qan_mongodb_mongolog:type_name -> inventory.v1.QANMongoDBMongologAgent
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	4,  // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	2,  // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry
+	5,  // 2: management.v1.AddMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	6,  // 3: management.v1.AddMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	3,  // 4: management.v1.AddMongoDBServiceParams.agent_environment_variables:type_name -> management.v1.AddMongoDBServiceParams.AgentEnvironmentVariablesEntry
+	7,  // 5: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
+	8,  // 6: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
+	9,  // 7: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent
+	10, // 8: management.v1.MongoDBServiceResult.qan_mongodb_mongolog:type_name -> inventory.v1.QANMongoDBMongologAgent
+	9,  // [9:9] is the sub-list for method output_type
+	9,  // [9:9] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_mongodb_proto_init() }
@@ -545,7 +560,7 @@ func file_management_v1_mongodb_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_mongodb_proto_rawDesc), len(file_management_v1_mongodb_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

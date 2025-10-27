@@ -5609,8 +5609,10 @@ type AddMongoDBExporterParams struct {
 	LogLevel LogLevel `protobuf:"varint,19,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,20,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Environment variables to set for the exporter process.
+	AgentEnvironmentVariables map[string]string `protobuf:"bytes,21,rep,name=agent_environment_variables,json=agentEnvironmentVariables,proto3" json:"agent_environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *AddMongoDBExporterParams) Reset() {
@@ -5781,6 +5783,13 @@ func (x *AddMongoDBExporterParams) GetExposeExporter() bool {
 		return x.ExposeExporter
 	}
 	return false
+}
+
+func (x *AddMongoDBExporterParams) GetAgentEnvironmentVariables() map[string]string {
+	if x != nil {
+		return x.AgentEnvironmentVariables
+	}
+	return nil
 }
 
 type ChangeMongoDBExporterParams struct {
@@ -6896,10 +6905,12 @@ type AddQANMongoDBProfilerAgentParams struct {
 	AuthenticationMechanism string `protobuf:"bytes,13,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
-	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Log level for agent.
+	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Environment variables to set for the agent process.
+	AgentEnvironmentVariables map[string]string `protobuf:"bytes,16,rep,name=agent_environment_variables,json=agentEnvironmentVariables,proto3" json:"agent_environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *AddQANMongoDBProfilerAgentParams) Reset() {
@@ -7037,6 +7048,13 @@ func (x *AddQANMongoDBProfilerAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddQANMongoDBProfilerAgentParams) GetAgentEnvironmentVariables() map[string]string {
+	if x != nil {
+		return x.AgentEnvironmentVariables
+	}
+	return nil
+}
+
 type ChangeQANMongoDBProfilerAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -7141,10 +7159,12 @@ type AddQANMongoDBMongologAgentParams struct {
 	AuthenticationMechanism string `protobuf:"bytes,13,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
-	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Log level for agent.
+	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Environment variables to set for the agent process.
+	AgentEnvironmentVariables map[string]string `protobuf:"bytes,16,rep,name=agent_environment_variables,json=agentEnvironmentVariables,proto3" json:"agent_environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *AddQANMongoDBMongologAgentParams) Reset() {
@@ -7280,6 +7300,13 @@ func (x *AddQANMongoDBMongologAgentParams) GetLogLevel() LogLevel {
 		return x.LogLevel
 	}
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *AddQANMongoDBMongologAgentParams) GetAgentEnvironmentVariables() map[string]string {
+	if x != nil {
+		return x.AgentEnvironmentVariables
+	}
+	return nil
 }
 
 type ChangeQANMongoDBMongologAgentParams struct {
@@ -9413,7 +9440,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
-	"\x14_enable_push_metrics\"\xe9\a\n" +
+	"\x14_enable_push_metrics\"\xbf\t\n" +
 	"\x18AddMongoDBExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -9437,8 +9464,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11stats_collections\x18\x11 \x03(\tR\x10statsCollections\x12+\n" +
 	"\x11collections_limit\x18\x12 \x01(\x05R\x10collectionsLimit\x123\n" +
 	"\tlog_level\x18\x13 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x1a?\n" +
+	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x12\x85\x01\n" +
+	"\x1bagent_environment_variables\x18\x15 \x03(\v2E.inventory.v1.AddMongoDBExporterParams.AgentEnvironmentVariablesEntryR\x19agentEnvironmentVariables\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aL\n" +
+	"\x1eAgentEnvironmentVariablesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xae\x02\n" +
 	"\x1bChangeMongoDBExporterParams\x12\x1b\n" +
@@ -9578,7 +9609,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
-	"\x14_enable_push_metrics\"\xa7\x06\n" +
+	"\x14_enable_push_metrics\"\x85\b\n" +
 	" AddQANMongoDBProfilerAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -9597,8 +9628,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheck\x129\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x127\n" +
 	"\x17authentication_database\x18\x0e \x01(\tR\x16authenticationDatabase\x123\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x8d\x01\n" +
+	"\x1bagent_environment_variables\x18\x10 \x03(\v2M.inventory.v1.AddQANMongoDBProfilerAgentParams.AgentEnvironmentVariablesEntryR\x19agentEnvironmentVariables\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aL\n" +
+	"\x1eAgentEnvironmentVariablesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb6\x02\n" +
 	"#ChangeQANMongoDBProfilerAgentParams\x12\x1b\n" +
@@ -9608,7 +9643,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
-	"\x14_enable_push_metrics\"\xa7\x06\n" +
+	"\x14_enable_push_metrics\"\x85\b\n" +
 	" AddQANMongoDBMongologAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -9627,8 +9662,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheck\x129\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x127\n" +
 	"\x17authentication_database\x18\x0e \x01(\tR\x16authenticationDatabase\x123\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x8d\x01\n" +
+	"\x1bagent_environment_variables\x18\x10 \x03(\v2M.inventory.v1.AddQANMongoDBMongologAgentParams.AgentEnvironmentVariablesEntryR\x19agentEnvironmentVariables\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aL\n" +
+	"\x1eAgentEnvironmentVariablesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb6\x02\n" +
 	"#ChangeQANMongoDBMongologAgentParams\x12\x1b\n" +
@@ -9855,7 +9894,7 @@ func file_inventory_v1_agents_proto_rawDescGZIP() []byte {
 
 var (
 	file_inventory_v1_agents_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventory_v1_agents_proto_msgTypes  = make([]protoimpl.MessageInfo, 101)
+	file_inventory_v1_agents_proto_msgTypes  = make([]protoimpl.MessageInfo, 104)
 	file_inventory_v1_agents_proto_goTypes   = []any{
 		(AgentType)(0),                                      // 0: inventory.v1.AgentType
 		(*PMMAgent)(nil),                                    // 1: inventory.v1.PMMAgent
@@ -9945,87 +9984,90 @@ var (
 		nil,                                                 // 85: inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
 		nil,                                                 // 86: inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
 		nil,                                                 // 87: inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
-		nil,                                                 // 88: inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
-		nil,                                                 // 89: inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
-		nil,                                                 // 90: inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
-		nil,                                                 // 91: inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
-		nil,                                                 // 92: inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
-		nil,                                                 // 93: inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
-		nil,                                                 // 94: inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
-		nil,                                                 // 95: inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
-		nil,                                                 // 96: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
-		nil,                                                 // 97: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
-		nil,                                                 // 98: inventory.v1.AddRDSExporterParams.CustomLabelsEntry
-		nil,                                                 // 99: inventory.v1.AddExternalExporterParams.CustomLabelsEntry
-		nil,                                                 // 100: inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
-		nil,                                                 // 101: inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
-		(AgentStatus)(0),                                    // 102: inventory.v1.AgentStatus
-		(LogLevel)(0),                                       // 103: inventory.v1.LogLevel
-		(*common.MetricsResolutions)(nil),                   // 104: common.MetricsResolutions
-		(*common.StringMap)(nil),                            // 105: common.StringMap
+		nil,                                                 // 88: inventory.v1.AddMongoDBExporterParams.AgentEnvironmentVariablesEntry
+		nil,                                                 // 89: inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
+		nil,                                                 // 90: inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
+		nil,                                                 // 91: inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
+		nil,                                                 // 92: inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
+		nil,                                                 // 93: inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
+		nil,                                                 // 94: inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
+		nil,                                                 // 95: inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
+		nil,                                                 // 96: inventory.v1.AddQANMongoDBProfilerAgentParams.AgentEnvironmentVariablesEntry
+		nil,                                                 // 97: inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
+		nil,                                                 // 98: inventory.v1.AddQANMongoDBMongologAgentParams.AgentEnvironmentVariablesEntry
+		nil,                                                 // 99: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
+		nil,                                                 // 100: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
+		nil,                                                 // 101: inventory.v1.AddRDSExporterParams.CustomLabelsEntry
+		nil,                                                 // 102: inventory.v1.AddExternalExporterParams.CustomLabelsEntry
+		nil,                                                 // 103: inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
+		nil,                                                 // 104: inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
+		(AgentStatus)(0),                                    // 105: inventory.v1.AgentStatus
+		(LogLevel)(0),                                       // 106: inventory.v1.LogLevel
+		(*common.MetricsResolutions)(nil),                   // 107: common.MetricsResolutions
+		(*common.StringMap)(nil),                            // 108: common.StringMap
 	}
 )
 
 var file_inventory_v1_agents_proto_depIdxs = []int32{
 	64,  // 0: inventory.v1.PMMAgent.custom_labels:type_name -> inventory.v1.PMMAgent.CustomLabelsEntry
-	102, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus
-	102, // 2: inventory.v1.NomadAgent.status:type_name -> inventory.v1.AgentStatus
+	105, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus
+	105, // 2: inventory.v1.NomadAgent.status:type_name -> inventory.v1.AgentStatus
 	65,  // 3: inventory.v1.NodeExporter.custom_labels:type_name -> inventory.v1.NodeExporter.CustomLabelsEntry
-	102, // 4: inventory.v1.NodeExporter.status:type_name -> inventory.v1.AgentStatus
-	103, // 5: inventory.v1.NodeExporter.log_level:type_name -> inventory.v1.LogLevel
-	104, // 6: inventory.v1.NodeExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	105, // 4: inventory.v1.NodeExporter.status:type_name -> inventory.v1.AgentStatus
+	106, // 5: inventory.v1.NodeExporter.log_level:type_name -> inventory.v1.LogLevel
+	107, // 6: inventory.v1.NodeExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	66,  // 7: inventory.v1.MySQLdExporter.custom_labels:type_name -> inventory.v1.MySQLdExporter.CustomLabelsEntry
-	102, // 8: inventory.v1.MySQLdExporter.status:type_name -> inventory.v1.AgentStatus
-	103, // 9: inventory.v1.MySQLdExporter.log_level:type_name -> inventory.v1.LogLevel
-	104, // 10: inventory.v1.MySQLdExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	105, // 8: inventory.v1.MySQLdExporter.status:type_name -> inventory.v1.AgentStatus
+	106, // 9: inventory.v1.MySQLdExporter.log_level:type_name -> inventory.v1.LogLevel
+	107, // 10: inventory.v1.MySQLdExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	67,  // 11: inventory.v1.MySQLdExporter.extra_dsn_params:type_name -> inventory.v1.MySQLdExporter.ExtraDsnParamsEntry
 	68,  // 12: inventory.v1.MongoDBExporter.custom_labels:type_name -> inventory.v1.MongoDBExporter.CustomLabelsEntry
-	102, // 13: inventory.v1.MongoDBExporter.status:type_name -> inventory.v1.AgentStatus
-	103, // 14: inventory.v1.MongoDBExporter.log_level:type_name -> inventory.v1.LogLevel
-	104, // 15: inventory.v1.MongoDBExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	105, // 13: inventory.v1.MongoDBExporter.status:type_name -> inventory.v1.AgentStatus
+	106, // 14: inventory.v1.MongoDBExporter.log_level:type_name -> inventory.v1.LogLevel
+	107, // 15: inventory.v1.MongoDBExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	69,  // 16: inventory.v1.PostgresExporter.custom_labels:type_name -> inventory.v1.PostgresExporter.CustomLabelsEntry
-	102, // 17: inventory.v1.PostgresExporter.status:type_name -> inventory.v1.AgentStatus
-	103, // 18: inventory.v1.PostgresExporter.log_level:type_name -> inventory.v1.LogLevel
-	104, // 19: inventory.v1.PostgresExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	105, // 17: inventory.v1.PostgresExporter.status:type_name -> inventory.v1.AgentStatus
+	106, // 18: inventory.v1.PostgresExporter.log_level:type_name -> inventory.v1.LogLevel
+	107, // 19: inventory.v1.PostgresExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	70,  // 20: inventory.v1.ProxySQLExporter.custom_labels:type_name -> inventory.v1.ProxySQLExporter.CustomLabelsEntry
-	102, // 21: inventory.v1.ProxySQLExporter.status:type_name -> inventory.v1.AgentStatus
-	103, // 22: inventory.v1.ProxySQLExporter.log_level:type_name -> inventory.v1.LogLevel
-	104, // 23: inventory.v1.ProxySQLExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	105, // 21: inventory.v1.ProxySQLExporter.status:type_name -> inventory.v1.AgentStatus
+	106, // 22: inventory.v1.ProxySQLExporter.log_level:type_name -> inventory.v1.LogLevel
+	107, // 23: inventory.v1.ProxySQLExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	71,  // 24: inventory.v1.ValkeyExporter.custom_labels:type_name -> inventory.v1.ValkeyExporter.CustomLabelsEntry
-	102, // 25: inventory.v1.ValkeyExporter.status:type_name -> inventory.v1.AgentStatus
-	104, // 26: inventory.v1.ValkeyExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	105, // 25: inventory.v1.ValkeyExporter.status:type_name -> inventory.v1.AgentStatus
+	107, // 26: inventory.v1.ValkeyExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	72,  // 27: inventory.v1.QANMySQLPerfSchemaAgent.custom_labels:type_name -> inventory.v1.QANMySQLPerfSchemaAgent.CustomLabelsEntry
-	102, // 28: inventory.v1.QANMySQLPerfSchemaAgent.status:type_name -> inventory.v1.AgentStatus
-	103, // 29: inventory.v1.QANMySQLPerfSchemaAgent.log_level:type_name -> inventory.v1.LogLevel
+	105, // 28: inventory.v1.QANMySQLPerfSchemaAgent.status:type_name -> inventory.v1.AgentStatus
+	106, // 29: inventory.v1.QANMySQLPerfSchemaAgent.log_level:type_name -> inventory.v1.LogLevel
 	73,  // 30: inventory.v1.QANMySQLPerfSchemaAgent.extra_dsn_params:type_name -> inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntry
 	74,  // 31: inventory.v1.QANMySQLSlowlogAgent.custom_labels:type_name -> inventory.v1.QANMySQLSlowlogAgent.CustomLabelsEntry
-	102, // 32: inventory.v1.QANMySQLSlowlogAgent.status:type_name -> inventory.v1.AgentStatus
-	103, // 33: inventory.v1.QANMySQLSlowlogAgent.log_level:type_name -> inventory.v1.LogLevel
+	105, // 32: inventory.v1.QANMySQLSlowlogAgent.status:type_name -> inventory.v1.AgentStatus
+	106, // 33: inventory.v1.QANMySQLSlowlogAgent.log_level:type_name -> inventory.v1.LogLevel
 	75,  // 34: inventory.v1.QANMySQLSlowlogAgent.extra_dsn_params:type_name -> inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntry
 	76,  // 35: inventory.v1.QANMongoDBProfilerAgent.custom_labels:type_name -> inventory.v1.QANMongoDBProfilerAgent.CustomLabelsEntry
-	102, // 36: inventory.v1.QANMongoDBProfilerAgent.status:type_name -> inventory.v1.AgentStatus
-	103, // 37: inventory.v1.QANMongoDBProfilerAgent.log_level:type_name -> inventory.v1.LogLevel
+	105, // 36: inventory.v1.QANMongoDBProfilerAgent.status:type_name -> inventory.v1.AgentStatus
+	106, // 37: inventory.v1.QANMongoDBProfilerAgent.log_level:type_name -> inventory.v1.LogLevel
 	77,  // 38: inventory.v1.QANMongoDBMongologAgent.custom_labels:type_name -> inventory.v1.QANMongoDBMongologAgent.CustomLabelsEntry
-	102, // 39: inventory.v1.QANMongoDBMongologAgent.status:type_name -> inventory.v1.AgentStatus
-	103, // 40: inventory.v1.QANMongoDBMongologAgent.log_level:type_name -> inventory.v1.LogLevel
+	105, // 39: inventory.v1.QANMongoDBMongologAgent.status:type_name -> inventory.v1.AgentStatus
+	106, // 40: inventory.v1.QANMongoDBMongologAgent.log_level:type_name -> inventory.v1.LogLevel
 	78,  // 41: inventory.v1.QANPostgreSQLPgStatementsAgent.custom_labels:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent.CustomLabelsEntry
-	102, // 42: inventory.v1.QANPostgreSQLPgStatementsAgent.status:type_name -> inventory.v1.AgentStatus
-	103, // 43: inventory.v1.QANPostgreSQLPgStatementsAgent.log_level:type_name -> inventory.v1.LogLevel
+	105, // 42: inventory.v1.QANPostgreSQLPgStatementsAgent.status:type_name -> inventory.v1.AgentStatus
+	106, // 43: inventory.v1.QANPostgreSQLPgStatementsAgent.log_level:type_name -> inventory.v1.LogLevel
 	79,  // 44: inventory.v1.QANPostgreSQLPgStatMonitorAgent.custom_labels:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent.CustomLabelsEntry
-	102, // 45: inventory.v1.QANPostgreSQLPgStatMonitorAgent.status:type_name -> inventory.v1.AgentStatus
-	103, // 46: inventory.v1.QANPostgreSQLPgStatMonitorAgent.log_level:type_name -> inventory.v1.LogLevel
+	105, // 45: inventory.v1.QANPostgreSQLPgStatMonitorAgent.status:type_name -> inventory.v1.AgentStatus
+	106, // 46: inventory.v1.QANPostgreSQLPgStatMonitorAgent.log_level:type_name -> inventory.v1.LogLevel
 	80,  // 47: inventory.v1.RDSExporter.custom_labels:type_name -> inventory.v1.RDSExporter.CustomLabelsEntry
-	102, // 48: inventory.v1.RDSExporter.status:type_name -> inventory.v1.AgentStatus
-	103, // 49: inventory.v1.RDSExporter.log_level:type_name -> inventory.v1.LogLevel
-	104, // 50: inventory.v1.RDSExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	105, // 48: inventory.v1.RDSExporter.status:type_name -> inventory.v1.AgentStatus
+	106, // 49: inventory.v1.RDSExporter.log_level:type_name -> inventory.v1.LogLevel
+	107, // 50: inventory.v1.RDSExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	81,  // 51: inventory.v1.ExternalExporter.custom_labels:type_name -> inventory.v1.ExternalExporter.CustomLabelsEntry
-	104, // 52: inventory.v1.ExternalExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	107, // 52: inventory.v1.ExternalExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	82,  // 53: inventory.v1.AzureDatabaseExporter.custom_labels:type_name -> inventory.v1.AzureDatabaseExporter.CustomLabelsEntry
-	102, // 54: inventory.v1.AzureDatabaseExporter.status:type_name -> inventory.v1.AgentStatus
-	103, // 55: inventory.v1.AzureDatabaseExporter.log_level:type_name -> inventory.v1.LogLevel
-	104, // 56: inventory.v1.AzureDatabaseExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	105, // 57: inventory.v1.ChangeCommonAgentParams.custom_labels:type_name -> common.StringMap
-	104, // 58: inventory.v1.ChangeCommonAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	105, // 54: inventory.v1.AzureDatabaseExporter.status:type_name -> inventory.v1.AgentStatus
+	106, // 55: inventory.v1.AzureDatabaseExporter.log_level:type_name -> inventory.v1.LogLevel
+	107, // 56: inventory.v1.AzureDatabaseExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	108, // 57: inventory.v1.ChangeCommonAgentParams.custom_labels:type_name -> common.StringMap
+	107, // 58: inventory.v1.ChangeCommonAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	0,   // 59: inventory.v1.ListAgentsRequest.agent_type:type_name -> inventory.v1.AgentType
 	1,   // 60: inventory.v1.ListAgentsResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
 	2,   // 61: inventory.v1.ListAgentsResponse.vm_agent:type_name -> inventory.v1.VMAgent
@@ -10129,83 +10171,86 @@ var file_inventory_v1_agents_proto_depIdxs = []int32{
 	9,   // 159: inventory.v1.ChangeAgentResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
 	83,  // 160: inventory.v1.AddPMMAgentParams.custom_labels:type_name -> inventory.v1.AddPMMAgentParams.CustomLabelsEntry
 	84,  // 161: inventory.v1.AddNodeExporterParams.custom_labels:type_name -> inventory.v1.AddNodeExporterParams.CustomLabelsEntry
-	103, // 162: inventory.v1.AddNodeExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 163: inventory.v1.ChangeNodeExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 164: inventory.v1.ChangeNodeExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	106, // 162: inventory.v1.AddNodeExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	108, // 163: inventory.v1.ChangeNodeExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 164: inventory.v1.ChangeNodeExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	85,  // 165: inventory.v1.AddMySQLdExporterParams.custom_labels:type_name -> inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
-	103, // 166: inventory.v1.AddMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	106, // 166: inventory.v1.AddMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
 	86,  // 167: inventory.v1.AddMySQLdExporterParams.extra_dsn_params:type_name -> inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
-	105, // 168: inventory.v1.ChangeMySQLdExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 169: inventory.v1.ChangeMySQLdExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	108, // 168: inventory.v1.ChangeMySQLdExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 169: inventory.v1.ChangeMySQLdExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	87,  // 170: inventory.v1.AddMongoDBExporterParams.custom_labels:type_name -> inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
-	103, // 171: inventory.v1.AddMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 172: inventory.v1.ChangeMongoDBExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 173: inventory.v1.ChangeMongoDBExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	88,  // 174: inventory.v1.AddPostgresExporterParams.custom_labels:type_name -> inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
-	103, // 175: inventory.v1.AddPostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 176: inventory.v1.ChangePostgresExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 177: inventory.v1.ChangePostgresExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	89,  // 178: inventory.v1.AddProxySQLExporterParams.custom_labels:type_name -> inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
-	103, // 179: inventory.v1.AddProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 180: inventory.v1.ChangeProxySQLExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 181: inventory.v1.ChangeProxySQLExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	90,  // 182: inventory.v1.AddQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
-	103, // 183: inventory.v1.AddQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	91,  // 184: inventory.v1.AddQANMySQLPerfSchemaAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
-	105, // 185: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> common.StringMap
-	104, // 186: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	92,  // 187: inventory.v1.AddQANMySQLSlowlogAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
-	103, // 188: inventory.v1.AddQANMySQLSlowlogAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	93,  // 189: inventory.v1.AddQANMySQLSlowlogAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
-	105, // 190: inventory.v1.ChangeQANMySQLSlowlogAgentParams.custom_labels:type_name -> common.StringMap
-	104, // 191: inventory.v1.ChangeQANMySQLSlowlogAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	94,  // 192: inventory.v1.AddQANMongoDBProfilerAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
-	103, // 193: inventory.v1.AddQANMongoDBProfilerAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 194: inventory.v1.ChangeQANMongoDBProfilerAgentParams.custom_labels:type_name -> common.StringMap
-	104, // 195: inventory.v1.ChangeQANMongoDBProfilerAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	95,  // 196: inventory.v1.AddQANMongoDBMongologAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
-	103, // 197: inventory.v1.AddQANMongoDBMongologAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 198: inventory.v1.ChangeQANMongoDBMongologAgentParams.custom_labels:type_name -> common.StringMap
-	104, // 199: inventory.v1.ChangeQANMongoDBMongologAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	96,  // 200: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
-	103, // 201: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 202: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> common.StringMap
-	104, // 203: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	97,  // 204: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
-	103, // 205: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 206: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> common.StringMap
-	104, // 207: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	98,  // 208: inventory.v1.AddRDSExporterParams.custom_labels:type_name -> inventory.v1.AddRDSExporterParams.CustomLabelsEntry
-	103, // 209: inventory.v1.AddRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 210: inventory.v1.ChangeRDSExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 211: inventory.v1.ChangeRDSExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	99,  // 212: inventory.v1.AddExternalExporterParams.custom_labels:type_name -> inventory.v1.AddExternalExporterParams.CustomLabelsEntry
-	105, // 213: inventory.v1.ChangeExternalExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 214: inventory.v1.ChangeExternalExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	100, // 215: inventory.v1.AddAzureDatabaseExporterParams.custom_labels:type_name -> inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
-	103, // 216: inventory.v1.AddAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	105, // 217: inventory.v1.ChangeAzureDatabaseExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 218: inventory.v1.ChangeAzureDatabaseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	101, // 219: inventory.v1.AddValkeyExporterParams.custom_labels:type_name -> inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
-	105, // 220: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
-	104, // 221: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	20,  // 222: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
-	22,  // 223: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
-	24,  // 224: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
-	26,  // 225: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
-	28,  // 226: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
-	62,  // 227: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
-	21,  // 228: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
-	23,  // 229: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
-	25,  // 230: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
-	27,  // 231: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
-	29,  // 232: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
-	63,  // 233: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
-	228, // [228:234] is the sub-list for method output_type
-	222, // [222:228] is the sub-list for method input_type
-	222, // [222:222] is the sub-list for extension type_name
-	222, // [222:222] is the sub-list for extension extendee
-	0,   // [0:222] is the sub-list for field type_name
+	106, // 171: inventory.v1.AddMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	88,  // 172: inventory.v1.AddMongoDBExporterParams.agent_environment_variables:type_name -> inventory.v1.AddMongoDBExporterParams.AgentEnvironmentVariablesEntry
+	108, // 173: inventory.v1.ChangeMongoDBExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 174: inventory.v1.ChangeMongoDBExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	89,  // 175: inventory.v1.AddPostgresExporterParams.custom_labels:type_name -> inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
+	106, // 176: inventory.v1.AddPostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	108, // 177: inventory.v1.ChangePostgresExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 178: inventory.v1.ChangePostgresExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	90,  // 179: inventory.v1.AddProxySQLExporterParams.custom_labels:type_name -> inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
+	106, // 180: inventory.v1.AddProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	108, // 181: inventory.v1.ChangeProxySQLExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 182: inventory.v1.ChangeProxySQLExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	91,  // 183: inventory.v1.AddQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
+	106, // 184: inventory.v1.AddQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	92,  // 185: inventory.v1.AddQANMySQLPerfSchemaAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
+	108, // 186: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> common.StringMap
+	107, // 187: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	93,  // 188: inventory.v1.AddQANMySQLSlowlogAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
+	106, // 189: inventory.v1.AddQANMySQLSlowlogAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	94,  // 190: inventory.v1.AddQANMySQLSlowlogAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
+	108, // 191: inventory.v1.ChangeQANMySQLSlowlogAgentParams.custom_labels:type_name -> common.StringMap
+	107, // 192: inventory.v1.ChangeQANMySQLSlowlogAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	95,  // 193: inventory.v1.AddQANMongoDBProfilerAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
+	106, // 194: inventory.v1.AddQANMongoDBProfilerAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	96,  // 195: inventory.v1.AddQANMongoDBProfilerAgentParams.agent_environment_variables:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams.AgentEnvironmentVariablesEntry
+	108, // 196: inventory.v1.ChangeQANMongoDBProfilerAgentParams.custom_labels:type_name -> common.StringMap
+	107, // 197: inventory.v1.ChangeQANMongoDBProfilerAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	97,  // 198: inventory.v1.AddQANMongoDBMongologAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
+	106, // 199: inventory.v1.AddQANMongoDBMongologAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	98,  // 200: inventory.v1.AddQANMongoDBMongologAgentParams.agent_environment_variables:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams.AgentEnvironmentVariablesEntry
+	108, // 201: inventory.v1.ChangeQANMongoDBMongologAgentParams.custom_labels:type_name -> common.StringMap
+	107, // 202: inventory.v1.ChangeQANMongoDBMongologAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	99,  // 203: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
+	106, // 204: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	108, // 205: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> common.StringMap
+	107, // 206: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	100, // 207: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
+	106, // 208: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	108, // 209: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> common.StringMap
+	107, // 210: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	101, // 211: inventory.v1.AddRDSExporterParams.custom_labels:type_name -> inventory.v1.AddRDSExporterParams.CustomLabelsEntry
+	106, // 212: inventory.v1.AddRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	108, // 213: inventory.v1.ChangeRDSExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 214: inventory.v1.ChangeRDSExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	102, // 215: inventory.v1.AddExternalExporterParams.custom_labels:type_name -> inventory.v1.AddExternalExporterParams.CustomLabelsEntry
+	108, // 216: inventory.v1.ChangeExternalExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 217: inventory.v1.ChangeExternalExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	103, // 218: inventory.v1.AddAzureDatabaseExporterParams.custom_labels:type_name -> inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
+	106, // 219: inventory.v1.AddAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	108, // 220: inventory.v1.ChangeAzureDatabaseExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 221: inventory.v1.ChangeAzureDatabaseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	104, // 222: inventory.v1.AddValkeyExporterParams.custom_labels:type_name -> inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
+	108, // 223: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
+	107, // 224: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	20,  // 225: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
+	22,  // 226: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
+	24,  // 227: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
+	26,  // 228: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
+	28,  // 229: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
+	62,  // 230: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
+	21,  // 231: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
+	23,  // 232: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
+	25,  // 233: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
+	27,  // 234: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
+	29,  // 235: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
+	63,  // 236: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
+	231, // [231:237] is the sub-list for method output_type
+	225, // [225:231] is the sub-list for method input_type
+	225, // [225:225] is the sub-list for extension type_name
+	225, // [225:225] is the sub-list for extension extendee
+	0,   // [0:225] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_agents_proto_init() }
@@ -10330,7 +10375,7 @@ func file_inventory_v1_agents_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_v1_agents_proto_rawDesc), len(file_inventory_v1_agents_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   101,
+			NumMessages:   104,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

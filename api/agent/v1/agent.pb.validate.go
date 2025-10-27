@@ -8268,6 +8268,8 @@ func (m *SetStateRequest_BuiltinAgent) validate(all bool) error {
 
 	// no validation rules for TlsSkipVerify
 
+	// no validation rules for Env
+
 	if len(errors) > 0 {
 		return SetStateRequest_BuiltinAgentMultiError(errors)
 	}

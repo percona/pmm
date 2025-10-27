@@ -6705,6 +6705,9 @@ type AddAgentParamsBodyMongodbExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Environment variables to set for the exporter process.
+	AgentEnvironmentVariables map[string]string `json:"agent_environment_variables,omitempty"`
 }
 
 // Validate validates this add agent params body mongodb exporter
@@ -7459,6 +7462,9 @@ type AddAgentParamsBodyQANMongodbMongologAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Environment variables to set for the agent process.
+	AgentEnvironmentVariables map[string]string `json:"agent_environment_variables,omitempty"`
 }
 
 // Validate validates this add agent params body QAN mongodb mongolog agent
@@ -7606,6 +7612,9 @@ type AddAgentParamsBodyQANMongodbProfilerAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Environment variables to set for the agent process.
+	AgentEnvironmentVariables map[string]string `json:"agent_environment_variables,omitempty"`
 }
 
 // Validate validates this add agent params body QAN mongodb profiler agent

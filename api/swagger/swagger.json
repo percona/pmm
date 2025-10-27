@@ -6593,6 +6593,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
+                    },
+                    "agent_environment_variables": {
+                      "description": "Environment variables to set for the exporter process.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 20
                     }
                   },
                   "x-order": 3
@@ -7309,6 +7317,14 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
+                    },
+                    "agent_environment_variables": {
+                      "description": "Environment variables to set for the agent process.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 15
                     }
                   },
                   "x-order": 11
@@ -7404,6 +7420,14 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
+                    },
+                    "agent_environment_variables": {
+                      "description": "Environment variables to set for the agent process.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 15
                     }
                   },
                   "x-order": 12
@@ -20785,6 +20809,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
+                    },
+                    "agent_environment_variables": {
+                      "type": "object",
+                      "title": "Optionally, set environment variables that'll be passed to agent processes",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 33
                     }
                   },
                   "x-order": 1

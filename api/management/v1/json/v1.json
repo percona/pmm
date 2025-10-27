@@ -2495,6 +2495,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
+                    },
+                    "agent_environment_variables": {
+                      "type": "object",
+                      "title": "Optionally, set environment variables that'll be passed to agent processes",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 33
                     }
                   },
                   "x-order": 1
