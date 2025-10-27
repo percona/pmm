@@ -130,13 +130,11 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 
 // IsReady verifies that qan-api2 works.
 func (c *Client) IsReady(ctx context.Context) error {
-	resp, err := c.qsc.HealthCheck(ctx, &qanv1.HealthCheckRequest{})
+	_, err := c.qsc.HealthCheck(ctx, nil)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if !resp.Ready {
-		return errors.Errorf("QAN gRPC healthcheck failed: %s", resp.Message)
-	}
+
 	return nil
 }
 

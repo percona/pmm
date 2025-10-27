@@ -27,18 +27,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "HealthCheckResponse contains readiness info.",
-              "type": "object",
-              "properties": {
-                "ready": {
-                  "type": "boolean",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
+              "type": "object"
             }
           },
           "default": {

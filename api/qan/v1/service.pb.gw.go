@@ -22,6 +22,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -346,7 +347,7 @@ func local_request_QANService_GetQueryExample_0(ctx context.Context, marshaler r
 
 func request_QANService_HealthCheck_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq HealthCheckRequest
+		protoReq emptypb.Empty
 		metadata runtime.ServerMetadata
 	)
 	if req.Body != nil {
@@ -358,7 +359,7 @@ func request_QANService_HealthCheck_0(ctx context.Context, marshaler runtime.Mar
 
 func local_request_QANService_HealthCheck_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq HealthCheckRequest
+		protoReq emptypb.Empty
 		metadata runtime.ServerMetadata
 	)
 	msg, err := server.HealthCheck(ctx, &protoReq)

@@ -56,7 +56,7 @@ HealthCheckOK describes a response with status code 200, with default header val
 A successful response.
 */
 type HealthCheckOK struct {
-	Payload *HealthCheckOKBody
+	Payload any
 }
 
 // IsSuccess returns true when this health check Ok response has a 2xx status code
@@ -99,15 +99,13 @@ func (o *HealthCheckOK) String() string {
 	return fmt.Sprintf("[GET /v1/qan/health][%d] healthCheckOk %s", 200, payload)
 }
 
-func (o *HealthCheckOK) GetPayload() *HealthCheckOKBody {
+func (o *HealthCheckOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *HealthCheckOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(HealthCheckOKBody)
-
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -408,46 +406,6 @@ func (o *HealthCheckDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *HealthCheckDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res HealthCheckDefaultBodyDetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-HealthCheckOKBody HealthCheckResponse contains readiness info.
-swagger:model HealthCheckOKBody
-*/
-type HealthCheckOKBody struct {
-	// ready
-	Ready bool `json:"ready,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this health check OK body
-func (o *HealthCheckOKBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this health check OK body based on context it is used
-func (o *HealthCheckOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *HealthCheckOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *HealthCheckOKBody) UnmarshalBinary(b []byte) error {
-	var res HealthCheckOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

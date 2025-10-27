@@ -15,6 +15,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 const (
@@ -108,111 +109,17 @@ func (x *GetMetricsNamesResponse) GetData() map[string]string {
 	return nil
 }
 
-// HealthCheckRequest is empty.
-type HealthCheckRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HealthCheckRequest) Reset() {
-	*x = HealthCheckRequest{}
-	mi := &file_qan_v1_service_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HealthCheckRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HealthCheckRequest) ProtoMessage() {}
-
-func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_qan_v1_service_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
-func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
-	return file_qan_v1_service_proto_rawDescGZIP(), []int{2}
-}
-
-// HealthCheckResponse contains readiness info.
-type HealthCheckResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ready         bool                   `protobuf:"varint,1,opt,name=ready,proto3" json:"ready,omitempty"`
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HealthCheckResponse) Reset() {
-	*x = HealthCheckResponse{}
-	mi := &file_qan_v1_service_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HealthCheckResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HealthCheckResponse) ProtoMessage() {}
-
-func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_qan_v1_service_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HealthCheckResponse.ProtoReflect.Descriptor instead.
-func (*HealthCheckResponse) Descriptor() ([]byte, []int) {
-	return file_qan_v1_service_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *HealthCheckResponse) GetReady() bool {
-	if x != nil {
-		return x.Ready
-	}
-	return false
-}
-
-func (x *HealthCheckResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
 var File_qan_v1_service_proto protoreflect.FileDescriptor
 
 const file_qan_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x14qan/v1/service.proto\x12\x06qan.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x14qan/v1/filters.proto\x1a\x1bqan/v1/object_details.proto\x1a\x14qan/v1/profile.proto\"\x18\n" +
+	"\x14qan/v1/service.proto\x12\x06qan.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x14qan/v1/filters.proto\x1a\x1bqan/v1/object_details.proto\x1a\x14qan/v1/profile.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x18\n" +
 	"\x16GetMetricsNamesRequest\"\x91\x01\n" +
 	"\x17GetMetricsNamesResponse\x12=\n" +
 	"\x04data\x18\x01 \x03(\v2).qan.v1.GetMetricsNamesResponse.DataEntryR\x04data\x1a7\n" +
 	"\tDataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x14\n" +
-	"\x12HealthCheckRequest\"E\n" +
-	"\x13HealthCheckResponse\x12\x14\n" +
-	"\x05ready\x18\x01 \x01(\bR\x05ready\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2\xae\x11\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xa5\x11\n" +
 	"\n" +
 	"QANService\x12\xb8\x01\n" +
 	"\tGetReport\x12\x18.qan.v1.GetReportRequest\x1a\x19.qan.v1.GetReportResponse\"v\x92AO\x12\n" +
@@ -229,8 +136,8 @@ const file_qan_v1_service_proto_rawDesc = "" +
 	"\vQueryExists\x12\x1a.qan.v1.QueryExistsRequest\x1a\x1b.qan.v1.QueryExistsResponse\"`\x92A>\x12\x15Check Query Existence\x1a%Checks if query exists in clickhouse.\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/v1/qan/query:exists\x12\xbd\x01\n" +
 	"\x0fSchemaByQueryID\x12\x1e.qan.v1.SchemaByQueryIDRequest\x1a\x1f.qan.v1.SchemaByQueryIDResponse\"i\x92AD\x12\n" +
 	"Get Schema\x1a6Provides the schema for a given queryID and serviceID.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/qan/query:getSchema\x12\xb1\x01\n" +
-	"\x0fGetQueryExample\x12\x1e.qan.v1.GetQueryExampleRequest\x1a\x1f.qan.v1.GetQueryExampleResponse\"]\x92A7\x12\x11Get Query Example\x1a\"Provides a list of query examples.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/qan/query:getExample\x12\x97\x01\n" +
-	"\vHealthCheck\x12\x1a.qan.v1.HealthCheckRequest\x1a\x1b.qan.v1.HealthCheckResponse\"O\x92A6\x12\fHealth Check\x1a&Returns readiness of QAN API2 service.\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/qan/healthB|\n" +
+	"\x0fGetQueryExample\x12\x1e.qan.v1.GetQueryExampleRequest\x1a\x1f.qan.v1.GetQueryExampleResponse\"]\x92A7\x12\x11Get Query Example\x1a\"Provides a list of query examples.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/qan/query:getExample\x12\x8e\x01\n" +
+	"\vHealthCheck\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"O\x92A6\x12\fHealth Check\x1a&Returns readiness of QAN API2 service.\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/qan/healthB|\n" +
 	"\n" +
 	"com.qan.v1B\fServiceProtoP\x01Z'github.com/percona/pmm/api/qan/v1;qanv1\xa2\x02\x03QXX\xaa\x02\x06Qan.V1\xca\x02\x06Qan\\V1\xe2\x02\x12Qan\\V1\\GPBMetadata\xea\x02\aQan::V1b\x06proto3"
 
@@ -247,62 +154,61 @@ func file_qan_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_qan_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+	file_qan_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 	file_qan_v1_service_proto_goTypes  = []any{
 		(*GetMetricsNamesRequest)(nil),              // 0: qan.v1.GetMetricsNamesRequest
 		(*GetMetricsNamesResponse)(nil),             // 1: qan.v1.GetMetricsNamesResponse
-		(*HealthCheckRequest)(nil),                  // 2: qan.v1.HealthCheckRequest
-		(*HealthCheckResponse)(nil),                 // 3: qan.v1.HealthCheckResponse
-		nil,                                         // 4: qan.v1.GetMetricsNamesResponse.DataEntry
-		(*GetReportRequest)(nil),                    // 5: qan.v1.GetReportRequest
-		(*GetFilteredMetricsNamesRequest)(nil),      // 6: qan.v1.GetFilteredMetricsNamesRequest
-		(*GetMetricsRequest)(nil),                   // 7: qan.v1.GetMetricsRequest
-		(*GetLabelsRequest)(nil),                    // 8: qan.v1.GetLabelsRequest
-		(*GetHistogramRequest)(nil),                 // 9: qan.v1.GetHistogramRequest
-		(*ExplainFingerprintByQueryIDRequest)(nil),  // 10: qan.v1.ExplainFingerprintByQueryIDRequest
-		(*GetQueryPlanRequest)(nil),                 // 11: qan.v1.GetQueryPlanRequest
-		(*QueryExistsRequest)(nil),                  // 12: qan.v1.QueryExistsRequest
-		(*SchemaByQueryIDRequest)(nil),              // 13: qan.v1.SchemaByQueryIDRequest
-		(*GetQueryExampleRequest)(nil),              // 14: qan.v1.GetQueryExampleRequest
-		(*GetReportResponse)(nil),                   // 15: qan.v1.GetReportResponse
-		(*GetFilteredMetricsNamesResponse)(nil),     // 16: qan.v1.GetFilteredMetricsNamesResponse
-		(*GetMetricsResponse)(nil),                  // 17: qan.v1.GetMetricsResponse
-		(*GetLabelsResponse)(nil),                   // 18: qan.v1.GetLabelsResponse
-		(*GetHistogramResponse)(nil),                // 19: qan.v1.GetHistogramResponse
-		(*ExplainFingerprintByQueryIDResponse)(nil), // 20: qan.v1.ExplainFingerprintByQueryIDResponse
-		(*GetQueryPlanResponse)(nil),                // 21: qan.v1.GetQueryPlanResponse
-		(*QueryExistsResponse)(nil),                 // 22: qan.v1.QueryExistsResponse
-		(*SchemaByQueryIDResponse)(nil),             // 23: qan.v1.SchemaByQueryIDResponse
-		(*GetQueryExampleResponse)(nil),             // 24: qan.v1.GetQueryExampleResponse
+		nil,                                         // 2: qan.v1.GetMetricsNamesResponse.DataEntry
+		(*GetReportRequest)(nil),                    // 3: qan.v1.GetReportRequest
+		(*GetFilteredMetricsNamesRequest)(nil),      // 4: qan.v1.GetFilteredMetricsNamesRequest
+		(*GetMetricsRequest)(nil),                   // 5: qan.v1.GetMetricsRequest
+		(*GetLabelsRequest)(nil),                    // 6: qan.v1.GetLabelsRequest
+		(*GetHistogramRequest)(nil),                 // 7: qan.v1.GetHistogramRequest
+		(*ExplainFingerprintByQueryIDRequest)(nil),  // 8: qan.v1.ExplainFingerprintByQueryIDRequest
+		(*GetQueryPlanRequest)(nil),                 // 9: qan.v1.GetQueryPlanRequest
+		(*QueryExistsRequest)(nil),                  // 10: qan.v1.QueryExistsRequest
+		(*SchemaByQueryIDRequest)(nil),              // 11: qan.v1.SchemaByQueryIDRequest
+		(*GetQueryExampleRequest)(nil),              // 12: qan.v1.GetQueryExampleRequest
+		(*emptypb.Empty)(nil),                       // 13: google.protobuf.Empty
+		(*GetReportResponse)(nil),                   // 14: qan.v1.GetReportResponse
+		(*GetFilteredMetricsNamesResponse)(nil),     // 15: qan.v1.GetFilteredMetricsNamesResponse
+		(*GetMetricsResponse)(nil),                  // 16: qan.v1.GetMetricsResponse
+		(*GetLabelsResponse)(nil),                   // 17: qan.v1.GetLabelsResponse
+		(*GetHistogramResponse)(nil),                // 18: qan.v1.GetHistogramResponse
+		(*ExplainFingerprintByQueryIDResponse)(nil), // 19: qan.v1.ExplainFingerprintByQueryIDResponse
+		(*GetQueryPlanResponse)(nil),                // 20: qan.v1.GetQueryPlanResponse
+		(*QueryExistsResponse)(nil),                 // 21: qan.v1.QueryExistsResponse
+		(*SchemaByQueryIDResponse)(nil),             // 22: qan.v1.SchemaByQueryIDResponse
+		(*GetQueryExampleResponse)(nil),             // 23: qan.v1.GetQueryExampleResponse
 	}
 )
 
 var file_qan_v1_service_proto_depIdxs = []int32{
-	4,  // 0: qan.v1.GetMetricsNamesResponse.data:type_name -> qan.v1.GetMetricsNamesResponse.DataEntry
-	5,  // 1: qan.v1.QANService.GetReport:input_type -> qan.v1.GetReportRequest
-	6,  // 2: qan.v1.QANService.GetFilteredMetricsNames:input_type -> qan.v1.GetFilteredMetricsNamesRequest
+	2,  // 0: qan.v1.GetMetricsNamesResponse.data:type_name -> qan.v1.GetMetricsNamesResponse.DataEntry
+	3,  // 1: qan.v1.QANService.GetReport:input_type -> qan.v1.GetReportRequest
+	4,  // 2: qan.v1.QANService.GetFilteredMetricsNames:input_type -> qan.v1.GetFilteredMetricsNamesRequest
 	0,  // 3: qan.v1.QANService.GetMetricsNames:input_type -> qan.v1.GetMetricsNamesRequest
-	7,  // 4: qan.v1.QANService.GetMetrics:input_type -> qan.v1.GetMetricsRequest
-	8,  // 5: qan.v1.QANService.GetLabels:input_type -> qan.v1.GetLabelsRequest
-	9,  // 6: qan.v1.QANService.GetHistogram:input_type -> qan.v1.GetHistogramRequest
-	10, // 7: qan.v1.QANService.ExplainFingerprintByQueryID:input_type -> qan.v1.ExplainFingerprintByQueryIDRequest
-	11, // 8: qan.v1.QANService.GetQueryPlan:input_type -> qan.v1.GetQueryPlanRequest
-	12, // 9: qan.v1.QANService.QueryExists:input_type -> qan.v1.QueryExistsRequest
-	13, // 10: qan.v1.QANService.SchemaByQueryID:input_type -> qan.v1.SchemaByQueryIDRequest
-	14, // 11: qan.v1.QANService.GetQueryExample:input_type -> qan.v1.GetQueryExampleRequest
-	2,  // 12: qan.v1.QANService.HealthCheck:input_type -> qan.v1.HealthCheckRequest
-	15, // 13: qan.v1.QANService.GetReport:output_type -> qan.v1.GetReportResponse
-	16, // 14: qan.v1.QANService.GetFilteredMetricsNames:output_type -> qan.v1.GetFilteredMetricsNamesResponse
+	5,  // 4: qan.v1.QANService.GetMetrics:input_type -> qan.v1.GetMetricsRequest
+	6,  // 5: qan.v1.QANService.GetLabels:input_type -> qan.v1.GetLabelsRequest
+	7,  // 6: qan.v1.QANService.GetHistogram:input_type -> qan.v1.GetHistogramRequest
+	8,  // 7: qan.v1.QANService.ExplainFingerprintByQueryID:input_type -> qan.v1.ExplainFingerprintByQueryIDRequest
+	9,  // 8: qan.v1.QANService.GetQueryPlan:input_type -> qan.v1.GetQueryPlanRequest
+	10, // 9: qan.v1.QANService.QueryExists:input_type -> qan.v1.QueryExistsRequest
+	11, // 10: qan.v1.QANService.SchemaByQueryID:input_type -> qan.v1.SchemaByQueryIDRequest
+	12, // 11: qan.v1.QANService.GetQueryExample:input_type -> qan.v1.GetQueryExampleRequest
+	13, // 12: qan.v1.QANService.HealthCheck:input_type -> google.protobuf.Empty
+	14, // 13: qan.v1.QANService.GetReport:output_type -> qan.v1.GetReportResponse
+	15, // 14: qan.v1.QANService.GetFilteredMetricsNames:output_type -> qan.v1.GetFilteredMetricsNamesResponse
 	1,  // 15: qan.v1.QANService.GetMetricsNames:output_type -> qan.v1.GetMetricsNamesResponse
-	17, // 16: qan.v1.QANService.GetMetrics:output_type -> qan.v1.GetMetricsResponse
-	18, // 17: qan.v1.QANService.GetLabels:output_type -> qan.v1.GetLabelsResponse
-	19, // 18: qan.v1.QANService.GetHistogram:output_type -> qan.v1.GetHistogramResponse
-	20, // 19: qan.v1.QANService.ExplainFingerprintByQueryID:output_type -> qan.v1.ExplainFingerprintByQueryIDResponse
-	21, // 20: qan.v1.QANService.GetQueryPlan:output_type -> qan.v1.GetQueryPlanResponse
-	22, // 21: qan.v1.QANService.QueryExists:output_type -> qan.v1.QueryExistsResponse
-	23, // 22: qan.v1.QANService.SchemaByQueryID:output_type -> qan.v1.SchemaByQueryIDResponse
-	24, // 23: qan.v1.QANService.GetQueryExample:output_type -> qan.v1.GetQueryExampleResponse
-	3,  // 24: qan.v1.QANService.HealthCheck:output_type -> qan.v1.HealthCheckResponse
+	16, // 16: qan.v1.QANService.GetMetrics:output_type -> qan.v1.GetMetricsResponse
+	17, // 17: qan.v1.QANService.GetLabels:output_type -> qan.v1.GetLabelsResponse
+	18, // 18: qan.v1.QANService.GetHistogram:output_type -> qan.v1.GetHistogramResponse
+	19, // 19: qan.v1.QANService.ExplainFingerprintByQueryID:output_type -> qan.v1.ExplainFingerprintByQueryIDResponse
+	20, // 20: qan.v1.QANService.GetQueryPlan:output_type -> qan.v1.GetQueryPlanResponse
+	21, // 21: qan.v1.QANService.QueryExists:output_type -> qan.v1.QueryExistsResponse
+	22, // 22: qan.v1.QANService.SchemaByQueryID:output_type -> qan.v1.SchemaByQueryIDResponse
+	23, // 23: qan.v1.QANService.GetQueryExample:output_type -> qan.v1.GetQueryExampleResponse
+	13, // 24: qan.v1.QANService.HealthCheck:output_type -> google.protobuf.Empty
 	13, // [13:25] is the sub-list for method output_type
 	1,  // [1:13] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name
@@ -324,7 +230,7 @@ func file_qan_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_qan_v1_service_proto_rawDesc), len(file_qan_v1_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
