@@ -54,7 +54,7 @@ PMM Server includes the following tools:
   - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics){:target="_blank"}, a scalable time-series database. 
   - [ClickHouse](https://clickhouse.com){:target="_blank"} is a third-party column-oriented database that facilitates the Query Analytics functionality.
   - [Grafana](http://docs.grafana.org){:target="_blank"} is a third-party dashboard and graph builder for visualizing data aggregated (by VictoriaMetrics or Prometheus) in an intuitive web interface.
-  - [Percona Dashboards](https://github.com/percona/grafana-dashboards) is a set of dashboards for Grafana developed by Percona.
+  - [Percona Dashboards](https://github.com/percona/grafana-dashboards){:target="_blank"} is a set of dashboards for Grafana developed by Percona.
 
 ### PMM Client
 

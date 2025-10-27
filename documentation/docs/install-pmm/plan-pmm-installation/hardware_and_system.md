@@ -61,7 +61,7 @@ To reduce storage usage, consider [disable table statistics](../install-pmm-clie
 - **Architecture support**: Compatible with both x86_64 and ARM64 architectures
 - **Operating systems**: Compatible with modern 64-bit Linux distributions including Debian, Ubuntu, Oracle Linux, and "Red Hat" derivatives
 
-For specific version support details, see [Percona software support life cycle](https://www.percona.com/services/policies/percona-software-support-lifecycle#pt).
+For specific version support details, see [Percona software support life cycle](https://www.percona.com/services/policies/percona-software-support-lifecycle#pt){:target="_blank"}.
 
 ### ARM-specific considerations
 

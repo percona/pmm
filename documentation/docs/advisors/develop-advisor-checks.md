@@ -219,7 +219,7 @@ Expand the table below for the list of checks types that you can use to define y
 To develop custom checks for PMM:
 {.power-number}
 
-1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#).
+1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#){:target="_blank"}.
 2. Run PMM Server with special environment variables:
 
     - `PMM_DEV_ADVISOR_CHECKS_FILE=/srv/custom-checks.yml` to use checks from the local files instead of downloading them from Percona Platform.
@@ -276,4 +276,4 @@ There are two ways to reload your check file after making changes:
 - From command line (always works): SSH into PMM Server and execute: `supervisorctl restart pmm-managed`.
 
 ## Submit feedback
-We welcome your feedback on the current process for developing and debugging checks. Send us your comments or post a question on the [Percona Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84).
+We welcome your feedback on the current process for developing and debugging checks. Send us your comments or post a question on the [Percona Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84){:target="_blank"}.

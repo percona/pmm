@@ -73,7 +73,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission:
             { .power-number} 
 
-            1. Install the [Percona Release Tool](https://docs.percona.com/percona-software-repositories/installing.html).  If this is already, make sure to update it to the latest version:
+            1. Install the [Percona Release Tool](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"}.  If this is already, make sure to update it to the latest version:
 
                 ```sh
                 wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
@@ -97,7 +97,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission:
             { .power-number} 
 
-            4. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool. If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version.
+            4. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool. If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version.
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -152,7 +152,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     3. Set up the `pg_stat_monitor` database extension and configure your database server accordingly. 
     
-        If you need to use the `pg_stat_statements` extension instead, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md) and the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
+        If you need to use the `pg_stat_statements` extension instead, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md) and the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html){:target="_blank"} for details about available parameters.
 
     4. Set or change the value for `shared_preload_library` in your `postgresql.conf` file:
 
@@ -179,7 +179,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission: 
             { .power-number} 
 
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version:
 
                 ```sh
                 wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
@@ -203,7 +203,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission: 
             { .power-number}   
 
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version:
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -302,7 +302,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
             Install the following with `root` permission: 
                          
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version:
 
                 ```sh
                 wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
@@ -325,7 +325,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
             Install the following with `root` permission: 
 
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version:
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -369,7 +369,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission: 
             { .power-number} 
 
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version:
 
                 ```sh
                 wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
@@ -392,7 +392,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission: 
             { .power-number}      
 
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version:
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -435,7 +435,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission: 
             { .power-number} 
                                      
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version:
 
                 ```sh
                 wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
@@ -458,7 +458,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission: 
             { .power-number} 
          
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html){:target="_blank"} tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html){:target="_blank"} to the latest version:
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm

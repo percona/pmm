@@ -4,7 +4,7 @@ PMM data dumps are compressed tarball files containing a comprehensive export of
 
 You can download these dataset files locally, or share them with Percona Support via an SFTP server. This enables you to share PMM data securely, which is especially useful when you need to troubleshoot PMM issues without providing access to your PMM instance.
 
-PMM3 enables you to generate datasets straight from PMM UI. PMM 2.41 or older use the [standalone PMM Dump utility](https://docs.percona.com/pmm-dump-documentation/installation.html) instead.
+PMM3 enables you to generate datasets straight from PMM UI. PMM 2.41 or older use the [standalone PMM Dump utility](https://docs.percona.com/pmm-dump-documentation/installation.html){:target="_blank"} instead.
 
 ## Access requirements
 

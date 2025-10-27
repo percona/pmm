@@ -12,7 +12,7 @@ Create backups of your PMM Server Kubernetes deployment to protect your monitori
 
 PMM Server Helm chart uses [PersistentVolume and PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/){:target="_blank"} to allocate storage in the Kubernetes cluster.
 
-Volumes could be pre-provisioned and dynamic. PMM chart supports both and exposes it through [PMM storage configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration).
+Volumes could be pre-provisioned and dynamic. PMM chart supports both and exposes it through [PMM storage configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration){:target="_blank"}.
 
 Backups for the PMM Server currently support only storage layer backups and thus require:
 
@@ -135,4 +135,4 @@ For production environments, implement a backup rotation policy:
 
 - [Restore PMM Server from backup](restore_container_helm.md)
 - [Upgrade PMM Server on Kubernetes](../../../../pmm-upgrade/upgrade_helm.md)
-- [Configure advanced storage options](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration)
+- [Configure advanced storage options](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-storage-configuration){:target="_blank"}

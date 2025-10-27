@@ -31,7 +31,7 @@ PMM Server stores all monitoring data in the `/home/admin/volume` partition. Pla
 - retention period for collected data
 - frequency of metric collection
 
-As a reference, the [PMM Demo](https://pmmdemo.percona.com/) site consumes approximately 230 MB per host per day, which totals around 6.9 GB per host over a 30-day retention period.
+As a reference, the [PMM Demo](https://pmmdemo.percona.com/){:target="_blank"} site consumes approximately 230 MB per host per day, which totals around 6.9 GB per host over a 30-day retention period.
 
 For 50 hosts with 30-day retention: 50 × 6.9 GB = 345 GB minimum storage. 
 

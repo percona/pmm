@@ -2,7 +2,7 @@
 
 Deploy PMM Server on Kubernetes using Helm for scalable, orchestrated monitoring in containerized environments.
 
-[Helm](https://github.com/helm/helm){:target="_blank"} is the package manager for Kubernetes. You can find Percona Helm charts in [our GitHub repository](https://github.com/percona/percona-helm-charts). 
+[Helm](https://github.com/helm/helm){:target="_blank"} is the package manager for Kubernetes. You can find Percona Helm charts in [our GitHub repository](https://github.com/percona/percona-helm-charts){:target="_blank"}. 
 
 ## Prerequisites
 
@@ -171,9 +171,9 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
 #### View available parameters
 
-Check the list of available parameters in the [PMM Helm chart documentation](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#parameters). You can also list the default parameters by either: 
+Check the list of available parameters in the [PMM Helm chart documentation](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#parameters){:target="_blank"}. You can also list the default parameters by either: 
 
-- check [values.yaml file](https://github.com/percona/percona-helm-charts/blob/main/charts/pmm/values.yaml) in our repository
+- check [values.yaml file](https://github.com/percona/percona-helm-charts/blob/main/charts/pmm/values.yaml){:target="_blank"} in our repository
 - run the chart definition: `helm show values percona/pmm`
 
 #### Set configuration values
@@ -229,12 +229,12 @@ To enhance security, you have two options:
         dhparam.pem: <content>
     ```
 
-2. Use [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls){:target="_blank"}. See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration) for details.
+2. Use [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls){:target="_blank"}. See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration){:target="_blank"} for details.
 
 ## Next steps
 
 - [Back up PMM Server Helm deployment](backup_container_helm.md)
-- [Configure advanced Kubernetes settings](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#advanced-configuration)
+- [Configure advanced Kubernetes settings](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#advanced-configuration){:target="_blank"}
 
 
 

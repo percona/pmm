@@ -22,7 +22,7 @@ The following questions are being answered related to personal and confidential 
 
 3. What is the purpose and nature of data processing?
 
-    As per our [Privacy Policy](https://www.percona.com/privacy-policy), the data collection purposes are to provide the services and product enhancements.
+    As per our [Privacy Policy](https://www.percona.com/privacy-policy){:target="_blank"}, the data collection purposes are to provide the services and product enhancements.
 
     Although, PMM does not collect nor transfer personal data explicitly, in case query analytics is enabled and query examples collection is not disabled, we gather SQL query examples with real data and personal data may appear there if it is stored in DB.  All QAN data always remains within the PMM Server, and is never transmitted anywhere else.
 
@@ -32,7 +32,7 @@ The following questions are being answered related to personal and confidential 
     
     So it is processed as usual, which is to store inside the PMM Server and present on the PMM UI by request.
 
-    Other than email addresses for Grafana users, PMM does not directly ask or collect any other personal data. For more information about the telemetry data that is collected, please refer to the [Percona Privacy Policy](http://www.percona.com/privacy-policy/). 
+    Other than email addresses for Grafana users, PMM does not directly ask or collect any other personal data. For more information about the telemetry data that is collected, please refer to the [Percona Privacy Policy](http://www.percona.com/privacy-policy/){:target="_blank"}. 
 
 5. What applications or third parties can access the data created and processed by the cloud service?
 
@@ -55,5 +55,5 @@ The following questions are being answered related to personal and confidential 
     - PMM Server to remote database (optionally, depending on user configuration)
     - End-user to PMM Server web interface/api (self-signed by default)
 
-    For more information about Percona security posture, please refer to our [Trust Center here](https://trust.percona.com/).
+    For more information about Percona security posture, please refer to our [Trust Center here](https://trust.percona.com/){:target="_blank"}.
 
