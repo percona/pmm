@@ -39,7 +39,7 @@ var (
 	DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
-	// defaultEncryption is the default implementation of encryption, lazily initialized.
+	// DefaultEncryption is the default implementation of encryption, lazily initialized.
 	defaultEncryption    *Encryption
 	defaultEncryptionMtx sync.Mutex
 )
