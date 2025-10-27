@@ -31,6 +31,7 @@ const (
 	QANService_QueryExists_FullMethodName                 = "/qan.v1.QANService/QueryExists"
 	QANService_SchemaByQueryID_FullMethodName             = "/qan.v1.QANService/SchemaByQueryID"
 	QANService_GetQueryExample_FullMethodName             = "/qan.v1.QANService/GetQueryExample"
+	QANService_HealthCheck_FullMethodName                 = "/qan.v1.QANService/HealthCheck"
 )
 
 // QANServiceClient is the client API for QANService service.
@@ -61,6 +62,8 @@ type QANServiceClient interface {
 	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDResponse, error)
 	// GetQueryExample returns a list of query examples.
 	GetQueryExample(ctx context.Context, in *GetQueryExampleRequest, opts ...grpc.CallOption) (*GetQueryExampleResponse, error)
+	// HealthCheck returns readiness of QAN API2 service.
+	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
 }
 
 type qANServiceClient struct {
@@ -181,6 +184,16 @@ func (c *qANServiceClient) GetQueryExample(ctx context.Context, in *GetQueryExam
 	return out, nil
 }
 
+func (c *qANServiceClient) HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HealthCheckResponse)
+	err := c.cc.Invoke(ctx, QANService_HealthCheck_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QANServiceServer is the server API for QANService service.
 // All implementations must embed UnimplementedQANServiceServer
 // for forward compatibility.
@@ -209,6 +222,8 @@ type QANServiceServer interface {
 	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDResponse, error)
 	// GetQueryExample returns a list of query examples.
 	GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error)
+	// HealthCheck returns readiness of QAN API2 service.
+	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
 	mustEmbedUnimplementedQANServiceServer()
 }
 
@@ -261,6 +276,10 @@ func (UnimplementedQANServiceServer) SchemaByQueryID(context.Context, *SchemaByQ
 
 func (UnimplementedQANServiceServer) GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
+}
+
+func (UnimplementedQANServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
 }
 func (UnimplementedQANServiceServer) mustEmbedUnimplementedQANServiceServer() {}
 func (UnimplementedQANServiceServer) testEmbeddedByValue()                    {}
@@ -481,6 +500,24 @@ func _QANService_GetQueryExample_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _QANService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HealthCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QANServiceServer).HealthCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: QANService_HealthCheck_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QANServiceServer).HealthCheck(ctx, req.(*HealthCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // QANService_ServiceDesc is the grpc.ServiceDesc for QANService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -531,6 +568,10 @@ var QANService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetQueryExample",
 			Handler:    _QANService_GetQueryExample_Handler,
+		},
+		{
+			MethodName: "HealthCheck",
+			Handler:    _QANService_HealthCheck_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

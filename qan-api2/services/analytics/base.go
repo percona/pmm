@@ -16,12 +16,17 @@
 package analytics
 
 import (
+	"context"
+
+	"github.com/jmoiron/sqlx"
+
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
 // Service implements gRPC service to communicate with QAN-APP.
 type Service struct {
+	db *sqlx.DB
 	rm models.Reporter
 	mm models.Metrics
 
@@ -29,8 +34,29 @@ type Service struct {
 }
 
 // NewService create new insstance of Service.
-func NewService(rm models.Reporter, mm models.Metrics) *Service {
-	return &Service{rm: rm, mm: mm}
+func NewService(db *sqlx.DB, rm models.Reporter, mm models.Metrics) *Service {
+	return &Service{db: db, rm: rm, mm: mm}
+}
+
+// HealthCheck implements gRPC health check endpoint.
+func (s *Service) HealthCheck(ctx context.Context, in *qanpb.HealthCheckRequest) (*qanpb.HealthCheckResponse, error) {
+	// Use DB ping as readiness check
+	if s.db == nil {
+		return &qanpb.HealthCheckResponse{
+			Ready:   false,
+			Message: "DB not initialized",
+		}, nil
+	}
+	if err := s.db.PingContext(ctx); err != nil {
+		return &qanpb.HealthCheckResponse{
+			Ready:   false,
+			Message: err.Error(),
+		}, nil
+	}
+	return &qanpb.HealthCheckResponse{
+		Ready:   true,
+		Message: "ok",
+	}, nil
 }
 
 var standartDimensions = map[string]struct{}{

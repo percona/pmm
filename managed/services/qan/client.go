@@ -128,6 +128,18 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 	return nil
 }
 
+// IsReady verifies that qan-api2 works.
+func (c *Client) IsReady(ctx context.Context) error {
+	resp, err := c.qsc.HealthCheck(ctx, &qanv1.HealthCheckRequest{})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if !resp.Ready {
+		return errors.Errorf("QAN gRPC healthcheck failed: %s", resp.Message)
+	}
+	return nil
+}
+
 // ExplainFingerprintByQueryID get query for given query ID.
 // This avoid receiving custom queries.
 func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.ExplainFingerprintByQueryIDResponse, error) {
