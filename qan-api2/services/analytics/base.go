@@ -41,16 +41,16 @@ func NewService(db *sqlx.DB, rm models.Reporter, mm models.Metrics) *Service {
 }
 
 // HealthCheck implements gRPC health check endpoint.
-func (s *Service) HealthCheck(ctx context.Context, _ *emptypb.Empty) error {
+func (s *Service) HealthCheck(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
 	// Use DB ping as readiness check
 	if s.db == nil {
-		return fmt.Errorf("DB not initialized")
+		return nil, fmt.Errorf("DB not initialized")
 	}
 	if err := s.db.PingContext(ctx); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &emptypb.Empty{}, nil
 }
 
 var standartDimensions = map[string]struct{}{
