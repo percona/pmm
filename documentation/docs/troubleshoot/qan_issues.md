@@ -46,6 +46,8 @@ After upgrading PMM Server, the QAN service may fail to start with `BACKOFF`, `F
 ```
 stdlog: Migrations: Dirty database version x. Fix and force version.
 ```
+(where `x` is the migration version number)
+
 This happens when the ClickHouse schema migration is interrupted during the upgrade.
 
 **Resolution:**
@@ -61,15 +63,16 @@ This happens when the ClickHouse schema migration is interrupted during the upgr
 
     2. Connect to ClickHouse:
     ```bash
-    clickhouse-client
+    clickhouse client --username= --password= -d pmm
     ```
 
-    3. Fix the migration state:
+    3. Fix the migration state, making sure to replace `x` with the version number from your error logs:
+
     ```sql
     USE pmm;
     INSERT INTO schema_migrations (version, dirty, sequence) 
-    VALUES (18, 0, toUnixTimestamp(NOW())*1000000000);
-    EXIT;
+    VALUES (x, 0, toUnixTimestamp(NOW())*1000000000);
+    exit;
     ```
 
     4. Restart QAN:
