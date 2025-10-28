@@ -91,7 +91,7 @@ type flags struct {
 	SSLCAPath   string `name:"postgres-ssl-ca-path" help:"PostgreSQL SSL CA root certificate path" type:"path"`
 	SSLKeyPath  string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
 	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
-	GenerateKey bool   `name:"generate-key" default:"false" help:"Only generate a new encryption key and print to stdout"`
+	GenerateKey bool   `name:"generate-key" help:"Only generate a new encryption key and print to stdout"`
 }
 
 func setupParams(opts flags) models.SetupDBParams {
