@@ -49,37 +49,36 @@ stdlog: Migrations: Dirty database version x. Fix and force version.
 
 This happens when the ClickHouse schema migration is interrupted during the upgrade.
 
-**Resolution:**
+### Resolution:
 
-- **PMM 3.5.0 and later:** Fixed automatically. PMM detects and completes the interrupted schema migration.
-- **Earlier versions:** Use the manual workaround below:
-{.power-number}
+- **PMM 3.5.0 and later:** The issue is **fixed automatically**. PMM detects and completes the interrupted schema migration upon restart.
+- **Earlier versions:** Use the following manual workaround:
+    {.power-number}
 
-    1. Access PMM container:
-    ```bash
-    podman exec -it pmm-server /bin/bash
-    ```
+    1. Access the PMM container:
+       ```bash
+       podman exec -it pmm-server /bin/bash
+       ```
 
     2. Connect to ClickHouse:
-    ```bash
-    clickhouse client --username= --password= -d pmm
-    ```
+       ```bash
+       clickhouse client --username=<clickhouse_user> --password=<clickhouse_password> -d pmm
+       ```
 
-    3. Fix the migration state, making sure to replace `x` with the version number from your error logs:
-
-    ```sql
-    USE pmm;
-    INSERT INTO schema_migrations (version, dirty, sequence) 
-    VALUES (x, 0, toUnixTimestamp(NOW())*1000000000);
-    exit;
-    ```
+    3. Fix the migration state. **Replace `x` with the version number from your error logs.**
+       ```sql
+       USE pmm;
+       INSERT INTO schema_migrations (version, dirty, sequence) 
+       VALUES (x, 0, toUnixTimestamp(NOW())*1000000000);
+       EXIT;
+       ```
 
     4. Restart QAN:
-    ```bash
-    supervisorctl restart qan-api2
-    ```
+       ```bash
+       supervisorctl restart qan-api2
+       ```
 
     5. Verify QAN is running:
-    ```bash
-    supervisorctl status qan-api2
-    ```
+       ```bash
+       supervisorctl status qan-api2
+       ```
