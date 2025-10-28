@@ -42,11 +42,10 @@ After disabling query plan collection, new metrics should show realistic executi
 
 ## QAN service fails after upgrade
 
-After upgrading PMM Server, the QAN service may fail to start with `BACKOFF`, `FATAL`, or `EXITED` status, preventing the QAN dashboard from loading. You'll see the following error in `/srv/logs/qan-api2.log`:
+After upgrading PMM Server, the QAN service may fail to start with `BACKOFF`, `FATAL`, or `EXITED` status, preventing the QAN dashboard from loading. You'll see the following error in `/srv/logs/qan-api2.log`, where `x` is the migration version number:
 ```
 stdlog: Migrations: Dirty database version x. Fix and force version.
 ```
-(where `x` is the migration version number)
 
 This happens when the ClickHouse schema migration is interrupted during the upgrade.
 
