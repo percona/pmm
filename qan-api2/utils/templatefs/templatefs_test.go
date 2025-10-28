@@ -118,38 +118,11 @@ func TestTemplateFS_ReadDir(t *testing.T) {
 }
 
 func TestTemplateFS_ReadDir_NonexistentDir(t *testing.T) {
+	tfs := NewTemplateFS(testFS, nil, "nonexistent")
 
-	tfsNonexistent := NewTemplateFS(testFS, nil, "nonexistent")
-	_, err := tfsNonexistent.Names()
+	_, err := tfs.Names()
 	assert.Error(t, err)
 }
-
-// func TestTemplateFS_WithStandardLibraryFunctions(t *testing.T) {
-// 	data := map[string]any{
-// 		"TableName":    "products",
-// 		"DatabaseName": "shop",
-// 	}
-
-// 	tfs := NewTemplateFS(testFS, data, "testdata")
-
-// 	// Test fs.Sub
-// 	subFS, err := iofs.Sub(tfs, "testdata") // Now tfs implements fs.FS
-// 	require.NoError(t, err)
-
-// 	// Read from sub filesystem
-// 	content, err := iofs.ReadFile(subFS, "simple.sql")
-// 	require.NoError(t, err)
-
-// 	contentStr := string(content)
-// 	assert.Contains(t, contentStr, "products")
-// 	assert.Contains(t, contentStr, "shop")
-
-// 	// Test fs.Glob
-// 	matches, err := iofs.Glob(tfs, "testdata/*.sql") // Now tfs implements fs.FS
-// 	require.NoError(t, err)
-// 	assert.NotEmpty(t, matches)
-// 	assert.Contains(t, matches, "simple.sql")
-// }
 
 func TestTemplateFS_FilenameExtraction(t *testing.T) {
 	data := map[string]any{
