@@ -4,6 +4,8 @@ export const Messages = {
   allServices: 'All Services',
   searchQueries: 'Search queries...',
   refresh: 'Refresh',
+  pause: 'Pause auto-refresh',
+  resume: 'Resume auto-refresh',
   settings: 'Settings',
   overview: 'Overview',
   queries: 'Queries',

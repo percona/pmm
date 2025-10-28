@@ -25,6 +25,8 @@ import {
   Search as SearchIcon,
   Refresh as RefreshIcon,
   Settings as SettingsIcon,
+  Pause as PauseIcon,
+  PlayArrow as PlayArrowIcon,
 } from '@mui/icons-material';
 import { Page } from 'components/page/Page';
 import { useRealTimeData, useRealTimeServices } from 'hooks/api/useRealtime';
@@ -60,10 +62,12 @@ export const RealtimeAnalytics: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [stateFilter, setStateFilter] = useState<QueryState | 'all'>('all');
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const { data: servicesData, isLoading: servicesLoading, error: servicesError } = useRealTimeServices();
   const { data: queriesData, isLoading: queriesLoading, error: queriesError, refetch } = useRealTimeData(
-    selectedServiceId || undefined
+    selectedServiceId || undefined,
+    { enabled: !isPaused }
   );
 
   const filteredQueries = useMemo(() => {
@@ -106,6 +110,10 @@ export const RealtimeAnalytics: React.FC = () => {
 
   const handleRefresh = () => {
     refetch();
+  };
+
+  const handleTogglePause = () => {
+    setIsPaused(!isPaused);
   };
 
   if (servicesLoading) {
@@ -174,6 +182,14 @@ export const RealtimeAnalytics: React.FC = () => {
               </Grid>
               <Grid item xs={12} md={4}>
                 <Stack direction="row" spacing={1}>
+                  <Tooltip title={isPaused ? Messages.resume : Messages.pause}>
+                    <IconButton 
+                      onClick={handleTogglePause}
+                      color={isPaused ? 'warning' : 'default'}
+                    >
+                      {isPaused ? <PlayArrowIcon /> : <PauseIcon />}
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title={Messages.refresh}>
                     <IconButton onClick={handleRefresh} disabled={queriesLoading}>
                       <RefreshIcon />

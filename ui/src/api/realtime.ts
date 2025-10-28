@@ -13,28 +13,53 @@ export const getRealTimeData = async (serviceId?: string): Promise<RealTimeDataR
 };
 
 export const getRealTimeServices = async () => {
-  const res = await api.get('/inventory/services');
-  const data = res.data;
+  // Fetch both services and agents to determine RTA status
+  const [servicesRes, agentsRes] = await Promise.all([
+    api.get('/inventory/services'),
+    api.get('/inventory/agents'),
+  ]);
+  
+  const servicesData = servicesRes.data;
+  const agentsData = agentsRes.data;
+  
+  // Create a map of serviceId -> RTA agent for enabled services
+  const rtaAgentsByService = new Map<string, any>();
+  if (agentsData.mongodb_realtime_analytics_agent) {
+    agentsData.mongodb_realtime_analytics_agent.forEach((agent: any) => {
+      // Agent is enabled if it's not disabled
+      if (!agent.disabled && agent.service_id) {
+        rtaAgentsByService.set(agent.service_id, agent);
+      }
+    });
+  }
   
   // Flatten services and filter for MongoDB (only supported type for RTA)
   const services = [];
-  if (data.mongodb) {
-    services.push(...data.mongodb.map((service: any) => ({
-      serviceId: service.service_id,
-      serviceName: service.service_name,
-      serviceType: 'mongodb',
-      nodeId: service.node_id,
-      nodeName: service.node_name || '',
-      address: service.address,
-      port: service.port,
-      labels: service.custom_labels || {},
-      isEnabled: false, // Default to false, will be determined later
-      config: {
-        collectionIntervalSeconds: 1,
-        disableExamples: false,
-      },
-      lastSeen: new Date().toISOString(),
-    })));
+  if (servicesData.mongodb) {
+    services.push(...servicesData.mongodb.map((service: any) => {
+      const rtaAgent = rtaAgentsByService.get(service.service_id);
+      const isEnabled = !!rtaAgent;
+      
+      return {
+        serviceId: service.service_id,
+        serviceName: service.service_name,
+        serviceType: 'mongodb',
+        nodeId: service.node_id,
+        nodeName: service.node_name || '',
+        address: service.address,
+        port: service.port,
+        labels: service.custom_labels || {},
+        isEnabled,
+        config: rtaAgent ? {
+          collectionIntervalSeconds: rtaAgent.realtime_analytics_options?.collection_interval_seconds || 1,
+          disableExamples: rtaAgent.realtime_analytics_options?.disable_examples || false,
+        } : {
+          collectionIntervalSeconds: 1,
+          disableExamples: false,
+        },
+        lastSeen: new Date().toISOString(),
+      };
+    }));
   }
   
   return services;

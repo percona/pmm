@@ -8,15 +8,20 @@ import {
 } from 'api/realtime';
 import { RealTimeConfig } from 'types/realtime.types';
 
-export const useRealTimeData = (serviceId?: string, refetchInterval = 2000) =>
-  useQuery({
+export const useRealTimeData = (serviceId?: string, options?: { refetchInterval?: number; enabled?: boolean }) => {
+  const refetchInterval = options?.refetchInterval ?? 2000;
+  const enabled = options?.enabled ?? true;
+  
+  return useQuery({
     queryKey: ['realtime/data', serviceId],
     queryFn: () => getRealTimeData(serviceId),
-    refetchInterval,
+    refetchInterval: enabled ? refetchInterval : false,
     refetchIntervalInBackground: true,
     staleTime: 0, // Always consider data stale for real-time updates
     gcTime: 0, // Don't cache data to prevent accumulation
+    enabled,
   });
+};
 
 export const useRealTimeServices = () =>
   useQuery({
