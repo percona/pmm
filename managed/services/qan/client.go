@@ -130,12 +130,9 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 
 // IsReady verifies that qan-api2 works.
 func (c *Client) IsReady(ctx context.Context) error {
-	res, err := c.qsc.HealthCheck(ctx, nil)
+	_, err := c.qsc.HealthCheck(ctx, nil)
 	if err != nil {
 		return errors.WithStack(err)
-	}
-	if res == nil {
-		return fmt.Errorf("nil response from qan-api2")
 	}
 
 	return nil
