@@ -35,7 +35,7 @@ const (
 	defaultPlatformAddress    = "https://check.percona.com"
 	envPlatformInsecure       = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
 	envPlatformPublicKey      = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
-	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
+	envInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
 	envEnableAccessControl    = "PMM_ENABLE_ACCESS_CONTROL"
 	envPlatformAPITimeout     = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
@@ -334,7 +334,7 @@ func GetPlatformPublicKeys() []string {
 
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
-	return GetEnv(evnInterfaceToBind, "127.0.0.1")
+	return GetEnv(envInterfaceToBind, "127.0.0.1")
 }
 
 // GetEnv returns env with fallback option.

@@ -88,12 +88,7 @@ func (res *listAgentsResult) String() string {
 
 // This is used in the json output. By convention, statuses must be in uppercase.
 func getAgentStatus(status *string) string {
-	res := pointer.GetString(status)
-	if res == "" {
-		res = "UNKNOWN"
-	}
-	res, _ = strings.CutPrefix(res, "AGENT_STATUS_")
-	return res
+	return commands.GetAgentStatus(status)
 }
 
 // ListAgentsCommand is used by Kong for CLI flags and commands.

@@ -155,6 +155,7 @@ func getDefaultKongOptions(appName string) []kong.Option {
 			"nodeTypeDefault":              nodeTypeDefault,
 			"hostname":                     hostname,
 			"serviceTypesEnum":             strings.Join(management.AllServiceTypesKeys, ", "),
+			"debugServiceTypesEnum":        strings.Join(commands.DebugServiceTypesKeys, ", "),
 			"defaultMachineID":             defaultMachineID,
 			"distro":                       nodeinfo.Distro,
 			"metricsModesEnum":             strings.Join(management.MetricsModes, ", "),
