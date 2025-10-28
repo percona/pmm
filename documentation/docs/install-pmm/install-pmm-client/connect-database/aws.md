@@ -129,7 +129,7 @@ After the role is created EC2 instances running PMM will have permissions to dis
 !!! note alert alert-primary ""
     It’s also possible to create an IAM role to delegate permissions to an IAM user or to add permissions to a user belonging to another AWS account. See the [official AWS documentation on creating IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create.html).
 
-## Setting up the Amazon RDS DB Instance
+## Setting up the Amazon RDS DB instance
 
 Query Analytics requires Configuring Performance Schema as the query source, because the slow query log is stored on the AWS (Amazon Web Services) side, and QAN agent is not able to read it.  Enable the `performance_schema` option under `Parameter Groups` in Amazon RDS.
 
@@ -146,8 +146,23 @@ GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%';
 ALTER USER 'pmm'@'%' WITH MAX_USER_CONNECTIONS 10;
 GRANT SELECT ON performance_schema.* TO 'pmm'@'%';
 ```
+### TLS/SSL configuration for RDS
 
-## Adding an Amazon RDS, Aurora or Remote Instance
+Amazon RDS MySQL instances support TLS connections using the RDS CA certificate bundle.
+
+!!! note "Partial certificate support"
+    Amazon RDS MySQL requires only the CA certificate for TLS connections. Client certificate and key are optional and only needed if you've explicitly configured client certificate authentication.
+
+To configure TLS for your RDS instance:
+{.power-number}
+
+1. Download the RDS CA certificate bundle from the [AWS RDS SSL/TLS documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html).
+
+2. Store the certificate file on the server where PMM Client or PMM Server is installed.
+
+3. When adding the RDS instance to PMM, enable TLS and provide the CA certificate.
+
+## Adding an Amazon RDS, Aurora or remote instance
 
 !!! caution alert alert-warning "Important"
     It may take longer for PMM to discover Amazon RDS instances in the `creating` state. You must wait a bit longer until PMM discovers these instances.
@@ -196,6 +211,65 @@ instances.
     - when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler.
 
 6. Finally press the **Add service** button to start monitoring your instance.
+
+### Adding an RDS instance via command line
+
+You can also add Amazon RDS MySQL instances using the `pmm-admin` command line tool.
+
+=== "With TLS (CA certificate only - recommended)"
+
+    This is the recommended approach for Amazon RDS instances. Provide only the CA certificate to establish encrypted connections:
+    
+    ```sh
+    pmm-admin add mysql \
+      --username=pmm \
+      --password=secure \
+      --host=mydb.123456.us-east-1.rds.amazonaws.com \
+      --port=3306 \
+      --service-name=RDS-MySQL \
+      --query-source=perfschema \
+      --tls \
+      --tls-ca=/path/to/rds-combined-ca-bundle.pem
+    ```
+
+=== "With TLS and client authentication (if configured)"
+
+    Use this option only if you've configured client certificate authentication on your RDS instance:
+    
+    ```sh
+    pmm-admin add mysql \
+      --username=pmm \
+      --password=secure \
+      --host=mydb.123456.us-east-1.rds.amazonaws.com \
+      --port=3306 \
+      --service-name=RDS-MySQL \
+      --query-source=perfschema \
+      --tls \
+      --tls-ca=/path/to/rds-combined-ca-bundle.pem \
+      --tls-cert=/path/to/client-cert.pem \
+      --tls-key=/path/to/client-key.pem
+    ```
+
+=== "Without TLS"
+
+    Use this option only if TLS is not required for your connection:
+    ```sh
+    pmm-admin add mysql \
+      --username=pmm \
+      --password=secure \
+      --host=mydb.123456.us-east-1.rds.amazonaws.com \
+      --port=3306 \
+      --service-name=RDS-MySQL \
+      --query-source=perfschema
+    ```
+
+#### Certificate file location
+When using TLS certificates with Amazon RDS MySQL, make sure to:
+
+- download the RDS CA certificate bundle from [AWS RDS SSL/TLS documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html)
+- store the certificate file on the server where PMM Client is installed
+- provide the full path to the certificate in the `--tls-ca` parameter
+- use `--tls-skip-verify` only in development/testing environments
 
 ## Adding an Amazon RDS PostgreSQL instance
 
