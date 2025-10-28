@@ -69,6 +69,7 @@ func (tfs *TemplateFS) ReadFile(name string) ([]byte, error) {
 	return []byte(upSQL), nil
 }
 
+// Names returns a slice of file names in the directory managed by TemplateFS.
 func (tfs *TemplateFS) Names() ([]string, error) {
 	dir, err := tfs.EmbedFS.ReadDir(tfs.dir)
 	if err != nil {
