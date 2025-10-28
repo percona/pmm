@@ -4,12 +4,12 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"io"
 	"log"
 	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
+	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 
