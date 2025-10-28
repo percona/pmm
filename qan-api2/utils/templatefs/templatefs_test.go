@@ -17,10 +17,7 @@ package templatefs
 
 import (
 	"embed"
-	"io"
 	"testing"
-
-	iofs "io/fs"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -121,43 +118,16 @@ func TestTemplateFS_ReadDir(t *testing.T) {
 	// Should contain our test files
 	var names []string
 	for _, entry := range entries {
-		names = append(names, entry.Name())
+		names = append(names, entry)
 	}
 	assert.Contains(t, names, "simple.sql")
 }
 
 func TestTemplateFS_ReadDir_NonexistentDir(t *testing.T) {
-	tfs := NewTemplateFS(testFS, nil, "")
+	tfs := NewTemplateFS(testFS, nil, "nonexistent")
 
-	_, err := tfs.ReadDir("nonexistent")
+	_, err := tfs.Names()
 	assert.Error(t, err)
-}
-
-func TestTemplateFS_WithStandardLibraryFunctions(t *testing.T) {
-	data := map[string]any{
-		"TableName":    "products",
-		"DatabaseName": "shop",
-	}
-
-	tfs := NewTemplateFS(testFS, data, "")
-
-	// Test fs.Sub
-	subFS, err := iofs.Sub(tfs, "testdata")
-	require.NoError(t, err)
-
-	// Read from sub filesystem
-	content, err := iofs.ReadFile(subFS, "simple.sql")
-	require.NoError(t, err)
-
-	contentStr := string(content)
-	assert.Contains(t, contentStr, "products")
-	assert.Contains(t, contentStr, "shop")
-
-	// Test fs.Glob
-	matches, err := iofs.Glob(tfs, "testdata/*.sql")
-	require.NoError(t, err)
-	assert.NotEmpty(t, matches)
-	assert.Contains(t, matches, "testdata/simple.sql")
 }
 
 func TestTemplateFS_FilenameExtraction(t *testing.T) {
