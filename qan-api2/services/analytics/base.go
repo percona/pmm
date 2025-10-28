@@ -20,7 +20,6 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
@@ -41,7 +40,7 @@ func NewService(db *sqlx.DB, rm models.Reporter, mm models.Metrics) *Service {
 }
 
 // HealthCheck implements gRPC health check endpoint.
-func (s *Service) HealthCheck(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+func (s *Service) HealthCheck(ctx context.Context, _ *qanpb.HealthCheckRequest) (*qanpb.HealthCheckResponse, error) {
 	// Use DB ping as readiness check
 	if s.db == nil {
 		return nil, fmt.Errorf("DB not initialized")
@@ -50,7 +49,7 @@ func (s *Service) HealthCheck(ctx context.Context, _ *emptypb.Empty) (*emptypb.E
 		return nil, err
 	}
 
-	return &emptypb.Empty{}, nil
+	return &qanpb.HealthCheckResponse{}, nil
 }
 
 var standartDimensions = map[string]struct{}{

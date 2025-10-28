@@ -27,6 +27,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "HealthCheckResponse is empty, based on returned error qan-api2 is ready or not.",
               "type": "object"
             }
           },

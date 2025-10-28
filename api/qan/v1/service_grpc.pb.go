@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -64,7 +63,7 @@ type QANServiceClient interface {
 	// GetQueryExample returns a list of query examples.
 	GetQueryExample(ctx context.Context, in *GetQueryExampleRequest, opts ...grpc.CallOption) (*GetQueryExampleResponse, error)
 	// HealthCheck returns readiness of QAN API2 service.
-	HealthCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
 }
 
 type qANServiceClient struct {
@@ -185,9 +184,9 @@ func (c *qANServiceClient) GetQueryExample(ctx context.Context, in *GetQueryExam
 	return out, nil
 }
 
-func (c *qANServiceClient) HealthCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *qANServiceClient) HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(HealthCheckResponse)
 	err := c.cc.Invoke(ctx, QANService_HealthCheck_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -224,7 +223,7 @@ type QANServiceServer interface {
 	// GetQueryExample returns a list of query examples.
 	GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error)
 	// HealthCheck returns readiness of QAN API2 service.
-	HealthCheck(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
 	mustEmbedUnimplementedQANServiceServer()
 }
 
@@ -279,7 +278,7 @@ func (UnimplementedQANServiceServer) GetQueryExample(context.Context, *GetQueryE
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
 }
 
-func (UnimplementedQANServiceServer) HealthCheck(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+func (UnimplementedQANServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
 }
 func (UnimplementedQANServiceServer) mustEmbedUnimplementedQANServiceServer() {}
@@ -502,7 +501,7 @@ func _QANService_GetQueryExample_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _QANService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(HealthCheckRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -514,7 +513,7 @@ func _QANService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: QANService_HealthCheck_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QANServiceServer).HealthCheck(ctx, req.(*emptypb.Empty))
+		return srv.(QANServiceServer).HealthCheck(ctx, req.(*HealthCheckRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
