@@ -18,10 +18,9 @@ package templatefs
 import (
 	"bytes"
 	"embed"
+	"fmt"
 	"path/filepath"
 	"text/template"
-
-	iofs "io/fs"
 )
 
 // TemplateFS wraps an embed.FS and applies templating to file content during reads.
@@ -32,46 +31,34 @@ type TemplateFS struct {
 	EmbedFS embed.FS
 	// Data contains template data that will be used for all files
 	Data map[string]any
+	dir  string
 }
 
 // NewTemplateFS creates a new TemplateFS with the given embedded filesystem and template data.
-func NewTemplateFS(embedFS embed.FS, data map[string]any) *TemplateFS {
+func NewTemplateFS(embedFS embed.FS, data map[string]any, dir string) *TemplateFS {
 	return &TemplateFS{
 		EmbedFS: embedFS,
 		Data:    data,
+		dir:     dir,
 	}
-}
-
-// Open opens the named file for reading and returns the original iofs.File from embed.FS.
-// No templating is applied here - use ReadFile for templated content.
-func (tfs *TemplateFS) Open(name string) (iofs.File, error) {
-	return tfs.EmbedFS.Open(name)
-}
-
-// ReadDir reads the named directory and returns a list of directory entries.
-// This delegates directly to the underlying embed.FS.
-func (tfs *TemplateFS) ReadDir(name string) ([]iofs.DirEntry, error) {
-	return tfs.EmbedFS.ReadDir(name)
 }
 
 // ReadFile reads the named file and returns its content with templating applied.
 // This is where the templating magic happens.
 func (tfs *TemplateFS) ReadFile(name string) ([]byte, error) {
 	// Read original content from embed.FS
-	content, err := tfs.EmbedFS.ReadFile(name)
+	fullName := filepath.Join(tfs.dir, name)
+	content, err := tfs.EmbedFS.ReadFile(fullName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read file %s: %w", fullName, err)
 	}
 
 	// Apply templating using the same logic as in the user's example
 	upSQL := string(content)
 
-	// Extract just the filename from the path for template name
-	filename := filepath.Base(name)
-
 	// Apply template if data exists
 	if tfs.Data != nil {
-		if tmpl, err := template.New(filename).Parse(upSQL); err == nil {
+		if tmpl, err := template.New(name).Parse(upSQL); err == nil {
 			var buf bytes.Buffer
 			if err := tmpl.Execute(&buf, tfs.Data); err == nil {
 				upSQL = buf.String()
@@ -80,4 +67,16 @@ func (tfs *TemplateFS) ReadFile(name string) ([]byte, error) {
 	}
 
 	return []byte(upSQL), nil
+}
+
+func (tfs *TemplateFS) Names() ([]string, error) {
+	dir, err := tfs.EmbedFS.ReadDir(tfs.dir)
+	if err != nil {
+		return nil, err
+	}
+	names := make([]string, 0, len(dir))
+	for _, entry := range dir {
+		names = append(names, entry.Name())
+	}
+	return names, nil
 }

@@ -4,12 +4,12 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"io"
 	"log"
 	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 
@@ -109,14 +109,19 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 		}
 	}
 
-	tfs := templatefs.NewTemplateFS(eFS, templateData)
-	// Use TemplateFS directly with golang-migrate
-	d, err := iofs.New(tfs, "sql")
+	tfs := templatefs.NewTemplateFS(eFS, templateData, "sql")
+	names, err := tfs.Names()
 	if err != nil {
 		return err
 	}
+	instance, err := bindata.WithInstance(
+		bindata.Resource(
+			names,
+			tfs.ReadFile,
+		),
+	)
 
-	m, err := migrate.NewWithSourceInstance("templatefs", d, dsn)
+	m, err := migrate.NewWithSourceInstance("go-bindata", instance, dsn)
 	if err != nil {
 		return err
 	}
