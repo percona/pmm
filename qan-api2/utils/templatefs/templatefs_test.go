@@ -32,9 +32,7 @@ func TestNewTemplateFS(t *testing.T) {
 		"DatabaseName": "testdb",
 	}
 	tfs := NewTemplateFS(testFS, data, "testdata")
-	names, err := tfs.Names()
-	assert.NoError(t, err)
-	assert.NotNil(t, names)
+	assert.NotNil(t, tfs)
 	assert.Equal(t, testFS, tfs.EmbedFS)
 	assert.Equal(t, data, tfs.Data)
 }
@@ -47,7 +45,6 @@ func TestTemplateFS_ReadFile_WithTemplating(t *testing.T) {
 	tfs := NewTemplateFS(testFS, data, "testdata")
 	content, err := tfs.ReadFile("simple.sql")
 	require.NoError(t, err)
-
 	contentStr := string(content)
 	assert.Contains(t, contentStr, "users")
 	assert.Contains(t, contentStr, "testdb")
@@ -59,8 +56,6 @@ func TestTemplateFS_ReadFile_WithoutTemplateData(t *testing.T) {
 	tfs := NewTemplateFS(testFS, nil, "testdata")
 	content, err := tfs.ReadFile("simple.sql")
 	require.NoError(t, err)
-
-	// Should return original content when no template data
 	contentStr := string(content)
 	assert.Contains(t, contentStr, "{{.TableName}}")
 	assert.Contains(t, contentStr, "{{.DatabaseName}}")
@@ -71,10 +66,7 @@ func TestTemplateFS_ReadFile_WithEmptyTemplateData(t *testing.T) {
 	tfs := NewTemplateFS(testFS, data, "testdata")
 	content, err := tfs.ReadFile("simple.sql")
 	require.NoError(t, err)
-
-	// Should use empty data, which means template variables will be replaced with zero values
 	contentStr := string(content)
-	// Template execution with empty data should remove the variables (they become empty strings)
 	assert.NotContains(t, contentStr, "{{.TableName}}")
 	assert.NotContains(t, contentStr, "{{.DatabaseName}}")
 }
@@ -84,13 +76,9 @@ func TestTemplateFS_ReadFile_InvalidTemplate(t *testing.T) {
 		"TableName": "users",
 	}
 	tfs := NewTemplateFS(testFS, data, "testdata")
-
-	// Should return original content when template parsing fails
 	content, err := tfs.ReadFile("invalid.sql")
 	require.NoError(t, err)
-
 	contentStr := string(content)
-	// Should contain the invalid template syntax
 	assert.Contains(t, contentStr, "{{.TableName")
 }
 
@@ -105,8 +93,6 @@ func TestTemplateFS_ReadDir(t *testing.T) {
 	entries, err := tfs.Names()
 	require.NoError(t, err)
 	assert.NotEmpty(t, entries)
-
-	// Should contain our test files
 	names := append([]string{}, entries...)
 	assert.Contains(t, names, "simple.sql")
 }
@@ -122,11 +108,8 @@ func TestTemplateFS_FilenameExtraction(t *testing.T) {
 		"TableName": "extracted",
 	}
 	tfs := NewTemplateFS(testFS, data, "testdata")
-
-	// Test that template data is applied regardless of file path
 	content, err := tfs.ReadFile("simple.sql")
 	require.NoError(t, err)
-
 	contentStr := string(content)
 	assert.Contains(t, contentStr, "extracted")
 }
@@ -141,7 +124,6 @@ func TestTemplateFS_ConditionalTemplating(t *testing.T) {
 	tfs := NewTemplateFS(testFS, data, "testdata")
 	content, err := tfs.ReadFile("conditional.sql")
 	require.NoError(t, err)
-
 	contentStr := string(content)
 	assert.Contains(t, contentStr, "CREATE TABLE users")
 	assert.Contains(t, contentStr, "CREATE INDEX idx_users_email")
@@ -156,7 +138,6 @@ func TestTemplateFS_ConditionalTemplating_False(t *testing.T) {
 	tfs := NewTemplateFS(testFS, data, "testdata")
 	content, err := tfs.ReadFile("conditional.sql")
 	require.NoError(t, err)
-
 	contentStr := string(content)
 	assert.Contains(t, contentStr, "CREATE TABLE users")
 	assert.NotContains(t, contentStr, "CREATE INDEX")
