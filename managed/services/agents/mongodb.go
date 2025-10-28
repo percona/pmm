@@ -57,9 +57,10 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	sort.Strings(args)
 
 	database := exporter.MongoDBOptions.AuthenticationDatabase
-	env := make([]string, 0, 1+len(exporter.MongoDBOptions.AgentEnvironmentVariables))
+	envVars, _ := exporter.GetEnvironmentVariables()
+	env := make([]string, 0, 1+len(envVars))
 	env = append(env, fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)))
-	for k, v := range exporter.MongoDBOptions.AgentEnvironmentVariables {
+	for k, v := range envVars {
 		env = append(env, fmt.Sprintf("%s=%s", k, v))
 	}
 
@@ -161,13 +162,14 @@ func buildBaseArgs(listenAddress string, tdp *models.DelimiterPair) []string {
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
 func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+	envVars, _ := agent.GetEnvironmentVariables()
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
-		Env:                  agent.MongoDBOptions.AgentEnvironmentVariables,
+		Env:                  envVars,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -179,13 +181,14 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent,
 // qanMongoDBMongologAgentConfig returns desired configuration of qan-mongodb-mongolog-agent built-in agent.
 func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+	envVars, _ := agent.GetEnvironmentVariables()
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
-		Env:                  agent.MongoDBOptions.AgentEnvironmentVariables,
+		Env:                  envVars,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

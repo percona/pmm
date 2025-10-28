@@ -180,15 +180,14 @@ func (c AzureOptions) IsEmpty() bool {
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
-	TLSCertificateKey             string            `json:"tls_certificate_key"`
-	TLSCertificateKeyFilePassword string            `json:"tls_certificate_key_file_password"`
-	TLSCa                         string            `json:"tls_ca"`
-	AuthenticationMechanism       string            `json:"authentication_mechanism"`
-	AuthenticationDatabase        string            `json:"authentication_database"`
-	StatsCollections              []string          `json:"stats_collections"`
-	CollectionsLimit              int32             `json:"collections_limit"`
-	EnableAllCollectors           bool              `json:"enable_all_collectors"`
-	AgentEnvironmentVariables     map[string]string `json:"agent_environment_variables"`
+	TLSCertificateKey             string   `json:"tls_certificate_key"`
+	TLSCertificateKeyFilePassword string   `json:"tls_certificate_key_file_password"`
+	TLSCa                         string   `json:"tls_ca"`
+	AuthenticationMechanism       string   `json:"authentication_mechanism"`
+	AuthenticationDatabase        string   `json:"authentication_database"`
+	StatsCollections              []string `json:"stats_collections"`
+	CollectionsLimit              int32    `json:"collections_limit"`
+	EnableAllCollectors           bool     `json:"enable_all_collectors"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -296,15 +295,16 @@ func (c ValkeyOptions) IsEmpty() bool {
 //
 //reform:agents
 type Agent struct {
-	AgentID      string    `reform:"agent_id,pk"`
-	AgentType    AgentType `reform:"agent_type"`
-	RunsOnNodeID *string   `reform:"runs_on_node_id"`
-	ServiceID    *string   `reform:"service_id"`
-	NodeID       *string   `reform:"node_id"`
-	PMMAgentID   *string   `reform:"pmm_agent_id"`
-	CustomLabels []byte    `reform:"custom_labels"`
-	CreatedAt    time.Time `reform:"created_at"`
-	UpdatedAt    time.Time `reform:"updated_at"`
+	AgentID              string    `reform:"agent_id,pk"`
+	AgentType            AgentType `reform:"agent_type"`
+	RunsOnNodeID         *string   `reform:"runs_on_node_id"`
+	ServiceID            *string   `reform:"service_id"`
+	NodeID               *string   `reform:"node_id"`
+	PMMAgentID           *string   `reform:"pmm_agent_id"`
+	CustomLabels         []byte    `reform:"custom_labels"`
+	EnvironmentVariables []byte    `reform:"environment_variables"`
+	CreatedAt            time.Time `reform:"created_at"`
+	UpdatedAt            time.Time `reform:"updated_at"`
 
 	Disabled        bool    `reform:"disabled"`
 	Status          string  `reform:"status"`
@@ -339,6 +339,9 @@ func (s *Agent) BeforeInsert() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
+	if len(s.EnvironmentVariables) == 0 {
+		s.EnvironmentVariables = nil
+	}
 	if s.Status == "" && s.AgentType != ExternalExporterType && s.AgentType != PMMAgentType {
 		s.Status = AgentStatusUnknown
 	}
@@ -354,6 +357,9 @@ func (s *Agent) BeforeUpdate() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
+	if len(s.EnvironmentVariables) == 0 {
+		s.EnvironmentVariables = nil
+	}
 	if s.Disabled {
 		s.Status = agentStatusDone
 	}
@@ -367,6 +373,9 @@ func (s *Agent) AfterFind() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
+	if len(s.EnvironmentVariables) == 0 {
+		s.EnvironmentVariables = nil
+	}
 	return nil
 }
 
@@ -378,6 +387,16 @@ func (s *Agent) GetCustomLabels() (map[string]string, error) {
 // SetCustomLabels encodes custom labels.
 func (s *Agent) SetCustomLabels(m map[string]string) error {
 	return setLabels(m, &s.CustomLabels)
+}
+
+// GetEnvironmentVariables decodes environment variables.
+func (s *Agent) GetEnvironmentVariables() (map[string]string, error) {
+	return getLabels(s.EnvironmentVariables)
+}
+
+// SetEnvironmentVariables encodes environment variables.
+func (s *Agent) SetEnvironmentVariables(m map[string]string) error {
+	return setLabels(m, &s.EnvironmentVariables)
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.
