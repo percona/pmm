@@ -9,6 +9,7 @@ import (
 	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 
@@ -108,14 +109,14 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 		}
 	}
 
-	// Use TemplateFS as the migration source for golang-migrate
 	tfs := templatefs.NewTemplateFS(eFS, templateData)
-	drv, err := templatefs.NewDriver(tfs, "sql")
+	// Use TemplateFS directly with golang-migrate
+	d, err := iofs.New(tfs, "sql")
 	if err != nil {
 		return err
 	}
 
-	m, err := migrate.NewWithSourceInstance("templatefs", drv, dsn)
+	m, err := migrate.NewWithSourceInstance("templatefs", d, dsn)
 	if err != nil {
 		return err
 	}
