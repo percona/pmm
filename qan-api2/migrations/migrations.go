@@ -117,9 +117,10 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 	instance, err := bindata.WithInstance(
 		bindata.Resource(
 			names,
-			tfs.ReadFile,
-		),
-	)
+			tfs.ReadFile))
+	if err != nil {
+		return err
+	}
 
 	m, err := migrate.NewWithSourceInstance("go-bindata", instance, dsn)
 	if err != nil {

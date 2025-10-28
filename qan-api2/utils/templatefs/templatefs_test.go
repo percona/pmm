@@ -31,7 +31,6 @@ func TestNewTemplateFS(t *testing.T) {
 		"TableName":    "users",
 		"DatabaseName": "testdb",
 	}
-
 	tfs := NewTemplateFS(testFS, data, "testdata")
 	names, err := tfs.Names()
 	assert.NoError(t, err)
@@ -45,7 +44,6 @@ func TestTemplateFS_ReadFile_WithTemplating(t *testing.T) {
 		"TableName":    "users",
 		"DatabaseName": "testdb",
 	}
-
 	tfs := NewTemplateFS(testFS, data, "testdata")
 	content, err := tfs.ReadFile("simple.sql")
 	require.NoError(t, err)
@@ -69,11 +67,8 @@ func TestTemplateFS_ReadFile_WithoutTemplateData(t *testing.T) {
 }
 
 func TestTemplateFS_ReadFile_WithEmptyTemplateData(t *testing.T) {
-	// Empty data map
-	data := map[string]any{}
-
+	data := make(map[string]any)
 	tfs := NewTemplateFS(testFS, data, "testdata")
-
 	content, err := tfs.ReadFile("simple.sql")
 	require.NoError(t, err)
 
@@ -88,7 +83,6 @@ func TestTemplateFS_ReadFile_InvalidTemplate(t *testing.T) {
 	data := map[string]any{
 		"TableName": "users",
 	}
-
 	tfs := NewTemplateFS(testFS, data, "testdata")
 
 	// Should return original content when template parsing fails
@@ -119,7 +113,6 @@ func TestTemplateFS_ReadDir(t *testing.T) {
 
 func TestTemplateFS_ReadDir_NonexistentDir(t *testing.T) {
 	tfs := NewTemplateFS(testFS, nil, "nonexistent")
-
 	_, err := tfs.Names()
 	assert.Error(t, err)
 }
@@ -128,7 +121,6 @@ func TestTemplateFS_FilenameExtraction(t *testing.T) {
 	data := map[string]any{
 		"TableName": "extracted",
 	}
-
 	tfs := NewTemplateFS(testFS, data, "testdata")
 
 	// Test that template data is applied regardless of file path
@@ -146,9 +138,7 @@ func TestTemplateFS_ConditionalTemplating(t *testing.T) {
 		"IndexName":  "idx_users_email",
 		"ColumnName": "email",
 	}
-
 	tfs := NewTemplateFS(testFS, data, "testdata")
-
 	content, err := tfs.ReadFile("conditional.sql")
 	require.NoError(t, err)
 
@@ -163,9 +153,7 @@ func TestTemplateFS_ConditionalTemplating_False(t *testing.T) {
 		"TableName":  "users",
 		"AddIndexes": false,
 	}
-
 	tfs := NewTemplateFS(testFS, data, "testdata")
-
 	content, err := tfs.ReadFile("conditional.sql")
 	require.NoError(t, err)
 
