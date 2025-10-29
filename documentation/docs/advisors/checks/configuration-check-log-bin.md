@@ -8,7 +8,7 @@ It’s recommended to have them on for point-in-time recovery purposes, and so r
 
 This database instance cannot be a replication source, nor could it provide the needed logs for point-in-time recovery. Consider enabling the binary logs.
 
-For more information, see the [MySQL documentation](https://dev.mysql.com/doc/refman/8.0/en/binary-log.html).
+For more information, see the [MySQL documentation](https://dev.mysql.com/doc/refman/8.4/en/binary-log.html).
 
 ## Resolution
 

@@ -6,13 +6,14 @@ This variable, in row-based replication, determines if row images are written to
 
 Setting **binlog_row_image** to MINIMAL reduces the amount of data pushed into the binary log. However, this setting also skips essential data used to recover your database from data corruption, or human mistakes.
 
-Manually change the value of **binlog_row_image** in the my.cnf file.
-******text
+Manually change the value of **binlog\_row\_image** in the `my.cnf` file:
+
+```text
 [mysql]
 
 binlog_format=ROW
 binlog_row_image =FULL
-******
+```
 
 Close sessions and restart the server.
 

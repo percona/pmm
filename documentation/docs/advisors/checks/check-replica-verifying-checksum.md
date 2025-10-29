@@ -12,7 +12,7 @@ Setting this variable takes effect for all replication channels immediately, inc
 
 Set the **slave_sql_verify_checksum** variable to **1**.
 
-For MySQL 8.x and major: Set the **replica_sql_verify_checksum** variable to **1**. 
+For MySQL 8.4 and later: Set the **replica_sql_verify_checksum** variable to **1**.  See the [MySQL documentation](https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html#sysvar_replica_sql_verify_checksum) for details.
 
 ## Need more support from Percona?
 

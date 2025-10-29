@@ -6,7 +6,7 @@ Some InnoDB Tablespaces specify a maximum size limit, which means that the file 
 
 Reaching this limit could cause production problems.
 
-For more information, see [The System Tablespace in the MySQL documentation](https://dev.mysql.com/doc/refman/8.0/en/innodb-system-tablespace.html).
+For more information, see [The System Tablespace in the MySQL documentation](https://dev.mysql.com/doc/refman/8.4/en/innodb-system-tablespace.html).
 
 
 ## Resolution
