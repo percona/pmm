@@ -16,5 +16,6 @@ Sort operations are used for ORDER BY, DISTINCT, and merge joins. Hash tables ar
 
 Percona experts bring years of experience in tackling tough database performance issues and design challenges.
 
-[Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }
+<div data-tf-live="01JKGYABNVYHQ8A91QNW69A9TP"></div><script src="//embed.typeform.com/next/embed.js"></script>
+
 

@@ -54,12 +54,14 @@ To reduce the profiler level, edit and adjust the following parameter in **mongo
 To check the profiler status and level on a running system, run the following commands from the mongo shell:
 
 ```
-		db.getProfilingStatus()
-		db.getProfilingLevel()
+	db.getProfilingStatus()
+	db.getProfilingLevel()
+```
 
 Note: We can include different options here to manipulate collection of operations.
 
 ## Need more support from Percona?
 
 Percona experts bring years of experience in tackling tough database performance issues and design challenges.
-[Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }
+
+<div data-tf-live="01JKGYABNVYHQ8A91QNW69A9TP"></div><script src="//embed.typeform.com/next/embed.js"></script>

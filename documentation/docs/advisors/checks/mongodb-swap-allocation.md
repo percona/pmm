@@ -33,5 +33,5 @@ Once the swap space is allocated as per the recommendation, configure it by sett
 ## Need more support from Percona?
 
 Percona experts bring years of experience in tackling tough database performance issues and design challenges.
-[Learn more :fontawesome-solid-paper-plane:](https://per.co.na/subscribe){ .md-button }
 
+<div data-tf-live="01JKGYABNVYHQ8A91QNW69A9TP"></div><script src="//embed.typeform.com/next/embed.js"></script>
