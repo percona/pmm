@@ -413,7 +413,6 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 		case isLeader := <-node.LeaderCh():
 			if isLeader {
 				s.services.StartAllServices(ctx)
-				// This node is the leader
 				s.l.Info("I am the leader!")
 				peers := s.memberlist.Members()
 				for _, peer := range peers {

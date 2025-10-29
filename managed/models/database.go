@@ -1474,7 +1474,8 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 			return err
 		}
 	} else {
-		params.Name = "" // using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		// using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		params.Name = ""
 	}
 
 	// create PostgreSQL Service and associated Agents

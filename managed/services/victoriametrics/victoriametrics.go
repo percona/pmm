@@ -148,14 +148,14 @@ func (svc *Service) RequestConfigurationUpdate() {
 
 // Start is called when this node becomes the leader in HA mode.
 func (svc *Service) Start(_ context.Context) error { //nolint:unparam
-	svc.l.Info("Became leader - triggering configuration update to include external agents")
+	svc.l.Info("Became leader, triggering configuration update to include external agents")
 	svc.RequestConfigurationUpdate()
 	return nil
 }
 
 // Stop is called when this node loses leadership in HA mode.
 func (svc *Service) Stop() {
-	svc.l.Info("Lost leadership - triggering configuration update to exclude external agents")
+	svc.l.Info("Lost leadership, triggering configuration update to exclude external agents")
 	svc.RequestConfigurationUpdate()
 }
 
