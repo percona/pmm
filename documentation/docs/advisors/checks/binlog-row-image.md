@@ -21,7 +21,7 @@ To set the variable for a session, use the following command:
 
 ```sql
 
-mysql> SET SESSION binlog_row_image='FULL';
+  mysql> SET SESSION binlog_row_image='FULL';
 ```
 
 Remember, if you close the session, the **binlog_row_image** setting returns to the server setting.
