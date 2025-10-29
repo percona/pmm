@@ -25,7 +25,7 @@ If you cannot see the **PMM Dump** option in the Help menu or receive access err
 The **dump.tar.gz** dump file is a .TAR archive compressed via Gzip. Here's what's inside the folders it contains:
 
  - **meta.json**: metadata about the data dump
- - **vm**: Victoria Metrics data chunks in native VM format, organized by timeframe
+ - **vm**: gzipped Victoria Metrics data chunks in JSON format (default) or in native VM format (taken with option --vm-native-data), organized by timeframe
  - **ch**: Query Analytics (QAN) data stored in ClickHouse format, organized by row count
  - **log.json**: logs detailing the export and archive creation process
 
