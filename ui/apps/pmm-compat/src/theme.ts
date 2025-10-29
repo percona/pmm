@@ -1,171 +1,99 @@
-import { getThemeById } from '@grafana/data';
+import { getThemeById, type GrafanaTheme2 } from '@grafana/data';
 import { config, getAppEvents, ThemeChangedEvent } from '@grafana/runtime';
+import type { CrossFrameMessenger, Message } from '@pmm/shared';
 
 /**
- * Changes theme to the provided one.
- * Based on public/app/core/services/theme.ts in Grafana
+ * Normalize any input to strict 'light' | 'dark'.
  */
-export const changeTheme = async (themeId: 'light' | 'dark'): Promise<void> => {
-  const oldTheme = config.theme2;
-  const newTheme = getThemeById(themeId);
+const normalizeMode = (incoming: unknown): 'light' | 'dark' => {
+  return String(incoming).toLowerCase() === 'dark' ? 'dark' : 'light';
+};
 
-  // Publish Grafana ThemeChangedEvent
+/**
+ * Apply Grafana theme by id and ensure the proper CSS bundle is loaded.
+ * Based on Grafana's public/app/core/services/theme.ts (trimmed).
+ */
+const applyGrafanaTheme = async (mode: 'light' | 'dark'): Promise<GrafanaTheme2> => {
+  const oldTheme = config.theme2;
+  const newTheme = getThemeById(mode);
+
+  // Publish Grafana ThemeChangedEvent so Grafana UI re-themes itself
   getAppEvents().publish(new ThemeChangedEvent(newTheme));
 
-  // Add css file for new theme
+  // If mode actually changed, ensure the correct CSS bundle is present
   if (oldTheme.colors.mode !== newTheme.colors.mode) {
-    const newCssLink = document.createElement('link');
-    newCssLink.rel = 'stylesheet';
-    newCssLink.href = config.bootData.assets[newTheme.colors.mode];
-    newCssLink.onload = () => {
-      // Remove old css file after the new one has loaded to avoid flicker
-      const links = document.getElementsByTagName('link');
-      for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        if (link.href && link.href.includes(`build/grafana.${oldTheme.colors.mode}`)) {
-          link.remove();
+    const cssHref = config.bootData.assets[newTheme.colors.mode];
+    if (cssHref) {
+      const newCssLink = document.createElement('link');
+      newCssLink.rel = 'stylesheet';
+      newCssLink.href = cssHref;
+      newCssLink.onload = () => {
+        // Remove the opposite mode's stylesheet once the new one is safely loaded
+        const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+        for (const link of links) {
+          if (link !== newCssLink && typeof link.href === 'string') {
+            const isOldDark = oldTheme.colors.mode === 'dark' && link.href.includes('/dark.');
+            const isOldLight = oldTheme.colors.mode === 'light' && link.href.includes('/light.');
+            if (isOldDark || isOldLight) {
+              link.parentElement?.removeChild(link);
+            }
+          }
         }
-      }
-    };
-    document.head.insertBefore(newCssLink, document.head.firstChild);
+      };
+      document.head.appendChild(newCssLink);
+    }
   }
-};
 
-/* ---------------------------
- * Right → left theme wiring
- * --------------------------*/
-
-// Normalize and apply <html> attributes so CSS-based nav updates immediately
-function applyHtmlTheme(modeRaw: unknown) {
-  const mode: 'light' | 'dark' = String(modeRaw).toLowerCase() === 'dark' ? 'dark' : 'light';
-  const html = document.documentElement;
-  const scheme = mode === 'dark' ? 'percona-dark' : 'percona-light';
-
-  if (html.getAttribute('data-theme') !== mode) {
-    html.setAttribute('data-theme', mode);
-  }
-  if (html.getAttribute('data-md-color-scheme') !== scheme) {
-    html.setAttribute('data-md-color-scheme', scheme);
-  }
-  (html.style as CSSStyleDeclaration).colorScheme = mode;
-
-  return mode;
-}
-
-const isIp = (h: string) => /^\d+\.\d+\.\d+\.\d+$/.test(h);
-const isDevHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || isIp(h);
-
-const parseOrigin = (u: string | URL | null | undefined): string | null => {
-  try {
-    const url = typeof u === 'string' ? new URL(u) : u instanceof URL ? u : null;
-    return url ? `${url.protocol}//${url.host}` : null;
-  } catch {
-    return null;
-  }
+  return newTheme;
 };
 
 /**
- * Resolve initial target origin (may be '*' in dev).
- * - Dev: start with '*' to support split hosts/ports (vite + docker).
- * - Prod: concrete origin (document.referrer → window.location.origin).
+ * Public API kept for callers inside this plugin (no HTML attributes here).
  */
-function resolveInitialTargetOrigin(): string {
-  const loc = new URL(window.location.href);
-  if (isDevHost(loc.hostname)) {
-    return '*';
-  }
-  const ref = parseOrigin(document.referrer);
-  return ref ?? `${loc.protocol}//${loc.host}`;
-}
+export const changeTheme = async (themeId: 'light' | 'dark'): Promise<void> => {
+  await applyGrafanaTheme(themeId);
+};
 
-/** Safely obtain a Window to post to (top if cross-framed, otherwise parent/self). */
-function resolveTargetWindow(): Window | null {
-  try {
-    if (window.top && window.top !== window) {
-      return window.top;
-    }
-    if (window.parent) {
-      return window.parent;
-    }
-  } catch (err) {
-    console.warn('[pmm-compat] Failed to send handshake:', err);
-  }
-  return window;
-}
-
-/** Runtime-locked origin (handshake will tighten '*' in dev). */
-const targetOriginRef = { current: resolveInitialTargetOrigin() };
-let lastSentMode: 'light' | 'dark' | null = null;
-
-/** Send helper that always uses the current locked origin. */
-function sendToParent(msg: unknown) {
-  const w = resolveTargetWindow();
-  if (!w) {
+/**
+ * Initialize theme sync inside the Grafana iframe.
+ * - Single subscription to Grafana ThemeChangedEvent => notify PMM UI (left).
+ * - Listen to CHANGE_THEME from PMM UI => apply locally via changeTheme().
+ * - Perform initial one-shot sync after listeners are in place.
+ * - No IIFEs, no window.postMessage, no origin handshake, no HTML attributes.
+ */
+export const initialize = (messenger: CrossFrameMessenger): void => {
+  // Guard to avoid double init if initialize() gets called twice
+  if ((window as any).__pmmThemeInitDone) {
     return;
   }
-  w.postMessage(msg, targetOriginRef.current);
-}
+  (window as any).__pmmThemeInitDone = true;
 
-/** Dev-only handshake: lock '*' to the real origin after the first ACK. */
-(function setupOriginHandshake() {
-  const isDev = isDevHost(new URL(window.location.href).hostname);
-  if (!isDev || targetOriginRef.current !== '*') {
-    return;
-  }
-
-  // Ask parent for its origin once
-  try {
-    sendToParent({ type: 'pmm.handshake' });
-  } catch {
-    // ignore
-  }
-
-  const onAck = (e: MessageEvent<{ type?: string }>) => {
-    if (e?.data?.type !== 'pmm.handshake.ack') {
-      return;
-    }
-    // Lock to the explicit origin provided by the parent
-    targetOriginRef.current = e.origin || targetOriginRef.current;
-    window.removeEventListener('message', onAck);
+  // Outgoing: when Grafana emits ThemeChangedEvent, tell PMM UI once per change
+  const onThemeChanged = (evt: ThemeChangedEvent) => {
+    // In Grafana 10+, the new theme is carried in the event's theme
+    const nextMode = normalizeMode((evt as any)?.theme?.colors?.mode ?? config.theme2.colors.mode);
+    messenger.sendMessage({
+      type: 'GRAFANA_THEME_CHANGED',
+      payload: { mode: nextMode },
+    });
   };
-  window.addEventListener('message', onAck);
-})();
 
-// Initial apply from current Grafana theme and notify parent once
-(function initThemeBridge() {
-  const initial: 'light' | 'dark' = config?.theme2?.colors?.mode === 'dark' ? 'dark' : 'light';
-  const mode = applyHtmlTheme(initial);
-  try {
-    if (lastSentMode !== mode) {
-      sendToParent({ type: 'grafana.theme.changed', payload: { mode } });
-      lastSentMode = mode;
-    }
-  } catch (err) {
-    console.warn('[pmm-compat] failed to post initial grafana.theme.changed:', err);
-  }
-})();
+  // Subscribe once; PMM side should avoid ping-pong with its own guard flag
+  getAppEvents().subscribe(ThemeChangedEvent, onThemeChanged);
 
-// React to Grafana ThemeChangedEvent (Preferences change/changeTheme())
-getAppEvents().subscribe(ThemeChangedEvent, (evt: unknown) => {
-  try {
-    // Type guard for expected payload structure
-    if (typeof evt === 'object' && evt !== null && 'payload' in evt) {
-      const payload = (evt as { payload?: unknown }).payload;
-      const next =
-        typeof payload === 'object' && payload !== null && 'colors' in payload
-          ? (payload as { colors?: { mode?: string }; isDark?: boolean }).colors?.mode ??
-            ((payload as { isDark?: boolean }).isDark ? 'dark' : 'light') ??
-            'light'
-          : 'light';
+  // Incoming: apply theme when PMM UI asks us to change
+  messenger.addListener<'CHANGE_THEME', { mode?: string }>({
+    type: 'CHANGE_THEME',
+    onMessage: async (msg: Message<'CHANGE_THEME', { mode?: string }>) => {
+      const requested = normalizeMode(msg.payload?.mode);
+      await changeTheme(requested);
+    },
+  });
 
-      const mode = applyHtmlTheme(next);
-
-      if (lastSentMode !== mode) {
-        sendToParent({ type: 'grafana.theme.changed', payload: { mode } });
-        lastSentMode = mode;
-      }
-    }
-  } catch (err) {
-    console.warn('[pmm-compat] Failed to handle ThemeChangedEvent/postMessage:', err);
-  }
-});
+  // Initial one-shot sync (after listeners are registered)
+  const currentMode = normalizeMode(config.theme2.colors.mode);
+  messenger.sendMessage({
+    type: 'GRAFANA_THEME_CHANGED',
+    payload: { mode: currentMode },
+  });
+};
