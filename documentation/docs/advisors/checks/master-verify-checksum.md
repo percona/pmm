@@ -5,7 +5,7 @@
 The source verifies binary log events by examining the checksums and stops with an error if there is a mismatch with the **master_verify_checksum** variable enabled. This variable is disabled by default. 
 
 
-For more information, see [master_verify_checksum in the MuSQL documentation](https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_master_verify_checksum)
+For more information, see [master_verify_checksum in the MuSQL documentation](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_master_verify_checksum)
 
 ## Resolution
 

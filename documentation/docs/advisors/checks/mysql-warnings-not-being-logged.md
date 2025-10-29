@@ -4,7 +4,7 @@
 
 The **log_error_verbosity** setting determines if the error log contains ERROR, WARNING, and INFORMATION messages. If WARNING messages are not printed to the error log important information may be ignored.
 
-See [log_error_verbosity](https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_log_error_verbosity) for more information
+See [log_error_verbosity](https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_log_error_verbosity) for more information
 
 ## Resolution
 

@@ -4,7 +4,7 @@
 
 Checks if connections from a client are required to use secure transport. Enabling **require_secure_transport** allows only TCP/IP connections that are encrypted by TLS/SSL, or a socket in Linux. Non-secure connections are rejected.
 
-For more information: [Using encrypted connections](https://dev.mysql.com/doc/mysql-security-excerpt/8.0/en/using-encrypted-connections.html)
+For more information: [Using encrypted connections](https://dev.mysql.com/doc/mysql-security-excerpt/8.4/en/using-encrypted-connections.html)
 
 ## Resolution
 

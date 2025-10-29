@@ -4,7 +4,7 @@
 
 If the binary log synchronization to disk is disabled, the operating system flushes the binary log to disk as it does any other file. If the operating system crashes, or experiences a power failure, committed transactions may not be synchronized with the binary log.
 
-For more information, see the [MySQL documentation](https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_sync_binlog)
+For more information, see the [MySQL documentation](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_sync_binlog)
 and [Percona blog posts on the topic](https://www.percona.com/blog/2018/05/04/how-binary-logs-and-filesystems-affect-mysql-performance/).
 
 ## Resolution

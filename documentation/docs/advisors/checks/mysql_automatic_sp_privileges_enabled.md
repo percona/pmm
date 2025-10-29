@@ -3,7 +3,7 @@
 ## Description
 
 This alerts if the **automatic_sp_privileges** variable is disabled. 
-When the [automatic_sp_privileges](https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_automatic_sp_privileges) variable is disabled, the server can no longer grant/revoke EXECUTE and ALTER ROUTINE privileges to the creator of a stored routine. 
+When the [automatic_sp_privileges](https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_automatic_sp_privileges) variable is disabled, the server can no longer grant/revoke EXECUTE and ALTER ROUTINE privileges to the creator of a stored routine. 
 
 ## Resolution
 

@@ -9,7 +9,7 @@ To identify user without a password:
 `SELECT User, Host, authentication_string FROM mysql.user where authentication_string = '';`
 
 Having accounts with empty passwords means that your MySQL installation is unprotected until you fix this issue.
-For more information, see [Pluggable Authentication in the MySQL documentation](https://dev.mysql.com/doc/refman/8.0/en/pluggable-authentication.html).
+For more information, see [Pluggable Authentication in the MySQL documentation](https://dev.mysql.com/doc/refman/8.4/en/pluggable-authentication.html).
 
 ## Resolution
 
@@ -18,7 +18,7 @@ To prevent clients from connecting as anonymous users without a password, you ca
 
 - assign a password to each anonymous account 
 - or remove the accounts
-- or use the auth_socket plugin if the user is a local user [read here for detailed instructions](https://dev.mysql.com/doc/mysql-secure-deployment-guide/8.0/en/secure-deployment-configure-authentication.html#:~:text=The%20auth_socket%20plugin%20checks%20whether,authentication_string%20column%20of%20the%20mysql.)
+- or use the auth_socket plugin if the user is a local user [read here for detailed instructions](https://dev.mysql.com/doc/mysql-secure-deployment-guide/8.4/en/secure-deployment-configure-authentication.html#:~:text=The%20auth_socket%20plugin%20checks%20whether,authentication_string%20column%20of%20the%20mysql)
 
 ## Need more support from Percona?
 

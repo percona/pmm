@@ -2,7 +2,7 @@
 
 ## Description
 
-For more information, see [Specifying Account Names](https://dev.mysql.com/doc/refman/8.0/en/account-names.html ).
+For more information, see [Specifying Account Names](https://dev.mysql.com/doc/refman/8.4/en/account-names.html ).
 
 The host name part of an account name can take many forms, and wildcards are permitted:
 

@@ -26,7 +26,7 @@ To set the variable for a session, use the following command:
 
 Remember, if you close the session, the **binlog_row_image** setting returns to the server setting.
 
-For more information, see [flashback recovery](https://mydbops.wordpress.com/2019/05/22/flashback-recovery-in-mariadb-mysql-percona/) and the [MySQL manual](https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_binlog_row_image).
+For more information, see [flashback recovery](https://mydbops.wordpress.com/2019/05/22/flashback-recovery-in-mariadb-mysql-percona/) and the [MySQL manual](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_binlog_row_image).
 
 On the other side, setting the **binlog_row_image** to FULL can result in a significant increase of data if you use many and large BLOB/TEXT columns that do not change often.  
 Therefore, although best practice recommends using FULL, in some cases using MINIMAL is fine.

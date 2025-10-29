@@ -4,7 +4,7 @@
 
 Checks that binary logs are kept for at least one day before being purged.
 
-For more information, see the [MySQL documentation](https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_binlog_expire_logs_seconds).
+For more information, see the [MySQL documentation](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_binlog_expire_logs_seconds).
 
 ## Resolution
 

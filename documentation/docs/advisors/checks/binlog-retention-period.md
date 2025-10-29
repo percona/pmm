@@ -8,7 +8,7 @@ Setting the **binlog_expire_logs_seconds** variable to a low value can cause sho
 
 Having short rotation cycles can also make maintenance of a replica difficult since the maintenance can only be performed in the rotation cycle.  
 
-For more information, see [**binlog_expire_logs_seconds** in the MySQL documentation](https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_binlog_expire_logs_second). 
+For more information, see [**binlog_expire_logs_seconds** in the MySQL documentation](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_binlog_expire_logs_second). 
 
 
 ## Resolution

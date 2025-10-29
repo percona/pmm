@@ -4,7 +4,7 @@
 
 When archiving or backing up your binary logs, binary log checksums adds resilience to integrity checking and validity.
 
-For more information, see [binlog_checksum in the MySQL documentation](https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_binlog_checksum).  
+For more information, see [binlog_checksum in the MySQL documentation](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_binlog_checksum).  
 
 ## Resolution
 
