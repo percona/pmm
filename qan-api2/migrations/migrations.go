@@ -4,27 +4,29 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
+	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/qan-api2/utils/templatefs"
+	"github.com/percona/pmm/utils/dsnutils"
 )
 
 const (
 	metricsEngineSimple           = "MergeTree"
-	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/metrics', '{replica}')"
-	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/schema_migrations', '{replica}') ORDER BY version"
+	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/metrics', '{replica}')"
+	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/schema_migrations', '{replica}') ORDER BY version"
 )
 
 //go:embed sql/*.sql
-var migrationFS embed.FS
+var eFS embed.FS
 
-func IsClickhouseCluster(dsn string, clusterName string) (bool, error) {
+func IsClickhouseClusterReady(dsn string, clusterName string) (bool, error) {
 	var args []interface{}
 	sql := "SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters"
 	if clusterName != "" {
@@ -64,6 +66,8 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 		return "", err
 	}
 
+	// Values x-cluster-name and x-migrations-table-engine goes as part of query.
+	// Since only x-migrations-table-engine contains special chars only this one is needed not to be escaped.
 	q := u.Query()
 	if clusterName != "" {
 		logrus.Printf("Using ClickHouse cluster name: %s", clusterName)
@@ -81,11 +85,7 @@ func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, e
 	return u.String(), nil
 }
 
-func GetEngine(dsn string) string {
-	isCluster, err := IsClickhouseCluster(dsn, "")
-	if err != nil {
-		logrus.Fatalf("Error checking ClickHouse cluster status: %v", err)
-	}
+func GetEngine(isCluster bool) string {
 	if isCluster {
 		return metricsEngineCluster
 	}
@@ -95,32 +95,63 @@ func GetEngine(dsn string) string {
 
 func Run(dsn string, templateData map[string]any, isCluster bool, clusterName string) error {
 	if isCluster {
-		log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsn)
-		dsn, err := addClusterSchemaMigrationsParams(dsn, clusterName)
+		isClusterReady, err := IsClickhouseClusterReady(dsn, clusterName)
 		if err != nil {
 			return err
 		}
-		log.Printf("Adjusted DSN for migrations: %s", dsn)
+		if isClusterReady {
+			log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsnutils.RedactDSN(dsn))
+			dsn, err = addClusterSchemaMigrationsParams(dsn, clusterName)
+			if err != nil {
+				return err
+			}
+			log.Printf("Adjusted DSN for migrations: %s", dsnutils.RedactDSN(dsn))
+		}
 	}
 
-	// Prepare TemplateFS with provided template data
-	tfs := templatefs.NewTemplateFS(migrationFS, templateData)
-
-	// Use TemplateFS directly with golang-migrate
-	d, err := iofs.New(tfs, "sql")
+	tfs := templatefs.NewTemplateFS(eFS, templateData, "sql")
+	names, err := tfs.Names()
+	if err != nil {
+		return err
+	}
+	instance, err := bindata.WithInstance(
+		bindata.Resource(
+			names,
+			tfs.ReadFile))
 	if err != nil {
 		return err
 	}
 
-	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
+	m, err := migrate.NewWithSourceInstance("go-bindata", instance, dsn)
 	if err != nil {
 		return err
 	}
 
-	// run up to the latest migration
 	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
+	if err == nil || errors.Is(err, migrate.ErrNoChange) || errors.Is(err, io.EOF) {
 		return nil
+	}
+
+	// If the database is in dirty state, try to fix it (PMM-14305)
+	var errDirty migrate.ErrDirty
+	if errors.As(err, &errDirty) {
+		log.Printf("Migration %d was unsuccessful, trying to fix it...", errDirty.Version)
+
+		ver := errDirty.Version - 1
+		if ver == 0 {
+			// Note: since 0th migration does not exist, we set it to -1, which means "start from scratch"
+			ver = -1
+		}
+		err = m.Force(ver)
+		if err != nil {
+			return fmt.Errorf("can't force the migration %d: %w", ver, err)
+		}
+
+		// try to run migrations again, starting from the forced version
+		err = m.Up()
+		if errors.Is(err, migrate.ErrNoChange) || errors.Is(err, io.EOF) {
+			return nil
+		}
 	}
 
 	return err

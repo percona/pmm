@@ -18,6 +18,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
@@ -25,7 +26,6 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof" //nolint:gosec
-	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -38,7 +38,6 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -56,6 +55,7 @@ import (
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
+	"github.com/percona/pmm/utils/dsnutils"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -298,13 +298,7 @@ func main() {
 	} else {
 		dsn = *dsnF
 	}
-
-	u, err := url.Parse(dsn)
-	if err != nil {
-		l.Error("Failed to parse DSN: ", err)
-	} else {
-		l.Info("DSN: ", u.Redacted())
-	}
+	l.Info("DSN: ", dsnutils.RedactDSN(dsn))
 
 	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))

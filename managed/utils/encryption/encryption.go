@@ -39,13 +39,24 @@ var (
 	DefaultEncryptionKeyPath = "/srv/pmm-encryption.key"
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
-	// DefaultEncryption is the default implementation of encryption.
-	DefaultEncryption    = New()
+	// DefaultEncryption is the default implementation of encryption, lazily initialized.
+	defaultEncryption    *Encryption
 	defaultEncryptionMtx sync.Mutex
 )
 
 // CustomEncryptionKeyPathEnvVar is an environment variable to set custom encryption key path.
 const CustomEncryptionKeyPathEnvVar = "PMM_ENCRYPTION_KEY_PATH"
+
+// getDefaultEncryption returns the default encryption instance, initializing it lazily if needed.
+func getDefaultEncryption() *Encryption {
+	defaultEncryptionMtx.Lock()
+	defer defaultEncryptionMtx.Unlock()
+
+	if defaultEncryption == nil {
+		defaultEncryption = New()
+	}
+	return defaultEncryption
+}
 
 // Encryption contains fields required for encryption.
 type Encryption struct {
@@ -101,7 +112,7 @@ func New() *Encryption {
 	bytes, err := os.ReadFile(e.Path)
 	switch {
 	case os.IsNotExist(err):
-		err = e.generateKey()
+		err = e.generateAndPersistKey()
 		if err != nil {
 			logrus.Panicf("Encryption: %v", err)
 		}
@@ -128,7 +139,7 @@ func RotateEncryptionKey() error {
 	}
 
 	defaultEncryptionMtx.Lock()
-	DefaultEncryption = New()
+	defaultEncryption = New()
 	defaultEncryptionMtx.Unlock()
 
 	return nil
@@ -153,19 +164,28 @@ func backupOldEncryptionKey() error {
 	return nil
 }
 
-func (e *Encryption) generateKey() error {
+// GenerateKey generates a new encryption key.
+func (e *Encryption) GenerateKey() (string, error) {
 	handle, err := keyset.NewHandle(aead.AES256GCMKeyTemplate())
 	if err != nil {
-		return fmt.Errorf("failed to create keyset: %w", err)
+		return "", fmt.Errorf("failed to create keyset: %w", err)
 	}
 
 	buff := &bytes.Buffer{}
 	err = insecurecleartextkeyset.Write(handle, keyset.NewBinaryWriter(buff))
 	if err != nil {
-		return fmt.Errorf("failed to write encryption key: %w", err)
+		return "", fmt.Errorf("failed to write encryption key: %w", err)
 	}
-	e.Key = base64.StdEncoding.EncodeToString(buff.Bytes())
 
+	return base64.StdEncoding.EncodeToString(buff.Bytes()), nil
+}
+
+func (e *Encryption) generateAndPersistKey() error {
+	key, err := e.GenerateKey()
+	if err != nil {
+		return err
+	}
+	e.Key = key
 	return e.saveKeyToFile()
 }
 
@@ -175,7 +195,7 @@ func (e *Encryption) saveKeyToFile() error {
 
 // Encrypt is a wrapper around DefaultEncryption.Encrypt.
 func Encrypt(secret string) (string, error) {
-	return DefaultEncryption.Encrypt(secret)
+	return getDefaultEncryption().Encrypt(secret)
 }
 
 // Encrypt returns input string encrypted.
@@ -196,7 +216,7 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 
 // EncryptItems is a wrapper around DefaultEncryption.EncryptItems.
 func EncryptItems(tx *reform.TX, tables []Table) error {
-	return DefaultEncryption.EncryptItems(tx, tables)
+	return getDefaultEncryption().EncryptItems(tx, tables)
 }
 
 // EncryptItems will encrypt all columns provided in DB connection.
@@ -241,7 +261,7 @@ func (e *Encryption) EncryptItems(tx *reform.TX, tables []Table) error {
 
 // Decrypt is wrapper around DefaultEncryption.Decrypt.
 func Decrypt(cipherText string) (string, error) {
-	return DefaultEncryption.Decrypt(cipherText)
+	return getDefaultEncryption().Decrypt(cipherText)
 }
 
 // Decrypt returns input string decrypted.
@@ -266,7 +286,7 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 
 // DecryptItems is wrapper around DefaultEncryption.DecryptItems.
 func DecryptItems(tx *reform.TX, tables []Table) error {
-	return DefaultEncryption.DecryptItems(tx, tables)
+	return getDefaultEncryption().DecryptItems(tx, tables)
 }
 
 // DecryptItems will decrypt all columns provided in DB connection.

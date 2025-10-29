@@ -469,8 +469,6 @@ After creating your PMM database user, you can quickly add your MySQL service to
           --port=3306 \
           --tls \
           --tls-ca=/path/to/ca.pem \
-          --tls-cert=/path/to/client-cert.pem \
-          --tls-key=/path/to/client-key.pem \
           --query-source=slowlog \
           MySQL-TLS
         ```
@@ -508,6 +506,50 @@ After creating your PMM database user, you can quickly add your MySQL service to
         !!! caution "Security warning"
             The `allowCleartextPasswords=1` parameter transmits passwords without encryption. 
             Only use when connections are secured with TLS/SSL or over trusted networks.
+
+#### TLS/SSL certificate configuration
+
+PMM supports flexible TLS certificate configurations for MySQL connections, enabling you to use partial certificates when client authentication is not required.
+
+=== "Partial certificates (CA only)"
+
+For many cloud providers (Azure MySQL, Google Cloud SQL) and self-signed certificates, you only need the CA certificate to establish encrypted connections:
+```bash
+pmm-admin add mysql \
+  --username=pmm \
+  --password=StrongPassword \
+  --host=mysql-server.example.com \
+  --port=3306 \
+  --tls \
+  --tls-ca=/path/to/ca.pem \
+  --query-source=perfschema \
+  MySQL-Secure
+```
+
+=== "Full certificates (with client authentication)"
+
+When your MySQL server requires client certificate authentication, provide all three certificate files:
+```bash
+pmm-admin add mysql \
+  --username=pmm \
+  --password=StrongPassword \
+  --host=mysql-server.example.com \
+  --port=3306 \
+  --tls \
+  --tls-ca=/path/to/ca.pem \
+  --tls-cert=/path/to/client-cert.pem \
+  --tls-key=/path/to/client-key.pem \
+  --query-source=perfschema \
+  MySQL-TLS-Full
+```
+
+**Certificate requirements:**
+
+- `--tls-ca`: CA certificate (required for TLS connections)
+- `--tls-cert`: Client certificate (optional, only needed for client authentication)
+- `--tls-key`: Client private key (optional, only needed for client authentication)
+
+Keep in mind that providing only client certificate and key without the CA is not supported.
 
 ### After adding the service
 

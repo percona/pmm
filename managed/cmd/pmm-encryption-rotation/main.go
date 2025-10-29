@@ -26,6 +26,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	encryptionService "github.com/percona/pmm/managed/services/encryption"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -37,9 +38,37 @@ func main() {
 
 	logger.SetupGlobalLogger()
 
-	logrus.Infof("PMM Encryption Rotation Tools version: %s", version.Version)
+	var opts flags
+	kong.Parse(
+		&opts,
+		kong.Name("encryption-rotation"),
+		kong.Description(fmt.Sprintf("Version %s", version.Version)), //nolint:perfsprint
+		kong.UsageOnError(),
+		kong.ConfigureHelp(kong.HelpOptions{
+			Compact:             true,
+			NoExpandSubcommands: true,
+		}),
+		kong.Vars{
+			"address":             models.DefaultPostgreSQLAddr,
+			"disable_sslmode":     models.DisableSSLMode,
+			"require_sslmode":     models.RequireSSLMode,
+			"verify_sslmode":      models.VerifyCaSSLMode,
+			"verify_full_sslmode": models.VerifyFullSSLMode,
+		},
+	)
 
-	sqlDB, err := models.OpenDB(setupParams())
+	if opts.GenerateKey {
+		e := &encryption.Encryption{}
+		key, err := e.GenerateKey()
+		if err != nil {
+			logrus.Errorf("Failed to generate key: %v", err)
+			os.Exit(1)
+		}
+		fmt.Print(key) //nolint:forbidigo
+		os.Exit(0)
+	}
+
+	sqlDB, err := models.OpenDB(setupParams(opts))
 	if err != nil {
 		logrus.Error(err)
 		os.Exit(codeDBConnectionFailed)
@@ -62,28 +91,10 @@ type flags struct {
 	SSLCAPath   string `name:"postgres-ssl-ca-path" help:"PostgreSQL SSL CA root certificate path" type:"path"`
 	SSLKeyPath  string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
 	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
+	GenerateKey bool   `name:"generate-key" help:"Only generate a new encryption key and print to stdout"`
 }
 
-func setupParams() models.SetupDBParams {
-	var opts flags
-	kong.Parse(
-		&opts,
-		kong.Name("encryption-rotation"),
-		kong.Description(fmt.Sprintf("Version %s", version.Version)), //nolint:perfsprint
-		kong.UsageOnError(),
-		kong.ConfigureHelp(kong.HelpOptions{
-			Compact:             true,
-			NoExpandSubcommands: true,
-		}),
-		kong.Vars{
-			"address":             models.DefaultPostgreSQLAddr,
-			"disable_sslmode":     models.DisableSSLMode,
-			"require_sslmode":     models.RequireSSLMode,
-			"verify_sslmode":      models.VerifyCaSSLMode,
-			"verify_full_sslmode": models.VerifyFullSSLMode,
-		},
-	)
-
+func setupParams(opts flags) models.SetupDBParams {
 	return models.SetupDBParams{
 		Address:     opts.Address,
 		Name:        opts.DBName,

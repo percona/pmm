@@ -31,18 +31,18 @@ import (
 
 const (
 	encryptionKeyTestPath = "/srv/pmm-encryption-rotation-test.key"
-	originEncryptionKey   = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
-	// pmm-managed-username encrypted with originEncryptionKey
-	originUsernameHash = `AYxEFsZsg7lp9+eSy6+wPFHlaNNy0ZpTbYN0NuCLPnQOZUYf2S6H9B+XJdF4+DscxC/pJwI=`
-	// pmm-managed-password encrypted with originEncryptionKey
-	originPasswordHash = `AYxEFsZuL5xZb5IxGGh8NI6GrjDxCzFGxIcHe94UXcg+dnZphu7GQSgmZm633XvZ8CBU2wo=` //nolint:gosec
+	originalEncryptionKey = `CMatkOIIEmQKWAowdHlwZS5nb29nbGVhcGlzLmNvbS9nb29nbGUuY3J5cHRvLnRpbmsuQWVzR2NtS2V5EiIaIKDxOKZxwiJl5Hj6oPZ/unTzmAvfwHWzZ1Wli0vac15YGAEQARjGrZDiCCAB`
+	// pmm-managed-username encrypted with originalEncryptionKey
+	originalUsernameHash = `AYxEFsZsg7lp9+eSy6+wPFHlaNNy0ZpTbYN0NuCLPnQOZUYf2S6H9B+XJdF4+DscxC/pJwI=`
+	// pmm-managed-password encrypted with originalEncryptionKey
+	originalPasswordHash = `AYxEFsZuL5xZb5IxGGh8NI6GrjDxCzFGxIcHe94UXcg+dnZphu7GQSgmZm633XvZ8CBU2wo=` //nolint:gosec
 )
 
 func TestEncryptionRotation(t *testing.T) {
 	db := testdb.Open(t, models.SkipFixtures, nil)
 	defer db.Close() //nolint:errcheck
 
-	err := createOriginEncryptionKey(t)
+	err := createOriginalEncryptionKey(t)
 	require.NoError(t, err)
 
 	err = insertTestData(db)
@@ -54,7 +54,7 @@ func TestEncryptionRotation(t *testing.T) {
 
 	newEncryptionKey, err := os.ReadFile(encryptionKeyTestPath)
 	require.NoError(t, err)
-	require.NotEqual(t, newEncryptionKey, []byte(originEncryptionKey))
+	require.NotEqual(t, newEncryptionKey, []byte(originalEncryptionKey))
 
 	err = checkNewlyEncryptedData(db)
 	require.NoError(t, err)
@@ -63,14 +63,14 @@ func TestEncryptionRotation(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func createOriginEncryptionKey(t *testing.T) error {
+func createOriginalEncryptionKey(t *testing.T) error {
 	t.Helper()
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, encryptionKeyTestPath)
-	err := os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o600)
+	err := os.WriteFile(encryptionKeyTestPath, []byte(originalEncryptionKey), 0o600)
 	if err != nil {
 		return err
 	}
-	encryption.DefaultEncryption = encryption.New()
+	// Encryption will be lazily initialized when first used
 	return nil
 }
 
@@ -101,7 +101,7 @@ func insertTestData(db *sql.DB) error {
 	_, err = db.Exec(
 		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
-		originUsernameHash, originPasswordHash, now, now)
+		originalUsernameHash, originalPasswordHash, now, now)
 	if err != nil {
 		return err
 	}
@@ -116,10 +116,10 @@ func checkNewlyEncryptedData(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	if newlyEncryptedUsername == originUsernameHash {
+	if newlyEncryptedUsername == originalUsernameHash {
 		return errors.New("username hash not rotated properly")
 	}
-	if newlyEncryptedPassword == originPasswordHash {
+	if newlyEncryptedPassword == originalPasswordHash {
 		return errors.New("password hash not rotated properly")
 	}
 
