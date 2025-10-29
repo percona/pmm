@@ -1,41 +1,15 @@
 import { useContext, useRef } from 'react';
 import { ColorModeContext } from '@percona/design';
 import messenger from 'lib/messenger';
+import { ColorMode } from '@pmm/shared';
 import { grafanaApi } from 'api/api';
+import { useUpdatePreferences } from '../hooks/api/useUser';
 
-type Mode = 'light' | 'dark';
-
-/** Normalizes any incoming value to 'light' | 'dark'. */
-function normalizeMode(v: unknown): Mode {
+/** Normalize any incoming value to 'light' | 'dark'. */
+function normalizeMode(v: unknown): ColorMode {
   if (typeof v === 'string' && v.toLowerCase() === 'dark') return 'dark';
   if (v === true) return 'dark';
   return 'light';
-}
-
-/** Idempotently applies theme attributes to <html>. */
-function applyDocumentTheme(mode: Mode) {
-  const html = document.documentElement as HTMLElement & {
-    style: CSSStyleDeclaration & { colorScheme?: string };
-  };
-  const scheme = mode === 'dark' ? 'percona-dark' : 'percona-light';
-  const wantDark = mode === 'dark';
-  const hasDarkClass = html.classList.contains('dark');
-
-  // If everything (including the Tailwind 'dark' class) is already correct, skip.
-  if (
-    html.getAttribute('data-theme') === mode &&
-    html.getAttribute('data-md-color-scheme') === scheme &&
-    html.style.colorScheme === mode &&
-    hasDarkClass === wantDark
-  ) {
-    return;
-  }
-
-  html.classList.toggle('dark', wantDark);
-
-  html.setAttribute('data-theme', mode);
-  html.setAttribute('data-md-color-scheme', scheme);
-  html.style.colorScheme = mode;
 }
 
 /**
@@ -46,12 +20,14 @@ function applyDocumentTheme(mode: Mode) {
  */
 export function useSetTheme() {
   const { colorMode, toggleColorMode } = useContext(ColorModeContext);
-  const modeRef = useRef<Mode>(normalizeMode(colorMode));
+  const modeRef = useRef<ColorMode>(normalizeMode(colorMode));
+
+  const { mutateAsync: updatePreferences } = useUpdatePreferences();
 
   // Keep the reference always up-to-date with current color mode
   modeRef.current = normalizeMode(colorMode);
 
-  /** Apply theme locally (left UI) in an idempotent way */
+  /** Apply theme locally via design system only (no direct DOM mutations). */
   const applyLocal = (nextRaw: unknown) => {
     const next = normalizeMode(nextRaw);
     if (modeRef.current !== next) {
@@ -59,17 +35,9 @@ export function useSetTheme() {
       toggleColorMode();
       modeRef.current = next;
     }
-    // Ensure <html> attributes match immediately (CSS consumes these)
-    applyDocumentTheme(next);
-
-    try {
-      localStorage.setItem('colorMode', next);
-    } catch (err) {
-      console.warn('[useSetTheme] Failed to save theme to localStorage:', err);
-    }
   };
 
-  /** Low-level primitive with options to avoid ping-pong and over-persisting */
+  /** Low-level primitive to apply/persist/broadcast theme as needed. */
   const setThemeBase = async (
     nextRaw: unknown,
     opts: { broadcast?: boolean; persist?: boolean } = {
@@ -79,11 +47,12 @@ export function useSetTheme() {
   ) => {
     const next = normalizeMode(nextRaw);
 
-    // 1) local apply (instant, idempotent)
+    // 1) Local apply (instant, idempotent)
     applyLocal(next);
 
-    // 2) persist to Grafana (only for left-initiated actions)
+    // 2) Persist to Grafana (only for left-initiated actions)
     if (opts.persist) {
+      await updatePreferences({ theme: next });
       try {
         await grafanaApi.put('/user/preferences', { theme: next });
       } catch (err) {
@@ -94,12 +63,12 @@ export function useSetTheme() {
       }
     }
 
-    // 3) notify iframe (only when we are the initiator, not when we sync from Grafana)
+    // 3) Notify iframe (only when we are the initiator, not when syncing from Grafana)
     if (opts.broadcast) {
       try {
         messenger.sendMessage({
           type: 'CHANGE_THEME',
-          payload: { theme: next },
+          payload: { mode: next },
         });
       } catch (err) {
         console.warn('[useSetTheme] Failed to send CHANGE_THEME message:', err);
@@ -108,15 +77,15 @@ export function useSetTheme() {
   };
 
   /**
-   * Public API kept backward compatible:
-   * - setTheme(next): left action — apply + persist + broadcast (same behavior as before)
-   * - setFromGrafana(next): right→left sync — apply only (no persist, no broadcast)
+   * Public API:
+   * - setTheme(next): left action — apply + persist + broadcast.
+   * - setFromGrafana(next): right→left sync — apply only (no persist, no broadcast).
    */
-  async function setTheme(next: Mode | string | boolean) {
+  async function setTheme(next: ColorMode | string | boolean) {
     await setThemeBase(next, { broadcast: true, persist: true });
   }
 
-  async function setFromGrafana(next: Mode | string | boolean) {
+  async function setFromGrafana(next: ColorMode | string | boolean) {
     await setThemeBase(next, { broadcast: false, persist: false });
   }
 
