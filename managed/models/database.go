@@ -1147,7 +1147,7 @@ var databaseSchema = [][]string{
 		`UPDATE agents SET valkey_options = '{}'::jsonb`,
 	},
 	112: {
-		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
+		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatements-agent' AND service_id = (SELECT service_id FROM services WHERE service_name = 'pmm-server-postgresql' LIMIT 1);`,
 	},
 }
 
