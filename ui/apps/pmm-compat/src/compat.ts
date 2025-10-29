@@ -5,6 +5,7 @@ import {
   DashboardVariablesMessage,
   HistoryAction,
   LocationChangeMessage,
+  ColorMode,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
@@ -17,13 +18,6 @@ import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver } from 'lib/utils/document';
-
-type ColorMode = 'light' | 'dark';
-
-// Keep using the same string message types the file already uses elsewhere.
-// If your shared package exports MessageType enum, swap the string with it:
-// e.g. MessageType.GRAFANA_THEME_CHANGED / MessageType.CHANGE_THEME
-const MSG_GRAFANA_THEME_CHANGED = 'GRAFANA_THEME_CHANGED' as const;
 
 export const initialize = () => {
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
@@ -59,7 +53,7 @@ export const initialize = () => {
   // Initial emit from Grafana current config
   const initial: ColorMode = config?.theme2?.colors?.mode === 'dark' ? 'dark' : 'light';
   messenger.sendMessage({
-    type: MSG_GRAFANA_THEME_CHANGED,
+    type: 'GRAFANA_THEME_CHANGED',
     payload: { theme: initial },
   });
 
@@ -78,7 +72,7 @@ export const initialize = () => {
     const next: ColorMode = raw?.toLowerCase() === 'dark' ? 'dark' : 'light';
 
     messenger.sendMessage({
-      type: MSG_GRAFANA_THEME_CHANGED,
+      type: 'GRAFANA_THEME_CHANGED',
       payload: { theme: next },
     });
   });
@@ -110,7 +104,6 @@ export const initialize = () => {
 
   let prevLocation: Location | undefined;
   locationService.getHistory().listen((location: Location, action: HistoryAction) => {
-    // re-add custom toolbar buttons after closing kiosk mode
     if (prevLocation?.search.includes('kiosk') && !location.search.includes('kiosk')) {
       adjustToolbar();
     }
