@@ -128,11 +128,30 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 	}
 
 	err = m.Up()
-	if err != nil {
+	if err == nil || errors.Is(err, migrate.ErrNoChange) || errors.Is(err, io.EOF) {
+		return nil
+	}
+
+	// If the database is in dirty state, try to fix it (PMM-14305)
+	var errDirty migrate.ErrDirty
+	if errors.As(err, &errDirty) {
+		log.Printf("Migration %d was unsuccessful, trying to fix it...", errDirty.Version)
+
+		ver := errDirty.Version - 1
+		if ver == 0 {
+			// Note: since 0th migration does not exist, we set it to -1, which means "start from scratch"
+			ver = -1
+		}
+		err = m.Force(ver)
+		if err != nil {
+			return fmt.Errorf("can't force the migration %d: %w", ver, err)
+		}
+
+		// try to run migrations again, starting from the forced version
+		err = m.Up()
 		if errors.Is(err, migrate.ErrNoChange) || errors.Is(err, io.EOF) {
 			return nil
 		}
-		logrus.Errorf("[Run] Migration failed: %v", err)
 	}
 
 	return err
