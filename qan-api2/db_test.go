@@ -51,7 +51,7 @@ func setup() *sqlx.DB {
 	}
 
 	data := map[string]any{
-		"engine": migrations.GetEngine(dsn),
+		"engine": migrations.GetEngine(false),
 	}
 	err = migrations.Run(dsn, data, false, "")
 	if err != nil {
