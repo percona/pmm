@@ -597,9 +597,9 @@ func TestAddMongoDB(t *testing.T) {
 				},
 			},
 		}
-		addProxySQLOK, err := client.Default.ManagementService.AddService(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
-		assert.Nil(t, addProxySQLOK)
+		assert.Nil(t, addMongoDBOK)
 	})
 
 	t.Run("Socket", func(t *testing.T) {
