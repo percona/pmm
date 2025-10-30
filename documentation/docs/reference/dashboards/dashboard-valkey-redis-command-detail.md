@@ -88,7 +88,7 @@ Use this to understand command performance characteristics and identify outliers
 
 The horizontal bar chart format makes it easy to compare latency across different command types and identify which commands have the highest execution times. Commands with high percentile values may need optimization through indexing, query restructuring, or identifying resource bottlenecks. 
 
-The legend displays mean, max, and min percentile values sorted by mean, helping prioritize which commands most significantly impact overall latency. Monitor this alongside command frequency to determine which slow commands have the biggest impact on user experience.
+Statistics show mean, max, and min percentile values sorted by mean, helping prioritize commands with the biggest latency impact. Monitor this alongside command frequency to identify slow commands affecting user experience.
 
 ## Latency by command
 

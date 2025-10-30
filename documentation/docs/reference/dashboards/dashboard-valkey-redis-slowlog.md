@@ -6,7 +6,7 @@ This dashboard monitors slow command execution across Valkey/Redis instances usi
 
 ## Slowlog
 
-### Slowlog length
+### Slowlog Length
 
 Displays the number of entries currently in the slowlog for each service.
 
@@ -16,7 +16,7 @@ A growing slowlog length indicates an increasing number of slow operations, whil
 
 The slowlog has a maximum size (set by `slowlog-max-len`), so very high values may indicate the log is full and old entries are being discarded. Monitor this to identify when performance issues emerge and review slowlog entries to find problematic queries.
 
-### Slowlog maxlength
+### Slowlog Maxlength
 
 Displays the configured maximum number of slowlog entries that can be stored for each service in a table format.
 
@@ -38,7 +38,7 @@ Rising trends indicate increasing slow operations that may require investigation
 
 Compare with per-service slowlog length to identify which services contribute most to slow queries. Monitor this for early detection of performance degradation affecting multiple services.
 
-### Slowlog slower than (ms)
+### Slowlog Slower Than (ms)
 
 Displays the configured threshold in milliseconds above which commands are logged to the slowlog for each service in a table format.
 

@@ -36,9 +36,9 @@ Compare read versus write rates to determine if your workload is read-heavy, wri
 
 Displays the five commands with the highest p99.9 latency over the last 10 seconds, measured in microseconds.
 
-Use this to quickly identify the slowest operations currently impacting performance. The panel shows p99.9 percentile latency (worst-case performance for 99.9% of operations), focusing on commands that matter for user experience. 
+Use this to quickly identify the slowest operations currently impacting performance. The panel shows p99.9 percentile latency (worst-case for 99.9% of operations). 
 
-Administrative and diagnostic commands are excluded from the list. High latency values indicate performance bottlenecks requiring investigation. Monitor this for real-time visibility into which commands need optimization.
+Administrative and diagnostic commands are excluded. High latency values indicate performance bottlenecks requiring investigation.
 
 ### Avg Latency
 
@@ -60,12 +60,10 @@ When used memory approaches the max limit, eviction begins. The legend displays 
 
 ### Cumulative network I/O
 
-Displays the total rate of network input and output traffic in bytes per second across all selected nodes.
+Displays total network input and output traffic in bytes per second across all selected nodes.
 
-Use this to monitor aggregate network bandwidth consumption. The graph shows two lines: input (inbound traffic) and output (outbound traffic). 
+Use this to monitor aggregate bandwidth consumption. The graph shows input (inbound) and output (outbound) traffic. 
 
-The legend displays mean, max, and min rates to track typical and peak network usage. 
+The legend displays mean, max, and min rates. Compare input versus output to understand traffic patterns. Read-heavy workloads show higher output, while write-heavy workloads show higher input. 
 
-Compare input versus output to understand traffic patterns. Read-heavy workloads show higher output, while write-heavy workloads show higher input. 
-
-This cluster-wide view helps you assess total network utilization and identify bandwidth constraints.
+This cluster-wide view helps assess total network utilization and identify bandwidth constraints.

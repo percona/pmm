@@ -24,12 +24,11 @@ The timeline view shows historical role states, helping correlate role changes w
 
 Displays replication offsets in bytes for both primary and replica nodes, showing how current each replica is with the primary's write operations.
 
-Use this to monitor replication lag and ensure replicas stay synchronized. The replication offset tracks the position in the replication stream - when primary and replica offsets match, the replica is fully caught up. 
+Use this to monitor replication lag and ensure replicas stay synchronized. When primary and replica offsets match, the replica is fully caught up. Diverging lines indicate lag where replicas are processing operations behind the primary. 
 
-Diverging lines indicate replication lag, where the replica is processing operations behind the primary. Large or growing gaps suggest network issues, replica overload, or slow disk I/O on replicas. 
+Large or growing gaps suggest network issues, replica overload, or slow disk I/O. Statistics show mean, max, and min offsets to identify typical and peak lag. 
 
-The legend shows mean, max, and min offsets to identify typical lag and peak delays. Monitor this to ensure read replicas serve current data and to detect replication problems before they impact availability.
-
+Monitor this to ensure read replicas serve current data and to detect replication problems before they impact availability.
 ### Replicas
 
 Displays the total number of replicas connected to primary nodes over time.
@@ -50,7 +49,7 @@ Primary nodes should show their replica count, while replica nodes typically sho
 
 Nodes with fewer replicas than expected may indicate connection issues or failed replicas requiring investigation.
 
-### Full resyncs
+### Full Resyncs
 
 Displays the total count of full resynchronization operations for each node in a table format.
 
@@ -62,7 +61,7 @@ High or increasing counts indicate frequent disconnections, insufficient backlog
 
 Full resyncs are resource-intensive, consuming significant CPU, memory, and network bandwidth. Monitor this to optimize replication backlog settings and investigate connection stability issues.
 
-### Partial resyncs
+### Partial Resyncs
 
 Displays the total count of accepted partial resynchronization operations for each node in a table format.
 
@@ -84,7 +83,7 @@ Larger backlogs enable replicas to reconnect after longer disconnections without
 
 If you see frequent full resyncs in the previous panels, consider increasing the backlog size. Typical values range from 1MB to several hundred MB depending on write rate and expected disconnection duration.
 
-### Backlog first byte offset
+### Backlog First Byte Offset
 
 Displays the replication offset of the first byte in the replication backlog for each node in a table format.
 

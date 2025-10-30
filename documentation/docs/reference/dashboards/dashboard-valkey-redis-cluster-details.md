@@ -52,13 +52,9 @@ Sudden role changes may indicate planned failovers, automatic failover due to pr
 
 Displays the replication offset difference between primary nodes and their replicas, measured in bytes.
 
-Use this to monitor replication lag and identify replicas falling behind their primaries. Lower values indicate replicas are closely synchronized with replication, while higher values suggest lag that could impact data consistency during reads from replicas and affect failover readiness. 
+Use this to monitor replication lag and identify replicas falling behind. Lower values indicate replicas are closely synchronized, while higher values suggest lag that could impact data consistency and failover readiness. 
 
-The graph shows the byte difference for each replica, with the legend displaying mean, maximum, and minimum lag values sorted by average lag. 
-
-Consistently high or growing offset differences may indicate network issues, resource constraints on replicas (CPU, memory, or disk I/O), or excessive write load on primaries that replicas cannot keep pace with. 
-
-Zero or near-zero values indicate replicas are fully caught up.
+Summary statistics show mean, max, and min lag values sorted by average. High or growing differences may indicate network issues, resource constraints on replicas, or excessive write load. Zero or near-zero values indicate replicas are fully caught up.
 
 ### Replicas
 
