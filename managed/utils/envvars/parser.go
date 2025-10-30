@@ -103,8 +103,15 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_DISABLE_BUILTIN_CLICKHOUSE":
 			// skip env variables for external clickhouse
 			continue
+		case "PMM_POSTGRES_DBNAME", "PMM_POSTGRES_ADDR",
+			"PMM_POSTGRES_USERNAME", "PMM_POSTGRES_DBPASSWORD",
+			"PMM_POSTGRES_SSL_MODE", "PMM_POSTGRES_SSL_CA_PATH",
+			"PMM_POSTGRES_SSL_CERT_PATH", "PMM_POSTGRES_SSL_KEY_PATH",
+			"PMM_DISABLE_BUILTIN_POSTGRES":
+			// skip env variables for external postgres
+			continue
 		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
-			// skip watchtower environement variables
+			// skip watchtower environment variables
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
