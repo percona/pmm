@@ -425,6 +425,17 @@ nav:
               - reference/dashboards/dashboard-postgresql-topqueries.md
           - ProxySQL dashboards:
               - reference/dashboards/dashboard-proxysql-instance-summary.md
+          - Valkey/Redis dashboards:
+              - reference/dashboards/valkey-redis-clients.md
+              - reference/dashboards/valkey-redis-cluster-details.md
+              - reference/dashboards/valkey-redis-command-details.md
+              - reference/dashboards/valkey-redis-load.md
+              - reference/dashboards/valkey-redis-memory.md
+              - reference/dashboards/valkey-redis-network.md
+              - reference/dashboards/valkey-redis-overview.md
+              - reference/dashboards/valkey-redis-persistence.md
+              - reference/dashboards/valkey-redis-replication.md
+              - reference/dashboards/valkey-redis-slowlog.md
           - HA dashboards:
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
               - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
