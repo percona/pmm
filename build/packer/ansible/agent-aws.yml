@@ -4,10 +4,12 @@
   become: true
   vars:
     docker_compose_version: "2.26.1"
-    kubectl_version: "1.29.2"
-    doctl_version: "1.105.0"
+    kubectl_version: "1.33.5"
+    doctl_version: "1.145.0"
     node_version: "22.x"
-    goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
+    goreleaser_version: "2.12.5" # https://github.com/goreleaser/goreleaser/releases
+    eksctl_version: "0.215.0"
+    helm_version: "3.19.0"
 
   tasks:
     - name: Detect vm architecture
@@ -45,7 +47,7 @@
       systemd:
         name: docker
         enabled: yes
-        state: started
+        state: stopped # we start it later after copying daemon.json
 
     - name: Install packages
       dnf:
@@ -102,7 +104,7 @@
 
     - name: Install kubectl
       get_url:
-        url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubectl_version }}/bin/linux/{{ ansible_architecture_alt }}/kubectl
+        url: https://dl.k8s.io/release/v{{ kubectl_version }}/bin/linux/{{ ansible_architecture_alt }}/kubectl
         dest: /usr/local/bin/kubectl
         mode: "u+x,g+x,o+x"
 
@@ -130,11 +132,36 @@
         state: present
         disable_gpg_check: yes
 
-    - name: install latest YQ (YAML processor)
+    - name: Install latest YQ (YAML processor) 
       get_url:
         url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         dest: /usr/bin/yq
         mode: "555"
+
+    - name: Download eksctl
+      get_url:
+        url: "https://github.com/eksctl-io/eksctl/releases/download/v{{ eksctl_version }}/eksctl_Linux_{{ ansible_architecture_alt }}.tar.gz"
+        dest: /tmp/eksctl.tar.gz
+
+    - name: Unarchive and install eksctl
+      unarchive:
+        src: /tmp/eksctl.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: "u+x,g+x,o+x"
+
+    - name: Download Helm
+      get_url:
+        url: "https://get.helm.sh/helm-v{{ helm_version }}-linux-{{ ansible_architecture_alt }}.tar.gz"
+        dest: /tmp/helm.tar.gz
+
+    - name: Unarchive and install Helm
+      unarchive:
+        src: /tmp/helm.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+        mode: "u+x,g+x,o+x"
 
     - name: Install Python's virtualenv
       command: python3 -m venv /home/ec2-user/venv
@@ -144,12 +171,12 @@
         name: "{{ item }}"
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==24.7.0
+        - pyaml==24.12.1
         - GitPython==3.1.43
-        - PyGithub==2.3.0
+        - PyGithub==2.5.0
         - python-digitalocean==1.17.0
         - docker==7.1.0
-        - linode-cli==5.50.0
+        - linode-cli==5.55.0
 
     - name: Copy docker daemon config
       copy:
@@ -178,6 +205,8 @@
       loop:
         - /tmp/doctl.tar.gz
         - /tmp/aws
+        - /tmp/eksctl.tar.gz
+        - /tmp/helm.tar.gz
 
     - name: Add ec2-user user to "docker" group
       user:
@@ -193,6 +222,7 @@
       loop:
         - debian:bullseye
         - debian:bookworm
+        - debian:trixie
         - ubuntu:jammy
         - ubuntu:noble
         - oraclelinux:8
@@ -200,6 +230,39 @@
         - oraclelinux:10
         - public.ecr.aws/e7j3v3n0/rpmbuild:3
         - public.ecr.aws/e7j3v3n0/rpmbuild:3-ol8
+
+    - name: Install AWS Session Manager
+      dnf:
+        state: present
+        disable_gpg_check: true
+        name: https://s3.us-east-2.amazonaws.com/amazon-ssm-us-east-2/latest/linux_{{ ansible_architecture_alt }}/amazon-ssm-agent.rpm
+
+    - name: Enable Session Manager Service
+      systemd_service:
+        name: amazon-ssm-agent
+        state: started
+        enabled: true
+
+    - name: Add ssm-user to some groups
+      user:
+        name: "ssm-user"
+        groups:
+          - docker
+          - systemd-journal
+        append: yes
+
+    - name: Grant ssm-user sudo privileges
+      copy:
+        content: "ssm-user ALL=(ALL) NOPASSWD:ALL"
+        dest: /etc/sudoers.d/ssm-agent-users
+        mode: 0440
+
+    - name: Set SELinux context for ssm-user
+      seuser:
+        name: ssm-user
+        seuser: unconfined_u
+        serange: s0-s0:c0.c1023
+        state: present
 
     - name: Turn off swap
       sysctl:
