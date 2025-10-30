@@ -104,6 +104,7 @@ export const initialize = () => {
 
   let prevLocation: Location | undefined;
   locationService.getHistory().listen((location: Location, action: HistoryAction) => {
+    // re-add custom toolbar buttons after closing kiosk mode
     if (prevLocation?.search.includes('kiosk') && !location.search.includes('kiosk')) {
       adjustToolbar();
     }
