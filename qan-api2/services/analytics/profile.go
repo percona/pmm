@@ -39,7 +39,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 	periodDurationSec := periodStartToSec - periodStartFromSec
 
 	if _, ok := standartDimensions[in.GroupBy]; !ok {
-		return nil, fmt.Errorf("unknown group dimension: %q", in.GroupBy)
+		return nil, fmt.Errorf("unknown group dimension: %#q", in.GroupBy)
 	}
 	group := in.GroupBy
 
@@ -110,7 +110,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 
 	order, orderCol := getOrderBy(in.OrderBy, uniqColumns[0])
 	if _, ok := uniqColumnsMap[orderCol]; !ok {
-		return nil, fmt.Errorf("order column %q not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
+		return nil, fmt.Errorf("order column %#q not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
 	}
 
 	resp := &qanpb.GetReportResponse{}
