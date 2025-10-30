@@ -6,7 +6,7 @@ import {
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
-import { ColorMode, NavState } from '@pmm/shared';
+import { ColorMode, LocationState } from '@pmm/shared';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
 import { useSetTheme } from 'themes/setTheme';
@@ -40,7 +40,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   // Theme sources
   const { colorMode } = useColorMode();
   const { setFromGrafana } = useSetTheme();
-  const lastSentThemeRef = useRef<ColorMode>('light');
+  // const lastSentThemeRef = useRef<ColorMode>('light');
 
   useEffect(() => {
     if (isGrafanaPage) setIsLoaded(true);
@@ -100,18 +100,26 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       },
     });
 
+    // Grafana -> PMM: document title
+    messenger.addListener({
+      type: 'DOCUMENT_TITLE_CHANGE',
+      onMessage: ({ payload }: { payload?: { title?: string } }) => {
+        if (payload?.title) document.title = payload.title;
+      },
+    });
+
+    // Cleanup once provider unmounts
     return () => {
       messenger.unregister();
     };
   }, [isLoaded, navigate, setFromGrafana]);
 
   // -------- OUTGOING TO GRAFANA --------
-
   // PMM -> Grafana: propagate PMM location (except if it came from Grafana)
   useEffect(() => {
     if (!isBrowser()) return;
 
-    const state = location.state as NavState;
+    const state = location.state as LocationState;
     if (!location.pathname.includes('/graph') || state?.fromGrafana) return;
 
     messenger.sendMessage({
@@ -128,16 +136,11 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   // PMM -> Grafana: propagate theme when left-side theme changes
   useEffect(() => {
     if (!isLoaded || !isBrowser()) return;
-
-    const mode: ColorMode = colorMode === 'dark' ? 'dark' : 'light';
-    if (lastSentThemeRef.current !== mode) {
-      lastSentThemeRef.current = mode;
-      messenger.sendMessage({
-        type: 'CHANGE_THEME',
-        payload: { theme: mode },
-      });
-    }
-  }, [isLoaded, colorMode]);
+    messenger.sendMessage({
+      type: 'CHANGE_THEME',
+      payload: { theme: colorMode }, // no extra normalization
+    });
+  }, [colorMode, isLoaded]);
 
   return (
     <GrafanaContext.Provider
