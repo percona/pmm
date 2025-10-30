@@ -332,6 +332,7 @@ nav:
 
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.5.0 (2025-09-15)": release-notes/3.5.0.md
       - "PMM 3.4.0 (2025-09-15)": release-notes/3.4.0.md
       - "PMM 3.3.1 (2025-07-30)": release-notes/3.3.1.md
       - "PMM 3.3.0 (2025-07-09)": release-notes/3.3.0.md
@@ -426,16 +427,16 @@ nav:
           - ProxySQL dashboards:
               - reference/dashboards/dashboard-proxysql-instance-summary.md
           - Valkey/Redis dashboards:
-              - reference/dashboards/valkey-redis-clients.md
-              - reference/dashboards/valkey-redis-cluster-details.md
-              - reference/dashboards/valkey-redis-command-details.md
-              - reference/dashboards/valkey-redis-load.md
-              - reference/dashboards/valkey-redis-memory.md
-              - reference/dashboards/valkey-redis-network.md
-              - reference/dashboards/valkey-redis-overview.md
-              - reference/dashboards/valkey-redis-persistence.md
-              - reference/dashboards/valkey-redis-replication.md
-              - reference/dashboards/valkey-redis-slowlog.md
+              - reference/dashboards/dashboard-valkey-redis-clients.md
+              - reference/dashboards/dashboard-valkey-redis-cluster-details.md
+              - reference/dashboards/dashboard-valkey-redis-command-detail.md
+              - reference/dashboards/dashboard-valkey-redis-load.md
+              - reference/dashboards/dashboard-valkey-redis-memory.md
+              - reference/dashboards/dashboard-valkey-redis-network.md
+              - reference/dashboards/dashboard-valkey-redis-overview.md
+              - reference/dashboards/dashboard-valkey-redis-persistence-details.md
+              - reference/dashboards/dashboard-valkey-redis-replication.md
+              - reference/dashboards/dashboard-valkey-redis-slowlog.md
           - HA dashboards:
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
               - reference/dashboards/dashboard-pxc-galera-cluster-summary.md

@@ -1,7 +1,8 @@
 # Valkey/Redis Load
 
-This dashboard monitors workload distribution, throughput, and resource utilization across Valkey/Redis nodes and services. Use it to track command rates, analyze read/write patterns, assess cache effectiveness, monitor I/O threading performance, and identify load imbalances that may require capacity adjustments or traffic redistribution.
+This dashboard monitors workload distribution, throughput, and resource utilization across Valkey/Redis nodes and services. 
 
+Use it to track command rates, analyze read/write patterns, assess cache effectiveness, monitor I/O threading performance, and identify load imbalances that may require capacity adjustments or traffic redistribution.
 
 ![!Valkey/Redis Load dashboard](../../images/valkey-load.png)
 
@@ -43,7 +44,7 @@ Displays the rate of each individual command type executed per second, broken do
 
 Use this to analyze command-level traffic patterns at the node level and identify which operations dominate each node's workload. 
 
-The stacked area chart shows the contribution of each command type (GET, SET, HGET, ZADD, etc.) to total throughput, making it easy to spot command usage trends and load distribution patterns. This granular view helps identify whether nodes are handling similar workload compositions or if certain nodes are specialized for specific operation types. 
+The stacked area chart shows the contribution of each command type (`GET`, `SET`, `HGET`, `ZADD`, etc.) to total throughput, making it easy to spot command usage trends and load distribution patterns. This granular view helps identify whether nodes are handling similar workload compositions or if certain nodes are specialized for specific operation types. 
 
 The legend displays mean, max, and min rates for each command, helping you understand both typical load and peak demands. 
 
@@ -59,7 +60,7 @@ Use this to monitor cache effectiveness and understand how well your Redis/Valke
 
 A high hit rate indicates effective caching and good application performance, while a high miss rate may suggest cache warming issues, inappropriate TTLs, memory pressure causing evictions, or application queries for non-existent keys. 
 
-The legend displays mean, max, and min rates for both hits and misses, sorted by average rate. Calculate the hit ratio (hits / (hits + misses)) to measure cache efficiency - ratios above 80-90% typically indicate healthy cache performance. 
+The legend displays mean, max, and min rates sorted by average. Calculate hit ratio as hits/(hits + misses). Values above 80-90% indicate healthy cache performance. 
 
 Monitor this metric alongside eviction rates and memory usage to optimize cache sizing and ensure your cache layer is providing the expected performance benefits.
 
@@ -87,7 +88,7 @@ Use this to verify I/O threading configuration across your deployment and ensure
 
 The table shows the `io-threads` setting for each service, indicating how many threads are allocated for handling network I/O operations. 
 
-A value of 1 means I/O threading is effectively disabled (only the main thread handles I/O), while values of 2 or more indicate multi-threaded I/O is active. 
+A value of `1` means I/O threading is effectively disabled (only the main thread handles I/O), while values of `2` or more indicate multi-threaded I/O is active. 
 
 For optimal performance on multi-core systems with high throughput or many concurrent connections, Redis/Valkey recommends configuring 2-4 I/O threads, though the ideal number depends on your specific workload and hardware. 
 

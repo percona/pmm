@@ -15,7 +15,7 @@ Provides visibility into cluster health and slot distribution across the Valkey/
 
 Shows the overall cluster state for each service over time, indicating whether the cluster is operational.
 
-Use this to monitor the health status of your cluster. A value of 1 indicates the cluster is in an OK state with all slots covered, while 0 indicates the cluster is in a FAIL state with some slots uncovered or unreachable. 
+Use this to monitor the health status of your cluster. A value of `1` indicates the cluster is in an `OK` state with all slots covered, while `0` indicates the cluster is in a `FAIL` state with some slots uncovered or unreachable. 
 
 This is a critical health indicator. Any time spent in a failed state means the cluster cannot serve all key ranges and may result in application errors or data unavailability for certain keys.
 

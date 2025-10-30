@@ -1,12 +1,9 @@
 # Valkey/Redis Clients
+This dashboard monitors client connection metrics and resource usage for Valkey/Redis nodes. Use this to track connection health, capacity limits, and communication efficiency.
 
 ![!Valkey Redis Clients](../../images/Valkey_Clients_dashboard.png)
 
-This dashboard monitors client connection metrics and resource usage for Valkey/Redis nodes. Use this to track connection health, capacity limits, and communication efficiency.
-
 ## Connected Clients
-
-Monitors client connection metrics for Valkey/Redis nodes.
 
 ### [Node name] - Connected/Blocked Clients
 
@@ -21,7 +18,7 @@ Shows the maximum configured client connection limit (`maxclients`) for each Val
 
 Use this to verify connection capacity settings across all nodes and ensure they're configured appropriately for your workload. Compare this limit against current connection usage to determine if capacity adjustments are needed.
 
-Having adequate connection limits prevents "too many connections" errors that could disrupt application access to the database.
+Having adequate connection limits prevents *too many connections* errors that could disrupt application access to the database.
 
 ### Evicted Clients
 Displays the total count of clients that have been evicted from each Valkey/Redis node due to exceeding connection limits or idle timeouts.
@@ -30,7 +27,7 @@ Use this to identify connection pressure issues or applications that aren't prop
 
 ## Client Buffers
 
-### [Node name] Client Buffers
+### [Node name] - Client Buffers
 Shows the rate of change in input and output buffer sizes for client connections over time, measured in bytes per second.
 
 Use this to monitor memory consumption from client communication buffers and identify clients sending or receiving large amounts of data. Spikes in buffer usage could indicate inefficient queries returning large result sets or bulk write operations.
