@@ -5,7 +5,6 @@ import {
   DashboardVariablesMessage,
   HistoryAction,
   LocationChangeMessage,
-  ColorMode,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
@@ -18,6 +17,7 @@ import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver } from 'lib/utils/document';
+import { parseThemeChangedEvent, type ThemeValue } from './utils/themeEvent';
 
 export const initialize = () => {
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
@@ -49,33 +49,27 @@ export const initialize = () => {
   applyCustomStyles();
   adjustToolbar();
 
-  // -------- Theme relay: Grafana (right) → PMM UI (left) --------
-  // Initial emit from Grafana current config
-  const initial: ColorMode = config?.theme2?.colors?.mode === 'dark' ? 'dark' : 'light';
+// -------- Theme relay: Grafana (right) → PMM UI (left) --------
+// Initial emit from Grafana current config
+  const initial: ThemeValue = parseThemeChangedEvent({
+    theme: { colors: { mode: config?.theme2?.colors?.mode } },
+  } as any);
   messenger.sendMessage({
     type: 'GRAFANA_THEME_CHANGED',
     payload: { theme: initial },
   });
 
-  // Forward future Grafana ThemeChangedEvent to PMM UI
-  getAppEvents().subscribe(ThemeChangedEvent, (evt: unknown) => {
-    // Grafana 11 emits ThemeChangedEvent with different shapes; normalize robustly.
-    // Try known fields, then fall back to 'light'.
-    const raw =
-      // @ts-expect-error — best-effort probing of possible event shapes
-      (evt?.payload?.colors?.mode as string | undefined) ??
-      // @ts-expect-error — some places provide { theme: 'dark'|'light' }
-      (evt?.theme as string | undefined) ??
-      // @ts-expect-error — older shape: isDark boolean
-      ((evt?.payload?.isDark as boolean | undefined) ? 'dark' : undefined);
-
-    const next: ColorMode = raw?.toLowerCase() === 'dark' ? 'dark' : 'light';
-
-    messenger.sendMessage({
-      type: 'GRAFANA_THEME_CHANGED',
-      payload: { theme: next },
-    });
-  });
+// Forward future Grafana ThemeChangedEvent to PMM UI
+  getAppEvents().subscribe(
+    ThemeChangedEvent,
+    (evt: InstanceType<typeof ThemeChangedEvent>) => {
+      const next: ThemeValue = parseThemeChangedEvent(evt);
+      messenger.sendMessage({
+        type: 'GRAFANA_THEME_CHANGED',
+        payload: { theme: next },
+      });
+    }
+  );
   // --------------------------------------------------------------
 
   messenger.sendMessage({ type: 'GRAFANA_READY' });
