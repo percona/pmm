@@ -11,6 +11,8 @@ export type MessageType =
   | 'GRAFANA_THEME_CHANGED'
   | 'CHANGE_THEME';
 
+export type NavState = { fromGrafana?: boolean } | null;
+
 export interface Message<T extends MessageType = MessageType, V = undefined> {
   id?: string;
   type: T;

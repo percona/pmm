@@ -5,6 +5,7 @@ import {
   DashboardVariablesMessage,
   HistoryAction,
   LocationChangeMessage,
+  ColorMode
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
@@ -17,7 +18,7 @@ import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver } from 'lib/utils/document';
-import { parseThemeChangedEvent, type ThemeValue } from './utils/themeEvent';
+import { parseThemeChangedEvent } from './utils/themeEvent';
 
 export const initialize = () => {
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
@@ -49,9 +50,9 @@ export const initialize = () => {
   applyCustomStyles();
   adjustToolbar();
 
-// -------- Theme relay: Grafana (right) → PMM UI (left) --------
-// Initial emit from Grafana current config
-  const initial: ThemeValue = parseThemeChangedEvent({
+  // -------- Theme relay: Grafana (right) → PMM UI (left) --------
+  // Initial emit from Grafana current config
+  const initial: ColorMode = parseThemeChangedEvent({
     theme: { colors: { mode: config?.theme2?.colors?.mode } },
   } as any);
   messenger.sendMessage({
@@ -59,17 +60,14 @@ export const initialize = () => {
     payload: { theme: initial },
   });
 
-// Forward future Grafana ThemeChangedEvent to PMM UI
-  getAppEvents().subscribe(
-    ThemeChangedEvent,
-    (evt: InstanceType<typeof ThemeChangedEvent>) => {
-      const next: ThemeValue = parseThemeChangedEvent(evt);
-      messenger.sendMessage({
-        type: 'GRAFANA_THEME_CHANGED',
-        payload: { theme: next },
-      });
-    }
-  );
+  // Forward future Grafana ThemeChangedEvent to PMM UI
+  getAppEvents().subscribe(ThemeChangedEvent, (evt: InstanceType<typeof ThemeChangedEvent>) => {
+    const next: ColorMode = parseThemeChangedEvent(evt);
+    messenger.sendMessage({
+      type: 'GRAFANA_THEME_CHANGED',
+      payload: { theme: next },
+    });
+  });
   // --------------------------------------------------------------
 
   messenger.sendMessage({ type: 'GRAFANA_READY' });
