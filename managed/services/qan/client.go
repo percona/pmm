@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"gopkg.in/reform.v1"
@@ -132,7 +131,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 func (c *Client) IsReady(ctx context.Context) error {
 	_, err := c.qsc.HealthCheck(ctx, nil)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	return nil
@@ -321,7 +320,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		c.l.Debugf("%+v", qanReq)
 		res, err := c.c.Collect(ctx, qanReq)
 		if err != nil {
-			return errors.Wrap(err, "failed to send CollectRequest to QAN")
+			   return fmt.Errorf("failed to send CollectRequest to QAN: %w", err)
 		}
 		c.l.Debugf("%+v", res)
 
