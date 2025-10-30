@@ -9,7 +9,6 @@ import {
 import { ColorMode, LocationState } from '@pmm/shared';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
-import { useSetTheme } from 'themes/setTheme';
 import { getLocationUrl } from './grafana.utils';
 import messenger from 'lib/messenger';
 
@@ -38,9 +37,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const kioskMode = useKioskMode();
 
   // Theme sources
-  const { colorMode } = useColorMode();
-  const { setFromGrafana } = useSetTheme();
-  // const lastSentThemeRef = useRef<ColorMode>('light');
+  const { colorMode, setFromGrafana } = useColorMode();
 
   useEffect(() => {
     if (isGrafanaPage) setIsLoaded(true);
