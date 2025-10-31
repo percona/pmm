@@ -10,6 +10,7 @@ import type {
   ColorMode,
   LocationState,
   DocumentTitleUpdateMessage,
+  LocationChangeMessage
 } from '@pmm/shared';
 import { updateDocumentTitle } from 'lib/utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
@@ -74,29 +75,12 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     // Location: navigate PMM when Grafana pushes/replace (skip POP/back)
     messenger.addListener({
       type: 'LOCATION_CHANGE',
-      onMessage: ({
-        payload,
-      }: {
-        payload?: {
-          pathname?: string;
-          search?: string;
-          hash?: string;
-          action?: string;
-        };
-      }) => {
-        if (!payload || payload.action === 'POP') return;
+      onMessage: ({ payload: location }: LocationChangeMessage) => {
+        if (!location || location.action === 'POP') {
+          return;
+        }
 
-        const adapted = {
-          ...(typeof payload.pathname === 'string'
-            ? { pathname: payload.pathname }
-            : {}),
-          ...(typeof payload.search === 'string'
-            ? { search: payload.search }
-            : {}),
-          ...(typeof payload.hash === 'string' ? { hash: payload.hash } : {}),
-        } as Parameters<typeof getLocationUrl>[0];
-
-        navigate(getLocationUrl(adapted), {
+        navigate(getLocationUrl(location), {
           state: { fromGrafana: true },
           replace: true,
         });
