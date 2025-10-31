@@ -252,7 +252,8 @@ func TestServiceInfoBroker(t *testing.T) {
 			}
 
 			if tt.req.Type == inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE && tt.name == "MongoDB no params" {
-				client := tests.OpenTestMongoDB(t, tt.req.Dsn)
+				// DSN always able to connect to get distribution.
+				client := tests.OpenTestMongoDB(t, "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000")
 				mongoDBVersion, isPercona := tests.MongoDBVersion(t, client)
 				if mongoDBVersion.Major >= 8 && !isPercona {
 					tt.expectedErr = `.*auth error: Command buildInfo requires authentication: \(Unauthorized\) Unauthorized.`
