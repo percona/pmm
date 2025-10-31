@@ -16,7 +16,8 @@ package serviceinfobroker
 
 import (
 	"context"
-	"math/rand"
+	"fmt"
+	"math/rand/v2"
 	"testing"
 	"time"
 
@@ -251,12 +252,16 @@ func TestServiceInfoBroker(t *testing.T) {
 				return
 			}
 
+			if tt.expectedErr != "" {
+				tt.expectedErr = fmt.Sprintf("^%s.$", tt.expectedErr)
+			}
+
 			if tt.req.Type == inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE && tt.name == "MongoDB no params" {
 				// DSN always able to connect to get distribution.
 				client := tests.OpenTestMongoDB(t, "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000")
 				mongoDBVersion, isPercona := tests.MongoDBVersion(t, client)
 				if mongoDBVersion.Major >= 8 && !isPercona {
-					tt.expectedErr = `.*auth error: Command buildInfo requires authentication: \(Unauthorized\) Unauthorized.`
+					tt.expectedErr = `(Unauthorized) Command buildInfo requires authentication`
 				}
 			}
 
@@ -266,7 +271,7 @@ func TestServiceInfoBroker(t *testing.T) {
 				assert.Empty(t, resp.Error)
 			} else {
 				require.NotEmpty(t, resp.Error)
-				assert.Regexp(t, `^`+tt.expectedErr+`$`, resp.Error)
+				assert.Equal(t, tt.expectedErr, resp.Error)
 			}
 		})
 	}
