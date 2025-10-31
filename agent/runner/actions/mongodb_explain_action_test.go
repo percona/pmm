@@ -302,7 +302,7 @@ func TestMongoDBExplain(t *testing.T) {
 			want["maxScansToExplodeReached"] = false
 			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
 			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false, "type": "nonExistentNamespace"}
-			if isPercona {
+			if !isPercona {
 				want["prunedSimilarIndexes"] = false
 			}
 		}
