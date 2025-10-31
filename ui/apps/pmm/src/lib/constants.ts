@@ -45,4 +45,4 @@ export const ALL_SERVICE_TYPES = [
 // 5 seconds
 export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
 // 1 hour
-export const SHOW_UPDATE_MODAL_AFTER_MS = 86_400_000;
+export const SHOW_UPDATE_MODAL_AFTER_MS = 60 * 60 * 1000;
