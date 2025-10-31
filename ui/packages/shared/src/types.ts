@@ -8,7 +8,10 @@ export type MessageType =
   | 'DASHBOARD_VARIABLES'
   | 'GRAFANA_READY'
   | 'DOCUMENT_TITLE_CHANGE'
+  | 'GRAFANA_THEME_CHANGED'
   | 'CHANGE_THEME';
+
+export type LocationState = { fromGrafana?: boolean } | null;
 
 export interface Message<T extends MessageType = MessageType, V = undefined> {
   id?: string;

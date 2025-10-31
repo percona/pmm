@@ -1,38 +1,47 @@
-import { getThemeById } from '@grafana/data';
+import { getThemeById, type GrafanaTheme2 } from '@grafana/data';
 import { config, getAppEvents, ThemeChangedEvent } from '@grafana/runtime';
 
 /**
- * Changes theme to the provided one
- *
- * Based on public/app/core/services/theme.ts in Grafana
- * @param themeId
+ * Apply Grafana theme by id and ensure the proper CSS bundle is loaded.
+ * Based on Grafana's public/app/core/services/theme.ts (trimmed).
  */
-export const changeTheme = async (themeId: 'light' | 'dark'): Promise<void> => {
+const applyGrafanaTheme = async (mode: 'light' | 'dark'): Promise<GrafanaTheme2> => {
   const oldTheme = config.theme2;
+  const newTheme = getThemeById(mode);
 
-  const newTheme = getThemeById(themeId);
-
+  // Publish Grafana ThemeChangedEvent so Grafana UI re-themes itself
   getAppEvents().publish(new ThemeChangedEvent(newTheme));
 
-  // Add css file for new theme
+  // If mode actually changed, ensure the correct CSS bundle is present
   if (oldTheme.colors.mode !== newTheme.colors.mode) {
-    const newCssLink = document.createElement('link');
-    newCssLink.rel = 'stylesheet';
-    newCssLink.href = config.bootData.assets[newTheme.colors.mode];
-    newCssLink.onload = () => {
-      // Remove old css file
-      const bodyLinks = document.getElementsByTagName('link');
-      for (let i = 0; i < bodyLinks.length; i++) {
-        const link = bodyLinks[i];
-
-        if (link.href && link.href.includes(`build/grafana.${oldTheme.colors.mode}`)) {
-          // Remove existing link once the new css has loaded to avoid flickering
-          // If we add new css at the same time we remove current one the page will be rendered without css
-          // As the new css file is loading
-          link.remove();
+    const cssHref = config.bootData.assets[newTheme.colors.mode];
+    if (cssHref) {
+      const newCssLink = document.createElement('link');
+      newCssLink.rel = 'stylesheet';
+      newCssLink.href = cssHref;
+      newCssLink.onload = () => {
+        // Remove the opposite mode's stylesheet once the new one is safely loaded
+        const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+        for (const link of links) {
+          if (link !== newCssLink && typeof link.href === 'string') {
+            const isOldDark = oldTheme.colors.mode === 'dark' && link.href.includes('/dark.');
+            const isOldLight = oldTheme.colors.mode === 'light' && link.href.includes('/light.');
+            if (isOldDark || isOldLight) {
+              link.parentElement?.removeChild(link);
+            }
+          }
         }
-      }
-    };
-    document.head.insertBefore(newCssLink, document.head.firstChild);
+      };
+      document.head.appendChild(newCssLink);
+    }
   }
+
+  return newTheme;
+};
+
+/**
+ * Public API kept for callers inside this plugin (no HTML attributes here).
+ */
+export const changeTheme = async (themeId: 'light' | 'dark'): Promise<void> => {
+  await applyGrafanaTheme(themeId);
 };

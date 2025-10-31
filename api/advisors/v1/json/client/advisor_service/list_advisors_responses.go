@@ -8,6 +8,7 @@ package advisor_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListAdvisorsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAdvisorsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListAdvisorsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAdvisorsOK()
@@ -107,7 +108,7 @@ func (o *ListAdvisorsOK) readResponse(response runtime.ClientResponse, consumer 
 	o.Payload = new(ListAdvisorsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ListAdvisorsDefault) readResponse(response runtime.ClientResponse, cons
 	o.Payload = new(ListAdvisorsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *ListAdvisorsDefaultBody) validateDetails(formats strfmt.Registry) error
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListAdvisors default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListAdvisors default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *ListAdvisorsDefaultBody) contextValidateDetails(ctx context.Context, fo
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListAdvisors default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListAdvisors default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type ListAdvisorsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list advisors default body details items0
-	ListAdvisorsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListAdvisorsDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *ListAdvisorsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -442,11 +451,15 @@ func (o *ListAdvisorsOKBody) validateAdvisors(formats strfmt.Registry) error {
 
 		if o.Advisors[i] != nil {
 			if err := o.Advisors[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -479,11 +492,15 @@ func (o *ListAdvisorsOKBody) contextValidateAdvisors(ctx context.Context, format
 			}
 
 			if err := o.Advisors[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -560,11 +577,15 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0) validateChecks(formats strfmt.Registr
 
 		if o.Checks[i] != nil {
 			if err := o.Checks[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("checks" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("checks" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -597,11 +618,15 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0) contextValidateChecks(ctx context.Con
 			}
 
 			if err := o.Checks[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("checks" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("checks" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -672,7 +697,7 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) Validate(formats strfmt.R
 	return nil
 }
 
-var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum []interface{}
+var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum []any
 
 func init() {
 	var res []string
@@ -720,7 +745,7 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) validateInterval(formats 
 	return nil
 }
 
-var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeFamilyPropEnum []interface{}
+var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeFamilyPropEnum []any
 
 func init() {
 	var res []string

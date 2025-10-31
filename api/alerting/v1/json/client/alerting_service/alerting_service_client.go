@@ -71,7 +71,7 @@ type ClientService interface {
 CreateRule creates rule creates alerting rule from the given template
 */
 func (a *Client) CreateRule(params *CreateRuleParams, opts ...ClientOption) (*CreateRuleOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewCreateRuleParams()
 	}
@@ -90,17 +90,22 @@ func (a *Client) CreateRule(params *CreateRuleParams, opts ...ClientOption) (*Cr
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*CreateRuleOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*CreateRuleDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -108,7 +113,7 @@ func (a *Client) CreateRule(params *CreateRuleParams, opts ...ClientOption) (*Cr
 CreateTemplate creates template creates a new template
 */
 func (a *Client) CreateTemplate(params *CreateTemplateParams, opts ...ClientOption) (*CreateTemplateOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewCreateTemplateParams()
 	}
@@ -127,17 +132,22 @@ func (a *Client) CreateTemplate(params *CreateTemplateParams, opts ...ClientOpti
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*CreateTemplateOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*CreateTemplateDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -145,7 +155,7 @@ func (a *Client) CreateTemplate(params *CreateTemplateParams, opts ...ClientOpti
 DeleteTemplate deletes template deletes existing previously created via API
 */
 func (a *Client) DeleteTemplate(params *DeleteTemplateParams, opts ...ClientOption) (*DeleteTemplateOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewDeleteTemplateParams()
 	}
@@ -164,17 +174,22 @@ func (a *Client) DeleteTemplate(params *DeleteTemplateParams, opts ...ClientOpti
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*DeleteTemplateOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*DeleteTemplateDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -182,7 +197,7 @@ func (a *Client) DeleteTemplate(params *DeleteTemplateParams, opts ...ClientOpti
 ListTemplates lists templates returns a list of all collected alert rule templates
 */
 func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption) (*ListTemplatesOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewListTemplatesParams()
 	}
@@ -201,17 +216,22 @@ func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*ListTemplatesOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListTemplatesDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -219,7 +239,7 @@ func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption
 UpdateTemplate updates template updates existing template previously created via API
 */
 func (a *Client) UpdateTemplate(params *UpdateTemplateParams, opts ...ClientOption) (*UpdateTemplateOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewUpdateTemplateParams()
 	}
@@ -238,17 +258,22 @@ func (a *Client) UpdateTemplate(params *UpdateTemplateParams, opts ...ClientOpti
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*UpdateTemplateOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*UpdateTemplateDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
