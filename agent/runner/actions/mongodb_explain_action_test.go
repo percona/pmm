@@ -33,7 +33,6 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	"github.com/percona/pmm/version"
 )
 
 func TestQueryExplain(t *testing.T) {
@@ -285,7 +284,7 @@ func TestMongoDBExplain(t *testing.T) {
 			"rejectedPlans": []interface{}{},
 			"winningPlan":   map[string]interface{}{"stage": "EOF"},
 		}
-		mongoDBVersion, _ := tests.MongoDBVersion(t, client)
+		mongoDBVersion, isPercona := tests.MongoDBVersion(t, client)
 
 		switch {
 		case mongoDBVersion.Major < 5:
@@ -303,7 +302,9 @@ func TestMongoDBExplain(t *testing.T) {
 			want["maxScansToExplodeReached"] = false
 			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
 			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false, "type": "nonExistentNamespace"}
-			want["prunedSimilarIndexes"] = false
+			if isPercona {
+				want["prunedSimilarIndexes"] = false
+			}
 		}
 
 		explainM := make(map[string]interface{})
@@ -389,19 +390,4 @@ func prepareData(ctx context.Context, client *mongo.Client, database, collection
 	}
 
 	return nil
-}
-
-func lessThan(minVersionStr, currentVersion string) (bool, error) {
-	v, err := version.Parse(currentVersion)
-	if err != nil {
-		return false, err
-	}
-	v.Rest = ""
-
-	// Check if version meets the conditions
-	minVersion, err := version.Parse(minVersionStr)
-	if err != nil {
-		return false, err
-	}
-	return minVersion.Less(v), nil
 }

@@ -99,6 +99,8 @@ func TestServiceInfoBroker(t *testing.T) {
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
+			expectedErr: `.*auth error: Command buildInfo requires authentication: ` +
+				`\(Unauthorized\) Unauthorized.`,
 		},
 		{
 			name: "MongoDB wrong params",
