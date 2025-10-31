@@ -6,7 +6,12 @@ import {
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
-import { ColorMode, LocationState } from '@pmm/shared';
+import type {
+  ColorMode,
+  LocationState,
+  DocumentTitleUpdateMessage,
+} from '@pmm/shared';
+import { updateDocumentTitle } from 'lib/utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
 import { getLocationUrl } from './grafana.utils';
@@ -18,11 +23,10 @@ const isBrowser = () =>
   typeof window.addEventListener === 'function';
 
 /**
- * GrafanaProvider wires two bridges:
+ * GrafanaProvider wires three bridges:
  * 1) THEME: PMM (left) ↔ Grafana iframe (right)
  * 2) ROUTING: PMM (left) ↔ Grafana iframe (right)
- *
- * Scope limited to the above; document title and other concerns are excluded.
+ * 3) DOCUMENT TITLE: Grafana → PMM
  */
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
@@ -36,14 +40,14 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const kioskMode = useKioskMode();
 
-  // Theme sources
+  // Theme source
   const { colorMode, setFromGrafana } = useColorMode();
 
   useEffect(() => {
     if (isGrafanaPage) setIsLoaded(true);
   }, [isGrafanaPage]);
 
-  // Register messenger, set iframe target, and add incoming listeners
+  // Register messenger, set iframe target, and add INCOMING listeners
   useEffect(() => {
     if (!isLoaded || !isBrowser()) return;
 
@@ -59,9 +63,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     messenger.addListener({
       type: 'GRAFANA_THEME_CHANGED',
       onMessage: (message: { payload?: { theme?: ColorMode } }) => {
-        const next: ColorMode =
-          message.payload?.theme === 'dark' ? 'dark' : 'light';
-        setFromGrafana(next).catch((err: unknown) => {
+        // No normalization here — setFromGrafana already normalizes inside the hook.
+        if (!message.payload?.theme) return;
+        setFromGrafana(message.payload.theme).catch((err: unknown) => {
           console.warn('[GrafanaProvider] setFromGrafana failed:', err);
         });
       },
@@ -70,7 +74,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     // Location: navigate PMM when Grafana pushes/replace (skip POP/back)
     messenger.addListener({
       type: 'LOCATION_CHANGE',
-      onMessage: (message: {
+      onMessage: ({
+        payload,
+      }: {
         payload?: {
           pathname?: string;
           search?: string;
@@ -78,16 +84,16 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
           action?: string;
         };
       }) => {
-        const loc = message.payload;
-        if (!loc || loc.action === 'POP') return;
+        if (!payload || payload.action === 'POP') return;
 
-        // Pick only fields that getLocationUrl expects (no any/unknown)
         const adapted = {
-          ...(typeof loc.pathname === 'string'
-            ? { pathname: loc.pathname }
+          ...(typeof payload.pathname === 'string'
+            ? { pathname: payload.pathname }
             : {}),
-          ...(typeof loc.search === 'string' ? { search: loc.search } : {}),
-          ...(typeof loc.hash === 'string' ? { hash: loc.hash } : {}),
+          ...(typeof payload.search === 'string'
+            ? { search: payload.search }
+            : {}),
+          ...(typeof payload.hash === 'string' ? { hash: payload.hash } : {}),
         } as Parameters<typeof getLocationUrl>[0];
 
         navigate(getLocationUrl(adapted), {
@@ -97,11 +103,11 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       },
     });
 
-    // Grafana -> PMM: document title
+    // Document title
     messenger.addListener({
       type: 'DOCUMENT_TITLE_CHANGE',
-      onMessage: ({ payload }: { payload?: { title?: string } }) => {
-        if (payload?.title) document.title = payload.title;
+      onMessage: ({ payload }: DocumentTitleUpdateMessage) => {
+        if (payload?.title) updateDocumentTitle(payload.title);
       },
     });
 
@@ -109,12 +115,13 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     return () => {
       messenger.unregister();
     };
-  }, [isLoaded, navigate, setFromGrafana]);
+  }, [isLoaded, setFromGrafana, navigate]);
 
   // -------- OUTGOING TO GRAFANA --------
+
   // PMM -> Grafana: propagate PMM location (except if it came from Grafana)
   useEffect(() => {
-    if (!isBrowser()) return;
+    if (!isBrowser() || !isLoaded) return;
 
     const state = location.state as LocationState;
     if (!location.pathname.includes('/graph') || state?.fromGrafana) return;
@@ -128,7 +135,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
         action: navigationType,
       },
     });
-  }, [location, navigationType]);
+  }, [location, navigationType, isLoaded]);
 
   // PMM -> Grafana: propagate theme when left-side theme changes
   useEffect(() => {
