@@ -233,6 +233,7 @@ func (s *Service) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	defer func() {
 		if logStore != nil {
 			if closeErr := logStore.Close(); closeErr != nil {
