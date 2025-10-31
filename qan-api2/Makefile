@@ -40,7 +40,6 @@ test-env-up:                    ## Start docker containers used for testing
 		-e CLICKHOUSE_PASSWORD=clickhouse \
 		clickhouse/clickhouse-server:25.3.6.56
 	make test-env
-	make test-env
 
 test-env:                       ## Create pmm_test DB and load test data
 	sleep 10
