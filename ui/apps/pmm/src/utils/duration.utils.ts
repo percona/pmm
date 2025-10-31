@@ -1,8 +1,9 @@
+export const DURATION_REGEX = /(-?\d+(\.\d+)?)(ns|us|µs|ms|s|m|h)/g;
+
 export const parseDuration = (duration: string): number => {
-  const regex = /(-?\d+(\.\d+)?)(ns|us|µs|ms|s|m|h)/g;
   let totalMs = 0;
   let match;
-  while ((match = regex.exec(duration)) !== null) {
+  while ((match = DURATION_REGEX.exec(duration)) !== null) {
     const value = parseFloat(match[1]);
     switch (match[3]) {
       case 'ns':

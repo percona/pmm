@@ -8,7 +8,8 @@ const DelayedRender: FC<Props> = ({ delay, children }) => {
   const [isRendered, setIsRendered] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setIsRendered(true), delay);
+    const timeoutId = setTimeout(() => setIsRendered(true), delay);
+    return () => clearTimeout(timeoutId);
   }, [delay]);
 
   return isRendered ? children : null;
