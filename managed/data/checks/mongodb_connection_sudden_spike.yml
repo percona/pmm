@@ -17,10 +17,9 @@ checks:
     script: |
       read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
 
-      def check(docs):
+      def check_context(docs, context):
           #Gathering initial connection count.
           prev_conn = int(docs[0][0]["values"][0][1])
-          results = []
           connections = []
           cnt = 0
           current_conn = []
@@ -42,8 +41,10 @@ checks:
 
               prev_conn = int(type[1])
 
+          results = []
+
           if cnt > 0:
-              return({
+              results.append({
                   "summary": "MongoDB sudden spike(> 50%) in connections than the usual count in last 24hrs",
                   "description": "In the last 24 hours, we observed that there were {} times that a sudden spike (> 50%) in the number of connections occurred that was higher than the most recent or normal number of connections. This increase could indicate or cause performance issues unless your overall system is designed to handle spikes of this type. Please check for any changes that may have occurred during that time span to cause this. Here are the stats respectively - Spiked Connections - {}, Previous Connections - {}, Percentage of Spike - {} ".format(cnt, current_conn, previous_conn, actual_perc),
                   "read_more_url": read_url.format("mongodb-connection-spike"),
@@ -51,9 +52,4 @@ checks:
                   "labels": {},
               })
 
-      def check_context(docs, context):
-          results = []
-          check_result = check(docs)
-          if check_result:
-              results.append(check_result)
           return results

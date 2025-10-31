@@ -8,6 +8,7 @@ package actions_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type CancelActionReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CancelActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CancelActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewCancelActionOK()
@@ -55,7 +56,7 @@ CancelActionOK describes a response with status code 200, with default header va
 A successful response.
 */
 type CancelActionOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this cancel action Ok response has a 2xx status code
@@ -98,13 +99,13 @@ func (o *CancelActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/actions:cancelAction][%d] cancelActionOk %s", 200, payload)
 }
 
-func (o *CancelActionOK) GetPayload() interface{} {
+func (o *CancelActionOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *CancelActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,7 +178,7 @@ func (o *CancelActionDefault) readResponse(response runtime.ClientResponse, cons
 	o.Payload = new(CancelActionDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -262,11 +263,15 @@ func (o *CancelActionDefaultBody) validateDetails(formats strfmt.Registry) error
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("CancelAction default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("CancelAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -299,11 +304,15 @@ func (o *CancelActionDefaultBody) contextValidateDetails(ctx context.Context, fo
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("CancelAction default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("CancelAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -339,7 +348,7 @@ type CancelActionDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// cancel action default body details items0
-	CancelActionDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	CancelActionDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -366,9 +375,9 @@ func (o *CancelActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

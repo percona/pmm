@@ -8,6 +8,7 @@ package alerting_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type CreateRuleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CreateRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CreateRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewCreateRuleOK()
@@ -56,7 +57,7 @@ CreateRuleOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type CreateRuleOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this create rule Ok response has a 2xx status code
@@ -99,13 +100,13 @@ func (o *CreateRuleOK) String() string {
 	return fmt.Sprintf("[POST /v1/alerting/rules][%d] createRuleOk %s", 200, payload)
 }
 
-func (o *CreateRuleOK) GetPayload() interface{} {
+func (o *CreateRuleOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *CreateRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -178,7 +179,7 @@ func (o *CreateRuleDefault) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(CreateRuleDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -256,11 +257,15 @@ func (o *CreateRuleBody) validateParams(formats strfmt.Registry) error {
 
 		if o.Params[i] != nil {
 			if err := o.Params[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -270,7 +275,7 @@ func (o *CreateRuleBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
-var createRuleBodyTypeSeverityPropEnum []interface{}
+var createRuleBodyTypeSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -345,11 +350,15 @@ func (o *CreateRuleBody) validateFilters(formats strfmt.Registry) error {
 
 		if o.Filters[i] != nil {
 			if err := o.Filters[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -386,11 +395,15 @@ func (o *CreateRuleBody) contextValidateParams(ctx context.Context, formats strf
 			}
 
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -408,11 +421,15 @@ func (o *CreateRuleBody) contextValidateFilters(ctx context.Context, formats str
 			}
 
 			if err := o.Filters[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -480,11 +497,15 @@ func (o *CreateRuleDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("CreateRule default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("CreateRule default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -517,11 +538,15 @@ func (o *CreateRuleDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("CreateRule default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("CreateRule default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -557,7 +582,7 @@ type CreateRuleDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// create rule default body details items0
-	CreateRuleDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	CreateRuleDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -584,9 +609,9 @@ func (o *CreateRuleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -689,7 +714,7 @@ func (o *CreateRuleParamsBodyFiltersItems0) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var createRuleParamsBodyFiltersItems0TypeTypePropEnum []interface{}
+var createRuleParamsBodyFiltersItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -793,7 +818,7 @@ func (o *CreateRuleParamsBodyParamsItems0) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var createRuleParamsBodyParamsItems0TypeTypePropEnum []interface{}
+var createRuleParamsBodyParamsItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string

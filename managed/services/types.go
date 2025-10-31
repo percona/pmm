@@ -16,6 +16,8 @@
 package services
 
 import (
+	"maps"
+
 	"github.com/percona/saas/pkg/check"
 
 	"github.com/percona/pmm/managed/models"
@@ -38,14 +40,10 @@ type Target struct {
 // Copy creates a copy of the Target instance.
 func (t *Target) Copy() Target {
 	labels := make(map[string]string, len(t.Labels))
-	for k, v := range t.Labels {
-		labels[k] = v
-	}
+	maps.Copy(labels, t.Labels)
 
 	files := make(map[string]string, len(t.Files))
-	for k, v := range t.Files {
-		files[k] = v
-	}
+	maps.Copy(files, t.Files)
 
 	tdp := *t.TDP
 
