@@ -99,7 +99,6 @@ func TestServiceInfoBroker(t *testing.T) {
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-			expectedErr: `.*auth error: Command buildInfo requires authentication: \(Unauthorized\) Unauthorized.`,
 		},
 		{
 			name: "MongoDB wrong params",
@@ -252,17 +251,18 @@ func TestServiceInfoBroker(t *testing.T) {
 				return
 			}
 
+			if tt.req.Type == inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE && tt.name == "MongoDB no params" {
+				client := tests.OpenTestMongoDB(t, tt.req.Dsn)
+				mongoDBVersion, isPercona := tests.MongoDBVersion(t, client)
+				if mongoDBVersion.Major >= 8 && !isPercona {
+					tt.expectedErr = `.*auth error: Command buildInfo requires authentication: \(Unauthorized\) Unauthorized.`
+				}
+			}
+
 			resp := c.GetInfoFromService(context.Background(), tt.req, 0)
 			require.NotNil(t, resp)
 			if tt.expectedErr == "" {
-				if tt.name == "MongoDB no params" {
-					client := tests.OpenTestMongoDB(t, tt.req.Dsn)
-					mongoDBVersion, isPercona := tests.MongoDBVersion(t, client)
-
-					if mongoDBVersion.Major >= 8 && !isPercona {
-						assert.Empty(t, resp.Error)
-					}
-				}
+				assert.Empty(t, resp.Error)
 			} else {
 				require.NotEmpty(t, resp.Error)
 				assert.Regexp(t, `^`+tt.expectedErr+`$`, resp.Error)
