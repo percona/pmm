@@ -12,7 +12,7 @@ export const shouldShowAddService = (
     haproxy: 1,
     mongodb: 1,
     mysql: 1,
-    // Take into account the default postgresql service
+    // Take into account the default PostgreSQL service
     postgresql: 2,
     proxysql: 1,
     valkey: 1,

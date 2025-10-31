@@ -47,7 +47,7 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
         setNavOpen(true);
       }
 
-      if (steps[0].selector && typeof steps[0].selector === 'string') {
+      if (steps[0] && typeof steps[0].selector === 'string') {
         await waitForVisible(steps[0].selector);
       }
 
@@ -88,7 +88,7 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
         endTour,
       }}
     >
-      {/* Conditionaly render the provider since the defaultOpen property doesn't react on isOpen change */}
+      {/* Conditionally render the provider since the defaultOpen property doesn't react on isOpen change */}
       {isOpen && (
         <ReactTourProvider
           defaultOpen
@@ -127,7 +127,7 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
             }),
           }}
         >
-          {/* Render outside of the main tree to keep the grafana iframe from re-mounting */}
+          {/* Render outside of the main tree to keep the Grafana iframe from re-mounting */}
           <></>
         </ReactTourProvider>
       )}
