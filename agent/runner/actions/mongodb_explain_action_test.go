@@ -302,7 +302,7 @@ func TestMongoDBExplain(t *testing.T) {
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
 			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
-			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false}
+			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false, "type": "nonExistentNamespace"}
 			want["prunedSimilarIndexes"] = false
 		}
 
