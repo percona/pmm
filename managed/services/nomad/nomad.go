@@ -177,6 +177,7 @@ func (c *Nomad) generateServerCert(domain string) error {
 		"-ca", c.pathToCA(),
 		"-key", c.pathToCAKey(),
 		"-domain", domain,
+		"-additional-dnsname", "server."+region+".nomad",
 		"-region", region)
 	command.Dir = pathToCerts
 	command.Stderr = c.l.WriterLevel(logrus.ErrorLevel)
