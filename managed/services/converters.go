@@ -500,6 +500,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:    processExecPath,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			TlsSkipVerify:      agent.TLSSkipVerify,
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 		}, nil
 
 	case models.AzureDatabaseExporterType:

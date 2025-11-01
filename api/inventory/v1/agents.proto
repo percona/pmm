@@ -669,6 +669,8 @@ message ExternalExporter {
   common.MetricsResolutions metrics_resolutions = 12;
   // Skip TLS certificate and hostname verification.
   bool tls_skip_verify = 13;
+  // Actual Agent status.
+  AgentStatus status = 14;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.

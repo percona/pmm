@@ -2340,6 +2340,8 @@ func (m *ExternalExporter) validate(all bool) error {
 
 	// no validation rules for TlsSkipVerify
 
+	// no validation rules for Status
+
 	if len(errors) > 0 {
 		return ExternalExporterMultiError(errors)
 	}

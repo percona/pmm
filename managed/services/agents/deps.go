@@ -18,7 +18,10 @@ package agents
 import (
 	"context"
 	"net/url"
+	"time"
 
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -63,6 +66,12 @@ type victoriaMetricsParams interface {
 	URLFor(path string) (*url.URL, error)
 	URL() string
 	VMAgentArgs() []string
+}
+
+// victoriaMetricsClient is a subset of methods of prometheus' API used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type victoriaMetricsClient interface {
+	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
 }
 
 type nomad interface {

@@ -72,3 +72,9 @@ type inventoryMetrics interface {
 	GetNodeMetrics(ctx context.Context) (metrics []Metric, err error)
 	GetServiceMetrics(ctx context.Context) (metrics []Metric, err error)
 }
+
+// externalExporterStatusService is a subset of methods of agents.ExternalExporterStatusService used by this package.
+// We use it instead of real type to avoid dependency cycle.
+type externalExporterStatusService interface {
+	UpdateExternalExporterStatus(ctx context.Context, agentID string)
+}

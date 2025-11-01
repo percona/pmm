@@ -18,6 +18,7 @@ package inventory
 
 import (
 	"context"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -33,25 +34,27 @@ import (
 
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
-	r     agentsRegistry
-	a     agentService
-	state agentsStateUpdater
-	vmdb  prometheusService
-	db    *reform.DB
-	cc    connectionChecker
-	sib   serviceInfoBroker
+	r                         agentsRegistry
+	a                         agentService
+	state                     agentsStateUpdater
+	vmdb                      prometheusService
+	db                        *reform.DB
+	cc                        connectionChecker
+	sib                       serviceInfoBroker
+	externalExporterStatusSvc externalExporterStatusService
 }
 
 // NewAgentsService creates new AgentsService.
-func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService) *AgentsService { //nolint:lll
+func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService, externalExporterStatusSvc externalExporterStatusService) *AgentsService { //nolint:lll
 	return &AgentsService{
-		r:     r,
-		a:     a,
-		state: state,
-		vmdb:  vmdb,
-		db:    db,
-		cc:    cc,
-		sib:   sib,
+		r:                         r,
+		a:                         a,
+		state:                     state,
+		vmdb:                      vmdb,
+		db:                        db,
+		cc:                        cc,
+		sib:                       sib,
+		externalExporterStatusSvc: externalExporterStatusSvc,
 	}
 }
 
@@ -1310,6 +1313,15 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 		// It's required to regenerate victoriametrics config file.
 		as.vmdb.RequestConfigurationUpdate()
 	}
+
+	// Schedule immediate status check after first scrape interval (15 seconds)
+	// This allows VictoriaMetrics to scrape the exporter and generate 'up' metric
+	agentID := agent.AgentId
+	go func() {
+		time.Sleep(15 * time.Second)
+		// Use background context since the original request context may be cancelled
+		as.externalExporterStatusSvc.UpdateExternalExporterStatus(context.Background(), agentID)
+	}()
 
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_ExternalExporter{
