@@ -206,6 +206,10 @@ message ExternalService {
   map<string, string> custom_labels = 7;
   // Group name of external service.
   string group = 8;
+  // Access address (DNS name or IP).
+  string address = 9;
+  // Access port.
+  uint32 port = 10;
 }
 
 // List

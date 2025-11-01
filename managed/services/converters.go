@@ -195,6 +195,16 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 		}, nil
 
 	case models.ExternalServiceType:
+		var address string
+		if service.Address != nil {
+			address = *service.Address
+		}
+
+		var port uint32
+		if service.Port != nil {
+			port = uint32(*service.Port)
+		}
+
 		return &inventoryv1.ExternalService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
@@ -204,6 +214,8 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 			ReplicationSet: service.ReplicationSet,
 			CustomLabels:   labels,
 			Group:          service.ExternalGroup,
+			Address:        address,
+			Port:           port,
 		}, nil
 
 	default:

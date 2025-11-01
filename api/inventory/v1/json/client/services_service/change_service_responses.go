@@ -1007,6 +1007,12 @@ type ChangeServiceOKBodyExternal struct {
 
 	// Group name of external service.
 	Group string `json:"group,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
 }
 
 // Validate validates this change service OK body external

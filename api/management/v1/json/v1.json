@@ -5483,6 +5483,17 @@
                           "description": "Group name of external service.",
                           "type": "string",
                           "x-order": 7
+                        },
+                        "address": {
+                          "description": "Access address (DNS name or IP).",
+                          "type": "string",
+                          "x-order": 8
+                        },
+                        "port": {
+                          "description": "Access port.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 9
                         }
                       },
                       "x-order": 0

@@ -956,6 +956,12 @@ type ListServicesOKBodyExternalItems0 struct {
 
 	// Group name of external service.
 	Group string `json:"group,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
 }
 
 // Validate validates this list services OK body external items0

@@ -50,6 +50,21 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 			runsOnNodeID = nodeID
 		}
 
+		// Get address from runs_on node (same logic as VictoriaMetrics scrape config)
+		var address *string
+		var port *uint16
+		if runsOnNodeID != "" {
+			node := &models.Node{NodeID: runsOnNodeID}
+			if err := tx.Reload(node); err == nil && node.Address != "" {
+				address = &node.Address
+			}
+		}
+
+		if req.ListenPort > 0 {
+			p := uint16(req.ListenPort)
+			port = &p
+		}
+
 		service, err := models.AddNewService(tx.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
 			ServiceName:    req.ServiceName,
 			NodeID:         nodeID,
@@ -58,6 +73,8 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 			ReplicationSet: req.ReplicationSet,
 			CustomLabels:   req.CustomLabels,
 			ExternalGroup:  req.Group,
+			Address:        address,
+			Port:           port,
 		})
 		if err != nil {
 			return err
