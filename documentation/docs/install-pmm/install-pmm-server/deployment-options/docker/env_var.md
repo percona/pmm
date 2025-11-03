@@ -35,6 +35,7 @@ Enable or disable specific PMM features:
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
 | `PMM_ENABLE_AZURE_DISCOVER` | `false` | Enables Azure database discovery |
+| `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **PMM Configuration > Settings > Advanced Settings**. See [QAN for PMM Server's internal PostgreSQL](../../use/qan/index.md#qan-for-pmm-servers-internal-postgresql).|
 
 ### Debugging and troubleshooting
 Use these variables when diagnosing issues with PMM Server:
