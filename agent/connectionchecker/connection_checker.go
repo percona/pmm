@@ -21,6 +21,7 @@ import (
 	"crypto/x509"
 	"database/sql"
 	"fmt"
+	"github.com/prometheus/common/model"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -352,7 +353,7 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		return &res
 	}
 
-	var parser expfmt.TextParser
+	parser := expfmt.NewTextParser(model.UTF8Validation)
 	_, err = parser.TextToMetricFamilies(strings.NewReader(string(body)))
 	if err != nil {
 		res.Error = fmt.Sprintf("Unexpected exporter's response format: %v", err)
