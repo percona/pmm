@@ -14,7 +14,8 @@ You can contribute to the documentation in two ways:
 
 - **report an issue**: [open a Jira] issue.
 
-- **fix a problem yourself**: Click <i class="uil uil-edit"></i> **Edit this page** icon at the top of the topic you want to change to access the Markdown source. Fork the repo, make changes, and submit a PR. For large changes, build the website locally to see how it looks in context. 
+- **fix a problem yourself**: Click <i class="uil uil-edit"></i> **Edit this page** icon at the top of the topic you want to change to access the Markdown source. Fork the repo, make changes, and submit a PR. For large changes, build the website locally to see how it looks in context.
+
 
 ## Building the documentation
 
@@ -29,6 +30,8 @@ PMM versions are managed in branches:
 - `main` is for PMM 2.x 
 
 - `1.x` is for PMM 1.x
+
+See [PMM Documentation Git Workflow Process](../docs/process/Documentation_git_flow.md) for details on how we manage documentation changes across branches and releases.
 
 ### Before you begin
 
