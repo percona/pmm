@@ -7,6 +7,7 @@ import {
   wrapWithQueryProvider,
   wrapWithSettings,
 } from 'utils/testUtils';
+import { PMM_NEW_NAV_UPDATES_PATH } from 'lib/constants';
 
 // Mock the snooze hook
 const mockSnoozeUpdate = vi.fn();
@@ -92,7 +93,7 @@ describe('UpdateModal', () => {
     });
 
     it('renders nothing when already on updates page', () => {
-      renderUpdateModal({}, 0, ['/updates']);
+      renderUpdateModal({}, 0, [PMM_NEW_NAV_UPDATES_PATH]);
       expect(screen.queryByTestId('modal-title')).not.toBeInTheDocument();
     });
   });
@@ -187,7 +188,9 @@ describe('UpdateModal', () => {
 
       renderUpdateModal({ versionInfo: versionInfoWithoutReleaseNotes }, 0);
 
-      expect(screen.queryByTestId('update-modal-release-notes-link')).toBeNull();
+      expect(
+        screen.queryByTestId('update-modal-release-notes-link')
+      ).toBeNull();
     });
 
     it('handles version info with null latest version in modal', () => {

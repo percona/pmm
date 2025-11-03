@@ -24,7 +24,6 @@ export const Modal: FC<ModalProps> = ({
         backgroundColor: theme.palette.background.paper,
         minWidth: 480,
         maxWidth: '80vw',
-        minHeight: 250,
         borderRadius: 1,
         boxShadow: theme.shadows[24],
         border: 'none',

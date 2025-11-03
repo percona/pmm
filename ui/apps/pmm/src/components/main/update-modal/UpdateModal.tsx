@@ -1,6 +1,6 @@
 import { Modal } from 'components/modal';
 import { useUpdates } from 'contexts/updates';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Messages } from './UpdateModal.messages';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -16,9 +16,15 @@ import { useSnooze } from 'hooks/updates';
 
 const UpdateModal: FC = () => {
   const { isLoading, versionInfo } = useUpdates();
-  const [open, setIsOpen] = useState(true);
+  const [open, setIsOpen] = useState(false);
   const { snoozeUpdate, snoozeActive, snoozeCount } = useSnooze();
   const location = useLocation();
+  const isOnUpdatesPage = location.pathname.startsWith(
+    PMM_NEW_NAV_UPDATES_PATH
+  );
+  const latestVersion = versionInfo?.latest.version || '';
+  const releaseNotesUrl = versionInfo?.latest?.releaseNotesUrl ?? '';
+  const updateAvailable = Boolean(versionInfo?.updateAvailable);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -26,14 +32,14 @@ const UpdateModal: FC = () => {
     snoozeUpdate();
   };
 
-  if (
-    isLoading ||
-    !versionInfo ||
-    snoozeActive ||
-    !versionInfo.updateAvailable ||
-    // don't show if already on updates page
-    location.pathname.endsWith('/updates')
-  ) {
+  useEffect(() => {
+    if (updateAvailable && !snoozeActive) {
+      setIsOpen(true);
+    }
+  }, [updateAvailable, snoozeActive]);
+
+  // don't show if already on updates page
+  if (isLoading || !open || isOnUpdatesPage) {
     return null;
   }
 
@@ -64,7 +70,7 @@ const UpdateModal: FC = () => {
                   display="inline-block"
                   data-testid="update-modal-title"
                 >
-                  {Messages.title(versionInfo.latest.version || '')}
+                  {Messages.title(latestVersion)}
                 </Typography>
                 <span data-testid="update-modal-snackbar-description">
                   {Messages.descriptionSnack}
@@ -105,7 +111,7 @@ const UpdateModal: FC = () => {
 
   return (
     <Modal
-      title={Messages.title(versionInfo.latest.version || '')}
+      title={Messages.title(latestVersion)}
       open={open}
       onClose={handleClose}
       disableAutoFocus
@@ -114,14 +120,14 @@ const UpdateModal: FC = () => {
         <Typography data-testid="update-modal-description">
           {Messages.descriptionModal}
         </Typography>
-        {!!versionInfo.latest.releaseNotesUrl && (
+        {!!releaseNotesUrl && (
           <Typography
             data-testid="update-modal-description-release-notes"
             sx={{ py: 2 }}
           >
             {Messages.check}
             <Link
-              href={versionInfo.latest.releaseNotesUrl}
+              href={releaseNotesUrl}
               target="_blank"
               rel="noopener noreferrer"
               data-testid="update-modal-release-notes-link"
