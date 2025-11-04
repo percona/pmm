@@ -1,55 +1,64 @@
-# PMM Documentation Git Workflow Process
+# PMM documentation Git workflow process
 
-# **Overview**
+This topic explains how we manage the Percona Monitoring and Management (PMM) documentation across different Git branches and product releases.
 
-This document outlines the comprehensive workflow process for managing Percona Monitoring and Management (PMM) documentation across multiple branches and releases. It describes how feature development, releases, production documentation, and urgent fixes are coordinated to ensure the live site reflects the most current information.
+It outlines our workflow for handling new features and updates and hotfixes to ensure the [documentation site](https://docs.percona.com/percona-monitoring-and-management/) remains accurate, current, and aligned with the latest PMM release.
 
-## **1. Branch Structure**
+## Branch structure
 
-### **Main Branches**
+- v3: The main production branch for documentation. This is the source for the live documentation site deployed via Render.com. 
 
-- v3 – Production documentation branch. This is the source of truth for the live documentation site deployed via Render.com. Documentation changes related to the upcoming release should go to pmm-doc-* branch until release is done and then be merged back to v3.
-- pmm-doc-* – Version-specific release branches (e.g., pmm-doc-3.2.0, pmm-doc-3.3.0). These are cut from v3 with only this release specific changes.
+- pmm-doc-* – Version-specific release branches. For example,`pmm-doc-3.2.0`, `pmm-doc-3.3.0`. These branches are created from `v3` and contain only the documentation changes for that specific release.
 
-## **2. Feature Development**
+Add all documentation changes for the upcoming release to the corresponding `pmm-doc-* `branch.
+Once the release is finalized, merge those updates back into `v3`.
 
-The feature development process is the initial stage of new PMM functionalities and their associated documentation.
+## Feature development
 
-1. **Development Start:** New feature development for PMM begins in the v3 branch.
-2. **Feature Branch Creation:** For each individual update or new functionality, a feature branch (e.g., PMM-1234-feature) should be created, branching off from v3.
-3. **Documentation Inclusion:** Documentation updates related to the new features should be developed in a separate branch and the PR for documentation changes should be created against. pmm-doc-* branch.
-4. **Feature Merge:** Once a feature is completed and reviewed, the feature branch should be merged back into v3. The documentation branch should be merged to pmm-doc-* branch. This ensures that v3 always contains the latest completed features, but doesn’t include documentation changes that should be deployed to production website.
+When new PMM features are developed, the documentation team works alongside developers to make sure all updates are ready for release:
 
-## **3. Release Lifecycle**
+1. **PMM development start:** Developers begin work on a new feature in the `v3` branch and create a dedicated feature branch (for example, `PMM-1234-feature`).
 
-The documentation release process is tightly integrated with the PMM product release cycle, ensuring that the production documentation always reflects the current release state.
+2. **Documentation branch**: When a feature needs documentation, the doc team creates a separate branch for the related updates.
 
-### **General Release Flow**
+3. **Pull request:** The documentation PR should target the corresponding `pmm-doc-*` branch for the release that will include the feature.
 
-1. New release is created and contains tasks.
-2. **Release Branch Creation:** A version-specific release branch (`pmm-doc-*`, e.g., `pmm-doc-3.2.0`, `pmm-doc-3.3.0`) should be created from v3. This branch serves as the basis for all documentation work for this release.
-3. **PRs for Release Preparation:** During release preparation, all new Pull Requests (PRs) containing changes intended for the release should be based on and merged into the `pmm-doc-*` branch.
-4. **Documentation Integration for Release:** Documentation changes relevant to the release should be integrated into v3 from the pmm-* branch. This process leverages automation for efficient updates.
-5. **Deployment:** Render.com should continuously deploy the documentation from v3, reflecting the latest updates.
+4. **Feature Merge:** Once a feature is completed and reviewed, the feature branch is merged back into `v3`. The documentation branch is merged into the relevant `pmm-doc-*` branch. 
 
-## **4. Quick Fix Process**
+This keeps `v3` up-to-date with completed code changes, while documentation for unreleased features stays isolated until the release is published.
 
-Urgent documentation issues or small corrections should be handled efficiently via a dedicated quick-fix workflow.
+## Release flow
 
-1. **Branch Creation:** Hotfix branches (quick-fix-*) should be created directly from v3.
-2. **Direct Merge:** These quick-fix branches should be merged directly into v3 to expedite the deployment of urgent changes.
+We align the documentation release with PMM's product release cycle so that the documentation always reflects PMM's current release.
 
-## **5. Automation**
+1. **Create the release branch**: When preparing a new release, create a version branch from `v3`, as the basis for all documentation work for this release. For example: `pmm-doc-3.2.0`, `pmm-doc-3.3.0`. 
 
-Automation is a key component of the PMM documentation workflow, and these processes **should be implemented and maintained** to streamline updates and deployments.
+2. **Submit PRs**: All pull requests for that release should target the `pmm-doc-*` branch.
 
-- **Release Merges:** The merging of pmm-doc-* branches into v3 during PMM 3 releases **should also be automated**.
-- **Continuous Deployment:** Render.com **is configured to continuously deploy** any changes pushed to v3, ensuring that the live documentation site is always current.
+3. **Merge and prepare**: When the release is complete, merge changes from `pmm-doc-*` back into `v3`.
 
-## Faced issues
+4. **Deploy:** Render.com automatically deploys everything from `v3`, reflecting the latest updates.
 
-- Accidental deployment of dev changes made in feature branches and merged to v3.
+## Quick fixes 
 
-### New Documentation Workflow (v3.5+)
+For urgent or minor fixes:
+
+1. Create a branch like `quick-fix-*` directly from `v3`.
+
+2. Make the fix and merge it straight back into `v3` for immediate deployment.
+
+## Automation
+
+Automation helps streamline updates and deployments:
+
+- **Release merges:** The merging of `pmm-doc-*` branches into `v3` during PMM 3 releases should also be automated. 
+
+- **Continuous deployment**: Render.com automatically updates the live documentation site whenever `v3` changes.
+
+## Common issues
+
+Merging development changes into `v3` too early will cause unintended deployments. To prevent this, always use the proper branch (`pmm-doc-*`).
+
+### Documentation workflow (v3.5+)
 
 ![image.png](../assets/docflow.png)
