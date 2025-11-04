@@ -404,6 +404,24 @@ export const NAV_ALERTS_FIRED: NavItem = {
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
 };
 
+export const NAV_ALERTS_RULES: NavItem = {
+  id: 'alerts-rules',
+  text: 'Alert Rules',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/list`,
+};
+
+export const NAV_ALERTS_SILENCES: NavItem = {
+  id: 'alerts-silences',
+  text: 'Silences',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/silences`,
+};
+
+export const NAV_ALERTS_GROUPS: NavItem = {
+  id: 'alerts-groups',
+  text: 'Alert groups',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/groups`,
+};
+
 export const NAV_ALERTS_CONTACT_POINTS: NavItem = {
   id: 'alerts-contact-points',
   text: 'Contact points',

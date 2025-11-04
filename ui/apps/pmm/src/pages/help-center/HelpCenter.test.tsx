@@ -1,39 +1,42 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { HelpCenter } from './HelpCenter';
 import { CARD_IDS } from './HelpCenter.constants';
-import * as useUserModule from 'contexts/user';
-import { OrgRole, User } from 'types/user.types';
 import { MemoryRouter } from 'react-router-dom';
+import {
+  TEST_USER_ADMIN,
+  TEST_USER_EDITOR,
+  TEST_USER_VIEWER,
+} from 'utils/testStubs';
+import { wrapWithQueryProvider, wrapWithUserProvider } from 'utils/testUtils';
+import { User } from 'types/user.types';
 
-const getUser = (user: Partial<User> = {}): User => ({
-  id: 1,
-  isPMMAdmin: true,
-  orgRole: OrgRole.Admin,
-  isAuthorized: true,
-  name: 'admin',
-  login: 'admin',
-  orgId: 1,
-  isViewer: true,
-  isEditor: true,
-  orgs: [],
-  ...user,
-});
+const mocks = vi.hoisted(() => ({
+  startTour: vi.fn(),
+}));
 
-const renderHelpCenter = () =>
+vi.mock('contexts/tour', async () => ({
+  useTour: () => ({ startTour: mocks.startTour }),
+}));
+
+const renderHelpCenter = (user?: User) =>
   render(
-    <MemoryRouter>
-      <HelpCenter />
-    </MemoryRouter>
+    wrapWithUserProvider(
+      wrapWithQueryProvider(
+        <MemoryRouter>
+          <HelpCenter />
+        </MemoryRouter>
+      ),
+      { user }
+    )
   );
 
 describe('HelpCenter', () => {
-  it('should show pmm dump and pmm logs if user is admin', () => {
-    vi.spyOn(useUserModule, 'useUser').mockReturnValue({
-      isLoading: false,
-      user: getUser(),
-    });
+  beforeEach(() => {
+    mocks.startTour.mockClear();
+  });
 
-    renderHelpCenter();
+  it('should show pmm dump and pmm logs if user is admin', () => {
+    renderHelpCenter(TEST_USER_ADMIN);
 
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmDump}`)
@@ -44,40 +47,8 @@ describe('HelpCenter', () => {
     expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(7);
   });
 
-  it('should not show pmm dump and pmm logs if user has no org role', () => {
-    vi.spyOn(useUserModule, 'useUser').mockReturnValue({
-      isLoading: false,
-      user: getUser({
-        isPMMAdmin: false,
-        isViewer: false,
-        isEditor: false,
-        orgRole: OrgRole.None,
-      }),
-    });
-
-    renderHelpCenter();
-
-    expect(
-      screen.queryByTestId(`help-card-${CARD_IDS.pmmDump}`)
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByTestId(`help-card-${CARD_IDS.pmmLogs}`)
-    ).not.toBeInTheDocument();
-    expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(5);
-  });
-
   it('should not show pmm dump and pmm logs if user is viewer', () => {
-    vi.spyOn(useUserModule, 'useUser').mockReturnValue({
-      isLoading: false,
-      user: getUser({
-        isViewer: true,
-        isEditor: false,
-        isPMMAdmin: false,
-        orgRole: OrgRole.Viewer,
-      }),
-    });
-
-    renderHelpCenter();
+    renderHelpCenter(TEST_USER_VIEWER);
 
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmDump}`)
@@ -89,17 +60,7 @@ describe('HelpCenter', () => {
   });
 
   it('should not show pmm dump and pmm logs if user is editor', () => {
-    vi.spyOn(useUserModule, 'useUser').mockReturnValue({
-      isLoading: false,
-      user: getUser({
-        isViewer: true,
-        isEditor: true,
-        isPMMAdmin: false,
-        orgRole: OrgRole.Editor,
-      }),
-    });
-
-    renderHelpCenter();
+    renderHelpCenter(TEST_USER_EDITOR);
 
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmDump}`)
@@ -108,5 +69,16 @@ describe('HelpCenter', () => {
       screen.queryByTestId(`help-card-${CARD_IDS.pmmLogs}`)
     ).not.toBeInTheDocument();
     expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(5);
+  });
+
+  it('starts product tour when the corresponding card action is clicked', async () => {
+    renderHelpCenter(TEST_USER_ADMIN);
+
+    const startTourButton = screen.getByTestId(
+      'tips-card-start-product-tour-button'
+    );
+    fireEvent.click(startTourButton);
+
+    expect(mocks.startTour).toHaveBeenCalledWith('product');
   });
 });

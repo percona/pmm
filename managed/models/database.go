@@ -1148,6 +1148,10 @@ var databaseSchema = [][]string{
 	112: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
 	},
+	113: {
+		// Reset product tour for new navigation
+		`UPDATE user_flags SET tour_done = false;`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

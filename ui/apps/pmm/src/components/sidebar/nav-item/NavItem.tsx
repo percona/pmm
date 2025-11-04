@@ -77,6 +77,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
             sx={{
               width: level === 0 ? DRAWER_WIDTH : undefined,
             }}
+            data-testid={dataTestid + '-list-item'}
           >
             <ListItemButton
               color="primary.main"
@@ -162,6 +163,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
         sx={{
           width: level === 0 ? DRAWER_WIDTH : undefined,
         }}
+        data-testid={dataTestid + '-list-item'}
       >
         <ListItemButton
           disableGutters
