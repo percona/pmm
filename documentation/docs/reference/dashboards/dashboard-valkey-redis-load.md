@@ -33,7 +33,7 @@ View mean, max, and min rates sorted by average to identify peak and typical loa
 
 Monitor these rates alongside total commands to understand what proportion of your traffic consists of reads versus writes.
 
-## Operations/sec by command
+## Operations/sec by Command
 
 ### [Node name] - Command ops/sec
 
@@ -69,7 +69,7 @@ Higher values indicate active I/O thread processing, which improves performance 
 
 Statistics show mean, max, and min rates. Monitor alongside total command rates to assess whether I/O threading provides expected performance benefits.
 
-### IO threads configured
+### IO Threads Configured
 
 Displays the number of I/O threads configured for each service in a table format.
 

@@ -32,7 +32,7 @@ Use this to monitor overall database activity and understand workload balance. T
 
 Compare read versus write rates to determine if your workload is read-heavy, write-heavy, or balanced. This high-level view helps assess total throughput and capacity utilization across your deployment.
 
-### Top 5 Max Latency - last 10s
+### Top 5 Max Latency - Last 10s
 
 Displays the five commands with the highest p99.9 latency over the last 10 seconds, measured in microseconds.
 
@@ -40,7 +40,7 @@ Use this to quickly identify the slowest operations currently impacting performa
 
 Administrative and diagnostic commands are excluded. High latency values indicate performance bottlenecks requiring investigation.
 
-### Avg Latency
+### Average Latency
 
 Displays the average latency across all commands and percentiles for selected services, measured in microseconds.
 
@@ -58,7 +58,7 @@ Use this to monitor aggregate memory consumption and capacity. The graph shows t
 
 When used memory approaches the max limit, eviction begins. The legend displays mean, max, and min values to track memory trends. This provides a cluster-wide view of memory utilization to assess overall capacity and identify when scaling is needed.
 
-### Cumulative network I/O
+### Cumulative Network I/O
 
 Displays total network input and output traffic in bytes per second across all selected nodes.
 

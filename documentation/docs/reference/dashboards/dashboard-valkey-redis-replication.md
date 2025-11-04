@@ -29,6 +29,7 @@ Use this to monitor replication lag and ensure replicas stay synchronized. When 
 Large or growing gaps suggest network issues, replica overload, or slow disk I/O. Statistics show mean, max, and min offsets to identify typical and peak lag. 
 
 Monitor this to ensure read replicas serve current data and to detect replication problems before they impact availability.
+
 ### Replicas
 
 Displays the total number of replicas connected to primary nodes over time.

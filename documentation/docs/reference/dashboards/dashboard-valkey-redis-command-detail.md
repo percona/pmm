@@ -20,7 +20,7 @@ Compare values across services to identify load imbalances or detect if specific
 
 ## Read and Write Rates
 
-### [Service name] - Read and Write rate
+### [Service name] - Read and Write Rate
 
 Displays the rate of read and write operations processed per second for each service.
 
@@ -90,31 +90,17 @@ The horizontal bar chart format makes it easy to compare latency across differen
 
 Statistics show mean, max, and min percentile values sorted by mean, helping prioritize commands with the biggest latency impact. Monitor this alongside command frequency to identify slow commands affecting user experience.
 
-## Latency by command
+## Latency by Command
 
-### [Service name] - Get latency
+### [Service name] - Get Latency
 
-Displays the latency distribution histogram for GET commands, showing how many operations fall into each latency bucket measured in microseconds.
+Shows how GET command latency is distributed across different time ranges in microseconds.
 
-Use this to analyze GET command performance in detail and understand the complete latency profile of your most common read operations. 
+Use this to understand GET performance patterns. The bar chart groups operations by latency, from fastest to slowest. A healthy distribution shows most operations in the lower latency ranges with few in the higher ones.
 
-The bar chart shows cumulative counts across latency buckets (le = "less than or equal to"), revealing the distribution from fastest to slowest GET operations. 
+Spikes in higher latency ranges may indicate cache misses, large values being retrieved, or resource contention. Since GET is typically your most frequent command, improving its latency has the biggest impact on performance.
 
-This histogram format helps identify whether most GETs are fast with occasional slow outliers, or if there's a broader performance issue. A healthy distribution shows most operations in lower latency buckets with few in higher buckets. 
-
-Spikes in higher latency buckets may indicate cache misses, large value retrievals, or resource contention. Since GET is typically the most frequently used command in cache workloads, optimizing its latency has the biggest impact on overall application performance.
-
-### [Service name] - Rpop Latency
-
-Displays the latency distribution histogram for RPOP commands, showing how many operations fall into each latency bucket measured in microseconds.
-
-Use this to analyze RPOP command performance and understand latency patterns for list operations. The bar chart shows cumulative counts across latency buckets, revealing the distribution from fastest to slowest RPOP operations. 
-
-RPOP is commonly used in queue and job processing patterns, so its performance directly impacts task processing throughput. A healthy distribution shows most operations completing quickly in lower latency buckets. Higher latency operations may indicate blocking on empty lists, large list traversals, or resource contention. 
-
-Since RPOP modifies data structures, its performance can also be affected by persistence settings (AOF, RDB) and replication overhead. Monitor this alongside queue depth metrics to ensure your job processing systems maintain acceptable performance.
-
-### [Service name] - Set latency
+### [Service name] - Set Latency
 
 Displays the latency distribution histogram for SET commands, showing how many operations fall into each latency bucket measured in microseconds.
 
@@ -126,15 +112,15 @@ A healthy distribution shows most operations completing quickly in lower latency
 
 Since SET involves both memory allocation and potential persistence/replication, its latency is typically higher than GET operations. Compare this with GET latency to understand the read/write performance balance and identify if write operations are becoming a bottleneck.
 
-### [Service name] - Lpop latency
+### [Service name] - Lpop Latency
 
-Displays the latency distribution histogram for LPOP commands, showing how many operations fall into each latency bucket measured in microseconds.
+Displays the latency distribution histogram for RPOP commands, showing how many operations fall into each latency bucket measured in microseconds.
 
-Use this to analyze LPOP command performance and understand latency patterns for list operations from the left/head of the list. The bar chart shows cumulative counts across latency buckets, revealing the distribution from fastest to slowest LPOP operations. LPOP is commonly used in FIFO queue implementations and task processing systems where items are added with RPUSH and consumed with LPOP. 
+Use this to analyze RPOP command performance and understand latency patterns for list operations. The bar chart shows cumulative counts across latency buckets, revealing the distribution from fastest to slowest RPOP operations. 
 
-A healthy distribution shows most operations completing quickly in lower latency buckets. Higher latency operations may indicate blocking on empty lists, resource contention, or persistence overhead. Since LPOP is a write operation that modifies list structures, its performance can be affected by AOF/RDB persistence settings and replication to replicas. 
+RPOP is commonly used in queue and job processing patterns, so its performance directly impacts task processing throughput. A healthy distribution shows most operations completing quickly in lower latency buckets. Higher latency operations may indicate blocking on empty lists, large list traversals, or resource contention. 
 
-Compare LPOP and RPOP latencies to understand if there are performance differences between operations on opposite ends of lists.
+Since RPOP modifies data structures, its performance can also be affected by persistence settings (AOF, RDB) and replication overhead. Monitor this alongside queue depth metrics to ensure your job processing systems maintain acceptable performance.
 
 ### [Service name] - Hset Latency
 

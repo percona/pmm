@@ -8,7 +8,7 @@ Use it to track cluster state, monitor node roles and failovers, analyze replica
 
 ## Cluster
 
-### Slots status
+### Slots Status
 Provides visibility into cluster health and slot distribution across the Valkey/Redis cluster.
 
 ### Cluster State
@@ -20,6 +20,7 @@ Use this to monitor the health status of your cluster. A value of `1` indicates 
 This is a critical health indicator. Any time spent in a failed state means the cluster cannot serve all key ranges and may result in application errors or data unavailability for certain keys.
 
 ### Cluster messages
+
 Shows the rate of cluster communication messages sent and received across the cluster over time.
 
 Use this to monitor inter-node communication health and identify potential network issues or excessive cluster chatter. 
@@ -36,7 +37,7 @@ Discrepancies in known node counts may indicate split-brain scenarios, network p
 
 If a node reports fewer known nodes than expected, it may be isolated from part of the cluster and unable to participate fully in cluster operations.
 
-## Replication nodes
+## Replication Roles
 
 ### [Service name]
 
@@ -46,7 +47,7 @@ Use this to track role changes, identify failover events, and monitor replicatio
 
 Sudden role changes may indicate planned failovers, automatic failover due to primary node failures, or manual cluster reconfiguration events. Monitoring this timeline helps you understand when and why nodes switched roles, which is crucial for troubleshooting performance issues or validating failover mechanisms.
 
-## Replication offsets
+## Replication Offsets
 
 ### [Service name] - Replica vs Master Offsets
 
