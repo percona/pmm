@@ -3,7 +3,25 @@ templates:
   - name: pmm_mysql_down
     version: 1
     summary: MySQL down
-    expr: sum by (service_name, node_name) (mysql_up) == bool 0
+    expr: |
+      (
+        # A: bad services (down or silent), keyed by service_id
+        (
+          max by(service_id) (mysql_up) == bool 0
+            and on(service_id)
+          pmm_managed_inventory_agents{agent_type="mysqld_exporter", disabled="0"}
+        )
+        OR
+        (
+          pmm_managed_inventory_agents{agent_type="mysqld_exporter", disabled="0"}
+            unless on(service_id)
+          max by(service_id) (mysql_up)
+        )
+      )
+      *
+      on(service_id) group_left(service_name, node_name)
+      # B: persistent mapping service_id -> service_name, remembered up to 7d
+      max_over_time( (max by(service_id, service_name, node_name) (mysql_up * 0 + 1))[7d:] )
     for: 1m
     severity: critical
     annotations:
