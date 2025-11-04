@@ -1160,6 +1160,10 @@ var databaseSchema = [][]string{
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
+	// Reset product tour for new navigation
+	115: {
+		`UPDATE user_flags SET tour_done = false;`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

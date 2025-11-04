@@ -2,6 +2,7 @@ import {
   useMutation,
   UseMutationOptions,
   useQuery,
+  useQueryClient,
   UseQueryOptions,
 } from '@tanstack/react-query';
 import {
@@ -43,12 +44,15 @@ export const useUpdateUserInfo = (
   options?: Partial<
     UseMutationOptions<UserInfo, ApiError, UpdateUserInfoPayload>
   >
-) =>
-  useMutation({
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationKey: ['user:me:update'],
     mutationFn: (payload) => updateUserInfo(payload),
+    onSuccess: (data) => queryClient.setQueryData(['user:me'], data),
     ...options,
   });
+};
 
 export const useCurrentUserOrgs = (
   options?: Partial<UseQueryOptions<UserOrg[]>>
