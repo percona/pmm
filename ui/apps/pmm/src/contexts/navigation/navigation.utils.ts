@@ -208,15 +208,15 @@ export const addConfiguration = (
   versionInfo?: GetUpdatesResponse
 ): NavItem => {
   const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
-  const { installed, latest } = versionInfo || {};
+  const { updateAvailable, installed, latest } = versionInfo || {};
 
   if (!updates) {
     return NAV_CONFIGURATION;
   }
 
-  if (versionInfo?.updateAvailable) {
+  if (updateAvailable) {
     updates.secondaryText = `Update from v${installed?.version?.slice(0, 5)} to v${latest?.version}`;
-  } else {
+  } else if (installed?.version) {
     updates.secondaryText = `Current: v${installed?.version} (up to date)`;
   }
 
