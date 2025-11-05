@@ -29,7 +29,7 @@ Compare the available deployment methods to choose what works best for your setu
 |-------------------|----------|------------|----------------|
 | [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | Quick setup, development environments | • Fast deployment<br>• Easy to manage<br>• Runs without root privileges<br>• Minimal resource overhead | • Requires Docker knowledge<br>• May need additional network configuration |
 | [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | Security-conscious environments | • Rootless by default<br>• Enhanced security<br>• Docker-compatible commands<br>• No daemon required | • Requires Podman installation<br>• Less common than Docker |
-| [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) | Kubernetes environments | • Native Kubernetes deployment<br>• Scalable and orchestrated<br>• ConfigMap and Secret management<br>• Ingress controller support | • Requires Kubernetes cluster<br>• Helm knowledge needed<br>• More complex setup |
+| [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) |  Kubernetes and OpenShift environments | • Native Kubernetes deployment<br>• Scalable and orchestrated<br>• ConfigMap and Secret management<br>• Ingress controller support | • Requires Kubernetes cluster<br>• Helm knowledge needed<br>• More complex setup |
 | [Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md) | Traditional VM environments | • Pre-configured virtual machine<br>• Works with VMware, VirtualBox<br>• No container knowledge required<br>• Isolated environment | • Larger resource footprint<br>• VM management overhead<br>• Less flexible than containers |
 | [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md) | AWS cloud deployments | • Wizard-driven install<br>• Rootless deployment<br>• Integrated with AWS services | • Paid service, incurs infrastructure costs<br>• AWS-specific deployment |
 
@@ -50,7 +50,7 @@ Install and run at least one PMM Server using one of the following deployment me
     [**Get started with Podman deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/podman/index.md)
 
 === ":material-kubernetes: Helm"
-    Deploy PMM Server on a Kubernetes cluster
+    Deploy PMM Server on Kubernetes or OpenShift clusters
     
     [**Get started with Kubernetes deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
 

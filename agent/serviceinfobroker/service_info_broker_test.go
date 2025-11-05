@@ -67,69 +67,6 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 
 		{
-			name: "MongoDB with no auth",
-			req: &agentv1.ServiceInfoRequest{
-				Dsn:     "mongodb://127.0.0.1:27019/admin?connectTimeoutMS=1000",
-				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-				Timeout: durationpb.New(3 * time.Second),
-			},
-		},
-		{
-			name: "MongoDB with no auth with params",
-			req: &agentv1.ServiceInfoRequest{
-				Dsn:     "mongodb://root:root-password@127.0.0.1:27019/admin?connectTimeoutMS=1000",
-				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-				Timeout: durationpb.New(3 * time.Second),
-			},
-			expectedErr: `.*auth error: (sasl conversation error: )?unable to authenticate using mechanism "[\w-]+": ` +
-				`\(AuthenticationFailed\) Authentication failed.`,
-		},
-		{
-			name: "MongoDB",
-			req: &agentv1.ServiceInfoRequest{
-				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000",
-				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-				Timeout: durationpb.New(3 * time.Second),
-			},
-		},
-		{
-			name: "MongoDB no params",
-			req: &agentv1.ServiceInfoRequest{
-				Dsn:     "mongodb://127.0.0.1:27017/admin?connectTimeoutMS=1000",
-				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-				Timeout: durationpb.New(3 * time.Second),
-			},
-		},
-		{
-			name: "MongoDB wrong params",
-			req: &agentv1.ServiceInfoRequest{
-				Dsn:     "mongodb://root:root-password-wrong@127.0.0.1:27017/admin?connectTimeoutMS=1000",
-				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-				Timeout: durationpb.New(3 * time.Second),
-			},
-			expectedErr: `.*auth error: (sasl conversation error: )?unable to authenticate using mechanism "[\w-]+": ` +
-				`\(AuthenticationFailed\) Authentication failed.`,
-		},
-		{
-			name: "MongoDB timeout",
-			req: &agentv1.ServiceInfoRequest{
-				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=10000",
-				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-				Timeout: durationpb.New(time.Nanosecond),
-			},
-			expectedErr: `.*context deadline exceeded.*`,
-		},
-		{
-			name: "MongoDB no database",
-			req: &agentv1.ServiceInfoRequest{
-				Dsn:     "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
-				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-				Timeout: durationpb.New(3 * time.Second),
-			},
-			expectedErr: `error parsing uri: must have a / before the query \?`,
-		},
-
-		{
 			name: "PostgreSQL",
 			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
@@ -235,7 +172,6 @@ func TestServiceInfoBroker(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -287,6 +223,122 @@ func TestServiceInfoBroker(t *testing.T) {
 		require.NotNil(t, resp)
 		assert.Equal(t, []string{"postgres", "pmm-agent"}, resp.DatabaseList)
 		assert.Equal(t, "", *resp.PgsmVersion)
+	})
+}
+
+func TestServiceInfoBrokerMongoDB(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name        string
+		req         *agentv1.ServiceInfoRequest
+		expectedErr string
+		panic       bool
+	}{
+		{
+			name: "MongoDB with no auth",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "mongodb://127.0.0.1:27019/admin?connectTimeoutMS=1000",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+		},
+		{
+			name: "MongoDB with no auth with params",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "mongodb://root:root-password@127.0.0.1:27019/admin?connectTimeoutMS=1000",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+			expectedErr: `.*auth error: (sasl conversation error: )?unable to authenticate using mechanism "[\w-]+": ` +
+				`\(AuthenticationFailed\) Authentication failed.`,
+		},
+		{
+			name: "MongoDB",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+		},
+		{
+			name: "MongoDB wrong params",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "mongodb://root:root-password-wrong@127.0.0.1:27017/admin?connectTimeoutMS=1000",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+			expectedErr: `.*auth error: (sasl conversation error: )?unable to authenticate using mechanism "[\w-]+": ` +
+				`\(AuthenticationFailed\) Authentication failed.`,
+		},
+		{
+			name: "MongoDB timeout",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=10000",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+				Timeout: durationpb.New(time.Nanosecond),
+			},
+			expectedErr: `.*context deadline exceeded.*`,
+		},
+		{
+			name: "MongoDB no database",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+			expectedErr: `error parsing uri: must have a / before the query \?`,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfgStorage := config.NewStorage(&config.Config{
+				Paths: config.Paths{TempDir: t.TempDir()},
+			})
+			c := New(cfgStorage)
+
+			if tt.panic {
+				require.PanicsWithValue(t, tt.expectedErr, func() {
+					c.GetInfoFromService(context.Background(), tt.req, 0)
+				})
+				return
+			}
+
+			resp := c.GetInfoFromService(context.Background(), tt.req, 0)
+			require.NotNil(t, resp)
+			if tt.expectedErr == "" {
+				assert.Empty(t, resp.Error)
+			} else {
+				require.NotEmpty(t, resp.Error)
+				assert.Regexp(t, `^`+tt.expectedErr+`$`, resp.Error)
+			}
+		})
+	}
+
+	t.Run("MongoDB no params", func(t *testing.T) {
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths: config.Paths{TempDir: t.TempDir()},
+		})
+		c := New(cfgStorage)
+
+		req := &agentv1.ServiceInfoRequest{
+			Dsn:     "mongodb://127.0.0.1:27017/admin?connectTimeoutMS=1000",
+			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+			Timeout: durationpb.New(3 * time.Second),
+		}
+
+		resp := c.GetInfoFromService(context.Background(), req, 0)
+		require.NotNil(t, resp)
+
+		if resp.Error != "" {
+			// MongoDB 8.2.0 introduced mandatory authentication even for localhost connections
+			ttErr := `\(Unauthorized\) Command buildInfo requires authentication`
+			require.NotEmpty(t, resp.Error)
+			assert.Regexp(t, `^`+ttErr+`$`, resp.Error)
+		}
 	})
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
