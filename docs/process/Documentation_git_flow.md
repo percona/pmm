@@ -4,7 +4,7 @@ This topic explains how we manage Percona Monitoring and Management (PMM) docume
 
 Our workflow ensures the [documentation site](https://docs.percona.com/percona-monitoring-and-management/) stays accurate, current, and aligned with each PMM release.
 
-## Branch structure
+## Documentation branches
 
 **v3** – Main production branch. This is the source for the live documentation site deployed via Render.com.
 
