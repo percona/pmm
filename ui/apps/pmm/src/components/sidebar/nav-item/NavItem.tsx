@@ -1,5 +1,5 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -25,7 +25,10 @@ const NavItem: FC<NavItemProps> = ({
   drawerOpen,
   level = 0,
 }) => {
-  const active = activeItem === item || hasChildMatch(item, activeItem);
+  const active = useMemo(
+    () => activeItem === item || hasChildMatch(item, activeItem),
+    [activeItem, item]
+  );
   const [open, setIsOpen] = useState(active);
   const url = useLinkWithVariables(item.url);
   const linkProps = getLinkProps(item, url);
