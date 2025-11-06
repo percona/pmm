@@ -429,6 +429,18 @@ message MetricsBucket {
   // Total bytes of WAL (Write-ahead logging) records.
   float m_wal_bytes_sum = 256;
   float m_wal_bytes_cnt = 257;
+
+  // Total number of times WAL buffers become full.
+  float m_wal_buffers_full_sum = 304;
+  float m_wal_buffers_full_cnt = 305;
+
+  // Total number of parallel workers to launch.
+  float m_parallel_workers_to_launch_sum = 306;
+  float m_parallel_workers_to_launch_cnt = 307;
+  // Total number of parallel workers launched.
+  float m_parallel_workers_launched_sum = 308;
+  float m_parallel_workers_launched_cnt = 309;
+
   // Sum, count, min, max of plan time.
   float m_plan_time_sum = 258;
   float m_plan_time_cnt = 259;

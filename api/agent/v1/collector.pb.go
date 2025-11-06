@@ -2024,11 +2024,20 @@ type MetricsBucket_PostgreSQL struct {
 	// Total bytes of WAL (Write-ahead logging) records.
 	MWalBytesSum float32 `protobuf:"fixed32,37,opt,name=m_wal_bytes_sum,json=mWalBytesSum,proto3" json:"m_wal_bytes_sum,omitempty"`
 	MWalBytesCnt float32 `protobuf:"fixed32,38,opt,name=m_wal_bytes_cnt,json=mWalBytesCnt,proto3" json:"m_wal_bytes_cnt,omitempty"`
+	// Total number of times WAL buffers become full.
+	MWalBuffersFullSum float32 `protobuf:"fixed32,54,opt,name=m_wal_buffers_full_sum,json=mWalBuffersFullSum,proto3" json:"m_wal_buffers_full_sum,omitempty"`
+	MWalBuffersFullCnt float32 `protobuf:"fixed32,55,opt,name=m_wal_buffers_full_cnt,json=mWalBuffersFullCnt,proto3" json:"m_wal_buffers_full_cnt,omitempty"`
 	// Sum, count, min, max of plan time.
 	MPlanTimeSum float32 `protobuf:"fixed32,39,opt,name=m_plan_time_sum,json=mPlanTimeSum,proto3" json:"m_plan_time_sum,omitempty"`
 	MPlanTimeCnt float32 `protobuf:"fixed32,40,opt,name=m_plan_time_cnt,json=mPlanTimeCnt,proto3" json:"m_plan_time_cnt,omitempty"`
 	MPlanTimeMin float32 `protobuf:"fixed32,41,opt,name=m_plan_time_min,json=mPlanTimeMin,proto3" json:"m_plan_time_min,omitempty"`
 	MPlanTimeMax float32 `protobuf:"fixed32,42,opt,name=m_plan_time_max,json=mPlanTimeMax,proto3" json:"m_plan_time_max,omitempty"`
+	// Total number of parallel workers to launch.
+	MParallelWorkersToLaunchSum float32 `protobuf:"fixed32,56,opt,name=m_parallel_workers_to_launch_sum,json=mParallelWorkersToLaunchSum,proto3" json:"m_parallel_workers_to_launch_sum,omitempty"`
+	MParallelWorkersToLaunchCnt float32 `protobuf:"fixed32,57,opt,name=m_parallel_workers_to_launch_cnt,json=mParallelWorkersToLaunchCnt,proto3" json:"m_parallel_workers_to_launch_cnt,omitempty"`
+	// Total number of parallel workers launched.
+	MParallelWorkersLaunchedSum float32 `protobuf:"fixed32,58,opt,name=m_parallel_workers_launched_sum,json=mParallelWorkersLaunchedSum,proto3" json:"m_parallel_workers_launched_sum,omitempty"`
+	MParallelWorkersLaunchedCnt float32 `protobuf:"fixed32,59,opt,name=m_parallel_workers_launched_cnt,json=mParallelWorkersLaunchedCnt,proto3" json:"m_parallel_workers_launched_cnt,omitempty"`
 	// Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):
 	// min_time, max_time, mean_time
 	// plan_mean_time
@@ -2376,6 +2385,20 @@ func (x *MetricsBucket_PostgreSQL) GetMWalBytesCnt() float32 {
 	return 0
 }
 
+func (x *MetricsBucket_PostgreSQL) GetMWalBuffersFullSum() float32 {
+	if x != nil {
+		return x.MWalBuffersFullSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMWalBuffersFullCnt() float32 {
+	if x != nil {
+		return x.MWalBuffersFullCnt
+	}
+	return 0
+}
+
 func (x *MetricsBucket_PostgreSQL) GetMPlanTimeSum() float32 {
 	if x != nil {
 		return x.MPlanTimeSum
@@ -2400,6 +2423,34 @@ func (x *MetricsBucket_PostgreSQL) GetMPlanTimeMin() float32 {
 func (x *MetricsBucket_PostgreSQL) GetMPlanTimeMax() float32 {
 	if x != nil {
 		return x.MPlanTimeMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMParallelWorkersToLaunchSum() float32 {
+	if x != nil {
+		return x.MParallelWorkersToLaunchSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMParallelWorkersToLaunchCnt() float32 {
+	if x != nil {
+		return x.MParallelWorkersToLaunchCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMParallelWorkersLaunchedSum() float32 {
+	if x != nil {
+		return x.MParallelWorkersLaunchedSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_PostgreSQL) GetMParallelWorkersLaunchedCnt() float32 {
+	if x != nil {
+		return x.MParallelWorkersLaunchedCnt
 	}
 	return 0
 }
@@ -2450,7 +2501,7 @@ var File_agent_v1_collector_proto protoreflect.FileDescriptor
 
 const file_agent_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x18agent/v1/collector.proto\x12\bagent.v1\x1a\x19inventory/v1/agents.proto\"\xa9e\n" +
+	"\x18agent/v1/collector.proto\x12\bagent.v1\x1a\x19inventory/v1/agents.proto\"\xabh\n" +
 	"\rMetricsBucket\x126\n" +
 	"\x06common\x18\x01 \x01(\v2\x1e.agent.v1.MetricsBucket.CommonR\x06common\x123\n" +
 	"\x05mysql\x18\x02 \x01(\v2\x1d.agent.v1.MetricsBucket.MySQLR\x05mysql\x129\n" +
@@ -2667,7 +2718,7 @@ const file_agent_v1_collector_proto_rawDesc = "" +
 	"!m_storage_time_reading_micros_sum\x183 \x01(\x02R\x1cmStorageTimeReadingMicrosSum\x12G\n" +
 	"!m_storage_time_reading_micros_min\x184 \x01(\x02R\x1cmStorageTimeReadingMicrosMin\x12G\n" +
 	"!m_storage_time_reading_micros_max\x185 \x01(\x02R\x1cmStorageTimeReadingMicrosMax\x12G\n" +
-	"!m_storage_time_reading_micros_p99\x186 \x01(\x02R\x1cmStorageTimeReadingMicrosP99\x1a\xd1\x13\n" +
+	"!m_storage_time_reading_micros_p99\x186 \x01(\x02R\x1cmStorageTimeReadingMicrosP99\x1a\xd3\x16\n" +
 	"\n" +
 	"PostgreSQL\x12\x1c\n" +
 	"\n" +
@@ -2717,11 +2768,17 @@ const file_agent_v1_collector_proto_rawDesc = "" +
 	"\rm_wal_fpi_cnt\x18$ \x01(\x02R\n" +
 	"mWalFpiCnt\x12%\n" +
 	"\x0fm_wal_bytes_sum\x18% \x01(\x02R\fmWalBytesSum\x12%\n" +
-	"\x0fm_wal_bytes_cnt\x18& \x01(\x02R\fmWalBytesCnt\x12%\n" +
+	"\x0fm_wal_bytes_cnt\x18& \x01(\x02R\fmWalBytesCnt\x122\n" +
+	"\x16m_wal_buffers_full_sum\x186 \x01(\x02R\x12mWalBuffersFullSum\x122\n" +
+	"\x16m_wal_buffers_full_cnt\x187 \x01(\x02R\x12mWalBuffersFullCnt\x12%\n" +
 	"\x0fm_plan_time_sum\x18' \x01(\x02R\fmPlanTimeSum\x12%\n" +
 	"\x0fm_plan_time_cnt\x18( \x01(\x02R\fmPlanTimeCnt\x12%\n" +
 	"\x0fm_plan_time_min\x18) \x01(\x02R\fmPlanTimeMin\x12%\n" +
-	"\x0fm_plan_time_max\x18* \x01(\x02R\fmPlanTimeMax\x12\x1f\n" +
+	"\x0fm_plan_time_max\x18* \x01(\x02R\fmPlanTimeMax\x12E\n" +
+	" m_parallel_workers_to_launch_sum\x188 \x01(\x02R\x1bmParallelWorkersToLaunchSum\x12E\n" +
+	" m_parallel_workers_to_launch_cnt\x189 \x01(\x02R\x1bmParallelWorkersToLaunchCnt\x12D\n" +
+	"\x1fm_parallel_workers_launched_sum\x18: \x01(\x02R\x1bmParallelWorkersLaunchedSum\x12D\n" +
+	"\x1fm_parallel_workers_launched_cnt\x18; \x01(\x02R\x1bmParallelWorkersLaunchedCnt\x12\x1f\n" +
 	"\vtop_queryid\x18, \x01(\tR\n" +
 	"topQueryid\x12\x1b\n" +
 	"\ttop_query\x18/ \x01(\tR\btopQuery\x12)\n" +

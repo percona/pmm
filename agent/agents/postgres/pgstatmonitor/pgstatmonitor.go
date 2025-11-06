@@ -92,6 +92,12 @@ const (
 	pgStatMonitorVersion21PG15
 	pgStatMonitorVersion21PG16
 	pgStatMonitorVersion21PG17
+	pgStatMonitorVersion23PG13
+	pgStatMonitorVersion23PG14
+	pgStatMonitorVersion23PG15
+	pgStatMonitorVersion23PG16
+	pgStatMonitorVersion23PG17
+	pgStatMonitorVersion23PG18
 )
 
 const (
@@ -191,6 +197,21 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 
 	var version pgStatMonitorVersion
 	switch {
+	case vPGSM.Core().GreaterThanOrEqual(v23):
+		switch {
+		case vPG >= 18:
+			version = pgStatMonitorVersion23PG18
+		case vPG >= 17:
+			version = pgStatMonitorVersion23PG17
+		case vPG >= 16:
+			version = pgStatMonitorVersion23PG16
+		case vPG >= 15:
+			version = pgStatMonitorVersion23PG15
+		case vPG >= 14:
+			version = pgStatMonitorVersion23PG14
+		default:
+			version = pgStatMonitorVersion23PG13
+		}
 	case vPGSM.Core().GreaterThanOrEqual(v21):
 		switch {
 		case vPG >= 17:
@@ -638,6 +659,10 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				{float32(currentPSM.WalFpi - prevPSM.WalFpi), &mb.Postgresql.MWalFpiSum, &mb.Postgresql.MWalFpiCnt},
 				{float32(currentPSM.WalRecords - prevPSM.WalRecords), &mb.Postgresql.MWalRecordsSum, &mb.Postgresql.MWalRecordsCnt},
 				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
+				{float32(currentPSM.WalBuffersFull - prevPSM.WalBuffersFull), &mb.Postgresql.MWalBuffersFullSum, &mb.Postgresql.MWalBuffersFullCnt},
+
+				{float32(currentPSM.ParallelWorkersToLaunch - prevPSM.ParallelWorkersToLaunch), &mb.Postgresql.MParallelWorkersToLaunchSum, &mb.Postgresql.MParallelWorkersToLaunchCnt},
+				{float32(currentPSM.ParallelWorkersLaunched - prevPSM.ParallelWorkersLaunched), &mb.Postgresql.MParallelWorkersLaunchedSum, &mb.Postgresql.MParallelWorkersLaunchedCnt},
 
 				// convert milliseconds to seconds
 				{float32(currentPSM.TotalExecTime-prevPSM.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
@@ -649,8 +674,6 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				// convert microseconds to seconds
 				{float32(cpuSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
 				{float32(cpuUserTime) / 1000000, &mb.Postgresql.MCpuUserTimeSum, &mb.Postgresql.MCpuUserTimeCnt},
-
-				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
 			} {
 				if p.value != 0 {
 					*p.sum = p.value

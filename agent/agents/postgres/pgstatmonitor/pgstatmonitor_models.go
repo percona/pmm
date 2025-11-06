@@ -27,6 +27,7 @@ import (
 )
 
 var (
+	v23 = version.Must(version.NewVersion("2.3.0"))
 	v21 = version.Must(version.NewVersion("2.1.0"))
 	v20 = version.Must(version.NewVersion("2.0.0"))
 	v11 = version.Must(version.NewVersion("1.1.0"))
@@ -99,6 +100,10 @@ type pgStatMonitor struct {
 	WalRecords      int64
 	WalFpi          int64
 	WalBytes        int64
+	WalBuffersFull  int64
+
+	ParallelWorkersToLaunch int64
+	ParallelWorkersLaunched int64
 
 	// reform related fields
 	pointers []interface{}
@@ -226,6 +231,13 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		}
 	}
 
+	if vPGSM >= pgStatMonitorVersion23PG18 {
+		fields = append(fields,
+			field{info: parse.FieldInfo{Name: "WalBuffersFull", Type: "int64", Column: "wal_buffers_full"}, pointer: &s.WalBuffersFull},
+			field{info: parse.FieldInfo{Name: "ParrallelWorkersToLaunch", Type: "int64", Column: "parallel_workers_to_launch"}, pointer: &s.ParallelWorkersToLaunch},
+			field{info: parse.FieldInfo{Name: "ParallelWorkersLaunched", Type: "int64", Column: "parallel_workers_launched"}, pointer: &s.ParallelWorkersLaunched})
+	}
+
 	if vPGSM >= pgStatMonitorVersion08 && vPGSM < pgStatMonitorVersion20PG12 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString},
@@ -341,6 +353,9 @@ func (s pgStatMonitor) String() string {
 	res[48] = "WalRecords: " + reform.Inspect(s.WalRecords, true)
 	res[49] = "WalFpi: " + reform.Inspect(s.WalFpi, true)
 	res[50] = "WalBytes: " + reform.Inspect(s.WalBytes, true)
+	res[51] = "WalBuffersFull: " + reform.Inspect(s.WalBuffersFull, true)
+	res[52] = "ParrallelWorkersToLaunch: " + reform.Inspect(s.ParallelWorkersToLaunch, true)
+	res[53] = "ParallelWorkersLaunched: " + reform.Inspect(s.ParallelWorkersLaunched, true)
 	return strings.Join(res, ", ")
 }
 

@@ -440,6 +440,15 @@ type MetricsBucket struct {
 	// Total bytes of WAL (Write-ahead logging) records.
 	MWalBytesSum float32 `protobuf:"fixed32,256,opt,name=m_wal_bytes_sum,json=mWalBytesSum,proto3" json:"m_wal_bytes_sum,omitempty"`
 	MWalBytesCnt float32 `protobuf:"fixed32,257,opt,name=m_wal_bytes_cnt,json=mWalBytesCnt,proto3" json:"m_wal_bytes_cnt,omitempty"`
+	// Total number of times WAL buffers become full.
+	MWalBuffersFullSum float32 `protobuf:"fixed32,304,opt,name=m_wal_buffers_full_sum,json=mWalBuffersFullSum,proto3" json:"m_wal_buffers_full_sum,omitempty"`
+	MWalBuffersFullCnt float32 `protobuf:"fixed32,305,opt,name=m_wal_buffers_full_cnt,json=mWalBuffersFullCnt,proto3" json:"m_wal_buffers_full_cnt,omitempty"`
+	// Total number of parallel workers to launch.
+	MParallelWorkersToLaunchSum float32 `protobuf:"fixed32,306,opt,name=m_parallel_workers_to_launch_sum,json=mParallelWorkersToLaunchSum,proto3" json:"m_parallel_workers_to_launch_sum,omitempty"`
+	MParallelWorkersToLaunchCnt float32 `protobuf:"fixed32,307,opt,name=m_parallel_workers_to_launch_cnt,json=mParallelWorkersToLaunchCnt,proto3" json:"m_parallel_workers_to_launch_cnt,omitempty"`
+	// Total number of parallel workers launched.
+	MParallelWorkersLaunchedSum float32 `protobuf:"fixed32,308,opt,name=m_parallel_workers_launched_sum,json=mParallelWorkersLaunchedSum,proto3" json:"m_parallel_workers_launched_sum,omitempty"`
+	MParallelWorkersLaunchedCnt float32 `protobuf:"fixed32,309,opt,name=m_parallel_workers_launched_cnt,json=mParallelWorkersLaunchedCnt,proto3" json:"m_parallel_workers_launched_cnt,omitempty"`
 	// Sum, count, min, max of plan time.
 	MPlanTimeSum float32 `protobuf:"fixed32,258,opt,name=m_plan_time_sum,json=mPlanTimeSum,proto3" json:"m_plan_time_sum,omitempty"`
 	MPlanTimeCnt float32 `protobuf:"fixed32,259,opt,name=m_plan_time_cnt,json=mPlanTimeCnt,proto3" json:"m_plan_time_cnt,omitempty"`
@@ -2269,6 +2278,48 @@ func (x *MetricsBucket) GetMWalBytesCnt() float32 {
 	return 0
 }
 
+func (x *MetricsBucket) GetMWalBuffersFullSum() float32 {
+	if x != nil {
+		return x.MWalBuffersFullSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWalBuffersFullCnt() float32 {
+	if x != nil {
+		return x.MWalBuffersFullCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMParallelWorkersToLaunchSum() float32 {
+	if x != nil {
+		return x.MParallelWorkersToLaunchSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMParallelWorkersToLaunchCnt() float32 {
+	if x != nil {
+		return x.MParallelWorkersToLaunchCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMParallelWorkersLaunchedSum() float32 {
+	if x != nil {
+		return x.MParallelWorkersLaunchedSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMParallelWorkersLaunchedCnt() float32 {
+	if x != nil {
+		return x.MParallelWorkersLaunchedCnt
+	}
+	return 0
+}
+
 func (x *MetricsBucket) GetMPlanTimeSum() float32 {
 	if x != nil {
 		return x.MPlanTimeSum
@@ -2381,7 +2432,7 @@ const file_qan_v1_collector_proto_rawDesc = "" +
 	"\n" +
 	"\x16qan/v1/collector.proto\x12\x06qan.v1\x1a\x1bgoogle/api/visibility.proto\x1a\x19inventory/v1/agents.proto\x1a\x10qan/v1/qan.proto\"N\n" +
 	"\x0eCollectRequest\x12<\n" +
-	"\x0emetrics_bucket\x18\x01 \x03(\v2\x15.qan.v1.MetricsBucketR\rmetricsBucket\"\xd6h\n" +
+	"\x0emetrics_bucket\x18\x01 \x03(\v2\x15.qan.v1.MetricsBucketR\rmetricsBucket\"\xdek\n" +
 	"\rMetricsBucket\x12\x18\n" +
 	"\aqueryid\x18\x01 \x01(\tR\aqueryid\x12/\n" +
 	"\x13explain_fingerprint\x18\x02 \x01(\tR\x12explainFingerprint\x12-\n" +
@@ -2645,7 +2696,13 @@ const file_qan_v1_collector_proto_rawDesc = "" +
 	"\rm_wal_fpi_cnt\x18\xff\x01 \x01(\x02R\n" +
 	"mWalFpiCnt\x12&\n" +
 	"\x0fm_wal_bytes_sum\x18\x80\x02 \x01(\x02R\fmWalBytesSum\x12&\n" +
-	"\x0fm_wal_bytes_cnt\x18\x81\x02 \x01(\x02R\fmWalBytesCnt\x12&\n" +
+	"\x0fm_wal_bytes_cnt\x18\x81\x02 \x01(\x02R\fmWalBytesCnt\x123\n" +
+	"\x16m_wal_buffers_full_sum\x18\xb0\x02 \x01(\x02R\x12mWalBuffersFullSum\x123\n" +
+	"\x16m_wal_buffers_full_cnt\x18\xb1\x02 \x01(\x02R\x12mWalBuffersFullCnt\x12F\n" +
+	" m_parallel_workers_to_launch_sum\x18\xb2\x02 \x01(\x02R\x1bmParallelWorkersToLaunchSum\x12F\n" +
+	" m_parallel_workers_to_launch_cnt\x18\xb3\x02 \x01(\x02R\x1bmParallelWorkersToLaunchCnt\x12E\n" +
+	"\x1fm_parallel_workers_launched_sum\x18\xb4\x02 \x01(\x02R\x1bmParallelWorkersLaunchedSum\x12E\n" +
+	"\x1fm_parallel_workers_launched_cnt\x18\xb5\x02 \x01(\x02R\x1bmParallelWorkersLaunchedCnt\x12&\n" +
 	"\x0fm_plan_time_sum\x18\x82\x02 \x01(\x02R\fmPlanTimeSum\x12&\n" +
 	"\x0fm_plan_time_cnt\x18\x83\x02 \x01(\x02R\fmPlanTimeCnt\x12&\n" +
 	"\x0fm_plan_time_min\x18\x84\x02 \x01(\x02R\fmPlanTimeMin\x12&\n" +
