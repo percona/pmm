@@ -154,11 +154,12 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	}()
 
 	// add current stat statements to cache, so they are not send as new on first iteration with incorrect timestamps
+	var current statementsMap
 	var running bool
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	if current, _, err := m.getStatStatementsExtended(ctx); err == nil {
+	if current, _, err = m.getStatStatementsExtended(ctx); err == nil {
 		if err = m.statementsCache.Set(current); err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
 			running = true
