@@ -31,13 +31,27 @@ const TEST_NAV_TREE: NavTreeItem = {
   ],
 };
 
-const renderNavItem = (
-  props?: Partial<NavItemProps>,
-  routerProps?: Partial<MemoryRouterProps>
-) =>
+const renderNavItem = ({
+  props,
+  routerProps,
+  activeItem = {
+    id: 'not-found',
+    url: '/not-found',
+  },
+}: {
+  props?: Partial<NavItemProps>;
+  routerProps?: Partial<MemoryRouterProps>;
+  activeItem?: NavTreeItem;
+} = {}) =>
   render(
     wrapWithRouter(
-      <NavItem item={TEST_NAV_TREE} drawerOpen={true} level={0} {...props} />,
+      <NavItem
+        activeItem={activeItem}
+        item={TEST_NAV_TREE}
+        drawerOpen={true}
+        level={0}
+        {...props}
+      />,
       routerProps
     )
   );
@@ -84,7 +98,11 @@ describe('NavItem', () => {
   });
 
   it('collapses root items when sidebar is closed', () => {
-    renderNavItem({ drawerOpen: false });
+    renderNavItem({
+      props: {
+        drawerOpen: false,
+      },
+    });
 
     const level0Collapse = screen.queryByTestId('navitem-level-0-collapse');
 
@@ -92,7 +110,9 @@ describe('NavItem', () => {
   });
 
   it('opens root if child is active', () => {
-    renderNavItem({}, { initialEntries: ['/0/10'] });
+    renderNavItem({
+      activeItem: TEST_NAV_TREE.children![0],
+    });
 
     const level0Collapse = screen.queryByTestId('navitem-level-0-collapse');
     const level1Collapse = screen.queryByTestId('navitem-level-1-collapse');
@@ -102,7 +122,9 @@ describe('NavItem', () => {
   });
 
   it('opens root and parent when child is active', () => {
-    renderNavItem({}, { initialEntries: ['/0/1/2'] });
+    renderNavItem({
+      activeItem: TEST_NAV_TREE.children![1].children![0],
+    });
 
     const level0Collapse = screen.queryByTestId('navitem-level-0-collapse');
     const level1Collapse = screen.queryByTestId('navitem-level-1-collapse');
