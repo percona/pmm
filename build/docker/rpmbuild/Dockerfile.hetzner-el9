@@ -50,7 +50,7 @@ RUN if [ "$(uname -m)" == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
     curl -fSsL -o /tmp/goreleaser.rpm https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.$(uname -m).rpm && \
     tar -C /usr/local -xzf /tmp/golang.tar.gz && \
-    dnf install -y /tmp/goreleaser.rpm && \
+    dnf install -y --disablerepo="*" /tmp/goreleaser.rpm && \
     rm /tmp/golang.tar.gz /tmp/goreleaser.rpm
 
 RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
