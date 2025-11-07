@@ -198,6 +198,7 @@ func (s *Service) Run(ctx context.Context) error {
 	// Create the Raft configuration
 	raftConfig := raft.DefaultConfig()
 	raftConfig.LocalID = raft.ServerID(s.params.NodeID)
+	raftConfig.LogOutput = s.l.Logger.Out
 
 	// Set log level based on environment
 	if os.Getenv("PMM_DEBUG") == "1" {
@@ -428,7 +429,9 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 			}
 		case <-t.C:
 			address, serverID := s.raftNode.LeaderWithID()
-			s.l.Infof("Leader is %s on %s", serverID, address)
+			if serverID != "" {
+				s.l.Infof("Leader is %s on %s", serverID, address)
+			}
 		case <-ctx.Done():
 			return
 		}
