@@ -109,14 +109,15 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 			AlertingTour: req.AlertingTourCompleted,
 		}
 
-		// Keep for backwards compatibility, prefer the snoozeUpdate endpoint
-		if req.SnoozedPmmVersion != nil && *req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
-			params.SnoozedPMMVersion = req.SnoozedPmmVersion
+		if req.SnoozedPmmVersion != nil {
+			if *req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
+				params.SnoozedPMMVersion = req.SnoozedPmmVersion
+				params.SnoozeCount = pointer.ToInt(1)
+			} else {
+				params.SnoozeCount = pointer.ToInt(userInfo.SnoozeCount + 1)
+			}
+
 			params.SnoozedAt = pointer.ToTime(time.Now())
-			params.SnoozeCount = pointer.ToInt(1)
-		} else if req.SnoozedPmmVersion != nil && *req.SnoozedPmmVersion == userInfo.SnoozedPMMVersion {
-			params.SnoozedAt = pointer.ToTime(time.Now())
-			params.SnoozeCount = pointer.ToInt(userInfo.SnoozeCount + 1)
 		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)
@@ -163,43 +164,4 @@ func (s *Service) ListUsers(_ context.Context, _ *userv1.ListUsersRequest) (*use
 	}
 
 	return resp, nil
-}
-
-// SnoozeUpdate snoozes the updates for specific pmm version for current user
-func (s *Service) SnoozeUpdate(ctx context.Context, req *userv1.SnoozeUpdateRequest) (*userv1.SnoozeUpdateResponse, error) {
-	userID, err := s.c.GetUserID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	userInfo, err := models.GetOrCreateUser(s.db.Querier, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	params := &models.UpdateUserParams{
-		UserID:            userInfo.ID,
-		SnoozedPMMVersion: &req.SnoozedPmmVersion,
-		SnoozedAt:         pointer.ToTime(time.Now()),
-	}
-
-	// when changing snoozed PMM version reset the counter
-	if req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
-		params.SnoozeCount = pointer.ToInt(1)
-	} else {
-		params.SnoozeCount = pointer.ToInt(userInfo.SnoozeCount + 1)
-	}
-
-	userInfo, err = models.UpdateUser(s.db.Querier, params)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &userv1.SnoozeUpdateResponse{
-		SnoozedPmmVersion: userInfo.SnoozedPMMVersion,
-		SnoozedAt:         timestamppb.New(*userInfo.SnoozedAt),
-		SnoozeCount:       uint32(userInfo.SnoozeCount),
-	}
-
-	return res, nil
 }

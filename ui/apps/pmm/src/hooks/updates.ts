@@ -1,6 +1,6 @@
 import { useUpdates } from 'contexts/updates';
 import { useUser } from 'contexts/user';
-import { useSnoozeUpdate } from './api/useUser';
+import { useUpdateUserInfo } from './api/useUser';
 import { useCallback, useMemo } from 'react';
 import { useSettings } from 'contexts/settings';
 import { parseDuration } from 'utils/duration.utils';
@@ -11,7 +11,7 @@ export const useSnooze = () => {
   const { settings } = useSettings();
   const { versionInfo } = useUpdates();
   const { user } = useUser();
-  const { mutateAsync } = useSnoozeUpdate();
+  const { mutateAsync } = useUpdateUserInfo();
   const latest = versionInfo?.latest || null;
   const snoozeActive = useMemo(() => {
     if (!latest || !user || !settings) {

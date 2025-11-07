@@ -12,7 +12,7 @@ function normalizeMode(v: unknown): ColorMode {
 
 export const useColorMode = () => {
   const { colorMode, toggleColorMode } = useContext(ColorModeContext);
-  const { mutate,  mutateAsync: updatePreferences  } = useUpdatePreferences();
+  const { mutate, mutateAsync: updatePreferences } = useUpdatePreferences();
   const modeRef = useRef<ColorMode>(normalizeMode(colorMode));
 
   // Keep the reference always up-to-date with current color mode

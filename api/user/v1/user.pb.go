@@ -71,11 +71,13 @@ type GetUserResponse struct {
 	// Alerting Tour
 	AlertingTourCompleted bool `protobuf:"varint,3,opt,name=alerting_tour_completed,json=alertingTourCompleted,proto3" json:"alerting_tour_completed,omitempty"`
 	// Snoozed PMM version update
-	SnoozedPmmVersion string                 `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
-	SnoozedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
-	SnoozeCount       uint32                 `protobuf:"varint,7,opt,name=snooze_count,json=snoozeCount,proto3" json:"snooze_count,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	SnoozedPmmVersion string `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
+	// Timestamp of last snooze
+	SnoozedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
+	// Number of times the update was snoozed
+	SnoozeCount   uint32 `protobuf:"varint,7,opt,name=snooze_count,json=snoozeCount,proto3" json:"snooze_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetUserResponse) Reset() {
@@ -222,11 +224,13 @@ type UpdateUserResponse struct {
 	// Alerting Tour
 	AlertingTourCompleted bool `protobuf:"varint,3,opt,name=alerting_tour_completed,json=alertingTourCompleted,proto3" json:"alerting_tour_completed,omitempty"`
 	// Snooze update alert for a PMM version
-	SnoozedPmmVersion string                 `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
-	SnoozedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
-	SnoozeCount       uint32                 `protobuf:"varint,7,opt,name=snooze_count,json=snoozeCount,proto3" json:"snooze_count,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	SnoozedPmmVersion string `protobuf:"bytes,4,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
+	// Timestamp of last snooze
+	SnoozedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
+	// Number of times the update was snoozed
+	SnoozeCount   uint32 `protobuf:"varint,7,opt,name=snooze_count,json=snoozeCount,proto3" json:"snooze_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateUserResponse) Reset() {
@@ -381,114 +385,6 @@ func (x *ListUsersResponse) GetUsers() []*ListUsersResponse_UserDetail {
 	return nil
 }
 
-type SnoozeUpdateRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// PMM version which should be snoozed
-	SnoozedPmmVersion string `protobuf:"bytes,1,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *SnoozeUpdateRequest) Reset() {
-	*x = SnoozeUpdateRequest{}
-	mi := &file_user_v1_user_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SnoozeUpdateRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SnoozeUpdateRequest) ProtoMessage() {}
-
-func (x *SnoozeUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SnoozeUpdateRequest.ProtoReflect.Descriptor instead.
-func (*SnoozeUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *SnoozeUpdateRequest) GetSnoozedPmmVersion() string {
-	if x != nil {
-		return x.SnoozedPmmVersion
-	}
-	return ""
-}
-
-type SnoozeUpdateResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Snoozed PMM version
-	SnoozedPmmVersion string `protobuf:"bytes,1,opt,name=snoozed_pmm_version,json=snoozedPmmVersion,proto3" json:"snoozed_pmm_version,omitempty"`
-	// Snoozed at timestamp
-	SnoozedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=snoozed_at,json=snoozedAt,proto3" json:"snoozed_at,omitempty"`
-	// Number of times the update was snoozed
-	SnoozeCount   uint32 `protobuf:"varint,3,opt,name=snooze_count,json=snoozeCount,proto3" json:"snooze_count,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SnoozeUpdateResponse) Reset() {
-	*x = SnoozeUpdateResponse{}
-	mi := &file_user_v1_user_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SnoozeUpdateResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SnoozeUpdateResponse) ProtoMessage() {}
-
-func (x *SnoozeUpdateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SnoozeUpdateResponse.ProtoReflect.Descriptor instead.
-func (*SnoozeUpdateResponse) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *SnoozeUpdateResponse) GetSnoozedPmmVersion() string {
-	if x != nil {
-		return x.SnoozedPmmVersion
-	}
-	return ""
-}
-
-func (x *SnoozeUpdateResponse) GetSnoozedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.SnoozedAt
-	}
-	return nil
-}
-
-func (x *SnoozeUpdateResponse) GetSnoozeCount() uint32 {
-	if x != nil {
-		return x.SnoozeCount
-	}
-	return 0
-}
-
 type ListUsersResponse_UserDetail struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	UserId uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -500,7 +396,7 @@ type ListUsersResponse_UserDetail struct {
 
 func (x *ListUsersResponse_UserDetail) Reset() {
 	*x = ListUsersResponse_UserDetail{}
-	mi := &file_user_v1_user_proto_msgTypes[8]
+	mi := &file_user_v1_user_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -512,7 +408,7 @@ func (x *ListUsersResponse_UserDetail) String() string {
 func (*ListUsersResponse_UserDetail) ProtoMessage() {}
 
 func (x *ListUsersResponse_UserDetail) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[8]
+	mi := &file_user_v1_user_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -577,20 +473,12 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
 	"UserDetail\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\rR\x06userId\x12\x19\n" +
-	"\brole_ids\x18\x02 \x03(\rR\aroleIds\"N\n" +
-	"\x13SnoozeUpdateRequest\x127\n" +
-	"\x13snoozed_pmm_version\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x11snoozedPmmVersion\"\xa4\x01\n" +
-	"\x14SnoozeUpdateResponse\x12.\n" +
-	"\x13snoozed_pmm_version\x18\x01 \x01(\tR\x11snoozedPmmVersion\x129\n" +
-	"\n" +
-	"snoozed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tsnoozedAt\x12!\n" +
-	"\fsnooze_count\x18\x03 \x01(\rR\vsnoozeCount2\x8b\x05\n" +
+	"\brole_ids\x18\x02 \x03(\rR\aroleIds2\xd4\x03\n" +
 	"\vUserService\x12\x8e\x01\n" +
 	"\aGetUser\x12\x17.user.v1.GetUserRequest\x1a\x18.user.v1.GetUserResponse\"P\x92A9\x12\x10Get user details\x1a%Retrieve user details from PMM server\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/users/me\x12\x93\x01\n" +
 	"\n" +
 	"UpdateUser\x12\x1a.user.v1.UpdateUserRequest\x1a\x1b.user.v1.UpdateUserResponse\"L\x92A2\x12\rUpdate a user\x1a!Update user details in PMM server\x82\xd3\xe4\x93\x02\x11:\x01*\x1a\f/v1/users/me\x12\x9d\x01\n" +
-	"\tListUsers\x12\x19.user.v1.ListUsersRequest\x1a\x1a.user.v1.ListUsersResponse\"Y\x92AE\x12\x0eList all users\x1a3Retrieve user details for all users from PMM server\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12\xb4\x01\n" +
-	"\fSnoozeUpdate\x12\x1c.user.v1.SnoozeUpdateRequest\x1a\x1d.user.v1.SnoozeUpdateResponse\"g\x92A@\x12\x1eSnooze update for current user\x1a\x1eReturns updated snooze status.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/users/me:snoozeUpdateB\x8f\x01\x92A\f\x12\n" +
+	"\tListUsers\x12\x19.user.v1.ListUsersRequest\x1a\x1a.user.v1.ListUsersResponse\"Y\x92AE\x12\x0eList all users\x1a3Retrieve user details for all users from PMM server\x82\xd3\xe4\x93\x02\v\x12\t/v1/usersB\x8f\x01\x92A\f\x12\n" +
 	"\n" +
 	"\bUser API\n" +
 	"\vcom.user.v1B\tUserProtoP\x01Z)github.com/percona/pmm/api/user/v1;userv1\xa2\x02\x03UXX\xaa\x02\aUser.V1\xca\x02\aUser\\V1\xe2\x02\x13User\\V1\\GPBMetadata\xea\x02\bUser::V1b\x06proto3"
@@ -608,7 +496,7 @@ func file_user_v1_user_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+	file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 	file_user_v1_user_proto_goTypes  = []any{
 		(*GetUserRequest)(nil),               // 0: user.v1.GetUserRequest
 		(*GetUserResponse)(nil),              // 1: user.v1.GetUserResponse
@@ -616,31 +504,26 @@ var (
 		(*UpdateUserResponse)(nil),           // 3: user.v1.UpdateUserResponse
 		(*ListUsersRequest)(nil),             // 4: user.v1.ListUsersRequest
 		(*ListUsersResponse)(nil),            // 5: user.v1.ListUsersResponse
-		(*SnoozeUpdateRequest)(nil),          // 6: user.v1.SnoozeUpdateRequest
-		(*SnoozeUpdateResponse)(nil),         // 7: user.v1.SnoozeUpdateResponse
-		(*ListUsersResponse_UserDetail)(nil), // 8: user.v1.ListUsersResponse.UserDetail
-		(*timestamppb.Timestamp)(nil),        // 9: google.protobuf.Timestamp
+		(*ListUsersResponse_UserDetail)(nil), // 6: user.v1.ListUsersResponse.UserDetail
+		(*timestamppb.Timestamp)(nil),        // 7: google.protobuf.Timestamp
 	}
 )
 
 var file_user_v1_user_proto_depIdxs = []int32{
-	9, // 0: user.v1.GetUserResponse.snoozed_at:type_name -> google.protobuf.Timestamp
-	9, // 1: user.v1.UpdateUserResponse.snoozed_at:type_name -> google.protobuf.Timestamp
-	8, // 2: user.v1.ListUsersResponse.users:type_name -> user.v1.ListUsersResponse.UserDetail
-	9, // 3: user.v1.SnoozeUpdateResponse.snoozed_at:type_name -> google.protobuf.Timestamp
-	0, // 4: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest
-	2, // 5: user.v1.UserService.UpdateUser:input_type -> user.v1.UpdateUserRequest
-	4, // 6: user.v1.UserService.ListUsers:input_type -> user.v1.ListUsersRequest
-	6, // 7: user.v1.UserService.SnoozeUpdate:input_type -> user.v1.SnoozeUpdateRequest
-	1, // 8: user.v1.UserService.GetUser:output_type -> user.v1.GetUserResponse
-	3, // 9: user.v1.UserService.UpdateUser:output_type -> user.v1.UpdateUserResponse
-	5, // 10: user.v1.UserService.ListUsers:output_type -> user.v1.ListUsersResponse
-	7, // 11: user.v1.UserService.SnoozeUpdate:output_type -> user.v1.SnoozeUpdateResponse
-	8, // [8:12] is the sub-list for method output_type
-	4, // [4:8] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	7, // 0: user.v1.GetUserResponse.snoozed_at:type_name -> google.protobuf.Timestamp
+	7, // 1: user.v1.UpdateUserResponse.snoozed_at:type_name -> google.protobuf.Timestamp
+	6, // 2: user.v1.ListUsersResponse.users:type_name -> user.v1.ListUsersResponse.UserDetail
+	0, // 3: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest
+	2, // 4: user.v1.UserService.UpdateUser:input_type -> user.v1.UpdateUserRequest
+	4, // 5: user.v1.UserService.ListUsers:input_type -> user.v1.ListUsersRequest
+	1, // 6: user.v1.UserService.GetUser:output_type -> user.v1.GetUserResponse
+	3, // 7: user.v1.UserService.UpdateUser:output_type -> user.v1.UpdateUserResponse
+	5, // 8: user.v1.UserService.ListUsers:output_type -> user.v1.ListUsersResponse
+	6, // [6:9] is the sub-list for method output_type
+	3, // [3:6] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_user_proto_init() }
@@ -655,7 +538,7 @@ func file_user_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_v1_user_proto_rawDesc), len(file_user_v1_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

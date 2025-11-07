@@ -9,15 +9,12 @@ import {
   getCurrentUser,
   getCurrentUserOrgs,
   getUserInfo,
-  snoozeUpdate,
   updatePreferences,
   updateUserInfo,
 } from 'api/user';
 import { ApiError } from 'types/api.types';
 import {
   GetUserResponse,
-  SnoozeUpdateBody,
-  SnoozeUpdateResponse,
   UpdatePreferencesBody,
   UpdateUserInfoPayload,
   UserInfo,
@@ -70,14 +67,5 @@ export const useUpdatePreferences = (
     mutationKey: ['user:preferences'],
     mutationFn: (preferences: Partial<UpdatePreferencesBody>) =>
       updatePreferences(preferences),
-    ...options,
-  });
-
-export const useSnoozeUpdate = (
-  options?: UseMutationOptions<SnoozeUpdateResponse, ApiError, SnoozeUpdateBody>
-) =>
-  useMutation({
-    mutationKey: ['updates:snooze'],
-    mutationFn: (variables) => snoozeUpdate(variables),
     ...options,
   });

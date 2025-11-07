@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -30,12 +29,12 @@ import (
 
 func TestUpdateSnoozing(t *testing.T) {
 	t.Run("provides default snooze information in user info", func(t *testing.T) {
-		res, err1 := userClient.Default.UserService.GetUser(nil)
+		res, err := userClient.Default.UserService.GetUser(nil)
 
-		require.NoError(t, err1)
+		require.NoError(t, err)
 
 		assert.Empty(t, res.Payload.SnoozedPMMVersion)
-		assert.Equal(t, strfmt.DateTime(time.Time{}), res.Payload.SnoozedAt)
+		assert.Equal(t, time.Time{}.Format(time.RFC3339), res.Payload.SnoozedAt)
 		assert.Equal(t, int64(0), res.Payload.SnoozeCount)
 	})
 
@@ -77,7 +76,7 @@ func TestUpdateSnoozing(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, "2.0.0", res.Payload.SnoozedPMMVersion)
-		assert.Equal(t, strfmt.DateTime(time.Time{}), res.Payload.SnoozedAt)
+		assert.Equal(t, time.Time{}.Format(time.RFC3339), res.Payload.SnoozedAt)
 		assert.Equal(t, int64(1), res.Payload.SnoozeCount)
 	})
 }

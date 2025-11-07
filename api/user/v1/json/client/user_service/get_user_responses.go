@@ -433,11 +433,11 @@ type GetUserOKBody struct {
 	// Snoozed PMM version update
 	SnoozedPMMVersion string `json:"snoozed_pmm_version,omitempty"`
 
-	// snoozed at
+	// Timestamp of last snooze
 	// Format: date-time
 	SnoozedAt strfmt.DateTime `json:"snoozed_at,omitempty"`
 
-	// snooze count
+	// Number of times the update was snoozed
 	SnoozeCount int64 `json:"snooze_count,omitempty"`
 }
 
