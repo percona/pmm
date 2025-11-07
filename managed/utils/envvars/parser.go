@@ -88,6 +88,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 		case "CONTAINER":
 			continue
+		case "NSS_WRAPPER_GROUP", "NSS_WRAPPER_PASSWD", "LD_PRELOAD":
+			// skip nss_wrapper environment variables
+			continue
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
