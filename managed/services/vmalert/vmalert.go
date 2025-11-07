@@ -18,6 +18,7 @@ package vmalert
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -25,7 +26,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
@@ -57,7 +57,7 @@ type Service struct {
 func NewVMAlert(externalRules *ExternalRules, baseURL string) (*Service, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	var t http.RoundTripper = &http.Transport{
@@ -145,7 +145,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 	}()
 
 	if err := svc.reload(ctx); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	svc.l.Infof("Configuration reloaded.")
 
@@ -158,22 +158,22 @@ func (svc *Service) reload(ctx context.Context) error {
 	u.Path = path.Join(u.Path, "-", "reload")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	resp, err := svc.client.Do(req)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VMAlert reload: %s", b)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.Errorf("expected 200, got %d", resp.StatusCode)
+		return fmt.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 	return nil
 }
@@ -184,21 +184,21 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	u.Path = path.Join(u.Path, "health")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	resp, err := svc.client.Do(req)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VMAlert health: %s", b)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return errors.Errorf("expected 200, got %d", resp.StatusCode)
+		return fmt.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
 	return nil
