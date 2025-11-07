@@ -252,7 +252,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			// skip PMM test environment variables
 			if strings.HasPrefix(k, "PMM_TEST_") {
-				warns = append(warns, fmt.Sprintf("environment variable %q may be removed or replaced in the future", env))
+				warns = append(warns, fmt.Sprintf("environment variable %s may be removed or replaced in the future", env))
 				continue
 			}
 
@@ -261,7 +261,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
+			warns = append(warns, fmt.Sprintf("unknown environment variable %s", env))
 		}
 	}
 

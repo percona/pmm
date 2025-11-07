@@ -65,8 +65,8 @@ func TestEnvVarValidator(t *testing.T) {
 		envs := []string{"UNKNOWN_VAR=VAL", "ANOTHER_UNKNOWN_VAR=VAL"}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
-			`unknown environment variable "UNKNOWN_VAR=VAL"`,
-			`unknown environment variable "ANOTHER_UNKNOWN_VAR=VAL"`,
+			"unknown environment variable UNKNOWN_VAR=VAL",
+			"unknown environment variable ANOTHER_UNKNOWN_VAR=VAL",
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)

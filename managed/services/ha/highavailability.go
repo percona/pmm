@@ -372,7 +372,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				raftServers[string(server.ID)] = struct{}{}
 			}
 			members := s.memberlist.Members()
-			s.l.Infof("memberlist members: %v", members)
+			s.l.Infof("HA memberlist: %v", members)
 			for _, node := range members {
 				if _, ok := raftServers[node.Name]; !ok {
 					s.addMemberlistNodeToRaft(node)
