@@ -43,7 +43,7 @@ const UpdateModal: FC = () => {
     return null;
   }
 
-  if (snoozeCount > 1) {
+  if (snoozeCount >= 1) {
     return (
       <Snackbar
         open={open}
