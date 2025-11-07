@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [tsconfigPaths({ root: '.' }), react()],
   base: '/pmm-ui',
   server: {
+    allowedHosts: ['host.docker.internal'],
     proxy: {
       '/v1': {
         target: '/',

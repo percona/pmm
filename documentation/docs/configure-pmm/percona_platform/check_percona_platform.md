@@ -1,4 +1,15 @@
 # Connect PMM to Percona Platform
+
+!!! caution alert alert-warning "Percona Platform deprecation"
+    
+    **Percona Platform is deprecated as of PMM 3.5.0 and will be discontinued with PMM 3.7.0 (March 2026).**
+    
+    All advisors and alert templates are now built directly into PMM as free, offline features. Platform connectivity, Percona Account sign-in, and account information features (Entitlements and Support tickets) in PMM will be removed. 
+    
+    [Migrate to a supported authentication method](../admin/manage-users/edit_users.html#migrating-from-percona-account-authentication-deprecated) before March 2026.
+    
+    **Need help?** Contact [Percona Support](https://www.percona.com/services/support) for migration assistance.
+
 To connect your PMM Server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.
 
 ## Token validity
