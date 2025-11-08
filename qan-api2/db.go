@@ -18,7 +18,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 	"time"
@@ -27,6 +26,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
 	"github.com/jmoiron/sqlx"                                    // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/qan-api2/migrations"
 	"github.com/percona/pmm/utils/dsnutils"
@@ -38,50 +38,51 @@ const (
 
 // NewDB return updated db.
 func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
+	l := logrus.WithField("component", "db")
 	// If ClickHouse is a cluster, wait until the cluster is ready.
 	if isCluster {
-		log.Println("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
+		l.Info("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
 		dsnURL, err := url.Parse(dsn)
 		if err != nil {
-			log.Fatalf("error parsing DSN: %v", err)
+			l.Fatalf("Error parsing DSN: %v", err)
 		}
 		dsnURL.Path = "/default"
 		dsnDefault := dsnURL.String()
-		log.Printf("DSN for cluster check: %s", dsnutils.RedactDSN(dsnDefault))
+		l.Infof("DSN for cluster check: %s", dsnutils.RedactDSN(dsnDefault))
 
 		for {
 			isClusterReady, err := migrations.IsClickhouseClusterReady(dsnDefault, clusterName)
 			if err != nil {
-				log.Fatalf("error checking ClickHouse cluster status: %v", err)
+				l.Fatalf("Error checking ClickHouse cluster status: %v", err)
 			}
 			if isClusterReady {
-				log.Println("ClickHouse cluster is ready")
+				l.Info("ClickHouse cluster is ready")
 				break
 			}
 
-			log.Println("waiting for ClickHouse cluster to be ready... (system.clusters where remote_hosts > 0)")
+			l.Info("Waiting for ClickHouse cluster to be ready... (system.clusters where remote_hosts > 0)")
 			time.Sleep(1 * time.Second)
 		}
 	}
 
-	log.Printf("new connection with DSN: %s", dsnutils.RedactDSN(dsn))
+	l.Infof("New connection with DSN: %s", dsnutils.RedactDSN(dsn))
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		log.Printf("error connecting to clickhouse: %v", err)
+		l.Errorf("Error connecting to ClickHouse: %v", err)
 		var exception *clickhouse.Exception
 		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
-			log.Println("one of expected errors - database does not exist, creating")
+			l.Warn("Database does not exist, creating")
 			err = createDB(dsn, clusterName)
 			if err != nil {
-				log.Fatalf("database wasn't created: %v", err)
+				l.Fatalf("Database wasn't created: %v", err)
 			}
-			log.Printf("database created, connecting again %s", dsnutils.RedactDSN(dsn))
+			l.Infof("Database created, connecting again %s", dsnutils.RedactDSN(dsn))
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
-				log.Fatalf("connection: %v", err)
+				l.Fatalf("Connection: %v", err)
 			}
 		} else {
-			log.Fatalf("connection: %v", err)
+			l.Fatalf("Connection: %v", err)
 		}
 	}
 
@@ -101,19 +102,20 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		"engine": migrations.GetEngine(isCluster),
 	}
 	if clusterName != "" {
-		log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		l.Infof("Using ClickHouse cluster name: %s", clusterName)
 		data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
 	}
 	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
-		log.Fatalf("migrations: %v", err)
+		l.Fatalf("migrations: %v", err)
 	}
-	log.Println("migrations applied")
+	l.Info("migrations applied")
 
 	return db
 }
 
 func createDB(dsn string, clusterName string) error {
-	log.Println("Creating database")
+	l := logrus.WithField("component", "db")
+	l.Info("Creating database...")
 	clickhouseURL, err := url.Parse(dsn)
 	if err != nil {
 		return err
@@ -129,17 +131,17 @@ func createDB(dsn string, clusterName string) error {
 
 	sql := fmt.Sprintf("CREATE DATABASE %s", databaseName)
 	if clusterName != "" {
-		log.Printf("Using ClickHouse cluster name: %s", clusterName)
+		l.Infof("Using ClickHouse cluster name: %s", clusterName)
 		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
 	}
 	sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 
 	result, err := defaultDB.Exec(sql)
 	if err != nil {
-		log.Printf("Result: %v", result)
+		l.Infof("Result: %v", result)
 		return err
 	}
-	log.Println("Database was created")
+	l.Info("Database was created")
 
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
 	return nil
@@ -147,6 +149,7 @@ func createDB(dsn string, clusterName string) error {
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
 func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
+	l := logrus.WithField("component", "db")
 	partitions := []string{}
 	const query = `
 		SELECT DISTINCT partition
@@ -159,11 +162,11 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 		days,
 		dbName)
 	if err != nil {
-		log.Printf("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
+		l.Infof("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return
 	}
 	for _, part := range partitions {
 		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE metrics DROP PARTITION %s`, part))
-		log.Printf("Drop %s partitions of metrics. Result: %v, Error: %v", part, result, err)
+		l.Infof("Drop %s partitions of metrics. Result: %v, Error: %v", part, result, err)
 	}
 }
