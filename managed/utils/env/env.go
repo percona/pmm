@@ -19,6 +19,7 @@ package env
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -42,6 +43,9 @@ const (
 
 	// EnableInternalPgQAN is used to enable Query Analytics for PMM's internal PostgreSQL.
 	EnableInternalPgQAN = "PMM_ENABLE_INTERNAL_PG_QAN"
+
+	// ClickHouseNodes is used to store the ClickHouse nodes.
+	ClickHouseNodes = "PMM_CLICKHOUSE_NODES"
 )
 
 // GetBool returns the boolean value of the environment variable.
@@ -57,4 +61,15 @@ func GetBool(key string) bool {
 		return false
 	}
 	return b
+}
+
+// GetStringSlice returns the string slice value of the environment variable.
+// Returns an empty slice if the variable is not set.
+func GetStringSlice(key string) []string {
+	v, ok := os.LookupEnv(key)
+	if !ok || v == "" {
+		return []string{}
+	}
+
+	return strings.Split(v, ",")
 }

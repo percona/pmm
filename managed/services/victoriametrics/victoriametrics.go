@@ -363,10 +363,9 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(resolutions.HR, svc.baseURL.Host))
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR))
-		AddInternalServicesToScrape(cfg, resolutions)
+		addInternalServicesToScrape(cfg, resolutions, svc)
 		if pointer.GetBool(settings.Nomad.Enabled) {
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
-				scrapeConfigForNomadServer(resolutions.MR))
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR))
 		}
 		// In HA mode, skip external exporter agents if this node is not the leader
 		skipExternalAgents := svc.haService != nil && !svc.haService.IsLeader()

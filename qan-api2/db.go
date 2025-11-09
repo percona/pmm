@@ -71,7 +71,6 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		l.Errorf("Error connecting to ClickHouse: %v", err)
 		var exception *clickhouse.Exception
 		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
-			l.Warn("Database does not exist, creating")
 			err = createDB(dsn, clusterName)
 			if err != nil {
 				l.Fatalf("Database wasn't created: %v", err)
@@ -108,7 +107,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
 		l.Fatalf("migrations: %v", err)
 	}
-	l.Info("migrations applied")
+	l.Info("Migrations applied successfully")
 
 	return db
 }
