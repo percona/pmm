@@ -2,8 +2,7 @@
 
 Valkey is a high-performance open-source alternative to Redis. Because Valkey is a Redis fork that maintains full protocol compatibility, PMM monitors both databases using the same proven methods and dashboards.
 
-Connect your Valkey or Redis instances to PMM to track performance, analyze commands, and monitor cluster health. PMM's 10 dedicated **Valkey/Redis** dashboards to help you spot memory issues, diagnose slow queries, and maintain healthy replication across your Valkey/Redis deployments.
-
+Connect your Valkey or Redis instances to PMM to track performance, analyze commands, and monitor cluster health. PMM's 10 dedicated **Valkey/Redis** dashboards help you spot memory issues, diagnose slow queries, and maintain healthy replication across your Valkey/Redis deployments.
 
 ### Prerequisites
 
@@ -24,23 +23,21 @@ Before connecting Valkey or Redis to PMM, review the prerequisites for your moni
 For security best practices, configure proper authentication for your Valkey or Redis instance.
 
 ??? info "Password security"
-    - Use a strong, unique password for Valkey connections
-    - At least 12 characters long
-    - Mix of uppercase and lowercase letters
-    - Include numbers and special characters
-    - Avoid common words or patterns
-    - Never use default, test, or example passwords in production
+   - Use a strong, unique password (at least 12 characters).
+   - Mix of uppercase/lowercase letters, numbers, and special characters.
+   - Never use default, test, or example passwords in production.
 
 #### ACL configuration (Valkey 6.0+)
 
-If you're using Valkey's ACL feature, create a dedicated monitoring user:
+If you're using Valkey's ACL feature, create a dedicated monitoring user with read-only permissions:
+
 ```sh
-# Create monitoring user with read-only permissions
-ACL SETUSER pmm on >StrongPassword123! ~* +@read +info +config|get +slowlog +latency
+    # Create monitoring user with read-only permissions
+    ACL SETUSER pmm on >StrongPassword123! ~* +@read +info +config|get +slowlog +latency
 ```
 
 ### Add service to PMM
-You can add your Valkey or Redis service to PMM either through the user interface or via the command line.
+You can add your Valkey or Redis service to PMM either through the user interface or via the command line:
 
 === "Via UI"
 
@@ -53,15 +50,13 @@ You can add your Valkey or Redis service to PMM either through the user interfac
     
     3. Fill in the **Main details** section:
 
-        - **Service name**: defaults to `hostname` if you don't specify a custom descriptive name for your database
-        - **Nodes**: Select the PMM node where the agent is running
-        - **Agents**: Select the PMM agent that should monitor this instance
-        - **Hostname**: The hostname or IP address of your Valkey/Redis instance
-        - **Port**: The port number (default: `6379`)
-        - **Username**: The username for authentication (optional)
-        - **Password**: The password for authentication (optional)
+        - **Service name**: e.g., `valkey-primary-svc`. This defaults to `hostname` if you don't specify a custom descriptive name.
+        - **Nodes**: Select the PMM node where the agent is running.
+        - **Agents**: Select the PMM agent that should monitor this instance.
+        - **Hostname/Port**: The address and port (default: `6379`) of your instance.
+        - **Username/Password**: Authentication credentials (if ACL is enabled).
 
-    4. Configure **Labels** (optional):
+    4. Configure **Labels** (optional): Add descriptive tags. For clustered/replicated setups, ensure you set the `role` label here (e.g., `role:primary`).
         
         - **Environment**: Specify the environment (e.g., `production`, `staging`)
         - **Cluster**: Specify the cluster name if applicable
