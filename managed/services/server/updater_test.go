@@ -34,6 +34,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -293,9 +294,9 @@ func TestUpdater(t *testing.T) {
 			versionServiceURL, err := envvars.GetPlatformAddress() // defaults to production
 			require.NoError(t, err)
 			defer func() {
-				t.Setenv(envvars.EnvPlatformAddress, versionServiceURL)
+				t.Setenv(env.PlatformAddress, versionServiceURL)
 			}()
-			t.Setenv(envvars.EnvPlatformAddress, "https://check-dev.percona.com")
+			t.Setenv(env.PlatformAddress, "https://check-dev.percona.com")
 			_, latest, err := u.latest(context.Background())
 			require.NoError(t, err)
 			assert.True(t, strings.HasPrefix(latest.Version.String(), "3."),

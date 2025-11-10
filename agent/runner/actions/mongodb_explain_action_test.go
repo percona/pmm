@@ -304,6 +304,9 @@ func TestMongoDBExplain(t *testing.T) {
 			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
 			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false}
 			want["prunedSimilarIndexes"] = false
+			if mongoDBVersion.Minor >= 2 {
+				want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false, "type": "nonExistentNamespace"}
+			}
 		}
 
 		explainM := make(map[string]interface{})
