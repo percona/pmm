@@ -16,10 +16,6 @@ PMM Client is a collection of agents and exporters that run on the host being mo
 
 PMM Client runs on every database host or node you want to monitor. The client collects server metrics, general system metrics, query analytics and sends it to the server. Except when monitoring AWS RDS instances, a PMM Client must be running on the host to be monitored.
 
-## Percona Platform
-
-[Percona Platform](../configure-pmm/percona_platform/integrate_with_percona_platform.md) provides value-added services for PMM.
-
 ## PMM context
 
 The PMM Client package provides:

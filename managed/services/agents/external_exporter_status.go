@@ -98,7 +98,7 @@ func (s *ExternalExporterStatusService) updateAllExternalExporterStatuses(ctx co
 
 	s.l.Debugf("Updating status for %d external exporters.", len(statusMap))
 
-	err = s.db.InTransaction(func(tx *reform.TX) error {
+	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		for agentID, status := range statusMap {
 			agent := &models.Agent{AgentID: agentID}
 			if err := tx.Reload(agent); err != nil {
@@ -126,53 +126,5 @@ func (s *ExternalExporterStatusService) updateAllExternalExporterStatuses(ctx co
 	})
 	if err != nil {
 		s.l.Errorf("Transaction failed while updating external exporter statuses: %v", err)
-	}
-}
-
-// UpdateExternalExporterStatus updates status for a single external exporter.
-// This is used for immediate status check after agent creation.
-func (s *ExternalExporterStatusService) UpdateExternalExporterStatus(ctx context.Context, agentID string) {
-	// Query VictoriaMetrics for specific agent 'up' metric
-	query := `up{agent_id="` + agentID + `", agent_type="external-exporter"}`
-	result, _, err := s.vmClient.Query(ctx, query, time.Now())
-	if err != nil {
-		s.l.Warnf("Failed to query VictoriaMetrics for agent %s status: %v", agentID, err)
-		return
-	}
-
-	var status inventoryv1.AgentStatus
-	if vector, ok := result.(model.Vector); ok && len(vector) > 0 {
-		if vector[0].Value == 1 {
-			status = inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
-		} else {
-			status = inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN
-		}
-	} else {
-		status = inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN
-	}
-
-	err = s.db.InTransaction(func(tx *reform.TX) error {
-		agent := &models.Agent{AgentID: agentID}
-		if err := tx.Reload(agent); err != nil {
-			return err
-		}
-
-		if agent.AgentType != models.ExternalExporterType {
-			s.l.Warnf("Agent %s is not an external exporter, skipping status update.", agentID)
-			return nil
-		}
-
-		newStatus := status.String()
-		if agent.Status != newStatus {
-			agent.Status = newStatus
-			if err := tx.Update(agent); err != nil {
-				return err
-			}
-			s.l.Infof("Updated agent %s status to %s.", agentID, newStatus)
-		}
-		return nil
-	})
-	if err != nil {
-		s.l.Errorf("Failed to update status for agent %s: %v", agentID, err)
 	}
 }

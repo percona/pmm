@@ -18,7 +18,7 @@ package inventory
 
 import (
 	"context"
-	"time"
+	"os"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -29,32 +29,31 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
 )
 
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
-	r                         agentsRegistry
-	a                         agentService
-	state                     agentsStateUpdater
-	vmdb                      prometheusService
-	db                        *reform.DB
-	cc                        connectionChecker
-	sib                       serviceInfoBroker
-	externalExporterStatusSvc externalExporterStatusService
+	r     agentsRegistry
+	a     agentService
+	state agentsStateUpdater
+	vmdb  prometheusService
+	db    *reform.DB
+	cc    connectionChecker
+	sib   serviceInfoBroker
 }
 
 // NewAgentsService creates new AgentsService.
-func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService, externalExporterStatusSvc externalExporterStatusService) *AgentsService { //nolint:lll
+func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService) *AgentsService { //nolint:lll
 	return &AgentsService{
-		r:                         r,
-		a:                         a,
-		state:                     state,
-		vmdb:                      vmdb,
-		db:                        db,
-		cc:                        cc,
-		sib:                       sib,
-		externalExporterStatusSvc: externalExporterStatusSvc,
+		r:     r,
+		a:     a,
+		state: state,
+		vmdb:  vmdb,
+		db:    db,
+		cc:    cc,
+		sib:   sib,
 	}
 }
 
@@ -1095,13 +1094,27 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
+	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
+	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
+	if exists && envVar != "" {
+		a, err := models.FindAgentByID(as.db.Querier, agentID)
+		if err != nil {
+			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
+		}
+		if pointer.GetString(a.PMMAgentID) == "pmm-server" {
+			return nil, status.Errorf(
+				codes.FailedPrecondition,
+				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
+				envVar)
+		}
+	}
+	changeParams := &commonAgentParams{
 		Enable:             p.Enable,
 		EnablePushMetrics:  p.EnablePushMetrics,
 		CustomLabels:       p.CustomLabels,
 		MetricsResolutions: p.MetricsResolutions,
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+	ag, err := as.changeAgent(ctx, agentID, changeParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1313,15 +1326,6 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 		// It's required to regenerate victoriametrics config file.
 		as.vmdb.RequestConfigurationUpdate()
 	}
-
-	// Schedule immediate status check after first scrape interval (15 seconds)
-	// This allows VictoriaMetrics to scrape the exporter and generate 'up' metric
-	agentID := agent.AgentId
-	go func() {
-		time.Sleep(15 * time.Second)
-		// Use background context since the original request context may be cancelled
-		as.externalExporterStatusSvc.UpdateExternalExporterStatus(context.Background(), agentID)
-	}()
 
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_ExternalExporter{
