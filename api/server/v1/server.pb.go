@@ -1094,8 +1094,10 @@ type Settings struct {
 	EnableAccessControl bool `protobuf:"varint,17,opt,name=enable_access_control,json=enableAccessControl,proto3" json:"enable_access_control,omitempty"`
 	// Default Access Control role ID for new users.
 	DefaultRoleId uint32 `protobuf:"varint,18,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
+	// True if Query Analytics for PMM's internal PG database is enabled.
+	EnableInternalPgQan bool `protobuf:"varint,19,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3" json:"enable_internal_pg_qan,omitempty"`
 	// Duration for which an update is snoozed
-	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,19,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
+	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,20,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -1247,6 +1249,13 @@ func (x *Settings) GetDefaultRoleId() uint32 {
 		return x.DefaultRoleId
 	}
 	return 0
+}
+
+func (x *Settings) GetEnableInternalPgQan() bool {
+	if x != nil {
+		return x.EnableInternalPgQan
+	}
+	return false
 }
 
 func (x *Settings) GetUpdateSnoozeDuration() *durationpb.Duration {
@@ -1548,8 +1557,10 @@ type ChangeSettingsRequest struct {
 	EnableBackupManagement *bool `protobuf:"varint,12,opt,name=enable_backup_management,json=enableBackupManagement,proto3,oneof" json:"enable_backup_management,omitempty"`
 	// Enable Access Control
 	EnableAccessControl *bool `protobuf:"varint,13,opt,name=enable_access_control,json=enableAccessControl,proto3,oneof" json:"enable_access_control,omitempty"`
+	// Enable Query Analytics for PMM's internal PG database.
+	EnableInternalPgQan *bool `protobuf:"varint,14,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3,oneof" json:"enable_internal_pg_qan,omitempty"`
 	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
-	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,14,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
+	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,15,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -1675,6 +1686,13 @@ func (x *ChangeSettingsRequest) GetEnableAccessControl() bool {
 	return false
 }
 
+func (x *ChangeSettingsRequest) GetEnableInternalPgQan() bool {
+	if x != nil && x.EnableInternalPgQan != nil {
+		return *x.EnableInternalPgQan
+	}
+	return false
+}
+
 func (x *ChangeSettingsRequest) GetUpdateSnoozeDuration() *durationpb.Duration {
 	if x != nil {
 		return x.UpdateSnoozeDuration
@@ -1791,7 +1809,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xb2\a\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xe7\a\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1810,8 +1828,9 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x15connected_to_platform\x18\x0f \x01(\bR\x13connectedToPlatform\x12/\n" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
-	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x12O\n" +
-	"\x16update_snooze_duration\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\"\x8f\x03\n" +
+	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
+	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12O\n" +
+	"\x16update_snooze_duration\x18\x14 \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\"\x8f\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1826,7 +1845,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\x9b\b\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xf0\b\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1841,8 +1860,10 @@ const file_server_v1_server_proto_rawDesc = "" +
 	" \x01(\v2\x1e.server.v1.AdvisorRunIntervalsR\x13advisorRunIntervals\x126\n" +
 	"\x14enable_azurediscover\x18\v \x01(\bH\aR\x13enableAzurediscover\x88\x01\x01\x12=\n" +
 	"\x18enable_backup_management\x18\f \x01(\bH\bR\x16enableBackupManagement\x88\x01\x01\x127\n" +
-	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x12O\n" +
-	"\x16update_snooze_duration\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDurationB\x11\n" +
+	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x128\n" +
+	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\n" +
+	"R\x13enableInternalPgQan\x88\x01\x01\x12O\n" +
+	"\x16update_snooze_duration\x18\x0f \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDurationB\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\n" +
 	"\n" +
@@ -1853,7 +1874,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13_pmm_public_addressB\x17\n" +
 	"\x15_enable_azurediscoverB\x1b\n" +
 	"\x19_enable_backup_managementB\x18\n" +
-	"\x16_enable_access_control\"I\n" +
+	"\x16_enable_access_controlB\x19\n" +
+	"\x17_enable_internal_pg_qan\"I\n" +
 	"\x16ChangeSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings*\xce\x01\n" +
 	"\x12DistributionMethod\x12#\n" +
