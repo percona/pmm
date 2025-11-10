@@ -56,6 +56,7 @@ var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
 // HAService is an interface for checking HA leadership status.
 type HAService interface {
 	IsLeader() bool
+	GetParams() *models.HAParams
 }
 
 // Service is responsible for interactions with VictoriaMetrics.
@@ -166,7 +167,7 @@ func (svc *Service) ID() string {
 
 // updateConfiguration updates VictoriaMetrics configuration.
 func (svc *Service) updateConfiguration(ctx context.Context) error {
-	if svc.params.ExternalVM() {
+	if svc.params.ExternalVM() && !svc.haService.GetParams().Enabled {
 		return nil
 	}
 	start := time.Now()
@@ -363,7 +364,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(resolutions.HR, svc.baseURL.Host))
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR))
-		addInternalServicesToScrape(cfg, resolutions, svc)
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, addInternalServicesToScrape(resolutions, svc)...)
 		if pointer.GetBool(settings.Nomad.Enabled) {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR))
 		}

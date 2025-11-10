@@ -63,7 +63,12 @@ func scrapeConfigForClickhouse(mr time.Duration, svc *Service) *config.ScrapeCon
 		},
 	}
 
-	if svc.haService.IsLeader() && svc.params.ExternalVM() {
+	if svc.params.ExternalVM() {
+		// Only the leader should scrape ClickHouse in HA setup
+		if !svc.haService.IsLeader() {
+			return nil
+		}
+
 		nodes := env.GetStringSlice(env.ClickHouseNodes)
 		if len(nodes) == 0 {
 			logrus.Fatalf("No ClickHouse nodes configured in %s for the leader", env.ClickHouseNodes)
@@ -74,6 +79,7 @@ func scrapeConfigForClickhouse(mr time.Duration, svc *Service) *config.ScrapeCon
 			targets = append(targets, net.JoinHostPort(node, "9363"))
 		}
 		config.ServiceDiscoveryConfig.StaticConfigs[0].Targets = targets
+		return config
 	}
 
 	return config

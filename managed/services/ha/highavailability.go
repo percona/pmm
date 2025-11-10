@@ -474,3 +474,8 @@ func (s *Service) IsLeader() bool {
 func (s *Service) Bootstrap() bool {
 	return s.params.Bootstrap || !s.params.Enabled
 }
+
+// GetParams returns HA parameters.
+func (s *Service) GetParams() *models.HAParams {
+	return s.params
+}

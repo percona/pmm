@@ -18,13 +18,15 @@ package models
 // HAParams defines parameters related to High Availability.
 type HAParams struct {
 	GrafanaGossipPort int
-	Enabled           bool
-	Bootstrap         bool
-	NodeID            string
-	AdvertiseAddress  string
-	Nodes             []string
-	RaftPort          int
-	GossipPort        int
+	// Enabled indicates whether HA is enabled.
+	Enabled          bool
+	Bootstrap        bool
+	NodeID           string
+	AdvertiseAddress string
+	// Nodes is a list of initial cluster nodes addresses.
+	Nodes      []string
+	RaftPort   int
+	GossipPort int
 }
 
 // Params defines parameters for supervisor.
