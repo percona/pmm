@@ -810,6 +810,7 @@ func TestAgents(t *testing.T) {
 			MetricsPath:        "/metrics",
 			ListenPort:         12345,
 			PushMetricsEnabled: true,
+			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
 		assert.Equal(t, expectedExternalExporter, agent.GetExternalExporter())
 

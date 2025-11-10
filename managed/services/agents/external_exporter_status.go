@@ -28,7 +28,6 @@ import (
 )
 
 const (
-	// statusUpdateInterval is how often we check VictoriaMetrics for external exporter status
 	statusUpdateInterval = 30 * time.Second
 )
 
