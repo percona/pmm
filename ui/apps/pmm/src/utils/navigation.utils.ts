@@ -5,34 +5,29 @@ export const findActiveNavItem = (
   navtree: NavItem[] | NavItem,
   pathname: string
 ): NavItem | undefined => {
-  for (const navItem of Array.isArray(navtree) ? navtree : [navtree]) {
-    const activeItem = findNavItem(navItem, (item) => isActive(item, pathname));
+  const roots = Array.isArray(navtree) ? navtree : [navtree];
 
-    if (activeItem) {
-      return activeItem;
+  let active: { item: NavItem; depth: number } | undefined;
+
+  const findActive = (item: NavItem, depth: number) => {
+    if (item.children) {
+      for (const child of item.children) {
+        findActive(child, depth + 1);
+      }
     }
-  }
 
-  return undefined;
-};
-
-const findNavItem = (
-  item: NavItem,
-  predicate: (item: NavItem) => boolean
-): NavItem | undefined => {
-  if (predicate(item)) {
-    return item;
-  }
-
-  for (const child of item.children || []) {
-    const match = findNavItem(child, predicate);
-
-    if (match) {
-      return match;
+    if (isActive(item, pathname)) {
+      if (!active || depth > active.depth) {
+        active = { item, depth };
+      }
     }
+  };
+
+  for (const root of roots) {
+    findActive(root, 0);
   }
 
-  return undefined;
+  return active?.item;
 };
 
 export const isActive = (item: NavItem, pathname: string): boolean => {
@@ -45,38 +40,30 @@ export const isActive = (item: NavItem, pathname: string): boolean => {
     matchesUrl(pathname, item.url!, match)
   );
 
-  // check if first child is active and prefer it to be active item
-  if (item.children?.length && isActive(item.children[0], pathname)) {
-    return false;
-  }
-
   return Boolean(exactMatch || additionalMatch);
 };
 
 const matchesUrl = (pathname: string, url: string, match?: string) => {
+  const path = normalizePath(url);
+
   if (!match) {
-    return !!matchPath(
-      {
-        path: url,
-        end: true,
-      },
-      pathname
-    );
-  } else if (match === '*') {
-    return !!matchPath(
-      {
-        path: url + '/*',
-        end: true,
-      },
-      pathname
-    );
-  } else {
-    return !!matchPath(
-      {
-        path: match,
-        end: true,
-      },
-      pathname
-    );
+    return !!matchPath({ path, end: true }, pathname);
   }
+
+  if (match === '*') {
+    return !!matchPath({ path: path + '/*', end: true }, pathname);
+  }
+
+  return !!matchPath(
+    {
+      path: normalizePath(match),
+      end: true,
+    },
+    pathname
+  );
+};
+
+const normalizePath = (path: string): string => {
+  const withSlash = path.startsWith('/') ? path : `/${path}`;
+  return withSlash.replace(/\/{2,}/g, '/');
 };
