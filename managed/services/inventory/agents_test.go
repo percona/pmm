@@ -264,6 +264,7 @@ func TestAgents(t *testing.T) {
 				Scheme:       "http",
 				MetricsPath:  "/metrics",
 				ListenPort:   9222,
+				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			}
 			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
 		})
@@ -494,6 +495,7 @@ func TestAgents(t *testing.T) {
 			Scheme:       "http",
 			MetricsPath:  "/metrics",
 			ListenPort:   12345,
+			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
 		assert.Equal(t, expectedExternalExporter, agent.GetExternalExporter())
 
