@@ -65,27 +65,50 @@ func NewInventoryMetrics(db *reform.DB, registry agentsRegistry) *InventoryMetri
 	}
 }
 
+// Standard label names for each object type (sorted for consistency)
+var (
+	// Node standard labels (from Node.UnifiedLabels)
+	nodeLabelNames = []string{"az", "container_id", "container_name", "machine_id", "node_id", "node_model", "node_name", "node_type", "region"}
+
+	// Service standard labels (from Service.UnifiedLabels + node labels from MergeLabels)
+	serviceLabelNames = []string{"az", "cluster", "container_id", "container_name", "environment", "external_group", "machine_id", "node_id", "node_model", "node_name", "node_type", "region", "replication_set", "service_id", "service_name", "service_type"}
+
+	// Agent standard labels (from Agent.UnifiedLabels + service + node labels from MergeLabels)
+	// Note: agent_id, agent_type are from agent, others are from node/service
+	// Additional agent-specific fields: disabled, pmm_agent_id, version
+	agentLabelNames = []string{"agent_id", "agent_type", "az", "cluster", "container_id", "container_name", "disabled", "environment", "external_group", "machine_id", "node_id", "node_model", "node_name", "node_type", "pmm_agent_id", "region", "replication_set", "service_id", "service_name", "service_type", "version"}
+)
+
 // NewInventoryMetricsCollector creates a new instance of InventoryMetricsCollector.
 func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCollector {
 	return &InventoryMetricsCollector{
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
-			[]string{"agent_id", "agent_type", "service_id", "node_id", "node_name", "pmm_agent_id", "disabled", "version"},
+			agentLabelNames,
 			nil),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
 			"Inventory Node",
-			[]string{"node_id", "node_type", "node_name", "container_name"},
+			nodeLabelNames,
 			nil),
 		mServicesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "services"),
 			"Inventory Service",
-			[]string{"service_id", "service_type", "node_id"},
+			serviceLabelNames,
 			nil),
 
 		metrics: metrics,
 	}
+}
+
+// extractLabelValues extracts label values in the order specified by labelNames from the labels map.
+func extractLabelValues(labels map[string]string, labelNames []string) []string {
+	values := make([]string, len(labelNames))
+	for i, name := range labelNames {
+		values[i] = labels[name]
+	}
+	return values
 }
 
 func getRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) string {
@@ -119,45 +142,74 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 			return err
 		}
 
-		nodeMap := make(map[string]string, len(dbNodes))
+		dbServices, err := models.FindServices(tx.Querier, models.ServiceFilters{})
+		if err != nil {
+			return err
+		}
+
+		nodeMap := make(map[string]*models.Node, len(dbNodes))
 		for _, node := range dbNodes {
-			nodeMap[node.NodeID] = node.NodeName
+			nodeMap[node.NodeID] = node
+		}
+
+		serviceMap := make(map[string]*models.Service, len(dbServices))
+		for _, service := range dbServices {
+			serviceMap[service.ServiceID] = service
 		}
 
 		for _, agent := range dbAgents {
-			runsOnNodeID := ""
-			disabled := "0"
 			metricValue := float64(0)
+			var node *models.Node
+			var service *models.Service
 
-			pmmAgentID := pointer.GetString(agent.PMMAgentID)
-
-			if agent.Disabled {
-				disabled = "1"
+			// Determine which node this agent runs on
+			runsOnNodeID := pointer.GetString(agent.RunsOnNodeID)
+			if runsOnNodeID == "" {
+				// For non-PMM agents, find the node via PMM agent
+				pmmAgentID := pointer.GetString(agent.PMMAgentID)
+				if pmmAgentID != "" {
+					runsOnNodeID = getRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
+				}
 			}
 
+			if runsOnNodeID != "" {
+				node = nodeMap[runsOnNodeID]
+			}
+
+			// Get service if agent is associated with one
+			serviceID := pointer.GetString(agent.ServiceID)
+			if serviceID != "" {
+				service = serviceMap[serviceID]
+			}
+
+			// Determine metric value
 			if agent.AgentType == models.PMMAgentType {
 				if i.registry.IsConnected(agent.AgentID) {
 					metricValue = 1
 				}
-				runsOnNodeID = pointer.GetString(agent.RunsOnNodeID)
 			} else {
 				metricValue = float64(inventoryv1.AgentStatus_value[agent.Status])
-				runsOnNodeID = getRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
 			}
 
-			nodeName := nodeMap[runsOnNodeID]
-			agentMetricLabels := []string{
-				agent.AgentID,
-				string(agent.AgentType),
-				pointer.GetString(agent.ServiceID),
-				runsOnNodeID,
-				nodeName,
-				pmmAgentID,
-				disabled,
-				pointer.GetString(agent.Version),
+			// Merge labels: node + service + agent (same as scrape configs)
+			labels, err := models.MergeLabels(node, service, agent)
+			if err != nil {
+				return err
 			}
 
-			metrics = append(metrics, Metric{labels: agentMetricLabels, value: metricValue})
+			// Add agent-specific fields that aren't in UnifiedLabels
+			disabled := "0"
+			if agent.Disabled {
+				disabled = "1"
+			}
+			labels["disabled"] = disabled
+			labels["pmm_agent_id"] = pointer.GetString(agent.PMMAgentID)
+			labels["version"] = pointer.GetString(agent.Version)
+
+			// Extract values in the order defined by agentLabelNames
+			labelValues := extractLabelValues(labels, agentLabelNames)
+
+			metrics = append(metrics, Metric{labels: labelValues, value: metricValue})
 		}
 		return nil
 	})
@@ -179,14 +231,15 @@ func (i *InventoryMetrics) GetNodeMetrics(ctx context.Context) ([]Metric, error)
 		}
 
 		for _, node := range dbNodes {
-			nodeMetricLabels := []string{
-				node.NodeID,
-				string(node.NodeType),
-				node.NodeName,
-				pointer.GetString(node.ContainerName),
+			labels, err := node.UnifiedLabels()
+			if err != nil {
+				return err
 			}
 
-			metrics = append(metrics, Metric{labels: nodeMetricLabels, value: serviceEnabled})
+			// Extract values in the order defined by nodeLabelNames
+			labelValues := extractLabelValues(labels, nodeLabelNames)
+
+			metrics = append(metrics, Metric{labels: labelValues, value: serviceEnabled})
 		}
 
 		return nil
@@ -208,14 +261,30 @@ func (i *InventoryMetrics) GetServiceMetrics(ctx context.Context) ([]Metric, err
 			return err
 		}
 
+		dbNodes, err := models.FindNodes(tx.Querier, models.NodeFilters{})
+		if err != nil {
+			return err
+		}
+
+		nodeMap := make(map[string]*models.Node, len(dbNodes))
+		for _, node := range dbNodes {
+			nodeMap[node.NodeID] = node
+		}
+
 		for _, service := range dbServices {
-			serviceMetricLabels := []string{
-				service.ServiceID,
-				string(service.ServiceType),
-				service.NodeID,
+			// Get node for this service to include node labels
+			node := nodeMap[service.NodeID]
+
+			// Merge labels: node + service (same as scrape configs)
+			labels, err := models.MergeLabels(node, service, nil)
+			if err != nil {
+				return err
 			}
 
-			metrics = append(metrics, Metric{labels: serviceMetricLabels, value: serviceEnabled})
+			// Extract values in the order defined by serviceLabelNames
+			labelValues := extractLabelValues(labels, serviceLabelNames)
+
+			metrics = append(metrics, Metric{labels: labelValues, value: serviceEnabled})
 		}
 
 		return nil
