@@ -301,7 +301,7 @@ func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitor) String() string {
-	res := make([]string, 54)
+	res := make([]string, 54) //nolint:mnd
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "UserID: " + reform.Inspect(s.UserID, true)
