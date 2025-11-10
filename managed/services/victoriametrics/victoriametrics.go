@@ -368,7 +368,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR))
 		}
 		// In HA mode, skip external exporter agents if this node is not the leader
-		skipExternalAgents := svc.haService != nil && !svc.haService.IsLeader()
+		skipExternalAgents := !svc.haService.IsLeader()
 		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &resolutions, nil, false, skipExternalAgents)
 	})
 }
@@ -446,7 +446,7 @@ func (svc *Service) BuildScrapeConfigForVMAgent(ctx context.Context, pmmAgentID 
 		}
 		s := settings.MetricsResolutions
 		// In HA mode, skip ExternalExporter agents if this node is not the leader
-		skipExternalExporter := svc.haService != nil && !svc.haService.IsLeader()
+		skipExternalExporter := !svc.haService.IsLeader()
 		return AddScrapeConfigs(svc.l, &cfg, tx.Querier, &s, pointer.ToString(pmmAgentID), true, skipExternalExporter)
 	})
 	if e != nil {
