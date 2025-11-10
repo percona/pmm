@@ -19,6 +19,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -39,9 +40,9 @@ func TestUpdateSnoozing(t *testing.T) {
 	})
 
 	t.Run("snoozes the update", func(t *testing.T) {
-		res, err1 := userClient.Default.UserService.SnoozeUpdate(&userService.SnoozeUpdateParams{
-			Body: userService.SnoozeUpdateBody{
-				SnoozedPMMVersion: "1.0.0",
+		res, err1 := userClient.Default.UserService.UpdateUser(&userService.UpdateUserParams{
+			Body: userService.UpdateUserBody{
+				SnoozedPMMVersion: pointer.ToString("1.0.0"),
 			},
 		})
 
@@ -53,9 +54,9 @@ func TestUpdateSnoozing(t *testing.T) {
 	})
 
 	t.Run("increments the snooze count", func(t *testing.T) {
-		res, err := userClient.Default.UserService.SnoozeUpdate(&userService.SnoozeUpdateParams{
-			Body: userService.SnoozeUpdateBody{
-				SnoozedPMMVersion: "1.0.0",
+		res, err := userClient.Default.UserService.UpdateUser(&userService.UpdateUserParams{
+			Body: userService.UpdateUserBody{
+				SnoozedPMMVersion: pointer.ToString("1.0.0"),
 			},
 		})
 
@@ -67,9 +68,9 @@ func TestUpdateSnoozing(t *testing.T) {
 	})
 
 	t.Run("resets the snooze count when version is different", func(t *testing.T) {
-		res, err := userClient.Default.UserService.SnoozeUpdate(&userService.SnoozeUpdateParams{
-			Body: userService.SnoozeUpdateBody{
-				SnoozedPMMVersion: "2.0.0",
+		res, err := userClient.Default.UserService.UpdateUser(&userService.UpdateUserParams{
+			Body: userService.UpdateUserBody{
+				SnoozedPMMVersion: pointer.ToString("2.0.0"),
 			},
 		})
 
