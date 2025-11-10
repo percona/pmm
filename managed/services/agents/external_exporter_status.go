@@ -69,9 +69,28 @@ func (s *ExternalExporterStatusService) Run(ctx context.Context) {
 	}
 }
 
+func (s *ExternalExporterStatusService) hasExternalExporters() (bool, error) {
+	var count int
+	err := s.db.QueryRow("SELECT COUNT(*) FROM agents WHERE agent_type = $1", models.ExternalExporterType).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 // updateAllExternalExporterStatuses queries VictoriaMetrics for all external exporter 'up' metrics
 // and updates their status in the database.
 func (s *ExternalExporterStatusService) updateAllExternalExporterStatuses(ctx context.Context) {
+	hasExternalExporters, err := s.hasExternalExporters()
+	if err != nil {
+		s.l.Warnf("Failed to check for external exporters: %v", err)
+		return
+	}
+	if !hasExternalExporters {
+		s.l.Debugf("No external exporters found, skipping VictoriaMetrics query.")
+		return
+	}
+
 	// Query VictoriaMetrics for all external exporter 'up' metrics
 	query := `up{agent_type="external-exporter"}`
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
