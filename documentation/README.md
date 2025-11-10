@@ -30,6 +30,8 @@ PMM versions are managed in branches:
 
 - `1.x` is for PMM 1.x
 
+See [PMM documentation Git workflow process](../docs/process/Documentation_git_flow.md) for details on how we manage documentation changes across branches and releases.
+
 ### Before you begin
 
 Before editing a page, make sure you have a basic understanding of [Git], [Python], Docker, and [Markdown], including how to install and use them via the command line.
