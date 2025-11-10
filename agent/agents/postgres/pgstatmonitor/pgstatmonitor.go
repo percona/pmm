@@ -662,10 +662,14 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
 				{float32(currentPSM.WalBuffersFull - prevPSM.WalBuffersFull), &mb.Postgresql.MWalBuffersFullSum, &mb.Postgresql.MWalBuffersFullCnt},
 
-				{float32(currentPSM.ParallelWorkersToLaunch - prevPSM.ParallelWorkersToLaunch),
-					&mb.Postgresql.MParallelWorkersToLaunchSum, &mb.Postgresql.MParallelWorkersToLaunchCnt},
-				{float32(currentPSM.ParallelWorkersLaunched - prevPSM.ParallelWorkersLaunched),
-					&mb.Postgresql.MParallelWorkersLaunchedSum, &mb.Postgresql.MParallelWorkersLaunchedCnt},
+				{
+					float32(currentPSM.ParallelWorkersToLaunch - prevPSM.ParallelWorkersToLaunch),
+					&mb.Postgresql.MParallelWorkersToLaunchSum, &mb.Postgresql.MParallelWorkersToLaunchCnt,
+				},
+				{
+					float32(currentPSM.ParallelWorkersLaunched - prevPSM.ParallelWorkersLaunched),
+					&mb.Postgresql.MParallelWorkersLaunchedSum, &mb.Postgresql.MParallelWorkersLaunchedCnt,
+				},
 
 				// convert milliseconds to seconds
 				{float32(currentPSM.TotalExecTime-prevPSM.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
