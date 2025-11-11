@@ -54,7 +54,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
     const target = frameRef.current?.contentWindow;
     if (target) {
-      messenger.setTargetWindow(target);
+      messenger.setTargetWindow(target, '#grafana-iframe');
     }
     messenger.register();
 

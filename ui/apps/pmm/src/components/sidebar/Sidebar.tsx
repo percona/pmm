@@ -1,14 +1,18 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { NavItem } from './nav-item';
 import List from '@mui/material/List';
+import { findActiveNavItem } from 'utils/navigation.utils';
+import { useLocation } from 'react-router-dom';
+import { NavItem as NavItemType } from 'lib/types';
 
 export const Sidebar: FC = () => {
   const { navTree, navOpen, setNavOpen } = useNavigation();
-
+  const [activeItem, setActiveItem] = useState<NavItemType>(navTree[0]);
   const [animating, setAnimating] = useState(false);
+  const location = useLocation();
 
   const toggleSidebar = useCallback(() => {
     setNavOpen(!navOpen);
@@ -21,6 +25,15 @@ export const Sidebar: FC = () => {
       clearTimeout(timeoutId);
     };
   }, [navOpen, setNavOpen]);
+
+  useEffect(() => {
+    const activeItem = findActiveNavItem(navTree, location.pathname);
+
+    // keep previous item active if there isn't a match
+    if (activeItem) {
+      setActiveItem(activeItem);
+    }
+  }, [navTree, location.pathname]);
 
   return (
     <Drawer
@@ -45,7 +58,12 @@ export const Sidebar: FC = () => {
         ]}
       >
         {navTree.map((item) => (
-          <NavItem key={item.id} item={item} drawerOpen={navOpen} />
+          <NavItem
+            key={item.id}
+            item={item}
+            activeItem={activeItem}
+            drawerOpen={navOpen}
+          />
         ))}
       </List>
     </Drawer>

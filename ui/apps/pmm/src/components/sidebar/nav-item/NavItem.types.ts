@@ -4,4 +4,5 @@ export interface NavItemProps {
   item: NavItem;
   level?: number;
   drawerOpen: boolean;
+  activeItem: NavItem;
 }

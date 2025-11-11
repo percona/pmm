@@ -20,3 +20,8 @@ export const getLinkProps = (item: NavItem, url?: string) => {
     component: Link,
   };
 };
+
+export const hasChildMatch = (item: NavItem, activeItem: NavItem): boolean =>
+  (item.children || []).some(
+    (child) => child === activeItem || hasChildMatch(child, activeItem)
+  );
