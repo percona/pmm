@@ -15,4 +15,5 @@ export interface NavItem {
   onClick?: () => void;
   hidden?: boolean;
   badge?: ChipProps;
+  matches?: string[];
 }

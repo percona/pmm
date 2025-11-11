@@ -30,3 +30,8 @@ export const shouldShowBadge = (item: NavItem, expanded: boolean): boolean => {
     item.children?.some((child) => shouldShowBadge(child, expanded)) || false
   );
 };
+
+export const hasChildMatch = (item: NavItem, activeItem: NavItem): boolean =>
+  (item.children || []).some(
+    (child) => child === activeItem || hasChildMatch(child, activeItem)
+  );

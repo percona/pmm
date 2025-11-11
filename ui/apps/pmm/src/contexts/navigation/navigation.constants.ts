@@ -353,18 +353,21 @@ export const NAV_DASHBOARDS_PLAYLISTS: NavItem = {
   id: 'dashboards-playlists',
   text: 'Playlists',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/playlists`,
+  matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/playlists/play/:id`],
 };
 
 export const NAV_DASHBOARDS_SNAPSHOTS: NavItem = {
   id: 'dashboards-snapshots',
   text: 'Snapshots',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/snapshots`,
+  matches: ['*'],
 };
 
 export const NAV_DASHBOARDS_LIBRARY_PANELS = {
   id: 'dashboards-library-panels',
   text: 'Library panels',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels`,
+  matches: ['*'],
 };
 
 //
@@ -374,6 +377,7 @@ export const NAV_EXPLORE_METRICS: NavItem = {
   id: 'explore-metrics',
   text: 'Explore metrics',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore/metrics`,
+  matches: ['*'],
 };
 
 export const NAV_EXPLORE_BUILDER: NavItem = {
@@ -387,27 +391,38 @@ export const NAV_EXPLORE: NavItem = {
   icon: 'explore',
   text: 'Explore',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/drilldown`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/a/:appId/explore`,
+  ],
 };
 
 //
 // Alerting
 //
-export const NAV_ALERTS_TEMPLATES = {
+export const NAV_ALERTS_TEMPLATES: NavItem = {
   id: 'alerts-templates',
   text: 'Percona Alert Templates',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
+  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template/*`],
 };
 
 export const NAV_ALERTS_FIRED: NavItem = {
   id: 'alerts-fired',
   text: 'Fired Alerts',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
+  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/:datasource/:id/view`],
 };
 
 export const NAV_ALERTS_RULES: NavItem = {
   id: 'alerts-rules',
   text: 'Alert Rules',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/list`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new/*`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/:id/edit`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/:id/edit`,
+  ],
 };
 
 export const NAV_ALERTS_SILENCES: NavItem = {
@@ -438,6 +453,7 @@ export const NAV_ALERTS_SETTINGS: NavItem = {
   id: 'alerts-settings',
   text: 'Alert Settings',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/admin`,
+  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/connections/datasources/alertmanager`],
 };
 
 export const NAV_ALERTS: NavItem = {
@@ -486,27 +502,13 @@ export const NAV_INVENTORY: NavItem = {
       id: 'inventory-services',
       text: 'Services',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`,
-      children: [
-        {
-          id: 'inventory-services-agents',
-          text: 'Services / Agents',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services/:serviceId/agents`,
-          hidden: true,
-        },
-      ],
+      matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance/*`],
     },
     {
       id: 'inventory-nodes',
       text: 'Nodes',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
-      children: [
-        {
-          id: 'inventory-nodes-agents',
-          text: 'Nodes / Agents',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes/:nodeId/agents`,
-          hidden: true,
-        },
-      ],
+      matches: ['*'],
     },
   ],
 };
@@ -559,11 +561,21 @@ export const NAV_CONFIGURATION: NavItem = {
   icon: 'configuration',
   text: 'Configuration',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/plugins`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/admin`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/admin/general`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/admin/settings`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/admin/plugins`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/datasources/correlations`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/admin/extensions`,
+  ],
   children: [
     {
       id: 'configuration-settings',
       text: 'Settings',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings/advanced-settings`,
+      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/settings/*`],
     },
     {
       id: 'updates',
@@ -579,6 +591,7 @@ export const NAV_CONFIGURATION: NavItem = {
           id: 'organizations',
           text: 'Organizations',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/admin/orgs`,
+          matches: ['*'],
         },
         {
           id: 'stats-and-licenses',
@@ -608,16 +621,19 @@ export const NAV_USERS_AND_ACCESS: NavItem = {
       id: 'users',
       text: 'Users',
       url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/users',
+      matches: ['*'],
     },
     {
       id: 'teams',
       text: 'Teams',
       url: PMM_NEW_NAV_GRAFANA_PATH + '/org/teams',
+      matches: ['*'],
     },
     {
       id: 'service-accounts',
       text: 'Services accounts',
       url: PMM_NEW_NAV_GRAFANA_PATH + '/org/serviceaccounts',
+      matches: ['*'],
     },
   ],
 };

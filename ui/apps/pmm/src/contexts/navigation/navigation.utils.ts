@@ -208,7 +208,8 @@ export const addConfiguration = (
   versionInfo?: GetUpdatesResponse
 ): NavItem => {
   const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
-  const { updateAvailable, installed, latest } = versionInfo || {};
+  const { installed, latest } = versionInfo || {};
+  let updateAvailable = true;
 
   if (!updates) {
     return NAV_CONFIGURATION;
@@ -222,7 +223,8 @@ export const addConfiguration = (
 
   if (
     status === UpdateStatus.Pending ||
-    status === UpdateStatus.UpdateClients
+    status === UpdateStatus.UpdateClients ||
+    true
   ) {
     updates.badge = {
       label: 'New',

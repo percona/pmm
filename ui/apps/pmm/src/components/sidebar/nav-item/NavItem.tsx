@@ -1,10 +1,9 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
-import { isActive } from 'utils/navigation.utils';
-import { FC, useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { getLinkProps, shouldShowBadge } from './NavItem.utils';
+import { getLinkProps, hasChildMatch, shouldShowBadge } from './NavItem.utils';
 import { getStyles } from './NavItem.styles';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -22,9 +21,16 @@ import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import NavItemDot from './nav-item-dot/NavItemDot';
 import Chip from '@mui/material/Chip';
 
-const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
-  const location = useLocation();
-  const active = isActive(item, location.pathname);
+const NavItem: FC<NavItemProps> = ({
+  activeItem,
+  item,
+  drawerOpen,
+  level = 0,
+}) => {
+  const active = useMemo(
+    () => activeItem === item || hasChildMatch(item, activeItem),
+    [activeItem, item]
+  );
   const [open, setIsOpen] = useState(active);
   const url = useLinkWithVariables(item.url);
   const linkProps = getLinkProps(item, url);
@@ -138,6 +144,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
               <NavItem
                 key={item.id}
                 item={item}
+                activeItem={activeItem}
                 drawerOpen={drawerOpen}
                 level={level + 1}
               />
