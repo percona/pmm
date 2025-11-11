@@ -31,18 +31,32 @@ install-race:                   ## Install qan-api2 binary with race detector
 	go install -v -race ./...
 
 test-env-up:                    ## Start docker containers used for testing
-	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:23.8.2.7
+	docker run -d \
+		--platform=linux/amd64 \
+		--name pmm-clickhouse-test \
+		-p 19000:9000 \
+		-p 18123:8123 \
+		-e CLICKHOUSE_USER=default \
+		-e CLICKHOUSE_PASSWORD=clickhouse \
+		clickhouse/clickhouse-server:25.3.6.56
 	make test-env
 
 test-env-up-apple:              ## Start docker containers used for testing on Apple chips
-	docker run -d --platform=linux/arm64 --name pmm-clickhouse-test -p19000:9000 -p18123:8123 clickhouse/clickhouse-server:23.8.2.7
+	docker run -d \
+		--platform=linux/arm64 \
+		--name pmm-clickhouse-test \
+		-p 19000:9000 \
+		-p 18123:8123 \
+		-e CLICKHOUSE_USER=default \
+		-e CLICKHOUSE_PASSWORD=clickhouse \
+		clickhouse/clickhouse-server:25.3.6.56
 	make test-env
 
 test-env:                       ## Create pmm_test DB and load test data
 	sleep 10
-	docker exec pmm-clickhouse-test clickhouse client --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
-	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
-	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
+	docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
+	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --multiline --multiquery
+	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 test-env-down:                  ## Stop and remove docker containers used for testing
 	docker stop pmm-clickhouse-test
@@ -77,7 +91,7 @@ env-up:                         ## Run ClickHouse, MySQL Server and sysbench con
 	docker compose up -d $(DCFLAGS) --force-recreate --renew-anon-volumes --remove-orphans ch sysbench-ps
 	# docker compose up $(DCFLAGS) ch sysbench-pstpcc
 	sleep 60
-	docker exec ch-server clickhouse client -h 127.0.0.1 --query="CREATE DATABASE IF NOT EXISTS pmm;"
+	docker exec ch-server clickhouse client -h 127.0.0.1 --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm;"
 
 env-down:                       ## Remove docker containers
 	docker compose down --volumes
@@ -88,11 +102,11 @@ pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench con
 	docker exec $(PMM_CONTAINER) sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
 	docker exec $(PMM_CONTAINER) supervisorctl restart clickhouse
 	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2
-	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --query="drop database pmm"
-	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --query="create database pmm"
+	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --password=clickhouse --query="drop database pmm"
+	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --password=clickhouse --query="create database pmm"
 	docker cp bin/qan-api2 $(PMM_CONTAINER):/usr/sbin/percona-qan-api2
 	docker exec $(PMM_CONTAINER) supervisorctl start qan-api2
-	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
+	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 deploy:
 	GOOS=linux GOARCH=amd64 make release
