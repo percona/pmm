@@ -254,7 +254,7 @@ func (svc *Service) marshalConfig(base *config.Config) ([]byte, error) {
 	return b, nil
 }
 
-// validateConfig validates given configuration with `victoriametrics -dryRun`.
+// validateConfig validates given configuration with `victoriametrics -promscrape.config.dryRun`.
 func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	f, err := os.CreateTemp("", "pmm-managed-config-victoriametrics-")
 	if err != nil {
@@ -268,7 +268,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 		_ = os.Remove(f.Name())
 	}()
 
-	args := []string{"-dryRun", "-promscrape.config", f.Name()}
+	args := []string{"-promscrape.config.dryRun", "-promscrape.config", f.Name()}
 	cmd := exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
