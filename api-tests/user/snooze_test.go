@@ -35,7 +35,7 @@ func TestUpdateSnoozing(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Empty(t, res.Payload.SnoozedPMMVersion)
-		assert.Equal(t, time.Time{}.Format(time.RFC3339), res.Payload.SnoozedAt)
+		assert.Equal(t, time.Time{}, time.Time(res.Payload.SnoozedAt))
 		assert.Equal(t, int64(0), res.Payload.SnoozeCount)
 	})
 
@@ -77,7 +77,7 @@ func TestUpdateSnoozing(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, "2.0.0", res.Payload.SnoozedPMMVersion)
-		assert.Equal(t, time.Time{}.Format(time.RFC3339), res.Payload.SnoozedAt)
+		assert.WithinDuration(t, time.Now(), time.Time(res.Payload.SnoozedAt), 1*time.Second)
 		assert.Equal(t, int64(1), res.Payload.SnoozeCount)
 	})
 }
