@@ -8275,14 +8275,6 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
-                    },
-                    "agent_environment_variables": {
-                      "description": "Environment variables to set for the agent process.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 15
                     }
                   },
                   "x-order": 11
@@ -8378,14 +8370,6 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
-                    },
-                    "agent_environment_variables": {
-                      "description": "Environment variables to set for the agent process.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 15
                     }
                   },
                   "x-order": 12

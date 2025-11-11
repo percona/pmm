@@ -796,14 +796,13 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:           p.PmmAgentId,
-			ServiceID:            p.ServiceId,
-			Username:             p.Username,
-			Password:             p.Password,
-			CustomLabels:         p.CustomLabels,
-			EnvironmentVariables: p.GetAgentEnvironmentVariables(),
-			TLS:                  p.Tls,
-			TLSSkipVerify:        p.TlsSkipVerify,
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
 			QANOptions: models.QANOptions{
 				MaxQueryLength: p.MaxQueryLength,
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
@@ -879,14 +878,13 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:           p.PmmAgentId,
-			ServiceID:            p.ServiceId,
-			Username:             p.Username,
-			Password:             p.Password,
-			CustomLabels:         p.CustomLabels,
-			EnvironmentVariables: p.GetAgentEnvironmentVariables(),
-			TLS:                  p.Tls,
-			TLSSkipVerify:        p.TlsSkipVerify,
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
 			QANOptions: models.QANOptions{
 				MaxQueryLength: p.MaxQueryLength,
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.

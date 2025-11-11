@@ -586,7 +586,6 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			DSN:            dsn,
 			AgentID:        agentID,
 			MaxQueryLength: builtinAgent.MaxQueryLength,
-			Env:            builtinAgent.Env,
 		}
 		agent, err = mongoprofiler.New(params, l)
 
@@ -595,7 +594,6 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			DSN:            dsn,
 			AgentID:        agentID,
 			MaxQueryLength: builtinAgent.MaxQueryLength,
-			Env:            builtinAgent.Env,
 		}
 		agent, err = mongolog.New(params, l)
 

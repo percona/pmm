@@ -45,7 +45,6 @@ type Params struct {
 	AgentID        string
 	LogFilePrefix  string // for development and testing
 	MaxQueryLength int32
-	Env            map[string]string
 }
 
 // New creates new MongoDB QAN service.

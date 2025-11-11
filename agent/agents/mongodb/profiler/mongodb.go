@@ -43,7 +43,6 @@ type Params struct {
 	DSN            string
 	AgentID        string
 	MaxQueryLength int32
-	Env            map[string]string
 }
 
 // New creates new MongoDB QAN service.

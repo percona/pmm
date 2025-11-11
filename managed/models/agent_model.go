@@ -391,12 +391,12 @@ func (s *Agent) SetCustomLabels(m map[string]string) error {
 
 // GetEnvironmentVariables decodes environment variables.
 func (s *Agent) GetEnvironmentVariables() (map[string]string, error) {
-	return getLabels(s.EnvironmentVariables)
+	return getEnvironmentVariables(s.EnvironmentVariables)
 }
 
 // SetEnvironmentVariables encodes environment variables.
 func (s *Agent) SetEnvironmentVariables(m map[string]string) error {
-	return setLabels(m, &s.EnvironmentVariables)
+	return setEnvironmentVariables(m, &s.EnvironmentVariables)
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.
