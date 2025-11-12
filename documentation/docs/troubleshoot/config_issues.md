@@ -73,6 +73,6 @@ docker exec pmm-server supervisorctl status
 
 ##### Solution
 
-- upgrade Docker Desktop to a newer version (test with your specific setup)
+- upgrade Docker Desktop to a newer version or downgrade it to v4.48.0 (test with your specific setup)
 - consider using PMM Server on Linux or cloud environments for production
 
