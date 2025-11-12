@@ -1219,6 +1219,15 @@ type GetMetricsOKBodySparklineItems0 struct {
 	// Total bytes of WAL (Write-ahead logging) records.
 	MWalBytesSumPerSec float32 `json:"m_wal_bytes_sum_per_sec,omitempty"`
 
+	// Total number of times WAL buffers become full.
+	MWalBuffersFullSumPerSec float32 `json:"m_wal_buffers_full_sum_per_sec,omitempty"`
+
+	// Total number of parallel workers to launch.
+	MParallelWorkersToLaunchSumPerSec float32 `json:"m_parallel_workers_to_launch_sum_per_sec,omitempty"`
+
+	// Total number of parallel workers launched.
+	MParallelWorkersLaunchedSumPerSec float32 `json:"m_parallel_workers_launched_sum_per_sec,omitempty"`
+
 	// Plan time in per seconds.
 	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
 }

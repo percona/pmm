@@ -185,6 +185,12 @@ message Point {
   float m_wal_fpi_sum_per_sec = 82;
   // Total bytes of WAL (Write-ahead logging) records.
   float m_wal_bytes_sum_per_sec = 83;
+  // Total number of times WAL buffers become full.
+  float m_wal_buffers_full_sum_per_sec = 95;
+  // Total number of parallel workers to launch.
+  float m_parallel_workers_to_launch_sum_per_sec = 96;
+  // Total number of parallel workers launched.
+  float m_parallel_workers_launched_sum_per_sec = 97;
   // Plan time in per seconds.
   float m_plan_time_sum_per_sec = 84;
 }

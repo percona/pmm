@@ -232,6 +232,12 @@ type Point struct {
 	MWalFpiSumPerSec float32 `protobuf:"fixed32,82,opt,name=m_wal_fpi_sum_per_sec,json=mWalFpiSumPerSec,proto3" json:"m_wal_fpi_sum_per_sec,omitempty"`
 	// Total bytes of WAL (Write-ahead logging) records.
 	MWalBytesSumPerSec float32 `protobuf:"fixed32,83,opt,name=m_wal_bytes_sum_per_sec,json=mWalBytesSumPerSec,proto3" json:"m_wal_bytes_sum_per_sec,omitempty"`
+	// Total number of times WAL buffers become full.
+	MWalBuffersFullSumPerSec float32 `protobuf:"fixed32,95,opt,name=m_wal_buffers_full_sum_per_sec,json=mWalBuffersFullSumPerSec,proto3" json:"m_wal_buffers_full_sum_per_sec,omitempty"`
+	// Total number of parallel workers to launch.
+	MParallelWorkersToLaunchSumPerSec float32 `protobuf:"fixed32,96,opt,name=m_parallel_workers_to_launch_sum_per_sec,json=mParallelWorkersToLaunchSumPerSec,proto3" json:"m_parallel_workers_to_launch_sum_per_sec,omitempty"`
+	// Total number of parallel workers launched.
+	MParallelWorkersLaunchedSumPerSec float32 `protobuf:"fixed32,97,opt,name=m_parallel_workers_launched_sum_per_sec,json=mParallelWorkersLaunchedSumPerSec,proto3" json:"m_parallel_workers_launched_sum_per_sec,omitempty"`
 	// Plan time in per seconds.
 	MPlanTimeSumPerSec float32 `protobuf:"fixed32,84,opt,name=m_plan_time_sum_per_sec,json=mPlanTimeSumPerSec,proto3" json:"m_plan_time_sum_per_sec,omitempty"`
 	unknownFields      protoimpl.UnknownFields
@@ -793,6 +799,27 @@ func (x *Point) GetMWalBytesSumPerSec() float32 {
 	return 0
 }
 
+func (x *Point) GetMWalBuffersFullSumPerSec() float32 {
+	if x != nil {
+		return x.MWalBuffersFullSumPerSec
+	}
+	return 0
+}
+
+func (x *Point) GetMParallelWorkersToLaunchSumPerSec() float32 {
+	if x != nil {
+		return x.MParallelWorkersToLaunchSumPerSec
+	}
+	return 0
+}
+
+func (x *Point) GetMParallelWorkersLaunchedSumPerSec() float32 {
+	if x != nil {
+		return x.MParallelWorkersLaunchedSumPerSec
+	}
+	return 0
+}
+
 func (x *Point) GetMPlanTimeSumPerSec() float32 {
 	if x != nil {
 		return x.MPlanTimeSumPerSec
@@ -857,7 +884,7 @@ var File_qan_v1_qan_proto protoreflect.FileDescriptor
 
 const file_qan_v1_qan_proto_rawDesc = "" +
 	"\n" +
-	"\x10qan/v1/qan.proto\x12\x06qan.v1\"\xb1&\n" +
+	"\x10qan/v1/qan.proto\x12\x06qan.v1\"\x9c(\n" +
 	"\x05Point\x12\x14\n" +
 	"\x05point\x18\x01 \x01(\rR\x05point\x12\x1d\n" +
 	"\n" +
@@ -935,7 +962,10 @@ const file_qan_v1_qan_proto_rawDesc = "" +
 	"\x19m_plans_calls_sum_per_sec\x18P \x01(\x02R\x14mPlansCallsSumPerSec\x127\n" +
 	"\x19m_wal_records_sum_per_sec\x18Q \x01(\x02R\x14mWalRecordsSumPerSec\x12/\n" +
 	"\x15m_wal_fpi_sum_per_sec\x18R \x01(\x02R\x10mWalFpiSumPerSec\x123\n" +
-	"\x17m_wal_bytes_sum_per_sec\x18S \x01(\x02R\x12mWalBytesSumPerSec\x123\n" +
+	"\x17m_wal_bytes_sum_per_sec\x18S \x01(\x02R\x12mWalBytesSumPerSec\x12@\n" +
+	"\x1em_wal_buffers_full_sum_per_sec\x18_ \x01(\x02R\x18mWalBuffersFullSumPerSec\x12S\n" +
+	"(m_parallel_workers_to_launch_sum_per_sec\x18` \x01(\x02R!mParallelWorkersToLaunchSumPerSec\x12R\n" +
+	"'m_parallel_workers_launched_sum_per_sec\x18a \x01(\x02R!mParallelWorkersLaunchedSumPerSec\x123\n" +
 	"\x17m_plan_time_sum_per_sec\x18T \x01(\x02R\x12mPlanTimeSumPerSec\"7\n" +
 	"\rMapFieldEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +

@@ -27937,11 +27937,29 @@
                               "format": "float",
                               "x-order": 74
                             },
+                            "m_wal_buffers_full_sum_per_sec": {
+                              "description": "Total number of times WAL buffers become full.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 75
+                            },
+                            "m_parallel_workers_to_launch_sum_per_sec": {
+                              "description": "Total number of parallel workers to launch.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 76
+                            },
+                            "m_parallel_workers_launched_sum_per_sec": {
+                              "description": "Total number of parallel workers launched.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 77
+                            },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 75
+                              "x-order": 78
                             }
                           }
                         },
@@ -29311,11 +29329,29 @@
                         "format": "float",
                         "x-order": 74
                       },
+                      "m_wal_buffers_full_sum_per_sec": {
+                        "description": "Total number of times WAL buffers become full.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 75
+                      },
+                      "m_parallel_workers_to_launch_sum_per_sec": {
+                        "description": "Total number of parallel workers to launch.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 76
+                      },
+                      "m_parallel_workers_launched_sum_per_sec": {
+                        "description": "Total number of parallel workers launched.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 77
+                      },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 75
+                        "x-order": 78
                       }
                     }
                   },
