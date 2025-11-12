@@ -63,7 +63,7 @@ After restarting Docker, PMM dashboard returns *"500 Internal Server Error"*.
 
 ##### Root cause
 
-On macOS Sequoia 15.7.1 with Docker Desktop 4.49.0, PostgreSQL and Grafana may not shut down gracefully, leaving them in a FATAL state.
+On macOS Sequoia 15.7.1 with Docker Desktop 4.49.0, PostgreSQL and Grafana may fail to start or not be able to be gracefully stopped, therefore transitioning to a FATAL state.
 
 To verify, run the following command that checks service status. If both `postgresql` and `grafana` display their status as `BACKOFF` or `FATAL`, this confirms the issue:
 
