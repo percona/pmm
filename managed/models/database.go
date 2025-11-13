@@ -29,6 +29,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -59,6 +60,8 @@ const (
 	VerifyCaSSLMode string = "verify-ca"
 	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
+	// DefaultSnoozeDuration represents duration for which an update is snoozed (default = 7 days).
+	DefaultSnoozeDuration time.Duration = 7 * 24 * time.Hour
 )
 
 // DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
@@ -1154,10 +1157,9 @@ var databaseSchema = [][]string{
 			ADD COLUMN snoozed_at TIMESTAMP,
 			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0`,
 	},
-	// Default snooze duration - 7 days
 	114: {
 		`UPDATE settings
-			SET settings = settings || '{"updates": {"snooze_duration": 604800000000000}}'
+			SET settings = settings || '{"updates": {"snooze_duration": ` + string(DefaultSnoozeDuration.Nanoseconds()) + `}}'
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},

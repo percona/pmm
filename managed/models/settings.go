@@ -234,7 +234,6 @@ func (s *Settings) fillDefaults() {
 	}
 
 	if s.Updates.SnoozeDuration == 0 {
-		// 7 days
-		s.Updates.SnoozeDuration = 7 * 24 * time.Hour
+		s.Updates.SnoozeDuration = DefaultSnoozeDuration
 	}
 }
