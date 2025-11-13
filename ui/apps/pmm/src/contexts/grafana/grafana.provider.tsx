@@ -8,8 +8,9 @@ import {
 } from 'lib/constants';
 import type {
   ColorMode,
+  LocationState,
   DocumentTitleUpdateMessage,
-  LocationChangeMessage
+  LocationChangeMessage,
 } from '@pmm/shared';
 import { updateDocumentTitle } from 'lib/utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
@@ -42,9 +43,6 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
   // Theme source
   const { colorMode, setFromGrafana } = useColorMode();
-
-  // Keep track of the last received location from Grafana
-  const lastReceivedLocationRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (isGrafanaPage) setIsLoaded(true);
@@ -82,9 +80,8 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
           return;
         }
 
-        lastReceivedLocationRef.current = getLocationUrl(location);
-
         navigate(getLocationUrl(location), {
+          state: { fromGrafana: true },
           replace: true,
         });
       },
@@ -110,11 +107,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     if (!isBrowser() || !isLoaded) return;
 
-    const isFromGrafana =
-      lastReceivedLocationRef.current === getLocationUrl(location);
+    const state = location.state as LocationState;
 
-    // prevent broadcasting the same location back to Grafana
-    if (!location.pathname.includes('/graph') || isFromGrafana) return;
+    if (!location.pathname.includes('/graph') || state?.fromGrafana) return;
 
     messenger.sendMessage({
       type: 'LOCATION_CHANGE',
