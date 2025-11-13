@@ -114,6 +114,9 @@
 			"cnt": 13
 		},
 		"wal_bytes": {},
+		"wal_buffers_full": {},
+		"parallel_workers_to_launch": {},
+		"parallel_workers_launched": {},
 		"wal_fpi": {},
 		"wal_records": {}
 	},
@@ -268,6 +271,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -436,6 +442,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -534,6 +543,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -617,6 +629,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -685,6 +700,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -798,6 +816,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -866,6 +887,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -954,6 +978,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -1032,6 +1059,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -1105,6 +1135,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -1213,6 +1246,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -1316,6 +1352,9 @@
 			"mWalRecordsSumPerSec": "NaN",
 			"mWalFpiSumPerSec": "NaN",
 			"mWalBytesSumPerSec": "NaN",
+			"mWalBuffersFullSumPerSec": "NaN",
+			"mParallelWorkersToLaunchSumPerSec": "NaN",
+			"mParallelWorkersLaunchedSumPerSec": "NaN",
 			"mPlanTimeSumPerSec": "NaN"
 		},
 		{
@@ -1465,6 +1504,9 @@
 			"p99": 0.3429091
 		},
 		"wal_bytes": {},
+		"wal_buffers_full": {},
+		"parallel_workers_to_launch": {},
+		"parallel_workers_launched": {},
 		"wal_fpi": {},
 		"wal_records": {}
 	},
