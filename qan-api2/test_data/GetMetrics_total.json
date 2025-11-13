@@ -8660,9 +8660,6 @@
 			"p99": 0.3487409
 		},
 		"wal_bytes": {},
-		"wal_buffers_full": {},
-		"parallel_workers_to_launch": {},
-		"parallel_workers_launched": {},
 		"wal_fpi": {},
 		"wal_records": {}
 	},
