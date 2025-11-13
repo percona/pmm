@@ -1159,7 +1159,7 @@ var databaseSchema = [][]string{
 	},
 	114: {
 		`UPDATE settings
-			SET settings = settings || '{"updates": {"snooze_duration": ` + string(DefaultSnoozeDuration.Nanoseconds()) + `}}'
+			SET settings = settings || '{"updates": {"snooze_duration": ` + strconv.FormatInt(DefaultSnoozeDuration.Nanoseconds(), 10) + `}}'
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
