@@ -47,16 +47,15 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	check.NoError(err)
 
 	mockHaService := newMockHaService(t)
-	mockHaService.
-		On("GetParams").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).
-		On("IsLeader").Return(true)
+	mockHaService.On("GetParams").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
+	mockHaService.On("IsLeader").Return(true).Maybe()
 	svc, err := NewVictoriaMetrics(configPath, db, vmParams, mockHaService)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)
 	check.NoError(err)
 
-	check.NoError(svc.IsReady(context.Background()))
+	check.NoError(svc.IsReady(t.Context()))
 
 	return db, svc, original
 }
@@ -66,7 +65,7 @@ func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) {
 	check := assert.New(t)
 
 	check.NoError(os.WriteFile(configPath, original, 0o600))
-	check.NoError(svc.reload(context.Background()))
+	check.NoError(svc.reload(t.Context()))
 
 	check.NoError(db.DBInterface().(*sql.DB).Close())
 }
@@ -77,7 +76,7 @@ func TestVictoriaMetrics(t *testing.T) {
 		db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
 
-		check.NoError(svc.updateConfiguration(context.Background()))
+		check.NoError(svc.updateConfiguration(t.Context()))
 
 		actual, err := os.ReadFile(configPath)
 		check.NoError(err)
@@ -293,7 +292,7 @@ func TestVictoriaMetrics(t *testing.T) {
 			check.NoError(err, "%+v", str)
 		}
 
-		check.NoError(svc.updateConfiguration(context.Background()))
+		check.NoError(svc.updateConfiguration(t.Context()))
 
 		expected := strings.TrimSpace(`
 # Managed by pmm-managed. DO NOT EDIT.
