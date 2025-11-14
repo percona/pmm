@@ -1152,8 +1152,8 @@ var databaseSchema = [][]string{
 	112: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatements-agent' AND service_id = (SELECT service_id FROM services WHERE service_name = 'pmm-server-postgresql' LIMIT 1);`,
 	},
-	// Reset product tour for new navigation
 	113: {
+		// Reset product tour for new navigation
 		`UPDATE user_flags SET tour_done = false;`,
 	},
 	114: {
