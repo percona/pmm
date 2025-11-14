@@ -663,8 +663,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : Enable/disable parsing comments from queries into QAN filter groups:
             - off: Disabled.
             - on: Enabled.
-
-=== :material-router-network: ProxySQL"
+=== ":material-router-network: ProxySQL"
 
     `pmm-admin add proxysql [FLAGS] [node-name] [node-address]`
     :   Add ProxySQL to monitoring.
