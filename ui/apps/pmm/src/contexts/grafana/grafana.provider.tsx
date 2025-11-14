@@ -107,9 +107,13 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     if (!isBrowser() || !isLoaded) return;
 
-    const state = location.state as LocationState;
+    const isGrafanaPage = location.pathname.includes('/graph');
+    const isSourceGrafana = (location.state as LocationState)?.fromGrafana;
+    const isBackNavigation = navigationType === 'POP';
 
-    if (!location.pathname.includes('/graph') || state?.fromGrafana) return;
+    if (!isGrafanaPage || (isSourceGrafana && !isBackNavigation)) {
+      return;
+    }
 
     messenger.sendMessage({
       type: 'LOCATION_CHANGE',
