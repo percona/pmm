@@ -10,7 +10,7 @@
 
 `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]`
 
-DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
+DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL|Valkey](#database-commands)
 
 `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]`
 
@@ -451,7 +451,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
     - `indexstats`
     - `collstats`
 
-=== "MySQL"
+=== ":simple-mysql: MySQL"
 
     `pmm-admin add mysql [FLAGS] node-name node-address | [--name=service-name] --address=address[:port] | --socket`
     :   Add MySQL to monitoring.
@@ -577,7 +577,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
             - off: Disabled.
             - on: Enabled.
 
-=== "PostgreSQL"
+=== ":simple-postgresql: PostgreSQL"
 
     `pmm-admin add postgresql [FLAGS] [node-name] [node-address]`
     :   Add PostgreSQL to monitoring.
@@ -664,7 +664,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
             - off: Disabled.
             - on: Enabled.
 
-=== "ProxySQL"
+=== :material-router-network: ProxySQL"
 
     `pmm-admin add proxysql [FLAGS] [node-name] [node-address]`
     :   Add ProxySQL to monitoring.
@@ -720,7 +720,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--disable-collectors`
         : Comma-separated list of collector names to exclude from exporter.
 
-=== "HAProxy"
+=== ":material-router-network: HAProxy"
 
     `pmm-admin add haproxy [FLAGS] [NAME]`
     :   Add HAProxy to monitoring.
@@ -776,6 +776,53 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--tls-skip-verify`
         : Skip TLS certificates validation when connecting to HAProxy endpoints with self-signed or invalid certificates.
 
+=== "simple-redis: Valkey/Redis"
+
+    `pmm-admin add valkey [FLAGS] [node-name] [node-address]`
+    :   Add Valkey/Redis to monitoring.
+
+        FLAGS:
+
+        `--node-id=node-id`
+        :  Node ID (default is auto-detected).
+
+        `--pmm-agent-id=pmm-agent-id`
+        :  The pmm-agent identifier which runs this instance (default is auto-detected).
+
+        `--username=username`
+        :  Valkey/Redis username.
+
+        `--password=password`
+        :  Valkey/Redis password.
+
+        `--agent-password=password`
+        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.) Avoid using special characters like '\', ';' and '$' in the custom password.
+
+        `--environment=environment`
+        :  Environment name (e.g. dev, test, prod, etc.)
+
+        `--cluster=cluster`
+        :  Cluster name.
+
+        `--custom-labels=custom-labels`
+        :  Custom user-assigned labels.
+
+        `--skip-connection-check`
+        :  Skip checking if pmm agent can connect to the local service when adding a service.
+
+        `--tls`
+        :  Use TLS to connect to the service.
+
+        `--tls-skip-verify`
+        :  Skip validation of the TLS certificate presented by the service to the pmm agent.
+
+        `--metrics-mode=mode`
+        : Metrics flow mode for agents node-exporter. Allowed values:
+
+            - `auto`: chosen by server (default).
+            - `push`: agent will push metrics.
+            - `pull`: server scrapes metrics from agent.
+
 ## Examples
 
 ```sh
@@ -821,6 +868,15 @@ PMM Client:
  pmm-admin version: 2.5.0
  pmm-agent version: 2.5.0
 Agents: aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
+```
+
+```sh
+pmm-admin add valkey --username=default --password=your_password valkey_srv_1 127.0.0.1:6379
+```
+```txt
+Valkey Service added.
+Service ID  : a89191d4-7d75-44a9-b37f-a528e2c4550f
+Service name: valkey_srv_1
 ```
 
 ### Disable collectors

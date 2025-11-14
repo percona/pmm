@@ -196,6 +196,7 @@ nav:
                   - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
                   - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
                   - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
+                  - Valkey/Redis: install-pmm/install-pmm-client/connect-database/valkey-redis.md
               - Cloud services monitoring:
                   - AWS: install-pmm/install-pmm-client/connect-database/aws.md
                   - Azure: install-pmm/install-pmm-client/connect-database/azure.md
