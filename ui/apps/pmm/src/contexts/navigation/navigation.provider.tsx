@@ -1,11 +1,12 @@
 import { FC, PropsWithChildren, useMemo } from 'react';
 import { NavigationContext } from './navigation.context';
-import { NavItem } from 'lib/types';
+import { NavItem } from 'types/navigation.types';
 import { useServiceTypes } from 'hooks/api/useServices';
 import {
   addAccount,
   addAdvisors,
   addAlerting,
+  addConfiguration,
   addDashboardItems,
   addExplore,
 } from './navigation.utils';
@@ -16,16 +17,15 @@ import { ALL_SERVICE_TYPES, INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
 import {
   NAV_BACKUPS,
-  NAV_CONFIGURATION,
   NAV_DIVIDERS,
   NAV_HELP,
   NAV_HOME_PAGE,
   NAV_INVENTORY,
   NAV_QAN,
   NAV_SIGN_IN,
-  NAV_USERS_AND_ACCESS,
 } from './navigation.constants';
 import { useFolders } from 'hooks/api/useFolders';
+import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
@@ -39,6 +39,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   });
   const { data: folders = [] } = useFolders();
   const { colorMode, toggleColorMode } = useColorMode();
+  const { status, versionInfo } = useUpdates();
   const [navOpen, setNavOpen] = useLocalStorage<boolean>(
     'pmm-ui.sidebar.expanded',
     true
@@ -83,9 +84,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
         items.push(NAV_DIVIDERS.backups);
 
-        items.push(NAV_CONFIGURATION);
-
-        items.push(NAV_USERS_AND_ACCESS);
+        items.push(addConfiguration(status, versionInfo));
       }
 
       items.push(addAccount(user, colorMode, toggleColorMode));
@@ -97,6 +96,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     return items;
   }, [
+    status,
+    versionInfo,
     serviceTypes,
     folders,
     user,

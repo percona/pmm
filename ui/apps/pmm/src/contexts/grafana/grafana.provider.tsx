@@ -12,7 +12,7 @@ import type {
   DocumentTitleUpdateMessage,
   LocationChangeMessage,
 } from '@pmm/shared';
-import { updateDocumentTitle } from 'lib/utils/document.utils';
+import { updateDocumentTitle } from 'utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
 import { getLocationUrl } from './grafana.utils';

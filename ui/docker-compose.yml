@@ -28,6 +28,8 @@ services:
       - PMM_WATCHTOWER_TOKEN=123
       # Uncomment to specify to which docker image to update
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_UPDATE_IMAGE:-perconalab/pmm-server:3-dev-container}
+      # Set custom snooze duration for updates
+      # - PMM_UPDATE_SNOOZE_DURATION=1m
     command: >
       bash -c "
         # Inject livereload script into grafana index.html

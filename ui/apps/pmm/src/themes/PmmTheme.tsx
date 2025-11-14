@@ -51,6 +51,10 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
               light: peakTheme.primary.pmm.light,
               contrastText: peakTheme.primary.pmm.contrast,
             },
+            warning: {
+              main: peakTheme.warning.main,
+              contrastText: peakTheme.warning.dark,
+            },
             action: {
               hover: 'rgba(245, 106, 51, 0.08)',
               hoverOpacity: 0.08,
@@ -150,6 +154,17 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
           colorError: {
             color: '#920000',
             backgroundColor: '#FFECE9',
+          },
+          colorWarning: {
+            color: peakTheme.warning.light,
+            borderColor: peakTheme.warning.main,
+          },
+        },
+      },
+      MuiBadge: {
+        styleOverrides: {
+          colorWarning: {
+            backgroundColor: peakTheme.warning.light,
           },
         },
       },

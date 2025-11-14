@@ -8,7 +8,7 @@ import {
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
 import messenger from 'lib/messenger';
-import { constructUrl } from 'lib/utils/link.utils';
+import { constructUrl } from 'utils/link.utils';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 

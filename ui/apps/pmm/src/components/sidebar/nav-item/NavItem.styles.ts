@@ -1,4 +1,5 @@
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
+import { listItemTextClasses } from '@mui/material/ListItemText';
 import { typographyClasses } from '@mui/material/Typography';
 import { Theme } from '@mui/material/styles';
 
@@ -67,5 +68,18 @@ export const getStyles = (
   },
   text: {
     pl: 2,
+
+    [`&:hover .${listItemTextClasses.secondary}`]: {
+      color: 'inherit',
+    },
+
+    [`.${listItemTextClasses.secondary}`]: {
+      ...theme.typography.helperText,
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+
+      color: active ? 'inherit' : theme.palette.warning.contrastText,
+    },
   },
 });

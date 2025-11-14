@@ -3,7 +3,7 @@ import {
   DRAWER_CLOSED_WIDTH,
   DRAWER_WIDTH,
 } from 'components/sidebar/drawer/Drawer.constants';
-import { NavItem } from 'lib/types';
+import { NavItem } from 'types/navigation.types';
 import { FC, ReactElement } from 'react';
 
 interface Props {

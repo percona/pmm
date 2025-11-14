@@ -12,7 +12,7 @@ import { useUser } from 'contexts/user';
 import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'lib/constants';
 import { Footer } from 'components/footer';
-import { updateDocumentTitle } from 'lib/utils/document.utils';
+import { updateDocumentTitle } from 'utils/document.utils';
 
 export const Page: FC<PageProps> = ({ title, topBar, footer, children }) => {
   const { user } = useUser();

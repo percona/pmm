@@ -3,7 +3,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { getLinkProps, hasChildMatch } from './NavItem.utils';
+import { getLinkProps, hasChildMatch, shouldShowBadge } from './NavItem.utils';
 import { getStyles } from './NavItem.styles';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -18,6 +18,8 @@ import NavItemIcon from './nav-item-icon/NavItemIcon';
 import IconButton from '@mui/material/IconButton';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
+import NavItemDot from './nav-item-dot/NavItemDot';
+import Chip from '@mui/material/Chip';
 
 const NavItem: FC<NavItemProps> = ({
   activeItem,
@@ -37,6 +39,7 @@ const NavItem: FC<NavItemProps> = ({
   const children = item.children?.filter((i) => !i.hidden);
   const dataTestid = `navitem-${item.id}`;
   const navigate = useNavigate();
+  const showBadge = shouldShowBadge(item, open);
 
   useEffect(() => {
     if (active && drawerOpen) {
@@ -97,9 +100,11 @@ const NavItem: FC<NavItemProps> = ({
               data-navlevel={level}
             >
               {item.icon && (
-                <ListItemIcon sx={styles.listItemIcon}>
-                  <NavItemIcon icon={item.icon} />
-                </ListItemIcon>
+                <NavItemDot show={showBadge}>
+                  <ListItemIcon sx={styles.listItemIcon}>
+                    <NavItemIcon icon={item.icon} />
+                  </ListItemIcon>
+                </NavItemDot>
               )}
               <ListItemText
                 primary={item.text}
@@ -191,9 +196,18 @@ const NavItem: FC<NavItemProps> = ({
           )}
           <ListItemText
             primary={item.text}
+            secondary={item.secondaryText}
             className="navitem-primary-text"
             sx={styles.text}
           />
+          {item.badge && (
+            <Chip
+              size="small"
+              color="warning"
+              variant="outlined"
+              {...item.badge}
+            />
+          )}
         </ListItemButton>
       </ListItem>
     </NavItemTooltip>

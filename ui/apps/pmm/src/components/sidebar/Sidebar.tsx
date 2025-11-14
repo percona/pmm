@@ -6,7 +6,7 @@ import { NavItem } from './nav-item';
 import List from '@mui/material/List';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import { useLocation } from 'react-router-dom';
-import { NavItem as NavItemType } from 'lib/types';
+import { NavItem as NavItemType } from 'types/navigation.types';
 
 export const Sidebar: FC = () => {
   const { navTree, navOpen, setNavOpen } = useNavigation();

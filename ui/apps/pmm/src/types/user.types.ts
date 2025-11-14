@@ -60,12 +60,3 @@ export interface UserInfo {
 export type UpdateUserInfoPayload = Partial<
   Omit<UserInfo, 'userId' | 'snoozeCount' | 'snoozedAt'>
 >;
-
-export interface SnoozeUpdateBody {
-  snoozedPmmVersion: string;
-}
-
-export interface SnoozeUpdateResponse extends SnoozeUpdateBody {
-  snoozedAt: string;
-  snoozeCount: number;
-}

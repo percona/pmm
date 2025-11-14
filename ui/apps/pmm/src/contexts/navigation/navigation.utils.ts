@@ -1,9 +1,9 @@
-import { NavItem } from 'lib/types';
+import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User } from 'types/user.types';
 import { FrontendSettings } from 'types/settings.types';
 import { Advisor } from 'types/advisors.types';
-import { groupAdvisorsIntoCategories } from 'lib/utils/advisors.utils';
+import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
@@ -18,6 +18,7 @@ import {
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
   NAV_CHANGE_PASSWORD,
+  NAV_CONFIGURATION,
   NAV_DASHBOARDS,
   NAV_DASHBOARDS_BROWSE,
   NAV_DASHBOARDS_LIBRARY_PANELS,
@@ -41,8 +42,9 @@ import {
   NAV_ALERTS_GROUPS,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
-import { capitalize } from 'utils/textUtils';
+import { capitalize } from 'utils/text.utils';
 import { DashboardFolder } from 'types/folders.types';
+import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -199,4 +201,35 @@ export const addAccount = (
     children,
     text: NAV_ACCOUNT.text + (name ? `: ${name}` : ''),
   };
+};
+
+export const addConfiguration = (
+  status: UpdateStatus,
+  versionInfo?: GetUpdatesResponse
+): NavItem => {
+  const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
+  const { updateAvailable, installed, latest } = versionInfo || {};
+
+  if (!updates) {
+    return NAV_CONFIGURATION;
+  }
+
+  if (updateAvailable) {
+    updates.secondaryText = `Update from v${installed?.version?.slice(0, 5)} to v${latest?.version}`;
+  } else if (installed?.version) {
+    updates.secondaryText = `Current: v${installed?.version} (up to date)`;
+  }
+
+  if (
+    status === UpdateStatus.Pending ||
+    status === UpdateStatus.UpdateClients
+  ) {
+    updates.badge = {
+      label: 'New',
+    };
+  } else {
+    updates.badge = undefined;
+  }
+
+  return NAV_CONFIGURATION;
 };

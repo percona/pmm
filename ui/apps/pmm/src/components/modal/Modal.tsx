@@ -24,7 +24,6 @@ export const Modal: FC<ModalProps> = ({
         backgroundColor: theme.palette.background.paper,
         minWidth: 480,
         maxWidth: '80vw',
-        minHeight: 250,
         borderRadius: 1,
         boxShadow: theme.shadows[24],
         border: 'none',
@@ -38,7 +37,9 @@ export const Modal: FC<ModalProps> = ({
           }}
         >
           <Stack direction="row" justifyContent="space-between">
-            <Typography variant="h5">{title}</Typography>
+            <Typography variant="h5" data-testid="modal-title">
+              {title}
+            </Typography>
             <IconButton
               sx={{
                 p: 0,

@@ -35,7 +35,8 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
   return (
     <UserContext.Provider
       value={{
-        isLoading: userQuery.isLoading || orgsQuery.isLoading,
+        isLoading:
+          userQuery.isLoading || orgsQuery.isLoading || userInfoQuery.isLoading,
         user,
       }}
     >
