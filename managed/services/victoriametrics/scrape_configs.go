@@ -71,7 +71,8 @@ func scrapeConfigForClickhouse(mr time.Duration, svc *Service) *config.ScrapeCon
 
 		nodes := env.GetStringSlice(env.ClickHouseNodes)
 		if len(nodes) == 0 {
-			logrus.Fatalf("No ClickHouse nodes configured in %s for the leader", env.ClickHouseNodes)
+			logrus.Warnf("No ClickHouse nodes configured in %s for the leader", env.ClickHouseNodes)
+			return nil
 		}
 
 		targets := make([]string, 0, len(nodes))

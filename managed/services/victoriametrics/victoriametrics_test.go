@@ -31,7 +31,6 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -46,11 +45,12 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	check.NoError(err)
-	haParams := &models.HAParams{
-		Enabled: false,
-	}
-	haService := ha.New(haParams)
-	svc, err := NewVictoriaMetrics(configPath, db, vmParams, haService)
+
+	mockHaService := newMockHaService(t)
+	mockHaService.
+		On("GetParams").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).
+		On("IsLeader").Return(true)
+	svc, err := NewVictoriaMetrics(configPath, db, vmParams, mockHaService)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)

@@ -53,12 +53,6 @@ const (
 
 var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
 
-// HAService is an interface for checking HA leadership status.
-type HAService interface {
-	IsLeader() bool
-	GetParams() *models.HAParams
-}
-
 // Service is responsible for interactions with VictoriaMetrics.
 type Service struct {
 	scrapeConfigPath string
@@ -70,11 +64,11 @@ type Service struct {
 
 	l         *logrus.Entry
 	reloadCh  chan struct{}
-	haService HAService
+	haService haService
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, haService HAService) (*Service, error) {
+func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, haService haService) (*Service, error) {
 	u, err := url.Parse(params.URL())
 	if err != nil {
 		return nil, errors.WithStack(err)
