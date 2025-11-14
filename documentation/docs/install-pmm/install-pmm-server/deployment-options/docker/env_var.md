@@ -35,6 +35,7 @@ Enable or disable specific PMM features:
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
 | `PMM_ENABLE_AZURE_DISCOVER` | `false` | Enables Azure database discovery |
+| `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **PMM Configuration > Settings > Advanced Settings**. See [QAN for PMM Server's internal PostgreSQL](../../use/qan/index.md#qan-for-pmm-servers-internal-postgresql).|
 
 ### Debugging and troubleshooting
 Use these variables when diagnosing issues with PMM Server:
@@ -164,6 +165,36 @@ Configure connections to external database services:
 |----------|----------|
 | `PMM_CLICKHOUSE_*` | ClickHouse connection settings |
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
+
+
+### Nomad Garbage Collection (GC) settings
+
+Control Nomad client-side garbage collection (GC) directly from PMM using environment variables. 
+
+These settings help you manage disk and inode usage, cleanup intervals, and allocation thresholds.
+Use these settings to control resource cleanup and usage, and keep your production environment stable.
+
+| Variable                             | Default | Description                                                     |
+| ------------------------------------ | ------- | --------------------------------------------------------------- |
+| `PMM_NOMAD_GC_INTERVAL`              | `1m`    | How often Nomad runs garbage collection.                        |
+| `PMM_NOMAD_GC_DISK_USAGE_THRESHOLD`  | `90`    | Disk usage percentage that triggers garbage collection.         |
+| `PMM_NOMAD_GC_INODE_USAGE_THRESHOLD` | `90`    | Inode usage percentage that triggers garbage collection.        |
+| `PMM_NOMAD_GC_MAX_ALLOCS`            | `5000`  | Maximum number of allocations Nomad keeps before triggering GC. |
+| `PMM_NOMAD_GC_PARALLEL_DESTROYS`     | `2`     | Number of allocations Nomad destroys in parallel during GC.     |
+
+For example:
+
+```sh
+  docker run \
+    -e PMM_NOMAD_GC_INTERVAL=5m \
+    -e PMM_NOMAD_GC_DISK_USAGE_THRESHOLD=85 \
+    -e PMM_NOMAD_GC_INODE_USAGE_THRESHOLD=80 \
+    -e PMM_NOMAD_GC_MAX_ALLOCS=3000 \
+    -e PMM_NOMAD_GC_PARALLEL_DESTROYS=4 \
+    percona/pmm-server:3
+```
+
+For parameter details, see [Nomad client garbage collection documentation](https://developer.hashicorp.com/nomad/docs/manage/garbage-collection#client-side-garbage-collection).
 
 ### Supported external variables
 PMM Server passes these variables to integrated components:

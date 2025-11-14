@@ -49,7 +49,7 @@ Shows current, available, and idle MongoDB connections over time for each servic
 
 Use this to monitor connection usage trends, identify periods of high demand, and ensure the database isn't reaching its connection limits. 
 
-By comparing current to available connections, it's easy to spot potential bottlenecks or capacity issues before they impact performance.
+By comparing current to available connections, it’s easy to spot potential bottlenecks or capacity issues before they impact performance.
 
 ### Operations Latency
 Shows the average execution times for MongoDB queries over time, categorized into read, write, and other command operations.

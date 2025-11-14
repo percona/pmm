@@ -692,11 +692,11 @@ Once the service is confirmed as active, verify that metrics are being properly 
 [slow_query_log_always_write_time]: https://docs.percona.com/percona-server/latest/slow-extended.html?h=log_slow_rate_limit#slow_query_log_always_write_time
 [slow_query_log_use_global_control]: https://docs.percona.com/percona-server/latest/slow-extended.html?h=log_slow_rate_limit#slow_query_log_use_global_control
 [sysvar_innodb_monitor_enable]: https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
-[sysvar_log_output]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_log_output
-[sysvar_log_slow_admin_statements]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_log_slow_admin_statements
-[sysvar_log_slow_slave_statements]: https://dev.mysql.com/doc/refman/8.0/en/replication-options-replica.html#sysvar_log_slow_slave_statements
-[sysvar_long_query_time]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_long_query_time
-[sysvar_slow_query_log]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_slow_query_log
+[sysvar_log_output]: https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_log_output
+[sysvar_log_slow_admin_statements]: https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_log_slow_admin_statements
+[sysvar_log_slow_slave_statements]: https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html#sysvar_log_slow_slave_statements
+[sysvar_long_query_time]: https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_long_query_time
+[sysvar_slow_query_log]: https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_slow_query_log
 [sysvar_performance_schema]: https://dev.mysql.com/doc/refman/5.7/en/performance-schema-system-variables.html#sysvar_performance_schema
 [performance-schema-statement-tables]: https://dev.mysql.com/doc/refman/5.7/en/performance-schema-statement-tables.html
 [performance-schema-startup-configuration]: https://dev.mysql.com/doc/refman/5.7/en/performance-schema-startup-configuration.html
