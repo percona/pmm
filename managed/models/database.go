@@ -1152,20 +1152,20 @@ var databaseSchema = [][]string{
 	112: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatements-agent' AND service_id = (SELECT service_id FROM services WHERE service_name = 'pmm-server-postgresql' LIMIT 1);`,
 	},
+	// Reset product tour for new navigation
 	113: {
+		`UPDATE user_flags SET tour_done = false;`,
+	},
+	114: {
 		`ALTER TABLE user_flags
 			ADD COLUMN snoozed_at TIMESTAMP,
 			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0`,
 	},
-	114: {
+	115: {
 		`UPDATE settings
 			SET settings = settings || '{"updates": {"snooze_duration": ` + strconv.FormatInt(DefaultSnoozeDuration.Nanoseconds(), 10) + `}}'
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
-	},
-	// Reset product tour for new navigation
-	115: {
-		`UPDATE user_flags SET tour_done = false;`,
 	},
 }
 
