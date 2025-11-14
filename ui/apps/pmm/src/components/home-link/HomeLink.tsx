@@ -1,5 +1,9 @@
 import { Link, LinkProps } from '@mui/material';
-import { PMM_HOME_URL, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_HOME_URL,
+  PMM_NEW_NAV_HOME_URL,
+  PMM_NEW_NAV_PATH,
+} from 'lib/constants';
 import { useUpdates } from 'contexts/updates';
 import { FC, useMemo, useState } from 'react';
 import { UpdateStatus } from 'types/updates.types';
@@ -14,6 +18,18 @@ export const HomeLink: FC<LinkProps> = ({ children, sx, ...props }) => {
     () => location.pathname.endsWith('/updates/clients'),
     [location]
   );
+  const linkProps = useMemo(() => {
+    if (location.pathname.includes(PMM_NEW_NAV_PATH)) {
+      return {
+        to: PMM_NEW_NAV_HOME_URL,
+        component: RouterLink,
+      };
+    }
+
+    return {
+      href: PMM_HOME_URL,
+    };
+  }, [location.pathname]);
   const homeLinkProps = useMemo(() => {
     if (
       status === UpdateStatus.UpdateClients &&
@@ -25,21 +41,16 @@ export const HomeLink: FC<LinkProps> = ({ children, sx, ...props }) => {
       };
     }
 
-    if (location.pathname.includes(PMM_NEW_NAV_PATH)) {
-      return {
-        to: PMM_NEW_NAV_PATH,
-        component: RouterLink,
-      };
-    }
-
-    return {
-      href: PMM_HOME_URL,
-    };
-  }, [location.pathname, status, areClientsUpToDate, isOnClientsPage]);
+    return linkProps;
+  }, [linkProps, status, areClientsUpToDate, isOnClientsPage]);
 
   return (
     <>
-      <ClientsModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <ClientsModal
+        homeLinkProps={linkProps}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
       <Link
         {...props}
         sx={[{ cursor: 'pointer ' }, ...(Array.isArray(sx) ? sx : [sx])]}
