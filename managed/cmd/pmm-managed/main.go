@@ -855,11 +855,6 @@ func main() { //nolint:maintidx,cyclop
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
 
-	// This ensures scrape config regeneration happens when leadership changes
-	if haParams.Enabled {
-		haService.AddLeaderService(vmdb)
-	}
-
 	vmalert, err := vmalert.NewVMAlert(externalRules, *victoriaMetricsVMAlertURLF)
 	if err != nil {
 		l.Panicf("VictoriaMetrics VMAlert service problem: %+v", err)

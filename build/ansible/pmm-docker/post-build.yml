@@ -97,6 +97,18 @@
         - absent
         - directory
 
+    - name: Remove auto-generated config files
+      file:
+        path: "/etc/supervisord.d/{{ item }}"
+        state: absent
+      loop:
+        - victoriametrics.ini
+        - vmalert.ini
+        - vmproxy.ini
+        - qan-api2.ini
+        - grafana.ini
+        - nomad-server.ini
+
     - name: Create '/srv/logs' directory
       file:
         path: /srv/logs

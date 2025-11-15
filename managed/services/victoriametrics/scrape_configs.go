@@ -80,6 +80,7 @@ func scrapeConfigForClickhouse(mr time.Duration, svc *Service) *config.ScrapeCon
 			targets = append(targets, net.JoinHostPort(node, "9363"))
 		}
 		config.ServiceDiscoveryConfig.StaticConfigs[0].Targets = targets
+		config.ServiceDiscoveryConfig.StaticConfigs[0].Labels = nil
 		return config
 	}
 
