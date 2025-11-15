@@ -394,7 +394,12 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 	}
 
 	for _, tmpl := range templates.Templates() {
-		if tmpl.Name() == "" || (tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM()) {
+		if tmpl.Name() == "" {
+			continue
+		}
+
+		if tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM() {
+			_ = os.Remove("/etc/supervisord.d/victoriametrics.ini")
 			continue
 		}
 
