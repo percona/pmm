@@ -363,7 +363,7 @@ Once PMM is set up, choose the database or the application that you want it to m
     1.  Set up authentication for PMM monitoring. If you're using Valkey 6.0+ with ACL enabled, run the following command in the Valkey CLI to create a dedicated monitoring user with read-only permissions. For Redis or Valkey instances without ACL, use the password-based authentication method instead:
  
         ```
-        ACL SETUSER pmm on >StrongPassword123! ~* +@read +info +config|get +slowlog +latency
+        ACL SETUSER pmm on ><your_password> ~* +@read +info +config|get +slowlog +latency
             
         ```
 
@@ -492,7 +492,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../install-pmm/install-pmm-client/connect-database/proxysql.md).
 
-=== ":material-database: HAProxy"
+=== ":material-shuffle: ProxySQL"
     To connect an HAProxy service:
     { .power-number}
 

@@ -13,8 +13,8 @@ Before connecting Valkey or Redis to PMM, review the prerequisites for your moni
     - [PMM Client is installed](../../install-pmm-client/index.md) and the nodes are registered with PMM Server.
     - Access to the Valkey instance (localhost or network accessible).
 
-=== ":material-cloud: Remote Valke/Redis monitoring"
-    - [PMM Server is installed](../../install-pmm-server/index.md) and running
+=== ":material-cloud: Remote Valkey/Redis monitoring"
+    - [PMM Server is installed](../../install-pmm-server/index.md) and running.
     - PMM Server has direct network access to the Valkey/Redis instance.
     - You have Valkey/Redis authentication credentials if ACL is enabled.
 
