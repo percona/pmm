@@ -185,14 +185,12 @@ func ParseDisableCollectors(collectors []string) []string {
 }
 
 // ValidateEnvironmentVariableNames validates environment variable names.
-// It takes a slice of variable names and returns a validated list.
-// Variable names must match the pattern: [A-Z_][A-Z0-9_]*
 func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	if len(varNames) == 0 {
 		return nil, nil
 	}
 
-	var result []string
+	result := make([]string, 0, len(varNames))
 	validNamePattern := regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
 
 	for _, name := range varNames {
