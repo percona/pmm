@@ -126,7 +126,7 @@ func (cmd *AddMongoDBCommand) GetCredentials() error {
 // RunCmd runs the command for AddMongoDBCommand.
 func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
-	agentVars, err := commands.ReadEnvironmentVariables(cmd.AgentEnvVars)
+	agentVarNames, err := commands.ValidateEnvironmentVariableNames(cmd.AgentEnvVars)
 	if err != nil {
 		return nil, err
 	}
@@ -184,17 +184,17 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,
 				QANMongodbMongolog: cmd.QuerySource == MongodbQuerySourceMongolog,
 
-				CustomLabels:                  customLabels,
-				AgentEnvironmentVariables:     agentVars,
-				SkipConnectionCheck:           cmd.SkipConnectionCheck,
-				MaxQueryLength:                cmd.MaxQueryLength,
-				TLS:                           cmd.TLS,
-				TLSSkipVerify:                 cmd.TLSSkipVerify,
-				TLSCertificateKey:             tlsCertificateKey,
-				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
-				TLSCa:                         tlsCa,
-				AuthenticationMechanism:       cmd.AuthenticationMechanism,
-				AuthenticationDatabase:        cmd.AuthenticationDatabase,
+				CustomLabels:                   customLabels,
+				SharedEnvironmentVariableNames: agentVarNames,
+				SkipConnectionCheck:            cmd.SkipConnectionCheck,
+				MaxQueryLength:                 cmd.MaxQueryLength,
+				TLS:                            cmd.TLS,
+				TLSSkipVerify:                  cmd.TLSSkipVerify,
+				TLSCertificateKey:              tlsCertificateKey,
+				TLSCertificateKeyFilePassword:  cmd.TLSCertificateKeyFilePassword,
+				TLSCa:                          tlsCa,
+				AuthenticationMechanism:        cmd.AuthenticationMechanism,
+				AuthenticationDatabase:         cmd.AuthenticationDatabase,
 
 				MetricsMode: cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 

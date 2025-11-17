@@ -92,8 +92,9 @@ message AddMongoDBServiceParams {
   inventory.v1.LogLevel log_level = 33;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 34;
-  // Optionally, set environment variables that'll be passed to agent processes
-  map<string, string> agent_environment_variables = 36;
+  // Environment variable names to pass to the exporter.
+  // Values will be resolved from pmm-agent's environment when starting the exporter.
+  repeated string shared_environment_variable_names = 36;
 }
 
 message MongoDBServiceResult {

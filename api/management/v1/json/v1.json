@@ -2496,10 +2496,10 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
                     },
-                    "agent_environment_variables": {
-                      "type": "object",
-                      "title": "Optionally, set environment variables that'll be passed to agent processes",
-                      "additionalProperties": {
+                    "shared_environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
                         "type": "string"
                       },
                       "x-order": 33
@@ -4456,6 +4456,14 @@
                             }
                           },
                           "x-order": 18
+                        },
+                        "shared_environment_variable_names": {
+                          "description": "Environment variable names passed to the exporter.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 19
                         }
                       },
                       "x-order": 1

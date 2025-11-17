@@ -3667,8 +3667,10 @@ type SetStateRequest_AgentProcess struct {
 	Env                []string               `protobuf:"bytes,5,rep,name=env,proto3" json:"env,omitempty"`
 	TextFiles          map[string]string      `protobuf:"bytes,6,rep,name=text_files,json=textFiles,proto3" json:"text_files,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	RedactWords        []string               `protobuf:"bytes,7,rep,name=redact_words,json=redactWords,proto3" json:"redact_words,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Environment variable names to be resolved from pmm-agent's environment.
+	EnvVariableNames []string `protobuf:"bytes,8,rep,name=env_variable_names,json=envVariableNames,proto3" json:"env_variable_names,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *SetStateRequest_AgentProcess) Reset() {
@@ -3746,6 +3748,13 @@ func (x *SetStateRequest_AgentProcess) GetTextFiles() map[string]string {
 func (x *SetStateRequest_AgentProcess) GetRedactWords() []string {
 	if x != nil {
 		return x.RedactWords
+	}
+	return nil
+}
+
+func (x *SetStateRequest_AgentProcess) GetEnvVariableNames() []string {
+	if x != nil {
+		return x.EnvVariableNames
 	}
 	return nil
 }
@@ -6616,11 +6625,11 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"listenPort\x12*\n" +
 	"\x11process_exec_path\x18\x04 \x01(\tR\x0fprocessExecPath\x12\x18\n" +
 	"\aversion\x18\x05 \x01(\tR\aversion\"\x16\n" +
-	"\x14StateChangedResponse\"\x90\n" +
+	"\x14StateChangedResponse\"\xbe\n" +
 	"\n" +
 	"\x0fSetStateRequest\x12V\n" +
 	"\x0fagent_processes\x18\x01 \x03(\v2-.agent.v1.SetStateRequest.AgentProcessesEntryR\x0eagentProcesses\x12S\n" +
-	"\x0ebuiltin_agents\x18\x02 \x03(\v2,.agent.v1.SetStateRequest.BuiltinAgentsEntryR\rbuiltinAgents\x1a\xfa\x02\n" +
+	"\x0ebuiltin_agents\x18\x02 \x03(\v2,.agent.v1.SetStateRequest.BuiltinAgentsEntryR\rbuiltinAgents\x1a\xa8\x03\n" +
 	"\fAgentProcess\x12+\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12.\n" +
 	"\x13template_left_delim\x18\x02 \x01(\tR\x11templateLeftDelim\x120\n" +
@@ -6629,7 +6638,8 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x03env\x18\x05 \x03(\tR\x03env\x12T\n" +
 	"\n" +
 	"text_files\x18\x06 \x03(\v25.agent.v1.SetStateRequest.AgentProcess.TextFilesEntryR\ttextFiles\x12!\n" +
-	"\fredact_words\x18\a \x03(\tR\vredactWords\x1a<\n" +
+	"\fredact_words\x18\a \x03(\tR\vredactWords\x12,\n" +
+	"\x12env_variable_names\x18\b \x03(\tR\x10envVariableNames\x1a<\n" +
 	"\x0eTextFilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +

@@ -364,16 +364,16 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 	var agent *inventoryv1.MongoDBExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:           p.PmmAgentId,
-			ServiceID:            p.ServiceId,
-			Username:             p.Username,
-			Password:             p.Password,
-			AgentPassword:        p.AgentPassword,
-			CustomLabels:         p.CustomLabels,
-			EnvironmentVariables: p.GetAgentEnvironmentVariables(),
-			TLS:                  p.Tls,
-			TLSSkipVerify:        p.TlsSkipVerify,
-			MongoDBOptions:       models.MongoDBOptionsFromRequest(p),
+			PMMAgentID:                     p.PmmAgentId,
+			ServiceID:                      p.ServiceId,
+			Username:                       p.Username,
+			Password:                       p.Password,
+			AgentPassword:                  p.AgentPassword,
+			CustomLabels:                   p.CustomLabels,
+			SharedEnvironmentVariableNames: p.GetSharedEnvironmentVariableNames(),
+			TLS:                            p.Tls,
+			TLSSkipVerify:                  p.TlsSkipVerify,
+			MongoDBOptions:                 models.MongoDBOptionsFromRequest(p),
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,

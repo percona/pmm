@@ -18,6 +18,7 @@ package models
 import (
 	"bytes"
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"maps"
 	"net"
@@ -295,16 +296,16 @@ func (c ValkeyOptions) IsEmpty() bool {
 //
 //reform:agents
 type Agent struct {
-	AgentID              string    `reform:"agent_id,pk"`
-	AgentType            AgentType `reform:"agent_type"`
-	RunsOnNodeID         *string   `reform:"runs_on_node_id"`
-	ServiceID            *string   `reform:"service_id"`
-	NodeID               *string   `reform:"node_id"`
-	PMMAgentID           *string   `reform:"pmm_agent_id"`
-	CustomLabels         []byte    `reform:"custom_labels"`
-	EnvironmentVariables []byte    `reform:"environment_variables"`
-	CreatedAt            time.Time `reform:"created_at"`
-	UpdatedAt            time.Time `reform:"updated_at"`
+	AgentID                    string    `reform:"agent_id,pk"`
+	AgentType                  AgentType `reform:"agent_type"`
+	RunsOnNodeID               *string   `reform:"runs_on_node_id"`
+	ServiceID                  *string   `reform:"service_id"`
+	NodeID                     *string   `reform:"node_id"`
+	PMMAgentID                 *string   `reform:"pmm_agent_id"`
+	CustomLabels               []byte    `reform:"custom_labels"`
+	SharedEnvironmentVariables []byte    `reform:"shared_environment_variables"`
+	CreatedAt                  time.Time `reform:"created_at"`
+	UpdatedAt                  time.Time `reform:"updated_at"`
 
 	Disabled        bool    `reform:"disabled"`
 	Status          string  `reform:"status"`
@@ -339,8 +340,8 @@ func (s *Agent) BeforeInsert() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
-	if len(s.EnvironmentVariables) == 0 {
-		s.EnvironmentVariables = nil
+	if len(s.SharedEnvironmentVariables) == 0 {
+		s.SharedEnvironmentVariables = nil
 	}
 	if s.Status == "" && s.AgentType != ExternalExporterType && s.AgentType != PMMAgentType {
 		s.Status = AgentStatusUnknown
@@ -357,8 +358,8 @@ func (s *Agent) BeforeUpdate() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
-	if len(s.EnvironmentVariables) == 0 {
-		s.EnvironmentVariables = nil
+	if len(s.SharedEnvironmentVariables) == 0 {
+		s.SharedEnvironmentVariables = nil
 	}
 	if s.Disabled {
 		s.Status = agentStatusDone
@@ -373,8 +374,8 @@ func (s *Agent) AfterFind() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
-	if len(s.EnvironmentVariables) == 0 {
-		s.EnvironmentVariables = nil
+	if len(s.SharedEnvironmentVariables) == 0 {
+		s.SharedEnvironmentVariables = nil
 	}
 	return nil
 }
@@ -389,14 +390,32 @@ func (s *Agent) SetCustomLabels(m map[string]string) error {
 	return setLabels(m, &s.CustomLabels)
 }
 
-// GetEnvironmentVariables decodes environment variables.
-func (s *Agent) GetEnvironmentVariables() (map[string]string, error) {
-	return getEnvironmentVariables(s.EnvironmentVariables)
+// GetSharedEnvironmentVariableNames decodes shared environment variable names.
+func (s *Agent) GetSharedEnvironmentVariableNames() ([]string, error) {
+	if s.SharedEnvironmentVariables == nil {
+		return nil, nil
+	}
+
+	var names []string
+	if err := json.Unmarshal(s.SharedEnvironmentVariables, &names); err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
+	}
+	return names, nil
 }
 
-// SetEnvironmentVariables encodes environment variables.
-func (s *Agent) SetEnvironmentVariables(m map[string]string) error {
-	return setEnvironmentVariables(m, &s.EnvironmentVariables)
+// SetSharedEnvironmentVariableNames encodes shared environment variable names.
+func (s *Agent) SetSharedEnvironmentVariableNames(names []string) error {
+	if len(names) == 0 {
+		s.SharedEnvironmentVariables = nil
+		return nil
+	}
+
+	b, err := json.Marshal(names)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal shared environment variable names")
+	}
+	s.SharedEnvironmentVariables = b
+	return nil
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.

@@ -780,6 +780,17 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	}
 	processParams.Env = append(processParams.Env, env...)
 
+	for _, varName := range agentProcess.EnvVariableNames {
+		value, exists := os.LookupEnv(varName)
+		if !exists {
+			s.l.Warnf("Environment variable %s not found in pmm-agent environment for agent %s", varName, agentID)
+			continue
+		}
+
+		processParams.Env = append(processParams.Env, fmt.Sprintf("%s=%s", varName, value))
+		s.l.Debugf("Resolved environment variable %s for agent %s", varName, agentID)
+	}
+
 	return &processParams, nil
 }
 

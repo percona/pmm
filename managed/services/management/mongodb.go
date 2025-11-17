@@ -63,16 +63,16 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		}
 
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
-			PMMAgentID:           req.PmmAgentId,
-			ServiceID:            service.ServiceID,
-			Username:             req.Username,
-			Password:             req.Password,
-			AgentPassword:        req.AgentPassword,
-			EnvironmentVariables: req.AgentEnvironmentVariables,
-			TLS:                  req.Tls,
-			TLSSkipVerify:        req.TlsSkipVerify,
-			MongoDBOptions:       models.MongoDBOptionsFromRequest(req),
-			LogLevel:             services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:                     req.PmmAgentId,
+			ServiceID:                      service.ServiceID,
+			Username:                       req.Username,
+			Password:                       req.Password,
+			AgentPassword:                  req.AgentPassword,
+			SharedEnvironmentVariableNames: req.SharedEnvironmentVariableNames,
+			TLS:                            req.Tls,
+			TLSSkipVerify:                  req.TlsSkipVerify,
+			MongoDBOptions:                 models.MongoDBOptionsFromRequest(req),
+			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			ExporterOptions: models.ExporterOptions{
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
@@ -101,13 +101,13 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
-				PMMAgentID:           req.PmmAgentId,
-				ServiceID:            service.ServiceID,
-				Username:             req.Username,
-				Password:             req.Password,
-				EnvironmentVariables: req.AgentEnvironmentVariables,
-				TLS:                  req.Tls,
-				TLSSkipVerify:        req.TlsSkipVerify,
+				PMMAgentID:                     req.PmmAgentId,
+				ServiceID:                      service.ServiceID,
+				Username:                       req.Username,
+				Password:                       req.Password,
+				SharedEnvironmentVariableNames: req.SharedEnvironmentVariableNames,
+				TLS:                            req.Tls,
+				TLSSkipVerify:                  req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
 					MaxQueryLength: req.MaxQueryLength,
 					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
@@ -128,13 +128,13 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 
 		if req.QanMongodbMongolog {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBMongologAgentType, &models.CreateAgentParams{
-				PMMAgentID:           req.PmmAgentId,
-				ServiceID:            service.ServiceID,
-				Username:             req.Username,
-				Password:             req.Password,
-				EnvironmentVariables: req.AgentEnvironmentVariables,
-				TLS:                  req.Tls,
-				TLSSkipVerify:        req.TlsSkipVerify,
+				PMMAgentID:                     req.PmmAgentId,
+				ServiceID:                      service.ServiceID,
+				Username:                       req.Username,
+				Password:                       req.Password,
+				SharedEnvironmentVariableNames: req.SharedEnvironmentVariableNames,
+				TLS:                            req.Tls,
+				TLSSkipVerify:                  req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
 					MaxQueryLength: req.MaxQueryLength,
 					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860

@@ -143,18 +143,6 @@ func getLabels(b []byte) (map[string]string, error) {
 	return m, nil
 }
 
-// getEnvironmentVariables deserializes model's environment variables.
-func getEnvironmentVariables(b []byte) (map[string]string, error) {
-	if len(b) == 0 {
-		return nil, nil //nolint:nilnil
-	}
-	m := make(map[string]string)
-	if err := json.Unmarshal(b, &m); err != nil {
-		return nil, errors.Wrap(err, "failed to decode environment variables")
-	}
-	return m, nil
-}
-
 // getLabels serializes model's Prometheus labels.
 func setLabels(m map[string]string, res *[]byte) error {
 	if err := prepareLabels(m, false); err != nil {
@@ -169,25 +157,6 @@ func setLabels(m map[string]string, res *[]byte) error {
 	b, err := json.Marshal(m)
 	if err != nil {
 		return errors.Wrap(err, "failed to encode custom labels")
-	}
-	*res = b
-	return nil
-}
-
-// setEnvironmentVariables serializes model's Prometheus labels.
-func setEnvironmentVariables(m map[string]string, res *[]byte) error {
-	if err := prepareLabels(m, false); err != nil {
-		return err
-	}
-
-	if len(m) == 0 {
-		*res = nil
-		return nil
-	}
-
-	b, err := json.Marshal(m)
-	if err != nil {
-		return errors.Wrap(err, "failed to encode environment variables")
 	}
 	*res = b
 	return nil

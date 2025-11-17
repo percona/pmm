@@ -168,8 +168,6 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
-	// no validation rules for AgentEnvironmentVariables
-
 	if len(errors) > 0 {
 		return AddMongoDBServiceParamsMultiError(errors)
 	}

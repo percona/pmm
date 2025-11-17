@@ -2072,6 +2072,9 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// Environment variable names passed to the exporter.
+	SharedEnvironmentVariableNames []string `json:"shared_environment_variable_names"`
+
 	// metrics resolutions
 	MetricsResolutions *GetAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

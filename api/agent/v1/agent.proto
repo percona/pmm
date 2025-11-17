@@ -60,6 +60,8 @@ message SetStateRequest {
     repeated string env = 5;
     map<string, string> text_files = 6;
     repeated string redact_words = 7;
+    // Environment variable names to be resolved from pmm-agent's environment.
+    repeated string env_variable_names = 8;
   }
   map<string, AgentProcess> agent_processes = 1;
   // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.

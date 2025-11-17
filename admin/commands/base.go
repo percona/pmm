@@ -184,16 +184,16 @@ func ParseDisableCollectors(collectors []string) []string {
 	return disableCollectors
 }
 
-// ReadEnvironmentVariables reads environment variable values from the system environment.
-// It takes a slice of variable names and returns a map of name->value pairs.
-// Returns an error if any of the specified environment variables are not set.
-func ReadEnvironmentVariables(varNames []string) (map[string]string, error) {
+// ValidateEnvironmentVariableNames validates environment variable names.
+// It takes a slice of variable names and returns a validated list.
+// Variable names must match the pattern: [A-Z_][A-Z0-9_]*
+func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	if len(varNames) == 0 {
 		return nil, nil
 	}
 
-	result := make(map[string]string)
-	var missing []string
+	var result []string
+	validNamePattern := regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
 
 	for _, name := range varNames {
 		name = strings.TrimSpace(name)
@@ -201,17 +201,11 @@ func ReadEnvironmentVariables(varNames []string) (map[string]string, error) {
 			continue
 		}
 
-		value, exists := os.LookupEnv(name)
-		if !exists {
-			missing = append(missing, name)
-			continue
+		if !validNamePattern.MatchString(name) {
+			return nil, fmt.Errorf("invalid environment variable name: %s (must match [A-Z_][A-Z0-9_]*)", name)
 		}
 
-		result[name] = value
-	}
-
-	if len(missing) > 0 {
-		return nil, fmt.Errorf("environment variables not set: %s", strings.Join(missing, ", "))
+		result = append(result, name)
 	}
 
 	return result, nil

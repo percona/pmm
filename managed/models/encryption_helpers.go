@@ -59,14 +59,6 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 		agent.AgentPassword = &agentPassword
 	}
 
-	if agent.EnvironmentVariables != nil {
-		variables, err := handler(string(agent.EnvironmentVariables))
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.EnvironmentVariables = []byte(variables)
-	}
-
 	var err error
 	if !agent.AWSOptions.IsEmpty() {
 		agent.AWSOptions.AWSAccessKey, err = handler(agent.AWSOptions.AWSAccessKey)
