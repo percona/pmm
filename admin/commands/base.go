@@ -184,6 +184,39 @@ func ParseDisableCollectors(collectors []string) []string {
 	return disableCollectors
 }
 
+// ReadEnvironmentVariables reads environment variable values from the system environment.
+// It takes a slice of variable names and returns a map of name->value pairs.
+// Returns an error if any of the specified environment variables are not set.
+func ReadEnvironmentVariables(varNames []string) (map[string]string, error) {
+	if len(varNames) == 0 {
+		return nil, nil
+	}
+
+	result := make(map[string]string)
+	var missing []string
+
+	for _, name := range varNames {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+
+		value, exists := os.LookupEnv(name)
+		if !exists {
+			missing = append(missing, name)
+			continue
+		}
+
+		result[name] = value
+	}
+
+	if len(missing) > 0 {
+		return nil, fmt.Errorf("environment variables not set: %s", strings.Join(missing, ", "))
+	}
+
+	return result, nil
+}
+
 // ReadFile reads file from filepath if filepath is not empty.
 func ReadFile(filePath string) (string, error) {
 	if filePath == "" {
