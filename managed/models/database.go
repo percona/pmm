@@ -32,6 +32,7 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -1215,6 +1216,7 @@ type SetupDBParams struct {
 	SSLKeyPath       string
 	SSLCertPath      string
 	HANodeID         string
+	HAPeers          []string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
 }
@@ -1431,7 +1433,11 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		err = setupPMMServerAgents(tx.Querier, params)
+		if params.HANodeID != "" {
+			err = setupPMMServerHAAgents(tx.Querier, params)
+		} else {
+			err = setupPMMServerAgents(tx.Querier, params)
+		}
 		if err != nil {
 			return err
 		}
@@ -1440,12 +1446,61 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
+func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
+	// Implementation for setting up agents in HA mode
+	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
+
+	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
+		NodeName: "pmm-server",
+		Address:  "127.0.0.1",
+	})
+
+	if err != nil && status.Code(err) != codes.AlreadyExists {
+		return err
+	}
+
+	PMMAgentID := params.HANodeID
+
+	if _, err = createPMMAgentWithID(q, PMMAgentID, node.NodeID, nil); err != nil {
+		return err
+	}
+
+	if _, err = CreateNodeExporter(q, PMMAgentID, nil, false, false, []string{}, nil, ""); err != nil {
+		return err
+	}
+
+	// create PMM Server Node and associated Agents
+	nParams := &CreateNodeParams{
+		NodeName: params.HANodeID,
+		Address:  "127.0.0.1",
+	}
+	for _, pName := range params.HAPeers {
+		if strings.HasPrefix(pName, params.HANodeID) {
+			nParams.Address = pName
+			break
+		}
+	}
+
+	_, err = createNodeWithID(q, nParams.NodeName, GenericNodeType, nParams)
+	if err != nil {
+		logrus.Errorf("Node creation (createNodeWithID) error: %+v", err)
+		if status.Code(err) == codes.AlreadyExists {
+			// this fixture was already added previously
+			return nil
+		}
+		return err
+	}
+
+	return nil
+}
+
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
 		Address:  "127.0.0.1",
 	})
+
 	if err != nil {
 		if status.Code(err) == codes.AlreadyExists {
 			// this fixture was already added previously
@@ -1453,25 +1508,25 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		}
 		return err
 	}
+
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
 	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
+
 	address, port, err := parsePGAddress(params.Address)
 	if err != nil {
 		return err
 	}
 	if params.Address != DefaultPostgreSQLAddr {
-		nodeName := PMMServerPostgreSQLNodeName
-		if params.HANodeID != "" {
-			nodeName = params.HANodeID
-		}
-		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
-			NodeName: nodeName,
+		node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
+			NodeName: PMMServerPostgreSQLNodeName,
 			Address:  address,
-		}); err != nil {
+		})
+
+		if err != nil {
 			return err
 		}
 	} else {

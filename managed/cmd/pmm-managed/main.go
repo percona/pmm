@@ -586,6 +586,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 		l.Infof("Migrating database...")
 		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
+			l.Infof("Database migration completed.")
 			return
 		}
 
@@ -823,6 +824,7 @@ func main() { //nolint:maintidx,cyclop
 		SSLKeyPath:  *postgresSSLKeyPathF,
 		SSLCertPath: *postgresSSLCertPathF,
 		HANodeID:    *haNodeID,
+		HAPeers:     nodes,
 	}
 
 	sqlDB, err := models.OpenDB(setupParams)

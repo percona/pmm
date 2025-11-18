@@ -399,7 +399,10 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 		}
 
 		if tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM() {
-			_ = os.Remove("/etc/supervisord.d/victoriametrics.ini")
+			e := os.Remove("/etc/supervisord.d/victoriametrics.ini")
+			if e != nil && !errors.Is(e, fs.ErrNotExist) {
+				s.l.Warnf("Failed to remove victoriametrics config for external VM: %s.", e)
+			}
 			continue
 		}
 
