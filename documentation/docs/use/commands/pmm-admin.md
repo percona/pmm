@@ -304,9 +304,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
         This option lets you pass custom connection parameters as `key=value` pairs to control how PMM connects to your MySQL instance.  
 
             For example, use `allowCleartextPasswords=1` when adding MySQL instances that require cleartext password authentication (such as PAM or other external authentication methods):  
-```bash
+        ```bash
             --extra-dsn="allowCleartextPasswords=1"
-```
+        ```
 
             !!! caution "Security warning"
                  Cleartext authentication transmits password without encryption. Use this parameter only when connections are secured with TLS/SSL or over trusted internal networks.
@@ -591,9 +591,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
     To enable only some collectors, pass the parameter `--enable-all-collectors` along with the parameter `--disable-collectors`.
 
     For example, if you want all collectors except `topmetrics`, specify:
-```
+    ```
     --enable-all-collectors --disable-collectors=topmetrics
-```
+    ```
 
     ##### Limit `dbStats`, `collStats` and `indexStats`
 
@@ -766,7 +766,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--disable-collectors`
         : Comma-separated list of collector names to exclude from exporter.
 
-=== ":material-scale-balance: HAProxy"
+=== ":material-shuffle: HAProxy"
 
     `pmm-admin add haproxy [FLAGS] [NAME]`
     :   Add HAProxy to monitoring.
