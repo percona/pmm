@@ -423,9 +423,9 @@ Once PMM is set up, choose the database or the application that you want it to m
           Valkey-Primary
         ```
 
-    For detailed setup instructions, remote monitoring, TLS and advanced options, see [Connecting Valkey databases to PMM](../install-pmm/install-pmm-client/connect-database/valkey-redis.md).
+    For detailed setup instructions, remote monitoring, TLS and advanced options, see [Connecting Valkey/Redis databases to PMM](../install-pmm/install-pmm-client/connect-database/valkey-redis.md).
 
-=== ":simple-nginxproxymanager: ProxySQL"
+=== ":material-database-link: ProxySQL"
     To connect a ProxySQL service:
     { .power-number}
 
@@ -492,7 +492,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../install-pmm/install-pmm-client/connect-database/proxysql.md).
 
-=== ":material-shuffle: ProxySQL"
+=== ":material-shuffle: HAProxy"
     To connect an HAProxy service:
     { .power-number}
 
