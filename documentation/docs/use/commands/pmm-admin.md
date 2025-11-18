@@ -10,7 +10,7 @@
 
 `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]`
 
-DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL|Valkey](#database-commands)
+DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey|ProxySQL](#database-commands)
 
 `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]`
 
@@ -188,8 +188,7 @@ DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL|Valkey](#database-commands)
     ` --pmm-agent-listen-port=LISTEN_PORT`
     : The PMM agent listen port.
 
-DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
-
+DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey|ProxySQL](#database-commands)
 
 #### `pmm-admin remove`
 
@@ -275,182 +274,6 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
 ### Database commands
 
-=== ":simple-mongodb: MongoDB"
-
-    `pmm-admin add mongodb [FLAGS] [node-name] [node-address]`
-    :    Add MongoDB to monitoring.
-
-        FLAGS:
-
-        `--node-id=node-id`
-        :  Node ID (default is auto-detected).
-
-        `--pmm-agent-id=pmm-agent-id`
-        :  The pmm-agent identifier which runs this instance (default is auto-detected).
-
-        `--username=username`
-        :  MongoDB username.
-
-        `--password=password`
-        :  MongoDB password.
-
-        `--agent-password=password`
-        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
-
-            !!! caution ""
-                Avoid using special characters like '\', ';' and '$' in the custom password.
-
-    `--query-source=profiler`
-    :  Source of queries, one of: `profiler`, `mongolog`, `none` (default: `profiler`).
-
-        `--environment=environment`
-        :  Environment name (e.g. dev, test, prod, etc.)
-
-        `--cluster=cluster`
-        :  Cluster name. Set to the replica set or the desired sharded cluster name.
-
-        `--replication-set=replication-set`
-        :  Replication set name. Use only if you need to override the auto-detected replica set name.
-
-        `--custom-labels=custom-labels`
-        :  Custom user-assigned labels.
-
-        `--skip-connection-check`
-        :  Skip checking if pmm agent can connect to the local db when adding a service.
-
-        `--tls`
-        :  Use TLS to connect to the database.
-
-        `--tls-skip-verify`
-        :  Skip validation of the TLS certificate presented by the db server to the pmm agent.
-
-        `--tls-certificate-key-file=PATHTOCERT`
-        : Path to TLS certificate file to present to the db server by pmm agent.
-
-        `--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET`
-        : Password for TLS certificate file.
-
-        `--tls-ca-file=PATHTOCACERT`
-        : Path to certificate authority file used to validate the db server certificate.
-
-        `--metrics-mode=mode`
-        : Metrics flow mode for agents node-exporter. Allowed values:
-
-            - `auto`: chosen by server (default).
-            - `push`: agent will push metrics.
-            - `pull`: server scrapes metrics from agent.
-
-        `--max-query-length=NUMBER` 
-        : Limit query length in QAN. Allowed values:
-
-            - -1: No limit.
-            -  0: Default value. The default value is 4096 chars.
-            - >0: Query will be truncated after <NUMBER> chars.
-
-            !!! caution ""
-                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
-
-    #### Advanced options
-
-    PMM starts the MongoDB exporter by default only with `diagnosticdata` and `replicasetstatus` collectors enabled.
-
-    FLAGS:
-
-    `--enable-all-collectors`
-    :  Enable all collectors.
-
-    `--disable-collectors`
-    :  Comma-separated list of collector names to exclude from exporter.
-
-    `--max-collections-limit=-1`
-    :  Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, PMM automatically sets this value.
-
-        !!! caution ""
-            A very high limit of `max-collections-limit` could impact the CPU and Memory usage. Check `--stats-collections` to limit the scope of collections and DB's metrics to be fetched.
-
-    `--stats-collections=db1,db2.col1`
-    :  Collections for collstats & indexstats.
-
-    ##### Enable all collectors
-
-    To enable all collectors, pass the parameter `--enable-all-collectors` in the `pmm-admin add mongodb` command.
-    This will enable `collstats`, `dbstats`, `indexstats`, and `topmetrics` collectors.
-
-    ##### Disable some collectors
-
-    To enable only some collectors, pass the parameter `--enable-all-collectors` along with the parameter `--disable-collectors`.
-
-    For example, if you want all collectors except `topmetrics`, specify:
-
-    ```
-    --enable-all-collectors --disable-collectors=topmetrics
-    ```
-
-    ##### Limit `dbStats`, `collStats` and `indexStats`
-
-    By default, PMM decides the limit for the number of collections to monitor the `collStats` and `indexStats` collectors.
-
-    You can also set an additional limit for the `collStats`, `indexStats`, `dbStats`, and `topmetrics` collectors with the `--max-collections-limit` parameter.
-
-    Set the value of the parameter `--max-collections-limit` to:
-
-    - 0: which indicates that `collStats` and `indexStats` can handle unlimited collections.
-    - n, which indicates that `collStats` and `indexStats` can handle <=n collections. If the limit is crossed - exporter stops collecting monitoring data for the `collStats` and `indexStats` collectors.
-    - -1 (default) doesn't need to be explicitly set. It indicates that PMM decides how many collections it would monitor, currently <=200 (subject to change).
-
-    To further limit collections to monitor, enable `collStats` and `indexStats` for some databases or collections:
-
-    - Specify the databases and collections that `collStats` and `indexStats` will use to collect data using the parameter `--stats-collections`. This parameter receives a comma-separated list of name spaces in the form `database[.collection]`.
-
-    ##### Examples
-
-    To add MongoDB with all collectors (`diagnosticdata`, `replicasetstatus`, `collstats`, `dbstats`, `indexstats`, and `topmetrics`) with default limit detected by PMM (currently <=200 collections, but subject to change):
-
-    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors mongodb_srv_1 127.0.0.1:27017`
-
-    To add MongoDB with all collectors (`diagnosticdata`, `replicasetstatus`, `collstats`, `dbstats`, `indexstats`, and `topmetrics`) with `max-collections-limit` set to 1000:
-
-    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=1000 mongodb_srv_1 127.0.0.1:27017`
-
-    To enable all the collectors with an unlimited number of collections monitored:
-
-    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 mongodb_srv_1 127.0.0.1:27017`
-
-    To add MongoDB with default collectors (`diagnosticdata` and `replicasetstatus`):
-
-    `pmm-admin add mongodb --username=admin --password=admin_pass mongodb_srv_1 127.0.0.1:27017`
-
-    Disable `collstats` collector and enable all the others without limiting `max-collections-limit`:
-
-    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --disable-collectors=collstats mongodb_srv_1 127.0.0.1:27017`
-
-    If `--stats-collections=db1,db2.col1` then the collectors are run as follows:
-
-    | Database | Collector is run on            |
-    |----------|--------------------------------|
-    | `db1`    | All the collections            |
-    | `db2`    | **Only** for collection `col1` |
-
-    Enable all collectors and limit monitoring for `dbstats`, `indexstats`, `collstats` and `topmetrics` for all collections in `db1` and `col1` collection in `db2`, without limiting `max-collections-limit` for a number of collections in `db1`:
-
-    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --stats-collections=db1,db2.col1 mongodb_srv_1 127.0.0.1:27017`
-
-    #### Resolutions
-
-    PMM collects metrics in two [resolutions](../../configure-pmm/metrics_res.md) to decrease CPU and Memory usage: high and low resolutions.
-
-    In high resolution we collect metrics from collectors which work fast:
-
-    - `diagnosticdata`
-    - `replicasetstatus`
-    - `topmetrics`
-
-    In low resolution we collect metrics from collectors which could take some time:
-
-    - `dbstats`
-    - `indexstats`
-    - `collstats`
-
 === ":simple-mysql: MySQL"
 
     `pmm-admin add mysql [FLAGS] node-name node-address | [--name=service-name] --address=address[:port] | --socket`
@@ -481,10 +304,9 @@ When you remove a service, collected data remains on PMM Server for the specifie
         This option lets you pass custom connection parameters as `key=value` pairs to control how PMM connects to your MySQL instance.  
 
             For example, use `allowCleartextPasswords=1` when adding MySQL instances that require cleartext password authentication (such as PAM or other external authentication methods):  
-
-            ```bash
+```bash
             --extra-dsn="allowCleartextPasswords=1"
-            ```
+```
 
             !!! caution "Security warning"
                  Cleartext authentication transmits password without encryption. Use this parameter only when connections are secured with TLS/SSL or over trusted internal networks.
@@ -611,7 +433,6 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--disable-queryexamples`
         : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`. Prevents PMM from storing actual query values in Query Analytics while maintaining all performance metrics. When using `pgstatements`, query examples are never collected by design. You can also configure this option via the UI when adding services.
 
-        
         `--environment=<environment>`
         : Environment name.
 
@@ -663,6 +484,232 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : Enable/disable parsing comments from queries into QAN filter groups:
             - off: Disabled.
             - on: Enabled.
+
+=== ":simple-mongodb: MongoDB"
+
+    `pmm-admin add mongodb [FLAGS] [node-name] [node-address]`
+    :    Add MongoDB to monitoring.
+
+        FLAGS:
+
+        `--node-id=node-id`
+        :  Node ID (default is auto-detected).
+
+        `--pmm-agent-id=pmm-agent-id`
+        :  The pmm-agent identifier which runs this instance (default is auto-detected).
+
+        `--username=username`
+        :  MongoDB username.
+
+        `--password=password`
+        :  MongoDB password.
+
+        `--agent-password=password`
+        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
+
+            !!! caution ""
+                Avoid using special characters like '\', ';' and '$' in the custom password.
+
+    `--query-source=profiler`
+    :  Source of queries, one of: `profiler`, `mongolog`, `none` (default: `profiler`).
+
+        `--environment=environment`
+        :  Environment name (e.g. dev, test, prod, etc.)
+
+        `--cluster=cluster`
+        :  Cluster name. Set to the replica set or the desired sharded cluster name.
+
+        `--replication-set=replication-set`
+        :  Replication set name. Use only if you need to override the auto-detected replica set name.
+
+        `--custom-labels=custom-labels`
+        :  Custom user-assigned labels.
+
+        `--skip-connection-check`
+        :  Skip checking if pmm agent can connect to the local db when adding a service.
+
+        `--tls`
+        :  Use TLS to connect to the database.
+
+        `--tls-skip-verify`
+        :  Skip validation of the TLS certificate presented by the db server to the pmm agent.
+
+        `--tls-certificate-key-file=PATHTOCERT`
+        : Path to TLS certificate file to present to the db server by pmm agent.
+
+        `--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET`
+        : Password for TLS certificate file.
+
+        `--tls-ca-file=PATHTOCACERT`
+        : Path to certificate authority file used to validate the db server certificate.
+
+        `--metrics-mode=mode`
+        : Metrics flow mode for agents node-exporter. Allowed values:
+
+            - `auto`: chosen by server (default).
+            - `push`: agent will push metrics.
+            - `pull`: server scrapes metrics from agent.
+
+        `--max-query-length=NUMBER` 
+        : Limit query length in QAN. Allowed values:
+
+            - -1: No limit.
+            -  0: Default value. The default value is 4096 chars.
+            - >0: Query will be truncated after <NUMBER> chars.
+
+            !!! caution ""
+                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
+
+    #### Advanced options
+
+    PMM starts the MongoDB exporter by default only with `diagnosticdata` and `replicasetstatus` collectors enabled.
+
+    FLAGS:
+
+    `--enable-all-collectors`
+    :  Enable all collectors.
+
+    `--disable-collectors`
+    :  Comma-separated list of collector names to exclude from exporter.
+
+    `--max-collections-limit=-1`
+    :  Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, PMM automatically sets this value.
+
+        !!! caution ""
+            A very high limit of `max-collections-limit` could impact the CPU and Memory usage. Check `--stats-collections` to limit the scope of collections and DB's metrics to be fetched.
+
+    `--stats-collections=db1,db2.col1`
+    :  Collections for collstats & indexstats.
+
+    ##### Enable all collectors
+
+    To enable all collectors, pass the parameter `--enable-all-collectors` in the `pmm-admin add mongodb` command.
+    This will enable `collstats`, `dbstats`, `indexstats`, and `topmetrics` collectors.
+
+    ##### Disable some collectors
+
+    To enable only some collectors, pass the parameter `--enable-all-collectors` along with the parameter `--disable-collectors`.
+
+    For example, if you want all collectors except `topmetrics`, specify:
+```
+    --enable-all-collectors --disable-collectors=topmetrics
+```
+
+    ##### Limit `dbStats`, `collStats` and `indexStats`
+
+    By default, PMM decides the limit for the number of collections to monitor the `collStats` and `indexStats` collectors.
+
+    You can also set an additional limit for the `collStats`, `indexStats`, `dbStats`, and `topmetrics` collectors with the `--max-collections-limit` parameter.
+
+    Set the value of the parameter `--max-collections-limit` to:
+
+    - 0: which indicates that `collStats` and `indexStats` can handle unlimited collections.
+    - n, which indicates that `collStats` and `indexStats` can handle <=n collections. If the limit is crossed - exporter stops collecting monitoring data for the `collStats` and `indexStats` collectors.
+    - -1 (default) doesn't need to be explicitly set. It indicates that PMM decides how many collections it would monitor, currently <=200 (subject to change).
+
+    To further limit collections to monitor, enable `collStats` and `indexStats` for some databases or collections:
+
+    - Specify the databases and collections that `collStats` and `indexStats` will use to collect data using the parameter `--stats-collections`. This parameter receives a comma-separated list of name spaces in the form `database[.collection]`.
+
+    ##### Examples
+
+    To add MongoDB with all collectors (`diagnosticdata`, `replicasetstatus`, `collstats`, `dbstats`, `indexstats`, and `topmetrics`) with default limit detected by PMM (currently <=200 collections, but subject to change):
+
+    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors mongodb_srv_1 127.0.0.1:27017`
+
+    To add MongoDB with all collectors (`diagnosticdata`, `replicasetstatus`, `collstats`, `dbstats`, `indexstats`, and `topmetrics`) with `max-collections-limit` set to 1000:
+
+    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=1000 mongodb_srv_1 127.0.0.1:27017`
+
+    To enable all the collectors with an unlimited number of collections monitored:
+
+    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 mongodb_srv_1 127.0.0.1:27017`
+
+    To add MongoDB with default collectors (`diagnosticdata` and `replicasetstatus`):
+
+    `pmm-admin add mongodb --username=admin --password=admin_pass mongodb_srv_1 127.0.0.1:27017`
+
+    Disable `collstats` collector and enable all the others without limiting `max-collections-limit`:
+
+    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --disable-collectors=collstats mongodb_srv_1 127.0.0.1:27017`
+
+    If `--stats-collections=db1,db2.col1` then the collectors are run as follows:
+
+    | Database | Collector is run on            |
+    |----------|--------------------------------|
+    | `db1`    | All the collections            |
+    | `db2`    | **Only** for collection `col1` |
+
+    Enable all collectors and limit monitoring for `dbstats`, `indexstats`, `collstats` and `topmetrics` for all collections in `db1` and `col1` collection in `db2`, without limiting `max-collections-limit` for a number of collections in `db1`:
+
+    `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --stats-collections=db1,db2.col1 mongodb_srv_1 127.0.0.1:27017`
+
+    #### Resolutions
+
+    PMM collects metrics in two [resolutions](../../configure-pmm/metrics_res.md) to decrease CPU and Memory usage: high and low resolutions.
+
+    In high resolution we collect metrics from collectors which work fast:
+
+    - `diagnosticdata`
+    - `replicasetstatus`
+    - `topmetrics`
+
+    In low resolution we collect metrics from collectors which could take some time:
+
+    - `dbstats`
+    - `indexstats`
+    - `collstats`
+
+=== ":simple-redis: Valkey/Redis"
+
+    `pmm-admin add valkey [FLAGS] [node-name] [node-address]`
+    :   Add Valkey/Redis to monitoring.
+
+        FLAGS:
+
+        `--node-id=node-id`
+        : Node ID (default is auto-detected).
+
+        `--pmm-agent-id=pmm-agent-id`
+        : The pmm-agent identifier which runs this instance (default is auto-detected).
+
+        `--username=username`
+        : Valkey/Redis username.
+
+        `--password=password`
+        : Valkey/Redis password.
+
+        `--agent-password=password`
+        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
+
+            !!! caution ""
+                Avoid using special characters like '\', ';' and '$' in the custom password.
+
+        `--environment=environment`
+        : Environment name.
+
+        `--cluster=cluster`
+        : Cluster name.
+
+        `--custom-labels=custom-labels`
+        : Custom user-assigned labels.
+
+        `--skip-connection-check`
+        : Skip connection check.
+
+        `--tls`
+        : Use TLS to connect to the service.
+
+        `--tls-skip-verify`
+        : Skip TLS certificates validation.
+
+        `--metrics-mode=mode`
+        : Metrics flow mode for agents node-exporter. Allowed values:
+
+            - `auto`: chosen by server (default).
+            - `push`: agent will push metrics.
+            - `pull`: server scrapes metrics from agent.
+
 === ":material-shuffle: ProxySQL"
 
     `pmm-admin add proxysql [FLAGS] [node-name] [node-address]`
@@ -719,7 +766,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--disable-collectors`
         : Comma-separated list of collector names to exclude from exporter.
 
-=== ":material-router-network: HAProxy"
+=== ":material-scale-balance: HAProxy"
 
     `pmm-admin add haproxy [FLAGS] [NAME]`
     :   Add HAProxy to monitoring.
@@ -775,69 +822,35 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--tls-skip-verify`
         : Skip TLS certificates validation when connecting to HAProxy endpoints with self-signed or invalid certificates.
 
-=== "simple-redis: Valkey/Redis"
-
-    `pmm-admin add valkey [FLAGS] [node-name] [node-address]`
-    :   Add Valkey/Redis to monitoring.
-
-        FLAGS:
-
-        `--node-id=node-id`
-        :  Node ID (default is auto-detected).
-
-        `--pmm-agent-id=pmm-agent-id`
-        :  The pmm-agent identifier which runs this instance (default is auto-detected).
-
-        `--username=username`
-        :  Valkey/Redis username.
-
-        `--password=password`
-        :  Valkey/Redis password.
-
-        `--agent-password=password`
-        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.) Avoid using special characters like '\', ';' and '$' in the custom password.
-
-        `--environment=environment`
-        :  Environment name (e.g. dev, test, prod, etc.)
-
-        `--cluster=cluster`
-        :  Cluster name.
-
-        `--custom-labels=custom-labels`
-        :  Custom user-assigned labels.
-
-        `--skip-connection-check`
-        :  Skip checking if pmm agent can connect to the local service when adding a service.
-
-        `--tls`
-        :  Use TLS to connect to the service.
-
-        `--tls-skip-verify`
-        :  Skip validation of the TLS certificate presented by the service to the pmm agent.
-
-        `--metrics-mode=mode`
-        : Metrics flow mode for agents node-exporter. Allowed values:
-
-            - `auto`: chosen by server (default).
-            - `push`: agent will push metrics.
-            - `pull`: server scrapes metrics from agent.
-
 ## Examples
-
 ```sh
 pmm-admin add mysql --query-source=slowlog --username=pmm --password=pmm sl-mysql 127.0.0.1:3306
 ```
-
 ```txt
 MySQL Service added.
 Service ID  : a89191d4-7d75-44a9-b37f-a528e2c4550f
 Service name: sl-mysql
 ```
-
 ```sh
 pmm-admin add mysql --username=pmm --password=pmm --service-name=ps-mysql --host=127.0.0.1 --port=3306
 ```
-
+```sh
+pmm-admin add postgresql --username=pmm --password=StrongPassword123!
+```
+```sh
+pmm-admin add mongodb --username=pmm --password=StrongPassword123! --cluster my_replica_set
+```
+```sh
+pmm-admin add valkey --username=pmm --password=StrongPassword123! valkey_srv_1 127.0.0.1:6379
+```
+```txt
+Valkey Service added.
+Service ID  : a89191d4-7d75-44a9-b37f-a528e2c4550f
+Service name: valkey_srv_1
+```
+```sh
+pmm-admin add proxysql --username=pmm --password=StrongPassword123!
+```
 ```sh
 # Add external service with self-signed certificate
 pmm-admin add external --listen-port=8008 --scheme=https --tls-skip-verify
@@ -848,38 +861,26 @@ pmm-admin add external-serverless --url=https://host.docker.internal:9218 --tls-
 # Add HAProxy with self-signed certificate
 pmm-admin add haproxy --listen-port=8404 --scheme=https --tls-skip-verify
 ```
-
 ```sh
 pmm-admin status
 pmm-admin status --wait=30s
 ```
-
 ```txt
 Agent ID: c2a55ac6-a12f-4172-8850-4101237a4236
 Node ID : 29b2cc24-3b90-4892-8d7e-4b44258d9309
 PMM Server:
  URL : https://x.x.x.x:443/
- Version: 2.5.0
+ Version: 3.5.0
 PMM Client:
  Connected : true
  Time drift: 2.152715ms
  Latency : 465.658µs
- pmm-admin version: 2.5.0
- pmm-agent version: 2.5.0
+ pmm-admin version: 3.5.0
+ pmm-agent version: 3.5.0
 Agents: aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
 ```
 
-```sh
-pmm-admin add valkey --username=default --password=your_password valkey_srv_1 127.0.0.1:6379
-```
-```txt
-Valkey Service added.
-Service ID  : a89191d4-7d75-44a9-b37f-a528e2c4550f
-Service name: valkey_srv_1
-```
-
 ### Disable collectors
-
 ```sh
 pmm-admin add mysql --disable-collectors='heartbeat,global_status,info_schema.innodb_cmp' --username=pmm --password=pmm --service-name=db1-mysql --host=127.0.0.1 --port=3306
 ```
@@ -891,3 +892,4 @@ For other collectors that you can disable with the `--disable-collectors` option
 - [`mongodb_exporter`](https://github.com/percona/mongodb_exporter)
 - [`postgres_exporter`](https://github.com/percona/postgres_exporter)
 - [`proxysql_exporter`](https://github.com/percona/proxysql_exporter)
+- [`valkey_exporter`](https://github.com/percona/valkey_exporter)

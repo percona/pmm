@@ -425,7 +425,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     For detailed setup instructions, remote monitoring, TLS and advanced options, see [Connecting Valkey/Redis databases to PMM](../install-pmm/install-pmm-client/connect-database/valkey-redis.md).
 
-=== ":material-database-link: ProxySQL"
+=== ":material-hub: ProxySQL"
     To connect a ProxySQL service:
     { .power-number}
 
