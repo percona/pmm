@@ -885,11 +885,10 @@ Agents: aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
 pmm-admin add mysql --disable-collectors='heartbeat,global_status,info_schema.innodb_cmp' --username=pmm --password=pmm --service-name=db1-mysql --host=127.0.0.1 --port=3306
 ```
 
-For other collectors that you can disable with the `--disable-collectors` option, please visit the official repositories for each exporter:
+For other collectors that you can disable with the `--disable-collectors` option, see the official repositories for each exporter:
 
 - [`node_exporter`](https://github.com/percona/node_exporter)
 - [`mysqld_exporter`](https://github.com/percona/mysqld_exporter)
 - [`mongodb_exporter`](https://github.com/percona/mongodb_exporter)
 - [`postgres_exporter`](https://github.com/percona/postgres_exporter)
 - [`proxysql_exporter`](https://github.com/percona/proxysql_exporter)
-- [`valkey_exporter`](https://github.com/percona/valkey_exporter)
