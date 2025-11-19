@@ -677,7 +677,7 @@ Once the service is confirmed as active, verify that metrics are being properly 
 [BLOG_LOGGING]: https://www.percona.com/blog/2009/02/10/impact-of-logging-on-mysql%E2%80%99s-performance/
 [BLOG_LOG_ROTATION]: https://www.percona.com/blog/2013/04/18/rotating-mysql-slow-logs-safely/
 [BLOG_PS_VS_SLOW]: https://www.percona.com/blog/2014/02/11/performance_schema-vs-slow-query-log/
-[PS_FEATURES_REMOVED]: https://www.percona.com/doc/percona-server/LATEST/changed_in_version.html
+[PS_FEATURES_REMOVED]: https://docs.percona.com/percona-server/8.0/upgrade-changes-removed.html
 [ps_slow_query_ext]: https://docs.percona.com/percona-server/latest/slow-extended.html
 [ps_query_response_time_stats]: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#usage
 [ps_userstats]: https://docs.percona.com/percona-server/latest/user-stats.html
