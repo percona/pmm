@@ -13,20 +13,29 @@ See our detailed guides:
 - [Setting up PMM Server](../install-pmm/install-pmm-server/index.md) for server installation  
 - [Setting up PMM Client](../install-pmm/install-pmm-client/index.md) for client setup
 
-Quick reference for typical deployment (up to 30 nodes):
-- **Server**:
+## What are the minimum system requirements?
 
-    - CPU: 4 cores (must support SSE4.2)
-    - Memory: 8 GB
-    - Storage: 100 GB (approximately 1 GB per node per week)
-- **Client**:
+See our detailed guides:
 
-    - Storage: 100 MB
-    - Supports x86_64 and ARM64 architectures
+- [PMM hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) for complete specifications
+- [Setting up PMM Server](../install-pmm/install-pmm-server/index.md) for server installation  
+- [Setting up PMM Client](../install-pmm/install-pmm-client/index.md) for client setup
 
-!!! note alert alert-info "Note"
-    For larger deployments (200+ nodes) or longer retention periods, see our [Hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) for detailed sizing recommendations.
+### Quick reference: Typical deployment (up to 30 nodes)
 
+**Server requirements:**
+
+- CPU: 4 cores (must support SSE4.2)
+- Memory: 8 GB
+- Storage: 100 GB (~1 GB per node per week)
+
+**Client requirements:**
+
+- Storage: 100 MB
+- Architecture: x86_64 and ARM64 supported
+
+For larger deployments (200+ nodes) or extended retention, see [Hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) for detailed sizing guidance.
+    
 ## How can I upgrade from version 2?
 
 PMM 3 introduces significant architectural changes that require gradual transition from PMM 2. For detailed instructions, see [Upgrade from PMM2](../pmm-upgrade/migrating_from_pmm_2.md).
