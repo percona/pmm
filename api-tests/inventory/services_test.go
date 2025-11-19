@@ -355,12 +355,13 @@ func TestMySQLService(t *testing.T) {
 		assert.Equal(t, &services.AddServiceOK{
 			Payload: &services.AddServiceOKBody{
 				Mysql: &services.AddServiceOKBodyMysql{
-					ServiceID:    serviceID,
-					NodeID:       genericNodeID,
-					Address:      "localhost",
-					Port:         3306,
-					ServiceName:  serviceName,
-					CustomLabels: map[string]string{},
+					ServiceID:      serviceID,
+					NodeID:         genericNodeID,
+					Address:        "localhost",
+					Port:           3306,
+					ServiceName:    serviceName,
+					CustomLabels:   map[string]string{},
+					ExtraDsnParams: map[string]string{},
 				},
 			},
 		}, res)
@@ -376,12 +377,13 @@ func TestMySQLService(t *testing.T) {
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
 				Mysql: &services.GetServiceOKBodyMysql{
-					ServiceID:    serviceID,
-					NodeID:       genericNodeID,
-					Address:      "localhost",
-					Port:         3306,
-					ServiceName:  serviceName,
-					CustomLabels: map[string]string{},
+					ServiceID:      serviceID,
+					NodeID:         genericNodeID,
+					Address:        "localhost",
+					Port:           3306,
+					ServiceName:    serviceName,
+					CustomLabels:   map[string]string{},
+					ExtraDsnParams: map[string]string{},
 				},
 			},
 		}, serviceRes)

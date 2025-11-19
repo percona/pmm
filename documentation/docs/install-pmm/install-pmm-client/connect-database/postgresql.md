@@ -236,7 +236,7 @@ After configuring your database server with the appropriate extension, you need 
     2. Enter or select values for the fields.
     
     3. Click **Add service**.
-    ![!](../../../images/PMM_Add_Instance_PostgreSQL.jpg)
+    ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
 
     4. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
     For TLS connection, make sure SSL is configured in your PostgreSQL instance. 

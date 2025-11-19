@@ -4,9 +4,16 @@
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: pmm
+    group: root
+    mode: 0775
   loop:
     - /usr/share/pmm-server/static/
+    - /usr/share/pmm-server/nginx/
+    - /usr/share/pmm-server/nginx/client_temp/
+    - /usr/share/pmm-server/nginx/proxy_temp/
+    - /usr/share/pmm-server/nginx/fastcgi_temp/
+    - /usr/share/pmm-server/nginx/uwsgi_temp/
+    - /usr/share/pmm-server/nginx/scgi_temp/
     - /etc/nginx/conf.d/
     - /etc/nginx/ssl/
 
@@ -39,15 +46,6 @@
     - "conf.d/pmm-ssl.conf"
     - "conf.d/pmm.conf"
 
-- name: Check if the user-provided certificate exists
-  stat:
-    path: /srv/nginx/certificate.crt
-  register: certificate_file
-
-- name: Generate SSL certificates
-  when: not certificate_file.stat.exists
-  command: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
-
 - name: Find the default nginx config files
   find:
     paths: /etc/nginx
@@ -65,33 +63,28 @@
   file:
     path: "{{ item }}"
     state: directory
-    group: pmm
+    group: root
     owner: pmm
     recurse: yes
   loop:
-    - /var/lib/nginx
-    - /var/log/nginx
     - /etc/nginx
     - /srv/nginx
 
-- name: Provision empty Nginx configuration files
+- name: Provision Nginx files
   file:
     path: "{{ item }}"
     state: touch
-    group: pmm
+    group: root
     owner: pmm
+    mode: 0660
   loop:
     - /run/nginx.pid
     - /srv/logs/nginx.log
-
-- name: Check nginx configuration
-  command: nginx -t
-  changed_when: false
 
 - name: Copy local-rss.xml file
   copy:
     src: local-rss.xml
     dest: /usr/share/pmm-server/static/
-    group: pmm
+    group: root
     owner: pmm
     mode: 0644

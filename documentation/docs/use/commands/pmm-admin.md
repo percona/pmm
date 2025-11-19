@@ -134,6 +134,7 @@ DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
+
         - `auto`: chosen by server (default).
         - `push`: agent will push metrics.
         - `pull`: server scrapes metrics from agent.
@@ -303,43 +304,45 @@ When you remove a service, collected data remains on PMM Server for the specifie
     :  Source of queries, one of: `profiler`, `mongolog`, `none` (default: `profiler`).
 
         `--environment=environment`
-        :  Environment name.
+        :  Environment name (e.g. dev, test, prod, etc.)
 
         `--cluster=cluster`
-        :  Cluster name.
+        :  Cluster name. Set to the replica set or the desired sharded cluster name.
 
         `--replication-set=replication-set`
-        :  Replication set name.
+        :  Replication set name. Use only if you need to override the auto-detected replica set name.
 
         `--custom-labels=custom-labels`
         :  Custom user-assigned labels.
 
         `--skip-connection-check`
-        :  Skip connection check.
+        :  Skip checking if pmm agent can connect to the local db when adding a service.
 
         `--tls`
         :  Use TLS to connect to the database.
 
         `--tls-skip-verify`
-        :  Skip TLS certificates validation.
+        :  Skip validation of the TLS certificate presented by the db server to the pmm agent.
 
         `--tls-certificate-key-file=PATHTOCERT`
-        : Path to TLS certificate file.
+        : Path to TLS certificate file to present to the db server by pmm agent.
 
         `--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET`
         : Password for TLS certificate file.
 
         `--tls-ca-file=PATHTOCACERT`
-        : Path to certificate authority file.
+        : Path to certificate authority file used to validate the db server certificate.
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER` 
         : Limit query length in QAN. Allowed values:
+
             - -1: No limit.
             -  0: Default value. The default value is 4096 chars.
             - >0: Query will be truncated after <NUMBER> chars.
@@ -437,11 +440,13 @@ When you remove a service, collected data remains on PMM Server for the specifie
     PMM collects metrics in two [resolutions](../../configure-pmm/metrics_res.md) to decrease CPU and Memory usage: high and low resolutions.
 
     In high resolution we collect metrics from collectors which work fast:
+
     - `diagnosticdata`
     - `replicasetstatus`
     - `topmetrics`
 
     In low resolution we collect metrics from collectors which could take some time:
+
     - `dbstats`
     - `indexstats`
     - `collstats`
@@ -471,6 +476,19 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--password=password`
         : MySQL password.
 
+         `--extra-dsn=<key=value>`  
+        : Additional DSN (Data Source Name) parameters for MySQL connection configuration.  
+        This option lets you pass custom connection parameters as `key=value` pairs to control how PMM connects to your MySQL instance.  
+
+            For example, use `allowCleartextPasswords=1` when adding MySQL instances that require cleartext password authentication (such as PAM or other external authentication methods):  
+
+            ```bash
+            --extra-dsn="allowCleartextPasswords=1"
+            ```
+
+            !!! caution "Security warning"
+                 Cleartext authentication transmits password without encryption. Use this parameter only when connections are secured with TLS/SSL or over trusted internal networks.
+                
         `--agent-password=password`
         :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
 
@@ -539,12 +557,14 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER`
         : Limit query length in QAN. Allowed values:
+
             - -1: No limit.
             -  0: Default value. The default value is 2048 chars.
             - >0: Query will be truncated after <NUMBER> chars.
@@ -623,12 +643,14 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER` 
         : Limit query length in QAN. Allowed values:
+
             - -1: No limit.
             -  0: Default value. The default value is 2048 chars.
             - >0: Query will be truncated after <NUMBER> chars.
@@ -689,6 +711,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
@@ -741,6 +764,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=MODE`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.

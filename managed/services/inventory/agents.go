@@ -268,7 +268,10 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 	var row *models.Agent
 	var agent *inventoryv1.MySQLdExporter
 
-	mysqlOptions := models.MySQLOptionsFromRequest(p)
+	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
+	if err != nil {
+		return nil, err
+	}
 	mysqlOptions.TableCountTablestatsGroupLimit = p.TablestatsGroupTableLimit
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -443,6 +446,10 @@ func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, agentID stri
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANMySQLPerfSchemaAgent
+	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
+	if err != nil {
+		return nil, err
+	}
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:    p.PmmAgentId,
@@ -457,7 +464,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 				QueryExamplesDisabled:   p.DisableQueryExamples,
 				CommentsParsingDisabled: p.DisableCommentsParsing,
 			},
-			MySQLOptions: models.MySQLOptionsFromRequest(p),
+			MySQLOptions: mysqlOptions,
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
@@ -523,6 +530,10 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, agen
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
 func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANMySQLSlowlogAgent
+	mysqlOptions, err := models.MySQLOptionsFromRequest(p)
+	if err != nil {
+		return nil, err
+	}
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
 		maxSlowlogFileSize := p.MaxSlowlogFileSize
@@ -544,7 +555,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 				CommentsParsingDisabled: p.DisableCommentsParsing,
 				MaxQueryLogSize:         maxSlowlogFileSize,
 			},
-			MySQLOptions: models.MySQLOptionsFromRequest(p),
+			MySQLOptions: mysqlOptions,
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)

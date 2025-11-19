@@ -103,6 +103,8 @@ type AddMySQLServiceParams struct {
 	LogLevel v1.LogLevel `protobuf:"varint,31,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,32,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
+	// extra DSN parameters to be used for connecting to MySQL.
+	ExtraDsnParams map[string]string `protobuf:"bytes,33,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -361,6 +363,13 @@ func (x *AddMySQLServiceParams) GetExposeExporter() bool {
 	return false
 }
 
+func (x *AddMySQLServiceParams) GetExtraDsnParams() map[string]string {
+	if x != nil {
+		return x.ExtraDsnParams
+	}
+	return nil
+}
+
 type MySQLServiceResult struct {
 	state              protoimpl.MessageState      `protogen:"open.v1"`
 	Service            *v1.MySQLService            `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -442,8 +451,7 @@ var File_management_v1_mysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_mysql_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xff\n" +
-	"\n" +
+	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xa6\f\n" +
 	"\x15AddMySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -478,8 +486,12 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\x12disable_collectors\x18\x1d \x03(\tR\x11disableCollectors\x12%\n" +
 	"\x0eagent_password\x18\x1e \x01(\tR\ragentPassword\x123\n" +
 	"\tlog_level\x18\x1f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x1a?\n" +
+	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x12b\n" +
+	"\x10extra_dsn_params\x18! \x03(\v28.management.v1.AddMySQLServiceParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
+	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdb\x02\n" +
 	"\x12MySQLServiceResult\x124\n" +
@@ -505,35 +517,37 @@ func file_management_v1_mysql_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_management_v1_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_management_v1_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 	file_management_v1_mysql_proto_goTypes  = []any{
 		(*AddMySQLServiceParams)(nil),      // 0: management.v1.AddMySQLServiceParams
 		(*MySQLServiceResult)(nil),         // 1: management.v1.MySQLServiceResult
 		nil,                                // 2: management.v1.AddMySQLServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
-		(*v1.MySQLService)(nil),            // 6: inventory.v1.MySQLService
-		(*v1.MySQLdExporter)(nil),          // 7: inventory.v1.MySQLdExporter
-		(*v1.QANMySQLPerfSchemaAgent)(nil), // 8: inventory.v1.QANMySQLPerfSchemaAgent
-		(*v1.QANMySQLSlowlogAgent)(nil),    // 9: inventory.v1.QANMySQLSlowlogAgent
+		nil,                                // 3: management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
+		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
+		(MetricsMode)(0),                   // 5: management.v1.MetricsMode
+		(v1.LogLevel)(0),                   // 6: inventory.v1.LogLevel
+		(*v1.MySQLService)(nil),            // 7: inventory.v1.MySQLService
+		(*v1.MySQLdExporter)(nil),          // 8: inventory.v1.MySQLdExporter
+		(*v1.QANMySQLPerfSchemaAgent)(nil), // 9: inventory.v1.QANMySQLPerfSchemaAgent
+		(*v1.QANMySQLSlowlogAgent)(nil),    // 10: inventory.v1.QANMySQLSlowlogAgent
 	}
 )
 
 var file_management_v1_mysql_proto_depIdxs = []int32{
-	3, // 0: management.v1.AddMySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2, // 1: management.v1.AddMySQLServiceParams.custom_labels:type_name -> management.v1.AddMySQLServiceParams.CustomLabelsEntry
-	4, // 2: management.v1.AddMySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	5, // 3: management.v1.AddMySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6, // 4: management.v1.MySQLServiceResult.service:type_name -> inventory.v1.MySQLService
-	7, // 5: management.v1.MySQLServiceResult.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
-	8, // 6: management.v1.MySQLServiceResult.qan_mysql_perfschema:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
-	9, // 7: management.v1.MySQLServiceResult.qan_mysql_slowlog:type_name -> inventory.v1.QANMySQLSlowlogAgent
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	4,  // 0: management.v1.AddMySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	2,  // 1: management.v1.AddMySQLServiceParams.custom_labels:type_name -> management.v1.AddMySQLServiceParams.CustomLabelsEntry
+	5,  // 2: management.v1.AddMySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	6,  // 3: management.v1.AddMySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	3,  // 4: management.v1.AddMySQLServiceParams.extra_dsn_params:type_name -> management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
+	7,  // 5: management.v1.MySQLServiceResult.service:type_name -> inventory.v1.MySQLService
+	8,  // 6: management.v1.MySQLServiceResult.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
+	9,  // 7: management.v1.MySQLServiceResult.qan_mysql_perfschema:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
+	10, // 8: management.v1.MySQLServiceResult.qan_mysql_slowlog:type_name -> inventory.v1.QANMySQLSlowlogAgent
+	9,  // [9:9] is the sub-list for method output_type
+	9,  // [9:9] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_mysql_proto_init() }
@@ -549,7 +563,7 @@ func file_management_v1_mysql_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_mysql_proto_rawDesc), len(file_management_v1_mysql_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -13,16 +13,15 @@
   loop: "{{ plugin_list['files'] }}"
 
 - name: Copy new plugins to the plugin directory
-  synchronize:
+  copy:
     src: /usr/share/percona-dashboards/panels/
     dest: /srv/grafana/plugins/
+    remote_src: yes
 
 - name: Set permissions for the plugin directory
   file:
     path: /srv/grafana/plugins
     state: directory
-    owner: pmm
-    group: pmm
     mode: 0775
     recurse: yes
 
@@ -30,16 +29,11 @@
   copy:
     src: /usr/share/percona-dashboards/VERSION
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-    owner: pmm
-    group: pmm
-    mode: 0644
+    mode: 0664
     remote_src: yes
 
 - name: Restart Grafana service with new plugins 
   shell: "supervisorctl {{ item }} grafana"
-  become: true
-  become_user: pmm
-  become_method: su
   loop:
     - stop
     - remove

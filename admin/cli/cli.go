@@ -28,8 +28,6 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
-	"github.com/percona/pmm/admin/commands/pmm/client"
-	"github.com/percona/pmm/admin/commands/pmm/server"
 	"github.com/percona/pmm/admin/pkg/flags"
 )
 
@@ -41,7 +39,6 @@ type GlobalFlagsGetter interface {
 // Check interfaces.
 var (
 	_ GlobalFlagsGetter = &PMMAdminCommands{} //nolint:exhaustruct
-	_ GlobalFlagsGetter = &PMMCommands{}      //nolint:exhaustruct
 )
 
 // PMMAdminCommands stores all commands, flags and arguments for the "pmm-admin" binary.
@@ -71,26 +68,6 @@ func (c *PMMAdminCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) er
 // GetGlobalFlags returns the global flags for PMMAdminCommands.
 func (c *PMMAdminCommands) GetGlobalFlags() *flags.GlobalFlags {
 	return &c.GlobalFlags
-}
-
-// PMMCommands stores all commands, flags and arguments for the "pmm" binary.
-type PMMCommands struct {
-	flags.GlobalFlags
-
-	Server     server.BaseCommand         `cmd:"" help:"PMM server related commands"`
-	Client     client.BaseCommand         `cmd:"" help:"PMM client related commands"`
-	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
-}
-
-// GetGlobalFlags returns the global flags for PMMAdminCommands.
-func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
-	return &c.GlobalFlags
-}
-
-// Run function is a top-level function which handles running all commands
-// in a standard way based on the interface they implement.
-func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
-	return run(ctx, globals)
 }
 
 // CmdRunner represents a command to be run without arguments.

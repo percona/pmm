@@ -403,6 +403,7 @@ func TestPMMAgent(t *testing.T) {
 				},
 				Status:             &AgentStatusUnknown,
 				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				ExtraDsnParams:     map[string]string{},
 				DisabledCollectors: make([]string, 0),
 			},
 		}, listAgentsOK.Payload.MysqldExporter)
@@ -530,8 +531,9 @@ func TestQanAgentExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					Status:         &AgentStatusUnknown,
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					ExtraDsnParams: map[string]string{},
 				},
 			},
 		}, getAgentRes)
@@ -552,14 +554,15 @@ func TestQanAgentExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
-					AgentID:      agentID,
-					ServiceID:    serviceID,
-					Username:     "username",
-					PMMAgentID:   pmmAgentID,
-					Disabled:     true,
-					Status:       &AgentStatusUnknown,
-					CustomLabels: map[string]string{},
-					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					AgentID:        agentID,
+					ServiceID:      serviceID,
+					Username:       "username",
+					PMMAgentID:     pmmAgentID,
+					Disabled:       true,
+					Status:         &AgentStatusUnknown,
+					CustomLabels:   map[string]string{},
+					ExtraDsnParams: map[string]string{},
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -591,8 +594,9 @@ func TestQanAgentExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					Status:         &AgentStatusUnknown,
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					ExtraDsnParams: map[string]string{},
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)

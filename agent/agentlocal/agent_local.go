@@ -158,6 +158,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*ag
 			latency, clockDrift, err := s.client.GetNetworkInformation()
 			if err != nil {
 				s.l.Errorf("Can't get network info: %s", err)
+				serverInfo.Connected = false
 			} else {
 				serverInfo.Latency = durationpb.New(latency)
 				serverInfo.ClockDrift = durationpb.New(clockDrift)

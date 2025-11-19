@@ -47,10 +47,21 @@ gobuild_component() {
         echo skip build
         return
     fi
-    if [ ${component} = 'pmm-admin' -o ${component} = 'pmm-agent' ]; then
+
+    if [ ${component} = 'pmm-admin' ]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release"
+    elif [ ${component} = 'pmm-agent' ]; then
+        if [ "${BUILD_TYPE}" = "dynamic" ]; then
+            build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release-gssapi"
+        else
+            build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release"
+        fi
     elif [ ${component} = 'mongodb_exporter' ]; then
-        build_command="cd /tmp/go/src/${extract_path} && make build"
+        if [ "${BUILD_TYPE}" = "dynamic" ]; then
+            build_command="cd /tmp/go/src/${extract_path} && make build-gssapi"
+        else
+            build_command="cd /tmp/go/src/${extract_path} && make build"
+        fi
     elif [ ${component} = 'node_exporter' ] || [ ${component} = 'mysqld_exporter' ] || \
          [ ${component} = 'proxysql_exporter' ] || [ ${component} = 'rds_exporter' ] || \
          [ ${component} = 'postgres_exporter' ] || [ ${component} = 'azure_metrics_exporter' ]; then
@@ -116,6 +127,7 @@ copy_component() {
 }
 
 main() {
+    rm -rf "${binary_dir}"
     extract_source_tarball
 
     gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
@@ -152,16 +164,21 @@ main() {
     gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-pg-summary"
 
     cp -r ${tmp_dir}/go/src/github.com/hashicorp/nomad/pkg/linux_*/nomad ${binary_dir}/bin/nomad
-
-    rm -rf ${binary_tarball}
-    mkdir -p $(dirname ${binary_tarball}) || :
     
     # Removes pmm binary in case this is not a PR build - such as RC/GA build
     if [[ "$(basename ${root_dir})" != pmm-submodules_PR-* ]]; then
         rm -f "${binary_dir}/bin/pmm"
     fi
 
-    tar -C $(dirname ${binary_dir}) -zcpf ${binary_tarball} $(basename ${binary_dir})
+    if [[ "${BUILD_TYPE}" = "dynamic" ]]; then
+        rm -f ${dynamic_binary_tarball}
+        mkdir -p $(dirname ${dynamic_binary_tarball}) || :
+        tar -C $(dirname ${binary_dir}) -zcpf ${dynamic_binary_tarball} $(basename ${binary_dir})
+    else
+        rm -rf ${binary_tarball}
+        mkdir -p $(dirname ${binary_tarball}) || :
+        tar -C $(dirname ${binary_dir}) -zcpf ${binary_tarball} $(basename ${binary_dir})
+    fi
 }
 
 main

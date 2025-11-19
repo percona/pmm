@@ -218,6 +218,9 @@ type MySQLOptions struct {
 	// Negative value means tablestats group collectors are always disabled.
 	// See IsMySQLTablestatsGroupEnabled method.
 	TableCountTablestatsGroupLimit int32 `json:"table_count_tablestats_group_limit"`
+
+	// Extra DSN query parameters for MySQL.
+	ExtraDSNParams map[string]string `json:"extra_dsn_params"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -456,6 +459,13 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			}
 		}
 
+		if s.MySQLOptions.ExtraDSNParams != nil {
+			// Add extra DSN parameters if they are set.
+			for k, v := range s.MySQLOptions.ExtraDSNParams {
+				cfg.Params[k] = v
+			}
+		}
+
 		// MultiStatements must not be used as it enables SQL injections (in particular, in pmm-agent's Actions)
 		cfg.MultiStatements = false
 
@@ -488,6 +498,13 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
+			}
+		}
+
+		if s.MySQLOptions.ExtraDSNParams != nil {
+			// Add extra DSN parameters if they are set.
+			for k, v := range s.MySQLOptions.ExtraDSNParams {
+				cfg.Params[k] = v
 			}
 		}
 

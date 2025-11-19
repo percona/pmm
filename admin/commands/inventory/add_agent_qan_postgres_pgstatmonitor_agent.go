@@ -68,7 +68,7 @@ type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 
 // RunCmd runs the command for AddAgentQANPostgreSQLPgStatMonitorAgentCommand.
 func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	var (
 		err                    error

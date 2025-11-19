@@ -24,7 +24,7 @@
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: pmm
+    group: root
     mode: 0755
     recurse: yes
   loop:
@@ -39,7 +39,7 @@
     src: "{{ item }}"
     dest: "/etc/clickhouse-server/{{ item }}"
     owner: pmm
-    group: pmm
+    group: root
     mode: 0664
   loop:
     - config.xml
@@ -56,7 +56,10 @@
     - cap_sys_nice
     - cap_net_admin
 
-- name: Remove clickhouse-odbc-bridge binary
+- name: Remove unused binaries
   file:
-    path: /usr/bin/clickhouse-odbc-bridge
+    path: /usr/bin/{{ item }}
     state: absent
+  loop:
+    - clickhouse-odbc-bridge
+    - clickhouse-diagnostics

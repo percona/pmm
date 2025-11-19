@@ -9,6 +9,9 @@ message UniversalAgent {
   message MySQLOptions {
     // True if TLS key is set.
     bool is_tls_key_set = 1;
+
+    // Extra DSN parameters for MySQL connection.
+    map<string, string> extra_dsn_params = 2;
   }
 
   message AzureOptions {
@@ -84,7 +87,7 @@ message UniversalAgent {
   string metrics_scheme = 16;
   // TLS and other options for connecting to MongoDB.
   MongoDBOptions mongo_db_options = 17;
-  // TLS options for connecting to MySQL.
+  // TLS and other options for connecting to MySQL.
   MySQLOptions mysql_options = 18;
   // A unique node identifier.
   string node_id = 19;

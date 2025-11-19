@@ -17,7 +17,7 @@ The **Services** tab displays the individual services, the nodes on which they r
 | Service name|The name or identifier associated with the service being monitored.|                                        
 | Node name | Name or identifier associated with a specific node.| 
 | Monitoring status| The **Monitoring** column summarizes the status of all the Agents assigned to the service.             | 
-|  Address         | The IP address or DNS where the service is currently running. |
+|  Address         | The IP address or DNS where the service is currently running. For RDS instances, this shows the actual database endpoint. |
 |  Port         | The port number on which the service is running. ||
 |  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the **<image src="../../images/dots-three-vertical.ico" width="15px" aria-label="triple dots"/>** icon </br> </br> * You can also check additional information about the service, by clicking on the **<image src="../../images/arrow-downward.ico" width="15px" aria-label="downward arrow"/>** icon. This expands the service entry to show reference information like service labels and IDs.|
 
@@ -121,6 +121,7 @@ The **Nodes** tab helps you monitor where services and agents are running across
 
 - A unique `node_id` linked to its `machine_id` (from `/etc/machine-id`)
 - A `node_type` attribute (e.g., generic, container, remote, remote_rds) indicating its nature
+- An optional `instance_id` attribute for RDS nodes that stores the AWS RDS Instance ID. 
 
 To see node information:
 - Click the expand icon in the **Options** column to see node labels and attributes.

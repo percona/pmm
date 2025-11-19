@@ -85,6 +85,7 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 			Az:           node.AZ,
 			CustomLabels: labels,
 			Address:      node.Address,
+			InstanceId:   node.InstanceID,
 		}, nil
 
 	case models.RemoteAzureDatabaseNodeType:
@@ -266,6 +267,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:                  inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:            agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions:        ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+			ExtraDsnParams:            agent.MySQLOptions.ExtraDSNParams,
 		}, nil
 
 	case models.MongoDBExporterType:

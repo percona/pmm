@@ -66,7 +66,7 @@ type AddAgentProxysqlExporterCommand struct {
 
 // RunCmd executes the AddAgentProxysqlExporterCommand and returns the result.
 func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{

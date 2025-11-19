@@ -120,7 +120,7 @@ type UniversalAgent struct {
 	MetricsScheme string `protobuf:"bytes,16,opt,name=metrics_scheme,json=metricsScheme,proto3" json:"metrics_scheme,omitempty"`
 	// TLS and other options for connecting to MongoDB.
 	MongoDbOptions *UniversalAgent_MongoDBOptions `protobuf:"bytes,17,opt,name=mongo_db_options,json=mongoDbOptions,proto3" json:"mongo_db_options,omitempty"`
-	// TLS options for connecting to MySQL.
+	// TLS and other options for connecting to MySQL.
 	MysqlOptions *UniversalAgent_MySQLOptions `protobuf:"bytes,18,opt,name=mysql_options,json=mysqlOptions,proto3" json:"mysql_options,omitempty"`
 	// A unique node identifier.
 	NodeId string `protobuf:"bytes,19,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
@@ -737,9 +737,11 @@ func (x *ListAgentVersionsResponse) GetAgentVersions() []*AgentVersions {
 type UniversalAgent_MySQLOptions struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// True if TLS key is set.
-	IsTlsKeySet   bool `protobuf:"varint,1,opt,name=is_tls_key_set,json=isTlsKeySet,proto3" json:"is_tls_key_set,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	IsTlsKeySet bool `protobuf:"varint,1,opt,name=is_tls_key_set,json=isTlsKeySet,proto3" json:"is_tls_key_set,omitempty"`
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `protobuf:"bytes,2,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *UniversalAgent_MySQLOptions) Reset() {
@@ -777,6 +779,13 @@ func (x *UniversalAgent_MySQLOptions) GetIsTlsKeySet() bool {
 		return x.IsTlsKeySet
 	}
 	return false
+}
+
+func (x *UniversalAgent_MySQLOptions) GetExtraDsnParams() map[string]string {
+	if x != nil {
+		return x.ExtraDsnParams
+	}
+	return nil
 }
 
 type UniversalAgent_AzureOptions struct {
@@ -1026,7 +1035,7 @@ var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cinventory/v1/log_level.proto\"\xfc\x15\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cinventory/v1/log_level.proto\"\xaa\x17\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
@@ -1075,9 +1084,13 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"updated_at\x18% \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x18\n" +
 	"\aversion\x18& \x01(\tR\aversion\x12!\n" +
 	"\fis_connected\x18' \x01(\bR\visConnected\x12'\n" +
-	"\x0fexpose_exporter\x18( \x01(\bR\x0eexposeExporter\x1a3\n" +
+	"\x0fexpose_exporter\x18( \x01(\bR\x0eexposeExporter\x1a\xe0\x01\n" +
 	"\fMySQLOptions\x12#\n" +
-	"\x0eis_tls_key_set\x18\x01 \x01(\bR\visTlsKeySet\x1a\xc9\x01\n" +
+	"\x0eis_tls_key_set\x18\x01 \x01(\bR\visTlsKeySet\x12h\n" +
+	"\x10extra_dsn_params\x18\x02 \x03(\v2>.management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntryR\x0eextraDsnParams\x1aA\n" +
+	"\x13ExtraDsnParamsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a\xc9\x01\n" +
 	"\fAzureOptions\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12/\n" +
 	"\x14is_client_secret_set\x18\x02 \x01(\bR\x11isClientSecretSet\x12%\n" +
@@ -1136,7 +1149,7 @@ func file_management_v1_agent_proto_rawDescGZIP() []byte {
 
 var (
 	file_management_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 11)
+	file_management_v1_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 12)
 	file_management_v1_agent_proto_goTypes   = []any{
 		(UpdateSeverity)(0),                      // 0: management.v1.UpdateSeverity
 		(*UniversalAgent)(nil),                   // 1: management.v1.UniversalAgent
@@ -1150,28 +1163,30 @@ var (
 		(*UniversalAgent_MongoDBOptions)(nil),    // 9: management.v1.UniversalAgent.MongoDBOptions
 		(*UniversalAgent_PostgreSQLOptions)(nil), // 10: management.v1.UniversalAgent.PostgreSQLOptions
 		nil,                                      // 11: management.v1.UniversalAgent.CustomLabelsEntry
-		(*timestamppb.Timestamp)(nil),            // 12: google.protobuf.Timestamp
-		(v1.LogLevel)(0),                         // 13: inventory.v1.LogLevel
+		nil,                                      // 12: management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntry
+		(*timestamppb.Timestamp)(nil),            // 13: google.protobuf.Timestamp
+		(v1.LogLevel)(0),                         // 14: inventory.v1.LogLevel
 	}
 )
 
 var file_management_v1_agent_proto_depIdxs = []int32{
 	8,  // 0: management.v1.UniversalAgent.azure_options:type_name -> management.v1.UniversalAgent.AzureOptions
-	12, // 1: management.v1.UniversalAgent.created_at:type_name -> google.protobuf.Timestamp
+	13, // 1: management.v1.UniversalAgent.created_at:type_name -> google.protobuf.Timestamp
 	11, // 2: management.v1.UniversalAgent.custom_labels:type_name -> management.v1.UniversalAgent.CustomLabelsEntry
-	13, // 3: management.v1.UniversalAgent.log_level:type_name -> inventory.v1.LogLevel
+	14, // 3: management.v1.UniversalAgent.log_level:type_name -> inventory.v1.LogLevel
 	9,  // 4: management.v1.UniversalAgent.mongo_db_options:type_name -> management.v1.UniversalAgent.MongoDBOptions
 	7,  // 5: management.v1.UniversalAgent.mysql_options:type_name -> management.v1.UniversalAgent.MySQLOptions
 	10, // 6: management.v1.UniversalAgent.postgresql_options:type_name -> management.v1.UniversalAgent.PostgreSQLOptions
-	12, // 7: management.v1.UniversalAgent.updated_at:type_name -> google.protobuf.Timestamp
+	13, // 7: management.v1.UniversalAgent.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 8: management.v1.ListAgentsResponse.agents:type_name -> management.v1.UniversalAgent
 	0,  // 9: management.v1.AgentVersions.severity:type_name -> management.v1.UpdateSeverity
 	4,  // 10: management.v1.ListAgentVersionsResponse.agent_versions:type_name -> management.v1.AgentVersions
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	12, // 11: management.v1.UniversalAgent.MySQLOptions.extra_dsn_params:type_name -> management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntry
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_agent_proto_init() }
@@ -1185,7 +1200,7 @@ func file_management_v1_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_agent_proto_rawDesc), len(file_management_v1_agent_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1005,6 +1005,9 @@ type ListNodesOKBodyRemoteRDSItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID.
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this list nodes OK body remote RDS items0

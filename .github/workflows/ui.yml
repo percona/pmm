@@ -16,7 +16,6 @@ on:
       - "admin/**"
       - "agent/**"
       - "api-tests/**"
-      - "cli-tests/**"
       - "docs/**"
       - "documentation/**"
       - "managed/**"
@@ -36,7 +35,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup nodejs
         uses: actions/setup-node@v4

@@ -75,7 +75,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 	}()
 
 	err = f()
-	return //nolint:nakedret
+	return err
 }
 
 // UnaryInterceptorType represents the type of a unary gRPC interceptor.

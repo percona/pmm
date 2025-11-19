@@ -445,7 +445,9 @@ type RemoteRDSNode struct {
 	// Node availability zone.
 	Az string `protobuf:"bytes,6,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
-	CustomLabels  map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// AWS instance ID.
+	InstanceId    string `protobuf:"bytes,8,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -527,6 +529,13 @@ func (x *RemoteRDSNode) GetCustomLabels() map[string]string {
 		return x.CustomLabels
 	}
 	return nil
+}
+
+func (x *RemoteRDSNode) GetInstanceId() string {
+	if x != nil {
+		return x.InstanceId
+	}
+	return ""
 }
 
 // RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
@@ -1819,7 +1828,7 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\rcustom_labels\x18\a \x03(\v2*.inventory.v1.RemoteNode.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbb\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdc\x02\n" +
 	"\rRemoteRDSNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x18\n" +
@@ -1828,7 +1837,9 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"node_model\x18\x04 \x01(\tR\tnodeModel\x12\x16\n" +
 	"\x06region\x18\x05 \x01(\tR\x06region\x12\x0e\n" +
 	"\x02az\x18\x06 \x01(\tR\x02az\x12R\n" +
-	"\rcustom_labels\x18\a \x03(\v2-.inventory.v1.RemoteRDSNode.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	"\rcustom_labels\x18\a \x03(\v2-.inventory.v1.RemoteRDSNode.CustomLabelsEntryR\fcustomLabels\x12\x1f\n" +
+	"\vinstance_id\x18\b \x01(\tR\n" +
+	"instanceId\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcf\x02\n" +

@@ -59,7 +59,7 @@ func TestActionHelpers(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return q, teardown
 	}
 
 	t.Run("FindActionResultByID", func(t *testing.T) {

@@ -72,7 +72,7 @@ type AddAgentPostgresExporterCommand struct {
 
 // RunCmd executes the AddAgentPostgresExporterCommand and returns the result.
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	var (
 		err                    error

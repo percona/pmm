@@ -25,4 +25,4 @@ The preferred and simplest way to update PMM v3 Server is via the **Updates** pa
 
 For a quick overview of your PMM v3 Server's update status, you can also check to the **Upgrade** panel on the **Home** page.
 
-![PMM Home Dashboard Upgrade Panel](../images/PMM_Home_Dashboard_Panels_Upgrade.jpg)
+![PMM Home Dashboard Upgrade Panel](../images/PMM_Home_Dashboard_Panels_Upgrade.png)

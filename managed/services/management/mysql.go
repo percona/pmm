@@ -86,7 +86,10 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 			return err
 		}
 
-		mysqlOptions := models.MySQLOptionsFromRequest(req)
+		mysqlOptions, err := models.MySQLOptionsFromRequest(req)
+		if err != nil {
+			return err
+		}
 		mysqlOptions.TableCountTablestatsGroupLimit = tablestatsGroupTableLimit
 
 		row, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
@@ -139,7 +142,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 					QueryExamplesDisabled:   req.DisableQueryExamples,
 					CommentsParsingDisabled: req.DisableCommentsParsing,
 				},
-				MySQLOptions: models.MySQLOptionsFromRequest(req),
+				MySQLOptions: mysqlOptions,
 				LogLevel:     services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
@@ -161,7 +164,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 				Password:      req.Password,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
-				MySQLOptions:  models.MySQLOptionsFromRequest(req),
+				MySQLOptions:  mysqlOptions,
 				QANOptions: models.QANOptions{
 					MaxQueryLength:          req.MaxQueryLength,
 					QueryExamplesDisabled:   req.DisableQueryExamples,

@@ -79,7 +79,7 @@ type Service struct {
 func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam
 	l := logrus.WithField("component", "management/alerting")
 
-	err := dir.CreateDataDir(templatesDir, "pmm", "pmm", dirPerm)
+	err := dir.CreateDataDir(templatesDir, dirPerm)
 	if err != nil {
 		l.Error(err)
 	}

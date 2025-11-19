@@ -124,14 +124,21 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 
 	sort.Strings(args)
 
-	dnsParams := models.DSNParams{
+	dsnParams := models.DSNParams{
 		DialTimeout:              1 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
+	// On AWS and Azure, we need to have a higher value for DialTimeout to avoid connection issues
+
+	// TODO: refactor with https://perconadev.atlassian.net/browse/PMM-12832
+	if node.NodeType == models.RemoteRDSNodeType {
+		dsnParams.DialTimeout = 5 * time.Second
+	}
+
 	if exporter.AzureOptions.ClientID != "" {
-		dnsParams.DialTimeout = 5 * time.Second
+		dsnParams.DialTimeout = 5 * time.Second
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -140,7 +147,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dnsParams, nil, pmmAgentVersion)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dsnParams, nil, pmmAgentVersion)),
 		},
 		TextFiles: exporter.Files(),
 	}

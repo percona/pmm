@@ -1,5 +1,4 @@
 ---
-version: '3'
 services:
   pmm-admin-server:
     image: ${PMM_SERVER_IMAGE:-percona/pmm-server:3}

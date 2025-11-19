@@ -16,7 +16,7 @@
         content: "{{ pmm_server_distribution}}"
         dest: /srv/pmm-distribution
         owner: pmm
-        group: pmm
+        group: root
 
     - name: Set up pmm-agent
       command: >
@@ -63,6 +63,7 @@
         - /var/cache/dnf
         - /var/cache/yum
         - /srv/pmm-encryption.key
+        - /srv/pmm-agent/tmp
 
     - name: Remove users created by installers
       user:
@@ -76,6 +77,9 @@
     - name: Clean Clickhouse dir
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
 
+    - name: Clean pmm-server dir
+      shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
+
     # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
     # VictoriaMetrics tries to atomically rename directories in this folder on startup.
     # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
@@ -87,7 +91,7 @@
         state: "{{ item }}"
         path: /srv/victoriametrics
         owner: pmm
-        group: pmm
+        group: root
         mode: 0775
       loop:
         - absent
@@ -98,14 +102,29 @@
         path: /srv/logs
         state: directory
         owner: pmm
-        group: pmm
+        group: root
         mode: 0775
 
-    # nginx needs to be able to write to /var/lib/nginx, but it's owned by root.
-    - name: Change ownership of nginx dirs
+    - name: Set ownership for Grafana plugins directory
       file:
-        path: /var/lib/nginx
-        state: directory
-        group: pmm
+        path: /srv/grafana/plugins
         owner: pmm
+        group: root
         recurse: yes
+        state: directory
+        mode: 0775
+
+    - name: Set ownership for backup directory
+      file:
+        path: /srv/backup
+        owner: pmm
+        group: root
+        state: directory
+        mode: 0775
+
+    - name: Set ownership for Grafana dashboards version file
+      file:
+        path: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+        owner: pmm
+        group: root
+        state: file

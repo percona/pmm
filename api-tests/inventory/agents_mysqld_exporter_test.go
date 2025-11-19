@@ -66,6 +66,9 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams: map[string]string{
+					"allowCleartextPasswords": "1",
+				},
 				SkipConnectionCheck:       true,
 				TablestatsGroupTableLimit: 2000,
 			},
@@ -90,6 +93,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{"allowCleartextPasswords": "1"},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
@@ -121,6 +125,7 @@ func TestMySQLdExporter(t *testing.T) {
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
 				CustomLabels:              map[string]string{},
+				ExtraDsnParams:            map[string]string{"allowCleartextPasswords": "1"},
 				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
@@ -151,6 +156,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"new_label": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{"allowCleartextPasswords": "1"},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
@@ -402,6 +408,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{},
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
@@ -431,6 +438,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
@@ -458,6 +466,7 @@ func TestMySQLdExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				ExtraDsnParams:            map[string]string{},
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
