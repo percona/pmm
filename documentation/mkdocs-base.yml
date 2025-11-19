@@ -558,16 +558,16 @@ nav:
           - ProxySQL dashboards:
               - reference/dashboards/dashboard-proxysql-instance-summary.md
           - Valkey/Redis dashboards:
-              - reference/dashboards/dashboard-valkey-redis-clients.md
-              - reference/dashboards/dashboard-valkey-redis-cluster-details.md
-              - reference/dashboards/dashboard-valkey-redis-command-detail.md
-              - reference/dashboards/dashboard-valkey-redis-load.md
-              - reference/dashboards/dashboard-valkey-redis-memory.md
-              - reference/dashboards/dashboard-valkey-redis-network.md
-              - reference/dashboards/dashboard-valkey-redis-overview.md
-              - reference/dashboards/dashboard-valkey-redis-persistence-details.md
-              - reference/dashboards/dashboard-valkey-redis-replication.md
-              - reference/dashboards/dashboard-valkey-redis-slowlog.md
+              - Overview: reference/dashboards/dashboard-valkey-redis-overview.md
+              - Clients: reference/dashboards/dashboard-valkey-redis-clients.md
+              - Cluster Details: reference/dashboards/dashboard-valkey-redis-cluster-details.md
+              - Command Detail: reference/dashboards/dashboard-valkey-redis-command-detail.md
+              - Load: reference/dashboards/dashboard-valkey-redis-load.md
+              - Memory: reference/dashboards/dashboard-valkey-redis-memory.md
+              - Network: reference/dashboards/dashboard-valkey-redis-network.md
+              - Persistence Details: reference/dashboards/dashboard-valkey-redis-persistence-details.md
+              - Replication: reference/dashboards/dashboard-valkey-redis-replication.md
+              - Slowlog: reference/dashboards/dashboard-valkey-redis-slowlog.md
           - HA dashboards:
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
               - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
