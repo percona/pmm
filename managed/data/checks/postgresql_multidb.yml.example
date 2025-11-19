@@ -1,0 +1,27 @@
+---
+checks:
+  - version: 2
+    name: postgresql_multidb
+    summary: PostgreSQL multidb check
+    description: This check demonstrates all_dbs option for PostgreSQL check queries
+    interval: standard
+    family: POSTGRESQL
+    advisor: example
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: current_database()
+        parameters:
+          all_dbs: true
+    script: |
+      def check_context(docs, context):
+          results = []
+          for dbName, rows in docs[0].items():
+              for row in rows:
+                results.append({
+                    "summary": "Function current_database() executed on '{}' database returned '{}' name".format(dbName, row["current_database"]),
+                    "description": "Test check",
+                    "read_more_url": "",
+                    "severity": "warning",
+                })
+
+          return results

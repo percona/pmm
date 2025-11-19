@@ -43,6 +43,9 @@ func request_DumpService_StartDump_0(ctx context.Context, marshaler runtime.Mars
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.StartDump(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -64,6 +67,9 @@ func request_DumpService_ListDumps_0(ctx context.Context, marshaler runtime.Mars
 		protoReq ListDumpsRequest
 		metadata runtime.ServerMetadata
 	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListDumps(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -84,6 +90,9 @@ func request_DumpService_DeleteDump_0(ctx context.Context, marshaler runtime.Mar
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.DeleteDump(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -109,6 +118,9 @@ func request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Ma
 		metadata runtime.ServerMetadata
 		err      error
 	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	val, ok := pathParams["dump_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "dump_id")
@@ -158,6 +170,9 @@ func request_DumpService_UploadDump_0(ctx context.Context, marshaler runtime.Mar
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.UploadDump(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err

@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: security_cve
+    summary: CVE Security
+    description: Informs you of any database versions affected by CVE.
+    category: security

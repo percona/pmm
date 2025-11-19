@@ -12,6 +12,9 @@ Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimu
     - Percona Server 5.6+ (all Performance Schema and slow log features)
     - MariaDB 5.2+ (for user statistics), 10.0+ (for Performance Schema)
 
+    Some limitations and tuning options apply only when using MySQL’s Performance Schema.  
+    See [Query Analytics with MySQL](../qan/mysql.md#limitations-with-performance-schema).
+
 === "PostgreSQL requirements"
     - PostgreSQL 11 or later
     - `pg_stat_monitor` extension (recommended) or `pg_stat_statements` extension
@@ -42,14 +45,13 @@ The dashboard contains three panels:
 - the [Overview panel](panels/overview.md)
 - the [Details panel](panels/details.md)
 
-
 ### Data retrieval delays
 
 Query Analytics data retrieval is not instantaneous because metrics are collected once per minute. When collection delays occur, no data is reported and gaps will appear in the sparkline.
 
 ## Label-based access control
 
-Query Analytics integrates with PMM's[label-based access control (LBAC)](../../admin/roles/access-control/intro.md) to enforce data security and user permissions. 
+Query Analytics integrates with PMM's [label-based access control (LBAC)](../../admin/roles/access-control/intro.md) to enforce data security and user permissions.
 
 When LBAC is enabled:
 
@@ -57,44 +59,23 @@ When LBAC is enabled:
 - filter dropdown options are dynamically restricted based on user permissions
 - data visibility is controlled through Prometheus-style label selectors
 
-## Limitation: Missing query examples in MySQL Performance Schema
+## QAN for PMM Server's internal PostgreSQL
 
-When using MySQL's Performance Schema as the query source, you may encounter the message *“Sorry, no examples found”* in the QAN dashboard. This typically occurs due to the way MySQL handles query sampling and can be influenced by the volume of unique queries, and Performance Schema settings.
+By default, Query Analytics (QAN) hides queries from PMM Server’s internal PostgreSQL database. This avoids clutter and keeps the focus on your monitored databases.
 
-Despite the absence of query examples, all other query metrics are still collected and displayed as expected.
+Enable QAN for PMM Server when you need to troubleshoot performance issues, check resource usage, or ensure that applications are not using the default `postgres` database instead of dedicated databases. This is particularly useful in [High Availability (HA) deployments](../../install-pmm/HA.md) where monitoring system health is essential.
 
-### Why this happens
+### Enable QAN for PMM Server
+To include PMM Server’s own queries in QAN, enable the feature in the settings:
+{.power-number}
 
-MySQL Performance Schema manages query data across two different tables, which can lead to missing query examples:
+1. Go to **PMM Configuration > Settings > Advanced Settings**.
+2. Switch on the **QAN for PMM Server** option.
+3. Open **PMM Query Analytics (QAN)** from the main menu and filter by the `pmm-server-postgresql` service to view queries.
 
-- Summary table (`events_statements_summary_by_digest`): stores aggregated metrics for each normalized query (digest) in a limited buffer. Each unique query appears only once, regardless of how many times it runs.
+When enabled, QAN displays queries related to PMM’s internal operations—such as inventory, settings, advisor checks, alerts, backups, and authentication. 
 
-- History table (`events_statements_history` or `events_statements_history_long` in MariaDB): stores individual query executions in a limited rolling buffer. Multiple entries may exist for the same query, but older ones are overwritten as new queries are executed.
+These are usually lightweight, but unusual spikes in volume, latency, or unexpected queries may indicate performance issues or misuse of the database.
 
-A query may appear in the digest summary but not in the history table when:
-
-- it was executed frequently enough to appear in the digest summary
-- all its individual executions were overwritten in the history buffer due to high query volume overwhelming the buffer and ongoing activity
-
-When this happens, QAN can still display the query’s metrics, but cannot show an example query because it's no longer available in `events_statements_history` table when PMM tries to capture it.
-
-## Performance Schema refresh rate tuning
-
-PMM Agent includes a configurable **Performance Schema Refresh Rate** that can help capture more query examples. This setting controls how often PMM scrapes data from the history table. Using a shorter interval increases the likelihood that query examples will be captured before being overwritten.
-
-### Configuration options
-
-- Default value: 5 seconds
-- Minimum value: 1 second
-- Value of 0 uses the default (5 seconds)
-
-### How to configure 
-- environment variable: `PMM_AGENT_PERFSCHEMA_REFRESH_RATE`. 
-- flag for PMM agent binary: `--perfschema-refresh-rate=NUMBER`. 
-- property in PMM agent config: `perfschema-refresh-rate: NUMBER`. 
-
-### Workaround
-
-If you're still missing some query examples, consider [using the slow query log (`slowlog`)](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
-The `slowlog` retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.
-
+!!! warning
+    Do not use the default PostgreSQL database for application workloads. PMM monitors it for visibility, but applications should always run on dedicated databases.

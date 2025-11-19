@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: configuration_generic
+    summary: Generic Configuration
+    description: Provides basic recommendations for improving your database configuration.
+    category: configuration

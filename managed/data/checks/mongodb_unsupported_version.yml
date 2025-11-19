@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mongodb_unsupported_version
+    summary: MongoDB Unspported version check
+    description: This check returns errors if your current PSMDB or MongoDB version is not supported.
+    interval: standard
+    family: MONGODB
+    advisor: configuration_version
+    #category: configuration
+    #subcategory: version configuration
+    #author: Parag Bhayani
+    queries:
+      - type: MONGODB_BUILDINFO
+    script: |
+      read_url = "https://www.percona.com/services/policies/percona-software-support-lifecycle"
+
+      def check_context(docs, context):
+          """
+          This check returns errors if your current PSMDB or MongoDB version is not supported.
+          """
+
+          info = docs[0]
+          results = []
+
+          for row in info:
+              # Checking MongoDB version
+              # parse_version returns a dict with keys: major, minor, patch, rest, num
+              version = parse_version(row["version"])
+              num = version["num"]
+              mm = "{}.{}".format(version["major"], version["minor"])
+
+              current_version = row["version"]
+
+              # Evaluating EOL
+              if mm < "4.4":
+                  results.append({
+                      "summary": "MongoDB version {} is not supported".format(mm),
+                      "description": "MongoDB version {} has reached its End-of-Life date. PSMDB and MongoDB follow similar EOL timelines. Please review the Software Lifecycle Policy at the Read More link for more details related to coverage and Support Policies. Please upgrade your PSMDB/MongoDB instance to a currently supported major release version for security and performance reasons immediately in order to continue with seamless support.".format(current_version),
+                      "read_more_url": read_url,
+                      "severity": "error",
+                  })
+              return results

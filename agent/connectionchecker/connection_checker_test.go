@@ -100,6 +100,7 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(3 * time.Second),
 			},
 			expectedErr: `\(Unauthorized\) (?:command getDiagnosticData requires authentication|` +
+				`Command buildInfo requires authentication|` +
 				`there are no users authenticated|` +
 				`not authorized on admin to execute command \{ getDiagnosticData\: 1 \})`,
 		},
@@ -157,6 +158,32 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(time.Nanosecond),
 			},
 			expectedErr: `context deadline exceeded`,
+		},
+		{
+			name: "Valkey",
+			req: &agentv1.CheckConnectionRequest{
+				Dsn:     "redis://default:pmm-agent_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+		},
+		{
+			name: "Valkey wrong params",
+			req: &agentv1.CheckConnectionRequest{
+				Dsn:     "redis://default:pmm-agent_wrong_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+			expectedErr: `WRONGPASS invalid username-password pair or user is disabled.`,
+		},
+		{
+			name: "Valkey timeout",
+			req: &agentv1.CheckConnectionRequest{
+				Dsn:     "redis://default:pmm-agent_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(time.Nanosecond),
+			},
+			expectedErr: `dial tcp 127.0.0.1:6379: i/o timeout`,
 		},
 
 		// Use MySQL for ProxySQL tests for now.

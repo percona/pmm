@@ -49,7 +49,7 @@ type prometheusService interface { //nolint:iface
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
 	StartChecks(checkNames []string) error
-	CollectAdvisors(ctx context.Context)
+	UpdateAdvisorsList(ctx context.Context)
 	CleanupAlerts()
 	UpdateIntervals(rare, standard, frequent time.Duration)
 }
@@ -87,6 +87,7 @@ type telemetryService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type agentsStateUpdater interface {
 	UpdateAgentsState(ctx context.Context) error
+	RequestStateUpdate(ctx context.Context, pmmAgentID string)
 }
 
 // templatesService is a subset of methods of alerting.Service used by this package.

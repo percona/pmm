@@ -9,7 +9,7 @@ site_url: ""
 use_directory_urls: false
 repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
-edit_uri: edit/v3-doc-prod/documentation/docs/
+edit_uri: edit/v3/documentation/docs/
 
 theme:
   name: material
@@ -127,7 +127,7 @@ extra:
   edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
   updated_text: '<i class="uil uil-refresh"></i> Page updated'
 
-# Common navigation for percona.com, render.com and PDF
+# Common navigation for percona.com, render.com and PDFnav:
 nav:
   - Home: index.md
   - Get help from Percona: get-help.md
@@ -166,23 +166,27 @@ nav:
                       - install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md
                       - install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.md
                       - install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.md
-              - Install on Virtual Appliance:
-                  - install-pmm/install-pmm-server/deployment-options/virtual/index.md
-                  - Setup and configuration:
-                      - install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
-                      - install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
-                      - install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
-                      - install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
-                      - install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md
+              - Install on virtual machines:
+                  - Install on Virtual Appliance:
+                        - Overview: install-pmm/install-pmm-server/deployment-options/virtual/index.md
+                        - Download OVA: install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
+                        - Deploy on VirtualBox: install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
+                        - Deploy on VMware (deprecated): install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
+                  - Install on AWS Marketplace:
+                        - Planning: install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
+                        - Deployment: install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
+                        - Initial setup: install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
+                  - VM configuration: 
+                        - Configure environment variables: install-pmm/install-pmm-server/deployment-options/virtual/env_var.md
+                        - Access PMM UI: install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
+                        - Remove VM: install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md     
+                        - SSH key: install-pmm/install-pmm-server/deployment-options/virtual/ssh.md
               - Install on Kubernetes:
                   - install-pmm/install-pmm-server/deployment-options/helm/index.md
                   - Backup & maintenance:
                       - install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md
                       - install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.md
-              - Install on AWS Marketplace:
-                  - install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
-                  - install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
-                  - install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
+
       - Install PMM Client:
           - Client installation overview: install-pmm/install-pmm-client/index.md
           - install-pmm/install-pmm-client/prerequisites.md
@@ -196,6 +200,7 @@ nav:
                   - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
                   - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
                   - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
+                  - Valkey/Redis: install-pmm/install-pmm-client/connect-database/valkey-redis.md
               - Cloud services monitoring:
                   - AWS: install-pmm/install-pmm-client/connect-database/aws.md
                   - Azure: install-pmm/install-pmm-client/connect-database/azure.md
@@ -232,16 +237,143 @@ nav:
               - Annotate: use/dashboards-panels/annotate/annotate.md
       - Query Analytics:
           - use/qan/index.md
+          - use/qan/mysql.md
           - use/qan/qan_mongo.md
           - use/qan/share_link.md
           - Panels on QAN dashboard:
               - use/qan/panels/overview.md
               - use/qan/panels/filters.md
               - use/qan/panels/details.md
-      - Advisors:
-          - advisors/advisors.md
-          - advisors/advisor-details.md
-          - advisors/develop-advisor-checks.md
+      - Percona Advisors:
+          - Advisor details: advisors/advisors.md
+          - Develop custom advisors: advisors/develop-advisor-checks.md
+          - List of advisors and checks:
+              - advisors/advisor-details.md
+              - Configuration advisors:
+                  - Version configuration checks:
+                      - advisors/checks/mongodb-version-check.md
+                      - advisors/checks/mongodb-version.md
+                      - advisors/checks/mysql_unsupported_version_check.md
+                      - advisors/checks/mysql_version_eol_57.md
+                      - advisors/checks/postgresql-eol-check.md
+                      - advisors/checks/postgresql-extension-check.md
+                      - advisors/checks/postgresql-unsupported-check.md
+                      - advisors/checks/postgresql-version-check.md
+                  - Generic configuration checks:
+                      - advisors/checks/mongodb-active-vs-available-connections.md
+                      - advisors/checks/mongodb-high-wiredTiger-cache.md
+                      - advisors/checks/mongodb-journal.md
+                      - advisors/checks/mongodb-log-messages.md
+                      - advisors/checks/mongodb-read-tickets.md
+                      - advisors/checks/mongodb-write-tickets.md
+                      - advisors/checks/mongodb-non-default-runtime-write-tickets.md
+                      - advisors/checks/mysql_automatic_sp_privileges_enabled.md
+                      - advisors/checks/binlog-retention-period.md
+                      - advisors/checks/binlog-row-image.md
+                      - advisors/checks/binlog-checksum-value.md
+                      - advisors/checks/configuration-check-general-log.md
+                      - advisors/checks/configuration-check-log-bin.md
+                      - advisors/checks/configuration-check-sql-mode.md
+                      - advisors/checks/configuration-check-tmp-table-size-limit.md
+                      - advisors/checks/mysql-warnings-not-being-logged.md
+                      - advisors/checks/time-zone-data-not-loaded.md
+                      - advisors/checks/configuration-pg-check-fsync-enabled.md
+                      - advisors/checks/configuration-pg-log-checkpoints-disabled.md
+                      - advisors/checks/postgresql-logging-recommendations.md
+                      - advisors/checks/postgresql-wal-retention-check.md
+                      - advisors/checks/performance-pg-archiver-failing.md
+                  - Resources configuration checks:
+                      - advisors/checks/mongodb-collections-fragmented.md
+                      - advisors/checks/mongodb-cpu-cores-check.md
+                      - advisors/checks/mongodb-dbpath-mount.md
+                      - advisors/checks/mongodb-fcv-mismatch.md
+                      - advisors/checks/mongodb-maxSessions.md
+                      - advisors/checks/mongodb-swap-allocation.md
+                      - advisors/checks/mongodb-task-executorPoolSize-high.md
+                      - advisors/checks/mongodb-xfs.md
+                      - advisors/checks/platform-mysql-binaries-32-bit.md
+                  - Connection configuration checks:
+                      - advisors/checks/mongodb-connection-spike.md
+                      - advisors/checks/mongo-high-connections.md
+                      - advisors/checks/mysql_configuration_max_connections_usage.md
+                      - advisors/checks/configuration-pg-high-max-connections.md
+                  - Replication configuration checks:
+                      - advisors/checks/mongodb-psa-architecture.md
+                      - advisors/checks/mongodb-replicaset-topology.md
+                      - advisors/checks/check-the-replica-set-topology.md
+                      - advisors/checks/mongo-check-the-replica-set-topology.md
+                      - advisors/checks/configuration-check-relay-log-purge.md
+                      - advisors/checks/configuration-check-replica-not-read-only.md
+                      - advisors/checks/configuration-check-replica-verifying-checksum.md
+                      - advisors/checks/check-replica-verifying-checksum.md
+                      - advisors/checks/sql-processing-not-multi-threaded.md
+                      - advisors/checks/configuration-check-sync-binlog.md
+                      - advisors/checks/mysql-log-replica-updates.md
+                      - advisors/checks/replica_running_skipping_errors_or_idempotent_mode.md
+                  - InnoDB configuration checks:
+                      - advisors/checks/innodb_redo_logs_not_sized_correctly.md
+                      - advisors/checks/mysql-innodb-redolog-disabled.md
+                      - advisors/checks/configuration-innodb-file-format.md
+                      - advisors/checks/configuration-check-innodb-data-file-path.md
+                      - advisors/checks/mysql_configuration_innodb_file_per_table_not_enabled.md
+                      - advisors/checks/configuration-innodb-flush-method.md
+                      - advisors/checks/innodb-strict-mode.md
+                  - Vacuum configuration checks:
+                      - advisors/checks/configuration-pg-log-autovacuum-disabled.md
+                      - advisors/checks/postgresql-tables-per-table-vacuum-settings.md
+                      - advisors/checks/postgresql-transaction-id-wraparound-is-approaching.md
+                      - advisors/checks/postgresql-vacuum-sanity-check.md
+              - Performance advisors:
+                  - Generic performance checks:
+                      - advisors/checks/multiple-mongod-running-in-a-node.md
+                      - advisors/checks/performance-pg-low-cache-hit-ratio.md
+                      - advisors/checks/configuration-pg-settings-changed.md
+                      - advisors/checks/postgresql-tmpfiles-check.md
+                  - Vacuum performance checks:
+                      - advisors/checks/postgresql-table-bloat-in-bytes.md
+                      - advisors/checks/postgresql-table-bloat-in-percentage-of-table-size.md
+                  - Replication performance checks:
+                      - advisors/checks/mongodb-chunk-imbalance.md
+                      - advisors/checks/mongodb-oplog-sizing.md
+                      - advisors/checks/mongo-replication-lag.md
+                      - advisors/checks/mongodb-replication-lag.md
+                      - advisors/checks/performance-pg-stale-replication-slot.md
+              - Security advisors:
+                  - CVE security checks:
+                      - advisors/checks/postgresql-cve-check.md
+                  - Configuration security checks:
+                      - advisors/checks/mongodb-scram-sha-256.md
+                      - advisors/checks/local-option-of-load-data-enabled.md
+                      - advisors/checks/mysql_configuration_secure_file_priv_empty.md
+                      - advisors/checks/mysql_password_expiry.md
+                      - advisors/checks/mysql-secure-transport-only.md
+                      - advisors/checks/default-password-lifetime.md
+                      - advisors/checks/validate-password-policy.md
+                      - advisors/checks/postgresql-expiring-passwd.md
+                  - Authentication security checks:
+                      - advisors/checks/mongodb-localhost-bypass.md
+                      - advisors/checks/security-anonymous-user.md
+                      - advisors/checks/security-user-with-open-to-the-word-scope.md
+                      - advisors/checks/root-account-can-login-remotely.md
+                      - advisors/checks/security-user-not-using-ssl-protocol.md
+                      - advisors/checks/security-non-root-accounts-super-privileges.md
+                      - advisors/checks/security-user-without-password.md
+                  - Replication security checks:
+                      - advisors/checks/replica-without-replication-slave-account.md
+                      - advisors/checks/mysql-replication-privileges.md
+                  - Connection security checks:
+                      - advisors/checks/mongodb-bindip.md
+              - Query advisors:
+                  - Index query checks:
+                      - advisors/checks/mongodb-inconsistent-indexes-across-shards.md
+                      - advisors/checks/mongodb-unused-indexes.md
+                      - advisors/checks/mysql_performance_temp_ondisk_table_high.md
+                      - advisors/checks/tables-found-without-primary-keys.md
+                      - advisors/checks/postgresql-high-number-of-indexes-check.md
+                      - advisors/checks/postgresql-sequential-scan-check.md
+                      - advisors/checks/postgresql-unused-index-check.md
+                  - Schema design query checks:
+                      - advisors/checks/datadesign-mysql-indexes-larger-than-data.md
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
@@ -328,9 +460,9 @@ nav:
       - troubleshoot/plugin_issues.md
       - troubleshoot/pmm_dump.md
       - troubleshoot/data_issues.md
-
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.5.0 (2025-11-19)": release-notes/3.5.0.md     
       - "PMM 3.4.1 (2025-10-13)": release-notes/3.4.1.md
       - "PMM 3.4.0 (2025-09-15)": release-notes/3.4.0.md
       - "PMM 3.3.1 (2025-07-30)": release-notes/3.3.1.md
@@ -425,6 +557,17 @@ nav:
               - reference/dashboards/dashboard-postgresql-topqueries.md
           - ProxySQL dashboards:
               - reference/dashboards/dashboard-proxysql-instance-summary.md
+          - Valkey/Redis dashboards:
+              - Overview: reference/dashboards/dashboard-valkey-redis-overview.md
+              - Clients: reference/dashboards/dashboard-valkey-redis-clients.md
+              - Cluster Details: reference/dashboards/dashboard-valkey-redis-cluster-details.md
+              - Command Detail: reference/dashboards/dashboard-valkey-redis-command-detail.md
+              - Load: reference/dashboards/dashboard-valkey-redis-load.md
+              - Memory: reference/dashboards/dashboard-valkey-redis-memory.md
+              - Network: reference/dashboards/dashboard-valkey-redis-network.md
+              - Persistence Details: reference/dashboards/dashboard-valkey-redis-persistence-details.md
+              - Replication: reference/dashboards/dashboard-valkey-redis-replication.md
+              - Slowlog: reference/dashboards/dashboard-valkey-redis-slowlog.md
           - HA dashboards:
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
               - reference/dashboards/dashboard-pxc-galera-cluster-summary.md

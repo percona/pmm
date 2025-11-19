@@ -56,18 +56,20 @@ type Nomad struct {
 
 	prefix           string
 	cachedPMMAddress string
+	clientConfig     models.NomadClient
 }
 
 // New creates a new Nomad client.
-func New(db *reform.DB) (*Nomad, error) {
+func New(db *reform.DB, clientConfig *models.NomadClient) (*Nomad, error) {
 	err := os.MkdirAll(pathToCerts, 0o750) //nolint:mnd
 	if err != nil {
 		return nil, err
 	}
 	return &Nomad{
-		db:     db,
-		l:      logrus.WithField("component", "nomad"),
-		prefix: "nomad",
+		db:           db,
+		l:            logrus.WithField("component", "nomad"),
+		prefix:       "nomad",
+		clientConfig: *clientConfig,
 	}, nil
 }
 
@@ -263,4 +265,9 @@ func (c *Nomad) GetClientKey() (string, error) {
 		return "", err
 	}
 	return string(file), nil
+}
+
+// GetClientConfig returns the Nomad client configuration.
+func (c *Nomad) GetClientConfig() models.NomadClient {
+	return c.clientConfig
 }

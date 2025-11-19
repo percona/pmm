@@ -1,0 +1,41 @@
+---
+checks:
+  - version: 2
+    name: postgresql_txid_wraparound_approaching
+    summary: PostgreSQL Transaction ID Wraparound approaching
+    description: This check verifies databases age and alert if the transaction ID wraparound issue is near
+    family: POSTGRESQL
+    #author: David Gonzalez
+    advisor: configuration_vacuum
+    interval: standard
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: |
+          datname, age(datfrozenxid), (age(datfrozenxid)::numeric/1000000000*100)::numeric(4,2) AS wraparound_risk_perc
+          FROM pg_database
+          WHERE (age(datfrozenxid)::numeric/1000000000*100)::numeric(4,2) >= 20.0::numeric(4,2)
+          ORDER BY 2 DESC
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      def check_context(docs, context):
+          """
+          This check verifies all the databases txid age and notifies if any is approaching to the wraparound limit.
+          There is no need to run this command more than once per database cluster.
+          This check returns warning if there is any database with txid age towards wraparound by 20% or more.
+          Error is returned if for any reason there are no results from query.
+          """
+
+          results = []
+          # extract information from variables
+          for row in docs[0]:
+              datname, age, wraparound_risk_perc = row["datname"], row["age"], row["wraparound_risk_perc"]
+              results.append({
+                  "summary": "Database Transaction ID Wraparound is approaching",
+                  "description": "Database {} txid age is {} which is {}% towards transaction ID wraparound. VACCUM FREEZE actions are recommended.".format(datname, age, wraparound_risk_perc),
+                  "read_more_url": read_url.format("postgresql-transaction-id-wraparound-is-approaching"),
+                  "severity": "warning"
+              })
+
+          return results

@@ -71,29 +71,6 @@ func NewClient(db *reform.DB, address string) (*Client, error) { //nolint:unpara
 	}, nil
 }
 
-// GetAdvisors download advisors from Percona Platform. It also validates content and checks signatures.
-func (c *Client) GetAdvisors(ctx context.Context) (*api.GetAllAdvisorsResponse, error) {
-	const path = "/v1/check/GetAllAdvisors"
-
-	var accessToken string
-	if ssoDetails, err := models.GetPerconaSSODetails(ctx, c.db.Querier); err == nil {
-		accessToken = ssoDetails.AccessToken.AccessToken
-	}
-
-	c.l.Infof("Downloading advisors from %s ...", c.address)
-	bodyBytes, err := c.makeRequest(ctx, accessToken, http.MethodPost, path, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to download advisors")
-	}
-
-	var resp api.GetAllAdvisorsResponse
-	if err := json.Unmarshal(bodyBytes, &resp); err != nil {
-		return nil, err
-	}
-
-	return &resp, nil
-}
-
 // GetTemplates download templates from Percona Platform. It also validates content and checks signatures.
 func (c *Client) GetTemplates(ctx context.Context) (*api.GetAllAlertRuleTemplatesResponse, error) {
 	const path = "/v1/check/GetAllAlertRuleTemplates"

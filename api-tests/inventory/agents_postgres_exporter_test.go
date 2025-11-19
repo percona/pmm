@@ -117,7 +117,7 @@ func TestPostgresExporter(t *testing.T) {
 					Username:               "username",
 					PMMAgentID:             pmmAgentID,
 					Disabled:               true,
-					Status:                 &AgentStatusUnknown,
+					Status:                 &AgentStatusDone,
 					CustomLabels:           map[string]string{},
 					DisabledCollectors:     make([]string, 0),
 					LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
@@ -153,7 +153,7 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "postgres_exporter",
 					},
-					Status:                 &AgentStatusUnknown,
+					Status:                 &AgentStatusDone,
 					DisabledCollectors:     make([]string, 0),
 					LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 					MaxExporterConnections: 10,

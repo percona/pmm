@@ -16,6 +16,7 @@ import "management/v1/node.proto";
 import "management/v1/postgresql.proto";
 import "management/v1/proxysql.proto";
 import "management/v1/rds.proto";
+import "management/v1/valkey.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 message AddServiceRequest {
@@ -27,6 +28,7 @@ message AddServiceRequest {
     AddHAProxyServiceParams haproxy = 5;
     AddExternalServiceParams external = 6;
     AddRDSServiceParams rds = 7;
+    AddValkeyServiceParams valkey = 8;
   }
 }
 
@@ -39,6 +41,7 @@ message AddServiceResponse {
     HAProxyServiceResult haproxy = 5;
     ExternalServiceResult external = 6;
     RDSServiceResult rds = 7;
+    ValkeyServiceResult valkey = 8;
   }
 }
 
@@ -210,6 +213,10 @@ service ManagementService {
   // External: adds external service and adds external exporter.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
+
+  // Valkey: adds a Valkey Service and starts an accompanying Valkey exporter.
+  // It automatically adds a service to inventory, which is running on provided "node_id",
+  // then adds a "valkey_exporter" agent to inventory, which is running on the provided "runs_on_node_id".
 
   // AddService adds a Service and starts several Agents.
   rpc AddService(AddServiceRequest) returns (AddServiceResponse) {

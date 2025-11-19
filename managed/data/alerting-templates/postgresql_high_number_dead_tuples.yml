@@ -1,0 +1,13 @@
+templates:
+  - name: pmm_postgresql_high_number_dead_tuples
+    version: 1
+    summary: PostgreSQL high number of dead tuples
+    expr: ((pg_stat_user_tables_n_dead_tup > 10000) / (pg_stat_user_tables_n_live_tup + pg_stat_user_tables_n_dead_tup)) >= 0.1
+    for: 2m
+    severity: warning
+    annotations:
+      description: |-
+        PostgreSQL dead tuples is too large
+          VALUE = {{ $value }}
+          LABELS = {{ $labels }}
+      summary: Postgresql too many dead tuples. Check vacuum stats. (instance {{ $labels.instance }})

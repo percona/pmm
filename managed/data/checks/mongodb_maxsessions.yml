@@ -1,0 +1,37 @@
+---
+checks:
+  - version: 2
+    name: mongodb_maxsessions
+    summary: MongoDB maxSessions
+    description: This check returns warnings if MongoDB is using more maxSessions value other than the default one 1000000 2
+    interval: standard
+    family: MONGODB
+    advisor: configuration_resources
+    #author: Vinodh Krishnaswamy/Parag Bhayani
+    queries:
+      - type: MONGODB_GETCMDLINEOPTS
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if MongoDB using more than 1000000 maxSessions value 2.
+          """
+
+          info = docs[0]
+          results = []
+
+          for row in info:
+              parsed = row["parsed"]
+              if parsed.get("setParameter", {}):
+                  setParameter = parsed.get("setParameter", {})
+                  if setParameter:
+                      maxSV = int(setParameter.get("maxSessions", fail))
+                      if maxSV > 1000000:
+                          results.append({
+                              "summary": "MongoDB is using maxSessionn - {}, which is more than the default value - 1000000".format(maxSV),
+                              "description": "To avoid performance issues, see the following blog to check & set the right value for your environment",
+                              "read_more_url": read_url.format("mongodb-maxsession"),
+                              "severity": "warning",
+                          })
+              return results

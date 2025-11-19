@@ -18,6 +18,7 @@ package inventory
 
 import (
 	"context"
+	"os"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -28,6 +29,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -703,6 +705,90 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID str
 	return res, nil
 }
 
+// AddValkeyExporter adds a valkey exporter with the given parameters.
+func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.AddValkeyExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.ValkeyExporter
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			AgentPassword: p.AgentPassword,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics:    p.PushMetrics,
+				ExposeExporter: p.ExposeExporter,
+			},
+			ValkeyOptions: models.ValkeyOptionsFromRequest(p),
+		}
+		row, err := models.CreateAgent(tx.Querier, models.ValkeyExporterType, params)
+		if err != nil {
+			return err
+		}
+
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+		}
+
+		aa, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		agent = aa.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_ValkeyExporter{
+			ValkeyExporter: agent,
+		},
+	}
+
+	return res, nil
+}
+
+// ChangeValkeyExporter updates valkey_exporter Agent with given parameters.
+func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeValkeyExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+	commonParams := &commonAgentParams{
+		Enable:             p.Enable,
+		EnablePushMetrics:  p.EnablePushMetrics,
+		CustomLabels:       p.CustomLabels,
+		MetricsResolutions: p.MetricsResolutions,
+	}
+	ag, err := as.changeAgent(ctx, agentID, commonParams)
+	if err != nil {
+		return nil, err
+	}
+
+	agent := ag.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_ValkeyExporter{
+			ValkeyExporter: agent,
+		},
+	}
+	return res, nil
+}
+
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANMongoDBProfilerAgent
@@ -1008,13 +1094,27 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
+	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
+	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
+	if exists && envVar != "" {
+		a, err := models.FindAgentByID(as.db.Querier, agentID)
+		if err != nil {
+			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
+		}
+		if pointer.GetString(a.PMMAgentID) == "pmm-server" {
+			return nil, status.Errorf(
+				codes.FailedPrecondition,
+				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
+				envVar)
+		}
+	}
+	changeParams := &commonAgentParams{
 		Enable:             p.Enable,
 		EnablePushMetrics:  p.EnablePushMetrics,
 		CustomLabels:       p.CustomLabels,
 		MetricsResolutions: p.MetricsResolutions,
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+	ag, err := as.changeAgent(ctx, agentID, changeParams)
 	if err != nil {
 		return nil, err
 	}

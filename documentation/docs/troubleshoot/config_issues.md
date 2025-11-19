@@ -54,3 +54,25 @@ will give:
 When adding clients to the PMM Server, you use the `admin` user. However, if you change the password for the admin user from the PMM UI, then the clients will not be able to access PMM due to authentication issues. Also, Grafana will lock out the admin user due to multiple unsuccessful login attempts.
 
 In such a scenario, use [Service Accounts](../api/authentication.md#service-accounts-authentication) for authentication. You can use Service Accounts as a replacement for basic authentication and API keys.
+
+### Server startup issues
+
+#### PMM Server inaccessible after Docker restart on macOS Sequoia
+
+After restarting Docker, PMM dashboard returns *"500 Internal Server Error"*.
+
+##### Root cause
+
+On macOS Sequoia 15.7.1 with Docker Desktop 4.49.0, PostgreSQL and Grafana may fail to start or not be able to be gracefully stopped, therefore transitioning to a FATAL state.
+
+To verify, run the following command that checks service status. If both `postgresql` and `grafana` display their status as `BACKOFF` or `FATAL`, this confirms the issue:
+
+```bash
+docker exec pmm-server supervisorctl status
+```
+
+##### Solution
+
+- upgrade Docker Desktop to a newer version or downgrade it to v4.48.0 (test with your specific setup)
+- consider using PMM Server on Linux or cloud environments for production
+

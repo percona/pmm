@@ -8,6 +8,7 @@ package locations_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type ChangeLocationReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeLocationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeLocationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeLocationOK()
@@ -55,7 +56,7 @@ ChangeLocationOK describes a response with status code 200, with default header 
 A successful response.
 */
 type ChangeLocationOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this change location Ok response has a 2xx status code
@@ -98,13 +99,13 @@ func (o *ChangeLocationOK) String() string {
 	return fmt.Sprintf("[PUT /v1/backups/locations/{location_id}][%d] changeLocationOk %s", 200, payload)
 }
 
-func (o *ChangeLocationOK) GetPayload() interface{} {
+func (o *ChangeLocationOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *ChangeLocationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,7 +178,7 @@ func (o *ChangeLocationDefault) readResponse(response runtime.ClientResponse, co
 	o.Payload = new(ChangeLocationDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -227,11 +228,15 @@ func (o *ChangeLocationBody) validateFilesystemConfig(formats strfmt.Registry) e
 
 	if o.FilesystemConfig != nil {
 		if err := o.FilesystemConfig.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "filesystem_config")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "filesystem_config")
 			}
+
 			return err
 		}
 	}
@@ -246,11 +251,15 @@ func (o *ChangeLocationBody) validateS3Config(formats strfmt.Registry) error {
 
 	if o.S3Config != nil {
 		if err := o.S3Config.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "s3_config")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "s3_config")
 			}
+
 			return err
 		}
 	}
@@ -284,11 +293,15 @@ func (o *ChangeLocationBody) contextValidateFilesystemConfig(ctx context.Context
 		}
 
 		if err := o.FilesystemConfig.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "filesystem_config")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "filesystem_config")
 			}
+
 			return err
 		}
 	}
@@ -304,11 +317,15 @@ func (o *ChangeLocationBody) contextValidateS3Config(ctx context.Context, format
 		}
 
 		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "s3_config")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "s3_config")
 			}
+
 			return err
 		}
 	}
@@ -375,11 +392,15 @@ func (o *ChangeLocationDefaultBody) validateDetails(formats strfmt.Registry) err
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeLocation default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeLocation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -412,11 +433,15 @@ func (o *ChangeLocationDefaultBody) contextValidateDetails(ctx context.Context, 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeLocation default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeLocation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -452,7 +477,7 @@ type ChangeLocationDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// change location default body details items0
-	ChangeLocationDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ChangeLocationDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -479,9 +504,9 @@ func (o *ChangeLocationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

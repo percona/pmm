@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: security_configuration
+    summary: Configuration Security
+    description: Checks your database configuration to ensure that security best practices are correctly implemented.
+    category: security

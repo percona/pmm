@@ -27,6 +27,7 @@ services:
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
       - PMM_RELEASE_VERSION=3.0.0
       - GO_VERSION=1.24.x
+      # - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-1}
       # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
@@ -94,6 +95,10 @@ services:
       - go-modules:/root/go/pkg/mod
       - go-cache:/root/.cache
       - srv:/srv
+      # temporarily mount advisor files until we package them.
+      - ./managed/data/advisors/:/usr/local/percona/advisors/
+      - ./managed/data/checks/:/usr/local/percona/checks/
+      - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # grafana
     #  - "../grafana:/workspace"
     #  - "../grafana/public:/usr/share/grafana/public"

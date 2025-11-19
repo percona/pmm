@@ -8,6 +8,7 @@ package services_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type ListServicesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListServicesOK()
@@ -106,7 +107,7 @@ func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer 
 	o.Payload = new(ListServicesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -179,7 +180,7 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -227,11 +228,15 @@ func (o *ListServicesDefaultBody) validateDetails(formats strfmt.Registry) error
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -264,11 +269,15 @@ func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, fo
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -304,7 +313,7 @@ type ListServicesDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list services default body details items0
-	ListServicesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListServicesDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -331,9 +340,9 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -428,6 +437,9 @@ type ListServicesOKBody struct {
 
 	// external
 	External []*ListServicesOKBodyExternalItems0 `json:"external"`
+
+	// valkey
+	Valkey []*ListServicesOKBodyValkeyItems0 `json:"valkey"`
 }
 
 // Validate validates this list services OK body
@@ -458,6 +470,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateValkey(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -476,11 +492,15 @@ func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 
 		if o.Mysql[i] != nil {
 			if err := o.Mysql[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -502,11 +522,15 @@ func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
 
 		if o.Mongodb[i] != nil {
 			if err := o.Mongodb[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -528,11 +552,15 @@ func (o *ListServicesOKBody) validatePostgresql(formats strfmt.Registry) error {
 
 		if o.Postgresql[i] != nil {
 			if err := o.Postgresql[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -554,11 +582,15 @@ func (o *ListServicesOKBody) validateProxysql(formats strfmt.Registry) error {
 
 		if o.Proxysql[i] != nil {
 			if err := o.Proxysql[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -580,11 +612,15 @@ func (o *ListServicesOKBody) validateHaproxy(formats strfmt.Registry) error {
 
 		if o.Haproxy[i] != nil {
 			if err := o.Haproxy[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -606,11 +642,45 @@ func (o *ListServicesOKBody) validateExternal(formats strfmt.Registry) error {
 
 		if o.External[i] != nil {
 			if err := o.External[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
 				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validateValkey(formats strfmt.Registry) error {
+	if swag.IsZero(o.Valkey) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Valkey); i++ {
+		if swag.IsZero(o.Valkey[i]) { // not required
+			continue
+		}
+
+		if o.Valkey[i] != nil {
+			if err := o.Valkey[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listServicesOk" + "." + "valkey" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listServicesOk" + "." + "valkey" + "." + strconv.Itoa(i))
+				}
+
 				return err
 			}
 		}
@@ -648,6 +718,10 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateValkey(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -663,11 +737,15 @@ func (o *ListServicesOKBody) contextValidateMysql(ctx context.Context, formats s
 			}
 
 			if err := o.Mysql[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -685,11 +763,15 @@ func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats
 			}
 
 			if err := o.Mongodb[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -707,11 +789,15 @@ func (o *ListServicesOKBody) contextValidatePostgresql(ctx context.Context, form
 			}
 
 			if err := o.Postgresql[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -729,11 +815,15 @@ func (o *ListServicesOKBody) contextValidateProxysql(ctx context.Context, format
 			}
 
 			if err := o.Proxysql[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -751,11 +841,15 @@ func (o *ListServicesOKBody) contextValidateHaproxy(ctx context.Context, formats
 			}
 
 			if err := o.Haproxy[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -773,11 +867,41 @@ func (o *ListServicesOKBody) contextValidateExternal(ctx context.Context, format
 			}
 
 			if err := o.External[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
 				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Valkey); i++ {
+		if o.Valkey[i] != nil {
+
+			if swag.IsZero(o.Valkey[i]) { // not required
+				return nil
+			}
+
+			if err := o.Valkey[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listServicesOk" + "." + "valkey" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listServicesOk" + "." + "valkey" + "." + strconv.Itoa(i))
+				}
+
 				return err
 			}
 		}
@@ -1199,6 +1323,76 @@ func (o *ListServicesOKBodyProxysqlItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListServicesOKBodyProxysqlItems0) UnmarshalBinary(b []byte) error {
 	var res ListServicesOKBodyProxysqlItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListServicesOKBodyValkeyItems0 ValkeyService represents a generic Valkey instance.
+swagger:model ListServicesOKBodyValkeyItems0
+*/
+type ListServicesOKBodyValkeyItems0 struct {
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Valkey version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this list services OK body valkey items0
+func (o *ListServicesOKBodyValkeyItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body valkey items0 based on context it is used
+func (o *ListServicesOKBodyValkeyItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesOKBodyValkeyItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesOKBodyValkeyItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyValkeyItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

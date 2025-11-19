@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: configuration_connection
+    summary: Connection Configuration
+    description: Provides recommendations on configuring database connection parameters for improving database performance.
+    category: configuration
