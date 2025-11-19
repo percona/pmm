@@ -254,7 +254,6 @@ If you need to remove a Valkey or Redis service from monitoring:
     pmm-admin inventory remove service <service-id>
     
     # Remove agent
-    pmm-admin inventory remove agent <agent-id>
     ```
 
 === ":material-web: Via UI"
