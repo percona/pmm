@@ -10,7 +10,7 @@
 
 `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]`
 
-DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey|ProxySQL](#database-commands)
+DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey/Redis|ProxySQL](#database-commands)
 
 `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]`
 
@@ -188,7 +188,7 @@ DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey|ProxySQL](#database-commands)
     ` --pmm-agent-listen-port=LISTEN_PORT`
     : The PMM agent listen port.
 
-DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey|ProxySQL](#database-commands)
+DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey/Redis|ProxySQL](#database-commands)
 
 #### `pmm-admin remove`
 
