@@ -2,7 +2,7 @@ name: Update Docker Hub Readme
 on:
   push:
     branches:
-      - v3-doc-prod
+      - v3
     paths:
       - build/docker/server/README.md
   workflow_dispatch:

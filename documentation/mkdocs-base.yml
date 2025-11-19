@@ -9,7 +9,7 @@ site_url: ""
 use_directory_urls: false
 repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
-edit_uri: edit/v3-doc-prod/documentation/docs/
+edit_uri: edit/v3/documentation/docs/
 
 theme:
   name: material
@@ -200,6 +200,7 @@ nav:
                   - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
                   - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
                   - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
+                  - Valkey/Redis: install-pmm/install-pmm-client/connect-database/valkey-redis.md
               - Cloud services monitoring:
                   - AWS: install-pmm/install-pmm-client/connect-database/aws.md
                   - Azure: install-pmm/install-pmm-client/connect-database/azure.md
@@ -461,6 +462,8 @@ nav:
       - troubleshoot/data_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.5.0 (2025-11-19)": release-notes/3.5.0.md
+      - "PMM 3.4.1 (2025-10-13)": release-notes/3.4.1.md
       - "PMM 3.4.0 (2025-09-15)": release-notes/3.4.0.md
       - "PMM 3.3.1 (2025-07-30)": release-notes/3.3.1.md
       - "PMM 3.3.0 (2025-07-09)": release-notes/3.3.0.md
@@ -554,6 +557,17 @@ nav:
               - reference/dashboards/dashboard-postgresql-topqueries.md
           - ProxySQL dashboards:
               - reference/dashboards/dashboard-proxysql-instance-summary.md
+          - Valkey/Redis dashboards:
+              - Overview: reference/dashboards/dashboard-valkey-redis-overview.md
+              - Clients: reference/dashboards/dashboard-valkey-redis-clients.md
+              - Cluster Details: reference/dashboards/dashboard-valkey-redis-cluster-details.md
+              - Command Detail: reference/dashboards/dashboard-valkey-redis-command-detail.md
+              - Load: reference/dashboards/dashboard-valkey-redis-load.md
+              - Memory: reference/dashboards/dashboard-valkey-redis-memory.md
+              - Network: reference/dashboards/dashboard-valkey-redis-network.md
+              - Persistence Details: reference/dashboards/dashboard-valkey-redis-persistence-details.md
+              - Replication: reference/dashboards/dashboard-valkey-redis-replication.md
+              - Slowlog: reference/dashboards/dashboard-valkey-redis-slowlog.md
           - HA dashboards:
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
               - reference/dashboards/dashboard-pxc-galera-cluster-summary.md

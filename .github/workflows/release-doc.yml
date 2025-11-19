@@ -16,9 +16,9 @@ on:
         default: ''
         type: string
       target_docs_branch:
-        description: 'Target docs branch (default: v3-doc-prod)'
+        description: 'Target docs branch (default: v3)'
         required: false
-        default: 'v3-doc-prod'
+        default: 'v3'
         type: string
 
 permissions:
@@ -47,7 +47,7 @@ jobs:
             version="${version/refs\/tags\/v/}"
             echo "version=$version" >> $GITHUB_OUTPUT
             echo "source_branch=" >> $GITHUB_OUTPUT
-            echo "target_docs_branch=v3-doc-prod" >> $GITHUB_OUTPUT
+            echo "target_docs_branch=v3" >> $GITHUB_OUTPUT
             echo "Release with version: $version"
           fi
 
@@ -118,7 +118,7 @@ jobs:
             version="${version/refs\/tags\/v/}"
             echo "version=$version" >> $GITHUB_OUTPUT
             echo "source_branch=" >> $GITHUB_OUTPUT
-            echo "target_docs_branch=v3-doc-prod" >> $GITHUB_OUTPUT
+            echo "target_docs_branch=v3" >> $GITHUB_OUTPUT
             echo "Release with version: $version"
           fi
 
