@@ -77,5 +77,4 @@ Use this to verify I/O threading configuration across your deployment. The table
 
 A value of 1 means I/O threading is effectively disabled (single-threaded I/O), while values of 2 or more indicate multi-threaded I/O is active. 
 
-For optimal performance on multi-core systems, Redis/Valkey recommends 2-4 I/O threads, though the ideal number depends on your workload and hardware. Compare these values with actual I/O thread processing rates to ver
-
+For optimal performance on multi-core systems, Redis/Valkey recommends 2-4 I/O threads, though the ideal number depends on your workload and hardware. Compare these values with actual I/O thread processing rates to verify that your configuration is delivering the expected performance.
