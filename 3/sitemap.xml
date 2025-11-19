@@ -109,6 +109,434 @@
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/binlog-checksum-value.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/binlog-retention-period.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/binlog-row-image.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/check-replica-verifying-checksum.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/check-the-replica-set-topology.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-general-log.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-innodb-data-file-path.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-log-bin.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-relay-log-purge.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-replica-not-read-only.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-replica-verifying-checksum.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-sql-mode.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-sync-binlog.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-check-tmp-table-size-limit.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-innodb-file-format.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-innodb-flush-method.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-pg-check-fsync-enabled.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-pg-high-max-connections.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-pg-log-autovacuum-disabled.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-pg-log-checkpoints-disabled.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/configuration-pg-settings-changed.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/datadesign-mysql-indexes-larger-than-data.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/default-password-lifetime.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/innodb-strict-mode.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/innodb_redo_logs_not_sized_correctly.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/local-option-of-load-data-enabled.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/master-verify-checksum.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongo-check-the-replica-set-topology.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongo-high-connections.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongo-replication-lag.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-active-vs-available-connections.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-bindip.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-chunk-imbalance.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-collections-fragmented.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-connection-spike.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-cpu-cores-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-dbpath-mount.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-fcv-mismatch.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-high-wiredTiger-cache.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-inconsistent-indexes-across-shards.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-journal.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-localhost-bypass.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-log-messages.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-maxSessions.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-non-default-runtime-write-tickets.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-oplog-sizing.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-profiler-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-psa-architecture.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-read-tickets.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-replicaset-topology.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-scram-sha-256.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-swap-allocation.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-task-executorPoolSize-high.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-unused-indexes.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-version-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-version.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-write-tickets.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-xfs.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/multiple-mongod-running-in-a-node.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-binary-logs-automatically-removed-too-quickly.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-innodb-redolog-disabled.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-log-replica-updates.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-replication-privileges.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-secure-transport-only.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-warnings-not-being-logged.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql_automatic_sp_privileges_enabled.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql_configuration_innodb_file_per_table_not_enabled.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql_configuration_max_connections_usage.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql_configuration_secure_file_priv_empty.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql_password_expiry.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql_performance_temp_ondisk_table_high.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql_unsupported_version_check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql_version_eol_57.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/not-verifying-checksums.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/performance-pg-archiver-failing.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/performance-pg-low-cache-hit-ratio.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/performance-pg-stale-replication-slot.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/platform-mysql-binaries-32-bit.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-cve-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-eol-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-expiring-passwd.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-extension-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-high-number-of-indexes-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-logging-recommendations.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-sequential-scan-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-table-bloat-in-bytes.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-table-bloat-in-percentage-of-table-size.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-tables-per-table-vacuum-settings.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-tmpfiles-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-transaction-id-wraparound-is-approaching.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-unsupported-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-unused-index-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-vacuum-sanity-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-version-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/postgresql-wal-retention-check.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/replica-without-replication-slave-account.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/replica_running_skipping_errors_or_idempotent_mode.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/root-account-can-login-remotely.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/security-anonymous-user.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/security-non-root-accounts-super-privileges.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/security-user-not-using-ssl-protocol.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/security-user-with-open-to-the-word-scope.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/security-user-without-password.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/sql-processing-not-multi-threaded.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/tables-found-without-primary-keys.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/time-zone-data-not-loaded.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/validate-password-policy.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/alert/index.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
@@ -209,10 +637,6 @@
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/ssh.html</loc>
-         <lastmod>2025-11-19</lastmod>
-    </url>
-    <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/percona_platform/account-info.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
@@ -302,6 +726,10 @@
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/remote.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/valkey-redis.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
@@ -413,11 +841,19 @@
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/env_var.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/login_UI.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/ssh.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
@@ -438,10 +874,6 @@
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/plan-pmm-installation/network_and_firewall.html</loc>
-         <lastmod>2025-11-19</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/register-client-node/index.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
@@ -765,6 +1197,46 @@
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-clients.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-cluster-details.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-command-detail.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-load.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-memory.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-network.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-overview.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-persistence-details.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-replication.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-valkey-redis-slowlog.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-victoriametrics-agents-overview.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
@@ -845,7 +1317,7 @@
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/release-notes/3.4.1.html</loc>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/release-notes/3.5.0.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
@@ -998,6 +1470,10 @@
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/qan/index.html</loc>
+         <lastmod>2025-11-19</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/qan/mysql.html</loc>
          <lastmod>2025-11-19</lastmod>
     </url>
     <url>
