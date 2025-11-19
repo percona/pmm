@@ -2,8 +2,8 @@
 
 ## How can I contact the developers?
 
-- [Community forum](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management)
-- [PMM project in JIRA](https://jira.percona.com/projects/PMM)
+- [Community forum](https://forums.percona.com/c/percona-monitoring-and-management-pmm)
+- [PMM project in JIRA](https://perconadev.atlassian.net/jira/software/c/projects/PMM/issues)
 
 ## What are the minimum system requirements?
 
