@@ -110,6 +110,7 @@ func AWSPartitions() []string {
 	}
 }
 
+// ValidateSize checks if a string matches the pattern <number><unit> (e.g., 512MB, 1GB, etc.)
 func ValidateSize(size string) error {
 	if size == "" {
 		return fmt.Errorf("size string is empty")
