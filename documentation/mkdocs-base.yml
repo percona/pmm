@@ -336,7 +336,6 @@ nav:
                       - advisors/checks/mongodb-chunk-imbalance.md
                       - advisors/checks/mongodb-oplog-sizing.md
                       - advisors/checks/mongo-replication-lag.md
-                      - advisors/checks/mongodb-replication-lag.md
                       - advisors/checks/performance-pg-stale-replication-slot.md
               - Security advisors:
                   - CVE security checks:
@@ -402,7 +401,8 @@ nav:
       - configure-pmm/configure.md
       - configure-pmm/metrics_res.md
       - configure-pmm/advanced_settings.md
-      - configure-pmm/ssh.md
+      - install-pmm/install-pmm-server/deployment-options/virtual/ssh.md
+
       - Security in PMM:
           - admin/security/index.md
           - admin/security/ssl_encryption.md
