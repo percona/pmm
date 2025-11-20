@@ -177,7 +177,7 @@ func NewAuthServer(c clientInterface, db *reform.DB, cacheInvalidationPeriod tim
 		accessControl: &accessControl{
 			db: db,
 		},
-		CacheInvalidationPeriod: cacheInvalidationPeriod,
+		cacheInvalidationPeriod: cacheInvalidationPeriod,
 	}
 }
 
