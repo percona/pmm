@@ -16243,10 +16243,11 @@ Full support for all PostgreSQL 18 variants, along with enhanced metrics collect
 <p>Similar support for PostgreSQL will be available in a future release.</p>
 <h3 id="improved-data-privacy-disable-query-examples-in-the-ui">Improved data privacy: Disable query examples in the UI<a class="headerlink" href="#improved-data-privacy-disable-query-examples-in-the-ui" title="Permanent link">&para;</a></h3>
 <p>You can now enhance data privacy in PMM by disabling the collection and display of sensitive SQL queries when adding MySQL or PostgreSQL services.</p>
-<p>The new <strong>Disable query examples</strong> option prevents PMM from showing full SQL queries containing real data in QAN.</p>
-<p>When this option is enabled, the <strong>Examples</strong> tab in QAN will not display any query examples, helping protect sensitive information while still providing valuable performance insights.</p>
+<p>The new <strong>Disable query examples</strong> option prevents PMM from collecting full SQL queries containing real data in QAN.</p>
+<p>When this option is enabled, the agent stops collecting query examples entirely, so the <strong>Examples</strong> tab in QAN will not display any query examples, helping protect sensitive information while still providing valuable performance insights.</p>
 <p>To enable, go to <strong>PMM Configuration &gt; PMM Inventory &gt; MySQL/PostgreSQL &gt; Add Service &gt; Additional Options</strong> and select <strong>Disable query examples</strong>: </p>
 <p><img alt="Disable Query Examples option" src="../images/Disable_query_examples.png" /></p>
+<p>See <a href="../reference/personal_data_handling.html">Data handling in PMM</a> for more details on privacy options.</p>
 <h3 id="configurable-nomad-garbage-collection">Configurable Nomad Garbage Collection<a class="headerlink" href="#configurable-nomad-garbage-collection" title="Permanent link">&para;</a></h3>
 <p>PMM now supports configuring Nomad client-side garbage collection (GC) through environment variables.</p>
 <p>You can tune cleanup intervals, disk and inode thresholds, and allocation limits to reduce resource buildup and keep Nomad running efficiently over time.</p>
