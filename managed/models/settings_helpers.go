@@ -18,6 +18,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -100,6 +101,12 @@ type ChangeSettingsParams struct {
 
 	// List of items in format 'db.table.column' to be encrypted.
 	EncryptedItems []string
+
+	// PostgreSQL max_connections
+	PostgresMaxConnections string
+
+	// PostgreSQL shared_buffers
+	PostgresSharedBuffers string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -240,6 +247,16 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.EncryptedItems = params.EncryptedItems
 	}
 
+	// Update PostgresMaxConnections if provided
+	if params.PostgresMaxConnections != "" {
+		settings.PostgresMaxConnections = params.PostgresMaxConnections
+	}
+
+	// Update PostgresSharedBuffers if provided
+	if params.PostgresSharedBuffers != "" {
+		settings.PostgresSharedBuffers = params.PostgresSharedBuffers
+	}
+
 	err = SaveSettings(q, settings)
 	if err != nil {
 		return nil, err
@@ -315,6 +332,24 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 
 	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
 		return err
+	}
+
+	// Validate PostgresMaxConnections (must be a positive integer string)
+	if params.PostgresMaxConnections != "" {
+		if _, err := strconv.Atoi(params.PostgresMaxConnections); err != nil || params.PostgresMaxConnections[0] == '-' {
+			return errors.Errorf("PostgresMaxConnections: must be a positive integer string")
+		}
+	} else {
+		params.PostgresMaxConnections = "500"
+	}
+
+	// Validate PostgresSharedBuffers (must match <number><unit>)
+	if params.PostgresSharedBuffers != "" {
+		if err := validators.ValidateSize(params.PostgresSharedBuffers); err != nil {
+			return errors.Errorf("PostgresSharedBuffers: %v", err)
+		}
+	} else {
+		params.PostgresSharedBuffers = "256MB"
 	}
 
 	return nil

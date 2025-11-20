@@ -118,6 +118,12 @@ type Settings struct {
 
 	// Contains all encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `json:"encrypted_items"`
+
+	// PostgreSQL max_connections
+	PostgresMaxConnections string `json:"postgres_max_connections"`
+
+	// PostgreSQL shared_buffers
+	PostgresSharedBuffers string `json:"postgres_shared_buffers"`
 }
 
 // IsAlertingEnabled returns true if alerting is enabled.

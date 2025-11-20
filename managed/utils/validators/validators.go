@@ -109,3 +109,25 @@ func AWSPartitions() []string {
 		"aws-us-gov", // U.S. GovCloud regions
 	}
 }
+
+func ValidateSize(size string) error {
+	if size == "" {
+		return fmt.Errorf("size string is empty")
+	}
+	valid := false
+	suffixes := []string{"kB", "MB", "GB", "KB", "mb", "gb", "kb"}
+	for _, s := range suffixes {
+		if len(size) > len(s) && size[len(size)-len(s):] == s {
+			num := size[:len(size)-len(s)]
+			if num != "" {
+				valid = true
+				break
+			}
+		}
+	}
+	if !valid {
+		return fmt.Errorf("must be like 512MB, 1GB, etc")
+	}
+
+	return nil
+}
