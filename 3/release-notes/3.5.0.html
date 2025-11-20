@@ -7350,34 +7350,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../advisors/checks/mongodb-replication-lag.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    None
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../advisors/checks/performance-pg-stale-replication-slot.html" class="md-nav__link">
         
   
@@ -9607,14 +9579,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-pmm/ssh.md" class="md-nav__link">
+      <a href="../install-pmm/install-pmm-server/deployment-options/virtual/ssh.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    None
+    SSH key
   
 
     
@@ -16229,11 +16201,11 @@
 <li><a href="../reference/dashboards/dashboard-valkey-redis-overview.html"><strong>Overview</strong></a>: summarizes deployment health and performance.</li>
 <li><a href="../reference/dashboards/dashboard-valkey-redis-clients.html"><strong>Clients</strong></a>: shows client connections, blocked clients, and buffer usage.</li>
 <li><a href="../reference/dashboards/dashboard-valkey-redis-cluster-details.html"><strong>Cluster Details</strong></a>: displays cluster topology, node roles, and replication offsets.</li>
-<li><a href="../reference/dashboards/dashboard-valkey-redis-command-details.md"><strong>Command Details</strong></a>: analyzes command throughput, execution time, and latency patterns so you can optimize queries.</li>
+<li><a href="../reference/dashboards/dashboard-valkey-redis-command-detail.html"><strong>Command Details</strong></a>: analyzes command throughput, execution time, and latency patterns so you can optimize queries.</li>
 <li><a href="../reference/dashboards/dashboard-valkey-redis-load.html"><strong>Load</strong></a>: tracks workload distribution, read/write patterns, and CPU/I/O usage.</li>
 <li><a href="../reference/dashboards/dashboard-valkey-redis-memory.html"><strong>Memory</strong></a>: monitors memory use, eviction policies, and keyspace metrics.</li>
 <li><a href="../reference/dashboards/dashboard-valkey-redis-network.html"><strong>Network</strong></a>: shows network bandwidth and traffic patterns.</li>
-<li><a href="../reference/dashboards/dashboard-valkey-redis-persistence.md"><strong>Persistence</strong></a>: reviews RDB and AOF operations and rewrite performance.</li>
+<li><a href="../reference/dashboards/dashboard-valkey-redis-persistence-details.html"><strong>Persistence</strong></a>: reviews RDB and AOF operations and rewrite performance.</li>
 <li><a href="../reference/dashboards/dashboard-valkey-redis-replication.html"><strong>Replication</strong></a>: tracks replication lag, synchronization status, and backlog.</li>
 <li><a href="../reference/dashboards/dashboard-valkey-redis-slowlog.html"><strong>Slowlog</strong></a>: identifies slow commands and pinpoints performance bottlenecks. Full Query Analytics (QAN) support for Valkey/Redis is planned for a future release. Use Valkey&rsquo;s built-in SLOWLOG command for detailed query analysis in the meantime.</li>
 </ul>
@@ -16241,7 +16213,7 @@
 <p><img alt="Valkey Overview Dashboard" src="Valkey_Overview_Dashboard.png" /></p>
 <h3 id="postgresql-18-community-support">PostgreSQL 18 Community support<a class="headerlink" href="#postgresql-18-community-support" title="Permanent link">&para;</a></h3>
 <p>PMM now supports PostgreSQL 18 Community Edition, with full compatibility for dashboards and Query Analytics. 
-Full support for all PostgreSQL 18 variants and enhanced metrics collection are planned for PMM 3.6.0.</p>
+Full support for all PostgreSQL 18 variants, along with enhanced metrics collection, is planned for PMM 3.6.0.</p>
 <p>To connect your PostgreSQL 18 database to PMM, see <a href="../install-pmm/install-pmm-client/connect-database/postgresql.html">Connect PostgreSQL databases to PMM</a>.</p>
 <h3 id="mongodb-dashboard-improvements">MongoDB dashboard improvements<a class="headerlink" href="#mongodb-dashboard-improvements" title="Permanent link">&para;</a></h3>
 <p>We&rsquo;ve made several enhancements to improve MongoDB monitoring:</p>
@@ -16302,10 +16274,10 @@ Full support for all PostgreSQL 18 variants and enhanced metrics collection are 
 <p>The <code>openssl-libs</code> package included in PMM&rsquo;s Oracle Linux 9 base operating system already contains the necessary security fix for this OpenSSL cipher processing issue. You can verify this in <a href="https://linux.oracle.com/errata/ELSA-2024-0627.html">Oracle&rsquo;s official security advisory ELSA-2024-0627</a>.</p>
 <h4 id="remote-code-execution-in-python-setuptools-cve-2024-6345">Remote code execution in Python Setuptools (CVE-2024-6345)<a class="headerlink" href="#remote-code-execution-in-python-setuptools-cve-2024-6345" title="Permanent link">&para;</a></h4>
 <p>PMM is not affected by this vulnerability.</p>
-<p>The PMM image&rsquo;s base OS, Oracle Linux 9, ships with <code>python3-setuptools</code> version 53.0.0-13.el9_6.1, which already includes the fix that addresses this vulnerability. You can confirm this though <a href="https://linux.oracle.com/errata/ELSA-2024-5534.html">Oracle&rsquo;s security advisory ELSA-2024-5534</a>.</p>
+<p>The PMM image&rsquo;s base OS, Oracle Linux 9, ships with <code>python3-setuptools</code> version 53.0.0-13.el9_6.1, which already includes the fix that addresses this vulnerability. You can confirm this through <a href="https://linux.oracle.com/errata/ELSA-2024-5534.html">Oracle&rsquo;s security advisory ELSA-2024-5534</a>.</p>
 <h4 id="container-runtime-race-conditions-in-node-exporter-cve-2025-31133-cve-2025-52565-cve-2025-52881">Container runtime race conditions in Node Exporter (CVE-2025-31133, CVE-2025-52565, CVE-2025-52881)<a class="headerlink" href="#container-runtime-race-conditions-in-node-exporter-cve-2025-31133-cve-2025-52565-cve-2025-52881" title="Permanent link">&para;</a></h4>
 <p>PMM is not affected by these vulnerabilities.</p>
-<p>Security scanning tools may flag race condition vulnerabilities in the <code>opencontainers/selinux</code>, which was fixed in this version.</p>
+<p>Security scanning tools may flag race condition vulnerabilities in the <code>opencontainers/selinux</code>, which were fixed in this version.</p>
 <h3 id="accepted-risk-openssl-buffer-overflow-vulnerabilities-cve-2022-3786-and-cve-2022-3602">Accepted risk: OpenSSL buffer overflow vulnerabilities (CVE-2022-3786 and CVE-2022-3602)<a class="headerlink" href="#accepted-risk-openssl-buffer-overflow-vulnerabilities-cve-2022-3786-and-cve-2022-3602" title="Permanent link">&para;</a></h3>
 <p>These vulnerabilities affect the <code>openssl-libs</code> package that comes with PMM&rsquo;s Oracle Linux 9 base image.</p>
 <p>Oracle has released patches for these vulnerabilities, but they are distributed exclusively through Ksplice, Oracle&rsquo;s live patching service, available only to customers with Premier Support.</p>
@@ -16451,7 +16423,7 @@ Each datasource now has a fixed UID defined in datasources.yml. This prevents Gr
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-11-19
+    2025-11-20
   </span>
 
     
