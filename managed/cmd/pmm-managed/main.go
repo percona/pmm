@@ -727,6 +727,11 @@ func main() { //nolint:maintidx,cyclop
 		Envar("PMM_NOMAD_GC_PARALLEL_DESTROYS").
 		Int()
 
+	grafanaCacheInvalidationPeriodF := kingpin.Flag("grafana-cache-invalidation-period", "cacheInvalidationPeriod is the period when cache for grafana response should be invalidated ('3s', '1m' etc)").
+		Default("3s").
+		Envar("PMM_GRAFANA_CACHE_INVALIDATION_PERIOD").
+		Duration()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -1077,7 +1082,7 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, db)
+	authServer := grafana.NewAuthServer(grafanaClient, db, *grafanaCacheInvalidationPeriodF)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup

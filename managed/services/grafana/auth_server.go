@@ -129,9 +129,6 @@ const lbacHeaderName = "X-Proxy-Filter"
 // as this code is reserved for auth_request.
 const authenticationErrorCode = 401
 
-// cacheInvalidationPeriod is and period when cache for grafana response should be invalidated.
-const cacheInvalidationPeriod = 3 * time.Second
-
 // clientError contains authentication error response details.
 type authError struct {
 	code    codes.Code // error code for API client; not mapped to HTTP status code
@@ -165,11 +162,13 @@ type AuthServer struct {
 
 	accessControl *accessControl
 
+	cacheInvalidationPeriod time.Duration
+
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
+func NewAuthServer(c clientInterface, db *reform.DB, cacheInvalidationPeriod time.Duration) *AuthServer {
 	return &AuthServer{
 		c:     c,
 		db:    db,
@@ -178,12 +177,13 @@ func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 		accessControl: &accessControl{
 			db: db,
 		},
+		CacheInvalidationPeriod: cacheInvalidationPeriod,
 	}
 }
 
 // Run runs cache invalidator which removes expired cache items.
 func (s *AuthServer) Run(ctx context.Context) {
-	t := time.NewTicker(cacheInvalidationPeriod)
+	t := time.NewTicker(s.cacheInvalidationPeriod)
 
 	for {
 		select {
@@ -194,7 +194,7 @@ func (s *AuthServer) Run(ctx context.Context) {
 			now := time.Now()
 			s.rw.Lock()
 			for key, item := range s.cache {
-				if now.Add(-cacheInvalidationPeriod).After(item.created) {
+				if now.Add(-s.cacheInvalidationPeriod).After(item.created) {
 					delete(s.cache, key)
 				}
 			}
