@@ -69,7 +69,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, nil)
+	s := NewAuthServer(c, nil, time.Duration(3)*time.Second)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 	require.NoError(t, err)
@@ -184,7 +184,7 @@ func TestServerClientConnection(t *testing.T) {
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, nil)
+	s := NewAuthServer(c, nil, time.Duration(3)*time.Second)
 
 	t.Run("Basic auth - success", func(t *testing.T) {
 		t.Parallel()
@@ -261,7 +261,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	}(t)
 
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, db)
+	s := NewAuthServer(c, db, time.Duration(3)*time.Second)
 
 	roleA := models.Role{
 		Title:  "Role A",
