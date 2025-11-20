@@ -58,3 +58,24 @@ When LBAC is enabled:
 - users see only queries from databases and services permitted by their assigned roles
 - filter dropdown options are dynamically restricted based on user permissions
 - data visibility is controlled through Prometheus-style label selectors
+
+## QAN for PMM Server's internal PostgreSQL
+
+By default, Query Analytics (QAN) hides queries from PMM Server’s internal PostgreSQL database. This avoids clutter and keeps the focus on your monitored databases.
+
+Enable QAN for PMM Server when you need to troubleshoot performance issues, check resource usage, or ensure that applications are not using the default `postgres` database instead of dedicated databases. This is particularly useful in [High Availability (HA) deployments](../../install-pmm/HA.md) where monitoring system health is essential.
+
+### Enable QAN for PMM Server
+To include PMM Server’s own queries in QAN, enable the feature in the settings:
+{.power-number}
+
+1. Go to **PMM Configuration > Settings > Advanced Settings**.
+2. Switch on the **QAN for PMM Server** option.
+3. Open **PMM Query Analytics (QAN)** from the main menu and filter by the `pmm-server-postgresql` service to view queries.
+
+When enabled, QAN displays queries related to PMM’s internal operations—such as inventory, settings, advisor checks, alerts, backups, and authentication. 
+
+These are usually lightweight, but unusual spikes in volume, latency, or unexpected queries may indicate performance issues or misuse of the database.
+
+!!! warning
+    Do not use the default PostgreSQL database for application workloads. PMM monitors it for visibility, but applications should always run on dedicated databases.

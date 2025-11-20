@@ -52,9 +52,15 @@
     "jsdom": "^24.1.1",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5",
-    "vite": "^5.4.20",
+    "vite": "^5.4.21",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.1.9"
+  },
+  "resolutions": {
+    "esbuild": "~0.25.0",
+    "cross-spawn": "~7.0.5",
+    "brace-expansion": "~1.1.12",
+    "nanoid": "~3.3.8"
   },
   "prettier": "@percona/prettier-config"
 }
