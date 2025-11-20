@@ -416,11 +416,11 @@ Once PMM is set up, choose the database or the application that you want it to m
     4. Add the Valkey or Redis database:
         ```sh
         pmm-admin add valkey \
-          --address=localhost:6379 \
+          Valkey-Primary \
+          localhost:6379 \
           --username=pmm \
           --password=<your_password> \
-          --environment=production \
-          Valkey-Primary
+          --environment=production
         ```
 
     For detailed setup instructions, remote monitoring, TLS and advanced options, see [Connecting Valkey/Redis databases to PMM](../install-pmm/install-pmm-client/connect-database/valkey-redis.md).
