@@ -82,7 +82,8 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add a local Valkey instance with default settings:
         ```sh
         pmm-admin add valkey \
-          --address=localhost:6379 \
+          Valkey-Primary \
+          localhost:6379 \
           --environment=production \
           Valkey-Primary
         ```
@@ -92,7 +93,8 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add a Valkey instance with authentication:
         ```sh
         pmm-admin add valkey \
-          --address=localhost:6379 \
+          Valkey-Primary \
+          localhost:6379 \
           --username=pmm \
           --password=StrongPassword123! \
           --environment=production \
@@ -116,7 +118,8 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add an instance with environment and custom labels:
         ```sh
         pmm-admin add valkey \
-          --address=localhost:6379 \
+          Valkey-Primary \
+          localhost:6379 \
           --username=pmm \
           --password=StrongPassword123! \
           --environment=production \
