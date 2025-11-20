@@ -75,4 +75,4 @@ If your organization currently uses Percona Account authentication:
 6. **Communicate changes** to all affected users, including new login instructions and credentials (if applicable).
 7. **Update documentation** or processes that reference Percona Account sign-in.
 
-For more information, see [Log into PMM](../../reference/ui/log_in.md).RetryClaude can make mistakes. Please double-check responses. Sonnet 4.5
+For more information, see [Log into PMM](../../reference/ui/log_in.md).
