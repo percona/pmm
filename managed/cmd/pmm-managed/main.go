@@ -360,7 +360,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 
 	// Create a shared gRPC connection for handlers that use Register*Handler
-	sharedConn, err := grpc.DialContext(ctx, gRPCAddr, opts...)
+	sharedConn, err := grpc.NewClient(gRPCAddr, opts...)
 	if err != nil {
 		l.Panic(err)
 	}
