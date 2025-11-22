@@ -39,7 +39,9 @@ const (
 )
 
 // PMMServerNodeID is a special Node ID representing PMM Server Node.
-const PMMServerNodeID = string("pmm-server") // A special ID reserved for PMM Server Node.
+// It takes the value of "pmm-server" in regular non-HA setups and in Active/Passive HA setups,
+// while in Active/Active HA setups it is set to a dynamically generated UUID.
+var PMMServerNodeID = string("pmm-server")
 
 // Node represents Node as stored in database.
 //

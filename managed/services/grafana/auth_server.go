@@ -39,14 +39,15 @@ import (
 )
 
 const (
-	connectionEndpoint = "/agent.v1.AgentService/Connect"
+	connectionEndpointV2 = "/agent.Agent/Connect"
+	connectionEndpoint   = "/agent.v1.AgentService/Connect"
 )
 
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
-	"/agent.Agent/Connect": admin, // compatibility for v2 agents
-	connectionEndpoint:     admin,
+	connectionEndpointV2: admin, // compatibility for v2 agents
+	connectionEndpoint:   admin,
 
 	"/inventory.":                               admin,
 	"/management.":                              admin,
@@ -424,9 +425,9 @@ func nextPrefix(path string) string {
 
 func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
-	pmmAgent := req.Header.Get("Pmm-Agent-Id")
+	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
+	if ip == "127.0.0.1" && path == connectionEndpoint {
 		return true
 	}
 
@@ -559,6 +560,7 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
 			code := codes.Internal
 			if cErr.Code == 401 || cErr.Code == 403 {
+				l.Infof("401 authHeaders: %+v", authHeaders)
 				code = codes.Unauthenticated
 			}
 			return nil, &authError{code: code, message: cErr.ErrorMessage}

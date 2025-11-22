@@ -163,6 +163,7 @@ func scrapeConfigsForNomadAgent(m *models.MetricsResolutions, s *scrapeConfigPar
 		JobName:        jobName(s.agent, "mr"),
 		ScrapeInterval: config.Duration(m.MR),
 		ScrapeTimeout:  scrapeTimeout(m.MR),
+		Scheme:         "https",
 		MetricsPath:    "/v1/metrics",
 	}
 

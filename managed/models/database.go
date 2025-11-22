@@ -31,6 +31,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -1454,7 +1455,9 @@ type agentConfig struct {
 }
 
 func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
-	var agentID string
+	agentID := uuid.New().String()
+	nodeID := uuid.New().String()
+
 	// create PMM Server Node and associated Agents in HA mode
 	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
 
@@ -1476,26 +1479,33 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	if config.ID == "" {
-		logrus.Fatalf("The agent ID is empty or wrong config file format at %s", AgentConfigFilePath)
+		logrus.Fatalf("The agent ID is empty in config file %s", AgentConfigFilePath)
 	}
 
-	agentID = config.ID
-	if config.ID == PMMServerAgentID {
-		agentID = uuid.New().String()
-		args := []string{
-			"setup",
-			"--config-file", AgentConfigFilePath,
-			"--server-address", "127.0.0.1:8443",
-			"--id", agentID,
-			"--skip-registration",
-			"--server-insecure-tls",
+	if config.ID != PMMServerAgentID {
+		// check if the agent with such ID already exists
+		agent, err := FindAgentByID(q, config.ID)
+		if err == nil {
+			logrus.Infof("PMM Agent with ID %s already exists, skipping creation", config.ID)
+			PMMServerAgentID = config.ID
+			PMMServerNodeID = pointer.Get(agent.RunsOnNodeID)
+			return nil
 		}
-		cmd := exec.Command("pmm-agent", args...) //nolint:gosec
-		logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("%w: %s", err, output)
-		}
+	}
+
+	args := []string{
+		"setup",
+		"--config-file", AgentConfigFilePath,
+		"--server-address", "127.0.0.1:8443",
+		"--id", agentID,
+		"--skip-registration",
+		"--server-insecure-tls",
+	}
+	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
+	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, output)
 	}
 
 	labels := map[string]string{
@@ -1503,18 +1513,14 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		"environment": "pmm",
 	}
 
-	node, err := createNodeWithID(q, uuid.New().String(), GenericNodeType, &CreateNodeParams{
+	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
 		NodeName:     params.HANodeID,
 		Address:      "127.0.0.1",
 		CustomLabels: labels,
 	})
 
 	if err != nil {
-		if status.Code(err) == codes.AlreadyExists {
-			// this fixture was already added previously
-			return nil
-		}
-		logrus.Errorf("Failed to create a node with ID %s: %s", node.NodeID, err)
+		logrus.Errorf("Failed to create a node with ID %s: %s", nodeID, err)
 		return err
 	}
 
@@ -1526,6 +1532,12 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
+
+	// set PMMServerAgentID and PMMServerNodeID to generated values in HA setup
+	PMMServerAgentID = agent.AgentID
+	logrus.Infof("Set PMMServerAgentID to: %s", PMMServerAgentID)
+	PMMServerNodeID = node.NodeID
+	logrus.Infof("Set PMMServerNodeID to: %s", PMMServerNodeID)
 
 	return nil
 }

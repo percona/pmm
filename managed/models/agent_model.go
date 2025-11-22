@@ -84,7 +84,9 @@ const (
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
-const PMMServerAgentID = string("pmm-server") // a special ID, reserved for PMM Server
+// It takes the value of "pmm-server" in regular non-HA setups and in Active/Passive HA setups,
+// while in Active/Active HA setups it is set to the actual pmm-agent's Agent ID, which is a UUID.
+var PMMServerAgentID = string("pmm-server")
 
 // ExporterOptions represents structure for special Exporter options.
 type ExporterOptions struct {

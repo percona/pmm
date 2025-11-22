@@ -902,6 +902,16 @@ func main() { //nolint:maintidx,cyclop
 			HAParams: haParams,
 		})
 
+	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
+		err := supervisord.StartSupervisedService("pmm-agent")
+		if err != nil {
+			l.Warnf("Couldn't start pmm-agent: %s", err)
+		}
+		return err
+	}, func() {
+		// Keep the agent always running, even on follower nodes.
+	}))
+
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
 		l.Fatal(err)

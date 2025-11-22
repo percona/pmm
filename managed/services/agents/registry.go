@@ -25,6 +25,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -319,7 +320,8 @@ func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeI
 }
 
 func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
-	if runsOnNodeID == "pmm-server" && !r.isExternalVM {
+	logrus.Infof("Checking runs_on_node_id: %s, PMMServerNodeID: %s", runsOnNodeID, models.PMMServerNodeID)
+	if runsOnNodeID == models.PMMServerNodeID && !r.isExternalVM {
 		return nil
 	}
 	vmAgentType := models.VMAgentType
