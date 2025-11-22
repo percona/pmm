@@ -27,12 +27,15 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"go.yaml.in/yaml/v2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -1446,48 +1449,81 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
+type agentConfig struct {
+	ID string `yaml:"id"`
+}
+
 func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
-	// Implementation for setting up agents in HA mode
+	var agentID string
+	// create PMM Server Node and associated Agents in HA mode
 	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
 
-	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
-		NodeName: "pmm-server",
-		Address:  "127.0.0.1",
-	})
+	file, err := os.Open(AgentConfigFilePath)
 
-	if err != nil && status.Code(err) != codes.AlreadyExists {
-		return err
+	if err != nil {
+		return fmt.Errorf("Could not open pmm-agent's config file at %s: %v", AgentConfigFilePath, err)
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	var config agentConfig
+	decoder := yaml.NewDecoder(file)
+	err = decoder.Decode(&config)
+
+	if err != nil {
+		logrus.Fatalf("Could not parse agent config file %s: %v", AgentConfigFilePath, err)
 	}
 
-	PMMAgentID := params.HANodeID
-
-	if _, err = createPMMAgentWithID(q, PMMAgentID, node.NodeID, nil); err != nil {
-		return err
+	if config.ID == "" {
+		logrus.Fatalf("The agent ID is empty or wrong config file format at %s", AgentConfigFilePath)
 	}
 
-	if _, err = CreateNodeExporter(q, PMMAgentID, nil, false, false, []string{}, nil, ""); err != nil {
-		return err
-	}
-
-	// create PMM Server Node and associated Agents
-	nParams := &CreateNodeParams{
-		NodeName: params.HANodeID,
-		Address:  "127.0.0.1",
-	}
-	for _, pName := range params.HAPeers {
-		if strings.HasPrefix(pName, params.HANodeID) {
-			nParams.Address = pName
-			break
+	agentID = config.ID
+	if config.ID == PMMServerAgentID {
+		agentID = uuid.New().String()
+		args := []string{
+			"setup",
+			"--config-file", AgentConfigFilePath,
+			"--server-address", "127.0.0.1:8443",
+			"--id", agentID,
+			"--skip-registration",
+			"--server-insecure-tls",
+		}
+		cmd := exec.Command("pmm-agent", args...) //nolint:gosec
+		logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("%w: %s", err, output)
 		}
 	}
 
-	_, err = createNodeWithID(q, nParams.NodeName, GenericNodeType, nParams)
+	labels := map[string]string{
+		"cluster":     "pmm",
+		"environment": "pmm",
+	}
+
+	node, err := createNodeWithID(q, uuid.New().String(), GenericNodeType, &CreateNodeParams{
+		NodeName:     params.HANodeID,
+		Address:      "127.0.0.1",
+		CustomLabels: labels,
+	})
+
 	if err != nil {
-		logrus.Errorf("Node creation (createNodeWithID) error: %+v", err)
 		if status.Code(err) == codes.AlreadyExists {
 			// this fixture was already added previously
 			return nil
 		}
+		logrus.Errorf("Failed to create a node with ID %s: %s", node.NodeID, err)
+		return err
+	}
+
+	agent, err := createPMMAgentWithID(q, agentID, node.NodeID, labels)
+	if err != nil {
+		return err
+	}
+
+	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
 
@@ -1500,7 +1536,6 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		NodeName: "pmm-server",
 		Address:  "127.0.0.1",
 	})
-
 	if err != nil {
 		if status.Code(err) == codes.AlreadyExists {
 			// this fixture was already added previously
@@ -1530,7 +1565,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 			return err
 		}
 	} else {
-		// using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		// Using postgres database in order to get metrics from entrypoint extension setup for QAN.
 		params.Name = ""
 	}
 

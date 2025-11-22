@@ -47,6 +47,8 @@ const (
 	certificateFilePlaceholder    = "certificateFilePlaceholder"
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
 	caFilePlaceholder             = "caFilePlaceholder"
+	// AgentConfigFilePath is the default path to pmm-agent config file.
+	AgentConfigFilePath = "/usr/local/percona/pmm/config/pmm-agent.yaml"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
 	// AgentStatusDone indicates thay the agent has either been stopped or disabled.
