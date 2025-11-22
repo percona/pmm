@@ -560,7 +560,6 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
 			code := codes.Internal
 			if cErr.Code == 401 || cErr.Code == 403 {
-				l.Infof("401 authHeaders: %+v", authHeaders)
 				code = codes.Unauthenticated
 			}
 			return nil, &authError{code: code, message: cErr.ErrorMessage}

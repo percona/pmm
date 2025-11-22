@@ -36,7 +36,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"go.yaml.in/yaml/v2"
+	"go.yaml.in/yaml/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -1462,9 +1462,8 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
 
 	file, err := os.Open(AgentConfigFilePath)
-
 	if err != nil {
-		return fmt.Errorf("Could not open pmm-agent's config file at %s: %v", AgentConfigFilePath, err)
+		return fmt.Errorf("could not open pmm-agent's config file at %s: %w", AgentConfigFilePath, err)
 	}
 	defer func() {
 		_ = file.Close()
@@ -1473,13 +1472,12 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	var config agentConfig
 	decoder := yaml.NewDecoder(file)
 	err = decoder.Decode(&config)
-
 	if err != nil {
-		logrus.Fatalf("Could not parse agent config file %s: %v", AgentConfigFilePath, err)
+		return fmt.Errorf("could not parse agent config file %s: %w", AgentConfigFilePath, err)
 	}
 
 	if config.ID == "" {
-		logrus.Fatalf("The agent ID is empty in config file %s", AgentConfigFilePath)
+		return fmt.Errorf("the agent ID is empty in config file %s", AgentConfigFilePath)
 	}
 
 	if config.ID != PMMServerAgentID {
@@ -1518,7 +1516,6 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		Address:      "127.0.0.1",
 		CustomLabels: labels,
 	})
-
 	if err != nil {
 		logrus.Errorf("Failed to create a node with ID %s: %s", nodeID, err)
 		return err
@@ -1572,7 +1569,6 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 			NodeName: PMMServerPostgreSQLNodeName,
 			Address:  address,
 		})
-
 		if err != nil {
 			return err
 		}
