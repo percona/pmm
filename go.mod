@@ -178,7 +178,7 @@ require (
 	github.com/go-openapi/swag/stringutils v0.25.1 // indirect
 	github.com/go-openapi/swag/typeutils v0.25.1 // indirect
 	github.com/go-openapi/swag/yamlutils v0.25.1 // indirect
-	github.com/go-swagger/go-swagger v0.33.1 // indirect
+	github.com/go-swagger/go-swagger v0.31.0 // indirect
 	github.com/go-toolsmith/astcast v1.0.0 // indirect
 	github.com/go-toolsmith/astequal v1.0.0 // indirect
 	github.com/go-toolsmith/astinfo v0.0.0-20180906194353-9809ff7efb21 // indirect
