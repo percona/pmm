@@ -58,6 +58,7 @@
         - /var/log/secure
         - /var/log/wtmp
         - /var/log/clickhouse-server
+        - /var/log/clickhouse-keeper
         - /var/log/nginx
         - /var/lib/pgsql
         - /var/cache/dnf

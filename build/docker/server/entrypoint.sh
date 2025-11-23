@@ -110,7 +110,7 @@ bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
 chmod 750 /srv/postgres14 || true
 
 echo "Checking nginx configuration..."
-if ! nginx -t; then
+if ! nginx -t -e /dev/stdout; then
     echo "Nginx configuration test failed, exiting..."
     exit 1
 fi
