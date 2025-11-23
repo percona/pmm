@@ -67,7 +67,7 @@ type ClientService interface {
 Reload reloads reloads pmm agent configuration
 */
 func (a *Client) Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewReloadParams()
 	}
@@ -86,22 +86,17 @@ func (a *Client) Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, 
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ReloadOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ReloadDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -109,7 +104,7 @@ func (a *Client) Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, 
 Status statuses returns current pmm agent status
 */
 func (a *Client) Status(params *StatusParams, opts ...ClientOption) (*StatusOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStatusParams()
 	}
@@ -128,22 +123,17 @@ func (a *Client) Status(params *StatusParams, opts ...ClientOption) (*StatusOK, 
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*StatusOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*StatusDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -151,7 +141,7 @@ func (a *Client) Status(params *StatusParams, opts ...ClientOption) (*StatusOK, 
 Status2 statuses returns current pmm agent status
 */
 func (a *Client) Status2(params *Status2Params, opts ...ClientOption) (*Status2OK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStatus2Params()
 	}
@@ -170,22 +160,17 @@ func (a *Client) Status2(params *Status2Params, opts ...ClientOption) (*Status2O
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*Status2OK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*Status2Default)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

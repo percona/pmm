@@ -8,7 +8,6 @@ package dump_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type DeleteDumpReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DeleteDumpReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *DeleteDumpReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDeleteDumpOK()
@@ -56,7 +55,7 @@ DeleteDumpOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type DeleteDumpOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this delete dump Ok response has a 2xx status code
@@ -99,13 +98,13 @@ func (o *DeleteDumpOK) String() string {
 	return fmt.Sprintf("[POST /v1/dumps:batchDelete][%d] deleteDumpOk %s", 200, payload)
 }
 
-func (o *DeleteDumpOK) GetPayload() any {
+func (o *DeleteDumpOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *DeleteDumpOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,7 +177,7 @@ func (o *DeleteDumpDefault) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(DeleteDumpDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -263,15 +262,11 @@ func (o *DeleteDumpDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DeleteDump default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("DeleteDump default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -304,15 +299,11 @@ func (o *DeleteDumpDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DeleteDump default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("DeleteDump default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -348,7 +339,7 @@ type DeleteDumpDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// delete dump default body details items0
-	DeleteDumpDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	DeleteDumpDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -375,9 +366,9 @@ func (o *DeleteDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

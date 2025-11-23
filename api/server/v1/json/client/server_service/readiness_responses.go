@@ -8,7 +8,6 @@ package server_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type ReadinessReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ReadinessReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *ReadinessReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewReadinessOK()
@@ -56,7 +55,7 @@ ReadinessOK describes a response with status code 200, with default header value
 A successful response.
 */
 type ReadinessOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this readiness Ok response has a 2xx status code
@@ -99,13 +98,13 @@ func (o *ReadinessOK) String() string {
 	return fmt.Sprintf("[GET /v1/server/readyz][%d] readinessOk %s", 200, payload)
 }
 
-func (o *ReadinessOK) GetPayload() any {
+func (o *ReadinessOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ReadinessOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,7 +177,7 @@ func (o *ReadinessDefault) readResponse(response runtime.ClientResponse, consume
 	o.Payload = new(ReadinessDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -226,15 +225,11 @@ func (o *ReadinessDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Readiness default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("Readiness default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -267,15 +262,11 @@ func (o *ReadinessDefaultBody) contextValidateDetails(ctx context.Context, forma
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Readiness default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("Readiness default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -422,7 +413,7 @@ type ReadinessDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// readiness default body details items0
-	ReadinessDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	ReadinessDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -476,9 +467,9 @@ func (o *ReadinessDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

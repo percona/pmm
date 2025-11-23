@@ -8,7 +8,6 @@ package user_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type ListUsersReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListUsersReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *ListUsersReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListUsersOK()
@@ -107,7 +106,7 @@ func (o *ListUsersOK) readResponse(response runtime.ClientResponse, consumer run
 	o.Payload = new(ListUsersOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -180,7 +179,7 @@ func (o *ListUsersDefault) readResponse(response runtime.ClientResponse, consume
 	o.Payload = new(ListUsersDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -228,15 +227,11 @@ func (o *ListUsersDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListUsers default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListUsers default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -269,15 +264,11 @@ func (o *ListUsersDefaultBody) contextValidateDetails(ctx context.Context, forma
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListUsers default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListUsers default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -313,7 +304,7 @@ type ListUsersDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list users default body details items0
-	ListUsersDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	ListUsersDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -340,9 +331,9 @@ func (o *ListUsersDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -450,15 +441,11 @@ func (o *ListUsersOKBody) validateUsers(formats strfmt.Registry) error {
 
 		if o.Users[i] != nil {
 			if err := o.Users[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listUsersOk" + "." + "users" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listUsersOk" + "." + "users" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -491,15 +478,11 @@ func (o *ListUsersOKBody) contextValidateUsers(ctx context.Context, formats strf
 			}
 
 			if err := o.Users[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listUsersOk" + "." + "users" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listUsersOk" + "." + "users" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}

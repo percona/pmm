@@ -8,7 +8,6 @@ package actions_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type StartPTSummaryActionReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StartPTSummaryActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *StartPTSummaryActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStartPTSummaryActionOK()
@@ -107,7 +106,7 @@ func (o *StartPTSummaryActionOK) readResponse(response runtime.ClientResponse, c
 	o.Payload = new(StartPTSummaryActionOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -180,7 +179,7 @@ func (o *StartPTSummaryActionDefault) readResponse(response runtime.ClientRespon
 	o.Payload = new(StartPTSummaryActionDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -268,15 +267,11 @@ func (o *StartPTSummaryActionDefaultBody) validateDetails(formats strfmt.Registr
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartPTSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("StartPTSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -309,15 +304,11 @@ func (o *StartPTSummaryActionDefaultBody) contextValidateDetails(ctx context.Con
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartPTSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("StartPTSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -353,7 +344,7 @@ type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// start PT summary action default body details items0
-	StartPTSummaryActionDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	StartPTSummaryActionDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -380,9 +371,9 @@ func (o *StartPTSummaryActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

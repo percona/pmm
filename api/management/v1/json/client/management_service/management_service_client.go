@@ -89,7 +89,7 @@ AddAnnotation adds an annotation
 Adds an annotation.
 */
 func (a *Client) AddAnnotation(params *AddAnnotationParams, opts ...ClientOption) (*AddAnnotationOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddAnnotationParams()
 	}
@@ -108,22 +108,17 @@ func (a *Client) AddAnnotation(params *AddAnnotationParams, opts ...ClientOption
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*AddAnnotationOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*AddAnnotationDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -133,7 +128,7 @@ AddAzureDatabase adds azure database
 Adds an Azure Database instance.
 */
 func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams, opts ...ClientOption) (*AddAzureDatabaseOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddAzureDatabaseParams()
 	}
@@ -152,22 +147,17 @@ func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams, opts ...Client
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*AddAzureDatabaseOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*AddAzureDatabaseDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -177,7 +167,7 @@ AddService adds a service
 Adds a service and starts several agents.
 */
 func (a *Client) AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddServiceParams()
 	}
@@ -196,22 +186,17 @@ func (a *Client) AddService(params *AddServiceParams, opts ...ClientOption) (*Ad
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*AddServiceOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*AddServiceDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -221,7 +206,7 @@ DiscoverAzureDatabase discovers azure database
 Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 */
 func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDiscoverAzureDatabaseParams()
 	}
@@ -240,22 +225,17 @@ func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*DiscoverAzureDatabaseOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*DiscoverAzureDatabaseDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -265,7 +245,7 @@ DiscoverRDS discovers RDS
 Discovers RDS instances.
 */
 func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDiscoverRDSParams()
 	}
@@ -284,22 +264,17 @@ func (a *Client) DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*DiscoverRDSOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*DiscoverRDSDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -309,7 +284,7 @@ GetNode gets node
 Gets a single Node by ID.
 */
 func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetNodeParams()
 	}
@@ -328,22 +303,17 @@ func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeO
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetNodeOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetNodeDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -353,7 +323,7 @@ ListAgentVersions lists agent versions
 Lists Agent versions and their update severity.
 */
 func (a *Client) ListAgentVersions(params *ListAgentVersionsParams, opts ...ClientOption) (*ListAgentVersionsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListAgentVersionsParams()
 	}
@@ -372,22 +342,17 @@ func (a *Client) ListAgentVersions(params *ListAgentVersionsParams, opts ...Clie
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ListAgentVersionsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ListAgentVersionsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -397,7 +362,7 @@ ListAgents lists agents
 Lists Agents with filter.
 */
 func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListAgentsParams()
 	}
@@ -416,22 +381,17 @@ func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*Li
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ListAgentsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ListAgentsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -441,7 +401,7 @@ ListNodes lists nodes
 Lists Nodes with filter.
 */
 func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListNodesParams()
 	}
@@ -460,22 +420,17 @@ func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*List
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ListNodesOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ListNodesDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -485,7 +440,7 @@ ListServices lists services
 Returns a filtered list of Services.
 */
 func (a *Client) ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListServicesParams()
 	}
@@ -504,22 +459,17 @@ func (a *Client) ListServices(params *ListServicesParams, opts ...ClientOption) 
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ListServicesOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ListServicesDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -529,7 +479,7 @@ RegisterNode registers a node
 Registers a new Node and a pmm-agent.
 */
 func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRegisterNodeParams()
 	}
@@ -548,22 +498,17 @@ func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) 
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*RegisterNodeOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*RegisterNodeDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -573,7 +518,7 @@ RemoveService removes a service
 Removes a Service along with its Agents.
 */
 func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveServiceParams()
 	}
@@ -592,22 +537,17 @@ func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*RemoveServiceOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*RemoveServiceDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -617,7 +557,7 @@ UnregisterNode unregisters a node
 Unregisters a Node and pmm-agent
 */
 func (a *Client) UnregisterNode(params *UnregisterNodeParams, opts ...ClientOption) (*UnregisterNodeOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUnregisterNodeParams()
 	}
@@ -636,22 +576,17 @@ func (a *Client) UnregisterNode(params *UnregisterNodeParams, opts ...ClientOpti
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*UnregisterNodeOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*UnregisterNodeDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -8,7 +8,6 @@ package server_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 
@@ -24,7 +23,7 @@ type LogsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *LogsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *LogsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewLogsOK(o.writer)
@@ -104,7 +103,7 @@ func (o *LogsOK) GetPayload() io.Writer {
 
 func (o *LogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -177,7 +176,7 @@ func (o *LogsDefault) readResponse(response runtime.ClientResponse, consumer run
 	o.Payload = new(LogsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

@@ -8,7 +8,6 @@ package locations_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type RemoveLocationReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RemoveLocationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *RemoveLocationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRemoveLocationOK()
@@ -56,7 +55,7 @@ RemoveLocationOK describes a response with status code 200, with default header 
 A successful response.
 */
 type RemoveLocationOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this remove location Ok response has a 2xx status code
@@ -99,13 +98,13 @@ func (o *RemoveLocationOK) String() string {
 	return fmt.Sprintf("[DELETE /v1/backups/locations/{location_id}][%d] removeLocationOk %s", 200, payload)
 }
 
-func (o *RemoveLocationOK) GetPayload() any {
+func (o *RemoveLocationOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RemoveLocationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,7 +177,7 @@ func (o *RemoveLocationDefault) readResponse(response runtime.ClientResponse, co
 	o.Payload = new(RemoveLocationDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -226,15 +225,11 @@ func (o *RemoveLocationDefaultBody) validateDetails(formats strfmt.Registry) err
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RemoveLocation default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("RemoveLocation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -267,15 +262,11 @@ func (o *RemoveLocationDefaultBody) contextValidateDetails(ctx context.Context, 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RemoveLocation default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("RemoveLocation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -311,7 +302,7 @@ type RemoveLocationDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// remove location default body details items0
-	RemoveLocationDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	RemoveLocationDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -338,9 +329,9 @@ func (o *RemoveLocationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

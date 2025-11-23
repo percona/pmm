@@ -8,7 +8,6 @@ package alerting_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type ListTemplatesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListTemplatesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *ListTemplatesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListTemplatesOK()
@@ -108,7 +107,7 @@ func (o *ListTemplatesOK) readResponse(response runtime.ClientResponse, consumer
 	o.Payload = new(ListTemplatesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *ListTemplatesDefault) readResponse(response runtime.ClientResponse, con
 	o.Payload = new(ListTemplatesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -229,15 +228,11 @@ func (o *ListTemplatesDefaultBody) validateDetails(formats strfmt.Registry) erro
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -270,15 +265,11 @@ func (o *ListTemplatesDefaultBody) contextValidateDetails(ctx context.Context, f
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -314,7 +305,7 @@ type ListTemplatesDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list templates default body details items0
-	ListTemplatesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	ListTemplatesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -341,9 +332,9 @@ func (o *ListTemplatesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -457,15 +448,11 @@ func (o *ListTemplatesOKBody) validateTemplates(formats strfmt.Registry) error {
 
 		if o.Templates[i] != nil {
 			if err := o.Templates[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -498,15 +485,11 @@ func (o *ListTemplatesOKBody) contextValidateTemplates(ctx context.Context, form
 			}
 
 			if err := o.Templates[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -618,15 +601,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0) validateParams(formats strfmt.Regis
 
 		if o.Params[i] != nil {
 			if err := o.Params[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("params" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("params" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -636,7 +615,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0) validateParams(formats strfmt.Regis
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum []any
+var listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -699,7 +678,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0) validateSeverity(formats strfmt.Reg
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum []any
+var listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -785,15 +764,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0) contextValidateParams(ctx context.C
 			}
 
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("params" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("params" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -883,7 +858,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) Validate(formats strfmt
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum []any
+var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -928,7 +903,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateUnit(formats st
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum []any
+var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -983,15 +958,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateBool(formats st
 
 	if o.Bool != nil {
 		if err := o.Bool.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("bool")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("bool")
 			}
-
 			return err
 		}
 	}
@@ -1006,15 +977,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateFloat(formats s
 
 	if o.Float != nil {
 		if err := o.Float.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("float")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("float")
 			}
-
 			return err
 		}
 	}
@@ -1029,15 +996,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateString(formats 
 
 	if o.String != nil {
 		if err := o.String.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("string")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("string")
 			}
-
 			return err
 		}
 	}
@@ -1075,15 +1038,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateBool(ctx
 		}
 
 		if err := o.Bool.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("bool")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("bool")
 			}
-
 			return err
 		}
 	}
@@ -1099,15 +1058,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateFloat(ct
 		}
 
 		if err := o.Float.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("float")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("float")
 			}
-
 			return err
 		}
 	}
@@ -1123,15 +1078,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateString(c
 		}
 
 		if err := o.String.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("string")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("string")
 			}
-
 			return err
 		}
 	}

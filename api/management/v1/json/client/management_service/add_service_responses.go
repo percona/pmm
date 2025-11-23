@@ -8,7 +8,6 @@ package management_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type AddServiceReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *AddServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddServiceOK()
@@ -108,7 +107,7 @@ func (o *AddServiceOK) readResponse(response runtime.ClientResponse, consumer ru
 	o.Payload = new(AddServiceOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *AddServiceDefault) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(AddServiceDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -267,15 +266,11 @@ func (o *AddServiceBody) validateExternal(formats strfmt.Registry) error {
 
 	if o.External != nil {
 		if err := o.External.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "external")
 			}
-
 			return err
 		}
 	}
@@ -290,15 +285,11 @@ func (o *AddServiceBody) validateHaproxy(formats strfmt.Registry) error {
 
 	if o.Haproxy != nil {
 		if err := o.Haproxy.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "haproxy")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "haproxy")
 			}
-
 			return err
 		}
 	}
@@ -313,15 +304,11 @@ func (o *AddServiceBody) validateMongodb(formats strfmt.Registry) error {
 
 	if o.Mongodb != nil {
 		if err := o.Mongodb.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mongodb")
 			}
-
 			return err
 		}
 	}
@@ -336,15 +323,11 @@ func (o *AddServiceBody) validateMysql(formats strfmt.Registry) error {
 
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mysql")
 			}
-
 			return err
 		}
 	}
@@ -359,15 +342,11 @@ func (o *AddServiceBody) validatePostgresql(formats strfmt.Registry) error {
 
 	if o.Postgresql != nil {
 		if err := o.Postgresql.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgresql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "postgresql")
 			}
-
 			return err
 		}
 	}
@@ -382,15 +361,11 @@ func (o *AddServiceBody) validateProxysql(formats strfmt.Registry) error {
 
 	if o.Proxysql != nil {
 		if err := o.Proxysql.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "proxysql")
 			}
-
 			return err
 		}
 	}
@@ -405,15 +380,11 @@ func (o *AddServiceBody) validateRDS(formats strfmt.Registry) error {
 
 	if o.RDS != nil {
 		if err := o.RDS.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "rds")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "rds")
 			}
-
 			return err
 		}
 	}
@@ -428,15 +399,11 @@ func (o *AddServiceBody) validateValkey(formats strfmt.Registry) error {
 
 	if o.Valkey != nil {
 		if err := o.Valkey.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "valkey")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "valkey")
 			}
-
 			return err
 		}
 	}
@@ -494,15 +461,11 @@ func (o *AddServiceBody) contextValidateExternal(ctx context.Context, formats st
 		}
 
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "external")
 			}
-
 			return err
 		}
 	}
@@ -518,15 +481,11 @@ func (o *AddServiceBody) contextValidateHaproxy(ctx context.Context, formats str
 		}
 
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "haproxy")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "haproxy")
 			}
-
 			return err
 		}
 	}
@@ -542,15 +501,11 @@ func (o *AddServiceBody) contextValidateMongodb(ctx context.Context, formats str
 		}
 
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mongodb")
 			}
-
 			return err
 		}
 	}
@@ -566,15 +521,11 @@ func (o *AddServiceBody) contextValidateMysql(ctx context.Context, formats strfm
 		}
 
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mysql")
 			}
-
 			return err
 		}
 	}
@@ -590,15 +541,11 @@ func (o *AddServiceBody) contextValidatePostgresql(ctx context.Context, formats 
 		}
 
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgresql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "postgresql")
 			}
-
 			return err
 		}
 	}
@@ -614,15 +561,11 @@ func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats st
 		}
 
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "proxysql")
 			}
-
 			return err
 		}
 	}
@@ -638,15 +581,11 @@ func (o *AddServiceBody) contextValidateRDS(ctx context.Context, formats strfmt.
 		}
 
 		if err := o.RDS.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "rds")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "rds")
 			}
-
 			return err
 		}
 	}
@@ -662,15 +601,11 @@ func (o *AddServiceBody) contextValidateValkey(ctx context.Context, formats strf
 		}
 
 		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "valkey")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "valkey")
 			}
-
 			return err
 		}
 	}
@@ -737,15 +672,11 @@ func (o *AddServiceDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -778,15 +709,11 @@ func (o *AddServiceDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -822,7 +749,7 @@ type AddServiceDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// add service default body details items0
-	AddServiceDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	AddServiceDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -849,9 +776,9 @@ func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -1003,15 +930,11 @@ func (o *AddServiceOKBody) validateExternal(formats strfmt.Registry) error {
 
 	if o.External != nil {
 		if err := o.External.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "external")
 			}
-
 			return err
 		}
 	}
@@ -1026,15 +949,11 @@ func (o *AddServiceOKBody) validateHaproxy(formats strfmt.Registry) error {
 
 	if o.Haproxy != nil {
 		if err := o.Haproxy.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy")
 			}
-
 			return err
 		}
 	}
@@ -1049,15 +968,11 @@ func (o *AddServiceOKBody) validateMongodb(formats strfmt.Registry) error {
 
 	if o.Mongodb != nil {
 		if err := o.Mongodb.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb")
 			}
-
 			return err
 		}
 	}
@@ -1072,15 +987,11 @@ func (o *AddServiceOKBody) validateMysql(formats strfmt.Registry) error {
 
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql")
 			}
-
 			return err
 		}
 	}
@@ -1095,15 +1006,11 @@ func (o *AddServiceOKBody) validatePostgresql(formats strfmt.Registry) error {
 
 	if o.Postgresql != nil {
 		if err := o.Postgresql.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql")
 			}
-
 			return err
 		}
 	}
@@ -1118,15 +1025,11 @@ func (o *AddServiceOKBody) validateProxysql(formats strfmt.Registry) error {
 
 	if o.Proxysql != nil {
 		if err := o.Proxysql.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql")
 			}
-
 			return err
 		}
 	}
@@ -1141,15 +1044,11 @@ func (o *AddServiceOKBody) validateRDS(formats strfmt.Registry) error {
 
 	if o.RDS != nil {
 		if err := o.RDS.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds")
 			}
-
 			return err
 		}
 	}
@@ -1164,15 +1063,11 @@ func (o *AddServiceOKBody) validateValkey(formats strfmt.Registry) error {
 
 	if o.Valkey != nil {
 		if err := o.Valkey.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "valkey")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "valkey")
 			}
-
 			return err
 		}
 	}
@@ -1230,15 +1125,11 @@ func (o *AddServiceOKBody) contextValidateExternal(ctx context.Context, formats 
 		}
 
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "external")
 			}
-
 			return err
 		}
 	}
@@ -1254,15 +1145,11 @@ func (o *AddServiceOKBody) contextValidateHaproxy(ctx context.Context, formats s
 		}
 
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy")
 			}
-
 			return err
 		}
 	}
@@ -1278,15 +1165,11 @@ func (o *AddServiceOKBody) contextValidateMongodb(ctx context.Context, formats s
 		}
 
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb")
 			}
-
 			return err
 		}
 	}
@@ -1302,15 +1185,11 @@ func (o *AddServiceOKBody) contextValidateMysql(ctx context.Context, formats str
 		}
 
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql")
 			}
-
 			return err
 		}
 	}
@@ -1326,15 +1205,11 @@ func (o *AddServiceOKBody) contextValidatePostgresql(ctx context.Context, format
 		}
 
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql")
 			}
-
 			return err
 		}
 	}
@@ -1350,15 +1225,11 @@ func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats 
 		}
 
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql")
 			}
-
 			return err
 		}
 	}
@@ -1374,15 +1245,11 @@ func (o *AddServiceOKBody) contextValidateRDS(ctx context.Context, formats strfm
 		}
 
 		if err := o.RDS.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds")
 			}
-
 			return err
 		}
 	}
@@ -1398,15 +1265,11 @@ func (o *AddServiceOKBody) contextValidateValkey(ctx context.Context, formats st
 		}
 
 		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "valkey")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "valkey")
 			}
-
 			return err
 		}
 	}
@@ -1469,15 +1332,11 @@ func (o *AddServiceOKBodyExternal) validateExternalExporter(formats strfmt.Regis
 
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
 			}
-
 			return err
 		}
 	}
@@ -1492,15 +1351,11 @@ func (o *AddServiceOKBodyExternal) validateService(formats strfmt.Registry) erro
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -1534,15 +1389,11 @@ func (o *AddServiceOKBodyExternal) contextValidateExternalExporter(ctx context.C
 		}
 
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
 			}
-
 			return err
 		}
 	}
@@ -1558,15 +1409,11 @@ func (o *AddServiceOKBodyExternal) contextValidateService(ctx context.Context, f
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -1658,15 +1505,11 @@ func (o *AddServiceOKBodyExternalExternalExporter) validateMetricsResolutions(fo
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -1696,15 +1539,11 @@ func (o *AddServiceOKBodyExternalExternalExporter) contextValidateMetricsResolut
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -1868,15 +1707,11 @@ func (o *AddServiceOKBodyHaproxy) validateExternalExporter(formats strfmt.Regist
 
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
 			}
-
 			return err
 		}
 	}
@@ -1891,15 +1726,11 @@ func (o *AddServiceOKBodyHaproxy) validateService(formats strfmt.Registry) error
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -1933,15 +1764,11 @@ func (o *AddServiceOKBodyHaproxy) contextValidateExternalExporter(ctx context.Co
 		}
 
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
 			}
-
 			return err
 		}
 	}
@@ -1957,15 +1784,11 @@ func (o *AddServiceOKBodyHaproxy) contextValidateService(ctx context.Context, fo
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -2057,15 +1880,11 @@ func (o *AddServiceOKBodyHaproxyExternalExporter) validateMetricsResolutions(for
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -2095,15 +1914,11 @@ func (o *AddServiceOKBodyHaproxyExternalExporter) contextValidateMetricsResoluti
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -2278,15 +2093,11 @@ func (o *AddServiceOKBodyMongodb) validateMongodbExporter(formats strfmt.Registr
 
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
 			}
-
 			return err
 		}
 	}
@@ -2301,15 +2112,11 @@ func (o *AddServiceOKBodyMongodb) validateQANMongodbMongolog(formats strfmt.Regi
 
 	if o.QANMongodbMongolog != nil {
 		if err := o.QANMongodbMongolog.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_mongolog")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_mongolog")
 			}
-
 			return err
 		}
 	}
@@ -2324,15 +2131,11 @@ func (o *AddServiceOKBodyMongodb) validateQANMongodbProfiler(formats strfmt.Regi
 
 	if o.QANMongodbProfiler != nil {
 		if err := o.QANMongodbProfiler.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
 			}
-
 			return err
 		}
 	}
@@ -2347,15 +2150,11 @@ func (o *AddServiceOKBodyMongodb) validateService(formats strfmt.Registry) error
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -2397,15 +2196,11 @@ func (o *AddServiceOKBodyMongodb) contextValidateMongodbExporter(ctx context.Con
 		}
 
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
 			}
-
 			return err
 		}
 	}
@@ -2421,15 +2216,11 @@ func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbMongolog(ctx context.
 		}
 
 		if err := o.QANMongodbMongolog.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_mongolog")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_mongolog")
 			}
-
 			return err
 		}
 	}
@@ -2445,15 +2236,11 @@ func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbProfiler(ctx context.
 		}
 
 		if err := o.QANMongodbProfiler.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
 			}
-
 			return err
 		}
 	}
@@ -2469,15 +2256,11 @@ func (o *AddServiceOKBodyMongodb) contextValidateService(ctx context.Context, fo
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -2601,7 +2384,7 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) Validate(formats strfmt.Registr
 	return nil
 }
 
-var addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum []any
+var addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2661,7 +2444,7 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) validateStatus(formats strfmt.R
 	return nil
 }
 
-var addServiceOkBodyMongodbMongodbExporterTypeLogLevelPropEnum []any
+var addServiceOkBodyMongodbMongodbExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2722,15 +2505,11 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) validateMetricsResolutions(form
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -2760,15 +2539,11 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) contextValidateMetricsResolutio
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -2909,7 +2684,7 @@ func (o *AddServiceOKBodyMongodbQANMongodbMongolog) Validate(formats strfmt.Regi
 	return nil
 }
 
-var addServiceOkBodyMongodbQanMongodbMongologTypeStatusPropEnum []any
+var addServiceOkBodyMongodbQanMongodbMongologTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2969,7 +2744,7 @@ func (o *AddServiceOKBodyMongodbQANMongodbMongolog) validateStatus(formats strfm
 	return nil
 }
 
-var addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum []any
+var addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3118,7 +2893,7 @@ func (o *AddServiceOKBodyMongodbQANMongodbProfiler) Validate(formats strfmt.Regi
 	return nil
 }
 
-var addServiceOkBodyMongodbQanMongodbProfilerTypeStatusPropEnum []any
+var addServiceOkBodyMongodbQanMongodbProfilerTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3178,7 +2953,7 @@ func (o *AddServiceOKBodyMongodbQANMongodbProfiler) validateStatus(formats strfm
 	return nil
 }
 
-var addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum []any
+var addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3379,15 +3154,11 @@ func (o *AddServiceOKBodyMysql) validateMysqldExporter(formats strfmt.Registry) 
 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
 			}
-
 			return err
 		}
 	}
@@ -3402,15 +3173,11 @@ func (o *AddServiceOKBodyMysql) validateQANMysqlPerfschema(formats strfmt.Regist
 
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
 			}
-
 			return err
 		}
 	}
@@ -3425,15 +3192,11 @@ func (o *AddServiceOKBodyMysql) validateQANMysqlSlowlog(formats strfmt.Registry)
 
 	if o.QANMysqlSlowlog != nil {
 		if err := o.QANMysqlSlowlog.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
 			}
-
 			return err
 		}
 	}
@@ -3448,15 +3211,11 @@ func (o *AddServiceOKBodyMysql) validateService(formats strfmt.Registry) error {
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -3498,15 +3257,11 @@ func (o *AddServiceOKBodyMysql) contextValidateMysqldExporter(ctx context.Contex
 		}
 
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
 			}
-
 			return err
 		}
 	}
@@ -3522,15 +3277,11 @@ func (o *AddServiceOKBodyMysql) contextValidateQANMysqlPerfschema(ctx context.Co
 		}
 
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
 			}
-
 			return err
 		}
 	}
@@ -3546,15 +3297,11 @@ func (o *AddServiceOKBodyMysql) contextValidateQANMysqlSlowlog(ctx context.Conte
 		}
 
 		if err := o.QANMysqlSlowlog.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
 			}
-
 			return err
 		}
 	}
@@ -3570,15 +3317,11 @@ func (o *AddServiceOKBodyMysql) contextValidateService(ctx context.Context, form
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -3715,7 +3458,7 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum []any
+var addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3775,7 +3518,7 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) validateStatus(formats strfmt.Regi
 	return nil
 }
 
-var addServiceOkBodyMysqlMysqldExporterTypeLogLevelPropEnum []any
+var addServiceOkBodyMysqlMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3836,15 +3579,11 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) validateMetricsResolutions(formats
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -3874,15 +3613,11 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) contextValidateMetricsResolutions(
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -4041,7 +3776,7 @@ func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) Validate(formats strfmt.Regist
 	return nil
 }
 
-var addServiceOkBodyMysqlQanMysqlPerfschemaTypeStatusPropEnum []any
+var addServiceOkBodyMysqlQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -4101,7 +3836,7 @@ func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) validateStatus(formats strfmt.
 	return nil
 }
 
-var addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum []any
+var addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -4271,7 +4006,7 @@ func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var addServiceOkBodyMysqlQanMysqlSlowlogTypeStatusPropEnum []any
+var addServiceOkBodyMysqlQanMysqlSlowlogTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -4331,7 +4066,7 @@ func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) validateStatus(formats strfmt.Reg
 	return nil
 }
 
-var addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum []any
+var addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -4535,15 +4270,11 @@ func (o *AddServiceOKBodyPostgresql) validatePostgresExporter(formats strfmt.Reg
 
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
 			}
-
 			return err
 		}
 	}
@@ -4558,15 +4289,11 @@ func (o *AddServiceOKBodyPostgresql) validateQANPostgresqlPgstatementsAgent(form
 
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
 			}
-
 			return err
 		}
 	}
@@ -4581,15 +4308,11 @@ func (o *AddServiceOKBodyPostgresql) validateQANPostgresqlPgstatmonitorAgent(for
 
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
-
 			return err
 		}
 	}
@@ -4604,15 +4327,11 @@ func (o *AddServiceOKBodyPostgresql) validateService(formats strfmt.Registry) er
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -4654,15 +4373,11 @@ func (o *AddServiceOKBodyPostgresql) contextValidatePostgresExporter(ctx context
 		}
 
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
 			}
-
 			return err
 		}
 	}
@@ -4678,15 +4393,11 @@ func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatementsAge
 		}
 
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
 			}
-
 			return err
 		}
 	}
@@ -4702,15 +4413,11 @@ func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatmonitorAg
 		}
 
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
-
 			return err
 		}
 	}
@@ -4726,15 +4433,11 @@ func (o *AddServiceOKBodyPostgresql) contextValidateService(ctx context.Context,
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -4854,7 +4557,7 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) Validate(formats strfmt.Reg
 	return nil
 }
 
-var addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum []any
+var addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -4914,7 +4617,7 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) validateStatus(formats strf
 	return nil
 }
 
-var addServiceOkBodyPostgresqlPostgresExporterTypeLogLevelPropEnum []any
+var addServiceOkBodyPostgresqlPostgresExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -4975,15 +4678,11 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) validateMetricsResolutions(
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -5013,15 +4712,11 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) contextValidateMetricsResol
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -5165,7 +4860,7 @@ func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) Validate(form
 	return nil
 }
 
-var addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeStatusPropEnum []any
+var addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -5225,7 +4920,7 @@ func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) validateStatu
 	return nil
 }
 
-var addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
+var addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -5380,7 +5075,7 @@ func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) Validate(for
 	return nil
 }
 
-var addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []any
+var addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -5440,7 +5135,7 @@ func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) validateStat
 	return nil
 }
 
-var addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
+var addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -5630,15 +5325,11 @@ func (o *AddServiceOKBodyProxysql) validateProxysqlExporter(formats strfmt.Regis
 
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
 			}
-
 			return err
 		}
 	}
@@ -5653,15 +5344,11 @@ func (o *AddServiceOKBodyProxysql) validateService(formats strfmt.Registry) erro
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -5695,15 +5382,11 @@ func (o *AddServiceOKBodyProxysql) contextValidateProxysqlExporter(ctx context.C
 		}
 
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
 			}
-
 			return err
 		}
 	}
@@ -5719,15 +5402,11 @@ func (o *AddServiceOKBodyProxysql) contextValidateService(ctx context.Context, f
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -5841,7 +5520,7 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) Validate(formats strfmt.Regis
 	return nil
 }
 
-var addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum []any
+var addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -5901,7 +5580,7 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) validateStatus(formats strfmt
 	return nil
 }
 
-var addServiceOkBodyProxysqlProxysqlExporterTypeLogLevelPropEnum []any
+var addServiceOkBodyProxysqlProxysqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -5962,15 +5641,11 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) validateMetricsResolutions(fo
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -6000,15 +5675,11 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) contextValidateMetricsResolut
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -6226,15 +5897,11 @@ func (o *AddServiceOKBodyRDS) validateMysql(formats strfmt.Registry) error {
 
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
 			}
-
 			return err
 		}
 	}
@@ -6249,15 +5916,11 @@ func (o *AddServiceOKBodyRDS) validateMysqldExporter(formats strfmt.Registry) er
 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
 			}
-
 			return err
 		}
 	}
@@ -6272,15 +5935,11 @@ func (o *AddServiceOKBodyRDS) validateNode(formats strfmt.Registry) error {
 
 	if o.Node != nil {
 		if err := o.Node.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
 			}
-
 			return err
 		}
 	}
@@ -6295,15 +5954,11 @@ func (o *AddServiceOKBodyRDS) validatePostgresql(formats strfmt.Registry) error 
 
 	if o.Postgresql != nil {
 		if err := o.Postgresql.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
 			}
-
 			return err
 		}
 	}
@@ -6318,15 +5973,11 @@ func (o *AddServiceOKBodyRDS) validatePostgresqlExporter(formats strfmt.Registry
 
 	if o.PostgresqlExporter != nil {
 		if err := o.PostgresqlExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
 			}
-
 			return err
 		}
 	}
@@ -6341,15 +5992,11 @@ func (o *AddServiceOKBodyRDS) validateQANMysqlPerfschema(formats strfmt.Registry
 
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
 			}
-
 			return err
 		}
 	}
@@ -6364,15 +6011,11 @@ func (o *AddServiceOKBodyRDS) validateQANPostgresqlPgstatements(formats strfmt.R
 
 	if o.QANPostgresqlPgstatements != nil {
 		if err := o.QANPostgresqlPgstatements.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
 			}
-
 			return err
 		}
 	}
@@ -6387,15 +6030,11 @@ func (o *AddServiceOKBodyRDS) validateRDSExporter(formats strfmt.Registry) error
 
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
 			}
-
 			return err
 		}
 	}
@@ -6453,15 +6092,11 @@ func (o *AddServiceOKBodyRDS) contextValidateMysql(ctx context.Context, formats 
 		}
 
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
 			}
-
 			return err
 		}
 	}
@@ -6477,15 +6112,11 @@ func (o *AddServiceOKBodyRDS) contextValidateMysqldExporter(ctx context.Context,
 		}
 
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
 			}
-
 			return err
 		}
 	}
@@ -6501,15 +6132,11 @@ func (o *AddServiceOKBodyRDS) contextValidateNode(ctx context.Context, formats s
 		}
 
 		if err := o.Node.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
 			}
-
 			return err
 		}
 	}
@@ -6525,15 +6152,11 @@ func (o *AddServiceOKBodyRDS) contextValidatePostgresql(ctx context.Context, for
 		}
 
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
 			}
-
 			return err
 		}
 	}
@@ -6549,15 +6172,11 @@ func (o *AddServiceOKBodyRDS) contextValidatePostgresqlExporter(ctx context.Cont
 		}
 
 		if err := o.PostgresqlExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
 			}
-
 			return err
 		}
 	}
@@ -6573,15 +6192,11 @@ func (o *AddServiceOKBodyRDS) contextValidateQANMysqlPerfschema(ctx context.Cont
 		}
 
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
 			}
-
 			return err
 		}
 	}
@@ -6597,15 +6212,11 @@ func (o *AddServiceOKBodyRDS) contextValidateQANPostgresqlPgstatements(ctx conte
 		}
 
 		if err := o.QANPostgresqlPgstatements.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
 			}
-
 			return err
 		}
 	}
@@ -6621,15 +6232,11 @@ func (o *AddServiceOKBodyRDS) contextValidateRDSExporter(ctx context.Context, fo
 		}
 
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
 			}
-
 			return err
 		}
 	}
@@ -6839,7 +6446,7 @@ func (o *AddServiceOKBodyRDSMysqldExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum []any
+var addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -6899,7 +6506,7 @@ func (o *AddServiceOKBodyRDSMysqldExporter) validateStatus(formats strfmt.Regist
 	return nil
 }
 
-var addServiceOkBodyRdsMysqldExporterTypeLogLevelPropEnum []any
+var addServiceOkBodyRdsMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -6960,15 +6567,11 @@ func (o *AddServiceOKBodyRDSMysqldExporter) validateMetricsResolutions(formats s
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -6998,15 +6601,11 @@ func (o *AddServiceOKBodyRDSMysqldExporter) contextValidateMetricsResolutions(ct
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -7303,7 +6902,7 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum []any
+var addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -7363,7 +6962,7 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var addServiceOkBodyRdsPostgresqlExporterTypeLogLevelPropEnum []any
+var addServiceOkBodyRdsPostgresqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -7424,15 +7023,11 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) validateMetricsResolutions(forma
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -7462,15 +7057,11 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) contextValidateMetricsResolution
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -7629,7 +7220,7 @@ func (o *AddServiceOKBodyRDSQANMysqlPerfschema) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addServiceOkBodyRdsQanMysqlPerfschemaTypeStatusPropEnum []any
+var addServiceOkBodyRdsQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -7689,7 +7280,7 @@ func (o *AddServiceOKBodyRDSQANMysqlPerfschema) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum []any
+var addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -7841,7 +7432,7 @@ func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) Validate(formats strfmt.R
 	return nil
 }
 
-var addServiceOkBodyRdsQanPostgresqlPgstatementsTypeStatusPropEnum []any
+var addServiceOkBodyRdsQanPostgresqlPgstatementsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -7901,7 +7492,7 @@ func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) validateStatus(formats st
 	return nil
 }
 
-var addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum []any
+var addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -8063,7 +7654,7 @@ func (o *AddServiceOKBodyRDSRDSExporter) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addServiceOkBodyRdsRdsExporterTypeStatusPropEnum []any
+var addServiceOkBodyRdsRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -8123,7 +7714,7 @@ func (o *AddServiceOKBodyRDSRDSExporter) validateStatus(formats strfmt.Registry)
 	return nil
 }
 
-var addServiceOkBodyRdsRdsExporterTypeLogLevelPropEnum []any
+var addServiceOkBodyRdsRdsExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -8184,15 +7775,11 @@ func (o *AddServiceOKBodyRDSRDSExporter) validateMetricsResolutions(formats strf
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -8222,15 +7809,11 @@ func (o *AddServiceOKBodyRDSRDSExporter) contextValidateMetricsResolutions(ctx c
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -8336,15 +7919,11 @@ func (o *AddServiceOKBodyValkey) validateService(formats strfmt.Registry) error 
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -8359,15 +7938,11 @@ func (o *AddServiceOKBodyValkey) validateValkeyExporter(formats strfmt.Registry)
 
 	if o.ValkeyExporter != nil {
 		if err := o.ValkeyExporter.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
 			}
-
 			return err
 		}
 	}
@@ -8401,15 +7976,11 @@ func (o *AddServiceOKBodyValkey) contextValidateService(ctx context.Context, for
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
 			}
-
 			return err
 		}
 	}
@@ -8425,15 +7996,11 @@ func (o *AddServiceOKBodyValkey) contextValidateValkeyExporter(ctx context.Conte
 		}
 
 		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
 			}
-
 			return err
 		}
 	}
@@ -8607,7 +8174,7 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var addServiceOkBodyValkeyValkeyExporterTypeStatusPropEnum []any
+var addServiceOkBodyValkeyValkeyExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -8674,15 +8241,11 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) validateMetricsResolutions(format
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -8712,15 +8275,11 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) contextValidateMetricsResolutions
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
-
 			return err
 		}
 	}
@@ -8879,7 +8438,7 @@ func (o *AddServiceParamsBodyExternal) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addServiceParamsBodyExternalTypeMetricsModePropEnum []any
+var addServiceParamsBodyExternalTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -8931,15 +8490,11 @@ func (o *AddServiceParamsBodyExternal) validateAddNode(formats strfmt.Registry) 
 
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "external" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -8969,15 +8524,11 @@ func (o *AddServiceParamsBodyExternal) contextValidateAddNode(ctx context.Contex
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "external" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -9054,7 +8605,7 @@ func (o *AddServiceParamsBodyExternalAddNode) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var addServiceParamsBodyExternalAddNodeTypeNodeTypePropEnum []any
+var addServiceParamsBodyExternalAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -9213,7 +8764,7 @@ func (o *AddServiceParamsBodyHaproxy) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addServiceParamsBodyHaproxyTypeMetricsModePropEnum []any
+var addServiceParamsBodyHaproxyTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -9265,15 +8816,11 @@ func (o *AddServiceParamsBodyHaproxy) validateAddNode(formats strfmt.Registry) e
 
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "haproxy" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "haproxy" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -9303,15 +8850,11 @@ func (o *AddServiceParamsBodyHaproxy) contextValidateAddNode(ctx context.Context
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "haproxy" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "haproxy" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -9388,7 +8931,7 @@ func (o *AddServiceParamsBodyHaproxyAddNode) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var addServiceParamsBodyHaproxyAddNodeTypeNodeTypePropEnum []any
+var addServiceParamsBodyHaproxyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -9607,7 +9150,7 @@ func (o *AddServiceParamsBodyMongodb) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addServiceParamsBodyMongodbTypeMetricsModePropEnum []any
+var addServiceParamsBodyMongodbTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -9652,7 +9195,7 @@ func (o *AddServiceParamsBodyMongodb) validateMetricsMode(formats strfmt.Registr
 	return nil
 }
 
-var addServiceParamsBodyMongodbTypeLogLevelPropEnum []any
+var addServiceParamsBodyMongodbTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -9713,15 +9256,11 @@ func (o *AddServiceParamsBodyMongodb) validateAddNode(formats strfmt.Registry) e
 
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mongodb" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -9751,15 +9290,11 @@ func (o *AddServiceParamsBodyMongodb) contextValidateAddNode(ctx context.Context
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mongodb" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -9836,7 +9371,7 @@ func (o *AddServiceParamsBodyMongodbAddNode) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var addServiceParamsBodyMongodbAddNodeTypeNodeTypePropEnum []any
+var addServiceParamsBodyMongodbAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -10056,7 +9591,7 @@ func (o *AddServiceParamsBodyMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addServiceParamsBodyMysqlTypeMetricsModePropEnum []any
+var addServiceParamsBodyMysqlTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -10101,7 +9636,7 @@ func (o *AddServiceParamsBodyMysql) validateMetricsMode(formats strfmt.Registry)
 	return nil
 }
 
-var addServiceParamsBodyMysqlTypeLogLevelPropEnum []any
+var addServiceParamsBodyMysqlTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -10162,15 +9697,11 @@ func (o *AddServiceParamsBodyMysql) validateAddNode(formats strfmt.Registry) err
 
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mysql" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -10200,15 +9731,11 @@ func (o *AddServiceParamsBodyMysql) contextValidateAddNode(ctx context.Context, 
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "mysql" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -10285,7 +9812,7 @@ func (o *AddServiceParamsBodyMysqlAddNode) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var addServiceParamsBodyMysqlAddNodeTypeNodeTypePropEnum []any
+var addServiceParamsBodyMysqlAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -10501,7 +10028,7 @@ func (o *AddServiceParamsBodyPostgresql) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addServiceParamsBodyPostgresqlTypeMetricsModePropEnum []any
+var addServiceParamsBodyPostgresqlTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -10546,7 +10073,7 @@ func (o *AddServiceParamsBodyPostgresql) validateMetricsMode(formats strfmt.Regi
 	return nil
 }
 
-var addServiceParamsBodyPostgresqlTypeLogLevelPropEnum []any
+var addServiceParamsBodyPostgresqlTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -10607,15 +10134,11 @@ func (o *AddServiceParamsBodyPostgresql) validateAddNode(formats strfmt.Registry
 
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgresql" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "postgresql" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -10645,15 +10168,11 @@ func (o *AddServiceParamsBodyPostgresql) contextValidateAddNode(ctx context.Cont
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgresql" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "postgresql" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -10730,7 +10249,7 @@ func (o *AddServiceParamsBodyPostgresqlAddNode) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addServiceParamsBodyPostgresqlAddNodeTypeNodeTypePropEnum []any
+var addServiceParamsBodyPostgresqlAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -10913,7 +10432,7 @@ func (o *AddServiceParamsBodyProxysql) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addServiceParamsBodyProxysqlTypeMetricsModePropEnum []any
+var addServiceParamsBodyProxysqlTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -10958,7 +10477,7 @@ func (o *AddServiceParamsBodyProxysql) validateMetricsMode(formats strfmt.Regist
 	return nil
 }
 
-var addServiceParamsBodyProxysqlTypeLogLevelPropEnum []any
+var addServiceParamsBodyProxysqlTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -11019,15 +10538,11 @@ func (o *AddServiceParamsBodyProxysql) validateAddNode(formats strfmt.Registry) 
 
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "proxysql" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -11057,15 +10572,11 @@ func (o *AddServiceParamsBodyProxysql) contextValidateAddNode(ctx context.Contex
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "proxysql" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -11142,7 +10653,7 @@ func (o *AddServiceParamsBodyProxysqlAddNode) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var addServiceParamsBodyProxysqlAddNodeTypeNodeTypePropEnum []any
+var addServiceParamsBodyProxysqlAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -11352,7 +10863,7 @@ func (o *AddServiceParamsBodyRDS) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addServiceParamsBodyRdsTypeEnginePropEnum []any
+var addServiceParamsBodyRdsTypeEnginePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -11397,7 +10908,7 @@ func (o *AddServiceParamsBodyRDS) validateEngine(formats strfmt.Registry) error 
 	return nil
 }
 
-var addServiceParamsBodyRdsTypeMetricsModePropEnum []any
+var addServiceParamsBodyRdsTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -11577,7 +11088,7 @@ func (o *AddServiceParamsBodyValkey) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addServiceParamsBodyValkeyTypeMetricsModePropEnum []any
+var addServiceParamsBodyValkeyTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -11622,7 +11133,7 @@ func (o *AddServiceParamsBodyValkey) validateMetricsMode(formats strfmt.Registry
 	return nil
 }
 
-var addServiceParamsBodyValkeyTypeLogLevelPropEnum []any
+var addServiceParamsBodyValkeyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -11683,15 +11194,11 @@ func (o *AddServiceParamsBodyValkey) validateAddNode(formats strfmt.Registry) er
 
 	if o.AddNode != nil {
 		if err := o.AddNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "valkey" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "valkey" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -11721,15 +11228,11 @@ func (o *AddServiceParamsBodyValkey) contextValidateAddNode(ctx context.Context,
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "valkey" + "." + "add_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "valkey" + "." + "add_node")
 			}
-
 			return err
 		}
 	}
@@ -11806,7 +11309,7 @@ func (o *AddServiceParamsBodyValkeyAddNode) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum []any
+var addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string

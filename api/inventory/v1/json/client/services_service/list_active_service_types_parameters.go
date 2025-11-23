@@ -61,7 +61,7 @@ ListActiveServiceTypesParams contains all the parameters to send to the API endp
 */
 type ListActiveServiceTypesParams struct {
 	// Body.
-	Body any
+	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListActiveServiceTypesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list active service types params
-func (o *ListActiveServiceTypesParams) WithBody(body any) *ListActiveServiceTypesParams {
+func (o *ListActiveServiceTypesParams) WithBody(body interface{}) *ListActiveServiceTypesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list active service types params
-func (o *ListActiveServiceTypesParams) SetBody(body any) {
+func (o *ListActiveServiceTypesParams) SetBody(body interface{}) {
 	o.Body = body
 }
 

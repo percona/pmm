@@ -8,7 +8,6 @@ package restore_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type RestoreBackupReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RestoreBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *RestoreBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRestoreBackupOK()
@@ -108,7 +107,7 @@ func (o *RestoreBackupOK) readResponse(response runtime.ClientResponse, consumer
 	o.Payload = new(RestoreBackupOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *RestoreBackupDefault) readResponse(response runtime.ClientResponse, con
 	o.Payload = new(RestoreBackupDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -294,15 +293,11 @@ func (o *RestoreBackupDefaultBody) validateDetails(formats strfmt.Registry) erro
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RestoreBackup default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("RestoreBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -335,15 +330,11 @@ func (o *RestoreBackupDefaultBody) contextValidateDetails(ctx context.Context, f
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RestoreBackup default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("RestoreBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -379,7 +370,7 @@ type RestoreBackupDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// restore backup default body details items0
-	RestoreBackupDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	RestoreBackupDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -406,9 +397,9 @@ func (o *RestoreBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

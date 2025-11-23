@@ -8,7 +8,6 @@ package restore_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type ListRestoresReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListRestoresReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *ListRestoresReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListRestoresOK()
@@ -108,7 +107,7 @@ func (o *ListRestoresOK) readResponse(response runtime.ClientResponse, consumer 
 	o.Payload = new(ListRestoresOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *ListRestoresDefault) readResponse(response runtime.ClientResponse, cons
 	o.Payload = new(ListRestoresDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -229,15 +228,11 @@ func (o *ListRestoresDefaultBody) validateDetails(formats strfmt.Registry) error
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListRestores default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListRestores default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -270,15 +265,11 @@ func (o *ListRestoresDefaultBody) contextValidateDetails(ctx context.Context, fo
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListRestores default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListRestores default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -314,7 +305,7 @@ type ListRestoresDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list restores default body details items0
-	ListRestoresDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	ListRestoresDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -341,9 +332,9 @@ func (o *ListRestoresDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -451,15 +442,11 @@ func (o *ListRestoresOKBody) validateItems(formats strfmt.Registry) error {
 
 		if o.Items[i] != nil {
 			if err := o.Items[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listRestoresOk" + "." + "items" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listRestoresOk" + "." + "items" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -492,15 +479,11 @@ func (o *ListRestoresOKBody) contextValidateItems(ctx context.Context, formats s
 			}
 
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listRestoresOk" + "." + "items" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listRestoresOk" + "." + "items" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -607,7 +590,7 @@ func (o *ListRestoresOKBodyItemsItems0) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var listRestoresOkBodyItemsItems0TypeDataModelPropEnum []any
+var listRestoresOkBodyItemsItems0TypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -652,7 +635,7 @@ func (o *ListRestoresOKBodyItemsItems0) validateDataModel(formats strfmt.Registr
 	return nil
 }
 
-var listRestoresOkBodyItemsItems0TypeStatusPropEnum []any
+var listRestoresOkBodyItemsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string

@@ -8,7 +8,6 @@ package platform_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type SearchOrganizationEntitlementsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *SearchOrganizationEntitlementsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *SearchOrganizationEntitlementsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewSearchOrganizationEntitlementsOK()
@@ -108,7 +107,7 @@ func (o *SearchOrganizationEntitlementsOK) readResponse(response runtime.ClientR
 	o.Payload = new(SearchOrganizationEntitlementsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *SearchOrganizationEntitlementsDefault) readResponse(response runtime.Cl
 	o.Payload = new(SearchOrganizationEntitlementsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -229,15 +228,11 @@ func (o *SearchOrganizationEntitlementsDefaultBody) validateDetails(formats strf
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -270,15 +265,11 @@ func (o *SearchOrganizationEntitlementsDefaultBody) contextValidateDetails(ctx c
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -314,7 +305,7 @@ type SearchOrganizationEntitlementsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// search organization entitlements default body details items0
-	SearchOrganizationEntitlementsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	SearchOrganizationEntitlementsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -341,9 +332,9 @@ func (o *SearchOrganizationEntitlementsDefaultBodyDetailsItems0) UnmarshalJSON(d
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -451,15 +442,11 @@ func (o *SearchOrganizationEntitlementsOKBody) validateEntitlements(formats strf
 
 		if o.Entitlements[i] != nil {
 			if err := o.Entitlements[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -492,15 +479,11 @@ func (o *SearchOrganizationEntitlementsOKBody) contextValidateEntitlements(ctx c
 			}
 
 			if err := o.Entitlements[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -623,15 +606,11 @@ func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) validatePlatfor
 
 	if o.Platform != nil {
 		if err := o.Platform.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("platform")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("platform")
 			}
-
 			return err
 		}
 	}
@@ -661,15 +640,11 @@ func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) contextValidate
 		}
 
 		if err := o.Platform.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("platform")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("platform")
 			}
-
 			return err
 		}
 	}

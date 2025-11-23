@@ -8,7 +8,6 @@ package backup_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type ListArtifactsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListArtifactsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *ListArtifactsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListArtifactsOK()
@@ -108,7 +107,7 @@ func (o *ListArtifactsOK) readResponse(response runtime.ClientResponse, consumer
 	o.Payload = new(ListArtifactsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *ListArtifactsDefault) readResponse(response runtime.ClientResponse, con
 	o.Payload = new(ListArtifactsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -229,15 +228,11 @@ func (o *ListArtifactsDefaultBody) validateDetails(formats strfmt.Registry) erro
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -270,15 +265,11 @@ func (o *ListArtifactsDefaultBody) contextValidateDetails(ctx context.Context, f
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListArtifacts default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -314,7 +305,7 @@ type ListArtifactsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list artifacts default body details items0
-	ListArtifactsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	ListArtifactsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -341,9 +332,9 @@ func (o *ListArtifactsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -451,15 +442,11 @@ func (o *ListArtifactsOKBody) validateArtifacts(formats strfmt.Registry) error {
 
 		if o.Artifacts[i] != nil {
 			if err := o.Artifacts[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -492,15 +479,11 @@ func (o *ListArtifactsOKBody) contextValidateArtifacts(ctx context.Context, form
 			}
 
 			if err := o.Artifacts[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listArtifactsOk" + "." + "artifacts" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -609,7 +592,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum []any
+var listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -654,7 +637,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0) validateDataModel(formats strfmt.Re
 	return nil
 }
 
-var listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum []any
+var listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -729,7 +712,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0) validateCreatedAt(formats strfmt.Re
 	return nil
 }
 
-var listArtifactsOkBodyArtifactsItems0TypeModePropEnum []any
+var listArtifactsOkBodyArtifactsItems0TypeModePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -789,15 +772,11 @@ func (o *ListArtifactsOKBodyArtifactsItems0) validateMetadataList(formats strfmt
 
 		if o.MetadataList[i] != nil {
 			if err := o.MetadataList[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("metadata_list" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("metadata_list" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -830,15 +809,11 @@ func (o *ListArtifactsOKBodyArtifactsItems0) contextValidateMetadataList(ctx con
 			}
 
 			if err := o.MetadataList[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("metadata_list" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("metadata_list" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -915,15 +890,11 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) validateFileList(
 
 		if o.FileList[i] != nil {
 			if err := o.FileList[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("file_list" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("file_list" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -952,15 +923,11 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) validatePbmMetada
 
 	if o.PbmMetadata != nil {
 		if err := o.PbmMetadata.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pbm_metadata")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("pbm_metadata")
 			}
-
 			return err
 		}
 	}
@@ -995,15 +962,11 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) contextValidateFi
 			}
 
 			if err := o.FileList[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("file_list" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("file_list" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -1020,15 +983,11 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) contextValidatePb
 		}
 
 		if err := o.PbmMetadata.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pbm_metadata")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("pbm_metadata")
 			}
-
 			return err
 		}
 	}

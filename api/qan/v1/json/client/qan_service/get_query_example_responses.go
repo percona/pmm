@@ -8,7 +8,6 @@ package qan_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type GetQueryExampleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetQueryExampleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *GetQueryExampleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetQueryExampleOK()
@@ -108,7 +107,7 @@ func (o *GetQueryExampleOK) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(GetQueryExampleOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, c
 	o.Payload = new(GetQueryExampleDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -273,15 +272,11 @@ func (o *GetQueryExampleBody) validateLabels(formats strfmt.Registry) error {
 
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -314,15 +309,11 @@ func (o *GetQueryExampleBody) contextValidateLabels(ctx context.Context, formats
 			}
 
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -390,15 +381,11 @@ func (o *GetQueryExampleDefaultBody) validateDetails(formats strfmt.Registry) er
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -431,15 +418,11 @@ func (o *GetQueryExampleDefaultBody) contextValidateDetails(ctx context.Context,
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -475,7 +458,7 @@ type GetQueryExampleDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// get query example default body details items0
-	GetQueryExampleDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	GetQueryExampleDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -502,9 +485,9 @@ func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -612,15 +595,11 @@ func (o *GetQueryExampleOKBody) validateQueryExamples(formats strfmt.Registry) e
 
 		if o.QueryExamples[i] != nil {
 			if err := o.QueryExamples[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -653,15 +632,11 @@ func (o *GetQueryExampleOKBody) contextValidateQueryExamples(ctx context.Context
 			}
 
 			if err := o.QueryExamples[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -742,7 +717,7 @@ func (o *GetQueryExampleOKBodyQueryExamplesItems0) Validate(formats strfmt.Regis
 	return nil
 }
 
-var getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum []any
+var getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum []interface{}
 
 func init() {
 	var res []string

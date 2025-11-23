@@ -71,7 +71,7 @@ CancelAction cancels an action
 Stops an Action.
 */
 func (a *Client) CancelAction(params *CancelActionParams, opts ...ClientOption) (*CancelActionOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCancelActionParams()
 	}
@@ -90,22 +90,17 @@ func (a *Client) CancelAction(params *CancelActionParams, opts ...ClientOption) 
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*CancelActionOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*CancelActionDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -115,7 +110,7 @@ GetAction gets action
 Gets the result of a given Action.
 */
 func (a *Client) GetAction(params *GetActionParams, opts ...ClientOption) (*GetActionOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetActionParams()
 	}
@@ -134,22 +129,17 @@ func (a *Client) GetAction(params *GetActionParams, opts ...ClientOption) (*GetA
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetActionOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetActionDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -159,7 +149,7 @@ StartPTSummaryAction starts PT summary action
 Starts 'Percona Toolkit Summary' Action.
 */
 func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams, opts ...ClientOption) (*StartPTSummaryActionOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartPTSummaryActionParams()
 	}
@@ -178,22 +168,17 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams, opts .
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*StartPTSummaryActionOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*StartPTSummaryActionDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -203,7 +188,7 @@ StartServiceAction starts a service action
 Starts a Service Action.
 */
 func (a *Client) StartServiceAction(params *StartServiceActionParams, opts ...ClientOption) (*StartServiceActionOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartServiceActionParams()
 	}
@@ -222,22 +207,17 @@ func (a *Client) StartServiceAction(params *StartServiceActionParams, opts ...Cl
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*StartServiceActionOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*StartServiceActionDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

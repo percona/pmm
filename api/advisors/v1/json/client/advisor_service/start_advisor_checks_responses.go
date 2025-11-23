@@ -8,7 +8,6 @@ package advisor_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type StartAdvisorChecksReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StartAdvisorChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *StartAdvisorChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStartAdvisorChecksOK()
@@ -56,7 +55,7 @@ StartAdvisorChecksOK describes a response with status code 200, with default hea
 A successful response.
 */
 type StartAdvisorChecksOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this start advisor checks Ok response has a 2xx status code
@@ -99,13 +98,13 @@ func (o *StartAdvisorChecksOK) String() string {
 	return fmt.Sprintf("[POST /v1/advisors/checks:start][%d] startAdvisorChecksOk %s", 200, payload)
 }
 
-func (o *StartAdvisorChecksOK) GetPayload() any {
+func (o *StartAdvisorChecksOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *StartAdvisorChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,7 +177,7 @@ func (o *StartAdvisorChecksDefault) readResponse(response runtime.ClientResponse
 	o.Payload = new(StartAdvisorChecksDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -263,15 +262,11 @@ func (o *StartAdvisorChecksDefaultBody) validateDetails(formats strfmt.Registry)
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartAdvisorChecks default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("StartAdvisorChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -304,15 +299,11 @@ func (o *StartAdvisorChecksDefaultBody) contextValidateDetails(ctx context.Conte
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartAdvisorChecks default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("StartAdvisorChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -348,7 +339,7 @@ type StartAdvisorChecksDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// start advisor checks default body details items0
-	StartAdvisorChecksDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	StartAdvisorChecksDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -375,9 +366,9 @@ func (o *StartAdvisorChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

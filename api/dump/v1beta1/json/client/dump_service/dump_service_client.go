@@ -73,7 +73,7 @@ DeleteDump deletes dumps
 Delete selected dumps.
 */
 func (a *Client) DeleteDump(params *DeleteDumpParams, opts ...ClientOption) (*DeleteDumpOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteDumpParams()
 	}
@@ -92,22 +92,17 @@ func (a *Client) DeleteDump(params *DeleteDumpParams, opts ...ClientOption) (*De
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*DeleteDumpOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*DeleteDumpDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -117,7 +112,7 @@ GetDumpLogs gets dump logs
 Get logs of a selected dump.
 */
 func (a *Client) GetDumpLogs(params *GetDumpLogsParams, opts ...ClientOption) (*GetDumpLogsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetDumpLogsParams()
 	}
@@ -136,22 +131,17 @@ func (a *Client) GetDumpLogs(params *GetDumpLogsParams, opts ...ClientOption) (*
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetDumpLogsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetDumpLogsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -161,7 +151,7 @@ ListDumps lists all dumps
 List all dumps
 */
 func (a *Client) ListDumps(params *ListDumpsParams, opts ...ClientOption) (*ListDumpsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListDumpsParams()
 	}
@@ -180,22 +170,17 @@ func (a *Client) ListDumps(params *ListDumpsParams, opts ...ClientOption) (*List
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ListDumpsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ListDumpsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -205,7 +190,7 @@ StartDump starts a new dump
 Start a new dump.
 */
 func (a *Client) StartDump(params *StartDumpParams, opts ...ClientOption) (*StartDumpOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartDumpParams()
 	}
@@ -224,22 +209,17 @@ func (a *Client) StartDump(params *StartDumpParams, opts ...ClientOption) (*Star
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*StartDumpOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*StartDumpDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -249,7 +229,7 @@ UploadDump uploads dumps
 Upload selected dumps to a remote server.
 */
 func (a *Client) UploadDump(params *UploadDumpParams, opts ...ClientOption) (*UploadDumpOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUploadDumpParams()
 	}
@@ -268,22 +248,17 @@ func (a *Client) UploadDump(params *UploadDumpParams, opts ...ClientOption) (*Up
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*UploadDumpOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*UploadDumpDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

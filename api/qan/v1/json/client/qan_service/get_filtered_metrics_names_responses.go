@@ -8,7 +8,6 @@ package qan_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type GetFilteredMetricsNamesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetFilteredMetricsNamesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *GetFilteredMetricsNamesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetFilteredMetricsNamesOK()
@@ -108,7 +107,7 @@ func (o *GetFilteredMetricsNamesOK) readResponse(response runtime.ClientResponse
 	o.Payload = new(GetFilteredMetricsNamesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *GetFilteredMetricsNamesDefault) readResponse(response runtime.ClientRes
 	o.Payload = new(GetFilteredMetricsNamesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -266,15 +265,11 @@ func (o *GetFilteredMetricsNamesBody) validateLabels(formats strfmt.Registry) er
 
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -307,15 +302,11 @@ func (o *GetFilteredMetricsNamesBody) contextValidateLabels(ctx context.Context,
 			}
 
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -383,15 +374,11 @@ func (o *GetFilteredMetricsNamesDefaultBody) validateDetails(formats strfmt.Regi
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetFilteredMetricsNames default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("GetFilteredMetricsNames default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -424,15 +411,11 @@ func (o *GetFilteredMetricsNamesDefaultBody) contextValidateDetails(ctx context.
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetFilteredMetricsNames default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("GetFilteredMetricsNames default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -468,7 +451,7 @@ type GetFilteredMetricsNamesDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// get filtered metrics names default body details items0
-	GetFilteredMetricsNamesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	GetFilteredMetricsNamesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -495,9 +478,9 @@ func (o *GetFilteredMetricsNamesDefaultBodyDetailsItems0) UnmarshalJSON(data []b
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -606,15 +589,11 @@ func (o *GetFilteredMetricsNamesOKBody) validateLabels(formats strfmt.Registry) 
 		}
 		if val, ok := o.Labels[k]; ok {
 			if err := val.Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getFilteredMetricsNamesOk" + "." + "labels" + "." + k)
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("getFilteredMetricsNamesOk" + "." + "labels" + "." + k)
 				}
-
 				return err
 			}
 		}
@@ -703,15 +682,11 @@ func (o *GetFilteredMetricsNamesOKBodyLabelsAnon) validateName(formats strfmt.Re
 
 		if o.Name[i] != nil {
 			if err := o.Name[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("name" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("name" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -744,15 +719,11 @@ func (o *GetFilteredMetricsNamesOKBodyLabelsAnon) contextValidateName(ctx contex
 			}
 
 			if err := o.Name[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("name" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("name" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}

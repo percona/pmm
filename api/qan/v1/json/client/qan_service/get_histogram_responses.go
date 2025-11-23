@@ -8,7 +8,6 @@ package qan_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type GetHistogramReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetHistogramReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *GetHistogramReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetHistogramOK()
@@ -108,7 +107,7 @@ func (o *GetHistogramOK) readResponse(response runtime.ClientResponse, consumer 
 	o.Payload = new(GetHistogramOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *GetHistogramDefault) readResponse(response runtime.ClientResponse, cons
 	o.Payload = new(GetHistogramDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -266,15 +265,11 @@ func (o *GetHistogramBody) validateLabels(formats strfmt.Registry) error {
 
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -307,15 +302,11 @@ func (o *GetHistogramBody) contextValidateLabels(ctx context.Context, formats st
 			}
 
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -383,15 +374,11 @@ func (o *GetHistogramDefaultBody) validateDetails(formats strfmt.Registry) error
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetHistogram default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("GetHistogram default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -424,15 +411,11 @@ func (o *GetHistogramDefaultBody) contextValidateDetails(ctx context.Context, fo
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetHistogram default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("GetHistogram default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -468,7 +451,7 @@ type GetHistogramDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// get histogram default body details items0
-	GetHistogramDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	GetHistogramDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -495,9 +478,9 @@ func (o *GetHistogramDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -605,15 +588,11 @@ func (o *GetHistogramOKBody) validateHistogramItems(formats strfmt.Registry) err
 
 		if o.HistogramItems[i] != nil {
 			if err := o.HistogramItems[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -646,15 +625,11 @@ func (o *GetHistogramOKBody) contextValidateHistogramItems(ctx context.Context, 
 			}
 
 			if err := o.HistogramItems[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}

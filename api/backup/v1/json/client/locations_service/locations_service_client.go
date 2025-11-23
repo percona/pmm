@@ -73,7 +73,7 @@ AddLocation adds a backup location
 Add a backup location.
 */
 func (a *Client) AddLocation(params *AddLocationParams, opts ...ClientOption) (*AddLocationOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddLocationParams()
 	}
@@ -92,22 +92,17 @@ func (a *Client) AddLocation(params *AddLocationParams, opts ...ClientOption) (*
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*AddLocationOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*AddLocationDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -117,7 +112,7 @@ ChangeLocation changes a backup location
 Change a backup location.
 */
 func (a *Client) ChangeLocation(params *ChangeLocationParams, opts ...ClientOption) (*ChangeLocationOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeLocationParams()
 	}
@@ -136,22 +131,17 @@ func (a *Client) ChangeLocation(params *ChangeLocationParams, opts ...ClientOpti
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ChangeLocationOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ChangeLocationDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -161,7 +151,7 @@ ListLocations lists backup locations
 List backup locations.
 */
 func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption) (*ListLocationsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListLocationsParams()
 	}
@@ -180,22 +170,17 @@ func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ListLocationsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ListLocationsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -205,7 +190,7 @@ RemoveLocation removes a scheduled backup
 Remove a backup location.
 */
 func (a *Client) RemoveLocation(params *RemoveLocationParams, opts ...ClientOption) (*RemoveLocationOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveLocationParams()
 	}
@@ -224,22 +209,17 @@ func (a *Client) RemoveLocation(params *RemoveLocationParams, opts ...ClientOpti
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*RemoveLocationOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*RemoveLocationDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -249,7 +229,7 @@ TestLocationConfig tests a backup location and credentials
 Test a backup location and credentials.
 */
 func (a *Client) TestLocationConfig(params *TestLocationConfigParams, opts ...ClientOption) (*TestLocationConfigOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewTestLocationConfigParams()
 	}
@@ -268,22 +248,17 @@ func (a *Client) TestLocationConfig(params *TestLocationConfigParams, opts ...Cl
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*TestLocationConfigOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*TestLocationConfigDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

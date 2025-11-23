@@ -8,7 +8,6 @@ package backup_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type DeleteArtifactReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DeleteArtifactReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *DeleteArtifactReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDeleteArtifactOK()
@@ -56,7 +55,7 @@ DeleteArtifactOK describes a response with status code 200, with default header 
 A successful response.
 */
 type DeleteArtifactOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this delete artifact Ok response has a 2xx status code
@@ -99,13 +98,13 @@ func (o *DeleteArtifactOK) String() string {
 	return fmt.Sprintf("[DELETE /v1/backups/artifacts/{artifact_id}][%d] deleteArtifactOk %s", 200, payload)
 }
 
-func (o *DeleteArtifactOK) GetPayload() any {
+func (o *DeleteArtifactOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *DeleteArtifactOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,7 +177,7 @@ func (o *DeleteArtifactDefault) readResponse(response runtime.ClientResponse, co
 	o.Payload = new(DeleteArtifactDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -226,15 +225,11 @@ func (o *DeleteArtifactDefaultBody) validateDetails(formats strfmt.Registry) err
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DeleteArtifact default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("DeleteArtifact default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -267,15 +262,11 @@ func (o *DeleteArtifactDefaultBody) contextValidateDetails(ctx context.Context, 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DeleteArtifact default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("DeleteArtifact default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -311,7 +302,7 @@ type DeleteArtifactDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// delete artifact default body details items0
-	DeleteArtifactDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	DeleteArtifactDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -338,9 +329,9 @@ func (o *DeleteArtifactDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

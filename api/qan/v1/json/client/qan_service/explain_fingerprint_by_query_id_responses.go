@@ -8,7 +8,6 @@ package qan_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type ExplainFingerprintByQueryIDReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ExplainFingerprintByQueryIDReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *ExplainFingerprintByQueryIDReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewExplainFingerprintByQueryIDOK()
@@ -107,7 +106,7 @@ func (o *ExplainFingerprintByQueryIDOK) readResponse(response runtime.ClientResp
 	o.Payload = new(ExplainFingerprintByQueryIDOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -180,7 +179,7 @@ func (o *ExplainFingerprintByQueryIDDefault) readResponse(response runtime.Clien
 	o.Payload = new(ExplainFingerprintByQueryIDDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -268,15 +267,11 @@ func (o *ExplainFingerprintByQueryIDDefaultBody) validateDetails(formats strfmt.
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ExplainFingerprintByQueryID default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ExplainFingerprintByQueryID default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -309,15 +304,11 @@ func (o *ExplainFingerprintByQueryIDDefaultBody) contextValidateDetails(ctx cont
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ExplainFingerprintByQueryID default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ExplainFingerprintByQueryID default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -353,7 +344,7 @@ type ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// explain fingerprint by query ID default body details items0
-	ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -380,9 +371,9 @@ func (o *ExplainFingerprintByQueryIDDefaultBodyDetailsItems0) UnmarshalJSON(data
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

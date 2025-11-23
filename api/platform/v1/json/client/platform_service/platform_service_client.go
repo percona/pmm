@@ -77,7 +77,7 @@ Connect connects PMM server
 Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 */
 func (a *Client) Connect(params *ConnectParams, opts ...ClientOption) (*ConnectOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewConnectParams()
 	}
@@ -96,22 +96,17 @@ func (a *Client) Connect(params *ConnectParams, opts ...ClientOption) (*ConnectO
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ConnectOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ConnectDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -121,7 +116,7 @@ Disconnect disconnects PMM server
 Disconnect a PMM server from the organization created on Percona Portal.
 */
 func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*DisconnectOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDisconnectParams()
 	}
@@ -140,22 +135,17 @@ func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*Di
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*DisconnectOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*DisconnectDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -165,7 +155,7 @@ GetContactInformation gets contact information
 Fetch the contact details of the customer success employee handling the Percona customer account.
 */
 func (a *Client) GetContactInformation(params *GetContactInformationParams, opts ...ClientOption) (*GetContactInformationOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetContactInformationParams()
 	}
@@ -184,22 +174,17 @@ func (a *Client) GetContactInformation(params *GetContactInformationParams, opts
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetContactInformationOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetContactInformationDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -209,7 +194,7 @@ SearchOrganizationEntitlements searches organization entitlements
 Fetch entitlements available to the Portal organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams, opts ...ClientOption) (*SearchOrganizationEntitlementsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewSearchOrganizationEntitlementsParams()
 	}
@@ -228,22 +213,17 @@ func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitl
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*SearchOrganizationEntitlementsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*SearchOrganizationEntitlementsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -253,7 +233,7 @@ SearchOrganizationTickets searches organization tickets
 Fetch support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams, opts ...ClientOption) (*SearchOrganizationTicketsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewSearchOrganizationTicketsParams()
 	}
@@ -272,22 +252,17 @@ func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsPara
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*SearchOrganizationTicketsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*SearchOrganizationTicketsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -297,7 +272,7 @@ ServerInfo gets server info
 Return PMM server ID and name.
 */
 func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*ServerInfoOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewServerInfoParams()
 	}
@@ -316,22 +291,17 @@ func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*Se
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ServerInfoOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ServerInfoDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -341,7 +311,7 @@ UserStatus gets user status
 Check if the current user is logged in with their Percona Account.
 */
 func (a *Client) UserStatus(params *UserStatusParams, opts ...ClientOption) (*UserStatusOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUserStatusParams()
 	}
@@ -360,22 +330,17 @@ func (a *Client) UserStatus(params *UserStatusParams, opts ...ClientOption) (*Us
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*UserStatusOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*UserStatusDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

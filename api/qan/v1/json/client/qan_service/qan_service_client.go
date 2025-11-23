@@ -85,7 +85,7 @@ ExplainFingerprintByQueryID gets explain fingerprint
 Provides an explain fingerprint for given query ID.
 */
 func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryIDParams, opts ...ClientOption) (*ExplainFingerprintByQueryIDOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewExplainFingerprintByQueryIDParams()
 	}
@@ -104,22 +104,17 @@ func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryID
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*ExplainFingerprintByQueryIDOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*ExplainFingerprintByQueryIDDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -129,7 +124,7 @@ GetFilteredMetricsNames gets filters
 Provides a filtered map of metrics names.
 */
 func (a *Client) GetFilteredMetricsNames(params *GetFilteredMetricsNamesParams, opts ...ClientOption) (*GetFilteredMetricsNamesOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetFilteredMetricsNamesParams()
 	}
@@ -148,22 +143,17 @@ func (a *Client) GetFilteredMetricsNames(params *GetFilteredMetricsNamesParams, 
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetFilteredMetricsNamesOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetFilteredMetricsNamesDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -173,7 +163,7 @@ GetHistogram gets histogram
 Provides histogram items for specific filtering.
 */
 func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetHistogramParams()
 	}
@@ -192,22 +182,17 @@ func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) 
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetHistogramOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetHistogramDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -217,7 +202,7 @@ GetLabels gets labels
 Provides a list of labels for object details.
 */
 func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetLabelsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetLabelsParams()
 	}
@@ -236,22 +221,17 @@ func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetL
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetLabelsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetLabelsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -261,7 +241,7 @@ GetMetrics gets metrics
 Provides a map of metrics for specific filtering.
 */
 func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetMetricsParams()
 	}
@@ -280,22 +260,17 @@ func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*Ge
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetMetricsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetMetricsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -305,7 +280,7 @@ GetMetricsNames gets metrics names
 Provides a map of all metrics names.
 */
 func (a *Client) GetMetricsNames(params *GetMetricsNamesParams, opts ...ClientOption) (*GetMetricsNamesOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetMetricsNamesParams()
 	}
@@ -324,22 +299,17 @@ func (a *Client) GetMetricsNames(params *GetMetricsNamesParams, opts ...ClientOp
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetMetricsNamesOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetMetricsNamesDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -349,7 +319,7 @@ GetQueryExample gets query example
 Provides a list of query examples.
 */
 func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOption) (*GetQueryExampleOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetQueryExampleParams()
 	}
@@ -368,22 +338,17 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOp
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetQueryExampleOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetQueryExampleDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -393,7 +358,7 @@ GetQueryPlan gets query plan
 Provides a query plan and plan id for specific filtering.
 */
 func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetQueryPlanParams()
 	}
@@ -412,22 +377,17 @@ func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) 
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetQueryPlanOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetQueryPlanDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -437,7 +397,7 @@ GetReport gets report
 Returns a list of metrics grouped by queryid or other dimensions.
 */
 func (a *Client) GetReport(params *GetReportParams, opts ...ClientOption) (*GetReportOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetReportParams()
 	}
@@ -456,22 +416,17 @@ func (a *Client) GetReport(params *GetReportParams, opts ...ClientOption) (*GetR
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*GetReportOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*GetReportDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -481,7 +436,7 @@ QueryExists checks query existence
 Checks if query exists in clickhouse.
 */
 func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewQueryExistsParams()
 	}
@@ -500,22 +455,17 @@ func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*QueryExistsOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*QueryExistsDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -525,7 +475,7 @@ SchemaByQueryID gets schema
 Provides the schema for a given queryID and serviceID.
 */
 func (a *Client) SchemaByQueryID(params *SchemaByQueryIDParams, opts ...ClientOption) (*SchemaByQueryIDOK, error) {
-	// NOTE: parameters are not validated before sending
+	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewSchemaByQueryIDParams()
 	}
@@ -544,22 +494,17 @@ func (a *Client) SchemaByQueryID(params *SchemaByQueryIDParams, opts ...ClientOp
 	for _, opt := range opts {
 		opt(op)
 	}
+
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
-
-	// only one success response has to be checked
 	success, ok := result.(*SchemaByQueryIDOK)
 	if ok {
 		return success, nil
 	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
+	// unexpected success response
 	unexpectedSuccess := result.(*SchemaByQueryIDDefault)
-
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -8,7 +8,6 @@ package agent_local_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type StatusReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StatusReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *StatusReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStatusOK()
@@ -108,7 +107,7 @@ func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtim
 	o.Payload = new(StatusOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -181,7 +180,7 @@ func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer r
 	o.Payload = new(StatusDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -266,15 +265,11 @@ func (o *StatusDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Status default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("Status default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -307,15 +302,11 @@ func (o *StatusDefaultBody) contextValidateDetails(ctx context.Context, formats 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Status default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("Status default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -351,7 +342,7 @@ type StatusDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// status default body details items0
-	StatusDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	StatusDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -378,9 +369,9 @@ func (o *StatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -513,15 +504,11 @@ func (o *StatusOKBody) validateAgentsInfo(formats strfmt.Registry) error {
 
 		if o.AgentsInfo[i] != nil {
 			if err := o.AgentsInfo[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("statusOk" + "." + "agents_info" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("statusOk" + "." + "agents_info" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -538,15 +525,11 @@ func (o *StatusOKBody) validateServerInfo(formats strfmt.Registry) error {
 
 	if o.ServerInfo != nil {
 		if err := o.ServerInfo.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("statusOk" + "." + "server_info")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("statusOk" + "." + "server_info")
 			}
-
 			return err
 		}
 	}
@@ -581,15 +564,11 @@ func (o *StatusOKBody) contextValidateAgentsInfo(ctx context.Context, formats st
 			}
 
 			if err := o.AgentsInfo[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("statusOk" + "." + "agents_info" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("statusOk" + "." + "agents_info" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -606,15 +585,11 @@ func (o *StatusOKBody) contextValidateServerInfo(ctx context.Context, formats st
 		}
 
 		if err := o.ServerInfo.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("statusOk" + "." + "server_info")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("statusOk" + "." + "server_info")
 			}
-
 			return err
 		}
 	}
@@ -690,7 +665,7 @@ func (o *StatusOKBodyAgentsInfoItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var statusOkBodyAgentsInfoItems0TypeAgentTypePropEnum []any
+var statusOkBodyAgentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -783,7 +758,7 @@ func (o *StatusOKBodyAgentsInfoItems0) validateAgentType(formats strfmt.Registry
 	return nil
 }
 
-var statusOkBodyAgentsInfoItems0TypeStatusPropEnum []any
+var statusOkBodyAgentsInfoItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string

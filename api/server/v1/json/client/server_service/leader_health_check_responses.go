@@ -8,7 +8,6 @@ package server_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type LeaderHealthCheckReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *LeaderHealthCheckReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *LeaderHealthCheckReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewLeaderHealthCheckOK()
@@ -56,7 +55,7 @@ LeaderHealthCheckOK describes a response with status code 200, with default head
 A successful response.
 */
 type LeaderHealthCheckOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this leader health check Ok response has a 2xx status code
@@ -99,13 +98,13 @@ func (o *LeaderHealthCheckOK) String() string {
 	return fmt.Sprintf("[GET /v1/server/leaderHealthCheck][%d] leaderHealthCheckOk %s", 200, payload)
 }
 
-func (o *LeaderHealthCheckOK) GetPayload() any {
+func (o *LeaderHealthCheckOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *LeaderHealthCheckOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,7 +177,7 @@ func (o *LeaderHealthCheckDefault) readResponse(response runtime.ClientResponse,
 	o.Payload = new(LeaderHealthCheckDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -226,15 +225,11 @@ func (o *LeaderHealthCheckDefaultBody) validateDetails(formats strfmt.Registry) 
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("LeaderHealthCheck default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("LeaderHealthCheck default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -267,15 +262,11 @@ func (o *LeaderHealthCheckDefaultBody) contextValidateDetails(ctx context.Contex
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("LeaderHealthCheck default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("LeaderHealthCheck default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -422,7 +413,7 @@ type LeaderHealthCheckDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// leader health check default body details items0
-	LeaderHealthCheckDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	LeaderHealthCheckDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -476,9 +467,9 @@ func (o *LeaderHealthCheckDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

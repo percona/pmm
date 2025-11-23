@@ -8,7 +8,6 @@ package dump_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type UploadDumpReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UploadDumpReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *UploadDumpReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewUploadDumpOK()
@@ -56,7 +55,7 @@ UploadDumpOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type UploadDumpOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this upload dump Ok response has a 2xx status code
@@ -99,13 +98,13 @@ func (o *UploadDumpOK) String() string {
 	return fmt.Sprintf("[POST /v1/dumps:upload][%d] uploadDumpOk %s", 200, payload)
 }
 
-func (o *UploadDumpOK) GetPayload() any {
+func (o *UploadDumpOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *UploadDumpOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,7 +177,7 @@ func (o *UploadDumpDefault) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(UploadDumpDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -218,15 +217,11 @@ func (o *UploadDumpBody) validateSftpParameters(formats strfmt.Registry) error {
 
 	if o.SftpParameters != nil {
 		if err := o.SftpParameters.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "sftp_parameters")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "sftp_parameters")
 			}
-
 			return err
 		}
 	}
@@ -256,15 +251,11 @@ func (o *UploadDumpBody) contextValidateSftpParameters(ctx context.Context, form
 		}
 
 		if err := o.SftpParameters.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "sftp_parameters")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "sftp_parameters")
 			}
-
 			return err
 		}
 	}
@@ -331,15 +322,11 @@ func (o *UploadDumpDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("UploadDump default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("UploadDump default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -372,15 +359,11 @@ func (o *UploadDumpDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("UploadDump default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("UploadDump default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -416,7 +399,7 @@ type UploadDumpDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// upload dump default body details items0
-	UploadDumpDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	UploadDumpDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -443,9 +426,9 @@ func (o *UploadDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

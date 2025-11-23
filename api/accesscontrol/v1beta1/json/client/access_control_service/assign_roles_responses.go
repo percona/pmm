@@ -8,7 +8,6 @@ package access_control_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type AssignRolesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AssignRolesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *AssignRolesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAssignRolesOK()
@@ -56,7 +55,7 @@ AssignRolesOK describes a response with status code 200, with default header val
 A successful response.
 */
 type AssignRolesOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this assign roles Ok response has a 2xx status code
@@ -99,13 +98,13 @@ func (o *AssignRolesOK) String() string {
 	return fmt.Sprintf("[POST /v1/accesscontrol/roles:assign][%d] assignRolesOk %s", 200, payload)
 }
 
-func (o *AssignRolesOK) GetPayload() any {
+func (o *AssignRolesOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *AssignRolesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,7 +177,7 @@ func (o *AssignRolesDefault) readResponse(response runtime.ClientResponse, consu
 	o.Payload = new(AssignRolesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -266,15 +265,11 @@ func (o *AssignRolesDefaultBody) validateDetails(formats strfmt.Registry) error 
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AssignRoles default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("AssignRoles default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -307,15 +302,11 @@ func (o *AssignRolesDefaultBody) contextValidateDetails(ctx context.Context, for
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AssignRoles default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("AssignRoles default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -351,7 +342,7 @@ type AssignRolesDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// assign roles default body details items0
-	AssignRolesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	AssignRolesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -378,9 +369,9 @@ func (o *AssignRolesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
