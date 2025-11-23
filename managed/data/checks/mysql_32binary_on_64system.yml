@@ -1,26 +1,28 @@
 ---
 checks:
-  - version: 1
+  - version: 2
     name: mysql_32binary_on_64system
     summary: Check if binaries are 32 bits
     description: This check returns a notice if version_compile_machine equals i686.
-    type: MYSQL_SELECT
-    #family: mysql
+    family: MYSQL
     #author: Carlos Tutte
     advisor: configuration_resources
     interval: standard
-    query: |
-      @@global.version_compile_machine as version_compile_machine
+    queries:
+      - type: MYSQL_SELECT
+        query: "@@global.version_compile_machine as version_compile_machine"
     script: |
       read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
-      def check(rows):
-          return check_context(rows, {})
-      def check_context(rows, context):
+
+      def check_context(docs, context):
           """
           Checks if version_compile_machine is set to i686
           """
+
+          rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of rows for running the query"
+              return "Unexpected number of rows returned"
+
           version_compile_machine = rows[0].get("version_compile_machine")
           if version_compile_machine == '686':
               return [{
@@ -29,4 +31,5 @@ checks:
                   "severity": "notice",
                   "read_more_url":read_url.format("platform-mysql-binaries-32-bit")
               }]
+
           return []

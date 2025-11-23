@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
 
       - name: Detect PMM version and API ID
         run: |
@@ -30,11 +30,11 @@ jobs:
           echo "ID=$ID" >> $GITHUB_ENV
 
       - name: API
-        uses: readmeio/rdme@953bc36acdd6a0eb9efdff7855a802a8f62878c9 # v10.5.2
+        uses: readmeio/rdme@62bc5a43208c46fc0d90c78ebeddf0365a41b2cc # v10.5.3
         with:
           rdme: openapi ./api/swagger/swagger.json --version=${{ env.VERSION }} --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
 
       - name: Markdown docs
-        uses: readmeio/rdme@953bc36acdd6a0eb9efdff7855a802a8f62878c9 # v10.5.2
+        uses: readmeio/rdme@62bc5a43208c46fc0d90c78ebeddf0365a41b2cc # v10.5.3
         with:
           rdme: docs docs/api --version=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

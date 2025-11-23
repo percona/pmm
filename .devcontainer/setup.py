@@ -29,8 +29,8 @@ def install_packages():
             vim \
             psmisc procps lsof which iproute diffutils \
             man man-pages \
-            openssl-devel \
             ansible-lint glibc-static \
+            openssl-devel \
             krb5-devel"
     ])
 

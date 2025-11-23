@@ -42,6 +42,7 @@ checks:
           # Any other value (for example, string) is treated as script execution failure
           # (Starlark does not support Python exceptions);
           # it is recommended to use global function `fail` for that instead.
+
            results = []
 
            for row in docs[0]:
