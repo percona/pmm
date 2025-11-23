@@ -27,44 +27,6 @@ type LeaderService interface {
 	ID() string
 }
 
-// StandardService represents a standard service in the high-availability setup.
-type StandardService struct {
-	id string
-
-	mu sync.Mutex
-
-	startFunc func(context.Context) error
-	stopFunc  func()
-}
-
-// NewStandardService creates a new standard service.
-func NewStandardService(id string, startFunc func(context.Context) error, stopFunc func()) *StandardService {
-	return &StandardService{
-		id:        id,
-		startFunc: startFunc,
-		stopFunc:  stopFunc,
-	}
-}
-
-// ID returns the ID of the standard service.
-func (s *StandardService) ID() string {
-	return s.id
-}
-
-// Start starts the standard service.
-func (s *StandardService) Start(ctx context.Context) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.startFunc(ctx)
-}
-
-// Stop stops the standard service.
-func (s *StandardService) Stop() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.stopFunc()
-}
-
 // ContextService represents a context service.
 type ContextService struct {
 	id string
