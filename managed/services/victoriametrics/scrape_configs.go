@@ -26,11 +26,9 @@ import (
 
 	"github.com/AlekSi/pointer"
 	config "github.com/percona/promconfig"
-	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
-	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/version"
 )
 
@@ -49,8 +47,8 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
-func scrapeConfigForClickhouse(mr time.Duration, svc *Service) *config.ScrapeConfig {
-	config := &config.ScrapeConfig{
+func scrapeConfigForClickhouse(mr time.Duration) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
 		JobName:        "clickhouse",
 		ScrapeInterval: config.Duration(mr),
 		ScrapeTimeout:  scrapeTimeout(mr),
@@ -62,29 +60,6 @@ func scrapeConfigForClickhouse(mr time.Duration, svc *Service) *config.ScrapeCon
 			}},
 		},
 	}
-
-	if svc.params.ExternalVM() {
-		// Only the leader should scrape ClickHouse in HA setup
-		if !svc.haService.IsLeader() {
-			return nil
-		}
-
-		nodes := env.GetStringSlice(env.ClickHouseNodes)
-		if len(nodes) == 0 {
-			logrus.Warnf("No ClickHouse nodes configured in %s for the leader", env.ClickHouseNodes)
-			return nil
-		}
-
-		targets := make([]string, 0, len(nodes))
-		for _, node := range nodes {
-			targets = append(targets, net.JoinHostPort(node, "9363"))
-		}
-		config.ServiceDiscoveryConfig.StaticConfigs[0].Targets = targets
-		config.ServiceDiscoveryConfig.StaticConfigs[0].Labels = nil
-		return config
-	}
-
-	return config
 }
 
 func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {

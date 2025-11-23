@@ -263,10 +263,9 @@ func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service) []*c
 		scrapeConfigForQANAPI2(s.MR),
 	}
 
-	chCfg := scrapeConfigForClickhouse(s.MR, svc)
-	if chCfg != nil {
-		cfg = append(cfg, chCfg)
+	if svc.params.ExternalVM() {
+		return cfg
 	}
 
-	return cfg
+	return append(cfg, scrapeConfigForClickhouse(s.MR))
 }
