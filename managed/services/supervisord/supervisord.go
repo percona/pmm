@@ -600,6 +600,7 @@ redirect_stderr = true
 {{end}}
 
 {{define "nomad-server"}}
+{{- if .NomadEnabled }}
 [program:nomad-server]
 priority = 5
 command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
@@ -613,5 +614,6 @@ stdout_logfile = /srv/logs/nomad-server.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
+{{end -}}
 {{end}}
 `))
