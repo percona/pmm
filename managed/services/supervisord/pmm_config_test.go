@@ -39,8 +39,13 @@ func TestSavePMMConfig(t *testing.T) {
 		},
 		{
 			description: "enable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false, "DisableInternalClickhouse": false},
-			file:        "pmm-db_enabled",
+			params: map[string]any{
+				"DisableInternalDB":         false,
+				"DisableSupervisor":         false,
+				"DisableInternalClickhouse": false,
+				"PostgresMaxConnections":    "1000",
+				"PostgresSharedBuffers":     "512MB"},
+			file: "pmm-db_enabled",
 		},
 	}
 	for _, test := range tests {
