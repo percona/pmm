@@ -44,7 +44,8 @@ func TestSavePMMConfig(t *testing.T) {
 				"DisableSupervisor":         false,
 				"DisableInternalClickhouse": false,
 				"PostgresMaxConnections":    "1000",
-				"PostgresSharedBuffers":     "512MB"},
+				"PostgresSharedBuffers":     "512MB",
+			},
 			file: "pmm-db_enabled",
 		},
 	}
