@@ -730,7 +730,7 @@ func main() { //nolint:maintidx,cyclop
 	grafanaCacheInvalidationPeriodF := kingpin.Flag(
 		"grafana-cache-invalidation-period",
 		"Period for Grafana cache invalidation (e.g. '3s', '1m')").
-		Default("3s").Envar("PMM_GRAFANA_CACHE_INVALIDATION_PERIOD").Duration()
+		Default("5s").Envar("PMM_GRAFANA_CACHE_INVALIDATION_PERIOD").Duration()
 
 	kingpin.Parse()
 
