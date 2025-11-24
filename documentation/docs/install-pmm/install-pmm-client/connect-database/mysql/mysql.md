@@ -7,7 +7,7 @@ Easily connect your MySQL databasesâ€”whether self-hosted or running on AWS EC2â
 Get your MySQL instance connected to PMM in just a few steps:
 {.power-number}
 
-1. Create a dedicated MySQL user with the required permissions:
+1. Create a dedicated MySQL user with the required permissions.  If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user:
 
     ```sql
     -- Create PMM user with required permissions
@@ -15,10 +15,7 @@ Get your MySQL instance connected to PMM in just a few steps:
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
     ```
 
-   **Note:**
-   If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user.
-
-3. Register your MySQL instance with PMM:
+2. Register your MySQL instance with PMM:
 
     ```sh
     # Add MySQL service to PMM
@@ -32,7 +29,7 @@ Get your MySQL instance connected to PMM in just a few steps:
       MySQL-Primary
     ```
 
-4. Verify the connection is working:
+3. Verify the connection is working:
 
     ```sh
     pmm-admin status
@@ -383,11 +380,35 @@ User activity, individual table and index access details are shown on the [MySQL
     - Session: `SET GLOBAL userstat = ON;`
 
 
+### Disable query example collection 
+
+PMM can collect query examples to help analyze query performance with real-world data. However, you can disable this collection when handling sensitive information.
+
+When query examples are disabled, Query Analytics continues to function normally with query fingerprints and performance metrics. However, the **Examples** tab will not display query examples, and the Explain functionality will use placeholders instead of actual data values.
+To disable query examples for data privacy:
+
+=== "Via UI"
+    When adding a MySQL service through the PMM UI, expand **Advanced Settings** and check **Disable query examples**. This prevents PMM from storing actual query values while maintaining all other Query Analytics functionality.
+
+=== "Via command line"
+    Use the `--disable-queryexamples` flag when adding a MySQL service:
+
+    ```bash
+        pmm-admin add mysql \
+        --username=pmm \
+        --password=StrongPassword \
+        --host=localhost \
+        --port=3306 \
+        --query-source=slowlog \
+        --disable-queryexamples \
+        MySQL-Private
+    ```
+
 ### Add service to PMM
 
 After creating your PMM database user, you can quickly add your MySQL service to PMM. You can do this either through the PMM user interface or via the command line.
 
-=== "Using the PMM user interface"
+=== "Via UI"
 
     To add the service from the user interface:
     {.power-number}
@@ -397,6 +418,7 @@ After creating your PMM database user, you can quickly add your MySQL service to
     2. Select **MySQL** service type.
     
     3. Enter or select values for the fields:
+
         - **Service Name**: A descriptive name for your MySQL instance
         - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
         - **Port**: MySQL port (default: 3306)
@@ -404,13 +426,14 @@ After creating your PMM database user, you can quickly add your MySQL service to
         - **Password**: Your PMM user password
         - **Query Source**: Choose between **Slow Log** or **Performance Schema**
         - **PMM Agent**: Select which PMM agent should monitor this instance
-    
+        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+
     4. Click **Add Service**.
 
     5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
-    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
+    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
 
-=== "Using the command line"
+=== "Via command line "
 
     === "Basic setup"
     
@@ -513,35 +536,35 @@ PMM supports flexible TLS certificate configurations for MySQL connections, enab
 
 === "Partial certificates (CA only)"
 
-For many cloud providers (Azure MySQL, Google Cloud SQL) and self-signed certificates, you only need the CA certificate to establish encrypted connections:
-```bash
-pmm-admin add mysql \
-  --username=pmm \
-  --password=StrongPassword \
-  --host=mysql-server.example.com \
-  --port=3306 \
-  --tls \
-  --tls-ca=/path/to/ca.pem \
-  --query-source=perfschema \
-  MySQL-Secure
-```
+    For many cloud providers (Azure MySQL, Google Cloud SQL) and self-signed certificates, you only need the CA certificate to establish encrypted connections:
+    ```bash
+    pmm-admin add mysql \
+    --username=pmm \
+    --password=StrongPassword \
+    --host=mysql-server.example.com \
+    --port=3306 \
+    --tls \
+    --tls-ca=/path/to/ca.pem \
+    --query-source=perfschema \
+    MySQL-Secure
+    ```
 
 === "Full certificates (with client authentication)"
 
-When your MySQL server requires client certificate authentication, provide all three certificate files:
-```bash
-pmm-admin add mysql \
-  --username=pmm \
-  --password=StrongPassword \
-  --host=mysql-server.example.com \
-  --port=3306 \
-  --tls \
-  --tls-ca=/path/to/ca.pem \
-  --tls-cert=/path/to/client-cert.pem \
-  --tls-key=/path/to/client-key.pem \
-  --query-source=perfschema \
-  MySQL-TLS-Full
-```
+    When your MySQL server requires client certificate authentication, provide all three certificate files:
+    ```bash
+    pmm-admin add mysql \
+    --username=pmm \
+    --password=StrongPassword \
+    --host=mysql-server.example.com \
+    --port=3306 \
+    --tls \
+    --tls-ca=/path/to/ca.pem \
+    --tls-cert=/path/to/client-cert.pem \
+    --tls-key=/path/to/client-key.pem \
+    --query-source=perfschema \
+    MySQL-TLS-Full
+    ```
 
 **Certificate requirements:**
 
@@ -585,7 +608,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
        pmm-admin status
        ```
 
-=== "Via web UI"
+=== "Via UI"
     To verify your service in the web interface:
     {.power-number}
 
@@ -617,17 +640,17 @@ Once the service is confirmed as active, verify that metrics are being properly 
     If you installed the Query Response Time plugin, verify it:
     {.power-number}
 
-    1. Open the **MySQL Query Response Time Details** dashboard
-    2. Select your service from the dropdown
-    3. Alternatively, go to **Query Analytics**, select a query, and check for the **Query time distribution** bar
+    1. Open the **MySQL Query Response Time Details** dashboard.
+    2. Select your service from the dropdown.
+    3. Alternatively, go to **Query Analytics**, select a query, and check for the **Query time distribution** bar.
     
     **For Percona XtraDB Cluster:**
     To verify XtraDB Cluster monitoring:
     {.power-number}
 
-    1. Open the [**PXC/Galera Cluster Summary** dashboard][DASH_PXCGALERACLUSTER]
-    2. Select your cluster service from the dropdown
-    3. Verify that cluster-specific metrics are being displayed
+    1. Open the [**PXC/Galera Cluster Summary** dashboard][DASH_PXCGALERACLUSTER].
+    2. Select your cluster service from the dropdown.
+    3. Verify that cluster-specific metrics are being displayed.
 
 ## Related topics
 
@@ -654,7 +677,7 @@ Once the service is confirmed as active, verify that metrics are being properly 
 [BLOG_LOGGING]: https://www.percona.com/blog/2009/02/10/impact-of-logging-on-mysql%E2%80%99s-performance/
 [BLOG_LOG_ROTATION]: https://www.percona.com/blog/2013/04/18/rotating-mysql-slow-logs-safely/
 [BLOG_PS_VS_SLOW]: https://www.percona.com/blog/2014/02/11/performance_schema-vs-slow-query-log/
-[PS_FEATURES_REMOVED]: https://www.percona.com/doc/percona-server/LATEST/changed_in_version.html
+[PS_FEATURES_REMOVED]: https://docs.percona.com/percona-server/8.0/upgrade-changes-removed.html
 [ps_slow_query_ext]: https://docs.percona.com/percona-server/latest/slow-extended.html
 [ps_query_response_time_stats]: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#usage
 [ps_userstats]: https://docs.percona.com/percona-server/latest/user-stats.html
@@ -669,11 +692,11 @@ Once the service is confirmed as active, verify that metrics are being properly 
 [slow_query_log_always_write_time]: https://docs.percona.com/percona-server/latest/slow-extended.html?h=log_slow_rate_limit#slow_query_log_always_write_time
 [slow_query_log_use_global_control]: https://docs.percona.com/percona-server/latest/slow-extended.html?h=log_slow_rate_limit#slow_query_log_use_global_control
 [sysvar_innodb_monitor_enable]: https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
-[sysvar_log_output]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_log_output
-[sysvar_log_slow_admin_statements]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_log_slow_admin_statements
-[sysvar_log_slow_slave_statements]: https://dev.mysql.com/doc/refman/8.0/en/replication-options-replica.html#sysvar_log_slow_slave_statements
-[sysvar_long_query_time]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_long_query_time
-[sysvar_slow_query_log]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_slow_query_log
+[sysvar_log_output]: https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_log_output
+[sysvar_log_slow_admin_statements]: https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_log_slow_admin_statements
+[sysvar_log_slow_slave_statements]: https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html#sysvar_log_slow_slave_statements
+[sysvar_long_query_time]: https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_long_query_time
+[sysvar_slow_query_log]: https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_slow_query_log
 [sysvar_performance_schema]: https://dev.mysql.com/doc/refman/5.7/en/performance-schema-system-variables.html#sysvar_performance_schema
 [performance-schema-statement-tables]: https://dev.mysql.com/doc/refman/5.7/en/performance-schema-statement-tables.html
 [performance-schema-startup-configuration]: https://dev.mysql.com/doc/refman/5.7/en/performance-schema-startup-configuration.html
