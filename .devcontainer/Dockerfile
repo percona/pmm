@@ -17,7 +17,7 @@ COPY ./ ./
 # setup.py uses a task from Makefile.devcontainer but expects it to be in the default Makefile
 COPY ./Makefile.devcontainer ./Makefile
 
-RUN --mount=type=cache,target=/var/cache/dnf && \
+RUN --mount=type=cache,target=/var/cache/dnf \
     python ./.devcontainer/setup.py
 
 RUN mv -f $GOPATH/src/github.com/percona/pmm/bin/* $GOPATH/bin/
