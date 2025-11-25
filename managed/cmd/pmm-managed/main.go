@@ -869,6 +869,11 @@ func main() { //nolint:maintidx,cyclop
 
 	agentsRegistry := agents.NewRegistry(db, vmParams)
 
+	// TODO remove once PMM cluster will be Active-Active
+	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
+		agentsRegistry.KickAll(ctx)
+	}))
+
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
