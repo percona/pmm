@@ -33,6 +33,10 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   check: () => import('icons/check.svg?react'),
   'knowledge-base': () => import('icons/knowledge-base.svg?react'),
   search: () => import('icons/search.svg?react'),
+  valkey: () => import('icons/valkey.svg?react'),
+  'my-organization': () => import('icons/my-organization.svg?react'),
+  memory: () => import('icons/memory.svg?react'),
+  network: () => import('icons/network.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<
