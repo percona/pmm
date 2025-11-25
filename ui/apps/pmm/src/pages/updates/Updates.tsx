@@ -12,7 +12,7 @@ import Welcome from 'assets/welcome.svg';
 import { UpdateCard } from './update-card';
 import { Messages } from './Updates.messages';
 import { Page } from 'components/page';
-import { PMM_SETTINGS_URL } from 'lib/constants';
+import { PMM_NEW_NAV_PATH, PMM_SETTINGS_URL } from 'lib/constants';
 import { useUpdates } from 'contexts/updates';
 import { UpdateStatus } from 'types/updates.types';
 import { Navigate } from 'react-router-dom';
@@ -23,7 +23,15 @@ export const Updates: FC = () => {
   const { status } = useUpdates();
 
   if (status === UpdateStatus.UpdateClients) {
-    return <Navigate to="/updates/clients" />;
+    return (
+      <Navigate
+        to={
+          settings?.newUIEnabled
+            ? `${PMM_NEW_NAV_PATH}/updates/clients`
+            : '/updates/clients'
+        }
+      />
+    );
   }
 
   return (

@@ -2,7 +2,11 @@ import { wrapWithUpdatesProvider } from 'utils/testUtils';
 import { HomeLink } from './HomeLink';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { UpdateStatus } from 'types/updates.types';
-import { PMM_HOME_URL, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_HOME_URL,
+  PMM_NEW_NAV_HOME_URL,
+  PMM_NEW_NAV_PATH,
+} from 'lib/constants';
 import { MemoryRouter } from 'react-router-dom';
 
 describe('HomeLink', () => {
@@ -40,7 +44,7 @@ describe('HomeLink', () => {
 
     expect(screen.getByTestId('home-link')).toHaveAttribute(
       'href',
-      PMM_NEW_NAV_PATH
+      PMM_NEW_NAV_HOME_URL
     );
   });
 

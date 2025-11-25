@@ -146,6 +146,14 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
         },
       },
       MuiChip: {
+        variants: [
+          {
+            props: { variant: 'filled', color: 'warning' },
+            style: {
+              color: peakTheme.warning.contrast,
+            },
+          },
+        ],
         styleOverrides: {
           icon: {
             width: 22,

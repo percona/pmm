@@ -15,7 +15,13 @@ import { Messages } from './ClientsModal.messages';
 import { PMM_HOME_URL } from 'lib/constants';
 import CloseIcon from '@mui/icons-material/Close';
 
-export const ClientsModal: FC<ClientsModalProps> = ({ isOpen, onClose }) => (
+export const ClientsModal: FC<ClientsModalProps> = ({
+  homeLinkProps = {
+    href: PMM_HOME_URL,
+  },
+  isOpen,
+  onClose,
+}) => (
   <Dialog
     title={Messages.title}
     open={isOpen}
@@ -50,7 +56,7 @@ export const ClientsModal: FC<ClientsModalProps> = ({ isOpen, onClose }) => (
       >
         {Messages.close}
       </Button>
-      <Link href={PMM_HOME_URL} data-testid="modal-pmm-home-link">
+      <Link data-testid="modal-pmm-home-link" {...homeLinkProps}>
         <Button variant="contained" data-testid="modal-pmm-home-button">
           {Messages.home}
         </Button>
