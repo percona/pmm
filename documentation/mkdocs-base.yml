@@ -61,7 +61,7 @@ extra_css:
   - css/rating.css
 
 extra_javascript:
-  - js/promptremover.js
+  - js/extra.js
   - js/consent.js
   - js/version-select.js
   - js/rating.js
