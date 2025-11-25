@@ -1469,23 +1469,22 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		_ = file.Close()
 	}()
 
-	var config agentConfig
-	decoder := yaml.NewDecoder(file)
-	err = decoder.Decode(&config)
+	var agentConfig agentConfig
+	err = yaml.NewDecoder(file).Decode(&agentConfig)
 	if err != nil {
 		return fmt.Errorf("could not parse agent config file %s: %w", AgentConfigFilePath, err)
 	}
 
-	if config.ID == "" {
+	if agentConfig.ID == "" {
 		return fmt.Errorf("the agent ID is empty in config file %s", AgentConfigFilePath)
 	}
 
-	if config.ID != PMMServerAgentID {
+	if agentConfig.ID != PMMServerAgentID {
 		// check if the agent with such ID already exists
-		agent, err := FindAgentByID(q, config.ID)
+		agent, err := FindAgentByID(q, agentConfig.ID)
 		if err == nil {
-			logrus.Infof("PMM Agent with ID %s already exists, skipping creation", config.ID)
-			PMMServerAgentID = config.ID
+			logrus.Infof("PMM Agent with ID %s already exists, skipping creation", agentConfig.ID)
+			PMMServerAgentID = agentConfig.ID
 			PMMServerNodeID = pointer.Get(agent.RunsOnNodeID)
 			return nil
 		}
@@ -1503,7 +1502,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, output)
+		return fmt.Errorf("error setting up pmm-agent: %w: %s", err, output)
 	}
 
 	labels := map[string]string{

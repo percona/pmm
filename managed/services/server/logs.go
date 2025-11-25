@@ -35,6 +35,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 
+	"github.com/percona/pmm/managed/models"
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -177,7 +178,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmalert.ini",
 		"/etc/supervisord.d/vmproxy.ini",
 
-		"/usr/local/percona/pmm/config/pmm-agent.yaml",
+		models.AgentConfigFilePath,
 	} {
 		b, m, err := readFile(f)
 		files = append(files, fileContent{

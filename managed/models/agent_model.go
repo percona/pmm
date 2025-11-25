@@ -47,8 +47,6 @@ const (
 	certificateFilePlaceholder    = "certificateFilePlaceholder"
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
 	caFilePlaceholder             = "caFilePlaceholder"
-	// AgentConfigFilePath is the default path to pmm-agent config file.
-	AgentConfigFilePath = "/usr/local/percona/pmm/config/pmm-agent.yaml"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
 	// AgentStatusDone indicates thay the agent has either been stopped or disabled.
@@ -84,9 +82,12 @@ const (
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
-// It takes the value of "pmm-server" in regular non-HA setups and in Active/Passive HA setups,
-// while in Active/Active HA setups it is set to the actual pmm-agent's Agent ID, which is a UUID.
+// It takes the value of "pmm-server" in regular non-HA setups, while in Active/Active HA setups
+// it is set to the actual pmm-agent's Agent ID, which is a UUID.
 var PMMServerAgentID = string("pmm-server")
+
+// AgentConfigFilePath is the default path to pmm-agent config file; it changes to /srv in HA setups.
+var AgentConfigFilePath = "/usr/local/percona/pmm/config/pmm-agent.yaml"
 
 // ExporterOptions represents structure for special Exporter options.
 type ExporterOptions struct {

@@ -83,6 +83,11 @@ if [ ! -d "/srv/pmm-agent/tmp" ]; then
     install -d -m 770 /srv/pmm-agent/tmp
 fi
 
+if [ ! -d "/srv/pmm-agent/config" ]; then
+    echo "Creating pmm-agent config directory..."
+    install -d -m 770 /srv/pmm-agent/config
+fi
+
 # Initialize /srv if empty
 declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then

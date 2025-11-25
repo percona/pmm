@@ -65,6 +65,7 @@
         - /var/cache/yum
         - /srv/pmm-encryption.key
         - /srv/pmm-agent/tmp
+        - /srv/pmm-agent/config
 
     - name: Remove users created by installers
       user:

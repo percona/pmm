@@ -833,6 +833,9 @@ func main() { //nolint:maintidx,cyclop
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
+	if *haEnabled {
+		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
+	}
 	if haService.Bootstrap() {
 		migrateDB(ctx, sqlDB, setupParams)
 	}
