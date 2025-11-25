@@ -60,7 +60,7 @@ extra_css:
   - css/extra.css
 
 extra_javascript:
-  - js/promptremover.js
+  - js/extra.js
   - js/consent.js
   - js/version-select.js
 
