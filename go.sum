@@ -503,8 +503,8 @@ github.com/prometheus/prometheus v0.307.3 h1:zGIN3EpiKacbMatcUL2i6wC26eRWXdoXfNP
 github.com/prometheus/prometheus v0.307.3/go.mod h1:sPbNW+KTS7WmzFIafC3Inzb6oZVaGLnSvwqTdz2jxRQ=
 github.com/prometheus/sigv4 v0.2.1 h1:hl8D3+QEzU9rRmbKIRwMKRwaFGyLkbPdH5ZerglRHY0=
 github.com/prometheus/sigv4 v0.2.1/go.mod h1:ySk6TahIlsR2sxADuHy4IBFhwEjRGGsfbbLGhFYFj6Q=
-github.com/ramr/go-reaper v0.3.0 h1:6E5NsjnAPNeY3vMGBWKZd2D9/eQkpMdefW7w9ybA0KY=
-github.com/ramr/go-reaper v0.3.0/go.mod h1:bgru3llkYWSj8qb6akpA0sh0pq468OQ5wqvFT3BFHsE=
+github.com/ramr/go-reaper v0.3.1 h1:rvMDXjaQf9hQFP4Zq2qneaBNizatCIMgPwIpFOsfdlI=
+github.com/ramr/go-reaper v0.3.1/go.mod h1:bgru3llkYWSj8qb6akpA0sh0pq468OQ5wqvFT3BFHsE=
 github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab h1:ZjX6I48eZSFetPb41dHudEyVr5v953N15TsNZXlkcWY=
 github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab/go.mod h1:/PfPXh0EntGc3QAAyUaviy4S9tzy4Zp0e2ilq4voC6E=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
