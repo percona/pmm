@@ -11,5 +11,4 @@ mkdocs-material-extensions
 mkdocs-bootstrap-tables-plugin
 mkdocs-section-index
 mkdocs-meta-descriptions-plugin
-mkdocs-git-committers-plugin-2
 mike
