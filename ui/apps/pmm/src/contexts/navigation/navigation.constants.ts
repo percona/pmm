@@ -317,6 +317,78 @@ export const NAV_PROXYSQL: NavItem = {
 };
 
 //
+// Valkey
+//
+export const NAV_VALKEY: NavItem = {
+  id: 'valkey',
+  text: 'Valkey',
+  icon: 'valkey',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-overview/valkey-redis-overview`,
+  children: [
+    {
+      id: 'valkey-overview',
+      text: 'Overview',
+      icon: 'overview',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-overview/valkey-redis-overview`,
+    },
+    {
+      id: 'valkey-load',
+      text: 'Load',
+      icon: 'my-organization',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-load/valkey-redis-load`,
+    },
+    {
+      id: 'valkey-memory',
+      text: 'Memory',
+      icon: 'memory',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-memory/valkey-redis-memory`,
+    },
+    {
+      id: 'valkey-network',
+      text: 'Network',
+      icon: 'network',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-network/valkey-redis-network`,
+    },
+    {
+      id: 'valkey-clients',
+      text: 'Clients',
+      icon: 'my-organization',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-clients/valkey-redis-clients`,
+    },
+    {
+      id: 'valkey-cluster-details',
+      text: 'Cluster Details',
+      icon: 'high-availability',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-cluster-details/valkey-redis-cluster-detail`,
+    },
+    {
+      id: 'valkey-replication',
+      text: 'Replication',
+      icon: 'high-availability',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-replication/valkey-redis-replication`,
+    },
+    {
+      id: 'valkey-persistence',
+      text: 'Persistence',
+      icon: 'my-organization',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-persistence-details/valkey-redis-persistence-details`,
+    },
+    {
+      id: 'valkey-commands',
+      text: 'Command details',
+      icon: 'my-organization',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-command-details/valkey-redis-command-detail`,
+    },
+    {
+      id: 'valkey-slowlog',
+      text: 'Slow Log',
+      icon: 'my-organization',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-slowlog/valkey-redis-slowlog`,
+    },
+  ],
+};
+
+//
 // QAN
 //
 export const NAV_QAN: NavItem = {
@@ -704,6 +776,7 @@ export const NAV_FOLDER_MAP: Record<string, string> = {
   mysql: 'MySQL',
   mongo: 'MongoDB',
   postgre: 'PostgreSQL',
+  valkey: 'Valkey',
 };
 
 export const NAV_OTHER_DASHBOARDS_TEMPLATE: Partial<NavItem> = {

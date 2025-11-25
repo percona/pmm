@@ -40,6 +40,7 @@ import {
   NAV_THEME_TOGGLE,
   NAV_ALERTS_SILENCES,
   NAV_ALERTS_GROUPS,
+  NAV_VALKEY,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -109,6 +110,11 @@ export const addDashboardItems = (
   if (types.includes(ServiceType.posgresql)) {
     addOtherDashboardsItem(NAV_POSTGRESQL, folders);
     children.push(NAV_POSTGRESQL);
+  }
+
+  if (types.includes(ServiceType.valkey)) {
+    addOtherDashboardsItem(NAV_VALKEY, folders);
+    children.push(NAV_VALKEY);
   }
 
   addOtherDashboardsItem(NAV_OS, folders);

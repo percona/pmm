@@ -5,6 +5,7 @@ export enum ServiceType {
   posgresql = 'SERVICE_TYPE_POSTGRESQL_SERVICE',
   proxysql = 'SERVICE_TYPE_PROXYSQL_SERVICE',
   haproxy = 'SERVICE_TYPE_HAPROXY_SERVICE',
+  valkey = 'SERVICE_TYPE_VALKEY_SERVICE',
   external = 'SERVICE_TYPE_EXTERNAL_SERVICE',
 }
 
