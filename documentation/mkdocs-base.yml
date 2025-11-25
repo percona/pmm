@@ -104,11 +104,7 @@ plugins:
     separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   git-revision-date-localized:
     enable_creation_date: true
-    enabled: !ENV [ENABLED_GIT_REVISION_DATE, True]
-  git-committers:
-    enabled: !ENV [CI, false]
-    repository: percona/pmm
-    branch: "v3"   
+    enabled: !ENV [ENABLED_GIT_REVISION_DATE, True]  
   meta-descriptions:
     export_csv: false
     quiet: false
