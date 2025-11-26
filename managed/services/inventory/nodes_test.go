@@ -110,7 +110,7 @@ func TestNodes(t *testing.T) {
 				},
 			},
 		})
-		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name test already exists.`), err)
 	})
 
 	t.Run("AddHostnameNotUnique", func(t *testing.T) {
@@ -402,6 +402,6 @@ func TestAddNode(t *testing.T) {
 				Remote: &inventoryv1.AddRemoteNodeParams{NodeName: "test"},
 			},
 		})
-		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name test already exists.`), err)
 	})
 }

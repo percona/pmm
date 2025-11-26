@@ -57,7 +57,7 @@ func checkUniqueNodeName(q *reform.Querier, name string) error {
 		return errors.WithStack(err)
 	}
 
-	return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
+	return status.Errorf(codes.AlreadyExists, "Node with name %s already exists.", name)
 }
 
 // CheckUniqueNodeAddressRegion checks for uniqueness of instance address and region.

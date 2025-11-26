@@ -136,15 +136,17 @@ if [ "$PMM_HA_ENABLE" = "1" ] || [ "$PMM_HA_ENABLE" = "true" ]; then
     AGENT_ID="$(uuidgen)"
 fi
 
-echo "Creating pmm-agent configuration..."
-pmm-agent setup \
-    --config-file="$AGENT_CONFIG_DIR/pmm-agent.yaml" \
-    --skip-registration \
-    --id="$AGENT_ID" \
-    --paths-tempdir=/srv/pmm-agent/tmp \
-    --paths-nomad-data-dir=/srv/nomad/data \
-    --server-address=127.0.0.1:8443 \
-    --server-insecure-tls
+if [ ! -f "$AGENT_CONFIG_DIR/pmm-agent.yaml" ]; then
+  echo "Creating pmm-agent configuration..."
+  pmm-agent setup \
+      --config-file="$AGENT_CONFIG_DIR/pmm-agent.yaml" \
+      --skip-registration \
+      --id="$AGENT_ID" \
+      --paths-tempdir=/srv/pmm-agent/tmp \
+      --paths-nomad-data-dir=/srv/nomad/data \
+      --server-address=127.0.0.1:8443 \
+      --server-insecure-tls
+fi
 
 # Start supervisor in foreground
 exec supervisord -n -c /etc/supervisord.conf

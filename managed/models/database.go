@@ -1463,7 +1463,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 
 	file, err := os.Open(AgentConfigFilePath)
 	if err != nil {
-		return fmt.Errorf("could not open pmm-agent's config file at %s: %w", AgentConfigFilePath, err)
+		return err
 	}
 	defer func() {
 		_ = file.Close()

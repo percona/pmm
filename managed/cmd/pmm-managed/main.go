@@ -846,7 +846,7 @@ func main() { //nolint:maintidx,cyclop
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
 	if haService.Bootstrap() {
-		// Generate unique PMM Server ID if it's not already set.
+		// Generate unique PMM Server ID if it's not already.
 		err = models.SetPMMServerID(db)
 		if err != nil {
 			l.Panicf("failed to set PMM Server ID")
@@ -870,12 +870,14 @@ func main() { //nolint:maintidx,cyclop
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db, vmParams)
+	agentsRegistry := agents.NewRegistry(db, vmParams, haService)
 
-	// TODO remove once PMM cluster will be Active-Active
-	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
-		agentsRegistry.KickAll(ctx)
-	}))
+	// TODO remove once PMM cluster is Active-Active
+	haService.AddLeaderService(ha.NewStandardService(
+		"agentsRegistry",
+		func(_ context.Context) error { return nil },
+		func() { agentsRegistry.KickAll(ctx) },
+	))
 
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)

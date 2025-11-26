@@ -72,6 +72,14 @@ type pmmAgentInfo struct {
 	kickChan        chan struct{}
 }
 
+// haService is a subset of methods from ha.Service used by Registry.
+type haService interface {
+	IsAgentConnected(agentID string) bool
+	SetAgentConnection(agentID string, connected bool) error
+	DeleteAgentConnection(agentID string) error
+	GetParams() *models.HAParams
+}
+
 // Registry keeps track of all connected pmm-agents.
 type Registry struct {
 	db *reform.DB
@@ -80,6 +88,8 @@ type Registry struct {
 	agents map[string]*pmmAgentInfo // id -> info
 
 	roster *roster
+
+	haService haService // HA service for distributed connection tracking
 
 	mConnects    prom.Counter
 	mDisconnects *prom.CounterVec
@@ -91,7 +101,7 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
+func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *Registry {
 	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
 		db: db,
@@ -99,6 +109,8 @@ func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Regist
 		agents: agents,
 
 		roster: newRoster(db),
+
+		haService: ha,
 
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -127,7 +139,7 @@ func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Regist
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		}),
 
-		isExternalVM: externalVMChecker.ExternalVM(),
+		isExternalVM: vmParams.ExternalVM(),
 	}
 
 	r.mAgents = prom.NewGaugeFunc(prom.GaugeOpts{
@@ -150,6 +162,12 @@ func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Regist
 
 // IsConnected returns true if pmm-agent with given ID is currently connected, false otherwise.
 func (r *Registry) IsConnected(pmmAgentID string) bool {
+	// Check distributed state if HA is available and enabled
+	if r.haService.GetParams().Enabled {
+		return r.haService.IsAgentConnected(pmmAgentID)
+	}
+
+	// Fallback to local state (non-HA or HA disabled)
 	_, err := r.get(pmmAgentID)
 	return err == nil
 }
@@ -215,6 +233,14 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		kickChan:        make(chan struct{}),
 	}
 	r.agents[agentMD.ID] = agent
+
+	// Update distributed connection state in HA mode
+	if r.haService.GetParams().Enabled {
+		if err := r.haService.SetAgentConnection(agentMD.ID, true); err != nil {
+			l.Warnf("Failed to update distributed connection state for agent %s: %v", agentMD.ID, err)
+		}
+	}
+
 	return agent, nil
 }
 
@@ -273,18 +299,26 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
 
 	r.rw.Lock()
-	defer r.rw.Unlock()
+	agent := r.agents[pmmAgentID]
+	if agent == nil {
+		r.rw.Unlock()
+		return nil
+	}
 
 	// We do not check that pmmAgentID is in fact ID of existing pmm-agent because
 	// it may be already deleted from the database, that's why we unregister it.
 
-	agent := r.agents[pmmAgentID]
-	if agent == nil {
-		return nil
-	}
-
 	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
+	r.rw.Unlock()
+
+	// Update distributed connection state in HA mode
+	if r.haService.GetParams().Enabled {
+		if err := r.haService.SetAgentConnection(pmmAgentID, false); err != nil {
+			logrus.Warnf("Failed to update distributed connection state for agent %s: %v", pmmAgentID, err)
+		}
+	}
+
 	return agent
 }
 

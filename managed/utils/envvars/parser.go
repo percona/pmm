@@ -280,18 +280,15 @@ func parseStringDuration(value string) (time.Duration, error) {
 
 func parsePlatformAPITimeout(d string) (time.Duration, string) {
 	if d == "" {
-		msg := fmt.Sprintf(
-			"Environment variable %q is not set, using %q as a default timeout for platform API.",
-			pkgenv.PlatformAPITimeout,
-			defaultPlatformAPITimeout.String())
+		msg := fmt.Sprintf("Setting the default timeout for Platform API to %s.", defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
 	duration, err := parseStringDuration(d)
 	if err != nil {
-		msg := fmt.Sprintf("Using %q as a default: failed to parse platform API timeout %q: %s.", defaultPlatformAPITimeout.String(), d, err)
+		msg := fmt.Sprintf("Set the default Platform API to %s: failed to parse timeout %s: %s.", defaultPlatformAPITimeout.String(), d, err)
 		return defaultPlatformAPITimeout, msg
 	}
-	msg := fmt.Sprintf("Using %q as a timeout for platform API.", duration.String())
+	msg := fmt.Sprintf("Set the timeout for Platform API to %s.", duration.String())
 	return duration, msg
 }
 
@@ -308,7 +305,7 @@ func GetPlatformAPITimeout(l *logrus.Entry) time.Duration {
 func GetPlatformAddress() (string, error) {
 	address := os.Getenv(pkgenv.PlatformAddress)
 	if address == "" {
-		logrus.Infof("Using default Percona Platform address %q.", defaultPlatformAddress)
+		logrus.Infof("Using default Percona Platform address: %s.", defaultPlatformAddress)
 		return defaultPlatformAddress, nil
 	}
 
@@ -316,7 +313,7 @@ func GetPlatformAddress() (string, error) {
 		return "", errors.Errorf("invalid percona platform address: %s", err)
 	}
 
-	logrus.Infof("Using Percona Platform address %q.", address)
+	logrus.Infof("Using Percona Platform address: %s.", address)
 	return address, nil
 }
 
