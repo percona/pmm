@@ -68,14 +68,14 @@ func (s *services) StartAllServices(ctx context.Context) {
 		if _, ok := s.running[id]; !ok {
 			s.wg.Add(1)
 			s.running[id] = service
-			go func() {
-				s.l.Infoln("Starting", service.ID())
-				err := service.Start(ctx)
+			go func(svc LeaderService, svcID string) {
+				s.l.Infoln("Starting", svcID)
+				err := svc.Start(ctx)
 				if err != nil {
 					s.l.Errorln(err)
-					s.removeService(service.ID())
+					s.removeService(svcID)
 				}
-			}()
+			}(service, id)
 		}
 	}
 }
