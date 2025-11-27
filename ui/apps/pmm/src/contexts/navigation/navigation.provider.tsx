@@ -9,6 +9,7 @@ import {
   addConfiguration,
   addDashboardItems,
   addExplore,
+  addUsersAndAccess,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
@@ -85,6 +86,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(NAV_DIVIDERS.backups);
 
         items.push(addConfiguration(status, versionInfo));
+
+        items.push(addUsersAndAccess(settings));
       }
 
       items.push(addAccount(user, colorMode, toggleColorMode));

@@ -41,6 +41,8 @@ import {
   NAV_ALERTS_SILENCES,
   NAV_ALERTS_GROUPS,
   NAV_VALKEY,
+  NAV_USERS_AND_ACCESS,
+  NAV_ACCESS_CONTROL,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -238,4 +240,14 @@ export const addConfiguration = (
   }
 
   return NAV_CONFIGURATION;
+};
+
+export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
+  const children: NavItem[] = [...(NAV_USERS_AND_ACCESS.children || [])];
+
+  if (settings?.enableAccessControl) {
+    children.push(NAV_ACCESS_CONTROL);
+  }
+
+  return { ...NAV_USERS_AND_ACCESS, children };
 };
