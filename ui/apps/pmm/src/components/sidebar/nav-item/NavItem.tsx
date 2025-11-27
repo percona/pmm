@@ -20,6 +20,7 @@ import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import NavItemDot from './nav-item-dot/NavItemDot';
 import NavItemBadge from './nav-item-badge/NavItemBadge';
+import Box from '@mui/material/Box';
 
 const NavItem: FC<NavItemProps> = ({
   activeItem,
@@ -192,10 +193,12 @@ const NavItem: FC<NavItemProps> = ({
           data-testid={dataTestid}
           data-navlevel={level}
         >
-          {item.icon && (
+          {item.icon ? (
             <ListItemIcon sx={styles.listItemIcon}>
               <NavItemIcon icon={item.icon} />
             </ListItemIcon>
+          ) : (
+            <Box sx={{ mr: -1 }} />
           )}
           <ListItemText
             primary={item.text}

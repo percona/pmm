@@ -213,7 +213,7 @@ export const NAV_POSTGRESQL: NavItem = {
     },
     {
       id: 'postgresql-ha',
-      text: 'High availability',
+      text: 'High Availability',
       icon: 'high-availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-replication-overview`,
       children: [
@@ -481,14 +481,14 @@ export const NAV_ALERTS_TEMPLATES: NavItem = {
 
 export const NAV_ALERTS_FIRED: NavItem = {
   id: 'alerts-fired',
-  text: 'Fired Alerts',
+  text: 'Fired alerts',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/:datasource/:id/view`],
 };
 
 export const NAV_ALERTS_RULES: NavItem = {
   id: 'alerts-rules',
-  text: 'Alert Rules',
+  text: 'Alert rules',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/list`,
   matches: [
     `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new/*`,
@@ -523,7 +523,7 @@ export const NAV_ALERTS_NOTIFICATION_POLICIES: NavItem = {
 
 export const NAV_ALERTS_SETTINGS: NavItem = {
   id: 'alerts-settings',
-  text: 'Alert Settings',
+  text: 'Alert settings',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/admin`,
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/connections/datasources/alertmanager`],
 };
@@ -596,7 +596,7 @@ export const NAV_BACKUPS: NavItem = {
   children: [
     {
       id: 'backup-inventory',
-      text: 'All Backups',
+      text: 'All backups',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
       children: [
         {
@@ -609,7 +609,7 @@ export const NAV_BACKUPS: NavItem = {
     },
     {
       id: 'scheduled-backups',
-      text: 'Scheduled Backup Jobs',
+      text: 'Scheduled backup jobs',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/scheduled`,
     },
     {
@@ -619,7 +619,7 @@ export const NAV_BACKUPS: NavItem = {
     },
     {
       id: 'storage-locations',
-      text: 'Storage Locations',
+      text: 'Storage locations',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/locations`,
     },
   ],
@@ -708,6 +708,12 @@ export const NAV_USERS_AND_ACCESS: NavItem = {
       matches: ['*'],
     },
   ],
+};
+
+export const NAV_ACCESS_CONTROL: NavItem = {
+  id: 'rbac-roles',
+  text: 'Access roles',
+  url: PMM_NEW_NAV_GRAFANA_PATH + '/roles',
 };
 
 //
