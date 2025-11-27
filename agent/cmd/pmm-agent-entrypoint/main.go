@@ -25,7 +25,7 @@ import (
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/pkg/errors"
-	reaper "github.com/ramr/go-reaper"
+	"github.com/ramr/go-reaper"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -33,7 +33,7 @@ import (
 )
 
 var helpText = `
-PMM 2.x Client Docker container.
+PMM 3.x Client Docker container.
 
 It runs pmm-agent as a process with PID 1.
 It is configured entirely by environment variables. Arguments or flags are not used.
@@ -89,12 +89,12 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 		} else {
 			pmmAgentProcessID = cmd.Process.Pid
 			if err := cmd.Wait(); err != nil {
-				exitError, ok := err.(*exec.ExitError) //nolint:errorlint
-				if !ok {
+				var exitErr *exec.ExitError
+				if !errors.As(err, &exitErr) {
 					l.Errorf("Can't get exit code for '%s'. err: %s", pmmAgentFullCommand, err)
 					exitCode = -1
 				} else {
-					exitCode = exitError.ExitCode()
+					exitCode = exitErr.ExitCode()
 				}
 			}
 		}
@@ -128,7 +128,10 @@ func sendSIGKILLwithTimeout(process *os.Process, timeout int, l *logrus.Entry) *
 }
 
 func main() {
-	go reaper.Reap()
+	config := reaper.MakeConfig()
+	config.Debug = false
+	reaper.RunForked(config)
+
 	kingpin.Parse()
 
 	var status int
@@ -216,9 +219,10 @@ func main() {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {
-				if exitError, ok := err.(*exec.ExitError); ok { //nolint:errorlint
-					status = exitError.ExitCode()
-					l.Infof("Prerun file exited with %d", exitError.ExitCode())
+				var exitErr *exec.ExitError
+				if errors.As(err, &exitErr) {
+					status = exitErr.ExitCode()
+					l.Infof("Prerun file exited with %d", status)
 				}
 			}
 		}
@@ -229,10 +233,10 @@ func main() {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {
-				var exitError *exec.ExitError
-				if errors.As(err, &exitError) {
-					status = exitError.ExitCode()
-					l.Infof("Prerun shell script exited with %d", exitError.ExitCode())
+				var exitErr *exec.ExitError
+				if errors.As(err, &exitErr) {
+					status = exitErr.ExitCode()
+					l.Infof("Prerun shell script exited with %d", status)
 				}
 			}
 		}
@@ -248,10 +252,10 @@ func main() {
 
 		err = agent.Wait()
 		if err != nil {
-			var exitError *exec.ExitError
-			if errors.As(err, &exitError) {
-				status = exitError.ExitCode()
-				l.Infof("Prerun pmm-agent exited with %d", exitError.ExitCode())
+			var exitErr *exec.ExitError
+			if errors.As(err, &exitErr) {
+				status = exitErr.ExitCode()
+				l.Infof("Prerun pmm-agent exited with %d", status)
 			} else {
 				l.Warnf("Can't get exit code for pmm-agent. Error code: %s", err)
 			}

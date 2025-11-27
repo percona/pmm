@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
 
       - name: Set up Go release
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
@@ -110,7 +110,7 @@ jobs:
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v2.3.0 # Version should match specified in Makefile
+          golangci_lint_version: v2.6.2 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
