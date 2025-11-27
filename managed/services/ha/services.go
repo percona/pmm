@@ -102,9 +102,7 @@ func (s *services) Refresh() chan struct{} {
 }
 
 func (s *services) Wait() {
-	s.wgMu.Lock()
 	s.wg.Wait()
-	s.wgMu.Unlock()
 }
 
 func (s *services) removeService(id string) {
