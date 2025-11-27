@@ -38,3 +38,47 @@ SHOW pg_stat_monitor.pgsm_enable_query_plan;
 ```
 
 After disabling query plan collection, new metrics should show realistic execution times within minutes.
+
+
+## QAN service fails after upgrade
+
+After upgrading PMM Server, the QAN service may fail to start with `BACKOFF`, `FATAL`, or `EXITED` status, preventing the QAN dashboard from loading. You'll see the following error in `/srv/logs/qan-api2.log`, where `x` is the migration version number:
+```
+stdlog: Migrations: Dirty database version x. Fix and force version.
+```
+
+This happens when the ClickHouse schema migration is interrupted during the upgrade.
+
+### Resolution:
+
+- **PMM 3.5.0 and later:** The issue is **fixed automatically**. PMM detects and completes the interrupted schema migration upon restart.
+- **Earlier versions:** Use the following manual workaround:
+    {.power-number}
+
+    1. Access the PMM container:
+       ```bash
+       podman exec -it pmm-server /bin/bash
+       ```
+
+    2. Connect to ClickHouse:
+       ```bash
+       clickhouse client --username=<clickhouse_user> --password=<clickhouse_password> -d pmm
+       ```
+
+    3. Fix the migration state. **Replace `x` with the version number from your error logs.**
+       ```sql
+       USE pmm;
+       INSERT INTO schema_migrations (version, dirty, sequence) 
+       VALUES (x, 0, toUnixTimestamp(NOW())*1000000000);
+       EXIT;
+       ```
+
+    4. Restart QAN:
+       ```bash
+       supervisorctl restart qan-api2
+       ```
+
+    5. Verify QAN is running:
+       ```bash
+       supervisorctl status qan-api2
+       ```
