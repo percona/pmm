@@ -4,7 +4,7 @@
 # This script provides instructions and commands for creating a PR
 # to the percona/pmm-doc repository with the node_exporter customization documentation.
 
-set -e
+set -euo pipefail
 
 echo "=========================================="
 echo "PMM node_exporter Documentation PR Helper"

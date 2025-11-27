@@ -40,7 +40,7 @@ Investigation of PMM node_exporter configuration is **COMPLETE** with comprehens
 
 **Status:** Ready for PR
 **Location:** `/tmp/pmm-doc` on branch `document-node-exporter-customization`
-**Commit:** 2892849c7
+**Commit:** 2892849c7 (short hash for display; full hash available in git log)
 
 ### 3. ✅ Deliverables in PMM Repository
 

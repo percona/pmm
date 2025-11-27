@@ -133,7 +133,19 @@ pmm-admin config \
 ```bash
 #!/bin/bash
 # /usr/local/bin/mdadm_metrics.sh
-OUTPUT_FILE="/usr/local/percona/pmm2/collectors/textfile-collector/low-resolution/mdadm.prom"
+OUTPUT_DIR="/usr/local/percona/pmm2/collectors/textfile-collector/low-resolution"
+OUTPUT_FILE="${OUTPUT_DIR}/mdadm.prom"
+
+# Ensure output directory exists and is writable
+if [ ! -d "$OUTPUT_DIR" ]; then
+    echo "Error: Directory $OUTPUT_DIR does not exist" >&2
+    exit 1
+fi
+
+if [ ! -w "$OUTPUT_DIR" ]; then
+    echo "Error: Directory $OUTPUT_DIR is not writable" >&2
+    exit 1
+fi
 
 echo "# HELP node_md_state RAID array state (1=active, 0=inactive)" > "$OUTPUT_FILE"
 echo "# TYPE node_md_state gauge" >> "$OUTPUT_FILE"
