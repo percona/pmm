@@ -1,0 +1,247 @@
+From 2892849c7b65458815a1c9305f6de2991adfc653 Mon Sep 17 00:00:00 2001
+From: GitHub Copilot Agent <github-copilot-agent@percona.com>
+Date: Thu, 27 Nov 2025 10:02:04 +0000
+Subject: [PATCH] Document node_exporter collector customization
+
+- Add comprehensive documentation on configuring node_exporter collectors
+- Document default enabled/disabled collectors for node_exporter
+- Add --disable-collectors flag documentation for pmm-admin config
+- Explain limitations: can only disable collectors, not enable disabled ones
+- Provide workaround using textfile collector for disabled collectors
+- Add common use cases and examples for disabling collectors
+- Include mdadm custom script example as workaround
+- Cross-reference between extend-metrics.md and pmm-admin.md
+
+Addresses user request to document:
+- How to customize node_exporter arguments
+- Which collectors are enabled/disabled by default
+- Limitations of current implementation
+- Workarounds for enabling disabled collectors like mdadm
+---
+ docs/details/commands/pmm-admin.md |   3 +
+ docs/how-to/extend-metrics.md      | 183 ++++++++++++++++++++++++++++-
+ 2 files changed, 182 insertions(+), 4 deletions(-)
+
+diff --git a/docs/details/commands/pmm-admin.md b/docs/details/commands/pmm-admin.md
+index 9fa8cb290..8c6d07fd5 100644
+--- a/docs/details/commands/pmm-admin.md
++++ b/docs/details/commands/pmm-admin.md
+@@ -150,6 +150,9 @@ PMM communicates with the PMM Server via a PMM agent process.
+     `--agent-password=password`
+     : Custom agent password. (This parameter is available starting with PMM 2.29.0.)
+ 
++    `--disable-collectors=collector1,collector2,...`
++    : Comma-separated list of `node_exporter` collector names to disable. Use this to exclude specific collectors during initial setup to reduce resource usage or eliminate unwanted metrics. Note: This can only disable collectors, not enable ones that are disabled by default. See [Extend Metrics](../../how-to/extend-metrics.md#configure-node_exporter-collectors) for the list of default enabled/disabled collectors and usage examples.
++
+ === "pmm-admin register"
+     Register the current Node with the PMM Server.
+ 
+diff --git a/docs/how-to/extend-metrics.md b/docs/how-to/extend-metrics.md
+index 85984ddbe..eaed466df 100644
+--- a/docs/how-to/extend-metrics.md
++++ b/docs/how-to/extend-metrics.md
+@@ -1,9 +1,185 @@
+ # Extend Metrics
+ 
+-When you need a metric that’s not present in the default list of `node_exporter` metrics you may be able to use the `textfile` collector.
++PMM provides several ways to extend and customize the metrics collected by `node_exporter`:
++
++1. **Disable specific collectors** to reduce resource usage and focus on the metrics you need
++2. **Use the textfile collector** to export custom metrics from scripts and batch jobs
++
++This page explains both approaches and when to use each one.
++
++## Configure node_exporter Collectors
++
++`node_exporter` collects system metrics using various collectors. PMM configures node_exporter with a specific set of collectors enabled by default. However, you can customize which collectors are disabled during the initial setup.
++
++### Default Collector Configuration
++
++By default, PMM enables collectors for commonly monitored system resources:
++
++**Enabled collectors (High Resolution - every 5 seconds by default):**
++
++- `cpu` - CPU statistics
++- `diskstats` - Disk I/O statistics  
++- `filefd` - File descriptor statistics
++- `filesystem` - Filesystem statistics
++- `loadavg` - Load average
++- `meminfo` - Memory statistics
++- `meminfo_numa` - NUMA memory statistics
++- `netdev` - Network device statistics
++- `netstat` - Network statistics
++- `processes` - Process statistics
++- `stat` - Various system statistics
++- `time` - System time
++- `vmstat` - Virtual memory statistics
++
++**Enabled collectors (Medium Resolution - every 10 seconds by default):**
++
++- `hwmon` - Hardware monitoring
++- `textfile.mr` - Medium-resolution textfile collector
++
++**Enabled collectors (Low Resolution - every 60 seconds by default):**
++
++- `bonding` - Network bonding statistics
++- `entropy` - Entropy statistics
++- `uname` - System information
++- `textfile.lr` - Low-resolution textfile collector
++
++**Disabled collectors:**
++
++PMM disables several collectors by default to optimize performance and reduce unnecessary metrics collection:
++
++- `mdadm` - RAID array statistics (disabled by default)
++- `arp` - ARP table statistics
++- `bcache` - Bcache statistics
++- `conntrack` - Connection tracking statistics
++- `drbd` - DRBD statistics
++- `edac` - Error detection and correction statistics
++- `infiniband` - InfiniBand statistics
++- `interrupts` - Interrupt statistics
++- `ipvs` - IPVS statistics
++- `ksmd` - Kernel samepage merging statistics
++- `logind` - Systemd-logind statistics
++- `mountstats` - Mount statistics
++- `netclass` - Network class statistics
++- `nfs` - NFS client statistics
++- `nfsd` - NFS server statistics
++- `ntp` - NTP statistics
++- `qdisc` - Network queueing discipline statistics
++- `runit` - Runit service statistics
++- `sockstat` - Socket statistics
++- `supervisord` - Supervisord statistics
++- `systemd` - Systemd statistics
++- `tcpstat` - TCP statistics
++- `timex` - Time synchronization statistics
++- `wifi` - WiFi statistics
++- `xfs` - XFS filesystem statistics
++- `zfs` - ZFS filesystem statistics
++
++### Disabling Additional Collectors
++
++You can disable additional collectors during initial PMM Agent setup to reduce resource usage or eliminate unwanted metrics.
++
++Use the `--disable-collectors` flag with `pmm-admin config`:
++
++```sh
++pmm-admin config \
++    --server-url=https://admin:admin@your-pmm-server:443 \
++    --disable-collectors=cpu,diskstats \
++    192.168.1.10 generic node1
++```
++
++You can disable multiple collectors by providing a comma-separated list:
++
++```sh
++pmm-admin config \
++    --server-url=https://admin:admin@your-pmm-server:443 \
++    --disable-collectors=netdev,netstat,vmstat \
++    192.168.1.10 generic node1
++```
++
++!!! note "Configuration timing"
++    The `--disable-collectors` flag must be specified during the initial `pmm-admin config` setup. You cannot change collector settings after the node has been registered without re-registering the node.
++
++!!! warning "Important limitations"
++    - The `--disable-collectors` flag can only **disable** collectors, not enable ones that are disabled by default.
++    - To enable collectors like `mdadm` or configure additional collector options (such as `netdev.address-info`), code modifications are required.
++    - Once a node is registered, you must unregister and re-register it to change collector settings.
++
++### Common Use Cases
++
++#### Disable network collectors on systems with many interfaces
++
++Systems with many network interfaces may experience high CPU usage from network collectors:
++
++```sh
++pmm-admin config \
++    --server-url=https://admin:admin@your-pmm-server:443 \
++    --disable-collectors=netdev,netclass \
++    192.168.1.10 generic node1
++```
++
++#### Disable vmstat on systems with memory pressure
++
++The vmstat collector can add overhead on systems with memory constraints:
++
++```sh
++pmm-admin config \
++    --server-url=https://admin:admin@your-pmm-server:443 \
++    --disable-collectors=vmstat \
++    192.168.1.10 generic node1
++```
++
++### Enabling Disabled Collectors (Advanced)
++
++Currently, PMM does not support enabling collectors that are disabled by default (such as `mdadm` or adding collector-specific flags like `--collector.netdev.address-info`) through configuration options.
++
++#### Workaround: Use the textfile collector
++
++For metrics from disabled collectors, you can create custom scripts that export metrics using the textfile collector format. For example, to collect RAID statistics without enabling the mdadm collector:
++
++```sh
++#!/bin/bash
++# /usr/local/bin/mdadm_metrics.sh
++
++# Create output directory if needed
++OUTPUT_FILE="/usr/local/percona/pmm2/collectors/textfile-collector/low-resolution/mdadm.prom"
++
++# Collect mdadm metrics
++if command -v mdadm >/dev/null 2>&1; then
++    # Example: export custom mdadm metrics
++    echo "# HELP node_md_state RAID array state (1=active, 0=inactive)" > "$OUTPUT_FILE"
++    echo "# TYPE node_md_state gauge" >> "$OUTPUT_FILE"
++    
++    for array in /dev/md*; do
++        if [ -b "$array" ]; then
++            array_name=$(basename "$array")
++            state=$(cat /sys/block/${array_name}/md/array_state 2>/dev/null || echo "unknown")
++            if [ "$state" = "active" ]; then
++                echo "node_md_state{device=\"${array_name}\"} 1" >> "$OUTPUT_FILE"
++            else
++                echo "node_md_state{device=\"${array_name}\"} 0" >> "$OUTPUT_FILE"
++            fi
++        fi
++    done
++fi
++```
++
++Then add to cron:
++
++```sh
++# Run every 5 minutes
++*/5 * * * * /usr/local/bin/mdadm_metrics.sh
++```
++
++#### Feature request
++
++If you need to enable specific disabled collectors or add collector-specific options, please file a feature request in the [PMM JIRA](https://perconadev.atlassian.net/projects/PMM/).
++
++## Use the textfile collector
++
++When you need a metric that's not present in the default list of `node_exporter` metrics you may be able to use the `textfile` collector.
+ The textfile collector allows exporting of statistics from batch jobs. It can also be used to export static metrics, such as what role a machine has.
+ 
+-## Enable the textfile collector
++### Enable the textfile collector
+ 
+ The collector is enabled by default. The following folders are used for different resolutions:
+ 
+@@ -18,7 +194,7 @@ The collector is enabled by default. The following folders are used for differen
+ The exporter parses all files in these directories that match the filename wildcard expression `*.prom` using a simple text-based [exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format).
+ Metrics are stored on the PMM Server-side with additional labels related to this Node.
+ 
+-## Examples of shell commands for custom metrics
++### Examples of shell commands for custom metrics
+ 
+ To statically set roles for a machine using labels:
+ 
+@@ -34,4 +210,3 @@ $ cat /etc/cron.d/loggedin_users
+ ```
+ 
+ ![!image](../_images/node-exporter.textfile-collector.2.png)
+-
+-- 
+2.51.2
+
