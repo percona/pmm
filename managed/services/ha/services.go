@@ -24,7 +24,8 @@ import (
 )
 
 type services struct {
-	wg sync.WaitGroup
+	wg   sync.WaitGroup
+	wgMu sync.Mutex
 
 	rw      sync.Mutex
 	all     map[string]LeaderService
@@ -66,7 +67,9 @@ func (s *services) StartAllServices(ctx context.Context) {
 
 	for id, service := range s.all {
 		if _, ok := s.running[id]; !ok {
+			s.wgMu.Lock()
 			s.wg.Add(1)
+			s.wgMu.Unlock()
 			s.running[id] = service
 			go func() {
 				s.l.Infoln("Starting", service.ID())
@@ -88,7 +91,9 @@ func (s *services) StopRunningServices() {
 		s.l.Infoln("Stopping", service.ID())
 		service.Stop()
 		delete(s.running, id)
+		s.wgMu.Lock()
 		s.wg.Done()
+		s.wgMu.Unlock()
 	}
 }
 
@@ -97,12 +102,16 @@ func (s *services) Refresh() chan struct{} {
 }
 
 func (s *services) Wait() {
+	s.wgMu.Lock()
 	s.wg.Wait()
+	s.wgMu.Unlock()
 }
 
 func (s *services) removeService(id string) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 	delete(s.running, id)
+	s.wgMu.Lock()
 	s.wg.Done()
+	s.wgMu.Unlock()
 }
