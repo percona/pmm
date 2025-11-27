@@ -95,6 +95,7 @@ PMM supports monitoring across the following database technologies, cloud servic
     - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md) and variants (Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
     - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
     - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
+    - [Valkey/Redis](../install-pmm/install-pmm-client/connect-database/valkey-redis.md)
 
 === ":material-cloud: Cloud services"
 
