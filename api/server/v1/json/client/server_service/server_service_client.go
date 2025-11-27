@@ -111,7 +111,7 @@ ChangeSettings changes settings
 Changes PMM Server settings.
 */
 func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOption) (*ChangeSettingsOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewChangeSettingsParams()
 	}
@@ -130,17 +130,22 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOpti
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*ChangeSettingsOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ChangeSettingsDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -150,7 +155,7 @@ CheckUpdates checks updates
 Checks for available PMM Server updates.
 */
 func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewCheckUpdatesParams()
 	}
@@ -169,17 +174,22 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*CheckUpdatesOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*CheckUpdatesDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -189,7 +199,7 @@ GetReadOnlySettings gets read only settings
 Returns a stripped version of PMM Server settings.
 */
 func (a *Client) GetReadOnlySettings(params *GetReadOnlySettingsParams, opts ...ClientOption) (*GetReadOnlySettingsOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewGetReadOnlySettingsParams()
 	}
@@ -208,17 +218,22 @@ func (a *Client) GetReadOnlySettings(params *GetReadOnlySettingsParams, opts ...
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*GetReadOnlySettingsOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetReadOnlySettingsDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -228,7 +243,7 @@ GetSettings gets settings
 Returns current PMM Server settings.
 */
 func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewGetSettingsParams()
 	}
@@ -247,17 +262,22 @@ func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*GetSettingsOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetSettingsDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -267,7 +287,7 @@ LeaderHealthCheck checks leadership
 Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader.
 */
 func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewLeaderHealthCheckParams()
 	}
@@ -286,17 +306,22 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*LeaderHealthCheckOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*LeaderHealthCheckDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -306,7 +331,7 @@ ListChangeLogs gets the changelog
 Display a changelog comparing the installed version to the latest available version.
 */
 func (a *Client) ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOption) (*ListChangeLogsOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewListChangeLogsParams()
 	}
@@ -325,17 +350,22 @@ func (a *Client) ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOpti
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*ListChangeLogsOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListChangeLogsDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -345,7 +375,7 @@ Logs logs
 Returns the PMM Server logs.
 */
 func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewLogsParams()
 	}
@@ -364,17 +394,22 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*LogsOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*LogsDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -384,7 +419,7 @@ Readiness checks server readiness
 Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
 */
 func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewReadinessParams()
 	}
@@ -403,17 +438,22 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*ReadinessOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ReadinessDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -423,7 +463,7 @@ StartUpdate starts update
 Starts PMM Server update.
 */
 func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*StartUpdateOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewStartUpdateParams()
 	}
@@ -442,17 +482,22 @@ func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*StartUpdateOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*StartUpdateDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -462,7 +507,7 @@ UpdateStatus updates status
 Returns PMM Server update status.
 */
 func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) (*UpdateStatusOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewUpdateStatusParams()
 	}
@@ -481,17 +526,22 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) 
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*UpdateStatusOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*UpdateStatusDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -501,7 +551,7 @@ Version versions
 Returns PMM Server versions.
 */
 func (a *Client) Version(params *VersionParams, opts ...ClientOption) (*VersionOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewVersionParams()
 	}
@@ -520,17 +570,22 @@ func (a *Client) Version(params *VersionParams, opts ...ClientOption) (*VersionO
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*VersionOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*VersionDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -6,7 +6,6 @@ RUN curl -sL https://rpm.nodesource.com/setup_22.x | bash -
 RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
 
 RUN dnf update -y && \
-    dnf install -y crypto-policies-scripts && \
     dnf install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
     yarn && \
@@ -26,14 +25,14 @@ RUN dnf update -y && \
     dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
 
 # keep that format for easier search
-ENV GO_VERSION=1.24.3
-ENV GO_RELEASER_VERSION=2.9.0
+ENV GO_VERSION=1.25.4
+ENV GO_RELEASER_VERSION=2.12.7
 
 RUN if [ `uname -m` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
     curl -fSsL -o /tmp/goreleaser.rpm https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.`uname -m`.rpm && \
     tar -C /usr/local -xzf /tmp/golang.tar.gz && \
-    dnf install -y /tmp/goreleaser.rpm && \
+    dnf install -y --disablerepo="*" /tmp/goreleaser.rpm && \
     rm /tmp/golang.tar.gz /tmp/goreleaser.rpm
 
 RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
@@ -51,5 +50,5 @@ RUN useradd builder -u 1000 -m -G users,wheel && \
 
 USER builder
 
-ENV FLAVOR=rpmbuild OS=centos DIST=el8
+ENV DIST=el8
 WORKDIR /home/builder/rpm

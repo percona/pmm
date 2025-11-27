@@ -2,14 +2,14 @@
 
 %global repo            pmm-dump
 %global provider        github.com/percona/%{repo}
-%global commit          56cc93fe8bf811ee69ab39c0d1b22398e126a8a2
+%global commit          4c38e9442fb2f6b0146cd5a581f18db4ebb034f7
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         1
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		pmm-dump
-Version:	3.4.0
+Version:	0.7.1-ga
 Release:	%{rpm_release}
 Summary:	Percona PMM Dump allows to export and import monitoring metrics and query analytics.
 
@@ -37,7 +37,10 @@ install -p -m 0755 pmm-dump %{buildroot}%{_sbindir}/pmm-dump
 
 
 %changelog
-* Mon Jul 28 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0
+* Wed Sep 24 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.1
+- PMM-14349 Update pmm-dump sources.
+
+* Thu Jul 28 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0
 - PMM-14215 Default to main branch for pmm-dump
 - PMM-14085 Fix an issue where pmm-dump would not export OS metrics when used via the PMM GUI
 
