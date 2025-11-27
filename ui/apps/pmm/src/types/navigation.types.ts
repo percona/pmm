@@ -6,7 +6,7 @@ export interface NavItem {
   id: string;
   text?: string;
   secondaryText?: string;
-  icon?: IconName | SvgIconComponent;
+  icon?: IconName | SvgIconComponent | React.Component;
   url?: string;
   children?: NavItem[];
   isActive?: boolean;
@@ -14,6 +14,7 @@ export interface NavItem {
   isDivider?: boolean;
   onClick?: () => void;
   hidden?: boolean;
-  badge?: ChipProps;
+  badge?: ChipProps | React.Component;
+  badgeAlwaysVisible?: boolean;
   matches?: string[];
 }

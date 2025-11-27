@@ -9,6 +9,7 @@ import {
   addConfiguration,
   addDashboardItems,
   addExplore,
+  addHighAvailability,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
@@ -53,6 +54,11 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       : ALL_SERVICE_TYPES;
 
     items.push(NAV_HOME_PAGE);
+
+    items.push(addHighAvailability());
+    items.push(addHighAvailability('at-risk'));
+    items.push(addHighAvailability('down'));
+    items.push(addHighAvailability('updating'));
 
     items.push(NAV_DIVIDERS.home);
 

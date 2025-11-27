@@ -19,7 +19,7 @@ import IconButton from '@mui/material/IconButton';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import NavItemDot from './nav-item-dot/NavItemDot';
-import Chip from '@mui/material/Chip';
+import NavItemBadge from './nav-item-badge/NavItemBadge';
 
 const NavItem: FC<NavItemProps> = ({
   activeItem,
@@ -111,6 +111,9 @@ const NavItem: FC<NavItemProps> = ({
                 className="navitem-primary-text"
                 sx={styles.text}
               />
+              {item.badge && item.badgeAlwaysVisible && drawerOpen && (
+                <NavItemBadge badge={item.badge} />
+              )}
             </ListItemButton>
             {drawerOpen && (
               <IconButton
@@ -200,14 +203,7 @@ const NavItem: FC<NavItemProps> = ({
             className="navitem-primary-text"
             sx={styles.text}
           />
-          {item.badge && (
-            <Chip
-              size="small"
-              color="warning"
-              variant="outlined"
-              {...item.badge}
-            />
-          )}
+          {item.badge && <NavItemBadge badge={item.badge} />}
         </ListItemButton>
       </ListItem>
     </NavItemTooltip>

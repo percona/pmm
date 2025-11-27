@@ -783,3 +783,32 @@ export const NAV_OTHER_DASHBOARDS_TEMPLATE: Partial<NavItem> = {
   icon: 'search',
   text: 'Other dashboards',
 };
+
+/*
+ * High Availability
+ */
+export const NAV_HIGH_AVAILABILITY: NavItem = {
+  id: 'high-availability',
+  icon: 'cluster',
+  text: 'PMM HA',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability`,
+  children: [
+    {
+      id: 'high-availability-health-dashboard',
+      text: 'Health Dashboard',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability/overview`,
+    },
+    {
+      id: 'high-availability-identify-nodes',
+      icon: 'arrow-link',
+      text: 'Identify Nodes',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability/identify-nodes`,
+    },
+    {
+      id: 'high-availability-review-alerts',
+      icon: 'arrow-link',
+      text: 'Review Alerts',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability/node-status`,
+    },
+  ],
+};

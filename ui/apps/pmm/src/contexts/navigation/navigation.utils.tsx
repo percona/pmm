@@ -41,11 +41,15 @@ import {
   NAV_ALERTS_SILENCES,
   NAV_ALERTS_GROUPS,
   NAV_VALKEY,
+  NAV_HIGH_AVAILABILITY,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
 import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
+import { HighAvailabilityIcon } from 'components/ha-icon';
+import { HighAvailabilityBadge } from 'components/ha-badge';
+import { HighAvailabilityHealth } from 'types/high-availability.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -238,4 +242,16 @@ export const addConfiguration = (
   }
 
   return NAV_CONFIGURATION;
+};
+
+export const addHighAvailability = (
+  health: HighAvailabilityHealth = 'healthy'
+): NavItem => {
+  const item = { ...NAV_HIGH_AVAILABILITY, id: `high-availability-${health}` };
+
+  item.badge = <HighAvailabilityBadge health={health} />;
+  item.icon = <HighAvailabilityIcon health={health} />;
+  item.badgeAlwaysVisible = true;
+
+  return item;
 };
