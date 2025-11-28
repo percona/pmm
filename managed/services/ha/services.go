@@ -65,9 +65,9 @@ func (s *services) StartAllServices(ctx context.Context) {
 		svc LeaderService
 		id  string
 	}
-	var toStart []startItem
 
 	s.rw.Lock()
+	toStart := make([]startItem, 0, len(s.all))
 	for id, service := range s.all {
 		if _, ok := s.running[id]; !ok {
 			s.running[id] = service
