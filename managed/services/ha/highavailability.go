@@ -93,9 +93,7 @@ func New(params *models.HAParams) *Service {
 
 // Run runs the high availability service.
 func (s *Service) Run(ctx context.Context) error {
-	s.wg.Add(1)
-	go func() {
-		defer s.wg.Done()
+	s.wg.Go(func() {
 		for {
 			select {
 			case <-s.services.Refresh():
@@ -107,7 +105,7 @@ func (s *Service) Run(ctx context.Context) error {
 				return
 			}
 		}
-	}()
+	})
 
 	if !s.params.Enabled {
 		s.l.Infoln("High availability is disabled")
@@ -197,17 +195,13 @@ func (s *Service) Run(ctx context.Context) error {
 			return fmt.Errorf("failed to join memberlist cluster: %w", err)
 		}
 	}
-	s.wg.Add(1)
-	go func() {
-		defer s.wg.Done()
+	s.wg.Go(func() {
 		s.runLeaderObserver(ctx)
-	}()
+	})
 
-	s.wg.Add(1)
-	go func() {
-		defer s.wg.Done()
+	s.wg.Go(func() {
 		s.runRaftNodesSynchronizer(ctx)
-	}()
+	})
 
 	<-ctx.Done()
 
