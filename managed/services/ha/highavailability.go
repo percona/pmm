@@ -109,8 +109,8 @@ func (s *Service) Run(ctx context.Context) error {
 
 	if !s.params.Enabled {
 		s.l.Infoln("High availability is disabled")
-		s.services.Wait()
 		s.wg.Wait()
+		s.services.Wait()
 		return nil
 	}
 
@@ -205,8 +205,8 @@ func (s *Service) Run(ctx context.Context) error {
 
 	<-ctx.Done()
 
-	s.services.Wait()
 	s.wg.Wait()
+	s.services.Wait()
 
 	return nil
 }
