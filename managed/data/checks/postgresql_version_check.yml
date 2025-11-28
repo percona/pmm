@@ -28,6 +28,7 @@ checks:
           "15": 150014,
           "16": 160010,
           "17": 170006,
+          "18": 180001,
       }
 
       version_expires = {
@@ -46,12 +47,13 @@ checks:
           "15": 1825920000,
           "16": 1857409199,
           "17": 1886140800,
+          "18": 1920931200,
       }
 
       minver = 9
 
-      latestpg = 170006
-      latest_and_greatest = "17.6"
+      latestpg = 180001
+      latest_and_greatest = "18.1"
 
       def days_left(major,today):
           expires = version_expires[str(major)]
