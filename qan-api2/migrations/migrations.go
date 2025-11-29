@@ -7,7 +7,9 @@ import (
 	"io"
 	"log"
 	"net/url"
+	"strings"
 
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/golang-migrate/migrate/v4"
 	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"github.com/jmoiron/sqlx"
@@ -18,9 +20,15 @@ import (
 )
 
 const (
-	metricsEngineSimple           = "MergeTree"
-	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/metrics', '{replica}')"
-	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/schema_migrations', '{replica}') ORDER BY version"
+	metricsEngineSimple = "MergeTree"
+	// Use {uuid} macro for unique ZooKeeper paths as recommended by ClickHouse maintainers.
+	// See: https://github.com/ClickHouse/ClickHouse/issues/3288
+	// Using {database}/{table} doesn't guarantee uniqueness due to table renames and async DROP.
+	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{uuid}', '{replica}')"
+	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{uuid}', '{replica}') ORDER BY version"
+
+	// ClickHouse error code for TABLE_ALREADY_EXISTS
+	tableAlreadyExistsCode = 57
 )
 
 //go:embed sql/*.sql
@@ -132,6 +140,14 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 		return nil
 	}
 
+	// Handle TABLE_ALREADY_EXISTS error (code 57) which can occur when multiple PMM pods
+	// try to run migrations simultaneously in HA mode. This is expected behavior and
+	// means another pod already created the table successfully.
+	if isTableAlreadyExistsError(err) {
+		log.Println("Table already exists (created by another PMM instance), treating as success")
+		return nil
+	}
+
 	// If the database is in dirty state, try to fix it (PMM-14305)
 	var errDirty migrate.ErrDirty
 	if errors.As(err, &errDirty) {
@@ -152,7 +168,32 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 		if errors.Is(err, migrate.ErrNoChange) || errors.Is(err, io.EOF) {
 			return nil
 		}
+
+		// Check again for TABLE_ALREADY_EXISTS after retry
+		if isTableAlreadyExistsError(err) {
+			log.Println("Table already exists after retry (created by another PMM instance), treating as success")
+			return nil
+		}
 	}
 
 	return err
+}
+
+// isTableAlreadyExistsError checks if the error is a ClickHouse TABLE_ALREADY_EXISTS error (code 57).
+// This can happen in HA mode when multiple PMM pods try to run migrations simultaneously.
+func isTableAlreadyExistsError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	// Check for ClickHouse exception with code 57
+	var chErr *clickhouse.Exception
+	if errors.As(err, &chErr) && chErr.Code == tableAlreadyExistsCode {
+		return true
+	}
+
+	// Also check error message as fallback (the error might be wrapped)
+	errStr := err.Error()
+	return strings.Contains(errStr, "TABLE_ALREADY_EXISTS") ||
+		strings.Contains(errStr, "Code: 57")
 }
