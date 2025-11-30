@@ -3778,7 +3778,7 @@ type SetStateRequest_BuiltinAgent struct {
 	Tls bool `protobuf:"varint,8,opt,name=tls,proto3" json:"tls,omitempty"`
 	// TLS certificate wont be verified.
 	TlsSkipVerify bool `protobuf:"varint,9,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
-	// environment variables to be passed to the built-in agent.
+	// Environment variables to be passed to the built-in agent.
 	Env           map[string]string `protobuf:"bytes,10,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

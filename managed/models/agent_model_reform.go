@@ -35,7 +35,7 @@ func (v *agentTableType) Columns() []string {
 		"node_id",
 		"pmm_agent_id",
 		"custom_labels",
-		"shared_environment_variables",
+		"environment_variables",
 		"created_at",
 		"updated_at",
 		"disabled",
@@ -88,7 +88,7 @@ var AgentTable = &agentTableType{
 			{Name: "NodeID", Type: "*string", Column: "node_id"},
 			{Name: "PMMAgentID", Type: "*string", Column: "pmm_agent_id"},
 			{Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"},
-			{Name: "SharedEnvironmentVariables", Type: "[]uint8", Column: "shared_environment_variables"},
+			{Name: "EnvironmentVariables", Type: "[]uint8", Column: "environment_variables"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 			{Name: "Disabled", Type: "bool", Column: "disabled"},
@@ -126,7 +126,7 @@ func (s Agent) String() string {
 	res[4] = "NodeID: " + reform.Inspect(s.NodeID, true)
 	res[5] = "PMMAgentID: " + reform.Inspect(s.PMMAgentID, true)
 	res[6] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
-	res[7] = "SharedEnvironmentVariables: " + reform.Inspect(s.SharedEnvironmentVariables, true)
+	res[7] = "EnvironmentVariables: " + reform.Inspect(s.EnvironmentVariables, true)
 	res[8] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[9] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	res[10] = "Disabled: " + reform.Inspect(s.Disabled, true)
@@ -162,7 +162,7 @@ func (s *Agent) Values() []interface{} {
 		s.NodeID,
 		s.PMMAgentID,
 		s.CustomLabels,
-		s.SharedEnvironmentVariables,
+		s.EnvironmentVariables,
 		s.CreatedAt,
 		s.UpdatedAt,
 		s.Disabled,
@@ -198,7 +198,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.NodeID,
 		&s.PMMAgentID,
 		&s.CustomLabels,
-		&s.SharedEnvironmentVariables,
+		&s.EnvironmentVariables,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 		&s.Disabled,

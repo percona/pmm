@@ -602,7 +602,7 @@
                         },
                         "x-order": 18
                       },
-                      "shared_environment_variable_names": {
+                      "environment_variable_names": {
                         "description": "Environment variable names passed to the exporter.",
                         "type": "array",
                         "items": {
@@ -2426,7 +2426,7 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
                     },
-                    "shared_environment_variable_names": {
+                    "environment_variable_names": {
                       "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
                       "type": "array",
                       "items": {
@@ -3997,7 +3997,7 @@
                       },
                       "x-order": 18
                     },
-                    "shared_environment_variable_names": {
+                    "environment_variable_names": {
                       "description": "Environment variable names passed to the exporter.",
                       "type": "array",
                       "items": {
@@ -5943,7 +5943,7 @@
                       },
                       "x-order": 18
                     },
-                    "shared_environment_variable_names": {
+                    "environment_variable_names": {
                       "description": "Environment variable names passed to the exporter.",
                       "type": "array",
                       "items": {
@@ -8702,7 +8702,7 @@
                       },
                       "x-order": 18
                     },
-                    "shared_environment_variable_names": {
+                    "environment_variable_names": {
                       "description": "Environment variable names passed to the exporter.",
                       "type": "array",
                       "items": {

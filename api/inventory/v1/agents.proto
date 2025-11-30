@@ -233,7 +233,7 @@ message MongoDBExporter {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 28;
   // Environment variable names passed to the exporter.
-  repeated string shared_environment_variable_names = 29;
+  repeated string environment_variable_names = 29;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -1034,7 +1034,7 @@ message AddMongoDBExporterParams {
   bool expose_exporter = 20;
   // Environment variable names to pass to the exporter.
   // Values will be resolved from pmm-agent's environment when starting the exporter.
-  repeated string shared_environment_variable_names = 21;
+  repeated string environment_variable_names = 21;
 }
 
 message ChangeMongoDBExporterParams {

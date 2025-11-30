@@ -57,7 +57,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	sort.Strings(args)
 
 	database := exporter.MongoDBOptions.AuthenticationDatabase
-	envVarNames, err := exporter.GetSharedEnvironmentVariableNames()
+	envVarNames, err := exporter.GetEnvironmentVariableNames()
 	if err != nil {
 		return nil, err
 	}

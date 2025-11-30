@@ -1150,7 +1150,7 @@ var databaseSchema = [][]string{
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatements-agent' AND service_id = (SELECT service_id FROM services WHERE service_name = 'pmm-server-postgresql' LIMIT 1);`,
 	},
 	113: {
-		`ALTER TABLE agents ADD COLUMN shared_environment_variables TEXT`,
+		`ALTER TABLE agents ADD COLUMN environment_variables TEXT`,
 	},
 }
 

@@ -759,26 +759,26 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 
 // CreateAgentParams params for add common exporter.
 type CreateAgentParams struct {
-	PMMAgentID                     string
-	NodeID                         string
-	ServiceID                      string
-	Username                       string
-	Password                       string
-	AgentPassword                  string
-	CustomLabels                   map[string]string
-	SharedEnvironmentVariableNames []string
-	TLS                            bool
-	TLSSkipVerify                  bool
-	LogLevel                       string
-	Disabled                       bool
-	ExporterOptions                ExporterOptions
-	QANOptions                     QANOptions
-	AWSOptions                     AWSOptions
-	AzureOptions                   AzureOptions
-	MongoDBOptions                 MongoDBOptions
-	MySQLOptions                   MySQLOptions
-	PostgreSQLOptions              PostgreSQLOptions
-	ValkeyOptions                  ValkeyOptions
+	PMMAgentID               string
+	NodeID                   string
+	ServiceID                string
+	Username                 string
+	Password                 string
+	AgentPassword            string
+	CustomLabels             map[string]string
+	EnvironmentVariableNames []string
+	TLS                      bool
+	TLSSkipVerify            bool
+	LogLevel                 string
+	Disabled                 bool
+	ExporterOptions          ExporterOptions
+	QANOptions               QANOptions
+	AWSOptions               AWSOptions
+	AzureOptions             AzureOptions
+	MongoDBOptions           MongoDBOptions
+	MySQLOptions             MySQLOptions
+	PostgreSQLOptions        PostgreSQLOptions
+	ValkeyOptions            ValkeyOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -924,7 +924,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
-	if err := row.SetSharedEnvironmentVariableNames(params.SharedEnvironmentVariableNames); err != nil {
+	if err := row.SetEnvironmentVariableNames(params.EnvironmentVariableNames); err != nil {
 		return nil, err
 	}
 

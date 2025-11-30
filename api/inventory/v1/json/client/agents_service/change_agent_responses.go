@@ -2929,7 +2929,7 @@ type ChangeAgentOKBodyMongodbExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Environment variable names passed to the exporter.
-	SharedEnvironmentVariableNames []string `json:"shared_environment_variable_names"`
+	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`

@@ -2576,7 +2576,7 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Environment variable names passed to the exporter.
-	SharedEnvironmentVariableNames []string `json:"shared_environment_variable_names"`
+	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMongodbMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`

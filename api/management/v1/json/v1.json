@@ -4457,7 +4457,7 @@
                           },
                           "x-order": 18
                         },
-                        "shared_environment_variable_names": {
+                        "environment_variable_names": {
                           "description": "Environment variable names passed to the exporter.",
                           "type": "array",
                           "items": {
