@@ -43,8 +43,8 @@ import (
 )
 
 const (
-	updateBatchDelay           = time.Second
-	configurationUpdateTimeout = 3 * time.Second
+	updateBatchDelay           = 3 * time.Second
+	configurationUpdateTimeout = 5 * time.Second
 
 	victoriametricsDir     = "/srv/victoriametrics"
 	victoriametricsDataDir = "/srv/victoriametrics/data"
