@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.8.0
-	github.com/bufbuild/buf v1.60.0
+	github.com/bufbuild/buf v1.61.0
 	github.com/daixiang0/gci v0.13.0
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/go-delve/delve v1.25.0
@@ -23,7 +23,7 @@ require (
 	github.com/vektra/mockery/v2 v2.53.2
 	golang.org/x/perf v0.0.0-20250807204132-c4b8702907f0
 	golang.org/x/tools v0.39.0
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0
 	google.golang.org/protobuf v1.36.10
 	gopkg.in/reform.v1 v1.5.1
 	mvdan.cc/gofumpt v0.9.0
@@ -40,7 +40,7 @@ require (
 	buf.build/go/bufplugin v0.9.0 // indirect
 	buf.build/go/bufprivateusage v0.1.0 // indirect
 	buf.build/go/interrupt v1.1.0 // indirect
-	buf.build/go/protovalidate v1.0.0 // indirect
+	buf.build/go/protovalidate v1.0.1 // indirect
 	buf.build/go/protoyaml v0.6.0 // indirect
 	buf.build/go/spdx v0.2.0 // indirect
 	buf.build/go/standard v0.1.0 // indirect
@@ -62,10 +62,11 @@ require (
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/bmatcuk/doublestar/v2 v2.0.4 // indirect
-	github.com/bufbuild/protocompile v0.14.2-0.20251112213711-9afd4296dfe2 // indirect
+	github.com/bufbuild/protocompile v0.14.2-0.20251120233202-3f9009bcd6c8 // indirect
 	github.com/bufbuild/protoplugin v0.0.0-20250218205857-750e09ce93e1 // indirect
 	github.com/chigopher/pathlib v0.19.1 // indirect
 	github.com/cilium/ebpf v0.16.0 // indirect
+	github.com/cli/browser v1.3.0 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
@@ -178,7 +179,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/petermattis/goid v0.0.0-20250904145737-900bdf8bb490 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
-	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.56.0 // indirect
@@ -223,7 +223,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.starlark.net v0.0.0-20231101134539-556fd59b42f6 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
+	go.uber.org/zap v1.27.1 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/build v0.0.0-20250902193327-e6a76329f415 // indirect
