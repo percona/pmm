@@ -1154,15 +1154,13 @@ var databaseSchema = [][]string{
 	},
 	113: {
 		// Reset product tour for new navigation
-		`UPDATE user_flags SET tour_done = false;`,
-	},
-	114: {
-		`ALTER TABLE user_flags
+		`UPDATE user_flags SET tour_done = false;
+
+		ALTER TABLE user_flags
 			ADD COLUMN snoozed_at TIMESTAMP,
-			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0`,
-	},
-	115: {
-		`UPDATE settings
+			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0;
+
+		UPDATE settings
 			SET settings = settings || '{"updates": {"snooze_duration": ` + strconv.FormatInt(DefaultSnoozeDuration.Nanoseconds(), 10) + `}}'
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
