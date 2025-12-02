@@ -64,34 +64,47 @@ func (s *services) Add(service LeaderService) error {
 
 // StartAllServices starts all registered services that are not currently running.
 func (s *services) StartAllServices(ctx context.Context) {
-	s.rw.Lock()
-	defer s.rw.Unlock()
+	type startItem struct {
+		svc LeaderService
+		id  string
+	}
 
+	s.rw.Lock()
+	toStart := make([]startItem, 0, len(s.all))
 	for id, service := range s.all {
 		if _, ok := s.running[id]; !ok {
-			s.wg.Add(1)
 			s.running[id] = service
-			go func() {
-				s.l.Infoln("Starting", service.ID())
-				err := service.Start(ctx)
-				if err != nil {
-					s.l.Errorln(err)
-					s.removeService(service.ID())
-				}
-			}()
+			toStart = append(toStart, startItem{svc: service, id: id})
 		}
+	}
+	s.rw.Unlock()
+
+	for _, service := range toStart {
+		s.wg.Add(1)
+		go func(svc LeaderService, svcID string) {
+			s.l.Infoln("Starting", svcID)
+			err := svc.Start(ctx)
+			if err != nil {
+				s.l.Errorln(err)
+				s.removeService(svcID)
+			}
+		}(service.svc, service.id)
 	}
 }
 
 // StopAllServices stops all running services.
 func (s *services) StopAllServices() {
 	s.rw.Lock()
-	defer s.rw.Unlock()
-
+	toStop := make([]LeaderService, 0, len(s.running))
 	for id, service := range s.running {
+		toStop = append(toStop, service)
+		delete(s.running, id)
+	}
+	s.rw.Unlock()
+
+	for _, service := range toStop {
 		s.l.Infoln("Stopping", service.ID())
 		service.Stop()
-		delete(s.running, id)
 		s.wg.Done()
 	}
 }
@@ -109,7 +122,7 @@ func (s *services) Wait() {
 // removeService removes a service from the registry of running services.
 func (s *services) removeService(id string) {
 	s.rw.Lock()
-	defer s.rw.Unlock()
 	delete(s.running, id)
+	s.rw.Unlock()
 	s.wg.Done()
 }

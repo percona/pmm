@@ -359,36 +359,46 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
 	}
 
-	// TODO switch from RegisterXXXHandlerFromEndpoint to RegisterXXXHandler to avoid extra dials
-	// (even if they dial to localhost)
-	// https://jira.percona.com/browse/PMM-4326
-	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
+	// Create a shared gRPC connection for handlers that use Register*Handler
+	sharedConn, err := grpc.NewClient(gRPCAddr, opts...)
+	if err != nil {
+		l.Panic(err)
+	}
+	go func() {
+		<-ctx.Done()
+		if err := sharedConn.Close(); err != nil {
+			l.Errorf("Failed to close the shared gRPC connection: %s", err)
+		}
+	}()
+
+	// Register services using Register*Handler
+	type registrar func(context.Context, *grpc_gateway.ServeMux, *grpc.ClientConn) error
 	for _, r := range []registrar{
-		serverv1.RegisterServerServiceHandlerFromEndpoint,
+		serverv1.RegisterServerServiceHandler,
 
-		inventoryv1.RegisterNodesServiceHandlerFromEndpoint,
-		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,
-		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
+		inventoryv1.RegisterNodesServiceHandler,
+		inventoryv1.RegisterServicesServiceHandler,
+		inventoryv1.RegisterAgentsServiceHandler,
 
-		managementv1.RegisterManagementServiceHandlerFromEndpoint,
-		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
-		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
-		accesscontrolv1.RegisterAccessControlServiceHandlerFromEndpoint,
+		managementv1.RegisterManagementServiceHandler,
+		actionsv1.RegisterActionsServiceHandler,
+		advisorsv1.RegisterAdvisorServiceHandler,
+		accesscontrolv1.RegisterAccessControlServiceHandler,
 
-		alertingv1.RegisterAlertingServiceHandlerFromEndpoint,
+		alertingv1.RegisterAlertingServiceHandler,
 
-		backupv1.RegisterBackupServiceHandlerFromEndpoint,
-		backupv1.RegisterLocationsServiceHandlerFromEndpoint,
-		backupv1.RegisterRestoreServiceHandlerFromEndpoint,
+		backupv1.RegisterBackupServiceHandler,
+		backupv1.RegisterLocationsServiceHandler,
+		backupv1.RegisterRestoreServiceHandler,
 
-		dumpv1beta1.RegisterDumpServiceHandlerFromEndpoint,
+		dumpv1beta1.RegisterDumpServiceHandler,
 
-		platformv1.RegisterPlatformServiceHandlerFromEndpoint,
-		uieventsv1.RegisterUIEventsServiceHandlerFromEndpoint,
+		platformv1.RegisterPlatformServiceHandler,
+		uieventsv1.RegisterUIEventsServiceHandler,
 
-		userv1.RegisterUserServiceHandlerFromEndpoint,
+		userv1.RegisterUserServiceHandler,
 	} {
-		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
+		if err := r(ctx, proxyMux, sharedConn); err != nil {
 			l.Panic(err)
 		}
 	}
@@ -1082,40 +1092,30 @@ func main() { //nolint:maintidx,cyclop
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		authServer.Run(ctx)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		vmalert.Run(ctx)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		vmdb.Run(ctx)
-	}()
+	})
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
 		return nil
 	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		supervisord.Run(ctx)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		updater.Run(ctx)
-	}()
+	})
 
 	wg.Add(1)
 	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
@@ -1134,9 +1134,7 @@ func main() { //nolint:maintidx,cyclop
 		return nil
 	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
 				actions:              actionsService,
@@ -1170,22 +1168,18 @@ func main() { //nolint:maintidx,cyclop
 				vmClient:             &vmClient,
 				vmdb:                 vmdb,
 			})
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:       logs,
 			authServer: authServer,
 		})
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runDebugServer(ctx)
-	}()
+	})
 
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
