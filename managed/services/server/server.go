@@ -753,6 +753,10 @@ func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find agents: %w", err)
 	}
+	if len(agents) == 0 {
+		return nil, fmt.Errorf("no agents found")
+	}
+
 	return agents[0], nil
 }
 
@@ -825,6 +829,22 @@ func canUpdateDurationSetting(newValue, envValue time.Duration) bool {
 	}
 
 	return false
+}
+
+// ForwardRaftMessage forwards a Raft message to be applied by the leader.
+// This method is called by follower nodes to forward Raft log entries to the leader.
+func (s *Server) ForwardRaftMessage(ctx context.Context, req *serverv1.ForwardRaftMessageRequest) (*serverv1.ForwardRaftMessageResponse, error) {
+	// Only the leader should process forwarded messages
+	if !s.haService.IsLeader() {
+		return nil, status.Errorf(codes.FailedPrecondition, "this node is not the leader")
+	}
+
+	// Apply the message via the HA service
+	if err := s.haService.ApplyRaftMessage(ctx, req.Message); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to apply Raft message: %v", err)
+	}
+
+	return &serverv1.ForwardRaftMessageResponse{}, nil
 }
 
 // check interfaces.

@@ -148,5 +148,7 @@ if [ ! -f "$AGENT_CONFIG_DIR/pmm-agent.yaml" ]; then
       --server-insecure-tls
 fi
 
+unset AGENT_CONFIG_DIR AGENT_ID 
+
 # Start supervisor in foreground
 exec supervisord -n -c /etc/supervisord.conf

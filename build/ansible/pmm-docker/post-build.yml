@@ -39,7 +39,7 @@
     - name: Cleanup dnf cache
       command: dnf clean all
 
-    - name: Cleanup build logs, data and package cache
+    - name: Cleanup build logs, data, config files and package cache
       file:
         path: "{{ item }}"
         state: absent

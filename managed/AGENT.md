@@ -118,10 +118,15 @@ Multiple code generation tools are used:
 
 ## Common Patterns
 
+### Do
+- Prefer modern Go idioms (context, error wrapping)
+- Prefer modern slice helpers (e.g., `slices.Contains`), range loops
+- Use `any` instead of `interface{}`
+
 ### Error Handling
 - Use `status.Error()` for gRPC errors with proper codes
 - Check `reform.ErrNoRows` for "not found" scenarios
-- Wrap errors with context: `errors.Wrap(err, "descriptive context")`
+- Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
 
 ### Logging
 - Use structured logging with `logrus`
@@ -131,8 +136,7 @@ Multiple code generation tools are used:
 ### Agent Management
 - Agents are registered and managed via `managed/services/agents/registry.go`
 - Communication uses bidirectional gRPC streams
-- Agent states are tracked in PostgreSQL and synchronized
-
+- Agent states are tracked in PostgreSQL and synchronized with HA state machine
 
 ## Migration Notes
 
