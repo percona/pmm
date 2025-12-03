@@ -44,6 +44,7 @@ import (
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	platformClient "github.com/percona/pmm/api/platform/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	userClient "github.com/percona/pmm/api/user/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -203,6 +204,7 @@ func init() {
 	alertingClient.Default = alertingClient.New(transport, nil)
 	advisorClient.Default = advisorClient.New(transport, nil)
 	actionsClient.Default = actionsClient.New(transport, nil)
+	userClient.Default = userClient.New(transport, nil)
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.ServerService.Readiness(nil)
