@@ -1,0 +1,58 @@
+---
+checks:
+  - version: 2
+    name: mongodb_swap_allocation
+    summary: MongoDB - allocate swap memory
+    description: This check returns a warning if there is no swap memory allocated to your instance.
+    interval: standard
+    family: MONGODB
+    advisor: configuration_resources
+    #author: Parag Bhayani
+    queries:
+      - type: METRICS_INSTANT
+        query: avg by(node_name) (node_memory_MemTotal_bytes{node_name=~"{{.NodeName}}"} / (1024*1024*1024))
+      - type: METRICS_INSTANT
+        query: avg by(node_name) (node_memory_SwapTotal_bytes{node_name=~"{{.NodeName}}"})
+      - type: METRICS_INSTANT
+        query: avg by(cluster,node_name,set) (mongodb_mongod_replset_my_state{node_name=~"{{.NodeName}}"})
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          results = []
+
+          for type in docs[0]:
+              mem_alloc = float(type["value"][1])
+              mem_alloc_GB = int(mem_alloc)
+
+          for swap in docs[1]:
+              swap_alloc_GB = int(swap["value"][1])
+
+          for row in docs[2]:
+              state = int(row["value"][1])
+
+          if swap_alloc_GB != 0:
+              return results
+
+          if swap_alloc_GB == 0 and state == 7:
+              return results
+
+          if mem_alloc_GB <= 16 and swap_alloc_GB == 0 and state != 7:
+              swap_recomm = 4
+              description = "There is no swap({} GB) allocated for this instance. It is recommended to configure swap space in order to avoid out of memory issues. As per the RAM allocated for your instance, we recommed to have swap space of {}GB.".format(swap_alloc_GB, swap_recomm)
+
+          if mem_alloc_GB > 16 and mem_alloc_GB <= 64 and swap_alloc_GB == 0 and state != 7:
+              swap_recomm = 8
+              description = "There is no swap({} GB) allocated for this instance. It is recommended to configure swap space in order to avoid out of memory issues. As per the RAM allocated for your instance, we recommed to have swap space of {}GB.".format(swap_alloc_GB, swap_recomm)
+
+          if mem_alloc_GB > 64 and swap_alloc_GB == 0 and state != 7:
+              swap_recomm = 16
+              description = "There is no swap({} GB) allocated for this instance. It is recommended to configure swap space in order to avoid out of memory issues. As per the RAM allocated for your instance, we recommed to have swap space of {}GB.".format(swap_alloc_GB, swap_recomm)
+
+          results.append({
+              "summary": "Need to allocate swap memory and set vm.swappiness.",
+              "description": description,
+              "read_more_url": read_url.format("mongodb-swap-allocation"),
+              "severity": "warning",
+          })
+          return results

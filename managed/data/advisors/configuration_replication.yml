@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: configuration_replication
+    summary: Replication Configuration
+    description: Provides recommendations for scalable replication in database clusters.
+    category: configuration

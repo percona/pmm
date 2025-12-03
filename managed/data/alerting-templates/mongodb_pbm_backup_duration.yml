@@ -1,0 +1,19 @@
+---
+templates:
+  - name: pmm_mongodb_pbm_backup_duration
+    version: 1
+    summary: PBM backup duration
+    expr: |-
+      (max by (name,node_name) (mongodb_pbm_backup_duration_seconds{status="done"}))
+      > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: PBM backup duration
+        type: float
+        value: 3600
+    for: 5m
+    severity: warning
+    annotations:
+      summary: PBM backup took more than [[ .threshold ]] seconds on {{ $labels.node_name }}
+      description: |-
+        PBM backup took more than [[ .threshold ]] seconds on {{ $labels.node_name }}.

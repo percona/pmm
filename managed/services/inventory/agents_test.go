@@ -32,6 +32,7 @@ import (
 	"github.com/percona/pmm/api/common"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
@@ -44,12 +45,14 @@ func TestAgents(t *testing.T) {
 			pmmAgentID                   string
 			ms                           *inventoryv1.MySQLService
 			ps                           *inventoryv1.PostgreSQLService
+			valkey                       *inventoryv1.ValkeyService
 			expectedNodeExporter         *inventoryv1.NodeExporter
 			expectedMySQLdExporter       *inventoryv1.MySQLdExporter
 			expectedMongoDBExporter      *inventoryv1.MongoDBExporter
 			expectedQANMySQLSlowlogAgent *inventoryv1.QANMySQLSlowlogAgent
 			expectedPostgresExporter     *inventoryv1.PostgresExporter
 			expectedExternalExporter     *inventoryv1.ExternalExporter
+			expectedValkeyExporter       *inventoryv1.ValkeyExporter
 		)
 
 		t.Run("AddPMMAgent", func(t *testing.T) {
@@ -120,7 +123,7 @@ func TestAgents(t *testing.T) {
 				AgentId:    "00000000-0000-4000-8000-000000000006",
 				PmmAgentId: "00000000-0000-4000-8000-000000000005",
 				Disabled:   true,
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Status:     inventoryv1.AgentStatus_AGENT_STATUS_DONE,
 				MetricsResolutions: &common.MetricsResolutions{
 					Hr: durationpb.New(10 * time.Second),
 				},
@@ -265,6 +268,37 @@ func TestAgents(t *testing.T) {
 			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
 		})
 
+		t.Run("AddValkeyExporter", func(t *testing.T) {
+			var err error
+			valkey, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
+				ServiceName: "test-valkey",
+				NodeID:      models.PMMServerNodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(6379),
+			})
+			require.NoError(t, err)
+
+			actualAgent, err := as.AddValkeyExporter(ctx, &inventoryv1.AddValkeyExporterParams{
+				PmmAgentId: pmmAgentID,
+				ServiceId:  valkey.ServiceId,
+				Username:   "username",
+				Password:   "password",
+			})
+			require.NoError(t, err)
+			expectedValkeyExporter = &inventoryv1.ValkeyExporter{
+				AgentId:    "00000000-0000-4000-8000-000000000010",
+				PmmAgentId: pmmAgentID,
+				ServiceId:  valkey.ServiceId,
+				Username:   "username",
+				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+			}
+			assert.Equal(t, expectedValkeyExporter, actualAgent.GetValkeyExporter())
+
+			exporter, err := as.Get(ctx, "00000000-0000-4000-8000-000000000010")
+			require.NoError(t, err)
+			assert.Equal(t, expectedValkeyExporter, exporter.(*inventoryv1.ValkeyExporter))
+		})
+
 		var actualAgents []inventoryv1.Agent
 		t.Run("ListAllAgents", func(t *testing.T) {
 			actualAgents, err := as.List(ctx, models.AgentFilters{})
@@ -272,7 +306,7 @@ func TestAgents(t *testing.T) {
 			for i, a := range actualAgents {
 				t.Logf("%d: %T %s", i, a, a)
 			}
-			require.Len(t, actualAgents, 11)
+			require.Len(t, actualAgents, 12)
 
 			// TODO: fix protobuf equality https://jira.percona.com/browse/PMM-6743
 			assert.Equal(t, pmmAgentID, actualAgents[3].(*inventoryv1.PMMAgent).AgentId)
@@ -295,7 +329,7 @@ func TestAgents(t *testing.T) {
 		t.Run("FilterByPMMAgent", func(t *testing.T) {
 			actualAgents, err := as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgentID})
 			require.NoError(t, err)
-			require.Len(t, actualAgents, 5)
+			require.Len(t, actualAgents, 6)
 			assert.Equal(t, expectedNodeExporter, actualAgents[0])
 			assert.Equal(t, expectedMySQLdExporter, actualAgents[1])
 			assert.Equal(t, expectedMongoDBExporter, actualAgents[2])
@@ -782,5 +816,55 @@ func TestAgents(t *testing.T) {
 		actualAgent, err := as.Get(ctx, "00000000-0000-4000-8000-000000000006")
 		require.NoError(t, err)
 		assert.Equal(t, expectedExternalExporter, actualAgent)
+	})
+}
+
+func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
+	t.Run("FailWhenEnvVarSet", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// Set the environment variable
+		t.Setenv(env.EnableInternalPgQAN, "true")
+
+		// Try to change the internal PostgreSQL QAN agent (pmm-server's agent)
+		// The agent with ID "00000000-0000-4000-8000-000000000004" is the internal PostgreSQL QAN agent
+		_, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
+			Enable: pointer.ToBool(false),
+		})
+
+		// Expect a FailedPrecondition error
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is set to true via an environment variable."), err)
+	})
+
+	t.Run("SucceedWhenEnvVarNotSet", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// Ensure the environment variable is not set
+		// (It shouldn't be set by default, but we explicitly unset it to be safe)
+		t.Setenv(env.EnableInternalPgQAN, "")
+
+		// Mock the state update request
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+
+		// Try to change the internal PostgreSQL QAN agent
+		agent, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
+			Enable: pointer.ToBool(false),
+		})
+
+		// Should succeed
+		require.NoError(t, err)
+		assert.True(t, agent.GetQanPostgresqlPgstatementsAgent().Disabled)
+
+		// Change it back to enabled
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+		agent, err = as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
+			Enable: pointer.ToBool(true),
+		})
+
+		// Should succeed
+		require.NoError(t, err)
+		assert.False(t, agent.GetQanPostgresqlPgstatementsAgent().Disabled)
 	})
 }

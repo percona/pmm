@@ -24,7 +24,7 @@
     path: /run/postgresql
     state: directory
     owner: pmm
-    group: pmm
+    group: root
     mode: 0775  
 
 - name: Create Postgres log file
@@ -32,17 +32,17 @@
     path: /srv/logs/postgresql14.log
     state: touch
     force: yes
-    group: pmm
+    group: root
     owner: pmm
-    mode: 0644
+    mode: 0664
 
 - name: Create Postgres data dir
   file:
     path: /srv/postgres14
     state: directory
     owner: pmm
-    group: pmm
-    mode: 0700
+    group: root
+    mode: 0750
 
 - name: Initialize Postgres database
   command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
@@ -57,10 +57,10 @@
   become_method: su
 
 - name: Create postgres user
-  shell: /usr/pgsql-14/bin/createuser --echo --superuser --host=/run/postgresql --no-password postgres
+  shell: /usr/pgsql-14/bin/createuser --echo --superuser --no-password postgres
   become: true
   become_user: pmm
-  become_method: su      
+  become_method: su
 
 - name: Create pmm-managed database
   postgresql_db:

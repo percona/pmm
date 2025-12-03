@@ -10,7 +10,7 @@
 
 `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]`
 
-DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
+DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey/Redis|ProxySQL](#database-commands)
 
 `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]`
 
@@ -134,6 +134,7 @@ DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
+
         - `auto`: chosen by server (default).
         - `push`: agent will push metrics.
         - `pull`: server scrapes metrics from agent.
@@ -187,8 +188,7 @@ DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
     ` --pmm-agent-listen-port=LISTEN_PORT`
     : The PMM agent listen port.
 
-DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
-
+DATABASE:= [MySQL|PostgreSQL|MongoDB|Valkey/Redis|ProxySQL](#database-commands)
 
 #### `pmm-admin remove`
 
@@ -274,7 +274,218 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
 ### Database commands
 
-=== "MongoDB"
+=== ":simple-mysql: MySQL"
+
+    `pmm-admin add mysql [FLAGS] node-name node-address | [--name=service-name] --address=address[:port] | --socket`
+    :   Add MySQL to monitoring.
+
+        FLAGS:
+
+        `--address`
+        : MySQL address and port (default: 127.0.0.1:3306).
+
+        `--socket=socket`
+        : Path to MySQL socket. (Find the socket path with `mysql -u root -p -e "select @@socket"`.)
+
+        `--node-id=node-id`
+        : Node ID (default is auto-detected).
+
+        `--pmm-agent-id=pmm-agent-id`
+        : The pmm-agent identifier which runs this instance (default is auto-detected).
+
+        `--username=username`
+        : MySQL username.
+
+        `--password=password`
+        : MySQL password.
+
+         `--extra-dsn=<key=value>`  
+        : Additional DSN (Data Source Name) parameters for MySQL connection configuration.  
+        This option lets you pass custom connection parameters as `key=value` pairs to control how PMM connects to your MySQL instance.  
+
+            For example, use `allowCleartextPasswords=1` when adding MySQL instances that require cleartext password authentication (such as PAM or other external authentication methods):  
+        ```bash
+            --extra-dsn="allowCleartextPasswords=1"
+        ```
+
+            !!! caution "Security warning"
+                 Cleartext authentication transmits password without encryption. Use this parameter only when connections are secured with TLS/SSL or over trusted internal networks.
+                
+        `--agent-password=password`
+        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
+
+            !!! caution ""
+                Avoid using special characters like '\', ';' and '$' in the custom password.
+
+        `--query-source=slowlog`
+        : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`). For `slowlog` query source, you need change permissions for specific files. Root permissions are needed for this.
+
+        `--size-slow-logs=N`
+        : Rotate slow log file at this size. If `0`, use server-defined default. Negative values disable log rotation. A unit suffix must be appended to the number and can be one of:
+
+            - `KiB`, `MiB`, `GiB`, `TiB` for base 2 units (1024, 1048576, etc).
+
+        `--disable-queryexamples`
+        : Disable collection of query examples. Prevents PMM from storing actual query values in Query Analytics while maintaining all performance metrics. Recommended for databases handling sensitive data. This option can also be configured via the UI when adding services.
+
+        `--disable-tablestats`
+        : Disable table statistics collection.
+
+            Excluded collectors for low-resolution time intervals:
+
+            - `--collect.auto_increment.columns`
+            - `--collect.info_schema.tables`
+            - `--collect.info_schema.tablestats`
+            - `--collect.perf_schema.indexiowaits`
+            - `--collect.perf_schema.tableiowaits`
+            - `--collect.perf_schema.file_instances`
+
+            Excluded collectors for medium-resolution time intervals:
+
+            - `--collect.perf_schema.tablelocks`
+
+        `--disable-tablestats-limit=disable-tablestats-limit`
+        : Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined). 0=no limit. Negative value disables collection.
+
+        `--environment=environment`
+        : Environment name.
+
+        `--cluster=cluster`
+        : Cluster name.
+
+        `--replication-set=replication-set`
+        : Replication set name.
+
+        `--custom-labels=custom-labels`
+        : Custom user-assigned labels.
+
+        `--skip-connection-check`
+        : Skip connection check.
+
+        `--tls`
+        : Use TLS to connect to the database.
+
+        `--tls-skip-verify`
+        : Skip TLS certificates validation.
+
+        `--tls-cert=PATHTOCERT`
+        : Path to TLS client certificate file.
+
+        `--tls-key=PATHTOCERTKEY`
+        : Key for TLS client certificate file.
+
+        `--tls-ca=PATHTOCACERT`
+        : Path to certificate authority file.
+
+        `--metrics-mode=mode`
+        : Metrics flow mode for agents node-exporter. Allowed values:
+
+            - `auto`: chosen by server (default).
+            - `push`: agent will push metrics.
+            - `pull`: server scrapes metrics from agent.
+
+        `--max-query-length=NUMBER`
+        : Limit query length in QAN. Allowed values:
+
+            - -1: No limit.
+            -  0: Default value. The default value is 2048 chars.
+            - >0: Query will be truncated after <NUMBER> chars.
+
+            !!! caution ""
+                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
+
+        `--comments-parsing=off/on`
+        : Enable/disable parsing comments from queries into QAN filter groups:
+            - off: Disabled.
+            - on: Enabled.
+
+=== ":simple-postgresql: PostgreSQL"
+
+    `pmm-admin add postgresql [FLAGS] [node-name] [node-address]`
+    :   Add PostgreSQL to monitoring.
+
+        FLAGS:
+
+        `--node-id=<node id>`
+        : Node ID (default is auto-detected).
+
+        `--pmm-agent-id=<pmm agent id>`
+        : The pmm-agent identifier which runs this instance (default is auto-detected).
+
+        `--username=<username>`
+        : PostgreSQL username.
+
+        `--password=<password>`
+        : PostgreSQL password.
+
+        `--database=<database>`
+        : PostgreSQL database (default: postgres).
+
+        `--agent-password=password`
+        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
+
+            !!! caution ""
+                Avoid using special characters like '\', ';' and '$' in the custom password.
+
+        `--query-source=<query source>`
+        : Source of SQL queries, one of: `pgstatements`, `pgstatmonitor`, `none` (default: `pgstatements`).
+
+        `--disable-queryexamples`
+        : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`. Prevents PMM from storing actual query values in Query Analytics while maintaining all performance metrics. When using `pgstatements`, query examples are never collected by design. You can also configure this option via the UI when adding services.
+
+        `--environment=<environment>`
+        : Environment name.
+
+        `--cluster=<cluster>`
+        : Cluster name.
+
+        `--replication-set=<replication set>`
+        : Replication set name.
+
+        `--custom-labels=<custom labels>`
+        : Custom user-assigned labels.
+
+        `--skip-connection-check`
+        : Skip connection check.
+
+        `--tls`
+        : Use TLS to connect to the database.
+
+        `--tls-skip-verify`
+        : Skip TLS certificates validation.
+
+        `--tls-ca-file`
+        : TLS CA certificate file.
+
+        `--tls-cert-file`
+        : TLS certificate file.
+
+        `--tls-key-file`
+        : TLS certificate key file.
+
+        `--metrics-mode=mode`
+        : Metrics flow mode for agents node-exporter. Allowed values:
+
+            - `auto`: chosen by server (default).
+            - `push`: agent will push metrics.
+            - `pull`: server scrapes metrics from agent.
+
+        `--max-query-length=NUMBER` 
+        : Limit query length in QAN. Allowed values:
+
+            - -1: No limit.
+            -  0: Default value. The default value is 2048 chars.
+            - >0: Query will be truncated after <NUMBER> chars.
+
+            !!! caution ""
+                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
+
+        `--comments-parsing=off/on`
+        : Enable/disable parsing comments from queries into QAN filter groups:
+            - off: Disabled.
+            - on: Enabled.
+
+=== ":simple-mongodb: MongoDB"
 
     `pmm-admin add mongodb [FLAGS] [node-name] [node-address]`
     :    Add MongoDB to monitoring.
@@ -303,43 +514,45 @@ When you remove a service, collected data remains on PMM Server for the specifie
     :  Source of queries, one of: `profiler`, `mongolog`, `none` (default: `profiler`).
 
         `--environment=environment`
-        :  Environment name.
+        :  Environment name (e.g. dev, test, prod, etc.)
 
         `--cluster=cluster`
-        :  Cluster name.
+        :  Cluster name. Set to the replica set or the desired sharded cluster name.
 
         `--replication-set=replication-set`
-        :  Replication set name.
+        :  Replication set name. Use only if you need to override the auto-detected replica set name.
 
         `--custom-labels=custom-labels`
         :  Custom user-assigned labels.
 
         `--skip-connection-check`
-        :  Skip connection check.
+        :  Skip checking if pmm agent can connect to the local db when adding a service.
 
         `--tls`
         :  Use TLS to connect to the database.
 
         `--tls-skip-verify`
-        :  Skip TLS certificates validation.
+        :  Skip validation of the TLS certificate presented by the db server to the pmm agent.
 
         `--tls-certificate-key-file=PATHTOCERT`
-        : Path to TLS certificate file.
+        : Path to TLS certificate file to present to the db server by pmm agent.
 
         `--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET`
         : Password for TLS certificate file.
 
         `--tls-ca-file=PATHTOCACERT`
-        : Path to certificate authority file.
+        : Path to certificate authority file used to validate the db server certificate.
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER` 
         : Limit query length in QAN. Allowed values:
+
             - -1: No limit.
             -  0: Default value. The default value is 4096 chars.
             - >0: Query will be truncated after <NUMBER> chars.
@@ -378,7 +591,6 @@ When you remove a service, collected data remains on PMM Server for the specifie
     To enable only some collectors, pass the parameter `--enable-all-collectors` along with the parameter `--disable-collectors`.
 
     For example, if you want all collectors except `topmetrics`, specify:
-
     ```
     --enable-all-collectors --disable-collectors=topmetrics
     ```
@@ -437,27 +649,23 @@ When you remove a service, collected data remains on PMM Server for the specifie
     PMM collects metrics in two [resolutions](../../configure-pmm/metrics_res.md) to decrease CPU and Memory usage: high and low resolutions.
 
     In high resolution we collect metrics from collectors which work fast:
+
     - `diagnosticdata`
     - `replicasetstatus`
     - `topmetrics`
 
     In low resolution we collect metrics from collectors which could take some time:
+
     - `dbstats`
     - `indexstats`
     - `collstats`
 
-=== "MySQL"
+=== ":simple-redis: Valkey/Redis"
 
-    `pmm-admin add mysql [FLAGS] node-name node-address | [--name=service-name] --address=address[:port] | --socket`
-    :   Add MySQL to monitoring.
+    `pmm-admin add valkey [FLAGS] [node-name] [node-address]`
+    :   Add Valkey/Redis to monitoring.
 
         FLAGS:
-
-        `--address`
-        : MySQL address and port (default: 127.0.0.1:3306).
-
-        `--socket=socket`
-        : Path to MySQL socket. (Find the socket path with `mysql -u root -p -e "select @@socket"`.)
 
         `--node-id=node-id`
         : Node ID (default is auto-detected).
@@ -466,10 +674,10 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : The pmm-agent identifier which runs this instance (default is auto-detected).
 
         `--username=username`
-        : MySQL username.
+        : Valkey/Redis username.
 
         `--password=password`
-        : MySQL password.
+        : Valkey/Redis password.
 
         `--agent-password=password`
         :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
@@ -477,44 +685,11 @@ When you remove a service, collected data remains on PMM Server for the specifie
             !!! caution ""
                 Avoid using special characters like '\', ';' and '$' in the custom password.
 
-        `--query-source=slowlog`
-        : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`). For `slowlog` query source, you need change permissions for specific files. Root permissions are needed for this.
-
-        `--size-slow-logs=N`
-        : Rotate slow log file at this size. If `0`, use server-defined default. Negative values disable log rotation. A unit suffix must be appended to the number and can be one of:
-
-            - `KiB`, `MiB`, `GiB`, `TiB` for base 2 units (1024, 1048576, etc).
-
-        `--disable-queryexamples`
-        : Disable collection of query examples.
-
-        `--disable-tablestats`
-        : Disable table statistics collection.
-
-            Excluded collectors for low-resolution time intervals:
-
-            - `--collect.auto_increment.columns`
-            - `--collect.info_schema.tables`
-            - `--collect.info_schema.tablestats`
-            - `--collect.perf_schema.indexiowaits`
-            - `--collect.perf_schema.tableiowaits`
-            - `--collect.perf_schema.file_instances`
-
-            Excluded collectors for medium-resolution time intervals:
-
-            - `--collect.perf_schema.tablelocks`
-
-        `--disable-tablestats-limit=disable-tablestats-limit`
-        : Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined). 0=no limit. Negative value disables collection.
-
         `--environment=environment`
         : Environment name.
 
         `--cluster=cluster`
         : Cluster name.
-
-        `--replication-set=replication-set`
-        : Replication set name.
 
         `--custom-labels=custom-labels`
         : Custom user-assigned labels.
@@ -523,125 +698,19 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : Skip connection check.
 
         `--tls`
-        : Use TLS to connect to the database.
+        : Use TLS to connect to the service.
 
         `--tls-skip-verify`
         : Skip TLS certificates validation.
 
-        `--tls-cert=PATHTOCERT`
-        : Path to TLS client certificate file.
-
-        `--tls-key=PATHTOCERTKEY`
-        : Key for TLS client certificate file.
-
-        `--tls-ca=PATHTOCACERT`
-        : Path to certificate authority file.
-
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
 
-        `--max-query-length=NUMBER`
-        : Limit query length in QAN. Allowed values:
-            - -1: No limit.
-            -  0: Default value. The default value is 2048 chars.
-            - >0: Query will be truncated after <NUMBER> chars.
-
-            !!! caution ""
-                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
-
-        `--comments-parsing=off/on`
-        : Enable/disable parsing comments from queries into QAN filter groups:
-            - off: Disabled.
-            - on: Enabled.
-
-=== "PostgreSQL"
-
-    `pmm-admin add postgresql [FLAGS] [node-name] [node-address]`
-    :   Add PostgreSQL to monitoring.
-
-        FLAGS:
-
-        `--node-id=<node id>`
-        : Node ID (default is auto-detected).
-
-        `--pmm-agent-id=<pmm agent id>`
-        : The pmm-agent identifier which runs this instance (default is auto-detected).
-
-        `--username=<username>`
-        : PostgreSQL username.
-
-        `--password=<password>`
-        : PostgreSQL password.
-
-        `--database=<database>`
-        : PostgreSQL database (default: postgres).
-
-        `--agent-password=password`
-        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
-
-            !!! caution ""
-                Avoid using special characters like '\', ';' and '$' in the custom password.
-
-        `--query-source=<query source>`
-        : Source of SQL queries, one of: `pgstatements`, `pgstatmonitor`, `none` (default: `pgstatements`).
-
-        `--disable-queryexamples`
-        : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`.
-        
-        `--environment=<environment>`
-        : Environment name.
-
-        `--cluster=<cluster>`
-        : Cluster name.
-
-        `--replication-set=<replication set>`
-        : Replication set name.
-
-        `--custom-labels=<custom labels>`
-        : Custom user-assigned labels.
-
-        `--skip-connection-check`
-        : Skip connection check.
-
-        `--tls`
-        : Use TLS to connect to the database.
-
-        `--tls-skip-verify`
-        : Skip TLS certificates validation.
-
-        `--tls-ca-file`
-        : TLS CA certificate file.
-
-        `--tls-cert-file`
-        : TLS certificate file.
-
-        `--tls-key-file`
-        : TLS certificate key file.
-
-        `--metrics-mode=mode`
-        : Metrics flow mode for agents node-exporter. Allowed values:
-            - `auto`: chosen by server (default).
-            - `push`: agent will push metrics.
-            - `pull`: server scrapes metrics from agent.
-
-        `--max-query-length=NUMBER` 
-        : Limit query length in QAN. Allowed values:
-            - -1: No limit.
-            -  0: Default value. The default value is 2048 chars.
-            - >0: Query will be truncated after <NUMBER> chars.
-
-            !!! caution ""
-                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
-
-        `--comments-parsing=off/on`
-        : Enable/disable parsing comments from queries into QAN filter groups:
-            - off: Disabled.
-            - on: Enabled.
-
-=== "ProxySQL"
+=== ":material-shuffle: ProxySQL"
 
     `pmm-admin add proxysql [FLAGS] [node-name] [node-address]`
     :   Add ProxySQL to monitoring.
@@ -689,6 +758,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=mode`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
@@ -696,7 +766,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         `--disable-collectors`
         : Comma-separated list of collector names to exclude from exporter.
 
-=== "HAProxy"
+=== ":material-shuffle: HAProxy"
 
     `pmm-admin add haproxy [FLAGS] [NAME]`
     :   Add HAProxy to monitoring.
@@ -741,6 +811,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
         `--metrics-mode=MODE`
         : Metrics flow mode for agents node-exporter. Allowed values:
+
             - `auto`: chosen by server (default).
             - `push`: agent will push metrics.
             - `pull`: server scrapes metrics from agent.
@@ -752,21 +823,34 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : Skip TLS certificates validation when connecting to HAProxy endpoints with self-signed or invalid certificates.
 
 ## Examples
-
 ```sh
 pmm-admin add mysql --query-source=slowlog --username=pmm --password=pmm sl-mysql 127.0.0.1:3306
 ```
-
 ```txt
 MySQL Service added.
 Service ID  : a89191d4-7d75-44a9-b37f-a528e2c4550f
 Service name: sl-mysql
 ```
-
 ```sh
 pmm-admin add mysql --username=pmm --password=pmm --service-name=ps-mysql --host=127.0.0.1 --port=3306
 ```
-
+```sh
+pmm-admin add postgresql --username=pmm --password=StrongPassword123!
+```
+```sh
+pmm-admin add mongodb --username=pmm --password=StrongPassword123! --cluster my_replica_set
+```
+```sh
+pmm-admin add valkey --username=pmm --password=StrongPassword123! valkey_srv_1 127.0.0.1:6379
+```
+```txt
+Valkey Service added.
+Service ID  : a89191d4-7d75-44a9-b37f-a528e2c4550f
+Service name: valkey_srv_1
+```
+```sh
+pmm-admin add proxysql --username=pmm --password=StrongPassword123!
+```
 ```sh
 # Add external service with self-signed certificate
 pmm-admin add external --listen-port=8008 --scheme=https --tls-skip-verify
@@ -777,34 +861,31 @@ pmm-admin add external-serverless --url=https://host.docker.internal:9218 --tls-
 # Add HAProxy with self-signed certificate
 pmm-admin add haproxy --listen-port=8404 --scheme=https --tls-skip-verify
 ```
-
 ```sh
 pmm-admin status
 pmm-admin status --wait=30s
 ```
-
 ```txt
 Agent ID: c2a55ac6-a12f-4172-8850-4101237a4236
 Node ID : 29b2cc24-3b90-4892-8d7e-4b44258d9309
 PMM Server:
  URL : https://x.x.x.x:443/
- Version: 2.5.0
+ Version: 3.5.0
 PMM Client:
  Connected : true
  Time drift: 2.152715ms
  Latency : 465.658µs
- pmm-admin version: 2.5.0
- pmm-agent version: 2.5.0
+ pmm-admin version: 3.5.0
+ pmm-agent version: 3.5.0
 Agents: aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
 ```
 
 ### Disable collectors
-
 ```sh
 pmm-admin add mysql --disable-collectors='heartbeat,global_status,info_schema.innodb_cmp' --username=pmm --password=pmm --service-name=db1-mysql --host=127.0.0.1 --port=3306
 ```
 
-For other collectors that you can disable with the `--disable-collectors` option, please visit the official repositories for each exporter:
+For other collectors that you can disable with the `--disable-collectors` option, see the official repositories for each exporter:
 
 - [`node_exporter`](https://github.com/percona/node_exporter)
 - [`mysqld_exporter`](https://github.com/percona/mysqld_exporter)

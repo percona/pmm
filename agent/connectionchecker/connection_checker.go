@@ -28,9 +28,11 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/gomodule/redigo/redis"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/expfmt"
+	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -80,6 +82,14 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentv1.CheckConnec
 		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn, msg.TextFiles, id)
+	case inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:
+		return cc.checkValkeyConnection(
+			ctx,
+			msg.Dsn,
+			msg.Tls,
+			msg.TextFiles,
+			msg.TlsSkipVerify,
+			id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
 	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
@@ -248,6 +258,42 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	return &res
 }
 
+func (cc *ConnectionChecker) checkValkeyConnection(
+	ctx context.Context,
+	dsn string,
+	tls bool,
+	files *agentv1.TextFiles,
+	tlsSkipVerify bool,
+	id uint32,
+) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
+	var err error
+
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, "check-valkey-connection", strconv.Itoa(int(id)))
+	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, cc.l)
+	if err != nil {
+		cc.l.Debugf("checkValkeyConnection: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	opts, err := tlshelpers.GetValkeyTLSConfig(files, tls, tlsSkipVerify)
+	if err != nil {
+		cc.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+	c, err := redis.DialURLContext(ctx, dsn, opts...)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	defer c.Close() //nolint:errcheck
+	return &res
+}
+
 func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn string) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
 
@@ -307,7 +353,7 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		return &res
 	}
 
-	var parser expfmt.TextParser
+	parser := expfmt.NewTextParser(model.UTF8Validation)
 	_, err = parser.TextToMetricFamilies(strings.NewReader(string(body)))
 	if err != nil {
 		res.Error = fmt.Sprintf("Unexpected exporter's response format: %v", err)

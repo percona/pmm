@@ -1,0 +1,32 @@
+---
+checks:
+  - version: 2
+    name: postgresql_extension_check
+    summary: Check for outdated extensions
+    description: This check will list outdated extensions with newer versions available
+    interval: standard
+    family: POSTGRESQL
+    advisor: configuration_version
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: "current_database() AS db, name, installed_version, default_version FROM pg_available_extensions WHERE installed_version IS NOT NULL AND default_version IS NOT NULL  AND installed_version != default_version"
+        parameters:
+          all_dbs: true
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check_context(tuple, context):
+          results = []
+          for checkedDB, rows in tuple[0].items():
+              for row in rows:
+                dbname = row["db"]
+                name = row["name"]
+                installed_version = row["installed_version"]
+                default_version = row["default_version"]
+                results.append({
+                    "summary": "Outdated extensions found",
+                    "description": "database {} has extension {} installed with an outdated version {}. A newer version {} is available.".format(dbname, name, installed_version, default_version),
+                    "read_more_url":read_url.format("postgresql-extension-check"),
+                    "severity": "warning",
+                })
+
+          return results

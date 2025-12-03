@@ -1,0 +1,38 @@
+---
+checks:
+  - version: 2
+    name: mongodb_bindip
+    summary: MonogDB IP bindings
+    description: This check returns warnings if the MongoDB network binding is not set as recommended.
+    family: MONGODB
+    #author: Divyanshu  Soni
+    advisor: security_connection
+    interval: standard
+    queries:
+      - type: MONGODB_GETCMDLINEOPTS
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if MongoDB network binding is not set as recommended.
+          """
+
+          rows = docs[0]
+          if len(rows) != 1:
+              return "Unexpected number of documents"
+
+          results = []
+          parsed = rows[0]["parsed"]
+          print(repr(parsed))
+          net = parsed.get("net", {})
+          bindIP = (net.get("bindIp") == "0.0.0.0")
+          bindIP = bindIP or ("bindIpAll" in net)
+          if bindIP:
+              results.append({
+                  "summary": "MongoDB network binding setting is not recommended",
+                  "description": "See the following documentation to set correct list of IP addresses to listen from client to avoid possible security breach",
+                  "read_more_url":read_url.format("mongodb-bindip"),
+                  "severity": "warning",
+              })
+          return results

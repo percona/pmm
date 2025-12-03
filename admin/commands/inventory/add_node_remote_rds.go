@@ -55,7 +55,7 @@ type AddNodeRemoteRDSCommand struct {
 
 // RunCmd executes the AddNodeRemoteRDSCommand and returns the result.
 func (cmd *AddNodeRemoteRDSCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 	params := &nodes.AddNodeParams{
 		Body: nodes.AddNodeBody{
 			RemoteRDS: &nodes.AddNodeParamsBodyRemoteRDS{

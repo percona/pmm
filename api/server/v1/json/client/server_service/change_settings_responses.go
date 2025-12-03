@@ -8,6 +8,7 @@ package server_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type ChangeSettingsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeSettingsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeSettingsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeSettingsOK()
@@ -106,7 +107,7 @@ func (o *ChangeSettingsOK) readResponse(response runtime.ClientResponse, consume
 	o.Payload = new(ChangeSettingsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -179,7 +180,7 @@ func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, co
 	o.Payload = new(ChangeSettingsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -221,6 +222,12 @@ type ChangeSettingsBody struct {
 	// Enable Access Control
 	EnableAccessControl *bool `json:"enable_access_control,omitempty"`
 
+	// Enable Query Analytics for PMM's internal PG database.
+	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -260,11 +267,15 @@ func (o *ChangeSettingsBody) validateAdvisorRunIntervals(formats strfmt.Registry
 
 	if o.AdvisorRunIntervals != nil {
 		if err := o.AdvisorRunIntervals.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "advisor_run_intervals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "advisor_run_intervals")
 			}
+
 			return err
 		}
 	}
@@ -279,11 +290,15 @@ func (o *ChangeSettingsBody) validateAWSPartitions(formats strfmt.Registry) erro
 
 	if o.AWSPartitions != nil {
 		if err := o.AWSPartitions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "aws_partitions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "aws_partitions")
 			}
+
 			return err
 		}
 	}
@@ -298,11 +313,15 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -340,11 +359,15 @@ func (o *ChangeSettingsBody) contextValidateAdvisorRunIntervals(ctx context.Cont
 		}
 
 		if err := o.AdvisorRunIntervals.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "advisor_run_intervals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "advisor_run_intervals")
 			}
+
 			return err
 		}
 	}
@@ -360,11 +383,15 @@ func (o *ChangeSettingsBody) contextValidateAWSPartitions(ctx context.Context, f
 		}
 
 		if err := o.AWSPartitions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "aws_partitions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "aws_partitions")
 			}
+
 			return err
 		}
 	}
@@ -380,11 +407,15 @@ func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Conte
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -451,11 +482,15 @@ func (o *ChangeSettingsDefaultBody) validateDetails(formats strfmt.Registry) err
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -488,11 +523,15 @@ func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -639,7 +678,7 @@ type ChangeSettingsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// change settings default body details items0
-	ChangeSettingsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ChangeSettingsDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -693,9 +732,9 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -825,11 +864,15 @@ func (o *ChangeSettingsOKBody) validateSettings(formats strfmt.Registry) error {
 
 	if o.Settings != nil {
 		if err := o.Settings.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeSettingsOk" + "." + "settings")
 			}
+
 			return err
 		}
 	}
@@ -859,11 +902,15 @@ func (o *ChangeSettingsOKBody) contextValidateSettings(ctx context.Context, form
 		}
 
 		if err := o.Settings.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeSettingsOk" + "." + "settings")
 			}
+
 			return err
 		}
 	}
@@ -939,6 +986,12 @@ type ChangeSettingsOKBodySettings struct {
 	// Default Access Control role ID for new users.
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
 
+	// True if Query Analytics for PMM's internal PG database is enabled.
+	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// Duration for which an update is snoozed
+	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -971,11 +1024,15 @@ func (o *ChangeSettingsOKBodySettings) validateAdvisorRunIntervals(formats strfm
 
 	if o.AdvisorRunIntervals != nil {
 		if err := o.AdvisorRunIntervals.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
 			}
+
 			return err
 		}
 	}
@@ -990,11 +1047,15 @@ func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -1028,11 +1089,15 @@ func (o *ChangeSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx co
 		}
 
 		if err := o.AdvisorRunIntervals.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
 			}
+
 			return err
 		}
 	}
@@ -1048,11 +1113,15 @@ func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx con
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}

@@ -1,0 +1,11 @@
+---
+templates:
+  - name: pmm_mongodb_pbm_agent_down
+    version: 1
+    summary: PBM agent down
+    expr: 'avg by (node_name) (mongodb_pbm_agent_status{role=~"P|S|H",self="1"}) > 0'
+    for: 1m
+    severity: critical
+    annotations:
+      summary: PBM agent on node {{ $labels.node_name }} cannot be reached or is not running
+      description: "PBM agent on node {{ $labels.node_name }} cannot be reached or is not running."

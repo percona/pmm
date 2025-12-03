@@ -67,8 +67,8 @@ func BenchmarkCollector(b *testing.B) {
 		return
 	}
 
-	cleanUpDBs(client) // Just in case there are old dbs with matching names
-	defer cleanUpDBs(client)
+	cleanUpDBs(b, client) // Just in case there are old dbs with matching names
+	defer cleanUpDBs(b, client)
 
 	ps := ProfilerStatus{}
 	err = client.Database("admin").RunCommand(ctx, primitive.M{"profile": -1}).Decode(&ps)
@@ -82,7 +82,7 @@ func BenchmarkCollector(b *testing.B) {
 		return
 	}
 
-	for n := 0; n < b.N; n++ {
+	for b.Loop() {
 		ctr := New(client, "test", logrus.WithField("component", "profiler-test"))
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
@@ -129,8 +129,8 @@ func TestCollector(t *testing.T) {
 	client, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
 
-	cleanUpDBs(client) // Just in case there are old dbs with matching names
-	defer cleanUpDBs(client)
+	cleanUpDBs(t, client) // Just in case there are old dbs with matching names
+	defer cleanUpDBs(t, client)
 
 	// It's done create DB before the test.
 	doc := bson.M{}
@@ -177,14 +177,14 @@ func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
-	for j := 0; j < maxLoops; j++ {
+	for range maxLoops {
 		select {
 		case <-ctx.Done():
 			return
 		default:
 		}
 
-		for i := 0; i < maxDocs; i++ {
+		for range maxDocs {
 			select {
 			case <-ticker.C:
 				doc := bson.M{"first_name": "zapp", "last_name": "brannigan"}
@@ -221,13 +221,14 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	return client, nil
 }
 
-func cleanUpDBs(sess *mongo.Client) error {
+func cleanUpDBs[T testing.TB](t T, sess *mongo.Client) error {
+	t.Helper()
 	dbs, err := sess.ListDatabaseNames(context.TODO(), bson.M{})
 	if err != nil {
 		return err
 	}
 	for _, dbname := range dbs {
-		if strings.HasPrefix("test_", dbname) {
+		if strings.HasPrefix(dbname, "test_") {
 			err = sess.Database(dbname).Drop(context.TODO())
 		}
 	}

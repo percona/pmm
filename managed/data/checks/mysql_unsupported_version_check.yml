@@ -1,0 +1,66 @@
+---
+checks:
+  - version: 2
+    name: mysql_unsupported_version_check
+    summary: Checks mysql version for support
+    description: This check warns against an unsupported mysql version
+    family: MYSQL
+    #author: Kedar Vaijanapurkar
+    advisor: configuration_version
+    interval: standard
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service,@@version_comment as comment, @@basedir as basedir,@@datadir as datadir, datediff('2023-10-23',date(now())) as days;"
+    script: |
+      def check_unsupported_version(doc,read_url,context):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            comment = row["comment"].lower()
+            basedir = row["basedir"]
+            datadir = row["datadir"]
+            days = row["days"]
+            format_version_num = context.get("format_version_num", fail)
+            parse_version = context.get("parse_version", fail)
+            is_mysql, is_percona_server, is_percona_xdb_cluster, is_mariadb, is_rds, is_aurora = False, False, False, False, False, False
+            is_mysql = 'mysql' in comment
+            is_percona_server = 'percona server' in comment
+            is_percona_xdb_cluster = 'percona xtradb cluster' in comment
+            is_mariadb = 'mariadb' in comment
+            is_rds = 'rdsdbbin' in basedir
+            if not is_rds:
+                is_rds = 'rdsdbdata' in datadir
+            parsed_version = parse_version(version)
+            version_minor = parsed_version["minor"]
+            version_major = parsed_version["major"]
+            if is_mysql or is_percona_server or is_percona_xdb_cluster :
+               if version_major == 5 and version_minor == 6 :
+                   return {
+                     "summary": "Unsupported Version Check",
+                     "description": "You are running a server version({}) that is EOL. It is strongly recommended to upgrade to latest version. Reach out to Percona for EOL Support.".format(version),
+                     "severity": "warning",
+                     "read_more_url": read_url.format("mysql_unsupported_version_check"),
+                     "labels": {
+                        "mysql_version": "{}".format(version),
+                         "service": "{}".format(service),
+                        }
+                   }
+               if version_major == 5 and version_minor < 6 :
+                   return {
+                     "summary": "Unsupported Version Check",
+                     "description": "You are running a server version({}) that is EOL. It is strongly recommended to upgrade to latest version.".format(version),
+                     "severity": "Error",
+                     "read_more_url": read_url.format("mysql_unsupported_version_check"),
+                     "labels": {
+                        "mysql_version": "{}".format(version),
+                         "service": "{}".format(service),
+                        }
+                   }
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+          result1 = check_unsupported_version(docs[0],read_url,context)
+          if result1 :
+            results.append(result1)
+          return results

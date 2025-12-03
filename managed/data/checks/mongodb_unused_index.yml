@@ -1,0 +1,54 @@
+---
+checks:
+  - version: 2
+    name: mongodb_unused_index
+    summary: MongoDB - Unused Indexes
+    description: This check returns a warning if there are unused indexes on any database collection in your instance (Need to enable "indexStats" collector).
+    interval: standard
+    family: MONGODB
+    advisor: query_index
+    #author: Parag Bhayani
+    queries:
+      - type: METRICS_INSTANT
+        query: avg by(node_name) (mongodb_instance_uptime_seconds{node_name=~"{{.NodeName}}"} / 86400)
+      - type: METRICS_INSTANT
+        query: avg by (cluster,collection,database,key_name) (mongodb_indexstats_accesses_ops{node_name=~"{{.NodeName}}"}) == 0
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          threshold = 30
+          indexes = []
+          namespaces = []
+          index_count = 0
+          results = []
+
+          #Gathering MongoDB uptime and converting into days.
+          for row in docs[0]:
+              uptime = float(row["value"][1])
+              uptime_days = int(uptime)
+
+          #Gathering unused index details
+          for type in docs[1]:
+              db = type["metric"]["database"]
+              collection = type["metric"]["collection"]
+              ns = "{}.{}".format(db, collection)
+              index_name = type["metric"]["key_name"]
+
+              if uptime_days > threshold and index_name != "_id_":
+                  indexes.append(index_name)
+                  index_count = int(index_count) + 1
+                  if ns not in namespaces:
+                      namespaces.append(ns)
+
+              if uptime_days <= threshold and index_name == "_id_":
+                  return[]
+
+          if index_count > 0:
+              results.append({
+                  "summary": "MongoDB Unused Indexes",
+                  "description": "There are {} indexes on database collections which have not been used since the last mongod service restart. It has been more than 30 days (actual days - {}) since the indexes were last used. Please check with your application development team to determine if the indexes listed below are still needed. If not, consider removing any used indexes to reclaim space. The indexes found to be unused are (ns - {} Index name - {})".format(index_count, uptime_days, namespaces, indexes),
+                  "read_more_url": read_url.format("mongodb-unused-indexes"),
+                  "severity": "warning",
+              })
+          return results

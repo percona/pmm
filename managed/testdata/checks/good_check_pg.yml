@@ -1,0 +1,15 @@
+---
+checks:
+  - version: 2
+    name: good_check_pg
+    summary: Good Check PG
+    description: Good check for PostgreSQL.
+    advisor: dev
+    family: POSTGRESQL
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: rolpassword FROM pg_authid WHERE rolcanlogin
+    interval: standard
+    script: |
+      results = []
+      return results

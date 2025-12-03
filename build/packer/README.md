@@ -2,10 +2,12 @@
 
 ### Building agents
 
-- AWS: `packer build aws.pkr.hcl`
-  - build only amd64: `packer build -only=jenkins-farm.amazon-ebs.agent aws.pkr.hcl`
+- AWS: 
+  - build all agents: `packer build aws.pkr.hcl`
+  - build only amd64: `packer build -only=jenkins-farm.amazon-ebs.amd-agent aws.pkr.hcl`
   - build only arm64: `packer build -only=jenkins-farm.amazon-ebs.arm-agent aws.pkr.hcl`
-- DigitalOcean: `packer build -color=false do.pkr.hcl`
+- DigitalOcean:
+  - buid DO agent: `packer build -color=false do.pkr.hcl`
 
 ### Turn on logging
 

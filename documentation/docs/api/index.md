@@ -2,7 +2,6 @@
 
 PMM Server provides a comprehensive REST API that enables you to monitor databases, manage resources, collect metrics, and automate PMM operations programmatically. The API supports endpoints for managing nodes, services, agents, alerting, backups, and other PMM components. 
 
-
 The [complete API documentation on Readme.io](https://percona-pmm.readme.io/reference/introduction) includes detailed endpoint specifications, authentication methods, example requests, and response schemas.
 
 ## Interactive API documentation

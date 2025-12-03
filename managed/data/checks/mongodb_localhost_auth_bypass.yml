@@ -1,0 +1,39 @@
+---
+checks:
+  - version: 2
+    name: mongodb_localhost_auth_bypass
+    summary: MongoDB localhost authentication bypass enabled
+    description: This check returns warnings if MongoDB localhost bypass is enabled.
+    family: MONGODB
+    #author: Divyanshu Soni
+    advisor: security_authentication
+    interval: standard
+    queries:
+      - type: MONGODB_GETCMDLINEOPTS
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          """
+          This check returns a warning if MongoDB enableLocalhostAuthBypass parameter is set to true.
+          """
+
+          rows = docs[0]
+          if len(rows) != 1:
+              return "Unexpected number of documents"
+
+          results = []
+          parsed = rows[0]["parsed"]
+          print(repr(parsed))
+          setParameter = parsed.get("setParameter", {})
+          enableLocalhostAuthBypass = (setParameter.get("enableLocalhostAuthBypass") == "true")
+          print(repr(enableLocalhostAuthBypass))
+
+          if enableLocalhostAuthBypass:
+              results.append({
+                  "summary": "MongoDB enableLocalhostAuthBypass parameter is set to true (enabled)",
+                  "description": "This represents a security vulnerability and should be disabled. See the following documentation for instructions on how to disable it.",
+                  "read_more_url":read_url.format("mongodb-localhost-bypass"),
+                  "severity": "warning",
+              })
+          return results

@@ -35,6 +35,9 @@ gen: clean                      ## Generate files
 clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
 
+pi-validate:              ## Validate Percona Intelligence advisors and checks
+	go run ./cmd/pi-validator/main.go advisors --advisors.dir ./data/advisors/ --checks.dir ./data/checks/
+
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 

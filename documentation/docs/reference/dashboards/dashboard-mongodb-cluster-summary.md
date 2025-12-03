@@ -97,7 +97,7 @@ Displays the five MongoDB collections with the highest read rates. It shows the 
 
 The bar gauge visualization helps quickly identify which collections are experiencing the most read activity, useful for performance monitoring and resource planning. Data is updated regularly to reflect recent changes in read patterns.
 
-### Query execution times
+### Operations Latency
 
 Shows the average time taken for MongoDB to execute read, write, and other operations. It displays latency in microseconds over time, helping you spot performance trends or issues across different operation types. 
 
@@ -152,7 +152,7 @@ To ensure your MongoDB sharded cluster components appear in the correct sections
  - use the same `--cluster` name for all components of your sharded cluster
  - add each component (config servers, shard nodes, and mongos routers) as a separate service. 
  
- For detailed instructions on adding MongoDB nodes, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#add-mongodb-service-to-pmm).
+ For detailed instructions on adding MongoDB nodes, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
 
 
 ??? info "Example command for adding a MongoDB shard node" 
