@@ -3,6 +3,7 @@ syntax = "proto3";
 package user.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
@@ -21,6 +22,10 @@ message GetUserResponse {
   // Snoozed PMM version update
   string snoozed_pmm_version = 4;
   reserved 5;
+  // Timestamp of last snooze
+  google.protobuf.Timestamp snoozed_at = 6;
+  // Number of times the update was snoozed
+  uint32 snooze_count = 7;
 }
 
 message UpdateUserRequest {
@@ -43,6 +48,10 @@ message UpdateUserResponse {
   // Snooze update alert for a PMM version
   string snoozed_pmm_version = 4;
   reserved 5;
+  // Timestamp of last snooze
+  google.protobuf.Timestamp snoozed_at = 6;
+  // Number of times the update was snoozed
+  uint32 snooze_count = 7;
 }
 
 message ListUsersRequest {}

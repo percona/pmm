@@ -262,7 +262,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 		_ = os.Remove(f.Name())
 	}()
 
-	args := []string{"-promscrape.config.dryRun", "-promscrape.config", f.Name()}
+	args := []string{"-promscrape.config.dryRun=true", "-promscrape.config", f.Name()}
 	cmd := exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
