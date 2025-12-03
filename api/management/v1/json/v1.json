@@ -2496,7 +2496,7 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
                     },
-                    "shared_environment_variable_names": {
+                    "environment_variable_names": {
                       "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
                       "type": "array",
                       "items": {

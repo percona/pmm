@@ -68,7 +68,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			Username:                 req.Username,
 			Password:                 req.Password,
 			AgentPassword:            req.AgentPassword,
-			EnvironmentVariableNames: req.SharedEnvironmentVariableNames,
+			EnvironmentVariableNames: req.EnvironmentVariableNames,
 			TLS:                      req.Tls,
 			TLSSkipVerify:            req.TlsSkipVerify,
 			MongoDBOptions:           models.MongoDBOptionsFromRequest(req),
@@ -105,7 +105,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ServiceID:                service.ServiceID,
 				Username:                 req.Username,
 				Password:                 req.Password,
-				EnvironmentVariableNames: req.SharedEnvironmentVariableNames,
+				EnvironmentVariableNames: req.EnvironmentVariableNames,
 				TLS:                      req.Tls,
 				TLSSkipVerify:            req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
@@ -132,7 +132,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ServiceID:                service.ServiceID,
 				Username:                 req.Username,
 				Password:                 req.Password,
-				EnvironmentVariableNames: req.SharedEnvironmentVariableNames,
+				EnvironmentVariableNames: req.EnvironmentVariableNames,
 				TLS:                      req.Tls,
 				TLSSkipVerify:            req.TlsSkipVerify,
 				QANOptions: models.QANOptions{

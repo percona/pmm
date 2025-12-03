@@ -9586,7 +9586,7 @@ type AddServiceParamsBodyMongodb struct {
 
 	// Environment variable names to pass to the exporter.
 	// Values will be resolved from pmm-agent's environment when starting the exporter.
-	SharedEnvironmentVariableNames []string `json:"shared_environment_variable_names"`
+	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`

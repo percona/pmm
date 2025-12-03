@@ -106,9 +106,9 @@ type AddMongoDBServiceParams struct {
 	ExposeExporter bool `protobuf:"varint,34,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Environment variable names to pass to the exporter.
 	// Values will be resolved from pmm-agent's environment when starting the exporter.
-	SharedEnvironmentVariableNames []string `protobuf:"bytes,36,rep,name=shared_environment_variable_names,json=sharedEnvironmentVariableNames,proto3" json:"shared_environment_variable_names,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	EnvironmentVariableNames []string `protobuf:"bytes,36,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *AddMongoDBServiceParams) Reset() {
@@ -372,9 +372,9 @@ func (x *AddMongoDBServiceParams) GetExposeExporter() bool {
 	return false
 }
 
-func (x *AddMongoDBServiceParams) GetSharedEnvironmentVariableNames() []string {
+func (x *AddMongoDBServiceParams) GetEnvironmentVariableNames() []string {
 	if x != nil {
-		return x.SharedEnvironmentVariableNames
+		return x.EnvironmentVariableNames
 	}
 	return nil
 }
@@ -451,7 +451,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xce\f\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xc1\f\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -487,8 +487,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\x11collections_limit\x18\x1f \x01(\x05R\x10collectionsLimit\x122\n" +
 	"\x15enable_all_collectors\x18  \x01(\bR\x13enableAllCollectors\x123\n" +
 	"\tlog_level\x18! \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18\" \x01(\bR\x0eexposeExporter\x12I\n" +
-	"!shared_environment_variable_names\x18$ \x03(\tR\x1esharedEnvironmentVariableNames\x1a?\n" +
+	"\x0fexpose_exporter\x18\" \x01(\bR\x0eexposeExporter\x12<\n" +
+	"\x1aenvironment_variable_names\x18$ \x03(\tR\x18environmentVariableNames\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xca\x02\n" +

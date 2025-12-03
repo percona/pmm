@@ -94,7 +94,7 @@ message AddMongoDBServiceParams {
   bool expose_exporter = 34;
   // Environment variable names to pass to the exporter.
   // Values will be resolved from pmm-agent's environment when starting the exporter.
-  repeated string shared_environment_variable_names = 36;
+  repeated string environment_variable_names = 36;
 }
 
 message MongoDBServiceResult {
