@@ -18,7 +18,6 @@ package ha
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -73,119 +72,45 @@ type Service struct {
 	rw         sync.RWMutex
 	raftNode   *raft.Raft
 	memberlist *memberlist.Memberlist
-
-	// Agent connection status tracking (distributed state)
-	connectionsMu sync.RWMutex
-	connections   map[string]bool // agentID -> connected status
 }
 
 // Apply applies a log entry to the high-availability service.
-// Processes commands to maintain distributed agent connection state.
-func (s *Service) Apply(logEntry *raft.Log) interface{} {
-	s.l.Debugf("raft: applying log entry: index=%d, type=%d", logEntry.Index, logEntry.Type)
-
-	// Skip non-data entries
-	if logEntry.Type != raft.LogCommand {
-		return nil
-	}
-
-	cmd, err := DecodeCommand(logEntry.Data)
-	if err != nil {
-		s.l.Errorf("failed to decode command: %v", err)
-		return err
-	}
-
-	s.connectionsMu.Lock()
-	defer s.connectionsMu.Unlock()
-
-	switch cmd.Type {
-	case CommandTypeSetAgentConnection:
-		var payload SetAgentConnectionPayload
-		if err := json.Unmarshal(cmd.Payload, &payload); err != nil {
-			s.l.Errorf("failed to unmarshal SetAgentConnection payload: %v", err)
-			return err
-		}
-		s.connections[payload.AgentID] = payload.Connected
-		s.l.Debugf("Set agent %s connection status to %v", payload.AgentID, payload.Connected)
-		return nil
-
-	case CommandTypeDeleteAgentConnection:
-		var payload DeleteAgentConnectionPayload
-		if err := json.Unmarshal(cmd.Payload, &payload); err != nil {
-			s.l.Errorf("failed to unmarshal DeleteAgentConnection payload: %v", err)
-			return err
-		}
-		delete(s.connections, payload.AgentID)
-		s.l.Debugf("Deleted agent %s connection status", payload.AgentID)
-		return nil
-
-	default:
-		s.l.Warnf("unknown command type: %s", cmd.Type)
-		return fmt.Errorf("unknown command type: %s", cmd.Type)
-	}
-}
-
-// Snapshot returns a snapshot of the high-availability service.
-// Captures the current state of agent connections for persistence.
-func (s *Service) Snapshot() (raft.FSMSnapshot, error) { //nolint:ireturn
-	s.connectionsMu.RLock()
-	defer s.connectionsMu.RUnlock()
-
-	// Create a deep copy of the connections map
-	connectionsCopy := make(map[string]bool, len(s.connections))
-	for k, v := range s.connections {
-		connectionsCopy[k] = v
-	}
-
-	s.l.Infof("Creating snapshot with %d agent connection statuses", len(connectionsCopy))
-	return &fsmSnapshot{connections: connectionsCopy}, nil
-}
-
-// Restore restores the high availability service to a previous state.
-// Restores agent connection status from a snapshot (called on node restart).
-func (s *Service) Restore(rc io.ReadCloser) error {
-	defer rc.Close()
-
-	var connections map[string]bool
-	if err := json.NewDecoder(rc).Decode(&connections); err != nil {
-		// If snapshot is empty or invalid, start with empty state
-		if err == io.EOF {
-			s.l.Info("Empty snapshot, starting with no agent connections")
-			s.connectionsMu.Lock()
-			s.connections = make(map[string]bool)
-			s.connectionsMu.Unlock()
-			return nil
-		}
-		return fmt.Errorf("failed to decode snapshot: %w", err)
-	}
-
-	s.connectionsMu.Lock()
-	s.connections = connections
-	s.connectionsMu.Unlock()
-
-	s.l.Infof("Restored %d agent connection statuses from snapshot", len(connections))
+// Currently only used for Raft consensus, not for state replication.
+func (s *Service) Apply(logEntry *raft.Log) any {
+	s.l.Debugf("raft: applied log entry: index=%d, data=%s", logEntry.Index, string(logEntry.Data))
 	return nil
 }
 
-// fsmSnapshot implements raft.FSMSnapshot for PMM HA.
-type fsmSnapshot struct {
-	connections map[string]bool
+// Snapshot returns a snapshot of the high-availability service.
+// Since PMM HA uses Raft for leader election only (not state replication),
+// the FSM has no state to snapshot. Cluster configuration (voters) is
+// automatically stored by Raft in the snapshot metadata.
+func (s *Service) Snapshot() (raft.FSMSnapshot, error) { //nolint:ireturn
+	return &fsmSnapshot{}, nil
 }
 
-// Persist writes the snapshot to the sink.
-// Persists agent connection state for restoration on node restart.
+// Restore restores the high availability service to a previous state.
+// Since PMM HA is stateless (leader election only), there's nothing to restore.
+// Cluster configuration (voters) is automatically restored by Raft from snapshot metadata.
+func (s *Service) Restore(rc io.ReadCloser) error {
+	// FSM has no state, but we need to consume the reader
+	// Raft automatically restores cluster configuration from metadata
+	s.l.Debug("Restore called - FSM is stateless, cluster config restored by Raft")
+	return rc.Close()
+}
+
+// fsmSnapshot implements raft.FSMSnapshot for stateless PMM HA.
+type fsmSnapshot struct{}
+
+// Persist writes an empty snapshot since PMM HA FSM is stateless.
+// Cluster configuration (voters, etc.) is automatically persisted by Raft in metadata.
 func (f *fsmSnapshot) Persist(sink raft.SnapshotSink) error {
-	err := json.NewEncoder(sink).Encode(f.connections)
-	if err != nil {
-		sink.Cancel()
-		return fmt.Errorf("failed to encode snapshot: %w", err)
-	}
 	return sink.Close()
 }
 
 // Release is called when we are finished with the snapshot.
 func (f *fsmSnapshot) Release() {
-	// Nothing to release
+	// Nothing to release for stateless FSM
 }
 
 // setupRaftStorage sets up persistent storage for Raft.
@@ -237,7 +162,6 @@ func New(params *models.HAParams) *Service {
 		leaderCh:         make(chan raft.Observation),
 		l:                logrus.WithField("component", "ha"),
 		wg:               &sync.WaitGroup{},
-		connections:      make(map[string]bool),
 	}
 }
 
@@ -521,21 +445,18 @@ func (s *Service) AddLeaderService(leaderService LeaderService) {
 }
 
 // BroadcastMessage broadcasts a message from the high availability service.
-// Used for distributing agent connection state updates across the cluster.
+// Note: Currently unused. Reserved for future cluster-wide message distribution.
+// This method should only be called by the leader node.
 func (s *Service) BroadcastMessage(message []byte) error {
 	if !s.params.Enabled {
 		return fmt.Errorf("HA is disabled")
 	}
 
 	s.rw.RLock()
-	raftNode := s.raftNode
-	s.rw.RUnlock()
+	defer s.rw.RUnlock()
 
-	if raftNode == nil {
-		return fmt.Errorf("raft node is not initialized")
-	}
+	future := s.raftNode.Apply(message, defaultApplyTimeout)
 
-	future := raftNode.Apply(message, defaultApplyTimeout)
 	if err := future.Error(); err != nil {
 		return fmt.Errorf("failed to apply log to raft: %w", err)
 	}
@@ -554,73 +475,7 @@ func (s *Service) Bootstrap() bool {
 	return s.params.Bootstrap || !s.params.Enabled
 }
 
-// GetParams returns HA parameters.
-func (s *Service) GetParams() *models.HAParams {
+// Params returns HA parameters.
+func (s *Service) Params() *models.HAParams {
 	return s.params
-}
-
-// SetAgentConnection sets the connection status for an agent via Raft.
-// In HA mode, this replicates the state across all nodes.
-func (s *Service) SetAgentConnection(agentID string, connected bool) error {
-	if !s.params.Enabled {
-		// In non-HA mode, just store locally
-		s.connectionsMu.Lock()
-		s.connections[agentID] = connected
-		s.connectionsMu.Unlock()
-		return nil
-	}
-
-	payload := SetAgentConnectionPayload{
-		AgentID:   agentID,
-		Connected: connected,
-	}
-
-	data, err := EncodeCommand(CommandTypeSetAgentConnection, payload)
-	if err != nil {
-		return fmt.Errorf("failed to encode command: %w", err)
-	}
-
-	return s.BroadcastMessage(data)
-}
-
-// DeleteAgentConnection removes the connection status for an agent via Raft.
-// In HA mode, this replicates the deletion across all nodes.
-func (s *Service) DeleteAgentConnection(agentID string) error {
-	if !s.params.Enabled {
-		// In non-HA mode, just delete locally
-		s.connectionsMu.Lock()
-		delete(s.connections, agentID)
-		s.connectionsMu.Unlock()
-		return nil
-	}
-
-	payload := DeleteAgentConnectionPayload{
-		AgentID: agentID,
-	}
-
-	data, err := EncodeCommand(CommandTypeDeleteAgentConnection, payload)
-	if err != nil {
-		return fmt.Errorf("failed to encode command: %w", err)
-	}
-
-	return s.BroadcastMessage(data)
-}
-
-// IsAgentConnected checks if an agent is connected (reads from distributed state).
-func (s *Service) IsAgentConnected(agentID string) bool {
-	s.connectionsMu.RLock()
-	defer s.connectionsMu.RUnlock()
-	return s.connections[agentID]
-}
-
-// GetAllConnections returns a copy of all connection statuses.
-func (s *Service) GetAllConnections() map[string]bool {
-	s.connectionsMu.RLock()
-	defer s.connectionsMu.RUnlock()
-
-	result := make(map[string]bool, len(s.connections))
-	for k, v := range s.connections {
-		result[k] = v
-	}
-	return result
 }

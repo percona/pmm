@@ -25,7 +25,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -74,10 +73,7 @@ type pmmAgentInfo struct {
 
 // haService is a subset of methods from ha.Service used by Registry.
 type haService interface {
-	IsAgentConnected(agentID string) bool
-	SetAgentConnection(agentID string, connected bool) error
-	DeleteAgentConnection(agentID string) error
-	GetParams() *models.HAParams
+	Params() *models.HAParams
 }
 
 // Registry keeps track of all connected pmm-agents.
@@ -162,12 +158,6 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 
 // IsConnected returns true if pmm-agent with given ID is currently connected, false otherwise.
 func (r *Registry) IsConnected(pmmAgentID string) bool {
-	// Check distributed state if HA is available and enabled
-	if r.haService.GetParams().Enabled {
-		return r.haService.IsAgentConnected(pmmAgentID)
-	}
-
-	// Fallback to local state (non-HA or HA disabled)
 	_, err := r.get(pmmAgentID)
 	return err == nil
 }
@@ -233,14 +223,6 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		kickChan:        make(chan struct{}),
 	}
 	r.agents[agentMD.ID] = agent
-
-	// Update distributed connection state in HA mode
-	if r.haService.GetParams().Enabled {
-		if err := r.haService.SetAgentConnection(agentMD.ID, true); err != nil {
-			l.Warnf("Failed to update distributed connection state for agent %s: %v", agentMD.ID, err)
-		}
-	}
-
 	return agent, nil
 }
 
@@ -299,26 +281,18 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
 
 	r.rw.Lock()
-	agent := r.agents[pmmAgentID]
-	if agent == nil {
-		r.rw.Unlock()
-		return nil
-	}
+	defer r.rw.Unlock()
 
 	// We do not check that pmmAgentID is in fact ID of existing pmm-agent because
 	// it may be already deleted from the database, that's why we unregister it.
 
-	delete(r.agents, pmmAgentID)
-	r.roster.clear(pmmAgentID)
-	r.rw.Unlock()
-
-	// Update distributed connection state in HA mode
-	if r.haService.GetParams().Enabled {
-		if err := r.haService.SetAgentConnection(pmmAgentID, false); err != nil {
-			logrus.Warnf("Failed to update distributed connection state for agent %s: %v", pmmAgentID, err)
-		}
+	agent := r.agents[pmmAgentID]
+	if agent == nil {
+		return nil
 	}
 
+	delete(r.agents, pmmAgentID)
+	r.roster.clear(pmmAgentID)
 	return agent
 }
 
@@ -354,7 +328,6 @@ func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeI
 }
 
 func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
-	logrus.Infof("Checking runs_on_node_id: %s, PMMServerNodeID: %s", runsOnNodeID, models.PMMServerNodeID)
 	if runsOnNodeID == models.PMMServerNodeID && !r.isExternalVM {
 		return nil
 	}

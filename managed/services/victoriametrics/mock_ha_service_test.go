@@ -13,26 +13,6 @@ type mockHaService struct {
 	mock.Mock
 }
 
-// GetParams provides a mock function with no fields
-func (_m *mockHaService) GetParams() *models.HAParams {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetParams")
-	}
-
-	var r0 *models.HAParams
-	if rf, ok := ret.Get(0).(func() *models.HAParams); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.HAParams)
-		}
-	}
-
-	return r0
-}
-
 // IsLeader provides a mock function with no fields
 func (_m *mockHaService) IsLeader() bool {
 	ret := _m.Called()
@@ -46,6 +26,26 @@ func (_m *mockHaService) IsLeader() bool {
 		r0 = rf()
 	} else {
 		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// Params provides a mock function with no fields
+func (_m *mockHaService) Params() *models.HAParams {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Params")
+	}
+
+	var r0 *models.HAParams
+	if rf, ok := ret.Get(0).(func() *models.HAParams); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.HAParams)
+		}
 	}
 
 	return r0

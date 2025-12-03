@@ -44,7 +44,7 @@ import (
 
 const (
 	updateBatchDelay           = 3 * time.Second
-	configurationUpdateTimeout = 3 * time.Second
+	configurationUpdateTimeout = 5 * time.Second
 
 	victoriametricsDir     = "/srv/victoriametrics"
 	victoriametricsDataDir = "/srv/victoriametrics/data"
@@ -161,7 +161,7 @@ func (svc *Service) ID() string {
 
 // updateConfiguration updates VictoriaMetrics configuration.
 func (svc *Service) updateConfiguration(ctx context.Context) error {
-	if svc.params.ExternalVM() && !svc.haService.GetParams().Enabled {
+	if svc.params.ExternalVM() && !svc.haService.Params().Enabled {
 		return nil
 	}
 	start := time.Now()

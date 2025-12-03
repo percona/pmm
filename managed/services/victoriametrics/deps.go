@@ -20,5 +20,5 @@ import "github.com/percona/pmm/managed/models"
 // haService is an interface for checking HA leadership status.
 type haService interface {
 	IsLeader() bool
-	GetParams() *models.HAParams
+	Params() *models.HAParams
 }

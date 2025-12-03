@@ -69,16 +69,17 @@ func (s *services) StartAllServices(ctx context.Context) {
 
 	for id, service := range s.all {
 		if _, ok := s.running[id]; !ok {
-			s.wg.Add(1)
 			s.running[id] = service
-			go func() {
-				s.l.Infoln("Starting", service.ID())
-				err := service.Start(ctx)
-				if err != nil {
-					s.l.Errorln(err)
-					s.removeService(service.ID())
+			s.wg.Go(func(svc LeaderService, svcID string) func() {
+				return func() {
+					s.l.Infoln("Starting", svcID)
+					err := svc.Start(ctx)
+					if err != nil {
+						s.l.Errorln(err)
+						s.removeService(svcID)
+					}
 				}
-			}()
+			}(service, id))
 		}
 	}
 }
@@ -92,7 +93,6 @@ func (s *services) StopAllServices() {
 		s.l.Infoln("Stopping", service.ID())
 		service.Stop()
 		delete(s.running, id)
-		s.wg.Done()
 	}
 }
 
@@ -111,5 +111,4 @@ func (s *services) removeService(id string) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 	delete(s.running, id)
-	s.wg.Done()
 }
