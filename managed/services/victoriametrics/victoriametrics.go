@@ -43,8 +43,8 @@ import (
 )
 
 const (
-	updateBatchDelay           = time.Second
-	configurationUpdateTimeout = 3 * time.Second
+	updateBatchDelay           = 3 * time.Second
+	configurationUpdateTimeout = 5 * time.Second
 
 	victoriametricsDir     = "/srv/victoriametrics"
 	victoriametricsDataDir = "/srv/victoriametrics/data"
@@ -242,7 +242,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 		_ = os.Remove(f.Name())
 	}()
 
-	args := []string{"-dryRun", "-promscrape.config", f.Name()}
+	args := []string{"-promscrape.config.dryRun=true", "-promscrape.config", f.Name()}
 	cmd := exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
