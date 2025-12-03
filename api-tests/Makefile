@@ -10,6 +10,7 @@ build:
 	go test -c -v ./inventory
 	go test -c -v ./management
 	go test -c -v ./server
+	go test -c -v ./user
 
 run:
 	go test -count=1 -p 1 -v ./... 2>&1 | tee pmm-api-tests-output.txt
