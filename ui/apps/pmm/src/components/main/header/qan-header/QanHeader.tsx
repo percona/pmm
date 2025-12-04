@@ -26,7 +26,7 @@ const QanHeader: FC = () => {
         <QanHeaderTabs />
         <QanHeaderActions />
       </Stack>
-      {isRealTime && <Divider sx={{ mx: 2, borderRadius: 4 }} />}{' '}
+      {isRealTime && <Divider sx={{ mx: 2 }} />}
     </>
   );
 };
