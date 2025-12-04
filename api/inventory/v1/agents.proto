@@ -31,6 +31,7 @@ enum AgentType {
   AGENT_TYPE_RDS_EXPORTER = 11;
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
+  AGENT_TYPE_MONGODB_REALTIME_AGENT = 19;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -522,6 +523,37 @@ message QANMongoDBMongologAgent {
   // Path to exec process.
   string process_exec_path = 21;
   // Log level for exporter.
+  LogLevel log_level = 22;
+}
+
+// MongoDBRealtimeAgent runs within pmm-agent and provides real-time analytics for MongoDB.
+message MongoDBRealtimeAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // MongoDB username for real-time analytics.
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 20;
+  // Path to exec process.
+  string process_exec_path = 21;
+  // Log level for agent.
   LogLevel log_level = 22;
 }
 
@@ -1330,6 +1362,28 @@ message ChangeQANMongoDBMongologAgentParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+}
+
+// Add/Change MongoDBRealtimeAgent
+
+message AddMongoDBRealtimeAgentParams {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 3;
+  // Skip connection check.
+  bool skip_connection_check = 4;
+  // Log level for agent.
+  LogLevel log_level = 5;
+}
+
+message ChangeMongoDBRealtimeAgentParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
 }
 
 // Add/Change QANPostgreSQLPgStatementsAgent

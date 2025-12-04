@@ -71,7 +71,8 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			agentTypes,
 			QANMongoDBProfilerAgentType,
 			QANMongoDBMongologAgentType,
-			MongoDBExporterType)
+			MongoDBExporterType,
+			MongoDBRealtimeAgentType)
 	default:
 		return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as service is unsupported")
 	}
