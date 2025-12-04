@@ -3,6 +3,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { FC } from 'react';
+import { Messages } from './RealTimeSelection.messages';
 
 const RealTimeSelectionPage: FC = () => {
   return (
@@ -15,34 +16,38 @@ const RealTimeSelectionPage: FC = () => {
           flex={1}
           sx={{ width: 320 }}
         >
-          <Typography variant="h5">Real-Time Query Analysis</Typography>
+          <Typography variant="h5">{Messages.title}</Typography>
           <Stack flexDirection="column" gap={2}>
             <Typography variant="body1" textAlign="center">
-              Select a service to start a new real-time session, showing all
-              executing queries and performance metrics.
+              {Messages.description}
             </Typography>
             <Autocomplete
               renderInput={(params) => (
-                <TextField {...params} label="Select a cluster" />
+                <TextField {...params} label={Messages.selectCluster} />
               )}
               options={[]}
             />
             <Autocomplete
               renderInput={(params) => (
-                <TextField {...params} label="Select a service" />
+                <TextField {...params} label={Messages.selectService} />
               )}
               options={[]}
             />
-            <Button variant="contained" color="primary">
-              Start
+            <Button disabled variant="contained" color="primary">
+              {Messages.start}
             </Button>
-            <Typography variant="body1" textAlign="center">
-              Feature available for MongoDB database technology only, more to
-              come soon.
-            </Typography>
-            <Stack justifyContent="center" flexDirection="row" gap={2}>
-              <Link>Documentation</Link>
-              <Link>Provide Feedback</Link>
+            <Stack direction="column" gap={1} mt={1}>
+              <Typography variant="body1" textAlign="center">
+                {Messages.featureAvailable}
+              </Typography>
+              <Stack justifyContent="center" flexDirection="row" gap={2}>
+                <Link href="#" rel="noopener noreferrer" target="_blank">
+                  {Messages.documentation}
+                </Link>
+                <Link href="#" rel="noopener noreferrer" target="_blank">
+                  {Messages.provideFeedback}
+                </Link>
+              </Stack>
             </Stack>
           </Stack>
         </Stack>

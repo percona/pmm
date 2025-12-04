@@ -1,4 +1,4 @@
-import QanHeader from 'components/main/header/QanHeader';
+import QanHeader from 'components/main/header/qan-header/QanHeader';
 import { useLocation } from 'react-router-dom';
 
 const useHeader = () => {
