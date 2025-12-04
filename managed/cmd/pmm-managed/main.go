@@ -674,9 +674,6 @@ func main() { //nolint:maintidx,cyclop
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
 		Envar("PMM_HA_ENABLE").
 		Bool()
-	haBootstrap := kingpin.Flag("ha-bootstrap", "Bootstrap HA cluster").
-		Envar("PMM_HA_BOOTSTRAP").
-		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
 		Envar("PMM_HA_NODE_ID").
 		String()
@@ -764,7 +761,6 @@ func main() { //nolint:maintidx,cyclop
 	}
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
-		Bootstrap:         *haBootstrap,
 		NodeID:            *haNodeID,
 		AdvertiseAddress:  *haAdvertiseAddress,
 		Nodes:             nodes,
@@ -846,21 +842,18 @@ func main() { //nolint:maintidx,cyclop
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
 	}
-	if haService.Bootstrap() {
-		migrateDB(ctx, sqlDB, setupParams)
-	}
+
+	migrateDB(ctx, sqlDB, setupParams)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	if haService.Bootstrap() {
-		// Generate unique PMM Server ID if it's not already.
-		err = models.SetPMMServerID(db)
-		if err != nil {
-			l.Panicf("failed to set PMM Server ID")
-		}
+	// Generate unique PMM Server ID if it's not already.
+	err = models.SetPMMServerID(db)
+	if err != nil {
+		l.Panicf("failed to set PMM Server ID")
 	}
 
 	cleaner := clean.New(db)

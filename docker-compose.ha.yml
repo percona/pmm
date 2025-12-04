@@ -135,7 +135,6 @@ services:
       - GO_VERSION=1.22
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_HA_ENABLE=1
-      - PMM_HA_BOOTSTRAP=1
       - PMM_HA_NODE_ID=pmm-server-active
       - PMM_HA_ADVERTISE_ADDRESS=172.20.0.5
       - PMM_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2

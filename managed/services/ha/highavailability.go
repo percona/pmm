@@ -156,7 +156,7 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 func New(params *models.HAParams) *Service {
 	return &Service{
 		params:           params,
-		bootstrapCluster: params.Bootstrap,
+		bootstrapCluster: params.Enabled,
 		services:         newServices(),
 		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
@@ -462,11 +462,6 @@ func (s *Service) IsLeader() bool {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	return !s.params.Enabled || (s.raftNode != nil && s.raftNode.State() == raft.Leader)
-}
-
-// Bootstrap returns true if HA service should bootstrap (true in non-HA setups).
-func (s *Service) Bootstrap() bool {
-	return s.params.Bootstrap || !s.params.Enabled
 }
 
 // Params returns HA parameters.

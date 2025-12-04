@@ -20,10 +20,9 @@ type HAParams struct {
 	GrafanaGossipPort int
 	// Enabled indicates whether HA is enabled.
 	Enabled          bool
-	Bootstrap        bool
 	NodeID           string
 	AdvertiseAddress string
-	// Nodes is a list of initial cluster nodes addresses.
+	// Nodes is a list of initial cluster node addresses.
 	Nodes      []string
 	RaftPort   int
 	GossipPort int
