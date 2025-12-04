@@ -128,6 +128,48 @@ copy_component() {
     cp -r ${component_dir}/${component_path} ${binary_dir}/${component_dest}
 }
 
+# Download OTEL Collector contrib binary for logs, traces, profiles, and eBPF collection
+download_otel_collector() {
+    # OTEL Collector version - update as needed
+    local OTEL_VERSION="${OTEL_COLLECTOR_VERSION:-0.96.0}"
+    
+    # Determine architecture
+    local arch
+    case "$(uname -m)" in
+        x86_64)
+            arch="amd64"
+            ;;
+        aarch64)
+            arch="arm64"
+            ;;
+        *)
+            echo "Unsupported architecture: $(uname -m)"
+            exit 1
+            ;;
+    esac
+
+    local otel_binary="${binary_dir}/bin/otelcol"
+    
+    if [ -x "${otel_binary}" ]; then
+        echo "OTEL Collector already exists, skipping download"
+        return
+    fi
+
+    echo "Downloading OTEL Collector contrib v${OTEL_VERSION} for linux/${arch}..."
+    
+    local download_url="https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${OTEL_VERSION}/otelcol-contrib_${OTEL_VERSION}_linux_${arch}.tar.gz"
+    local tmp_otel_dir="${tmp_dir}/otelcol"
+    
+    mkdir -p "${tmp_otel_dir}"
+    curl -L "${download_url}" | tar -xz -C "${tmp_otel_dir}"
+    
+    # Copy the binary to the output directory
+    cp "${tmp_otel_dir}/otelcol-contrib" "${otel_binary}"
+    chmod +x "${otel_binary}"
+    
+    echo "OTEL Collector downloaded successfully"
+}
+
 main() {
     rm -rf "${binary_dir}"
     extract_source_tarball
@@ -168,6 +210,9 @@ main() {
 
     cp -r ${tmp_dir}/go/src/github.com/hashicorp/nomad/pkg/linux_*/nomad ${binary_dir}/bin/nomad
     cp -r ${tmp_dir}/go/src/github.com/oliver006/redis_exporter/redis_exporter ${binary_dir}/bin/valkey_exporter
+
+    # Download OTEL Collector contrib binary for logs, traces, profiles, and eBPF collection
+    download_otel_collector
 
     if [[ "${BUILD_TYPE}" = "dynamic" ]]; then
         rm -f ${dynamic_binary_tarball}

@@ -77,6 +77,11 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
+
+	// OTELCollectorType represents the OpenTelemetry Collector agent.
+	// Phase 1: Collects logs from database and system log files.
+	// Future phases: Traces, eBPF instrumentation, profiles.
+	OTELCollectorType AgentType = "otel-collector"
 )
 
 var v2_42 = version.MustParse("2.42.0-0")
@@ -291,6 +296,66 @@ func (c ValkeyOptions) IsEmpty() bool {
 		c.SSLKey == ""
 }
 
+// =============================================================================
+// OTELOptions - Configuration for OpenTelemetry Collector agent
+// =============================================================================
+// OTELOptions stores configuration for the OTEL Collector.
+// This structure is designed to be extensible for future phases:
+// - Phase 1: Log collection (current)
+// - Phase 2: Traces collection
+// - Phase 3: eBPF instrumentation
+// - Phase 4: Profiles collection
+type OTELOptions struct {
+	// LogsConfig contains configuration for log collection.
+	LogsConfig OTELLogsConfig `json:"logs_config,omitempty"`
+
+	// ==========================================================================
+	// Future fields (Phase 2+) - Reserved for extensibility
+	// ==========================================================================
+	// TracesConfig   OTELTracesConfig   `json:"traces_config,omitempty"`   // Phase 2
+	// EBPFConfig     OTELEBPFConfig     `json:"ebpf_config,omitempty"`     // Phase 3
+	// ProfilesConfig OTELProfilesConfig `json:"profiles_config,omitempty"` // Phase 4
+}
+
+// OTELLogsConfig represents configuration for logs collection.
+type OTELLogsConfig struct {
+	// Enabled indicates if logs collection is enabled.
+	Enabled bool `json:"enabled,omitempty"`
+	// LogSources contains the log files to collect.
+	LogSources []LogSource `json:"log_sources,omitempty"`
+	// EnableSyslog enables syslog receiver.
+	EnableSyslog bool `json:"enable_syslog,omitempty"`
+	// SyslogPort is the port for syslog receiver.
+	SyslogPort uint32 `json:"syslog_port,omitempty"`
+	// EnableJournald enables journald receiver for systemd logs.
+	EnableJournald bool `json:"enable_journald,omitempty"`
+	// JournaldUnits are systemd units to collect logs from.
+	JournaldUnits []string `json:"journald_units,omitempty"`
+}
+
+// LogSource represents a single log file to be collected.
+type LogSource struct {
+	// Path to the log file (supports glob patterns).
+	Path string `json:"path,omitempty"`
+	// ServiceName identifies the service for log correlation.
+	ServiceName string `json:"service_name,omitempty"`
+	// ParserType: raw, json, regex.
+	ParserType string `json:"parser_type,omitempty"`
+	// Attributes are additional attributes to add to logs.
+	Attributes map[string]string `json:"attributes,omitempty"`
+}
+
+// Value implements database/sql/driver.Valuer interface.
+func (c OTELOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface.
+func (c *OTELOptions) Scan(src any) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all OTELOptions fields are unset or have zero values.
+func (c OTELOptions) IsEmpty() bool {
+	return !c.LogsConfig.Enabled && len(c.LogsConfig.LogSources) == 0
+}
+
 // Agent represents Agent as stored in database.
 //
 //reform:agents
@@ -328,6 +393,7 @@ type Agent struct {
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
 	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
+	OTELOptions       OTELOptions       `reform:"otel_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

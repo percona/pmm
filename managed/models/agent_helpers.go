@@ -1097,3 +1097,126 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 func IsPushMetricsSupported(pmmAgentVersion *string) bool {
 	return true
 }
+
+// =============================================================================
+// OTEL Collector Agent Helpers
+// =============================================================================
+// These functions manage OpenTelemetry Collector agents.
+//
+// Phase 1: Log collection from database and system log files.
+// Future phases: Traces, eBPF instrumentation, profiles.
+
+// CreateOTELCollectorParams contains parameters for creating an OTEL Collector agent.
+type CreateOTELCollectorParams struct {
+	// PMMAgentID is the ID of the pmm-agent that will run this OTEL Collector.
+	PMMAgentID string
+
+	// NodeID is the node this collector is associated with.
+	NodeID string
+
+	// CustomLabels are user-defined labels for this agent.
+	CustomLabels map[string]string
+
+	// LogsConfig contains configuration for log collection.
+	LogsConfig OTELLogsConfig
+}
+
+// CreateOTELCollector creates an OTEL Collector agent.
+// The agent will be managed by the specified pmm-agent and will collect logs
+// from the configured file paths.
+func CreateOTELCollector(q *reform.Querier, params *CreateOTELCollectorParams) (*Agent, error) {
+	// Generate a unique agent ID.
+	id := uuid.New().String()
+	if err := checkUniqueAgentID(q, id); err != nil {
+		return nil, err
+	}
+
+	// Verify the pmm-agent exists.
+	pmmAgent, err := FindAgentByID(q, params.PMMAgentID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Use provided NodeID or fall back to the pmm-agent's node.
+	nodeID := params.NodeID
+	if nodeID == "" {
+		nodeID = pointer.GetString(pmmAgent.RunsOnNodeID)
+	}
+
+	// Create the agent record.
+	row := &Agent{
+		AgentID:    id,
+		AgentType:  OTELCollectorType,
+		PMMAgentID: &params.PMMAgentID,
+		NodeID:     &nodeID,
+		OTELOptions: OTELOptions{
+			LogsConfig: params.LogsConfig,
+		},
+	}
+
+	// Set custom labels if provided.
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+		return nil, err
+	}
+
+	// Encrypt sensitive fields and insert into database.
+	encryptedAgent := EncryptAgent(*row)
+	if err := q.Insert(&encryptedAgent); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	agent := DecryptAgent(encryptedAgent)
+
+	return &agent, nil
+}
+
+// ChangeOTELCollectorParams contains parameters for changing an OTEL Collector agent.
+type ChangeOTELCollectorParams struct {
+	// Enable/disable the agent.
+	Enabled *bool
+
+	// CustomLabels replaces all existing custom labels.
+	CustomLabels map[string]string
+
+	// LogsConfig updates the logs collection configuration.
+	LogsConfig *OTELLogsConfig
+}
+
+// ChangeOTELCollector updates an existing OTEL Collector agent.
+func ChangeOTELCollector(q *reform.Querier, agentID string, params *ChangeOTELCollectorParams) (*Agent, error) {
+	// Find the existing agent.
+	row, err := FindAgentByID(q, agentID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify it's an OTEL Collector agent.
+	if row.AgentType != OTELCollectorType {
+		return nil, errors.Errorf("agent %s is not an OTEL Collector agent", agentID)
+	}
+
+	// Update enabled/disabled status.
+	if params.Enabled != nil {
+		row.Disabled = !*params.Enabled
+	}
+
+	// Update custom labels if provided.
+	if params.CustomLabels != nil {
+		if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+			return nil, err
+		}
+	}
+
+	// Update logs configuration if provided.
+	if params.LogsConfig != nil {
+		row.OTELOptions.LogsConfig = *params.LogsConfig
+	}
+
+	// Encrypt and update in database.
+	encryptedAgent := EncryptAgent(*row)
+	if err := q.Update(&encryptedAgent); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	agent := DecryptAgent(encryptedAgent)
+
+	return &agent, nil
+}

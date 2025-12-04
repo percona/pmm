@@ -1451,6 +1451,91 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 	return res, nil
 }
 
+// AddOTELCollector adds an OTEL Collector agent with the given parameters.
+// OTEL Collector for collecting logs (and future: traces, profiles, eBPF)
+// from database nodes.
+func (as *AgentsService) AddOTELCollector(ctx context.Context, p *inventoryv1.AddOTELCollectorParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.OTELCollector
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		// Convert proto logs config to model logs config.
+		logsConfig := convertProtoOTELLogsConfigToModel(p.LogsConfig)
+
+		row, err := models.CreateOTELCollector(tx.Querier, &models.CreateOTELCollectorParams{
+			PMMAgentID:   p.PmmAgentId,
+			CustomLabels: p.CustomLabels,
+			LogsConfig:   logsConfig,
+		})
+		if err != nil {
+			return err
+		}
+
+		aa, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		agent = aa.(*inventoryv1.OTELCollector) //nolint:forcetypeassert
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_OtelCollector{
+			OtelCollector: agent,
+		},
+	}
+
+	return res, nil
+}
+
+// ChangeOTELCollector updates an OTEL Collector agent with given parameters.
+// Allows updating log collection settings for the OTEL Collector.
+func (as *AgentsService) ChangeOTELCollector(ctx context.Context, agentID string, p *inventoryv1.ChangeOTELCollectorParams) (*inventoryv1.ChangeAgentResponse, error) {
+	var agent *inventoryv1.OTELCollector
+	var pmmAgentID string
+
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		// Convert proto params to model params.
+		modelParams := &models.ChangeOTELCollectorParams{
+			Enabled:      p.Enable,
+			CustomLabels: nil,
+		}
+		if p.CustomLabels != nil {
+			modelParams.CustomLabels = p.CustomLabels.Values
+		}
+		if p.LogsConfig != nil {
+			logsConfig := convertProtoOTELLogsConfigToModel(p.LogsConfig)
+			modelParams.LogsConfig = &logsConfig
+		}
+
+		row, err := models.ChangeOTELCollector(tx.Querier, agentID, modelParams)
+		if err != nil {
+			return err
+		}
+		pmmAgentID = pointer.GetString(row.PMMAgentID)
+
+		aa, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		agent = aa.(*inventoryv1.OTELCollector) //nolint:forcetypeassert
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.state.RequestStateUpdate(ctx, pmmAgentID)
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_OtelCollector{
+			OtelCollector: agent,
+		},
+	}
+	return res, nil
+}
+
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent
@@ -1480,4 +1565,32 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 	}
 
 	return nil
+}
+
+// convertProtoOTELLogsConfigToModel converts proto OTELLogsConfig to model OTELLogsConfig.
+func convertProtoOTELLogsConfigToModel(p *inventoryv1.OTELLogsConfig) models.OTELLogsConfig {
+	if p == nil {
+		return models.OTELLogsConfig{}
+	}
+
+	logsConfig := models.OTELLogsConfig{
+		Enabled:        p.Enabled,
+		EnableSyslog:   p.EnableSyslog,
+		SyslogPort:     p.SyslogPort,
+		EnableJournald: p.EnableJournald,
+		JournaldUnits:  p.JournaldUnits,
+	}
+
+	// Convert log sources.
+	logsConfig.LogSources = make([]models.LogSource, len(p.LogSources))
+	for i, src := range p.LogSources {
+		logsConfig.LogSources[i] = models.LogSource{
+			Path:        src.Path,
+			ServiceName: src.ServiceName,
+			ParserType:  src.ParserType,
+			Attributes:  src.Attributes,
+		}
+	}
+
+	return logsConfig
 }

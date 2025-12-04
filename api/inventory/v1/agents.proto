@@ -31,6 +31,8 @@ enum AgentType {
   AGENT_TYPE_RDS_EXPORTER = 11;
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
+  // OTEL Collector for logs, traces, profiles, and eBPF collection
+  AGENT_TYPE_OTEL_COLLECTOR = 19;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -93,6 +95,63 @@ message NomadAgent {
   string process_exec_path = 11;
   // Listen port for scraping metrics.
   uint32 listen_port = 12;
+}
+
+// LogSource represents a single log file to be collected by OTEL Collector.
+message LogSource {
+  // Path to the log file (supports glob patterns).
+  string path = 1;
+  // Service name to associate with logs from this source.
+  string service_name = 2;
+  // Parser type: raw, json, regex.
+  string parser_type = 3;
+  // Additional attributes to add to logs from this source.
+  map<string, string> attributes = 4;
+}
+
+// OTELLogsConfig represents configuration for logs collection.
+message OTELLogsConfig {
+  // Enable logs collection.
+  bool enabled = 1;
+  // Log sources to collect from.
+  repeated LogSource log_sources = 2;
+  // Enable syslog receiver.
+  bool enable_syslog = 3;
+  // Port for syslog receiver.
+  uint32 syslog_port = 4;
+  // Enable journald receiver for systemd logs.
+  bool enable_journald = 5;
+  // Systemd units to collect logs from.
+  repeated string journald_units = 6;
+}
+
+// OTELCollector runs on Generic or Container Node and collects logs, traces, profiles.
+// Extensible for future telemetry types (traces, metrics, eBPF, profiles).
+message OTELCollector {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 4;
+
+  // Configuration for logs collection.
+  OTELLogsConfig logs_config = 5;
+
+  // Future: traces_config, metrics_config, ebpf_config, profiles_config
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 20;
+  // Path to exec process.
+  string process_exec_path = 21;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 22;
 }
 
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
@@ -753,6 +812,7 @@ message ListAgentsResponse {
   repeated AzureDatabaseExporter azure_database_exporter = 15;
   repeated NomadAgent nomad_agent = 16;
   repeated ValkeyExporter valkey_exporter = 17;
+  repeated OTELCollector otel_collector = 19;
 }
 
 // Get
@@ -782,6 +842,7 @@ message GetAgentResponse {
     AzureDatabaseExporter azure_database_exporter = 15;
     NomadAgent nomad_agent = 16;
     ValkeyExporter valkey_exporter = 17;
+    OTELCollector otel_collector = 19;
   }
 }
 
@@ -821,6 +882,7 @@ message AddAgentRequest {
     AddQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
     AddValkeyExporterParams valkey_exporter = 15;
+    AddOTELCollectorParams otel_collector = 17;
   }
 }
 
@@ -842,6 +904,7 @@ message AddAgentResponse {
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
     ValkeyExporter valkey_exporter = 15;
+    OTELCollector otel_collector = 17;
   }
 }
 
@@ -867,6 +930,7 @@ message ChangeAgentRequest {
     ChangeQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
     ChangeNomadAgentParams nomad_agent = 15;
     ChangeValkeyExporterParams valkey_exporter = 16;
+    ChangeOTELCollectorParams otel_collector = 18;
   }
 }
 
@@ -890,6 +954,7 @@ message ChangeAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
     NomadAgent nomad_agent = 15;
     ValkeyExporter valkey_exporter = 16;
+    OTELCollector otel_collector = 18;
   }
 }
 
@@ -1586,6 +1651,26 @@ message ChangeValkeyExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+}
+
+// Add OTEL Collector
+
+message AddOTELCollectorParams {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 2;
+  // Configuration for logs collection.
+  OTELLogsConfig logs_config = 3;
+}
+
+message ChangeOTELCollectorParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Configuration for logs collection.
+  OTELLogsConfig logs_config = 3;
 }
 
 // Remove

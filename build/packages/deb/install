@@ -14,6 +14,7 @@ rds_exporter /usr/local/percona/pmm/exporters/
 azure_exporter /usr/local/percona/pmm/exporters/
 valkey_exporter /usr/local/percona/pmm/exporters/
 vmagent /usr/local/percona/pmm/exporters/
+otelcol /usr/local/percona/pmm/exporters/
 example.prom /usr/local/percona/pmm/collectors/textfile-collector/low-resolution/
 example.prom /usr/local/percona/pmm/collectors/textfile-collector/medium-resolution/
 example.prom /usr/local/percona/pmm/collectors/textfile-collector/high-resolution/

@@ -237,6 +237,29 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 			agentProcesses[row.AgentID] = config
 
+		// ==========================================================================
+		// OTEL Collector - OpenTelemetry-based observability agent
+		// ==========================================================================
+		// Phase 1: Log collection from database and system log files.
+		// Future phases will add: traces, eBPF, profiles.
+		case models.OTELCollectorType:
+			// Find the node this agent runs on for metadata enrichment.
+			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			if err != nil {
+				return err
+			}
+
+			// Get PMM Server OTLP endpoint from settings.
+			// TODO: Make this configurable via settings.
+			pmmServerOTLPEndpoint := u.getOTLPEndpoint()
+
+			// Generate OTEL collector configuration.
+			config, err := otelCollectorConfig(node, row, pmmServerOTLPEndpoint, pmmAgentVersion)
+			if err != nil {
+				return err
+			}
+			agentProcesses[row.AgentID] = config
+
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
 			models.ValkeyExporterType, models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType,
@@ -328,4 +351,31 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}
 	l.Infof("SetState response: %+v.", resp)
 	return nil
+}
+
+// =============================================================================
+// OTEL Collector helper methods
+// =============================================================================
+
+// getOTLPEndpoint returns the PMM Server OTLP endpoint for OTEL collectors.
+// This endpoint is where OTEL collectors send their telemetry data.
+//
+// The endpoint is constructed from PMM Server settings.
+// Format: "pmm-server:4317" (gRPC) or "pmm-server:4318" (HTTP)
+//
+// TODO: In future, this should be configurable via PMM Server settings.
+// TODO: Support TLS configuration for secure communication.
+func (u *StateUpdater) getOTLPEndpoint() string {
+	// For now, return a default endpoint.
+	// The actual PMM Server address should be determined from settings.
+	//
+	// When OTEL gateway is deployed on PMM Server, it will listen on:
+	// - Port 4317 for gRPC OTLP
+	// - Port 4318 for HTTP OTLP
+	//
+	// The pmm-agent knows the PMM Server address, so we can use a placeholder
+	// that gets resolved at runtime.
+	//
+	// TODO: Get actual PMM Server address from settings or configuration.
+	return "pmm-server:4317"
 }

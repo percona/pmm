@@ -54,6 +54,7 @@ type AddAgentCommand struct {
 	PostgresExporter AddAgentPostgresExporterCommand `cmd:"" help:"Add postgres_exporter to inventory"`
 	ProxysqlExporter AddAgentProxysqlExporterCommand `cmd:"" help:"Add proxysql_exporter to inventory"`
 	ValkeyExporter   AddAgentValkeyExporterCommand   `cmd:"" help:"Add valkey_exporter to inventory"`
+	OTELCollector    AddAgentOTELCollectorCommand    `cmd:"" name:"otel-collector" help:"Add OTEL Collector for logs collection to inventory"`
 
 	QANMongoDBProfilerAgent         AddAgentQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Add QAN MongoDB profiler agent to inventory"`
 	QANMongoDBMongologAgent         AddAgentQANMongoDBMongologAgentCommand         `cmd:"" name:"qan-mongodb-mongolog-agent" help:"Add QAN MongoDB mongolog agent to inventory"`

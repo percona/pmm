@@ -1165,6 +1165,12 @@ var databaseSchema = [][]string{
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
+	// Add OTEL Collector support for collecting logs, traces, profiles, and eBPF data
+	// from database nodes. This column stores the OTEL Collector configuration options.
+	114: {
+		`ALTER TABLE agents ADD COLUMN otel_options JSONB`,
+		`UPDATE agents SET otel_options = '{}'::jsonb`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

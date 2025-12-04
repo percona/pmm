@@ -1,0 +1,111 @@
+# OpenTelemetry Collector configuration for PMM Server
+# This collector receives logs from pmm-client OTEL collectors and exports to ClickHouse
+#
+# Architecture:
+#   pmm-client (otelcol) --OTLP--> PMM Server (otelcol) ---> ClickHouse
+#
+# Extensible for future: traces, metrics, profiles
+
+receivers:
+  # OTLP receiver for logs from pmm-clients
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+processors:
+  # Batch processor for efficient writes to ClickHouse
+  batch:
+    timeout: 5s
+    send_batch_size: 1000
+    send_batch_max_size: 2000
+
+  # Memory limiter to prevent OOM
+  memory_limiter:
+    limit_mib: 512
+    check_interval: 1s
+
+  # Resource processor to add server-side attributes
+  resource:
+    attributes:
+      - key: pmm.server.version
+        value: "${PMM_VERSION}"
+        action: insert
+      - key: collector.name
+        value: "pmm-server-otel"
+        action: insert
+
+  # Transform processor for log enrichment
+  transform/logs:
+    log_statements:
+      - context: log
+        statements:
+          # Ensure timestamp is set
+          - set(time_unix_nano, observed_time_unix_nano) where time_unix_nano == 0
+
+exporters:
+  # ClickHouse exporter for logs storage
+  clickhouse:
+    endpoint: "tcp://127.0.0.1:9000"
+    database: pmm
+    # Logs table configuration
+    logs_table_name: otel_logs
+    # TTL for data retention (30 days)
+    ttl: 720h
+    # Create tables if not exist
+    create_schema: true
+    # Connection settings
+    timeout: 10s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+
+  # Debug exporter for troubleshooting (disabled in production)
+  # debug:
+  #   verbosity: detailed
+
+extensions:
+  # Health check endpoint
+  health_check:
+    endpoint: "0.0.0.0:13133"
+
+  # Performance profiling (optional)
+  pprof:
+    endpoint: "0.0.0.0:1777"
+
+  # zPages for debugging (optional)
+  zpages:
+    endpoint: "0.0.0.0:55679"
+
+service:
+  extensions: [health_check, pprof, zpages]
+  
+  pipelines:
+    # Logs pipeline: receive from clients, process, export to ClickHouse
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource, transform/logs]
+      exporters: [clickhouse]
+
+    # Future: Traces pipeline (uncomment when ready)
+    # traces:
+    #   receivers: [otlp]
+    #   processors: [memory_limiter, batch, resource]
+    #   exporters: [clickhouse]
+
+    # Future: Metrics pipeline (uncomment when ready)
+    # metrics:
+    #   receivers: [otlp]
+    #   processors: [memory_limiter, batch, resource]
+    #   exporters: [clickhouse]
+
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: "0.0.0.0:8888"
+

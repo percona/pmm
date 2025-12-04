@@ -106,6 +106,8 @@ install -m 0755 bin/rds_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/azure_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/valkey_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/vmagent $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
+# OTEL Collector for logs, traces, profiles, and eBPF collection
+install -m 0755 bin/otelcol $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/pt-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0755 bin/pt-mysql-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0755 bin/pt-mongodb-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools

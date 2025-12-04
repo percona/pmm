@@ -105,6 +105,11 @@ type Paths struct {
 	VMAgent string `yaml:"vmagent"`
 	Nomad   string `yaml:"nomad"`
 
+	// OTELCollector is the path to the OpenTelemetry Collector binary (otelcol-contrib).
+	// Phase 1: Used for log collection from database and system files.
+	// Future phases: Will also handle traces, eBPF instrumentation, profiles.
+	OTELCollector string `yaml:"otel_collector"`
+
 	TempDir      string `yaml:"tempdir"`
 	NomadDataDir string `yaml:"nomad_data_dir"`
 
@@ -235,6 +240,9 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.AzureExporter:    "azure_exporter",
 			&cfg.Paths.VMAgent:          "vmagent",
+			// OpenTelemetry Collector binary (otelcol-contrib).
+			// Used for log collection (Phase 1), future: traces, eBPF, profiles.
+			&cfg.Paths.OTELCollector: "otelcol",
 			&cfg.Paths.PTSummary:        "tools/pt-summary",
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
@@ -298,6 +306,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			"rds_exporter":      &cfg.Paths.RDSExporter,
 			"azure_exporter":    &cfg.Paths.AzureExporter,
 			"vmagent":           &cfg.Paths.VMAgent,
+			"otelcol":           &cfg.Paths.OTELCollector, // OpenTelemetry Collector
 		} {
 			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
 				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)

@@ -556,6 +556,19 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}
 		return exporter, nil
 
+	// OTEL Collector for logs, traces, profiles, and eBPF collection
+	case models.OTELCollectorType:
+		return &inventoryv1.OTELCollector{
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			Disabled:        agent.Disabled,
+			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:    labels,
+			ProcessExecPath: processExecPath,
+			LogsConfig:      convertOTELLogsConfig(agent.OTELOptions.LogsConfig),
+		}, nil
+
 	default:
 		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}
@@ -577,6 +590,35 @@ func ConvertMetricsResolutions(resolutions *models.MetricsResolutions) *common.M
 		res.Lr = durationpb.New(resolutions.LR)
 	}
 	return &res
+}
+
+// convertOTELLogsConfig converts model OTELLogsConfig to proto OTELLogsConfig.
+// OTEL Collector support for logs collection from database nodes.
+func convertOTELLogsConfig(config models.OTELLogsConfig) *inventoryv1.OTELLogsConfig {
+	if !config.Enabled && len(config.LogSources) == 0 {
+		return nil
+	}
+
+	protoConfig := &inventoryv1.OTELLogsConfig{
+		Enabled:        config.Enabled,
+		EnableSyslog:   config.EnableSyslog,
+		SyslogPort:     config.SyslogPort,
+		EnableJournald: config.EnableJournald,
+		JournaldUnits:  config.JournaldUnits,
+	}
+
+	// Convert log sources
+	protoConfig.LogSources = make([]*inventoryv1.LogSource, len(config.LogSources))
+	for i, src := range config.LogSources {
+		protoConfig.LogSources[i] = &inventoryv1.LogSource{
+			Path:        src.Path,
+			ServiceName: src.ServiceName,
+			ParserType:  src.ParserType,
+			Attributes:  src.Attributes,
+		}
+	}
+
+	return protoConfig
 }
 
 // SpecifyLogLevel - convert proto enum to string

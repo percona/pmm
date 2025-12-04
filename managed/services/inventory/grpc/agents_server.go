@@ -57,6 +57,8 @@ var agentTypes = map[inventoryv1.AgentType]models.AgentType{
 	inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:            models.AzureDatabaseExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:                           models.VMAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:                        models.NomadAgentType,
+	// OTEL Collector for logs, traces, profiles, and eBPF collection
+	inventoryv1.AgentType_AGENT_TYPE_OTEL_COLLECTOR: models.OTELCollectorType,
 }
 
 func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
@@ -119,6 +121,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.VmAgent = append(res.VmAgent, agent)
 		case *inventoryv1.NomadAgent:
 			res.NomadAgent = append(res.NomadAgent, agent)
+		case *inventoryv1.OTELCollector:
+			res.OtelCollector = append(res.OtelCollector, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -171,6 +175,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		// skip it, fix later if needed.
 	case *inventoryv1.NomadAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_NomadAgent{NomadAgent: agent}
+	case *inventoryv1.OTELCollector:
+		res.Agent = &inventoryv1.GetAgentResponse_OtelCollector{OtelCollector: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
@@ -225,6 +231,8 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
+	case *inventoryv1.AddAgentRequest_OtelCollector:
+		return s.s.AddOTELCollector(ctx, req.GetOtelCollector())
 	default:
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
@@ -267,6 +275,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agentID, req.GetQanPostgresqlPgstatmonitorAgent())
 	case *inventoryv1.ChangeAgentRequest_NomadAgent:
 		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
+	case *inventoryv1.ChangeAgentRequest_OtelCollector:
+		return s.s.ChangeOTELCollector(ctx, agentID, req.GetOtelCollector())
 	default:
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
