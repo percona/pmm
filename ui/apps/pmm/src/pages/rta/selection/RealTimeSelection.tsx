@@ -17,7 +17,7 @@ const RealTimeSelectionPage: FC = () => {
           sx={{ width: 320 }}
         >
           <Typography variant="h5">{Messages.title}</Typography>
-          <Stack flexDirection="column" gap={2}>
+          <Stack flexDirection="column" gap={3}>
             <Typography variant="body1" textAlign="center">
               {Messages.description}
             </Typography>
@@ -36,15 +36,29 @@ const RealTimeSelectionPage: FC = () => {
             <Button disabled variant="contained" color="primary">
               {Messages.start}
             </Button>
-            <Stack direction="column" gap={1} mt={1}>
-              <Typography variant="body1" textAlign="center">
+            <Stack direction="column" gap={1}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                textAlign="center"
+              >
                 {Messages.featureAvailable}
               </Typography>
               <Stack justifyContent="center" flexDirection="row" gap={2}>
-                <Link href="#" rel="noopener noreferrer" target="_blank">
+                <Link
+                  variant="body2"
+                  href="#"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
                   {Messages.documentation}
                 </Link>
-                <Link href="#" rel="noopener noreferrer" target="_blank">
+                <Link
+                  variant="body2"
+                  href="#"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
                   {Messages.provideFeedback}
                 </Link>
               </Stack>

@@ -10,15 +10,15 @@ const QanHeaderTabs: FC = () => {
   const isRealTime = useIsRealTimeQan();
 
   return (
-    <Tabs value={isRealTime}>
+    <Tabs value={isRealTime ? 'real-time' : 'historical'}>
       <Tab
-        value={false}
+        value="historical"
         label={Messages.tabHistorical}
         component={Link}
         to={`${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`}
       />
       <Tab
-        value={true}
+        value="real-time"
         label={Messages.tabRealTime}
         component={Link}
         to={`${PMM_NEW_NAV_PATH}/rta`}
