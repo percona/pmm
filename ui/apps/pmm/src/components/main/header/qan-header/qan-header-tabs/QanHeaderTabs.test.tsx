@@ -4,7 +4,7 @@ import QanHeaderTabs from './QanHeaderTabs';
 import { Route, Routes } from 'react-router-dom';
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
 
-const TextComponent = () => (
+const TabsTestComponent = () => (
   <>
     <QanHeaderTabs />
     <Routes>
@@ -23,7 +23,7 @@ const TextComponent = () => (
 
 describe('QanHeaderTabs', () => {
   it('should render', () => {
-    render(wrapWithRouter(<TextComponent />));
+    render(wrapWithRouter(<TabsTestComponent />));
 
     expect(
       screen.getByTestId('qan-header-tabs-historical-tab')
@@ -34,7 +34,7 @@ describe('QanHeaderTabs', () => {
   });
 
   it('should navigate to historical tab', async () => {
-    render(wrapWithRouter(<TextComponent />));
+    render(wrapWithRouter(<TabsTestComponent />));
 
     fireEvent.click(screen.getByTestId('qan-header-tabs-historical-tab'));
 
@@ -45,7 +45,7 @@ describe('QanHeaderTabs', () => {
   });
 
   it('should navigate to real-time tab', async () => {
-    render(wrapWithRouter(<TextComponent />));
+    render(wrapWithRouter(<TabsTestComponent />));
 
     fireEvent.click(screen.getByTestId('qan-header-tabs-real-time-tab'));
 
