@@ -132,7 +132,6 @@ services:
       - GF_DATABASE_PASSWORD=grafana
       - GF_DATABASE_HOST=pg
       - GF_DATABASE_PORT=5432
-      - GO_VERSION=1.22
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_HA_ENABLE=1
       - PMM_HA_NODE_ID=pmm-server-active
@@ -225,7 +224,6 @@ services:
       - GF_DATABASE_PORT=5432
       # - GF_DATABASE_SSL_MODE=require
       # - PMM_DEBUG=1
-      - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_HA_ENABLE=1
       - PMM_HA_NODE_ID=pmm-server-passive
@@ -312,7 +310,6 @@ services:
       - GF_DATABASE_PORT=5432
       # - GF_DATABASE_SSL_MODE=require
       # - PMM_DEBUG=1
-      - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_HA_ENABLE=1
       - PMM_HA_NODE_ID=pmm-server-passive-2

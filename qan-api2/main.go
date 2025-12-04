@@ -63,10 +63,11 @@ import (
 )
 
 const (
-	shutdownTimeout = 3 * time.Second
-	defaultDsnF     = "clickhouse://%s:%s@%s/%s"
-	maxIdleConns    = 5
-	maxOpenConns    = 10
+	shutdownTimeout                 = 3 * time.Second
+	defaultDropOldPartitionInterval = 24 * time.Hour
+	defaultDsnF                     = "clickhouse://%s:%s@%s/%s"
+	maxIdleConns                    = 5
+	maxOpenConns                    = 10
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -319,11 +320,10 @@ func main() {
 	mbm := models.NewMetricsBucket(db)
 	prom.MustRegister(mbm)
 	mbmCtx, mbmCancel := context.WithCancel(context.Background())
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+
+	wg.Go(func() {
 		mbm.Run(mbmCtx)
-	}()
+	})
 
 	wg.Add(1)
 	go func() {
@@ -335,24 +335,19 @@ func main() {
 		runGRPCServer(ctx, db, mbm, *grpcBindF)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runJSONServer(ctx, *grpcBindF, *jsonBindF)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runDebugServer(ctx, *debugBindF)
-	}()
+	})
 
-	ticker := time.NewTicker(24 * time.Hour)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
+		ticker := time.NewTicker(defaultDropOldPartitionInterval)
+		defer ticker.Stop()
 		for {
-			// Drop old partitions once in 24h.
+			// Drop old partitions once per interval.
 			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
 			select {
 			case <-ctx.Done():
@@ -361,7 +356,7 @@ func main() {
 				// nothing
 			}
 		}
-	}()
+	})
 
 	wg.Wait()
 }

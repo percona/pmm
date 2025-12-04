@@ -185,6 +185,7 @@ func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 // Run runs cache invalidator which removes expired cache items.
 func (s *AuthServer) Run(ctx context.Context) {
 	t := time.NewTicker(cacheInvalidationPeriod)
+	defer t.Stop()
 
 	for {
 		select {
