@@ -187,15 +187,15 @@ func TestEnvVarValidator(t *testing.T) {
 		}{
 			{
 				value: "", respVal: time.Second * 30,
-				msg: "Environment variable \"PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API.",
+				msg: "Setting the default timeout for Platform API to 30s.",
 			},
 			{
 				value: "10s", respVal: time.Second * 10,
-				msg: "Using \"10s\" as a timeout for platform API.",
+				msg: "Set the timeout for Platform API to 10s.",
 			},
 			{
 				value: "xxx", respVal: time.Second * 30,
-				msg: "Using \"30s\" as a default: failed to parse platform API timeout \"xxx\": invalid duration error.",
+				msg: "Set the default Platform API to 30s: failed to parse timeout xxx: invalid duration error.",
 			},
 		}
 		for _, c := range userCase {
