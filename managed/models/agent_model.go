@@ -315,6 +315,7 @@ type Agent struct {
 	ListenPort      *uint16 `reform:"listen_port"`
 	Version         *string `reform:"version"`
 	ProcessExecPath *string `reform:"process_exec_path"`
+	IsConnected     bool    `reform:"is_connected"`
 
 	Username      *string `reform:"username"`
 	Password      *string `reform:"password"`

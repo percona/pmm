@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package agents contains business logic of working with pmm-agent.
+// Package agents contains business logic for working with pmm-agent.
 package agents
 
 import (
@@ -125,14 +125,14 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 			Subsystem:  prometheusSubsystem,
 			Name:       "round_trip_seconds",
 			Help:       "Round-trip time.",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
 		}),
 		mClockDrift: prom.NewSummary(prom.SummaryOpts{
 			Namespace:  prometheusNamespace,
 			Subsystem:  prometheusSubsystem,
 			Name:       "clock_drift_seconds",
 			Help:       "Clock drift.",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
 		}),
 
 		isExternalVM: vmParams.ExternalVM(),
@@ -156,8 +156,23 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 	return r
 }
 
-// IsConnected returns true if pmm-agent with given ID is currently connected, false otherwise.
+// IsConnected returns true if pmm-agent is currently connected, false otherwise.
+// In HA mode, this queries the database to support distributed environments.
+// In non-HA mode, this checks the in-memory registry for better performance.
 func (r *Registry) IsConnected(pmmAgentID string) bool {
+	if r.haService.Params().Enabled {
+		var connected bool
+		err := r.db.InTransaction(func(tx *reform.TX) error {
+			agent, err := models.FindAgentByID(tx.Querier, pmmAgentID)
+			if err != nil {
+				return err
+			}
+			connected = agent.IsConnected
+			return nil
+		})
+		return err == nil && connected
+	}
+
 	_, err := r.get(pmmAgentID)
 	return err == nil
 }
@@ -223,6 +238,25 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		kickChan:        make(chan struct{}),
 	}
 	r.agents[agentMD.ID] = agent
+
+	// Only persist is_connected to database when HA is enabled
+	if r.haService.Params().Enabled {
+		err = r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			a, err := models.FindAgentByID(tx.Querier, agentMD.ID)
+			if err != nil {
+				return fmt.Errorf("failed to find agent: %w", err)
+			}
+			a.IsConnected = true
+			if err := tx.Update(a); err != nil {
+				return fmt.Errorf("failed to update agent: %w", err)
+			}
+			return nil
+		})
+		if err != nil {
+			l.Errorf("Failed to update the connection status for agent %s: %v", agentMD.ID, err)
+		}
+	}
+
 	return agent, nil
 }
 
@@ -277,7 +311,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 }
 
 // unregister removes pmm-agent with given ID from the registry.
-func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo {
+func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason string) *pmmAgentInfo {
 	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
 
 	r.rw.Lock()
@@ -293,6 +327,31 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 
 	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
+
+	// Only persist is_connected to database when HA is enabled
+	if r.haService.Params().Enabled {
+		l := logger.Get(ctx)
+		err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
+			if err != nil {
+				// Agent might have been deleted, which is fine
+				if status.Code(err) == codes.NotFound {
+					return nil
+				}
+				return fmt.Errorf("failed to find agent: %w", err)
+			}
+			a.IsConnected = false
+			if err := tx.Update(a); err != nil {
+				return fmt.Errorf("failed to update agent: %w", err)
+			}
+			return nil
+		})
+		if err != nil {
+			// Log but don't fail - agent is already disconnected from registry
+			l.Errorf("Failed to update the connection status for agent %s: %v", pmmAgentID, err)
+		}
+	}
+
 	return agent
 }
 
@@ -310,7 +369,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	}
 	roundtrip := time.Since(start)
 	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
-	clockDrift := agentTime.Sub(start) - roundtrip/2
+	clockDrift := agentTime.Sub(start) - roundtrip/2       //nolint:mnd
 	if clockDrift < 0 {
 		clockDrift = -clockDrift
 	}
@@ -320,8 +379,8 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	return nil
 }
 
-// addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent not exists yet,
-// otherwise ensures that vmAgent not exist for pmm-agent and pmm-agent's agents don't have push_metrics mode,
+// addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent does not exist yet,
+// otherwise ensures that vmAgent does not start for pmm-agent when pmm-agent's agents don't have push_metrics mode,
 // removes it if needed.
 func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
 	return r.addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
@@ -371,7 +430,7 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 
 // Kick unregisters and forcefully disconnects pmm-agent with given ID.
 func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
-	agent := r.unregister(pmmAgentID, "kick")
+	agent := r.unregister(ctx, pmmAgentID, "kick")
 	if agent == nil {
 		return
 	}
