@@ -6,3 +6,11 @@ export const documentTitleObserver = {
       childList: true,
     }),
 };
+
+export const updateBodyClassByLocation = (location: Location) => {
+  const previous = Array.from(document.body.classList).find((className) => className.startsWith('grafana-compat-page'));
+  if (previous) {
+    document.body.classList.remove(previous);
+  }
+  document.body.classList.add(`grafana-compat-page${location.pathname.replace('/graph', '').replaceAll('/', '-')}`);
+};

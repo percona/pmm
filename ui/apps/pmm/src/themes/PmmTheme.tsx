@@ -173,6 +173,7 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
         styleOverrides: {
           colorWarning: {
             backgroundColor: peakTheme.warning.light,
+            color: peakTheme.warning.contrast,
           },
         },
       },
@@ -240,6 +241,14 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
           arrow: () => ({
             color: peakTheme.neutral.primary.main,
           }),
+        },
+      },
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: peakTheme.text.sky,
+            textDecorationColor: peakTheme.text.sky,
+          },
         },
       },
     },
