@@ -773,6 +773,7 @@ type CreateAgentParams struct {
 	Disabled          bool
 	ExporterOptions   ExporterOptions
 	QANOptions        QANOptions
+	RTAOptions        RTAOptions
 	AWSOptions        AWSOptions
 	AzureOptions      AzureOptions
 	MongoDBOptions    MongoDBOptions
@@ -912,6 +913,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		TLSSkipVerify:     params.TLSSkipVerify,
 		ExporterOptions:   params.ExporterOptions,
 		QANOptions:        params.QANOptions,
+		RTAOptions:        params.RTAOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
 		MongoDBOptions:    params.MongoDBOptions,

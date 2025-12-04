@@ -1165,6 +1165,10 @@ var databaseSchema = [][]string{
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
+	114: {
+		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
+		`UPDATE agents SET rta_options = '{}'::jsonb`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

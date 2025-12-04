@@ -292,6 +292,22 @@ func (c ValkeyOptions) IsEmpty() bool {
 		c.SSLKey == ""
 }
 
+// RTAOptions represents structure for Real-Time Analytics options.
+// Currently empty but reserved for future RTA-specific configuration.
+type RTAOptions struct {
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c RTAOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *RTAOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all RTAOptions fields are unset or have zero values, otherwise returns false.
+func (c RTAOptions) IsEmpty() bool {
+	return true
+}
+
 // Agent represents Agent as stored in database.
 //
 //reform:agents
@@ -322,6 +338,7 @@ type Agent struct {
 
 	ExporterOptions ExporterOptions `reform:"exporter_options"`
 	QANOptions      QANOptions      `reform:"qan_options"`
+	RTAOptions      RTAOptions      `reform:"rta_options"`
 
 	AWSOptions        AWSOptions        `reform:"aws_options"`
 	AzureOptions      AzureOptions      `reform:"azure_options"`
