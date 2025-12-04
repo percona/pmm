@@ -10,15 +10,22 @@ Every component is written in Go, with the exception of the UI, which is based o
 
 - **pmm-managed** (`/managed`) - Backend service managing PMM Server configuration, exposes gRPC/REST APIs
 - **pmm-agent** (`/agent`) - Client-side agent that runs exporters and collects metrics via VMAgent
-- **pmm-admin** (`/admin`) - CLI tool for managing monitored services
+- **pmm-admin** (`/admin`) - CLI tool for managing monitored services, wraps pmm-agent functionality
 - **qan-api2** (`/qan-api2`) - Query Analytics API service
-- **APIs** (`/api`) - Protobuf definitions for all services
-- **UI** (`/ui`) - Grafana-based frontend
+- **APIs** (`/api`) - Protobuf definitions and generated clients for all services
+- **API Tests** (`/api-tests`) - Integration tests for PMM APIs
+- **UI** (`/ui`) - React-based PMM frontend
 - **VMProxy** (`/vmproxy`) - VMProxy is a stateless reverse proxy for VictoriaMetrics
-- **Documentation** (`/docs`) - PMM documentation
+- **Utils** (`/utils`) - Shared utility libraries for PMM components
+- **API Documentation** (`/docs`) - PMM API documentation
+- **Documentation** (`/documentation`) - Documentation source files
+
+### Other Directories
+- **build** (`/build`) - Build scripts and Dockerfiles
+- **scripts** (`/scripts`) - Utility scripts for development and maintenance
 
 # AI Agent Instructions
 
 The following guidelines are intended to help AI coding agents contribute effectively to the PMM codebase. Every component will have its own AI coding instructions, provided in their respective directories. This file serves as a general overview and points to the canonical location for AI coding instructions.
 
-See [managed/AGENT.md](../managed/AGENT.md) for comprehensive PMM development guidelines.
+See [managed/AGENT.md](../managed/AGENT.md) for comprehensive AI-driven PMM development guidelines.

@@ -879,8 +879,7 @@ func main() { //nolint:maintidx,cyclop
 	haService.AddLeaderService(ha.NewStandardService(
 		"agentsRegistry",
 		func(_ context.Context) error { return nil },
-		func() { agentsRegistry.KickAll(ctx) },
-	))
+		func() { agentsRegistry.KickAll(ctx) }))
 
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
