@@ -9,7 +9,7 @@ import { constructUrl } from 'utils/link.utils';
 import { enqueueSnackbar } from 'notistack';
 import { RunningAgentsModal } from 'components/modal-rt-running-agents';
 
-const QanHeaderActions: FC = () => {
+export const QanHeaderActions: FC = () => {
   const { mutateAsync: createShortUrl } = useCreateShortUrl();
   const [openRunningAgentsModal, setOpenRunningAgentsModal] = useState(false);
 
@@ -39,12 +39,18 @@ const QanHeaderActions: FC = () => {
   return (
     <>
       <Stack gap={1} flex={1} flexDirection="row" justifyContent="flex-end">
-        <IconButton onClick={handleOpenRunningAgentsModal}>
+        <IconButton
+          data-testid="qan-header-actions-running-agents-button"
+          onClick={handleOpenRunningAgentsModal}
+        >
           <Badge color="warning" badgeContent={3}>
             <ElectricBoltOutlinedIcon />
           </Badge>
         </IconButton>
-        <IconButton onClick={handleCopy}>
+        <IconButton
+          data-testid="qan-header-actions-copy-button"
+          onClick={handleCopy}
+        >
           <ShareOutlinedIcon />
         </IconButton>
       </Stack>

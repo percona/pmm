@@ -9,25 +9,41 @@ import AddIcon from '@mui/icons-material/Add';
 
 type Props = Pick<ModalProps, 'open' | 'onClose'>;
 
+// Placeholder for the running agents modal
 const RunningAgentsModal: FC<Props> = ({ open, onClose }) => (
-  <Modal open={open} title={Messages.title} onClose={onClose}>
+  <Modal
+    data-testid="running-agents-modal"
+    open={open}
+    title={Messages.title}
+    onClose={onClose}
+  >
     <Stack gap={2} direction="column">
       <Typography variant="body2" color="text.secondary">
         {Messages.description}
       </Typography>
       <Stack direction="row" justifyContent="space-between" gap={2}>
-        <Button variant="text" color="primary" startIcon={<AddIcon />}>
+        <Button
+          data-testid="running-agents-modal-add-another-button"
+          variant="text"
+          color="primary"
+          startIcon={<AddIcon />}
+        >
           {Messages.actions.addAnother}
         </Button>
         <Stack direction="row" gap={2}>
           <Button
             variant="text"
             color="primary"
+            data-testid="running-agents-modal-close-window-button"
             onClick={() => onClose?.({}, 'escapeKeyDown')}
           >
             {Messages.actions.closeWindow}
           </Button>
-          <Button variant="contained" color="primary">
+          <Button
+            data-testid="running-agents-modal-stop-all-agents-button"
+            variant="contained"
+            color="primary"
+          >
             {Messages.actions.stopAllAgents}
           </Button>
         </Stack>

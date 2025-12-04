@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import useHeader from 'hooks/useHeader';
+import { useHeader } from 'hooks/useHeader';
 import { FC, PropsWithChildren } from 'react';
 
 const GrafanaPageFrame: FC<PropsWithChildren> = ({ children }) => {

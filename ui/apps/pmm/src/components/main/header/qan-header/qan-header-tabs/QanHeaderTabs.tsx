@@ -16,12 +16,14 @@ const QanHeaderTabs: FC = () => {
         label={Messages.tabHistorical}
         component={Link}
         to={`${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`}
+        data-testid="qan-header-tabs-historical-tab"
       />
       <Tab
         value="real-time"
         label={Messages.tabRealTime}
         component={Link}
         to={`${PMM_NEW_NAV_PATH}/rta`}
+        data-testid="qan-header-tabs-real-time-tab"
       />
     </Tabs>
   );

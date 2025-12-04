@@ -5,6 +5,7 @@ import { Page } from 'components/page';
 import { FC } from 'react';
 import { Messages } from './RealTimeSelection.messages';
 
+// Placeholder for the real-time selection page
 const RealTimeSelectionPage: FC = () => {
   return (
     <Page footer={null}>

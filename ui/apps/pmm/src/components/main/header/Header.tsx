@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import useHeader from 'hooks/useHeader';
+import { useHeader } from 'hooks/useHeader';
 
 const Header: FC = () => {
   const { visible, Component } = useHeader();
