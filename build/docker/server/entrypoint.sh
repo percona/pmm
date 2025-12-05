@@ -118,7 +118,7 @@ fi
 # pmm-managed-init validates environment variables.
 pmm-managed-init
 
-declare AGENT_CONFIG_DIR="usr/local/percona/pmm/config"
+declare AGENT_CONFIG_DIR="/usr/local/percona/pmm/config"
 declare AGENT_ID=pmm-server
 
 if [ "$PMM_HA_ENABLE" = "1" ] || [ "$PMM_HA_ENABLE" = "true" ]; then

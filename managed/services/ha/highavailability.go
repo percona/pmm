@@ -156,7 +156,7 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 func New(params *models.HAParams) *Service {
 	return &Service{
 		params:           params,
-		bootstrapCluster: params.Enabled,
+		bootstrapCluster: true,
 		services:         newServices(),
 		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
