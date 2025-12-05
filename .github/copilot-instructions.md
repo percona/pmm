@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-Percona Monitoring and Management (PMM) is an open-source database monitoring solution with a client-server architecture. This is a **monorepository** containing multiple PMM Components, APIs, and supporting infrastructure.
+Percona Monitoring and Management (PMM) is an open-source database monitoring solution with a client-server architecture. This is a **monorepository** containing multiple PMM Components, APIs, documentation, and build scripts.
 
-Every component is written in Go, with the exception of the UI, which is based on Grafana (TypeScript/JavaScript). Each component has its own directory at the root of the repository.
+Every component is written in Go, with the exception of the UI, which is based on TypeScript. Each component has its own directory at the root of the repository.
 
 ### Core Components
 
@@ -28,4 +28,4 @@ Every component is written in Go, with the exception of the UI, which is based o
 
 The following guidelines are intended to help AI coding agents contribute effectively to the PMM codebase. Every component will have its own AI coding instructions, provided in their respective directories. This file serves as a general overview and points to the canonical location for AI coding instructions.
 
-See [managed/AGENT.md](../managed/AGENT.md) for comprehensive AI-driven PMM development guidelines.
+See [managed/AGENT.md](../managed/AGENT.md) for comprehensive AI-driven `pmm-managed` development guidelines.

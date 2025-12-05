@@ -339,6 +339,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	path := filepath.Join(s.configDir, name+".ini")
 	oldCfg, err := os.ReadFile(path) //nolint:gosec
 	if errors.Is(err, fs.ErrNotExist) {
+		oldCfg = []byte{}
 		err = nil
 	}
 	if err != nil {
