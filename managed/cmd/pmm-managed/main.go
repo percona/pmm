@@ -536,7 +536,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 
 	deps.l.Infof("Checking VictoriaMetrics...")
 	if err = deps.vmdb.IsReady(ctx); err != nil {
-		deps.l.Warnf("VictoriaMetrics problem: %+v.", err)
+		deps.l.Warnf("Failed to check VictoriaMetrics readiness: %+v.", err)
 		return false
 	}
 	deps.vmdb.RequestConfigurationUpdate()

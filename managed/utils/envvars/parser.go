@@ -85,12 +85,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			continue
 		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
 			continue
-
 		case "CONTAINER":
 			continue
 		case "NSS_WRAPPER_GROUP", "NSS_WRAPPER_PASSWD", "LD_PRELOAD":
 			// skip nss_wrapper environment variables
 			continue
+		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY":
+			continue
+
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
@@ -199,9 +201,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 			}
-
-		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY":
-			continue
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue

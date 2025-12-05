@@ -399,9 +399,17 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 		}
 
 		if tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM() {
-			e := os.Remove("/etc/supervisord.d/victoriametrics.ini")
+			e := os.Remove("/etc/supervisord.d/" + tmpl.Name() + ".ini")
 			if e != nil && !errors.Is(e, fs.ErrNotExist) {
-				s.l.Warnf("Failed to remove victoriametrics config for external VM: %s.", e)
+				s.l.Warnf("Failed to remove %s config for external VM: %s.", tmpl.Name(), e)
+			}
+			continue
+		}
+
+		if tmpl.Name() == "nomad-server" && !settings.IsNomadEnabled() {
+			e := os.Remove("/etc/supervisord.d/" + tmpl.Name() + ".ini")
+			if e != nil && !errors.Is(e, fs.ErrNotExist) {
+				s.l.Warnf("Failed to remove %s config when disabled: %s.", tmpl.Name(), e)
 			}
 			continue
 		}
@@ -614,6 +622,6 @@ stdout_logfile = /srv/logs/nomad-server.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
-{{end -}}
+{{- end}}
 {{end}}
 `))
