@@ -50,6 +50,7 @@ func TestConfig(t *testing.T) {
 		PMMPublicAddress: "192.168.0.42:8443",
 	}
 	settings.VictoriaMetrics.CacheEnabled = pointer.ToBool(false)
+	settings.Nomad.Enabled = pointer.ToBool(true)
 
 	err = s.UpdateConfiguration(settings, nil)
 	require.NoError(t, err)
