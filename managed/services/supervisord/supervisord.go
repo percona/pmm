@@ -355,7 +355,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	restore := true
 	defer func() {
 		if restore {
-			if err = os.WriteFile(path, oldCfg, 0o664); err != nil { //nolint:gosec
+			if err = os.WriteFile(path, oldCfg, 0o664); err != nil { //nolint:gosec,mnd
 				s.l.Errorf("Failed to restore: %s.", err)
 			}
 			if err = s.reload(name); err != nil {
@@ -365,7 +365,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
+	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec,mnd
 		return false, errors.WithStack(err)
 	}
 	if err = s.reload(name); err != nil {
@@ -608,7 +608,7 @@ redirect_stderr = true
 {{end}}
 
 {{define "nomad-server"}}
-{{- if .NomadEnabled }}
+{{- if eq .NomadEnabled "true" }}
 [program:nomad-server]
 priority = 5
 command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
