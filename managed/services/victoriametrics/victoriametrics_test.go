@@ -47,7 +47,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	check.NoError(err)
 
 	mockHaService := newMockHaService(t)
-	mockHaService.On("GetParams").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
+	mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
 	mockHaService.On("IsLeader").Return(true).Maybe()
 	svc, err := NewVictoriaMetrics(configPath, db, vmParams, mockHaService)
 	check.NoError(err)

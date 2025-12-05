@@ -200,6 +200,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 			}
 
+		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY":
+			continue
+
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 

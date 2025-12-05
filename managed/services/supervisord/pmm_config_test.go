@@ -34,12 +34,12 @@ func TestSavePMMConfig(t *testing.T) {
 	}{
 		{
 			description: "disable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false, "DisableInternalClickhouse": false},
+			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false, "DisableInternalClickhouse": false, "AgentConfigFilePath": "/usr/local/percona/pmm/config/pmm-agent.yaml"},
 			file:        "pmm-db_disabled",
 		},
 		{
 			description: "enable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false, "DisableInternalClickhouse": false},
+			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false, "DisableInternalClickhouse": false, "AgentConfigFilePath": "/usr/local/percona/pmm/config/pmm-agent.yaml"},
 			file:        "pmm-db_enabled",
 		},
 	}
