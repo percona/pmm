@@ -5,14 +5,22 @@ import {
   wrapWithSnackbarProvider,
 } from 'utils/testUtils';
 
-vi.mock('api/short-urls', () => ({
-  createShortUrl: vi.fn().mockResolvedValue({
+const { mockCreateShortUrl } = vi.hoisted(() => ({
+  mockCreateShortUrl: vi.fn().mockResolvedValue({
     uid: '1',
     url: 'https://www.percona.com/',
   }),
 }));
 
+vi.mock('api/short-urls', () => ({
+  createShortUrl: mockCreateShortUrl,
+}));
+
 describe('QanHeaderActions', () => {
+  beforeEach(() => {
+    mockCreateShortUrl.mockClear();
+  });
+
   it('should render', () => {
     render(wrapWithQueryProvider(<QanHeaderActions />));
 
@@ -98,5 +106,23 @@ describe('QanHeaderActions', () => {
     );
 
     expect(screen.getByText('Link copied to clipboard')).toBeInTheDocument();
+  });
+
+  it('should show error message if failed to copy link to clipboard', async () => {
+    mockCreateShortUrl.mockRejectedValue(
+      new Error('Failed to create short url')
+    );
+
+    render(
+      wrapWithSnackbarProvider(wrapWithQueryProvider(<QanHeaderActions />))
+    );
+
+    fireEvent.click(screen.getByTestId('qan-header-actions-copy-button'));
+
+    await waitFor(() =>
+      expect(
+        screen.getByText('Failed to copy link to clipboard')
+      ).toBeInTheDocument()
+    );
   });
 });

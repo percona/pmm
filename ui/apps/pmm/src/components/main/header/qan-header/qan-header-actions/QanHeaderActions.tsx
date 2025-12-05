@@ -14,17 +14,21 @@ export const QanHeaderActions: FC = () => {
   const [openRunningAgentsModal, setOpenRunningAgentsModal] = useState(false);
 
   const handleCopy = async () => {
-    const path = constructUrl(location).replace('/pmm-ui/next/graph/', '');
-    const res = location.pathname.includes('/graph')
-      ? await createShortUrl(path)
-      : { url: window.location.href };
+    try {
+      const path = constructUrl(location).replace('/pmm-ui/next/graph/', '');
+      const res = location.pathname.includes('/graph')
+        ? await createShortUrl(path)
+        : { url: window.location.href };
 
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(res.url);
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(res.url);
 
-      enqueueSnackbar('Link copied to clipboard', { variant: 'success' });
-    } else {
-      enqueueSnackbar('Clipboard is not available', { variant: 'error' });
+        enqueueSnackbar('Link copied to clipboard', { variant: 'success' });
+      } else {
+        enqueueSnackbar('Clipboard is not available', { variant: 'error' });
+      }
+    } catch (error) {
+      enqueueSnackbar('Failed to copy link to clipboard', { variant: 'error' });
     }
   };
 

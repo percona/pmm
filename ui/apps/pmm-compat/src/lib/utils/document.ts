@@ -12,6 +12,10 @@ export const updateBodyClassByLocation = (location: Location) => {
   if (previous) {
     document.body.classList.remove(previous);
   }
-  const className = `grafana-compat-page${location.pathname.replace('/graph', '').replaceAll('/', '-')}`;
+  const sanitizedPathname = location.pathname
+    .replace(/[^a-zA-Z0-9/-]/g, '')
+    .replace('/graph', '')
+    .replaceAll('/', '-');
+  const className = `grafana-compat-page${sanitizedPathname}`;
   document.body.classList.add(className);
 };
