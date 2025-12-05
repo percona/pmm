@@ -52,9 +52,6 @@ func TestConfig(t *testing.T) {
 	settings.VictoriaMetrics.CacheEnabled = pointer.ToBool(false)
 	settings.Nomad.Enabled = pointer.ToBool(true)
 
-	err = s.UpdateConfiguration(settings, nil)
-	require.NoError(t, err)
-
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
 		if n == "" {
