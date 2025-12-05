@@ -18,6 +18,19 @@ export const applyCustomStyles = () => {
       visibility: hidden;
       order: -1;
     }
+
+    /* QAN Page custom styles */
+    ${LOCATORS.qanPageHeader} {
+      display: none;
+    }
+
+    ${LOCATORS.qanPageHeaderNextDiv} {
+      padding-top: 0;
+    }
+
+    ${LOCATORS.qanPageCanvasWrapper} {
+      top: 0;
+    }
   `;
 
   document.head.appendChild(style);

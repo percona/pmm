@@ -1,3 +1,7 @@
+export const PAGE_LOCATORS = {
+  qan: 'body.grafana-compat-page-d-pmm-qan-pmm-query-analytics',
+};
+
 export const LOCATORS = {
   toolbar: 'header > div:first-child > div:nth-child(2)',
   menuToggle: 'header #mega-menu-toggle',
@@ -6,6 +10,9 @@ export const LOCATORS = {
   profileButton: 'header button[aria-label="Profile"]',
   commandPaletteTrigger: 'header div[data-testid="data-testid Command palette trigger"]',
   toolbarSignIn: 'header > div:first-child > div:nth-child(2) > a[target="_self"]',
+  qanPageHeader: `${PAGE_LOCATORS.qan} header`,
+  qanPageHeaderNextDiv: `${PAGE_LOCATORS.qan} header+div`,
+  qanPageCanvasWrapper: `${PAGE_LOCATORS.qan} [class*="canvas-wrapper"] > div`,
 };
 
 export const GRAFANA_SUB_PATH = '/graph';

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Main } from 'components/main/Main';
 import { Updates } from 'pages/updates';
@@ -5,9 +6,9 @@ import { UpdateClients } from 'pages/update-clients/UpdateClients';
 import { MainWithNav } from 'components/main/MainWithNav';
 import { NotFoundPage } from 'pages/not-found';
 import { HelpCenter } from 'pages/help-center';
+import { RealTimeSelectionPage } from 'pages/rta/selection';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
-import React from 'react';
 
 const router = createBrowserRouter(
   [
@@ -34,6 +35,10 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'rta',
+              element: <RealTimeSelectionPage />,
             },
             // Grafana routes are handled at the Main component level
             {
