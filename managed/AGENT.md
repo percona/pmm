@@ -159,3 +159,5 @@ PMM transitioned from v2 to v3 API patterns:
 - Don't create subshells in Makefiles without explicit reason
 - Don't skip `make gen` after proto/model changes
 - Don't commit test binaries to `/bin/` (add to `.gitignore` if needed)
+- Don't comment on every single line of code unnecessarily, only where clarity is needed
+- Don't inline comments, always use full-line comments for better readability

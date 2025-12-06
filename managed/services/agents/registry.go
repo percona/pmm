@@ -39,6 +39,8 @@ import (
 const (
 	prometheusNamespace = "pmm_managed"
 	prometheusSubsystem = "agents"
+	// ConnectionCacheTTL is the duration for which agent connection status is cached in HA mode.
+	connectionCacheTTL = 10 * time.Second
 )
 
 var (
@@ -85,7 +87,12 @@ type Registry struct {
 
 	roster *roster
 
-	haService haService // HA service for distributed connection tracking
+	haService haService
+
+	// Cache for connection status in HA mode
+	connectionCache    map[string]bool // id -> is_connected
+	connectionCacheTTL time.Time
+	cacheMu            sync.RWMutex
 
 	mConnects    prom.Counter
 	mDisconnects *prom.CounterVec
@@ -107,6 +114,8 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 		roster: newRoster(db),
 
 		haService: ha,
+
+		connectionCache: make(map[string]bool),
 
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -157,24 +166,65 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 }
 
 // IsConnected returns true if pmm-agent is currently connected, false otherwise.
-// In HA mode, this queries the database to support distributed environments.
+// In HA mode, this queries the database (with 10-second caching) to support distributed environments.
 // In non-HA mode, this checks the in-memory registry for better performance.
 func (r *Registry) IsConnected(pmmAgentID string) bool {
-	if r.haService.Params().Enabled {
-		var connected bool
-		err := r.db.InTransaction(func(tx *reform.TX) error {
-			agent, err := models.FindAgentByID(tx.Querier, pmmAgentID)
-			if err != nil {
-				return err
-			}
-			connected = agent.IsConnected
-			return nil
-		})
-		return err == nil && connected
+	if !r.haService.Params().Enabled {
+		// Non-HA mode: check in-memory registry
+		_, err := r.get(pmmAgentID)
+		return err == nil
 	}
 
-	_, err := r.get(pmmAgentID)
-	return err == nil
+	// HA mode: check cache first, then database
+	r.cacheMu.RLock()
+	if !time.Now().After(r.connectionCacheTTL) {
+		connected, exists := r.connectionCache[pmmAgentID]
+		r.cacheMu.RUnlock()
+		if exists {
+			return connected
+		}
+		// Agent not in cache, fall through to rebuild
+	} else {
+		r.cacheMu.RUnlock()
+	}
+
+	// Cache miss or expired - rebuild cache
+	r.rebuildConnectionCache()
+
+	// Now check cache again
+	r.cacheMu.RLock()
+	connected, exists := r.connectionCache[pmmAgentID]
+	r.cacheMu.RUnlock()
+
+	return exists && connected
+}
+
+// rebuildConnectionCache fetches all agent connection statuses from the database
+// and caches them for 10 seconds.
+func (r *Registry) rebuildConnectionCache() {
+	newCache := make(map[string]bool)
+
+	err := r.db.InTransaction(func(tx *reform.TX) error {
+		agentType := models.PMMAgentType
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
+		if err != nil {
+			return err
+		}
+
+		for _, agent := range agents {
+			newCache[agent.AgentID] = agent.IsConnected
+		}
+
+		return nil
+	})
+	if err != nil {
+		return
+	}
+
+	r.cacheMu.Lock()
+	r.connectionCache = newCache
+	r.connectionCacheTTL = time.Now().Add(connectionCacheTTL)
+	r.cacheMu.Unlock()
 }
 
 func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgentInfo, error) {
@@ -253,8 +303,12 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 			return nil
 		})
 		if err != nil {
-			l.Errorf("Failed to update the connection status for agent %s: %v", agentMD.ID, err)
+			return nil, fmt.Errorf("failed to persist the connection status for agent %s: %v", agentMD.ID, err)
 		}
+
+		r.cacheMu.Lock()
+		r.connectionCache[agentMD.ID] = true
+		r.cacheMu.Unlock()
 	}
 
 	return agent, nil
@@ -328,7 +382,7 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
 
-	// Only persist is_connected to database when HA is enabled
+	// Only persist connection status when HA is enabled
 	if r.haService.Params().Enabled {
 		l := logger.Get(ctx)
 		err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -347,9 +401,13 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 			return nil
 		})
 		if err != nil {
-			// Log but don't fail - agent is already disconnected from registry
+			// Log but don't fail - agent is already disconnected from the registry
 			l.Errorf("Failed to update the connection status for agent %s: %v", pmmAgentID, err)
 		}
+
+		r.cacheMu.Lock()
+		delete(r.connectionCache, pmmAgentID)
+		r.cacheMu.Unlock()
 	}
 
 	return agent
