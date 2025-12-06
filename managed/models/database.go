@@ -1165,6 +1165,12 @@ var databaseSchema = [][]string{
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
+	113: {
+		`ALTER TABLE artifacts 
+		ADD COLUMN compression VARCHAR NOT NULL DEFAULT 'default'`,
+
+		`ALTER TABLE artifacts ALTER COLUMN compression DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

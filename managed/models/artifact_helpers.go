@@ -183,6 +183,7 @@ type CreateArtifactParams struct {
 	DataModel        DataModel
 	Mode             BackupMode
 	Status           BackupStatus
+	Compression      BackupCompression
 	ScheduleID       string
 	IsShardedCluster bool
 	Folder           string
@@ -201,6 +202,10 @@ func (p *CreateArtifactParams) Validate() error {
 	}
 	if p.ServiceID == "" {
 		return NewInvalidArgumentError("service_id shouldn't be empty")
+	}
+
+	if err := p.Compression.Validate(); err != nil {
+		return err
 	}
 
 	if err := p.Mode.Validate(); err != nil {
@@ -248,6 +253,7 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		ScheduleID:       params.ScheduleID,
 		IsShardedCluster: params.IsShardedCluster,
 		Folder:           params.Folder,
+		Compression:      params.Compression,
 	}
 
 	if params.ScheduleID != "" {

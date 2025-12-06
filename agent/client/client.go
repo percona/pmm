@@ -604,7 +604,7 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 			Port:     int(j.MysqlBackup.Port),
 			Socket:   j.MysqlBackup.Socket,
 		}
-		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig, j.MysqlBackup.Folder)
+		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig, j.MysqlBackup.Folder, j.MysqlBackup.Compression)
 
 	case *agentv1.StartJobRequest_MysqlRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
@@ -622,7 +622,7 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MysqlRestoreBackup.LocationConfig)
 		}
 
-		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig, j.MysqlRestoreBackup.Folder)
+		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig, j.MysqlRestoreBackup.Folder, j.MysqlRestoreBackup.Compression)
 
 	case *agentv1.StartJobRequest_MongodbBackup:
 		var locationConfig jobs.BackupLocationConfig
@@ -651,7 +651,7 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 		}
 
 		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dsn, locationConfig,
-			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder)
+			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder, j.MongodbBackup.Compression)
 		if err != nil {
 			return err
 		}
@@ -684,7 +684,7 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
 			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dsn, locationConfig,
-			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
+			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name, j.MongodbRestoreBackup.Compression)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}

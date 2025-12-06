@@ -162,16 +162,17 @@ func TestPerformBackup(t *testing.T) {
 						S3Config:         tc.locationModel.S3Config,
 					}
 					mockedJobsService.On("StartMySQLBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID), time.Duration(0),
-						mock.Anything, mock.Anything, locationConfig, "artifact_folder").Return(nil).Once()
+						mock.Anything, mock.Anything, locationConfig, "artifact_folder", models.Default).Return(nil).Once()
 				}
 
 				artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-					ServiceID:  pointer.GetString(agent.ServiceID),
-					LocationID: tc.locationModel.ID,
-					Name:       tc.name + "_" + "test_backup",
-					DataModel:  tc.dataModel,
-					Mode:       models.Snapshot,
-					Folder:     "artifact_folder",
+					ServiceID:   pointer.GetString(agent.ServiceID),
+					LocationID:  tc.locationModel.ID,
+					Name:        tc.name + "_" + "test_backup",
+					DataModel:   tc.dataModel,
+					Mode:        models.Snapshot,
+					Folder:      "artifact_folder",
+					Compression: models.Default,
 				})
 
 				if tc.expectedError != nil {
@@ -197,12 +198,13 @@ func TestPerformBackup(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-				ServiceID:  pointer.GetString(agent.ServiceID),
-				LocationID: s3Location.ID,
-				Name:       "test_backup",
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.PITR,
-				Folder:     "artifact_folder_2",
+				ServiceID:   pointer.GetString(agent.ServiceID),
+				LocationID:  s3Location.ID,
+				Name:        "test_backup",
+				DataModel:   models.PhysicalDataModel,
+				Mode:        models.PITR,
+				Folder:      "artifact_folder_2",
+				Compression: models.Default,
 			})
 			assert.ErrorIs(t, err, ErrIncompatibleDataModel)
 			assert.Empty(t, artifactID)
@@ -211,12 +213,13 @@ func TestPerformBackup(t *testing.T) {
 		t.Run("backup fails for empty service ID", func(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, "").Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-				ServiceID:  "",
-				LocationID: s3Location.ID,
-				Name:       "test_backup",
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.PITR,
-				Folder:     "artifact_folder_3",
+				ServiceID:   "",
+				LocationID:  s3Location.ID,
+				Name:        "test_backup",
+				DataModel:   models.PhysicalDataModel,
+				Mode:        models.PITR,
+				Folder:      "artifact_folder_3",
+				Compression: models.Default,
 			})
 			assert.ErrorContains(t, err, "Empty Service ID")
 			assert.Empty(t, artifactID)
@@ -226,12 +229,13 @@ func TestPerformBackup(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-				ServiceID:  pointer.GetString(agent.ServiceID),
-				LocationID: s3Location.ID,
-				Name:       "test_backup",
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.Incremental,
-				Folder:     "artifact_folder_4",
+				ServiceID:   pointer.GetString(agent.ServiceID),
+				LocationID:  s3Location.ID,
+				Name:        "test_backup",
+				DataModel:   models.PhysicalDataModel,
+				Mode:        models.Incremental,
+				Folder:      "artifact_folder_4",
+				Compression: models.Default,
 			})
 			assert.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
 			assert.Empty(t, artifactID)
@@ -286,15 +290,16 @@ func TestRestoreBackup(t *testing.T) {
 	t.Run("mysql", func(t *testing.T) {
 		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "mysql-artifact-name",
-			Vendor:     string(models.MySQLServiceType),
-			DBVersion:  "8.0.25",
-			LocationID: s3Location.ID,
-			ServiceID:  *agent.ServiceID,
-			DataModel:  models.PhysicalDataModel,
-			Mode:       models.Snapshot,
-			Status:     models.SuccessBackupStatus,
-			Folder:     artifactFolder,
+			Name:        "mysql-artifact-name",
+			Vendor:      string(models.MySQLServiceType),
+			DBVersion:   "8.0.25",
+			LocationID:  s3Location.ID,
+			ServiceID:   *agent.ServiceID,
+			DataModel:   models.PhysicalDataModel,
+			Mode:        models.Snapshot,
+			Status:      models.SuccessBackupStatus,
+			Folder:      artifactFolder,
+			Compression: models.Default,
 		})
 		require.NoError(t, err)
 
@@ -326,7 +331,7 @@ func TestRestoreBackup(t *testing.T) {
 
 				if tc.expectedError == nil {
 					mockedJobsService.On("StartMySQLRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
-						pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything, artifactFolder).Return(nil).Once()
+						pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything, artifactFolder, artifact.Compression).Return(nil).Once()
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
@@ -355,15 +360,16 @@ func TestRestoreBackup(t *testing.T) {
 	t.Run("mongo", func(t *testing.T) {
 		agent, service := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
 		artifactWithVersion, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "mongodb-artifact-name-version",
-			Vendor:     string(models.MongoDBSoftwareName),
-			DBVersion:  "6.0.2-1",
-			LocationID: s3Location.ID,
-			ServiceID:  *agent.ServiceID,
-			DataModel:  models.LogicalDataModel,
-			Mode:       models.Snapshot,
-			Status:     models.SuccessBackupStatus,
-			Folder:     artifactFolder,
+			Name:        "mongodb-artifact-name-version",
+			Vendor:      string(models.MongoDBSoftwareName),
+			DBVersion:   "6.0.2-1",
+			LocationID:  s3Location.ID,
+			ServiceID:   *agent.ServiceID,
+			DataModel:   models.LogicalDataModel,
+			Mode:        models.Snapshot,
+			Status:      models.SuccessBackupStatus,
+			Folder:      artifactFolder,
+			Compression: models.Default,
 		})
 		require.NoError(t, err)
 
@@ -373,13 +379,14 @@ func TestRestoreBackup(t *testing.T) {
 		require.NoError(t, err)
 
 		artifactNoVersion, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "mongodb-artifact-name-no-version",
-			Vendor:     string(models.MongoDBSoftwareName),
-			LocationID: s3Location.ID,
-			ServiceID:  *agent.ServiceID,
-			DataModel:  models.LogicalDataModel,
-			Mode:       models.Snapshot,
-			Status:     models.SuccessBackupStatus,
+			Name:        "mongodb-artifact-name-no-version",
+			Vendor:      string(models.MongoDBSoftwareName),
+			LocationID:  s3Location.ID,
+			ServiceID:   *agent.ServiceID,
+			DataModel:   models.LogicalDataModel,
+			Mode:        models.Snapshot,
+			Status:      models.SuccessBackupStatus,
+			Compression: models.Default,
 		})
 		require.NoError(t, err)
 
@@ -423,11 +430,11 @@ func TestRestoreBackup(t *testing.T) {
 					if len(tc.artifact.MetadataList) != 0 && tc.artifact.MetadataList[0].BackupToolData != nil {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", service, mock.Anything, pointer.GetString(agent.PMMAgentID),
 							time.Duration(0), tc.artifact.Name, tc.artifact.MetadataList[0].BackupToolData.PbmMetadata.Name, tc.artifact.DataModel,
-							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
+							mock.Anything, time.Unix(0, 0), tc.artifact.Folder, tc.artifact.Compression).Return(nil).Once()
 					} else {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", service, mock.Anything, pointer.GetString(agent.PMMAgentID),
 							time.Duration(0), tc.artifact.Name, "", tc.artifact.DataModel,
-							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
+							mock.Anything, time.Unix(0, 0), tc.artifact.Folder, tc.artifact.Compression).Return(nil).Once()
 					}
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), tc.artifact.ID, time.Unix(0, 0))
@@ -443,13 +450,14 @@ func TestRestoreBackup(t *testing.T) {
 
 		t.Run("artifact not ready", func(t *testing.T) {
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-				Name:       "mongo-artifact-name-s3",
-				Vendor:     string(models.MongoDBServiceType),
-				LocationID: s3Location.ID,
-				ServiceID:  *agent.ServiceID,
-				DataModel:  models.LogicalDataModel,
-				Mode:       models.Snapshot,
-				Status:     models.PendingBackupStatus,
+				Name:        "mongo-artifact-name-s3",
+				Vendor:      string(models.MongoDBServiceType),
+				LocationID:  s3Location.ID,
+				ServiceID:   *agent.ServiceID,
+				DataModel:   models.LogicalDataModel,
+				Mode:        models.Snapshot,
+				Status:      models.PendingBackupStatus,
+				Compression: models.Default,
 			})
 			require.NoError(t, err)
 
@@ -460,13 +468,14 @@ func TestRestoreBackup(t *testing.T) {
 
 		t.Run("PITR not supported for local storages", func(t *testing.T) {
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-				Name:       "mongo-artifact-name-local",
-				Vendor:     string(models.MongoDBServiceType),
-				LocationID: filesystemLocation.ID,
-				ServiceID:  *agent.ServiceID,
-				DataModel:  models.LogicalDataModel,
-				Mode:       models.PITR,
-				Status:     models.SuccessBackupStatus,
+				Name:        "mongo-artifact-name-local",
+				Vendor:      string(models.MongoDBServiceType),
+				LocationID:  filesystemLocation.ID,
+				ServiceID:   *agent.ServiceID,
+				DataModel:   models.LogicalDataModel,
+				Mode:        models.PITR,
+				Status:      models.SuccessBackupStatus,
+				Compression: models.Default,
 			})
 			require.NoError(t, err)
 
@@ -519,14 +528,15 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				name:      "success",
 				pitrValue: time.Unix(0, 0),
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mysql-artifact-name-1",
-					Vendor:     string(models.MySQLServiceType),
-					DBVersion:  "8.0.25",
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.PhysicalDataModel,
-					Mode:       models.Snapshot,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mysql-artifact-name-1",
+					Vendor:      string(models.MySQLServiceType),
+					DBVersion:   "8.0.25",
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.PhysicalDataModel,
+					Mode:        models.Snapshot,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: nil,
 			},
@@ -534,14 +544,15 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				name:      "PITR not supported for MySQL",
 				pitrValue: time.Unix(0, 0),
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mysql-artifact-name-2",
-					Vendor:     string(models.MySQLServiceType),
-					DBVersion:  "8.0.25",
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.PhysicalDataModel,
-					Mode:       models.PITR,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mysql-artifact-name-2",
+					Vendor:      string(models.MySQLServiceType),
+					DBVersion:   "8.0.25",
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.PhysicalDataModel,
+					Mode:        models.PITR,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: ErrIncompatibleService,
 			},
@@ -549,14 +560,15 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				name:      "snapshot artifact is not compatible with non-empty pitr date",
 				pitrValue: time.Unix(1, 0),
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mysql-artifact-name-3",
-					Vendor:     string(models.MySQLServiceType),
-					DBVersion:  "8.0.25",
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.PhysicalDataModel,
-					Mode:       models.Snapshot,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mysql-artifact-name-3",
+					Vendor:      string(models.MySQLServiceType),
+					DBVersion:   "8.0.25",
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.PhysicalDataModel,
+					Mode:        models.Snapshot,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: ErrIncompatibleArtifactMode,
 			},
@@ -600,13 +612,14 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				name:      "success logical restore",
 				pitrValue: time.Unix(0, 0),
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mongo-artifact-name-1",
-					Vendor:     string(models.MongoDBServiceType),
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.LogicalDataModel,
-					Mode:       models.Snapshot,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mongo-artifact-name-1",
+					Vendor:      string(models.MongoDBServiceType),
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.LogicalDataModel,
+					Mode:        models.Snapshot,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: nil,
 			},
@@ -614,13 +627,14 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				name:      "physical restore is supported",
 				pitrValue: time.Unix(0, 0),
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mongo-artifact-name-2",
-					Vendor:     string(models.MongoDBServiceType),
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.PhysicalDataModel,
-					Mode:       models.Snapshot,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mongo-artifact-name-2",
+					Vendor:      string(models.MongoDBServiceType),
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.PhysicalDataModel,
+					Mode:        models.Snapshot,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: nil,
 			},
@@ -628,13 +642,14 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				name:      "snapshot artifact is not compatible with non-empty pitr date",
 				pitrValue: time.Unix(1, 0),
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mongo-artifact-name-3",
-					Vendor:     string(models.MongoDBServiceType),
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.LogicalDataModel,
-					Mode:       models.Snapshot,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mongo-artifact-name-3",
+					Vendor:      string(models.MongoDBServiceType),
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.LogicalDataModel,
+					Mode:        models.Snapshot,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: ErrIncompatibleArtifactMode,
 			},
@@ -642,13 +657,14 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				name:      "timestamp not provided for pitr artifact",
 				pitrValue: time.Unix(0, 0),
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mongo-artifact-name-4",
-					Vendor:     string(models.MongoDBServiceType),
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.LogicalDataModel,
-					Mode:       models.PITR,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mongo-artifact-name-4",
+					Vendor:      string(models.MongoDBServiceType),
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.LogicalDataModel,
+					Mode:        models.PITR,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: ErrIncompatibleArtifactMode,
 			},
@@ -657,13 +673,14 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				pitrValue:   time.Unix(int64(rangeStart2)-1, 0),
 				prepareMock: true,
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mongo-artifact-name-5",
-					Vendor:     string(models.MongoDBServiceType),
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.LogicalDataModel,
-					Mode:       models.PITR,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mongo-artifact-name-5",
+					Vendor:      string(models.MongoDBServiceType),
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.LogicalDataModel,
+					Mode:        models.PITR,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: ErrTimestampOutOfRange,
 			},
@@ -672,13 +689,14 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				pitrValue:   time.Unix(int64(rangeStart2)+1, 0),
 				prepareMock: true,
 				artifactParams: models.CreateArtifactParams{
-					Name:       "mongo-artifact-name-6",
-					Vendor:     string(models.MongoDBServiceType),
-					LocationID: locationRes.ID,
-					ServiceID:  *agent.ServiceID,
-					DataModel:  models.LogicalDataModel,
-					Mode:       models.PITR,
-					Status:     models.SuccessBackupStatus,
+					Name:        "mongo-artifact-name-6",
+					Vendor:      string(models.MongoDBServiceType),
+					LocationID:  locationRes.ID,
+					ServiceID:   *agent.ServiceID,
+					DataModel:   models.LogicalDataModel,
+					Mode:        models.PITR,
+					Status:      models.SuccessBackupStatus,
+					Compression: models.Default,
 				},
 				err: nil,
 			},
@@ -694,6 +712,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 					Mode:             models.Snapshot,
 					Status:           models.SuccessBackupStatus,
 					IsShardedCluster: true,
+					Compression:      models.Default,
 				},
 				err: ErrIncompatibleService,
 			},

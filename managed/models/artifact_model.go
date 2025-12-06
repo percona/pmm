@@ -17,6 +17,7 @@ package models
 
 import (
 	"database/sql/driver"
+	"slices"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -118,6 +119,90 @@ func (m BackupMode) Validate() error {
 	return nil
 }
 
+// BackupCompression represents compression algorithm used for backup.
+type BackupCompression string
+
+// BackupCompression types.
+const (
+	Default BackupCompression = "default"
+	None    BackupCompression = "none"
+	QuickLZ BackupCompression = "quicklz"
+	ZSTD    BackupCompression = "zstd"
+	LZ4     BackupCompression = "lz4"
+	S2      BackupCompression = "s2"
+	GZIP    BackupCompression = "gzip"
+	Snappy  BackupCompression = "snappy"
+	PGZIP   BackupCompression = "pgzip"
+)
+
+// compressionSupport defines which compression methods are supported by each service type
+var compressionSupport = map[ServiceType][]BackupCompression{
+	MySQLServiceType: {
+		Default,
+		QuickLZ,
+		ZSTD,
+		LZ4,
+		None,
+	},
+	MongoDBServiceType: {
+		Default,
+		GZIP,
+		Snappy,
+		LZ4,
+		S2,
+		PGZIP,
+		ZSTD,
+		None,
+	},
+}
+
+// GetSupportedCompressions returns the list of compression methods supported by a service type
+func GetSupportedCompressions(serviceType ServiceType) []BackupCompression {
+	if compressions, exists := compressionSupport[serviceType]; exists {
+		return compressions
+	}
+	return nil
+}
+
+// Validate validates compression.
+func (c BackupCompression) Validate() error {
+	switch c {
+	case Default:
+	case QuickLZ:
+	case LZ4:
+	case ZSTD:
+	case S2:
+	case GZIP:
+	case Snappy:
+	case PGZIP:
+	case None:
+	case "":
+		return NewInvalidArgumentError("empty compression")
+	default:
+		return NewInvalidArgumentError("invalid compression '%s'", c)
+	}
+
+	return nil
+}
+
+// ValidateForServiceType validates compression for a specific service type.
+func (c BackupCompression) ValidateForServiceType(serviceType ServiceType) error {
+	if err := c.Validate(); err != nil {
+		return err
+	}
+
+	supported := GetSupportedCompressions(serviceType)
+	if supported == nil {
+		return NewInvalidArgumentError("compression is not yet supported for service type '%s'", serviceType)
+	}
+
+	if slices.Contains(supported, c) {
+		return nil
+	}
+
+	return NewInvalidArgumentError("compression '%s' is not supported for service type '%s'", c, serviceType)
+}
+
 // File represents file or directory.
 type File struct {
 	Name        string `json:"name"`
@@ -155,22 +240,23 @@ func (p *MetadataList) Scan(src interface{}) error { return jsonScan(p, src) }
 //
 //reform:artifacts
 type Artifact struct {
-	ID               string       `reform:"id,pk"`
-	Name             string       `reform:"name"`
-	Vendor           string       `reform:"vendor"`
-	DBVersion        string       `reform:"db_version"`
-	LocationID       string       `reform:"location_id"`
-	ServiceID        string       `reform:"service_id"`
-	DataModel        DataModel    `reform:"data_model"`
-	Mode             BackupMode   `reform:"mode"`
-	Status           BackupStatus `reform:"status"`
-	Type             ArtifactType `reform:"type"`
-	ScheduleID       string       `reform:"schedule_id"`
-	CreatedAt        time.Time    `reform:"created_at"`
-	UpdatedAt        time.Time    `reform:"updated_at"`
-	IsShardedCluster bool         `reform:"is_sharded_cluster"`
-	Folder           string       `reform:"folder"`
-	MetadataList     MetadataList `reform:"metadata_list"`
+	ID               string            `reform:"id,pk"`
+	Name             string            `reform:"name"`
+	Vendor           string            `reform:"vendor"`
+	DBVersion        string            `reform:"db_version"`
+	LocationID       string            `reform:"location_id"`
+	ServiceID        string            `reform:"service_id"`
+	DataModel        DataModel         `reform:"data_model"`
+	Mode             BackupMode        `reform:"mode"`
+	Status           BackupStatus      `reform:"status"`
+	Type             ArtifactType      `reform:"type"`
+	Compression      BackupCompression `reform:"compression"`
+	ScheduleID       string            `reform:"schedule_id"`
+	CreatedAt        time.Time         `reform:"created_at"`
+	UpdatedAt        time.Time         `reform:"updated_at"`
+	IsShardedCluster bool              `reform:"is_sharded_cluster"`
+	Folder           string            `reform:"folder"`
+	MetadataList     MetadataList      `reform:"metadata_list"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
