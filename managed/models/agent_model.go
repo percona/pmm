@@ -294,8 +294,7 @@ func (c ValkeyOptions) IsEmpty() bool {
 
 // RTAOptions represents structure for Real-Time Analytics options.
 // Currently empty but reserved for future RTA-specific configuration.
-type RTAOptions struct {
-}
+type RTAOptions struct{}
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
 func (c RTAOptions) Value() (driver.Value, error) { return jsonValue(c) }
