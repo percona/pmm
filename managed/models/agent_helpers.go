@@ -1103,7 +1103,22 @@ func IsPushMetricsSupported(pmmAgentVersion *string) bool {
 
 // CreateMongoDBRealtimeAgent creates a MongoDB Realtime Analytics agent.
 // It retrieves credentials from existing MongoDB agents for the service as per Option 3 requirements.
+// If a MongoDB Realtime Agent already exists for the service, it returns the existing agent.
 func CreateMongoDBRealtimeAgent(q *reform.Querier, pmmAgentID, serviceID string, customLabels map[string]string, disabled bool) (*Agent, error) {
+	// Check if MongoDB Realtime Agent already exists for this service
+	realtimeAgentType := MongoDBRealtimeAgentType
+	existingRealtimeAgents, err := FindAgents(q, AgentFilters{
+		ServiceID: serviceID,
+		AgentType: &realtimeAgentType,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(existingRealtimeAgents) != 0 {
+		// Return existing agent instead of creating a duplicate
+		return existingRealtimeAgents[0], nil
+	}
+
 	// Verify service exists and is MongoDB type
 	service, err := FindServiceByID(q, serviceID)
 	if err != nil {
@@ -1130,7 +1145,7 @@ func CreateMongoDBRealtimeAgent(q *reform.Querier, pmmAgentID, serviceID string,
 		if err != nil {
 			return nil, err
 		}
-		if len(agents) > 0 {
+		if len(agents) != 0 {
 			existingAgent = agents[0]
 			break
 		}
