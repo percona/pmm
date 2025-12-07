@@ -206,12 +206,11 @@ func (s *Service) RequestSoftwareVersionsUpdate() {
 
 // Run runs software version cache service.
 func (s *Service) Run(ctx context.Context) {
-	time.Sleep(startupDelay) // sleep a while, so the server establishes the connections with agents.
+	// Sleep a while, so the server establishes the connections with agents.
+	time.Sleep(startupDelay)
 
 	s.l.Info("Starting...")
 	defer s.l.Info("Done.")
-
-	defer close(s.updateCh)
 
 	var checkAfter time.Duration
 	for {

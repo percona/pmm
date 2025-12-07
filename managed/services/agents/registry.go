@@ -303,7 +303,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 			return nil
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to persist the connection status for agent %s: %v", agentMD.ID, err)
+			return nil, fmt.Errorf("failed to persist the connection status for agent %s: %w", agentMD.ID, err)
 		}
 
 		r.cacheMu.Lock()
