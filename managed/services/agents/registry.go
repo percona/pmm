@@ -90,7 +90,7 @@ type Registry struct {
 	haService haService
 
 	// Cache for connection status in HA mode
-	connectionCache    map[string]bool // id -> is_connected
+	connectionCache    map[string]struct{}
 	connectionCacheTTL time.Time
 	cacheMu            sync.RWMutex
 
@@ -115,7 +115,7 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 
 		haService: ha,
 
-		connectionCache: make(map[string]bool),
+		connectionCache: make(map[string]struct{}),
 
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -176,35 +176,31 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	}
 
 	// HA mode: check cache first, then database
-	r.cacheMu.RLock()
 	if !time.Now().After(r.connectionCacheTTL) {
-		connected, exists := r.connectionCache[pmmAgentID]
+		r.cacheMu.RLock()
+		_, exists := r.connectionCache[pmmAgentID]
 		r.cacheMu.RUnlock()
 		if exists {
-			return connected
+			return true
 		}
-		// Agent not in cache, fall through to rebuild
-	} else {
-		r.cacheMu.RUnlock()
 	}
 
-	// Cache miss or expired - rebuild cache
 	r.rebuildConnectionCache()
 
-	// Now check cache again
 	r.cacheMu.RLock()
-	connected, exists := r.connectionCache[pmmAgentID]
+	_, exists := r.connectionCache[pmmAgentID]
 	r.cacheMu.RUnlock()
 
-	return exists && connected
+	return exists
 }
 
 // rebuildConnectionCache fetches all agent connection statuses from the database
 // and caches them for 10 seconds.
 func (r *Registry) rebuildConnectionCache() {
-	newCache := make(map[string]bool)
+	newCache := make(map[string]struct{})
 
-	err := r.db.InTransaction(func(tx *reform.TX) error {
+	// Fetch pmm-agents from the database, reset cache to empty on error.
+	_ = r.db.InTransaction(func(tx *reform.TX) error {
 		agentType := models.PMMAgentType
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
 		if err != nil {
@@ -212,14 +208,13 @@ func (r *Registry) rebuildConnectionCache() {
 		}
 
 		for _, agent := range agents {
-			newCache[agent.AgentID] = agent.IsConnected
+			if agent.IsConnected {
+				newCache[agent.AgentID] = struct{}{}
+			}
 		}
 
 		return nil
 	})
-	if err != nil {
-		return
-	}
 
 	r.cacheMu.Lock()
 	r.connectionCache = newCache
@@ -307,7 +302,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		}
 
 		r.cacheMu.Lock()
-		r.connectionCache[agentMD.ID] = true
+		r.connectionCache[agentMD.ID] = struct{}{}
 		r.cacheMu.Unlock()
 	}
 
