@@ -1,5 +1,14 @@
 # PMM Development Guide for AI Agents
 
+## Purpose
+
+This PR extracts AI agent configuration files to provide structured guidelines for AI coding agents working with the PMM codebase. These files help agents understand:
+- The overall repository structure and component organization
+- Component-specific development patterns and conventions
+- Best practices for contributing to PMM
+
+The goal is to improve AI agent effectiveness when making code changes, reviewing code, or providing guidance on PMM development.
+
 ## Project Overview
 
 Percona Monitoring and Management (PMM) is an open-source database monitoring solution with a client-server architecture. This is a **monorepository** containing multiple PMM Components, APIs, documentation, and build scripts.
@@ -26,6 +35,13 @@ Every component is written in Go, with the exception of the UI, which is based o
 
 # AI Agent Instructions
 
-The following guidelines are intended to help AI coding agents contribute effectively to the PMM codebase. Every component will have its own AI coding instructions, provided in their respective directories. This file serves as a general overview and points to the canonical location for AI coding instructions.
+The following guidelines are intended to help AI coding agents contribute effectively to the PMM codebase. 
 
-See [managed/AGENT.md](../managed/AGENT.md) for comprehensive AI-driven `pmm-managed` development guidelines.
+## Component-Specific Guidelines
+
+Each PMM component can have its own `AGENT.md` file in its respective directory, providing detailed development guidelines specific to that component. This file serves as a general overview and points to these component-specific instructions.
+
+Currently available component guidelines:
+- [managed/AGENT.md](../managed/AGENT.md) - Comprehensive AI-driven `pmm-managed` development guidelines
+
+Additional components may add their own `AGENT.md` files as needed (e.g., `agent/AGENT.md`, `ui/AGENT.md`, etc.).
