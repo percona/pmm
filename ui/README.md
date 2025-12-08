@@ -20,7 +20,8 @@ Make sure you have the following installed:
 
 This repo uses the following stack across its packages:
 
-- Yarn to manage packages (https://yarnpkg.com/)
+- Yarn (https://yarnpkg.com/)
+- Turborepo (https://turborepo.com/)
 - Typescript (https://www.typescriptlang.org/);
 - React (https://react.dev/);
 - Rollup to bundle the different common packages (https://rollupjs.org/);
@@ -44,3 +45,12 @@ make dev
 ```bash
 make build
 ```
+
+## Apps
+
+- **pmm** - main PMM UI application
+- **pmm-compat** - Grafana plugin that handles communication between Grafana and PMM UI
+
+## Packages
+
+- **shared** - common code between applications

@@ -29764,6 +29764,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "update_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -29941,6 +29946,11 @@
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 13
+                },
+                "update_snooze_duration": {
+                  "description": "A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -30083,6 +30093,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "update_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -30868,6 +30883,18 @@
                   "type": "string",
                   "title": "Snoozed PMM version update",
                   "x-order": 3
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of last snooze",
+                  "x-order": 4
+                },
+                "snooze_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "Number of times the update was snoozed",
+                  "x-order": 5
                 }
               }
             }
@@ -30968,6 +30995,18 @@
                   "type": "string",
                   "title": "Snooze update alert for a PMM version",
                   "x-order": 3
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of last snooze",
+                  "x-order": 4
+                },
+                "snooze_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "Number of times the update was snoozed",
+                  "x-order": 5
                 }
               }
             }
