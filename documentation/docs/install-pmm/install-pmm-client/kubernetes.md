@@ -1,18 +1,17 @@
-# Run PMM Client as a Pod in a Kubernetes Deployment
+# Run PMM Client as a Kubernetes pod
 
-The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) can be deployed as a pod in Kubernetes, provides a convenient way to run PMM Client as a pre-configured container without installing software directly on your host system.
+Deploy the [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) as a Kubernetes pod to monitor your databases without installing software on your host system. 
 
-Using the Kubernetes Pod approach offers several advantages:
+This deployment approach provides:
 
-- no need to install PMM Client directly on your host system
-- consistent environment across different operating systems
-- simplified setup and configuration process
 - automatic architecture detection (x86_64/ARM64)
-- [centralized configuration management](../install-pmm-server/deployment-options/docker/env_var.md#configure-vmagent-variables) through PMM Server environment variables
+- consistent environment across different operating systems
+- simplified setup and configuration
+- [centralized configuration management](../install-pmm-server/deployment-options/docker/env_var.md#configure-vmagent-variables) via PMM Server
 
 ## Prerequisites
 
-Complete these essential steps before installation:
+Before deploying PMM Client:
 {.power-number}
 
 1. Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/).
@@ -29,18 +28,23 @@ Complete these essential steps before installation:
 
 ### Deploy PMM Client
 
+Choose your deployment approach:
+
+- **Standalone**: Deploy PMM Client as a dedicated pod to monitor external databases
+- **Sidecar**: Deploy PMM Client alongside a database in the same pod 
+
 === "Deploy PMM Client as a Standalone container"
     Follow these steps to deploy PMM Client using `kubectl`:
     {.power-number}
 
-    1. (Optional) Create a namespace named `pmm-client-test` for the deployment and set it as the default namespace:
+    1. (Optional) Create a namespace for the deployment and set it as the default namespace:
 
         ```sh
         kubectl create namespace pmm-client-test
         kubectl config set-context --current --namespace=pmm-client-test
         ```
 
-    2. Create the file `pmm-client-volume.yaml` with the following content to define a Persistent Volume for storing PMM Client data between pod restarts:
+    2. Create `pmm-client-volume.yaml` to define persistent storage for PMM Client data between pod restarts:
 
         ```yaml
         apiVersion: v1
@@ -77,7 +81,7 @@ Complete these essential steps before installation:
         kubectl apply -f pmm-client-volume.yaml
         ```
 
-    4. Create a Secret to store the credentials for PMM Server authentication. Update `PMM_AGENT_SERVER_PASSWORD` value if you changed the default `admin` password during setup:
+    4. Create a Secret to store PMM Server credentials. Replace `admin` password if you changed it during PMM Server setup:
 
         ```sh
         kubectl create secret generic pmm-secret \
@@ -85,7 +89,7 @@ Complete these essential steps before installation:
         --from-literal=PMM_AGENT_SERVER_PASSWORD=admin
         ```
 
-    5. Create the file `pmm-client-pod.yaml` with the following content to define a Pod running PMM Client. Replace `X.X.X.X` with the IP address of your PMM Server:
+    5. Create `pmm-client-pod.yaml` to define a Pod running PMM Client. Replace `X.X.X.X` with the IP address of your PMM Server:
 
         ```yaml
         apiVersion: apps/v1
@@ -135,6 +139,8 @@ Complete these essential steps before installation:
                   persistentVolumeClaim:
                     claimName: pmm-client-pvc
         ```
+        !!! warning alert alert-warning "Security note"
+            The `PMM_AGENT_SERVER_INSECURE_TLS=1` setting disables TLS certificate verification. For production environments, configure proper TLS certificates and remove this setting.
 
     6. Deploy PMM Client pod and configure the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server:
 
@@ -142,9 +148,9 @@ Complete these essential steps before installation:
         kubectl apply -f pmm-client-pod.yaml
         ```
 
-        !!! hint alert-success "Important"
-            - You can set the container environment variable `PMM_AGENT_PRERUN_SCRIPT` to a shell script so that it will automatically add service(s) to PMM for monitoring.
-            - If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
+    !!! hint alert-success "Important"
+        You can set the container environment variable `PMM_AGENT_PRERUN_SCRIPT` to a shell script to automatically add services to PMM for monitoring.
+
 
 === "Deploy PMM Client as a Sidecar container"
     Follow these steps to deploy PMM Client as a Sidecar container to a MySQL container using `kubectl`:
@@ -157,7 +163,7 @@ Complete these essential steps before installation:
         kubectl config set-context --current --namespace=pmm-client-test
         ```
 
-    2. Create the file `mysql-pmm-client-volume.yaml` with the following content to define a Persistent Volume for storing PMM Client and MySQL data between pod restarts:
+    2. Create `mysql-pmm-client-volume.yaml` to define persistent storage for storing PMM Client and MySQL data between pod restarts:
 
         ```yaml
         apiVersion: v1
@@ -235,7 +241,8 @@ Complete these essential steps before installation:
         kubectl create secret generic mysql-secret \
          --from-literal=MYSQL_ROOT_PASSWORD=very_secure_password
         ```
-    6. Create the file `mysql-pmm-client-pod.yaml` with the following content to define a Pod running MySQL 9.0 container with a PMM Client container running as Sidecar. Replace `X.X.X.X` with the IP address of your PMM Server:
+    
+    6. Create `mysql-pmm-client-pod.yaml` to define a Pod running MySQL 9.0 container with a PMM Client container running as Sidecar. Replace `X.X.X.X` with the IP address of your PMM Server:
 
         ```yaml
         apiVersion: apps/v1
@@ -258,7 +265,6 @@ Complete these essential steps before installation:
                   image: mysql:9
                   resources: {}
                   env:
-                    # Use secret in real usage
                     - name: MYSQL_ROOT_PASSWORD
                       valueFrom:
                         secretKeyRef:
@@ -311,16 +317,14 @@ Complete these essential steps before installation:
                     claimName: pmm-client-pvc
         ```
 
+        !!! warning alert alert-warning "Security note"
+            The `PMM_AGENT_SERVER_INSECURE_TLS=1` setting disables TLS certificate verification. For production environments, configure proper TLS certificates and remove this setting.
 
-    6. Deploy MySQL and PMM Client pod:
+    7. Deploy MySQL and PMM Client pod:
 
-        ```sh
-        kubectl apply -f mysql-pmm-client-pod.yaml
-        ```
-
-        !!! hint alert-success "Important"
-            - If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
-
+          ```sh
+          kubectl apply -f mysql-pmm-client-pod.yaml
+          ```
 
 ## View your monitored node
 
@@ -335,3 +339,32 @@ To confirm your node is being monitored:
 
 !!! danger alert alert-danger "Danger"
     `pmm-agent.yaml` contains sensitive credentials and should not be shared.
+
+## Troubleshooting
+
+### Failed to register pmm-agent on PMM Server: connection refused
+
+If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable. Verify:
+
+- The `PMM_AGENT_SERVER_ADDRESS` value is correct
+- PMM Server is running and accessible
+- Firewall rules allow traffic on port `443`
+
+### Pod stuck in Pending state
+Check if the `PersistentVolume` was created successfully:
+
+```sh
+kubectl get pv
+kubectl get pvc
+kubectl describe pvc pmm-client-pvc
+```
+
+### View PMM Client logs
+
+```sh
+# Standalone deployment
+kubectl logs -l app=pmm-client
+
+# Sidecar deployment
+kubectl logs -l app=mysql -c pmm-client
+```
