@@ -1,11 +1,16 @@
+import { isUserAgentApple } from './navigator';
+
 export const triggerShortcut = (shortcut: 'view-shortcuts' | 'toggle-theme' | 'search') => {
+  const isApple = isUserAgentApple();
+
   if (shortcut === 'search') {
     triggerKeypress({
       key: 'k',
       code: 'KeyK',
       keyCode: 75,
       which: 75,
-      metaKey: true,
+      metaKey: isApple,
+      ctrlKey: !isApple,
     });
   } else if (shortcut === 'view-shortcuts') {
     triggerKeypress({
