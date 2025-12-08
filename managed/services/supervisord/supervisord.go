@@ -260,7 +260,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseUser":               clickhouseUser,
 		"ClickhousePassword":           clickhousePassword,
 		"PMMServerHost":                "",
-		"PMMServerHostname":            "",
+		"PerconaSSODetails":            nil,
 	}
 
 	s.addPostgresParams(templateParams)
@@ -276,7 +276,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 			return nil, errors.Wrap(err, "failed to parse PMM public address.") //nolint:revive
 		}
 		templateParams["PMMServerHost"] = publicURL.Host
-		templateParams["PMMServerHostname"] = publicURL.Hostname()
 	}
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)
@@ -287,8 +286,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
 		templateParams["PMMServerID"] = settings.PMMServerID
 		templateParams["IssuerDomain"] = u.Host
-	} else {
-		templateParams["PerconaSSODetails"] = nil
 	}
 
 	var buf bytes.Buffer
@@ -606,7 +603,7 @@ redirect_stderr = true
 {{define "nomad-server"}}
 [program:nomad-server]
 priority = 5
-command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHostname }}.hcl
+command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
 autorestart = true
 autostart = {{ .NomadEnabled }}
 startretries = 10
