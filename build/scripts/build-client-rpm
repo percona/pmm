@@ -17,6 +17,9 @@ main() {
         export pmm_version=$pmm_version
         export pmm_release=$pmm_release
         export sudo_path=\$(ls /usr/bin/sudo)
+
+        dnf -y install openssl
+
         mkdir -p /tmp/pmm
         pushd /home/builder/results
             \$sudo_path /home/builder/bin/build-client-packages \
