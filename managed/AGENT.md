@@ -85,16 +85,7 @@ PMM_DEBUG=1
 ### Unit Tests
 - Use `testify/assert` and `testify/require`
 - Mock generation via `mockery` (config in `.mockery.yaml`)
-
-```go
-func TestFunctionName(t *testing.T) {
-    sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-    defer sqlDB.Close()
-    
-    db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-    // Test logic
-}
-```
+- Use `testdb` helper for DB tests
 
 ### Integration Tests
 - Located in `/api-tests/` (separate from unit tests)
@@ -106,7 +97,7 @@ func TestFunctionName(t *testing.T) {
 
 Multiple code generation tools are used:
 
-1. **Protocol Buffers** - `buf generate` (APIs)
+1. **Protocol Buffers** - APIs (`make gen` from root)
 2. **reform** - ORM model generation (`//go:generate ../../bin/reform`)
 3. **mockery** - Mock generation for interfaces
 4. **swagger** - API documentation
@@ -127,6 +118,10 @@ Multiple code generation tools are used:
 - Use `status.Error()` for gRPC errors with proper codes
 - Check `reform.ErrNoRows` for "not found" scenarios
 - Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
+- Return early on errors to avoid deep nesting
+- Use `errors.Is()` and `errors.As()` for error type checking
+- Use `errors.WithStack()` wisely and only when stack traces are needed
+- Use standard `errors` package instead of `github.com/pkg/errors`
 
 ### Logging
 - Use structured logging with `logrus`
@@ -154,10 +149,10 @@ PMM transitioned from v2 to v3 API patterns:
 - `.devcontainer/setup.py` - Devcontainer initialization
 
 ## Don't
-- Don't use gorm or other ORMs - only reform
+- Don't use `gorm` or other ORMs - only `reform`
 - Don't edit generated files manually
 - Don't create subshells in Makefiles without explicit reason
 - Don't skip `make gen` after proto/model changes
-- Don't commit test binaries to `/bin/` (add to `.gitignore` if needed)
+- Don't commit test binaries or test artifacts (add to `.gitignore` if needed)
 - Don't comment on every single line of code unnecessarily, only where clarity is needed
 - Don't inline comments, always use full-line comments for better readability
