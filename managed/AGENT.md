@@ -61,24 +61,16 @@ Services are composed in `managed/cmd/pmm-managed/main.go` and injected througho
 APIs are defined in `.proto` files under `/api/`:
 - Generate with: `make gen` from the root of the repository
 - Creates Go code, Swagger specs, and gRPC gateway mappings
-- **Never edit generated files** (`.pb.go`, `.pb.gw.go`, swagger files)
+- **Never** edit generated files (`.pb.go`, `.pb.gw.go`, swagger files)
 - Update proto files, then regenerate
 
 ### High Availability (HA)
 
 PMM supports HA using **Raft consensus** (`/managed/services/ha/`):
-- Distributed state management for agent connections
-- Commands are encoded/decoded via `commands.go`
-- FSM applies log entries in `Apply()` method
-
-### Environment Variables
-
-Critical env vars for development (see `docker-compose.yml`):
-```bash
-PMM_POSTGRES_ADDR=127.0.0.1:5432
-PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
-PMM_DEBUG=1
-```
+- Distributed state is managed via Raft
+- pmm-agent states are synchronized across nodes
+- Uses `hashicorp/raft` library
+- Critical for ensuring consistency in multi-node setups
 
 ## Testing Conventions
 
@@ -114,6 +106,15 @@ Multiple code generation tools are used:
 - Prefer modern slice helpers (e.g., `slices.Contains`), range loops
 - Use `any` instead of `interface{}`
 
+### Don't
+- Don't use `gorm` or other ORMs - only `reform`
+- Don't edit generated files manually
+- Don't create subshells in Makefiles without explicit reason
+- Don't skip `make gen` after proto/model changes
+- Don't commit test binaries or test artifacts (add to `.gitignore` if needed)
+- Don't comment on every single line of code unnecessarily, only where clarity is needed
+- Don't inline comments (i.e. `code // comment`), always put comments on separate lines
+
 ### Error Handling
 - Use `status.Error()` for gRPC errors with proper codes
 - Check `reform.ErrNoRows` for "not found" scenarios
@@ -128,31 +129,19 @@ Multiple code generation tools are used:
 - Pass `*logrus.Entry` (not `*logrus.Logger`) to maintain context
 - Format: `s.l.WithField("key", value).Error("message")`
 
-### Agent Management
+## Agent Management
 - Agents are registered and managed via `managed/services/agents/registry.go`
 - Communication uses bidirectional gRPC streams
 - Agent states are tracked in PostgreSQL and synchronized with HA state machine
 
-## Migration Notes
-
-PMM transitioned from v2 to v3 API patterns:
-- v3 uses RESTful conventions (GET/POST/PUT/DELETE with resource paths)
-- v2 used POST for everything
-- See `api/MIGRATION_TO_V3.md` for endpoint mappings
+## RESTful conventions
+- Use RESTful conventions (GET/POST/PUT/DELETE with resource paths)
+- Use custom endpoints only when necessary (e.g., actions)
 
 ## Key Files to Reference
 
 - `managed/models/database.go` - Database schema and migrations
 - `managed/cmd/pmm-managed/main.go` - Application bootstrap and wiring
 - `docker-compose.yml` - Development environment configuration
-- `Makefile.include` - Common make targets
+- `Makefile` and `Makefile.include` - Common make targets
 - `.devcontainer/setup.py` - Devcontainer initialization
-
-## Don't
-- Don't use `gorm` or other ORMs - only `reform`
-- Don't edit generated files manually
-- Don't create subshells in Makefiles without explicit reason
-- Don't skip `make gen` after proto/model changes
-- Don't commit test binaries or test artifacts (add to `.gitignore` if needed)
-- Don't comment on every single line of code unnecessarily, only where clarity is needed
-- Don't inline comments, always use full-line comments for better readability
