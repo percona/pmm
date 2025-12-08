@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This PR extracts AI agent configuration files to provide structured guidelines for AI coding agents working with the PMM codebase. These files help agents understand:
+These files provide structured guidelines for AI coding agents working with the PMM codebase. They help agents understand:
 - The overall repository structure and component organization
 - Component-specific development patterns and conventions
 - Best practices for contributing to PMM
