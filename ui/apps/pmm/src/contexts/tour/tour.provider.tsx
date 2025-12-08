@@ -96,7 +96,9 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
           onClickClose={endTour}
-          onClickMask={endTour}
+          onClickMask={() => {
+            // Prevent tour from closing when clicking on backdrop
+          }}
           position="right"
           components={{
             Badge: () => null,
