@@ -279,7 +279,7 @@ func (UnimplementedQANServiceServer) GetQueryExample(context.Context, *GetQueryE
 }
 
 func (UnimplementedQANServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+	return nil, status.Error(codes.Unimplemented, "method HealthCheck not implemented")
 }
 func (UnimplementedQANServiceServer) mustEmbedUnimplementedQANServiceServer() {}
 func (UnimplementedQANServiceServer) testEmbeddedByValue()                    {}
