@@ -47,8 +47,8 @@ theme:
     - content.tabs.link
     - content.code.copy
     - navigation.tracking
-    - content.action.edit
-#    - content.action.view
+#    - content.action.edit
+    - content.action.view
 
 extra_css:
   - https://unicons.iconscout.com/release/v4.0.8/css/line.css
@@ -58,11 +58,13 @@ extra_css:
   - css/osano.css
   - css/pmm.css
   - css/extra.css
+  - css/rating.css
 
 extra_javascript:
-  - js/promptremover.js
+  - js/extra.js
   - js/consent.js
   - js/version-select.js
+  - js/rating.js
 
 markdown_extensions:
   attr_list: {}
@@ -100,7 +102,9 @@ markdown_extensions:
 plugins:
   search:
     separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  git-revision-date: {}
+  git-revision-date-localized:
+    enable_creation_date: true
+    enabled: !ENV [ENABLED_GIT_REVISION_DATE, True]  
   meta-descriptions:
     export_csv: false
     quiet: false
