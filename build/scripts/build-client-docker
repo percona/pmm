@@ -20,8 +20,6 @@ fi
 docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
              --build-arg VERSION=$(cat VERSION) \
              --build-arg RELEASE=$(date +%s) \
-             --squash \
-             --no-cache \
              -f ${DOCKER_FILE_LOCATION}/${docker_file} \
              -t ${DOCKER_CLIENT_TAG} \
              ${DOCKER_FILE_LOCATION}

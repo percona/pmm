@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -40,7 +39,7 @@ func IsClickhouseClusterReady(dsn string, clusterName string) (bool, error) {
 	}
 	defer db.Close() //nolint:errcheck
 
-	log.Printf("Executing query: %s; args: %v", sql, args)
+	logrus.WithField("component", "migrations").Printf("Executing query: %s; args: %v", sql, args)
 	rows, err := db.Queryx(fmt.Sprintf("%s;", sql), args...)
 	if err != nil {
 		return false, err
@@ -94,18 +93,19 @@ func GetEngine(isCluster bool) string {
 }
 
 func Run(dsn string, templateData map[string]any, isCluster bool, clusterName string) error {
+	l := logrus.WithField("component", "migrations")
 	if isCluster {
 		isClusterReady, err := IsClickhouseClusterReady(dsn, clusterName)
 		if err != nil {
 			return err
 		}
 		if isClusterReady {
-			log.Printf("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsnutils.RedactDSN(dsn))
+			l.Infof("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsnutils.RedactDSN(dsn))
 			dsn, err = addClusterSchemaMigrationsParams(dsn, clusterName)
 			if err != nil {
 				return err
 			}
-			log.Printf("Adjusted DSN for migrations: %s", dsnutils.RedactDSN(dsn))
+			l.Infof("Adjusted DSN for migrations: %s", dsnutils.RedactDSN(dsn))
 		}
 	}
 
@@ -135,7 +135,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 	// If the database is in dirty state, try to fix it (PMM-14305)
 	var errDirty migrate.ErrDirty
 	if errors.As(err, &errDirty) {
-		log.Printf("Migration %d was unsuccessful, trying to fix it...", errDirty.Version)
+		l.Infof("Migration %d was unsuccessful, trying to fix it...", errDirty.Version)
 
 		ver := errDirty.Version - 1
 		if ver == 0 {

@@ -27,12 +27,17 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"go.yaml.in/yaml/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -1165,6 +1170,9 @@ var databaseSchema = [][]string{
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
+	114: {
+		`ALTER TABLE agents ADD COLUMN is_connected BOOLEAN NOT NULL DEFAULT false`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1230,6 +1238,8 @@ type SetupDBParams struct {
 	SSLCAPath        string
 	SSLKeyPath       string
 	SSLCertPath      string
+	HANodeID         string
+	HAPeers          []string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
 }
@@ -1446,13 +1456,105 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		err = setupPMMServerAgents(tx.Querier, params)
+		if params.HANodeID != "" {
+			err = setupPMMServerHAAgents(tx.Querier, params)
+		} else {
+			err = setupPMMServerAgents(tx.Querier, params)
+		}
 		if err != nil {
 			return err
 		}
 
 		return nil
 	})
+}
+
+type agentConfig struct {
+	ID string `yaml:"id"`
+}
+
+func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
+	agentID := uuid.New().String()
+	nodeID := uuid.New().String()
+
+	// create PMM Server Node and associated Agents in HA mode
+	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
+
+	file, err := os.Open(AgentConfigFilePath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	var agentConfig agentConfig
+	err = yaml.NewDecoder(file).Decode(&agentConfig)
+	if err != nil {
+		return fmt.Errorf("could not parse agent config file %s: %w", AgentConfigFilePath, err)
+	}
+
+	if agentConfig.ID == "" {
+		return fmt.Errorf("the agent ID is empty in config file %s", AgentConfigFilePath)
+	}
+
+	if agentConfig.ID != PMMServerAgentID {
+		// check if the agent with such ID already exists
+		agent, err := FindAgentByID(q, agentConfig.ID)
+		if err == nil {
+			logrus.Infof("PMM Agent with ID %s already exists, skipping creation", agentConfig.ID)
+			PMMServerAgentID = agentConfig.ID
+			PMMServerNodeID = pointer.Get(agent.RunsOnNodeID)
+			return nil
+		}
+	}
+
+	args := []string{
+		"setup",
+		"--config-file", AgentConfigFilePath,
+		"--server-address", "127.0.0.1:8443",
+		"--id", agentID,
+		"--skip-registration",
+		"--server-insecure-tls",
+	}
+	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
+	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error setting up pmm-agent: %w: %s", err, output)
+	}
+
+	labels := map[string]string{
+		"cluster":     "pmm",
+		"environment": "pmm",
+	}
+
+	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
+		NodeName:     params.HANodeID,
+		Address:      "127.0.0.1",
+		CustomLabels: labels,
+	})
+	if err != nil {
+		logrus.Errorf("Failed to create a node with ID %s: %s", nodeID, err)
+		return err
+	}
+
+	agent, err := createPMMAgentWithID(q, agentID, node.NodeID, labels)
+	if err != nil {
+		return err
+	}
+
+	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
+		return err
+	}
+
+	// set PMMServerAgentID and PMMServerNodeID to generated values in HA setup
+	PMMServerAgentID = agent.AgentID
+	logrus.Infof("Set PMMServerAgentID to: %s", PMMServerAgentID)
+	PMMServerNodeID = node.NodeID
+	logrus.Infof("Set PMMServerNodeID to: %s", PMMServerNodeID)
+
+	return nil
 }
 
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
@@ -1468,25 +1570,29 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		}
 		return err
 	}
+
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
 	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
+
 	address, port, err := parsePGAddress(params.Address)
 	if err != nil {
 		return err
 	}
 	if params.Address != DefaultPostgreSQLAddr {
-		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
+		node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
 			NodeName: PMMServerPostgreSQLNodeName,
 			Address:  address,
-		}); err != nil {
+		})
+		if err != nil {
 			return err
 		}
 	} else {
-		params.Name = "" // using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		// Using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		params.Name = ""
 	}
 
 	// create PostgreSQL Service and associated Agents

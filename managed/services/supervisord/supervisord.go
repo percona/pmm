@@ -27,6 +27,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -146,14 +147,7 @@ func (s *Service) Run(ctx context.Context) {
 			var toDelete []chan *event
 			for ch, sub := range s.subs {
 				if e.Program == sub.program {
-					var found bool
-					for _, t := range sub.eventTypes {
-						if e.Type == t {
-							found = true
-							break
-						}
-					}
-					if found {
+					if slices.Contains(sub.eventTypes, e.Type) {
 						ch <- e
 						close(ch)
 						toDelete = append(toDelete, ch)
@@ -214,6 +208,13 @@ func (s *Service) reload(name string) error {
 	if _, err := s.supervisorctl("reread"); err != nil {
 		s.l.Warn(err)
 	}
+
+	path := filepath.Join(s.configDir, name+".ini")
+	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
+		s.l.Warnf("Config file %s does not exist, skipping update", path)
+		return nil
+	}
+
 	_, err := s.supervisorctl("update", name)
 	return err
 }
@@ -222,7 +223,7 @@ func (s *Service) reload(name string) error {
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
+	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
@@ -237,7 +238,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	templateParams := map[string]interface{}{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
-		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24),
+		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24), //nolint:mnd
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
@@ -250,6 +251,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
+		"NomadEnabled":                 settings.IsNomadEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
@@ -257,12 +259,13 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhousePort":               clickhouseAddrPair[1],
 		"ClickhouseUser":               clickhouseUser,
 		"ClickhousePassword":           clickhousePassword,
+		"PMMServerHost":                "",
+		"PerconaSSODetails":            nil,
 	}
 
 	s.addPostgresParams(templateParams)
 	s.addClusterParams(templateParams)
 
-	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
 		pmmPublicAddress := settings.PMMPublicAddress
 		if !strings.HasPrefix(pmmPublicAddress, "https://") && !strings.HasPrefix(pmmPublicAddress, "http://") {
@@ -283,14 +286,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
 		templateParams["PMMServerID"] = settings.PMMServerID
 		templateParams["IssuerDomain"] = u.Host
-	} else {
-		templateParams["PerconaSSODetails"] = nil
-	}
-
-	if settings.IsNomadEnabled() {
-		templateParams["NomadEnabled"] = "true"
-	} else {
-		templateParams["NomadEnabled"] = "false"
 	}
 
 	var buf bytes.Buffer
@@ -352,10 +347,10 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}
 
 	// restore old content and reload in case of error
-	restore := true
+	restore := oldCfg != nil
 	defer func() {
 		if restore {
-			if err = os.WriteFile(path, oldCfg, 0o664); err != nil { //nolint:gosec
+			if err = os.WriteFile(path, oldCfg, 0o664); err != nil { //nolint:gosec,mnd
 				s.l.Errorf("Failed to restore: %s.", err)
 			}
 			if err = s.reload(name); err != nil {
@@ -365,7 +360,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
+	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec,mnd
 		return false, errors.WithStack(err)
 	}
 	if err = s.reload(name); err != nil {
@@ -394,7 +389,23 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 	}
 
 	for _, tmpl := range templates.Templates() {
-		if tmpl.Name() == "" || (tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM()) {
+		if tmpl.Name() == "" {
+			continue
+		}
+
+		if tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM() {
+			e := os.Remove(filepath.Join(s.configDir, tmpl.Name()+".ini"))
+			if e != nil && !errors.Is(e, fs.ErrNotExist) {
+				s.l.Warnf("Failed to remove %s config for external VM: %s.", tmpl.Name(), e)
+			}
+			continue
+		}
+
+		if tmpl.Name() == "nomad-server" && !settings.IsNomadEnabled() {
+			e := os.Remove(filepath.Join(s.configDir, tmpl.Name()+".ini"))
+			if e != nil && !errors.Is(e, fs.ErrNotExist) {
+				s.l.Warnf("Failed to remove %s config when disabled: %s.", tmpl.Name(), e)
+			}
 			continue
 		}
 
@@ -410,12 +421,6 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 			continue
 		}
 	}
-	return err
-}
-
-// RestartSupervisedService restarts given service.
-func (s *Service) RestartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("restart", serviceName)
 	return err
 }
 
@@ -435,7 +440,6 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 
 {{define "victoriametrics"}}
-{{- if not .ExternalVM }}
 [program:victoriametrics]
 priority = 7
 command =
@@ -457,7 +461,7 @@ command =
 		--envflag.enable
 		--envflag.prefix=VM_
 autorestart = true
-autostart = true
+autostart = {{ not .ExternalVM }}
 startretries = 10
 startsecs = 1
 stopsignal = INT
@@ -466,7 +470,6 @@ stdout_logfile = /srv/logs/victoriametrics.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
-{{end -}}
 {{end}}
 
 {{define "vmalert"}}
@@ -601,7 +604,7 @@ redirect_stderr = true
 [program:nomad-server]
 priority = 5
 command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
-autorestart = {{ .NomadEnabled }}
+autorestart = true
 autostart = {{ .NomadEnabled }}
 startretries = 10
 startsecs = 1

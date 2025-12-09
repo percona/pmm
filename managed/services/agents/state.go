@@ -188,7 +188,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.PMMAgentType:
 			continue
 		case models.VMAgentType:
-			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.id)
+			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(ctx, agent.id)
 			if err != nil {
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}

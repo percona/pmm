@@ -7,7 +7,6 @@
 | Variable                               | Description
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------
 | `PMM_HA_ENABLE`                  | Enable PMM to run in High Availability (HA) mode.
-| `PMM_HA_BOOTSTRAP`                | Bootstrap HA cluster.
 | `PMM_HA_NODE_ID`                  | HA Node ID.
 | `PMM_HA_ADVERTISE_ADDRESS`        | HA Advertise address.
 | `PMM_HA_GOSSIP_PORT`              | HA gossip port.

@@ -76,7 +76,7 @@ type Service struct {
 
 // Apply applies a log entry to the high-availability service.
 // Currently only used for Raft consensus, not for state replication.
-func (s *Service) Apply(logEntry *raft.Log) interface{} {
+func (s *Service) Apply(logEntry *raft.Log) any {
 	s.l.Debugf("raft: applied log entry: index=%d, data=%s", logEntry.Index, string(logEntry.Data))
 	return nil
 }
@@ -105,8 +105,6 @@ type fsmSnapshot struct{}
 // Persist writes an empty snapshot since PMM HA FSM is stateless.
 // Cluster configuration (voters, etc.) is automatically persisted by Raft in metadata.
 func (f *fsmSnapshot) Persist(sink raft.SnapshotSink) error {
-	// Write empty snapshot - Raft handles cluster configuration in metadata
-	// This allows log compaction while maintaining stateless FSM
 	return sink.Close()
 }
 
@@ -158,7 +156,7 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 func New(params *models.HAParams) *Service {
 	return &Service{
 		params:           params,
-		bootstrapCluster: params.Bootstrap,
+		bootstrapCluster: true,
 		services:         newServices(),
 		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
@@ -177,7 +175,7 @@ func (s *Service) Run(ctx context.Context) error {
 					s.services.StartAllServices(ctx)
 				}
 			case <-ctx.Done():
-				s.services.StopRunningServices()
+				s.services.StopAllServices()
 				return
 			}
 		}
@@ -196,6 +194,7 @@ func (s *Service) Run(ctx context.Context) error {
 	// Create the Raft configuration
 	raftConfig := raft.DefaultConfig()
 	raftConfig.LocalID = raft.ServerID(s.params.NodeID)
+	raftConfig.LogOutput = s.l.Logger.Out
 
 	// Set log level based on environment
 	if os.Getenv("PMM_DEBUG") == "1" {
@@ -365,7 +364,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				raftServers[string(server.ID)] = struct{}{}
 			}
 			members := s.memberlist.Members()
-			s.l.Infof("memberlist members: %v", members)
+			s.l.Infof("HA memberlist: %v", members)
 			for _, node := range members {
 				if _, ok := raftServers[node.Name]; !ok {
 					s.addMemberlistNodeToRaft(node)
@@ -408,8 +407,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 		case isLeader := <-node.LeaderCh():
 			if isLeader {
 				s.services.StartAllServices(ctx)
-				// This node is the leader
-				s.l.Printf("I am the leader!")
+				s.l.Info("I am the leader!")
 				peers := s.memberlist.Members()
 				for _, peer := range peers {
 					if peer.Name == s.params.NodeID {
@@ -418,12 +416,14 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 					s.addMemberlistNodeToRaft(peer)
 				}
 			} else {
-				s.l.Printf("I am not a leader!")
-				s.services.StopRunningServices()
+				s.l.Info("I am not a leader!")
+				s.services.StopAllServices()
 			}
 		case <-t.C:
 			address, serverID := s.raftNode.LeaderWithID()
-			s.l.Infof("Leader is %s on %s", serverID, address)
+			if serverID != "" {
+				s.l.Infof("Leader is %s on %s", serverID, address)
+			}
 		case <-ctx.Done():
 			return
 		}
@@ -434,12 +434,13 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 func (s *Service) AddLeaderService(leaderService LeaderService) {
 	err := s.services.Add(leaderService)
 	if err != nil {
-		s.l.Errorf("couldn't add HA service: +%v", err)
+		s.l.Errorf("couldn't add HA service: %+v", err)
 	}
 }
 
 // BroadcastMessage broadcasts a message from the high availability service.
 // Note: Currently unused. Reserved for future cluster-wide message distribution.
+// This method should only be called by the leader node.
 func (s *Service) BroadcastMessage(message []byte) error {
 	if !s.params.Enabled {
 		return fmt.Errorf("HA is disabled")
@@ -449,20 +450,21 @@ func (s *Service) BroadcastMessage(message []byte) error {
 	defer s.rw.RUnlock()
 
 	future := s.raftNode.Apply(message, defaultApplyTimeout)
+
 	if err := future.Error(); err != nil {
 		return fmt.Errorf("failed to apply log to raft: %w", err)
 	}
 	return nil
 }
 
-// IsLeader checks if the current instance of the high availability service is the leader.
+// IsLeader checks if the current instance of HA service is the leader.
 func (s *Service) IsLeader() bool {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	return (s.raftNode != nil && s.raftNode.State() == raft.Leader) || !s.params.Enabled
+	return !s.params.Enabled || (s.raftNode != nil && s.raftNode.State() == raft.Leader)
 }
 
-// Bootstrap performs the necessary steps to initialize the high availability service.
-func (s *Service) Bootstrap() bool {
-	return s.params.Bootstrap || !s.params.Enabled
+// Params returns HA parameters.
+func (s *Service) Params() *models.HAParams {
+	return s.params
 }

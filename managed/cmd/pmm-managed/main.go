@@ -536,7 +536,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 
 	deps.l.Infof("Checking VictoriaMetrics...")
 	if err = deps.vmdb.IsReady(ctx); err != nil {
-		deps.l.Warnf("VictoriaMetrics problem: %+v.", err)
+		deps.l.Warnf("Failed to check VictoriaMetrics readiness: %+v.", err)
 		return false
 	}
 	deps.vmdb.RequestConfigurationUpdate()
@@ -596,6 +596,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 		l.Infof("Migrating database...")
 		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
+			l.Infof("Database migration completed.")
 			return
 		}
 
@@ -672,9 +673,6 @@ func main() { //nolint:maintidx,cyclop
 
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
 		Envar("PMM_HA_ENABLE").
-		Bool()
-	haBootstrap := kingpin.Flag("ha-bootstrap", "Bootstrap HA cluster").
-		Envar("PMM_HA_BOOTSTRAP").
 		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
 		Envar("PMM_HA_NODE_ID").
@@ -763,7 +761,6 @@ func main() { //nolint:maintidx,cyclop
 	}
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
-		Bootstrap:         *haBootstrap,
 		NodeID:            *haNodeID,
 		AdvertiseAddress:  *haAdvertiseAddress,
 		Nodes:             nodes,
@@ -832,6 +829,8 @@ func main() { //nolint:maintidx,cyclop
 		SSLCAPath:   *postgresSSLCAPathF,
 		SSLKeyPath:  *postgresSSLKeyPathF,
 		SSLCertPath: *postgresSSLCertPathF,
+		HANodeID:    *haNodeID,
+		HAPeers:     nodes,
 	}
 
 	sqlDB, err := models.OpenDB(setupParams)
@@ -840,29 +839,30 @@ func main() { //nolint:maintidx,cyclop
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	if haService.Bootstrap() {
-		migrateDB(ctx, sqlDB, setupParams)
+	if *haEnabled {
+		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
 	}
+
+	migrateDB(ctx, sqlDB, setupParams)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	if haService.Bootstrap() {
-		// Generate unique PMM Server ID if it's not already set.
-		err = models.SetPMMServerID(db)
-		if err != nil {
-			l.Panicf("failed to set PMM Server ID")
-		}
+	// Generate unique PMM Server ID if it's not already.
+	err = models.SetPMMServerID(db)
+	if err != nil {
+		l.Panicf("failed to set PMM Server ID")
 	}
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
+
 	vmalert, err := vmalert.NewVMAlert(externalRules, *victoriaMetricsVMAlertURLF)
 	if err != nil {
 		l.Panicf("VictoriaMetrics VMAlert service problem: %+v", err)
@@ -873,12 +873,14 @@ func main() { //nolint:maintidx,cyclop
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db, vmParams)
+	agentsRegistry := agents.NewRegistry(db, vmParams, haService)
 
-	// TODO remove once PMM cluster will be Active-Active
-	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
-		agentsRegistry.KickAll(ctx)
-	}))
+	// TODO remove once PMM cluster is Active-Active
+	// TODO kick non-pmm-server agents only
+	// haService.AddLeaderService(ha.NewStandardService(
+	// 	"agentsRegistry",
+	// 	func(_ context.Context) error { return nil },
+	// 	func() { agentsRegistry.KickAll(ctx) }))
 
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
@@ -913,18 +915,11 @@ func main() { //nolint:maintidx,cyclop
 			HAParams: haParams,
 		})
 
-	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
-		err := supervisord.StartSupervisedService("pmm-agent")
-		if err != nil {
-			l.Warnf("couldn't start pmm-agent: %q", err)
-		}
-		return err
-	}, func() {
-		err := supervisord.StopSupervisedService("pmm-agent")
-		if err != nil {
-			l.Warnf("couldn't stop pmm-agent: %q", err)
-		}
-	}))
+	// Keep the agent always running, even on follower nodes.
+	err = supervisord.StartSupervisedService("pmm-agent")
+	if err != nil {
+		l.Warnf("Couldn not start pmm-agent: %s", err)
+	}
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {

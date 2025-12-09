@@ -459,7 +459,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
             -e PMM_HA_ENABLE=1 \
-            -e PMM_HA_BOOTSTRAP=1 \
             -e PMM_HA_NODE_ID=${PMM_ACTIVE_NODE_ID} \
             -e PMM_HA_ADVERTISE_ADDRESS=${PMM_ACTIVE_IP} \
             -e PMM_HA_GOSSIP_PORT=9096 \
@@ -498,7 +497,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_NAME=grafana \
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
             -e PMM_HA_ENABLE=1 \
-            -e PMM_HA_BOOTSTRAP=1 \
             -e PMM_HA_NODE_ID=${PMM_ACTIVE_NODE_ID} \
             -e PMM_HA_ADVERTISE_ADDRESS=${PMM_ACTIVE_IP} \
             -e PMM_HA_GOSSIP_PORT=9096 \
@@ -535,7 +533,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
             -e PMM_HA_ENABLE=1 \
-            -e PMM_HA_BOOTSTRAP=0 \
             -e PMM_HA_NODE_ID=${PMM_PASSIVE_NODE_ID} \
             -e PMM_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE_IP} \
             -e PMM_HA_GOSSIP_PORT=9096 \
@@ -574,7 +571,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
             -e PMM_HA_ENABLE=1 \
-            -e PMM_HA_BOOTSTRAP=0 \
             -e PMM_HA_NODE_ID=${PMM_PASSIVE_NODE_ID} \
             -e PMM_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE_IP} \
             -e PMM_HA_GOSSIP_PORT=9096 \
@@ -611,7 +607,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
             -e PMM_HA_ENABLE=1 \
-            -e PMM_HA_BOOTSTRAP=0 \
             -e PMM_HA_NODE_ID=${PMM_PASSIVE2_NODE_ID} \
             -e PMM_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE2_IP} \
             -e PMM_HA_GOSSIP_PORT=9096 \
@@ -650,7 +645,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_NAME=grafana \
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
             -e PMM_HA_ENABLE=1 \
-            -e PMM_HA_BOOTSTRAP=0 \
             -e PMM_HA_NODE_ID=${PMM_PASSIVE2_NODE_ID} \
             -e PMM_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE2_IP} \
             -e PMM_HA_GOSSIP_PORT=9096 \

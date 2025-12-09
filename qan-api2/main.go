@@ -63,10 +63,11 @@ import (
 )
 
 const (
-	shutdownTimeout = 3 * time.Second
-	defaultDsnF     = "clickhouse://%s:%s@%s/%s"
-	maxIdleConns    = 5
-	maxOpenConns    = 10
+	shutdownTimeout                 = 3 * time.Second
+	defaultDropOldPartitionInterval = 24 * time.Hour
+	defaultDsnF                     = "clickhouse://%s:%s@%s/%s"
+	maxIdleConns                    = 5
+	maxOpenConns                    = 10
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -170,7 +171,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     jsonBindF,
-		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
+		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runJSONServer: ", 0),
 		Handler:  mux,
 	}
 	go func() {
@@ -232,7 +233,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     debugBindF,
-		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
+		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runDebugServer: ", 0),
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -251,7 +252,6 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 func main() {
 	log.SetFlags(0)
-	log.SetPrefix("stdlog: ")
 
 	kingpin.Version(version.ShortInfo())
 	kingpin.HelpFlag.Short('h')
@@ -273,10 +273,10 @@ func main() {
 
 	kingpin.Parse()
 
-	log.Printf("%s.", version.ShortInfo())
-	log.Printf("Clickhouse address: %s", *clickhouseAddrF)
-
 	logger.SetupGlobalLogger()
+
+	logrus.Printf("%s.", version.ShortInfo())
+	logrus.Printf("Clickhouse address: %s", *clickhouseAddrF)
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
@@ -310,7 +310,7 @@ func main() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		log.Printf("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
+		l.Infof("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 
@@ -320,11 +320,10 @@ func main() {
 	mbm := models.NewMetricsBucket(db)
 	prom.MustRegister(mbm)
 	mbmCtx, mbmCancel := context.WithCancel(context.Background())
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+
+	wg.Go(func() {
 		mbm.Run(mbmCtx)
-	}()
+	})
 
 	wg.Add(1)
 	go func() {
@@ -336,24 +335,19 @@ func main() {
 		runGRPCServer(ctx, db, mbm, *grpcBindF)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runJSONServer(ctx, *grpcBindF, *jsonBindF)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runDebugServer(ctx, *debugBindF)
-	}()
+	})
 
-	ticker := time.NewTicker(24 * time.Hour)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
+		ticker := time.NewTicker(defaultDropOldPartitionInterval)
+		defer ticker.Stop()
 		for {
-			// Drop old partitions once in 24h.
+			// Drop old partitions once per interval.
 			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
 			select {
 			case <-ctx.Done():
@@ -362,7 +356,7 @@ func main() {
 				// nothing
 			}
 		}
-	}()
+	})
 
 	wg.Wait()
 }

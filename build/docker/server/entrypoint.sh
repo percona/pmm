@@ -73,7 +73,7 @@ fi
 # Check /usr/share/pmm-server directory on every start
 echo "Checking /usr/share/pmm-server directory structure..."
 # Still ensure critical directories exist, but don't create empty ones
-if [ ! -d "/usr/share/pmm-server/nginx" ]; then 
+if [ ! -d "/usr/share/pmm-server/nginx" ]; then
     echo "Creating nginx temp directories..."
     mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
 fi
@@ -110,13 +110,45 @@ bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
 chmod 750 /srv/postgres14 || true
 
 echo "Checking nginx configuration..."
-if ! nginx -t; then
+if ! nginx -t -e /dev/stdout; then
     echo "Nginx configuration test failed, exiting..."
     exit 1
 fi
 
 # pmm-managed-init validates environment variables.
 pmm-managed-init
+
+declare AGENT_CONFIG_DIR="/usr/local/percona/pmm/config"
+declare AGENT_ID=pmm-server
+
+if [ "$PMM_HA_ENABLE" = "1" ] || [ "$PMM_HA_ENABLE" = "true" ]; then
+    echo "High Availability mode is enabled."
+    if [ -f "$AGENT_CONFIG_DIR/pmm-agent.yaml" ]; then
+        rm -f "$AGENT_CONFIG_DIR/pmm-agent.yaml"
+    fi
+
+    AGENT_CONFIG_DIR="/srv/pmm-agent/config"
+    if [ ! -d "$AGENT_CONFIG_DIR" ]; then
+        echo "Creating pmm-agent config directory..."
+        install -d -m 770 "$AGENT_CONFIG_DIR"
+    fi
+
+    AGENT_ID="$(uuidgen)"
+fi
+
+if [ ! -f "$AGENT_CONFIG_DIR/pmm-agent.yaml" ]; then
+  echo "Creating pmm-agent configuration..."
+  pmm-agent setup \
+      --config-file="$AGENT_CONFIG_DIR/pmm-agent.yaml" \
+      --skip-registration \
+      --id="$AGENT_ID" \
+      --paths-tempdir=/srv/pmm-agent/tmp \
+      --paths-nomad-data-dir=/srv/nomad/data \
+      --server-address=127.0.0.1:8443 \
+      --server-insecure-tls
+fi
+
+unset AGENT_CONFIG_DIR AGENT_ID 
 
 # Start supervisor in foreground
 exec supervisord -n -c /etc/supervisord.conf
