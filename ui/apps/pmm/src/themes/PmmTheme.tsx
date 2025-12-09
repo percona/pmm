@@ -171,9 +171,13 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
       },
       MuiBadge: {
         styleOverrides: {
-          colorWarning: {
+          colorWarning: ({ theme }) => ({
             backgroundColor: peakTheme.warning.light,
-          },
+            color:
+              theme.palette.mode === 'light'
+                ? theme.palette.common.white
+                : peakTheme.warning.contrast,
+          }),
         },
       },
       MuiCard: {
@@ -240,6 +244,14 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
           arrow: () => ({
             color: peakTheme.neutral.primary.main,
           }),
+        },
+      },
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: peakTheme.text.sky,
+            textDecorationColor: peakTheme.text.sky,
+          },
         },
       },
     },

@@ -1,0 +1,11 @@
+import QanHeader from 'components/main/header/qan-header/QanHeader';
+import { useLocation } from 'react-router-dom';
+
+export const useHeader = () => {
+  const pathname = useLocation().pathname;
+  const isQan = pathname.includes('pmm-qan') || pathname.includes('rta');
+  const Component = isQan ? QanHeader : null;
+  const isCustomView = isQan;
+
+  return { visible: isCustomView, Component };
+};

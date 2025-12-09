@@ -21,6 +21,7 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children }) => {
   return (
     <Stack
       sx={(theme) => ({
+        flex: 1,
         [theme.breakpoints.up('lg')]: {
           width: 1000,
         },
@@ -52,7 +53,7 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children }) => {
           </CardActions>
         </Card>
       )}
-      {footer ? footer : <Footer />}
+      {footer !== undefined ? footer : <Footer />}
     </Stack>
   );
 };

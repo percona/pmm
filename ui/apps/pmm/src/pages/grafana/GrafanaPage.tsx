@@ -4,6 +4,7 @@ import { PMM_BASE_PATH, PMM_HOME_URL } from 'lib/constants';
 import messenger from 'lib/messenger';
 import { constructUrl } from 'utils/link.utils';
 import { FC, useEffect, useMemo, useState } from 'react';
+import { GrafanaPageFrame } from 'components/grafana-page-frame';
 
 export const GrafanaPage: FC = () => {
   const { isFrameLoaded, isOnGrafanaPage, frameRef, isFullScreen } =
@@ -53,23 +54,25 @@ export const GrafanaPage: FC = () => {
           display: isOnGrafanaPage && !loading ? 'flex' : 'none',
         }}
       >
-        <Box
-          id="grafana-iframe"
-          ref={frameRef}
-          src={src}
-          component="iframe"
-          sx={
-            isFullScreen
-              ? {
-                  border: 'none',
-                  flex: 1,
-                }
-              : {
-                  flex: 1,
-                  border: 0,
-                }
-          }
-        />
+        <GrafanaPageFrame>
+          <Box
+            id="grafana-iframe"
+            ref={frameRef}
+            src={src}
+            component="iframe"
+            sx={
+              isFullScreen
+                ? {
+                    border: 'none',
+                    flex: 1,
+                  }
+                : {
+                    flex: 1,
+                    border: 0,
+                  }
+            }
+          />
+        </GrafanaPageFrame>
       </Stack>
     </>
   );
