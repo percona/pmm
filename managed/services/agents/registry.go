@@ -298,6 +298,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 			return nil
 		})
 		if err != nil {
+			delete(r.agents, agentMD.ID)
 			return nil, fmt.Errorf("failed to persist the connection status for agent %s: %w", agentMD.ID, err)
 		}
 

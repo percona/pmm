@@ -876,6 +876,7 @@ func main() { //nolint:maintidx,cyclop
 	agentsRegistry := agents.NewRegistry(db, vmParams, haService)
 
 	// TODO remove once PMM cluster is Active-Active
+	// TODO kick non-pmm-server agents only
 	// haService.AddLeaderService(ha.NewStandardService(
 	// 	"agentsRegistry",
 	// 	func(_ context.Context) error { return nil },
