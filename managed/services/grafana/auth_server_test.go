@@ -116,6 +116,8 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/advisors":                      editor,
 		"/v1/advisors/checks:start":         editor,
 		"/v1/advisors/failedServices":       editor,
+		"/v1/ha/status":                     viewer,
+		"/v1/ha/nodes":                      viewer,
 		"/v1/management/services":           admin,
 		"/v1/management/agents":             admin,
 		"/v1/server/updates":                viewer,

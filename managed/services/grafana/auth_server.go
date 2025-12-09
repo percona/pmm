@@ -70,6 +70,8 @@ var rules = map[string]role{
 	"/v1/backups":                     admin,
 	"/v1/dumps":                       admin,
 	"/v1/accesscontrol":               admin,
+	"/v1/ha":                          viewer,
+	"/v1/agents":                      viewer,
 	"/v1/inventory/":                  admin,
 	"/v1/inventory/services:getTypes": viewer,
 	"/v1/management/":                 admin,
@@ -119,7 +121,8 @@ var lbacPrefixes = []string{
 	// "/graph/api/v1/labels", // Note: this path appears not to be used in Grafana
 	"/prometheus/api/v1/",
 	"/v1/qan/",
-	"/graph/api/datasources/proxy/1/api/v1/", // https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
+	// https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
+	"/graph/api/datasources/proxy/1/api/v1/",
 }
 
 const lbacHeaderName = "X-Proxy-Filter"
@@ -130,8 +133,11 @@ const lbacHeaderName = "X-Proxy-Filter"
 // as this code is reserved for auth_request.
 const authenticationErrorCode = 401
 
-// cacheInvalidationPeriod is and period when cache for grafana response should be invalidated.
-const cacheInvalidationPeriod = 3 * time.Second
+const (
+	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
+	cacheInvalidationInterval = 3 * time.Second
+	authenticationTimeout     = 3 * time.Second
+)
 
 // clientError contains authentication error response details.
 type authError struct {
@@ -184,7 +190,7 @@ func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 
 // Run runs cache invalidator which removes expired cache items.
 func (s *AuthServer) Run(ctx context.Context) {
-	t := time.NewTicker(cacheInvalidationPeriod)
+	t := time.NewTicker(cacheInvalidationInterval)
 	defer t.Stop()
 
 	for {
@@ -196,7 +202,7 @@ func (s *AuthServer) Run(ctx context.Context) {
 			now := time.Now()
 			s.rw.Lock()
 			for key, item := range s.cache {
-				if now.Add(-cacheInvalidationPeriod).After(item.created) {
+				if now.Add(-cacheInvalidationInterval).After(item.created) {
 					delete(s.cache, key)
 				}
 			}
@@ -225,8 +231,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 
-	// fail-safe
-	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
 	authUser, err := s.authenticate(ctx, req, l)

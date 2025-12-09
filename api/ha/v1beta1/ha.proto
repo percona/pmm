@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package ha.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// NodeRole represents the role of a node in the HA cluster.
+enum NodeRole {
+  NODE_ROLE_UNSPECIFIED = 0;
+  NODE_ROLE_LEADER = 1;
+  NODE_ROLE_FOLLOWER = 2;
+}
+
+message ListNodesRequest {}
+
+// HANode represents a single node in the HA cluster.
+message HANode {
+  // Unique identifier for the node.
+  string node_id = 1;
+  // Human-readable name of the node.
+  string node_name = 2;
+  // Role of the node in the cluster.
+  NodeRole role = 3;
+  // Current status of the node from MemberList.
+  string status = 4;
+}
+
+message ListNodesResponse {
+  // List of nodes in the HA cluster.
+  repeated HANode nodes = 1;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+  // Status of HA mode: "Enabled" or "Disabled".
+  string status = 1;
+}
+
+// HAService provides High Availability cluster status information.
+service HAService {
+  // Status returns the current HA mode status.
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (google.api.http) = {get: "/v1/ha/status"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "HA Status"
+      description: "Returns whether High Availability mode is enabled or disabled."
+    };
+  }
+  // ListNodes returns a list of all nodes in the High Availability cluster.
+  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
+    option (google.api.http) = {get: "/v1/ha/nodes"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List HA Nodes"
+      description: "Returns a list of all nodes in the High Availability cluster with their current status and roles."
+    };
+  }
+}
