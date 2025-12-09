@@ -111,7 +111,7 @@ Choose your deployment approach:
                 - name: pmm-client
                   image: percona/pmm-client:3
                   volumeMounts:
-                    - name: pmm-client-pvc
+                    - name: pmm-client-storage
                       mountPath: /usr/local/percona/pmm/tmp
                   env:
                     - name: PMM_AGENT_SERVER_ADDRESS
