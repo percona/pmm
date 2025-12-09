@@ -16,7 +16,6 @@ package commands
 
 import (
 	"archive/zip"
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -29,9 +28,9 @@ import (
 )
 
 func TestSummary(t *testing.T) {
-	agentlocal.SetTransport(context.TODO(), true, agentlocal.DefaultPMMAgentListenPort)
+	agentlocal.SetTransport(t.Context(), true, agentlocal.DefaultPMMAgentListenPort)
 
-	f, err := os.CreateTemp("", "pmm-admin-test-summary-*.zip")
+	f, err := os.CreateTemp("", "pmm-admin-test-summary-*.zip") //nolint:usetesting
 	require.NoError(t, err)
 	filename := f.Name()
 	t.Logf("Using temp file: %s", filename)
@@ -43,7 +42,7 @@ func TestSummary(t *testing.T) {
 		cmd := &SummaryCommand{
 			Filename: filename,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.GlobalFlags{})
+		res, err := cmd.RunCmdWithContext(t.Context(), &flags.GlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -56,7 +55,7 @@ func TestSummary(t *testing.T) {
 			Filename:   filename,
 			SkipServer: true,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.GlobalFlags{})
+		res, err := cmd.RunCmdWithContext(t.Context(), &flags.GlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -74,7 +73,7 @@ func TestSummary(t *testing.T) {
 			SkipServer: true,
 			Pprof:      true,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.GlobalFlags{})
+		res, err := cmd.RunCmdWithContext(t.Context(), &flags.GlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
