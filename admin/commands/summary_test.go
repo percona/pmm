@@ -31,10 +31,10 @@ import (
 func TestSummary(t *testing.T) {
 	agentlocal.SetTransport(context.TODO(), true, agentlocal.DefaultPMMAgentListenPort)
 
-	f, err := os.CreateTemp("", "pmm-admin-test-summary")
+	f, err := os.CreateTemp("", "pmm-admin-test-summary-*.zip")
 	require.NoError(t, err)
 	filename := f.Name()
-	t.Log(filename)
+	t.Logf("Using temp file: %s", filename)
 
 	defer os.Remove(filename) //nolint:errcheck
 	assert.NoError(t, f.Close())

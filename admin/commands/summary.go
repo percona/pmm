@@ -411,6 +411,6 @@ func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context, globals *flags
 // register command.
 var (
 	hostname, _ = os.Hostname()
-	filename    = fmt.Sprintf("summary_%s_%s.zip",
+	filename    = fmt.Sprintf("/tmp/summary_%s_%s.zip",
 		strings.ReplaceAll(hostname, ".", "_"), time.Now().Format("2006_01_02_15_04_05"))
 )
