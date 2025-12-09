@@ -293,8 +293,10 @@ func (c ValkeyOptions) IsEmpty() bool {
 }
 
 // RTAOptions represents structure for Real-Time Analytics options.
-// Currently empty but reserved for future RTA-specific configuration.
-type RTAOptions struct{}
+type RTAOptions struct {
+	// EnabledAt is the timestamp when RTA was enabled for this agent.
+	EnabledAt *time.Time `json:"enabled_at,omitempty"`
+}
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
 func (c RTAOptions) Value() (driver.Value, error) { return jsonValue(c) }
@@ -304,7 +306,7 @@ func (c *RTAOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all RTAOptions fields are unset or have zero values, otherwise returns false.
 func (c RTAOptions) IsEmpty() bool {
-	return true
+	return c.EnabledAt == nil
 }
 
 // Agent represents Agent as stored in database.

@@ -827,6 +827,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		QANMongoDBMongologAgentType: {
 			MongoDBServiceType,
 		},
+		MongoDBRealtimeAgentType: {
+			MongoDBServiceType,
+		},
 		PostgresExporterType: {
 			PostgreSQLServiceType,
 		},
