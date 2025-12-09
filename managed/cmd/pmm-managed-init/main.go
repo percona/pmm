@@ -66,5 +66,4 @@ func main() {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}
-	logrus.Info("pmm.ini configuration has been updated.")
 }

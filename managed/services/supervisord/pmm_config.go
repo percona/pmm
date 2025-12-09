@@ -21,7 +21,10 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
+
+const wwrPermissions = 0o664
 
 // SavePMMConfig renders and saves pmm config.
 func SavePMMConfig(params map[string]any) error {
@@ -32,6 +35,7 @@ func SavePMMConfig(params map[string]any) error {
 	if err := saveConfig(pmmConfig, cfg); err != nil {
 		return errors.Wrapf(err, "failed to save pmm config")
 	}
+	logrus.Info("pmm.ini configuration has been updated.")
 	return nil
 }
 
@@ -65,12 +69,12 @@ func saveConfig(path string, cfg []byte) (err error) {
 		if err == nil {
 			return
 		}
-		if resErr := os.WriteFile(path, oldCfg, 0o664); resErr != nil { //nolint:gosec
+		if resErr := os.WriteFile(path, oldCfg, wwrPermissions); resErr != nil { //nolint:gosec
 			err = errors.Wrap(err, errors.Wrap(resErr, "failed to restore config").Error())
 		}
 	}()
 
-	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
+	if err = os.WriteFile(path, cfg, wwrPermissions); err != nil { //nolint:gosec
 		err = errors.Wrap(err, "failed to write new config")
 	}
 	return err
