@@ -107,7 +107,7 @@ func TestStandardService_Start(t *testing.T) {
 
 		callCount := 0
 		var mu sync.Mutex
-		startFunc := func(ctx context.Context) error {
+		startFunc := func(_ context.Context) error {
 			mu.Lock()
 			callCount++
 			mu.Unlock()
@@ -140,7 +140,7 @@ func TestStandardService_Stop(t *testing.T) {
 		t.Parallel()
 
 		called := false
-		startFunc := func(ctx context.Context) error { return nil }
+		startFunc := func(_ context.Context) error { return nil }
 		stopFunc := func() {
 			called = true
 		}
@@ -156,7 +156,7 @@ func TestStandardService_Stop(t *testing.T) {
 
 		callCount := 0
 		var mu sync.Mutex
-		startFunc := func(ctx context.Context) error { return nil }
+		startFunc := func(_ context.Context) error { return nil }
 		stopFunc := func() {
 			mu.Lock()
 			callCount++
@@ -187,7 +187,7 @@ func TestStandardService_ConcurrentStartStop(t *testing.T) {
 	var startCount, stopCount int
 	var mu sync.Mutex
 
-	startFunc := func(ctx context.Context) error {
+	startFunc := func(_ context.Context) error {
 		mu.Lock()
 		startCount++
 		mu.Unlock()
@@ -227,7 +227,7 @@ func TestStandardService_ConcurrentStartStop(t *testing.T) {
 func TestContextService_New(t *testing.T) {
 	t.Parallel()
 
-	startFunc := func(ctx context.Context) error { return nil }
+	startFunc := func(_ context.Context) error { return nil }
 
 	svc := NewContextService("test-id", startFunc)
 
@@ -371,7 +371,7 @@ func TestContextService_Stop(t *testing.T) {
 	t.Run("handles stop before start", func(t *testing.T) {
 		t.Parallel()
 
-		startFunc := func(ctx context.Context) error { return nil }
+		startFunc := func(_ context.Context) error { return nil }
 		svc := NewContextService("test", startFunc)
 
 		svc.m.Lock()
