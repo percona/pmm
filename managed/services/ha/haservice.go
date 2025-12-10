@@ -420,7 +420,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 				s.services.StopAllServices()
 			}
 		case <-t.C:
-			address, serverID := s.raftNode.LeaderWithID()
+			address, serverID := node.LeaderWithID()
 			if serverID != "" {
 				s.l.Infof("Leader is %s on %s", serverID, address)
 			}

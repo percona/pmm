@@ -61,12 +61,13 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 		return &hav1beta1.ListNodesResponse{Nodes: []*hav1beta1.HANode{}}, nil
 	}
 
+	_, serverID := raftNode.LeaderWithID()
 	members := memberlist.Members()
 	nodes := []*hav1beta1.HANode{}
 
 	for _, member := range members {
 		role := hav1beta1.NodeRole_NODE_ROLE_FOLLOWER
-		if member.Name == s.service.params.NodeID && s.service.IsLeader() {
+		if member.Name == string(serverID) {
 			role = hav1beta1.NodeRole_NODE_ROLE_LEADER
 		}
 
