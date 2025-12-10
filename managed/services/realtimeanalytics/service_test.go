@@ -102,7 +102,7 @@ func TestGetRunningRealtimeAgents(t *testing.T) {
 
 		resp, err = svc.ListRunningRealtimeAgents(context.Background(), &rtav1.ListRunningRealtimeAgentsRequest{Cluster: "other-cluster"})
 		require.NoError(t, err)
-		require.Len(t, resp.Agents, 0)
+		require.Empty(t, resp.Agents)
 	})
 
 	t.Run("show disconnected agents with unknown status", func(t *testing.T) {

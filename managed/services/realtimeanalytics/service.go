@@ -49,7 +49,7 @@ func NewService(db *reform.DB, registry agentsRegistry) *Service {
 }
 
 // ListRunningRealtimeAgents returns the list of currently running RTA agents (gRPC handler).
-func (s *Service) ListRunningRealtimeAgents(ctx context.Context, req *rtav1.ListRunningRealtimeAgentsRequest) (*rtav1.ListRunningRealtimeAgentsResponse, error) {
+func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRunningRealtimeAgentsRequest) (*rtav1.ListRunningRealtimeAgentsResponse, error) {
 	realtimeAgentType := models.MongoDBRealtimeAgentType
 	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{
 		AgentType: &realtimeAgentType,
