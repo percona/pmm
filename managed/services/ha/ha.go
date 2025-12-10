@@ -25,7 +25,7 @@ import (
 )
 
 // HAServer implements the HAService gRPC API.
-type HAServer struct {
+type HAServer struct { //nolint:revive
 	service *Service
 	hav1beta1.UnimplementedHAServiceServer
 }

@@ -29,7 +29,7 @@ import (
 func TestStandardService_New(t *testing.T) {
 	t.Parallel()
 
-	startFunc := func(ctx context.Context) error { return nil }
+	startFunc := func(_ context.Context) error { return nil }
 	stopFunc := func() {}
 
 	svc := NewStandardService("test-id", startFunc, stopFunc)
@@ -55,14 +55,14 @@ func TestStandardService_Start(t *testing.T) {
 		t.Parallel()
 
 		called := false
-		startFunc := func(ctx context.Context) error {
+		startFunc := func(_ context.Context) error {
 			called = true
 			return nil
 		}
 		stopFunc := func() {}
 
 		svc := NewStandardService("test", startFunc, stopFunc)
-		err := svc.Start(context.Background())
+		err := svc.Start(t.Context())
 
 		require.NoError(t, err)
 		assert.True(t, called)
@@ -72,13 +72,13 @@ func TestStandardService_Start(t *testing.T) {
 		t.Parallel()
 
 		expectedErr := errors.New("start failed")
-		startFunc := func(ctx context.Context) error {
+		startFunc := func(_ context.Context) error {
 			return expectedErr
 		}
 		stopFunc := func() {}
 
 		svc := NewStandardService("test", startFunc, stopFunc)
-		err := svc.Start(context.Background())
+		err := svc.Start(t.Context())
 
 		require.Error(t, err)
 		assert.Equal(t, expectedErr, err)
@@ -89,13 +89,13 @@ func TestStandardService_Start(t *testing.T) {
 
 		var receivedCtx context.Context
 		startFunc := func(ctx context.Context) error {
-			receivedCtx = ctx
+			receivedCtx = ctx //nolint:fatcontext
 			return nil
 		}
 		stopFunc := func() {}
 
 		svc := NewStandardService("test", startFunc, stopFunc)
-		ctx := context.WithValue(context.Background(), "key", "value")
+		ctx := context.WithValue(t.Context(), "key", "value") //nolint:revive
 		err := svc.Start(ctx)
 
 		require.NoError(t, err)
@@ -119,12 +119,10 @@ func TestStandardService_Start(t *testing.T) {
 		svc := NewStandardService("test", startFunc, stopFunc)
 
 		var wg sync.WaitGroup
-		for i := 0; i < 5; i++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				_ = svc.Start(context.Background())
-			}()
+		for range 5 {
+			wg.Go(func() {
+				_ = svc.Start(t.Context())
+			})
 		}
 
 		wg.Wait()
@@ -169,12 +167,10 @@ func TestStandardService_Stop(t *testing.T) {
 		svc := NewStandardService("test", startFunc, stopFunc)
 
 		var wg sync.WaitGroup
-		for i := 0; i < 5; i++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
+		for range 5 {
+			wg.Go(func() {
 				svc.Stop()
-			}()
+			})
 		}
 
 		wg.Wait()
@@ -208,11 +204,11 @@ func TestStandardService_ConcurrentStartStop(t *testing.T) {
 	svc := NewStandardService("test", startFunc, stopFunc)
 
 	var wg sync.WaitGroup
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		wg.Add(2)
 		go func() {
 			defer wg.Done()
-			_ = svc.Start(context.Background())
+			_ = svc.Start(t.Context())
 		}()
 		go func() {
 			defer wg.Done()
@@ -262,7 +258,7 @@ func TestContextService_Start(t *testing.T) {
 		svc := NewContextService("test", startFunc)
 
 		go func() {
-			_ = svc.Start(context.Background())
+			_ = svc.Start(t.Context())
 		}()
 
 		time.Sleep(50 * time.Millisecond)
@@ -290,7 +286,7 @@ func TestContextService_Start(t *testing.T) {
 		svc := NewContextService("test", startFunc)
 
 		go func() {
-			_ = svc.Start(context.Background())
+			_ = svc.Start(t.Context())
 		}()
 
 		time.Sleep(20 * time.Millisecond)
@@ -324,12 +320,10 @@ func TestContextService_Start(t *testing.T) {
 		svc := NewContextService("test", startFunc)
 
 		var wg sync.WaitGroup
-		for i := 0; i < 5; i++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				_ = svc.Start(context.Background())
-			}()
+		for range 5 {
+			wg.Go(func() {
+				_ = svc.Start(t.Context())
+			})
 		}
 
 		time.Sleep(50 * time.Millisecond)
@@ -361,7 +355,7 @@ func TestContextService_Stop(t *testing.T) {
 		svc := NewContextService("test", startFunc)
 
 		go func() {
-			_ = svc.Start(context.Background())
+			_ = svc.Start(t.Context())
 		}()
 
 		time.Sleep(50 * time.Millisecond)
@@ -400,19 +394,17 @@ func TestContextService_Stop(t *testing.T) {
 		svc := NewContextService("test", startFunc)
 
 		go func() {
-			_ = svc.Start(context.Background())
+			_ = svc.Start(t.Context())
 		}()
 
 		time.Sleep(50 * time.Millisecond)
 
 		assert.NotPanics(t, func() {
 			var wg sync.WaitGroup
-			for i := 0; i < 5; i++ {
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
+			for range 5 {
+				wg.Go(func() {
 					svc.Stop()
-				}()
+				})
 			}
 			wg.Wait()
 		})
@@ -438,11 +430,9 @@ func TestContextService_ConcurrentStartStop(t *testing.T) {
 	var wg sync.WaitGroup
 
 	// Start a single service instance
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		_ = svc.Start(context.Background())
-	}()
+	wg.Go(func() {
+		_ = svc.Start(t.Context())
+	})
 
 	time.Sleep(50 * time.Millisecond)
 
