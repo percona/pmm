@@ -184,7 +184,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID})
 	}
 
-	if vPGSM >= pgStatMonitorVersion21PG17 {
+	if vPGSM == pgStatMonitorVersion21PG17 || vPGSM >= pgStatMonitorVersion23PG17 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "shared_blk_read_time"}, pointer: &s.SharedBlkReadTime},
 			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"}, pointer: &s.SharedBlkWriteTime},
