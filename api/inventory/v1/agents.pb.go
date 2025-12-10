@@ -814,8 +814,10 @@ type MongoDBExporter struct {
 	ExposeExporter bool `protobuf:"varint,27,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,28,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Environment variable names passed to the exporter.
+	EnvironmentVariableNames []string `protobuf:"bytes,29,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *MongoDBExporter) Reset() {
@@ -977,6 +979,13 @@ func (x *MongoDBExporter) GetExposeExporter() bool {
 func (x *MongoDBExporter) GetMetricsResolutions() *common.MetricsResolutions {
 	if x != nil {
 		return x.MetricsResolutions
+	}
+	return nil
+}
+
+func (x *MongoDBExporter) GetEnvironmentVariableNames() []string {
+	if x != nil {
+		return x.EnvironmentVariableNames
 	}
 	return nil
 }
@@ -5609,8 +5618,11 @@ type AddMongoDBExporterParams struct {
 	LogLevel LogLevel `protobuf:"varint,19,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,20,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Environment variable names to pass to the exporter.
+	// Values will be resolved from pmm-agent's environment when starting the exporter.
+	EnvironmentVariableNames []string `protobuf:"bytes,21,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *AddMongoDBExporterParams) Reset() {
@@ -5781,6 +5793,13 @@ func (x *AddMongoDBExporterParams) GetExposeExporter() bool {
 		return x.ExposeExporter
 	}
 	return false
+}
+
+func (x *AddMongoDBExporterParams) GetEnvironmentVariableNames() []string {
+	if x != nil {
+		return x.EnvironmentVariableNames
+	}
+	return nil
 }
 
 type ChangeMongoDBExporterParams struct {
@@ -6896,7 +6915,7 @@ type AddQANMongoDBProfilerAgentParams struct {
 	AuthenticationMechanism string `protobuf:"bytes,13,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
-	// Log level for exporter.
+	// Log level for agent.
 	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7141,7 +7160,7 @@ type AddQANMongoDBMongologAgentParams struct {
 	AuthenticationMechanism string `protobuf:"bytes,13,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
-	// Log level for exporter.
+	// Log level for agent.
 	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -8908,7 +8927,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x92\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd0\a\n" +
 	"\x0fMongoDBExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -8932,7 +8951,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11process_exec_path\x18\x19 \x01(\tR\x0fprocessExecPath\x123\n" +
 	"\tlog_level\x18\x1a \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x1b \x01(\bR\x0eexposeExporter\x12K\n" +
-	"\x13metrics_resolutions\x18\x1c \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x1a?\n" +
+	"\x13metrics_resolutions\x18\x1c \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12<\n" +
+	"\x1aenvironment_variable_names\x18\x1d \x03(\tR\x18environmentVariableNames\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf2\x06\n" +
@@ -9413,7 +9433,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
-	"\x14_enable_push_metrics\"\xe9\a\n" +
+	"\x14_enable_push_metrics\"\xa7\b\n" +
 	"\x18AddMongoDBExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -9437,7 +9457,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11stats_collections\x18\x11 \x03(\tR\x10statsCollections\x12+\n" +
 	"\x11collections_limit\x18\x12 \x01(\x05R\x10collectionsLimit\x123\n" +
 	"\tlog_level\x18\x13 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x1a?\n" +
+	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x12<\n" +
+	"\x1aenvironment_variable_names\x18\x15 \x03(\tR\x18environmentVariableNames\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xae\x02\n" +

@@ -1165,6 +1165,9 @@ var databaseSchema = [][]string{
 			WHERE settings->'updates' IS NULL
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
+	114: {
+		`ALTER TABLE agents ADD COLUMN environment_variables TEXT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
