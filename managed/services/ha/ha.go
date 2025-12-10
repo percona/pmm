@@ -38,7 +38,7 @@ func NewHAServer(service *Service) *HAServer {
 }
 
 // Status returns the current HA mode status.
-func (s *HAServer) Status(ctx context.Context, req *hav1beta1.StatusRequest) (*hav1beta1.StatusResponse, error) {
+func (s *HAServer) Status(_ context.Context, req *hav1beta1.StatusRequest) (*hav1beta1.StatusResponse, error) {
 	status := "Disabled"
 	if s.service.params.Enabled {
 		status = "Enabled"
@@ -47,7 +47,7 @@ func (s *HAServer) Status(ctx context.Context, req *hav1beta1.StatusRequest) (*h
 }
 
 // ListNodes returns a list of all nodes in the High Availability cluster.
-func (s *HAServer) ListNodes(ctx context.Context, req *hav1beta1.ListNodesRequest) (*hav1beta1.ListNodesResponse, error) {
+func (s *HAServer) ListNodes(_ context.Context, req *hav1beta1.ListNodesRequest) (*hav1beta1.ListNodesResponse, error) {
 	if !s.service.params.Enabled {
 		return &hav1beta1.ListNodesResponse{Nodes: []*hav1beta1.HANode{}}, nil
 	}

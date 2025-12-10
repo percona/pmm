@@ -366,7 +366,7 @@ func (m *mockLeaderService) ID() string {
 	return m.id
 }
 
-func (m *mockLeaderService) Start(ctx context.Context) error {
+func (m *mockLeaderService) Start(_ context.Context) error {
 	m.mu.Lock()
 	m.started = true
 	m.startCount++

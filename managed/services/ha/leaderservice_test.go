@@ -95,7 +95,7 @@ func TestStandardService_Start(t *testing.T) {
 		stopFunc := func() {}
 
 		svc := NewStandardService("test", startFunc, stopFunc)
-		ctx := context.WithValue(t.Context(), "key", "value") //nolint:revive
+		ctx := context.WithValue(t.Context(), "key", "value") //nolint:revive,staticcheck
 		err := svc.Start(ctx)
 
 		require.NoError(t, err)
