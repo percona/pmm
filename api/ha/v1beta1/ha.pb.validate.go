@@ -156,8 +156,6 @@ func (m *HANode) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for NodeId
-
 	// no validation rules for NodeName
 
 	// no validation rules for Role

@@ -113,14 +113,12 @@ func (*ListNodesRequest) Descriptor() ([]byte, []int) {
 // HANode represents a single node in the HA cluster.
 type HANode struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Unique identifier for the node.
-	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Human-readable name of the node.
-	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	NodeName string `protobuf:"bytes,1,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// Role of the node in the cluster.
-	Role NodeRole `protobuf:"varint,3,opt,name=role,proto3,enum=ha.v1beta1.NodeRole" json:"role,omitempty"`
+	Role NodeRole `protobuf:"varint,2,opt,name=role,proto3,enum=ha.v1beta1.NodeRole" json:"role,omitempty"`
 	// Current status of the node from MemberList.
-	Status        string `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Status        string `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -153,13 +151,6 @@ func (x *HANode) ProtoReflect() protoreflect.Message {
 // Deprecated: Use HANode.ProtoReflect.Descriptor instead.
 func (*HANode) Descriptor() ([]byte, []int) {
 	return file_ha_v1beta1_ha_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *HANode) GetNodeId() string {
-	if x != nil {
-		return x.NodeId
-	}
-	return ""
 }
 
 func (x *HANode) GetNodeName() string {
@@ -315,12 +306,11 @@ const file_ha_v1beta1_ha_proto_rawDesc = "" +
 	"\n" +
 	"\x13ha/v1beta1/ha.proto\x12\n" +
 	"ha.v1beta1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x12\n" +
-	"\x10ListNodesRequest\"\x80\x01\n" +
-	"\x06HANode\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
-	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12(\n" +
-	"\x04role\x18\x03 \x01(\x0e2\x14.ha.v1beta1.NodeRoleR\x04role\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\tR\x06status\"=\n" +
+	"\x10ListNodesRequest\"g\n" +
+	"\x06HANode\x12\x1b\n" +
+	"\tnode_name\x18\x01 \x01(\tR\bnodeName\x12(\n" +
+	"\x04role\x18\x02 \x01(\x0e2\x14.ha.v1beta1.NodeRoleR\x04role\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\"=\n" +
 	"\x11ListNodesResponse\x12(\n" +
 	"\x05nodes\x18\x01 \x03(\v2\x12.ha.v1beta1.HANodeR\x05nodes\"\x0f\n" +
 	"\rStatusRequest\"(\n" +

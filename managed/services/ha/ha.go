@@ -19,7 +19,6 @@ import (
 	"context"
 
 	"github.com/hashicorp/memberlist"
-	"github.com/hashicorp/raft"
 
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 )
@@ -61,48 +60,23 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 		return &hav1beta1.ListNodesResponse{Nodes: []*hav1beta1.HANode{}}, nil
 	}
 
-	_, serverID := raftNode.LeaderWithID()
+	_, leaderID := raftNode.LeaderWithID()
 	members := memberlist.Members()
 	nodes := []*hav1beta1.HANode{}
 
 	for _, member := range members {
 		role := hav1beta1.NodeRole_NODE_ROLE_FOLLOWER
-		if member.Name == string(serverID) {
+		if member.Name == string(leaderID) {
 			role = hav1beta1.NodeRole_NODE_ROLE_LEADER
 		}
 
 		status := memberlistStateToString(member.State)
 
 		nodes = append(nodes, &hav1beta1.HANode{
-			NodeId:   member.Name,
 			NodeName: member.Name,
 			Role:     role,
 			Status:   status,
 		})
-	}
-
-	// If we have a leader from Raft but it's not in the memberlist, we need to check
-	// if the current node is the leader
-	if raftNode != nil && raftNode.State() == raft.Leader {
-		// Make sure current node has leader role
-		currentNodeFound := false
-		for _, node := range nodes {
-			if node.NodeId == s.service.params.NodeID {
-				node.Role = hav1beta1.NodeRole_NODE_ROLE_LEADER
-				currentNodeFound = true
-				break
-			}
-		}
-
-		// If current node is not in the list, add it
-		if !currentNodeFound {
-			nodes = append(nodes, &hav1beta1.HANode{
-				NodeId:   s.service.params.NodeID,
-				NodeName: s.service.params.NodeID,
-				Role:     hav1beta1.NodeRole_NODE_ROLE_LEADER,
-				Status:   "alive",
-			})
-		}
 	}
 
 	return &hav1beta1.ListNodesResponse{Nodes: nodes}, nil

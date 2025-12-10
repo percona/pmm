@@ -532,9 +532,6 @@ ListNodesOKBodyNodesItems0 HANode represents a single node in the HA cluster.
 swagger:model ListNodesOKBodyNodesItems0
 */
 type ListNodesOKBodyNodesItems0 struct {
-	// Unique identifier for the node.
-	NodeID string `json:"node_id,omitempty"`
-
 	// Human-readable name of the node.
 	NodeName string `json:"node_name,omitempty"`
 

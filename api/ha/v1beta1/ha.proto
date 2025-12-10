@@ -16,14 +16,12 @@ message ListNodesRequest {}
 
 // HANode represents a single node in the HA cluster.
 message HANode {
-  // Unique identifier for the node.
-  string node_id = 1;
   // Human-readable name of the node.
-  string node_name = 2;
+  string node_name = 1;
   // Role of the node in the cluster.
-  NodeRole role = 3;
+  NodeRole role = 2;
   // Current status of the node from MemberList.
-  string status = 4;
+  string status = 3;
 }
 
 message ListNodesResponse {

@@ -5170,15 +5170,10 @@
                     "description": "HANode represents a single node in the HA cluster.",
                     "type": "object",
                     "properties": {
-                      "node_id": {
-                        "description": "Unique identifier for the node.",
-                        "type": "string",
-                        "x-order": 0
-                      },
                       "node_name": {
                         "description": "Human-readable name of the node.",
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 0
                       },
                       "role": {
                         "description": "NodeRole represents the role of a node in the HA cluster.",
@@ -5189,12 +5184,12 @@
                           "NODE_ROLE_LEADER",
                           "NODE_ROLE_FOLLOWER"
                         ],
-                        "x-order": 2
+                        "x-order": 1
                       },
                       "status": {
                         "description": "Current status of the node from MemberList.",
                         "type": "string",
-                        "x-order": 3
+                        "x-order": 2
                       }
                     }
                   },
