@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: ha/v1beta1/ha.proto
 
-package hav1
+package hav1beta1
 
 import (
 	reflect "reflect"
@@ -118,7 +118,7 @@ type HANode struct {
 	// Human-readable name of the node.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// Role of the node in the cluster.
-	Role NodeRole `protobuf:"varint,3,opt,name=role,proto3,enum=ha.v1.NodeRole" json:"role,omitempty"`
+	Role NodeRole `protobuf:"varint,3,opt,name=role,proto3,enum=ha.v1beta1.NodeRole" json:"role,omitempty"`
 	// Current status of the node from MemberList.
 	Status        string `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -313,26 +313,29 @@ var File_ha_v1beta1_ha_proto protoreflect.FileDescriptor
 
 const file_ha_v1beta1_ha_proto_rawDesc = "" +
 	"\n" +
-	"\x13ha/v1beta1/ha.proto\x12\x05ha.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x12\n" +
-	"\x10ListNodesRequest\"{\n" +
+	"\x13ha/v1beta1/ha.proto\x12\n" +
+	"ha.v1beta1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x12\n" +
+	"\x10ListNodesRequest\"\x80\x01\n" +
 	"\x06HANode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
-	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12#\n" +
-	"\x04role\x18\x03 \x01(\x0e2\x0f.ha.v1.NodeRoleR\x04role\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\tR\x06status\"8\n" +
-	"\x11ListNodesResponse\x12#\n" +
-	"\x05nodes\x18\x01 \x03(\v2\r.ha.v1.HANodeR\x05nodes\"\x0f\n" +
+	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12(\n" +
+	"\x04role\x18\x03 \x01(\x0e2\x14.ha.v1beta1.NodeRoleR\x04role\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\"=\n" +
+	"\x11ListNodesResponse\x12(\n" +
+	"\x05nodes\x18\x01 \x03(\v2\x12.ha.v1beta1.HANodeR\x05nodes\"\x0f\n" +
 	"\rStatusRequest\"(\n" +
 	"\x0eStatusResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status*S\n" +
 	"\bNodeRole\x12\x19\n" +
 	"\x15NODE_ROLE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10NODE_ROLE_LEADER\x10\x01\x12\x16\n" +
-	"\x12NODE_ROLE_FOLLOWER\x10\x022\xf5\x02\n" +
-	"\tHAService\x12\x9a\x01\n" +
-	"\x06Status\x12\x14.ha.v1.StatusRequest\x1a\x15.ha.v1.StatusResponse\"c\x92AK\x12\tHA Status\x1a>Returns whether High Availability mode is enabled or disabled.\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/ha/status\x12\xca\x01\n" +
-	"\tListNodes\x12\x17.ha.v1.ListNodesRequest\x1a\x18.ha.v1.ListNodesResponse\"\x89\x01\x92Ar\x12\rList HA Nodes\x1aaReturns a list of all nodes in the High Availability cluster with their current status and roles.\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/ha/nodesBu\n" +
-	"\tcom.ha.v1B\aHaProtoP\x01Z*github.com/percona/pmm/api/ha/v1beta1;hav1\xa2\x02\x03HXX\xaa\x02\x05Ha.V1\xca\x02\x05Ha\\V1\xe2\x02\x11Ha\\V1\\GPBMetadata\xea\x02\x06Ha::V1b\x06proto3"
+	"\x12NODE_ROLE_FOLLOWER\x10\x022\x89\x03\n" +
+	"\tHAService\x12\xa4\x01\n" +
+	"\x06Status\x12\x19.ha.v1beta1.StatusRequest\x1a\x1a.ha.v1beta1.StatusResponse\"c\x92AK\x12\tHA Status\x1a>Returns whether High Availability mode is enabled or disabled.\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/ha/status\x12\xd4\x01\n" +
+	"\tListNodes\x12\x1c.ha.v1beta1.ListNodesRequest\x1a\x1d.ha.v1beta1.ListNodesResponse\"\x89\x01\x92Ar\x12\rList HA Nodes\x1aaReturns a list of all nodes in the High Availability cluster with their current status and roles.\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/ha/nodesB\x93\x01\n" +
+	"\x0ecom.ha.v1beta1B\aHaProtoP\x01Z/github.com/percona/pmm/api/ha/v1beta1;hav1beta1\xa2\x02\x03HXX\xaa\x02\n" +
+	"Ha.V1beta1\xca\x02\n" +
+	"Ha\\V1beta1\xe2\x02\x16Ha\\V1beta1\\GPBMetadata\xea\x02\vHa::V1beta1b\x06proto3"
 
 var (
 	file_ha_v1beta1_ha_proto_rawDescOnce sync.Once
@@ -350,22 +353,22 @@ var (
 	file_ha_v1beta1_ha_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_ha_v1beta1_ha_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
 	file_ha_v1beta1_ha_proto_goTypes   = []any{
-		(NodeRole)(0),             // 0: ha.v1.NodeRole
-		(*ListNodesRequest)(nil),  // 1: ha.v1.ListNodesRequest
-		(*HANode)(nil),            // 2: ha.v1.HANode
-		(*ListNodesResponse)(nil), // 3: ha.v1.ListNodesResponse
-		(*StatusRequest)(nil),     // 4: ha.v1.StatusRequest
-		(*StatusResponse)(nil),    // 5: ha.v1.StatusResponse
+		(NodeRole)(0),             // 0: ha.v1beta1.NodeRole
+		(*ListNodesRequest)(nil),  // 1: ha.v1beta1.ListNodesRequest
+		(*HANode)(nil),            // 2: ha.v1beta1.HANode
+		(*ListNodesResponse)(nil), // 3: ha.v1beta1.ListNodesResponse
+		(*StatusRequest)(nil),     // 4: ha.v1beta1.StatusRequest
+		(*StatusResponse)(nil),    // 5: ha.v1beta1.StatusResponse
 	}
 )
 
 var file_ha_v1beta1_ha_proto_depIdxs = []int32{
-	0, // 0: ha.v1.HANode.role:type_name -> ha.v1.NodeRole
-	2, // 1: ha.v1.ListNodesResponse.nodes:type_name -> ha.v1.HANode
-	4, // 2: ha.v1.HAService.Status:input_type -> ha.v1.StatusRequest
-	1, // 3: ha.v1.HAService.ListNodes:input_type -> ha.v1.ListNodesRequest
-	5, // 4: ha.v1.HAService.Status:output_type -> ha.v1.StatusResponse
-	3, // 5: ha.v1.HAService.ListNodes:output_type -> ha.v1.ListNodesResponse
+	0, // 0: ha.v1beta1.HANode.role:type_name -> ha.v1beta1.NodeRole
+	2, // 1: ha.v1beta1.ListNodesResponse.nodes:type_name -> ha.v1beta1.HANode
+	4, // 2: ha.v1beta1.HAService.Status:input_type -> ha.v1beta1.StatusRequest
+	1, // 3: ha.v1beta1.HAService.ListNodes:input_type -> ha.v1beta1.ListNodesRequest
+	5, // 4: ha.v1beta1.HAService.Status:output_type -> ha.v1beta1.StatusResponse
+	3, // 5: ha.v1beta1.HAService.ListNodes:output_type -> ha.v1beta1.ListNodesResponse
 	4, // [4:6] is the sub-list for method output_type
 	2, // [2:4] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

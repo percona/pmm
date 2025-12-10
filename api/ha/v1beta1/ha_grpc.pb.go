@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: ha/v1beta1/ha.proto
 
-package hav1
+package hav1beta1
 
 import (
 	context "context"
@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HAService_Status_FullMethodName    = "/ha.v1.HAService/Status"
-	HAService_ListNodes_FullMethodName = "/ha.v1.HAService/ListNodes"
+	HAService_Status_FullMethodName    = "/ha.v1beta1.HAService/Status"
+	HAService_ListNodes_FullMethodName = "/ha.v1beta1.HAService/ListNodes"
 )
 
 // HAServiceClient is the client API for HAService service.
@@ -152,7 +152,7 @@ func _HAService_ListNodes_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HAService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ha.v1.HAService",
+	ServiceName: "ha.v1beta1.HAService",
 	HandlerType: (*HAServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -2,11 +2,11 @@
 // source: ha/v1beta1/ha.proto
 
 /*
-Package hav1 is a reverse proxy.
+Package hav1beta1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package hav1
+package hav1beta1
 
 import (
 	"context"
@@ -89,7 +89,7 @@ func RegisterHAServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ha.v1.HAService/Status", runtime.WithHTTPPathPattern("/v1/ha/status"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ha.v1beta1.HAService/Status", runtime.WithHTTPPathPattern("/v1/ha/status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -109,7 +109,7 @@ func RegisterHAServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ha.v1.HAService/ListNodes", runtime.WithHTTPPathPattern("/v1/ha/nodes"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ha.v1beta1.HAService/ListNodes", runtime.WithHTTPPathPattern("/v1/ha/nodes"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -167,7 +167,7 @@ func RegisterHAServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/ha.v1.HAService/Status", runtime.WithHTTPPathPattern("/v1/ha/status"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/ha.v1beta1.HAService/Status", runtime.WithHTTPPathPattern("/v1/ha/status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -184,7 +184,7 @@ func RegisterHAServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/ha.v1.HAService/ListNodes", runtime.WithHTTPPathPattern("/v1/ha/nodes"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/ha.v1beta1.HAService/ListNodes", runtime.WithHTTPPathPattern("/v1/ha/nodes"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
