@@ -47,6 +47,9 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
               outlinedBorder: 'rgba(220, 33, 0, 0.5)',
               outlinedBorderOpacity: 0.5,
             },
+            surfaces: {
+              default: peakTheme.surfaces.elevation0,
+            },
           }
         : {
             primary: {
@@ -70,6 +73,9 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
               focusVisibleOpacity: 0.3,
               outlinedBorder: 'rgba(245, 106, 51, 0.5)',
               outlinedBorderOpacity: 0.5,
+            },
+            surfaces: {
+              default: peakTheme.surfaces.elevation0,
             },
           }),
     },

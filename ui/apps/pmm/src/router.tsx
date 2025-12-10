@@ -60,6 +60,10 @@ const router = createBrowserRouter(
                 },
               ],
             },
+            {
+              path: 'rta/live',
+              element: <RealTimeLivePage />,
+            },
             // Grafana routes are handled at the Main component level
             {
               path: 'graph/*',
