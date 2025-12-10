@@ -61,10 +61,8 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 		return &hav1beta1.ListNodesResponse{Nodes: []*hav1beta1.HANode{}}, nil
 	}
 
-	nodes := make([]*hav1beta1.HANode, 0)
-
-	// Get all members from memberlist
 	members := memberlist.Members()
+	nodes := []*hav1beta1.HANode{}
 
 	for _, member := range members {
 		role := hav1beta1.NodeRole_NODE_ROLE_FOLLOWER
