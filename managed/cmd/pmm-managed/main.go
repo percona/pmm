@@ -70,6 +70,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -93,6 +94,7 @@ import (
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/qan"
+	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
@@ -298,6 +300,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
+	// Register RTA service
+	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry)
+	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
+
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
 	if err != nil {
@@ -394,6 +400,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dumpv1beta1.RegisterDumpServiceHandler,
 
 		platformv1.RegisterPlatformServiceHandler,
+		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 		uieventsv1.RegisterUIEventsServiceHandler,
 
 		userv1.RegisterUserServiceHandler,
