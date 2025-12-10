@@ -1020,6 +1020,7 @@ func main() { //nolint:maintidx,cyclop
 		Dus:                  dus,
 		HAService:            haService,
 		Nomad:                nomad,
+		QANClient:            qanClient,
 	}
 
 	server, err := server.NewServer(serverParams)

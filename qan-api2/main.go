@@ -94,7 +94,7 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 			grpc_validator.StreamServerInterceptor())),
 	)
 
-	aserv := aservice.NewService(rm, mm)
+	aserv := aservice.NewService(db, rm, mm)
 	qanv1.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
 	qanv1.RegisterQANServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
