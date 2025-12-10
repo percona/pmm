@@ -923,7 +923,7 @@ func main() { //nolint:maintidx,cyclop
 	// Keep the agent always running, even on follower nodes.
 	err = supervisord.StartSupervisedService("pmm-agent")
 	if err != nil {
-		l.Warnf("Couldn not start pmm-agent: %s", err)
+		l.Warnf("Could not start pmm-agent: %s", err)
 	}
 
 	platformAddress, err := envvars.GetPlatformAddress()
