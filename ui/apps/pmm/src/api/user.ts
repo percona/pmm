@@ -17,6 +17,11 @@ export const getCurrentUserOrgs = async () => {
   return res.data;
 };
 
+export const getUserPreferences = async () => {
+  const res = await grafanaApi.get<UpdatePreferencesBody>('/user/preferences');
+  return res.data;
+};
+
 export const updatePreferences = async (
   preferences: Partial<UpdatePreferencesBody>
 ) => {

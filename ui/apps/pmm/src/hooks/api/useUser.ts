@@ -9,6 +9,7 @@ import {
   getCurrentUser,
   getCurrentUserOrgs,
   getUserInfo,
+  getUserPreferences,
   updatePreferences,
   updateUserInfo,
 } from 'api/user';
@@ -57,6 +58,15 @@ export const useCurrentUserOrgs = (
   useQuery({
     queryKey: ['user:orgs'],
     queryFn: () => getCurrentUserOrgs(),
+    ...options,
+  });
+
+export const useUserPreferences = (
+  options?: Partial<UseQueryOptions<UpdatePreferencesBody>>
+) =>
+  useQuery({
+    queryKey: ['user:preferences'],
+    queryFn: () => getUserPreferences(),
     ...options,
   });
 
