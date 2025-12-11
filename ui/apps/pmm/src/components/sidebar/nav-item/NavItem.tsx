@@ -159,10 +159,32 @@ const NavItem: FC<NavItemProps> = ({
     );
   }
 
-  if (item.isDivider) {
+  if (item.type === 'menu-divider') {
     return (
       <ListItem sx={styles.listItemDivider}>
         <Divider sx={styles.divider} />
+      </ListItem>
+    );
+  }
+
+  if (item.type === 'menu-text') {
+    return (
+      <ListItem
+        key={item.id}
+        data-testid={dataTestid + '-list-item'}
+        disableGutters
+        disablePadding
+      >
+        <ListItemText
+          primary={item.text}
+          secondary={item.secondaryText}
+          sx={[
+            styles.listItemButton,
+            styles.leafItem,
+            level === 0 && styles.navItemRoot,
+            styles.textOnly,
+          ]}
+        />
       </ListItem>
     );
   }

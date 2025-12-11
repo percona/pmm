@@ -44,6 +44,8 @@ import {
   NAV_HIGH_AVAILABILITY,
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
+  NAV_HIGH_AVAILABILITY_LEADER,
+  NAV_HIGH_AVAILABILITY_NODES,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -51,7 +53,7 @@ import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { HighAvailabilityIcon } from 'components/ha-icon';
 import { HighAvailabilityBadge } from 'components/ha-badge';
-import { HighAvailabilityHealth } from 'types/high-availability.types';
+import { GetHANodeResponse, HAInfo } from 'types/ha.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -246,17 +248,36 @@ export const addConfiguration = (
   return NAV_CONFIGURATION;
 };
 
-export const addHighAvailability = (
-  health: HighAvailabilityHealth = 'healthy'
-): NavItem => {
-  const item = { ...NAV_HIGH_AVAILABILITY, id: `high-availability-${health}` };
+export const addHighAvailability = ({
+  health,
+  leader,
+  nodes,
+}: HAInfo): NavItem => {
+  const item = { ...NAV_HIGH_AVAILABILITY };
 
   item.badge = <HighAvailabilityBadge health={health} />;
   item.icon = <HighAvailabilityIcon health={health} />;
   item.badgeAlwaysVisible = true;
 
+  const nodesItem = {
+    ...NAV_HIGH_AVAILABILITY_NODES,
+    url: buildIdentifyNodesUrl(nodes),
+  };
+
+  item.children = [
+    {
+      ...NAV_HIGH_AVAILABILITY_LEADER,
+      secondaryText: leader?.nodeName || 'Unknown',
+    },
+    nodesItem,
+  ];
+
   return item;
 };
+
+const buildIdentifyNodesUrl = (nodes: GetHANodeResponse[]) =>
+  NAV_HIGH_AVAILABILITY_NODES.url +
+  nodes.map((node) => node.nodeName).join(',');
 
 export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
   const children: NavItem[] = [...(NAV_USERS_AND_ACCESS.children || [])];
