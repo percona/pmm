@@ -35,11 +35,15 @@ import (
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
 	defaultPlatformAPITimeout = 30 * time.Second
-	// EnvVMAgentPrefix is the prefix for environment variables related to the VM agent.
-	EnvVMAgentPrefix   = "VMAGENT_"
-	EnvVMAuthPrefix    = "VMAUTH_"
-	EnvVMSelectPrefix  = "VMSELECT_"
-	EnvVMInsertPrefix  = "VMINSERT_"
+	// EnvVMAgentPrefix is the prefix for environment variables related to the VMAgent.
+	EnvVMAgentPrefix = "VMAGENT_"
+	// EnvVMAuthPrefix is the prefix for environment variables related to VMAuth.
+	EnvVMAuthPrefix = "VMAUTH_"
+	// EnvVMSelectPrefix is the prefix for environment variables related to VMSelect.
+	EnvVMSelectPrefix = "VMSELECT_"
+	// EnvVMInsertPrefix is the prefix for environment variables related to VMInsert.
+	EnvVMInsertPrefix = "VMINSERT_"
+	// EnvVMStoragePrefix is the prefix for environment variables related to VMStorage.
 	EnvVMStoragePrefix = "VMSTORAGE_"
 )
 
@@ -231,7 +235,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			// skip Victoria Metric's environment variables
+			// skip Victoria Metrics' environment variables
 			if strings.HasPrefix(k, "VM_") {
 				continue
 			}
