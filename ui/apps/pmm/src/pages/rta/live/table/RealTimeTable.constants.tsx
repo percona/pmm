@@ -5,68 +5,29 @@ import { RealTimeQuery } from 'types/real-time.types';
 import { type MRT_ColumnDef } from 'material-react-table';
 import { Messages } from './RealTimeTable.messages';
 
-export const REAL_TIME_TABLE_MOCK_DATE: RealTimeQuery[] = [
+export const REAL_TIME_TABLE_MOCK_DATA: RealTimeQuery[] = Array.from(
+  { length: 100 },
+  (_, idx) => ({
+    query: `db.logs.aggregate([
   {
-    query: "db.orders.updateOne({ _id: ObjectId('...') }, { $push: { n...",
+    $group: {
+      _id: '$ip_address',
+      count: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      count: -1
+    }
+  }
+])`,
     service: 'mc-analytics-s02-primary',
     duration: '1987 ms',
     state: 'Blocked',
-  },
-  {
-    query: "db.sessions.find({ 'user_id': 12345 })",
-    service: 'mc-analytics-s01-primary',
-    duration: '1876 ms',
-    state: 'Running',
-  },
-  {
-    query: "db.users.find({ country: 'USA' }).sort({ 'profile.last_log...",
-    service: 'mc-analytics-s01-primary',
-    duration: '1765 ms',
-    state: 'Sorting result',
-  },
-  {
-    query: "db.logs.aggregate([{ $group: { _id: '$ip_address', count:...",
-    service: 'mc-analytics-s02-second...',
-    duration: '1732 ms',
-    state: 'Running',
-  },
-  {
-    query: 'db.analytics.aggregate([{ $sort: { timestamp: -1 } }])',
-    service: 'mc-analytics-s01-primary',
-    duration: '1654 ms',
-    state: 'Sorting result',
-  },
-  {
-    query: "db.orders.updateMany({ state:'processing' }, { $set: { p...",
-    service: 'mc-analytics-s02-primary',
-    duration: '1543 ms',
-    state: 'Blocked',
-  },
-  {
-    query: "db.articles.find().sort({ 'published_at': -1 }).skip(50000...",
-    service: 'mc-analytics-s01-primary',
-    duration: '1321 ms',
-    state: 'Running',
-  },
-  {
-    query: "db.sessions.deleteMany({ 'lastActivity': { $lt: new Date('...",
-    service: 'mc-analytics-s03-primary',
-    duration: '1210 ms',
-    state: 'Running',
-  },
-  {
-    query: "db.user_events.find({ event_type: 'login' }).limit(10)",
-    service: 'mc-analytics-s01-primary',
-    duration: '1109 ms',
-    state: 'Running',
-  },
-  {
-    query: "db.analytics.aggregate([{ $match: { event: 'pageView' } },...",
-    service: 'mc-analytics-s01-primary',
-    duration: '987 ms',
-    state: 'Waiting',
-  },
-];
+  })
+);
 
 export const REAL_TIME_TABLE_COLUMNS: MRT_ColumnDef<RealTimeQuery>[] = [
   {

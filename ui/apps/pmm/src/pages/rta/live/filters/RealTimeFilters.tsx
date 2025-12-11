@@ -20,7 +20,7 @@ const RealTimeFilters: FC<RealTimeFiltersProps> = ({
   const [fetching, setFetching] = useState(true);
 
   return (
-    <Stack flex={1} gap={2} direction="row" alignItems="center" sx={{ p: 2 }}>
+    <Stack gap={2} direction="row" alignItems="center" mb={2}>
       <IconButton onClick={() => setShowFilters(!showFilters)}>
         {showFilters ? (
           <FilterListOffOutlinedIcon />

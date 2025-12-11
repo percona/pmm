@@ -1724,50 +1724,40 @@
   resolved "https://registry.npmjs.org/@opentelemetry/semantic-conventions/-/semantic-conventions-1.36.0.tgz"
   integrity sha512-TtxJSRD8Ohxp6bKkhrm27JRHAxPczQA7idtcTOMYI+wQRRrfgqxHv1cFbCApcSnNjtXkmzFozn6jQtFrOmbjPQ==
 
-"@percona/design@1.0.0", "@percona/design@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@percona/design/-/design-1.0.0.tgz"
-  integrity sha512-LNVdwOLoQGSgRA3bmppjsCzIxvNoatrPqYGi21g5qla8WHXkmMBWYKZKt+36BEgl+jEQZv42r2iQ6RBPgNCJ3A==
+"@percona/design@1.1.0", "@percona/design@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/design/-/design-1.1.0.tgz#4a027630578d9906eab68fda3d4cbab941fbbaa2"
+  integrity sha512-Z2PzVILEndU3HwEa45QFyX7fX4MdniMQIphRaiacuiv6go+BYRz2vilw+T4xY4jTLPrraLsRT9LIeLIUlHIKhg==
   dependencies:
     "@fontsource/poppins" "^5.0.8"
     "@fontsource/roboto" "^5.0.8"
     "@fontsource/roboto-mono" "^5.1.0"
     "@mui/utils" "^5.14.15"
 
-"@percona/eslint-config-react@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@percona/eslint-config-react/-/eslint-config-react-1.0.0.tgz"
-  integrity sha512-SPOgMcTZ48WysDk0F95oy9ywaQoeu+JnoTgOLhT+X4ta96ZBU55TbjbyCWz1bieuAFjFGzL/GUxHshhLadXl4g==
-
 "@percona/eslint-config-react@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@percona/eslint-config-react/-/eslint-config-react-1.1.0.tgz#db69fcf5d6bb43e6c842f462e2c1c84d5f3eb281"
   integrity sha512-Tk9mNYslXrxW/gdS/rzxHbLuEXoNCw8r2t/pB8CXZjBl46VLMGspljbyI6525uNNfyO5H0iJQKCJu0Ckf+5erA==
-
-"@percona/prettier-config@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@percona/prettier-config/-/prettier-config-1.0.0.tgz"
-  integrity sha512-SzN+mWmMKOK46dQsBye1E2CqqpVYVErSprmNIAmSlSB0vJ+AbOWdqc9stccAYYuz0AzMvvyQyh13D9n0wROxNQ==
 
 "@percona/prettier-config@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@percona/prettier-config/-/prettier-config-1.1.0.tgz#31cc8000187c73e397def8e10f8b44629c45c958"
   integrity sha512-DEQ1m7mf1S2nSK6MjIrzRir3aOLLIyAqrynfIpsPOUiPmMqHLa8DF/Ao/MEa+EdOLcrrhyoWYicpNpyB+FgWkA==
 
-"@percona/tsconfig@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@percona/tsconfig/-/tsconfig-1.0.0.tgz"
-  integrity sha512-/KZtra6YrRCODzdyLa6PHE0cTZrMMCd19yAhC4HNk2OWdbSzCEnxWtOtnzTUJ0JQSfN67OdG/ytCzuwivYooiw==
+"@percona/tsconfig@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/tsconfig/-/tsconfig-1.1.0.tgz#035573bc77f3f04233d8246d4e6d800373d766da"
+  integrity sha512-/5INuhYoxqJ7dtIH/DPy9dcX1LVTJ0yl0HhM4EEtFfPKCla8oKMnRBMyBKuk5OJ5ayo+PJUWwXuMbtpsf6kSDQ==
 
-"@percona/types@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@percona/types/-/types-1.0.0.tgz"
-  integrity sha512-2Kmv9bLbG/M2UvCL0DxEocsWq8XX7FAznmK0ZTQZZVH2r3tHJx7Rg+guTEiE4tmgP9OMGK+INrRIsmciOB0Rrw==
+"@percona/types@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/types/-/types-1.1.0.tgz#6d2681be2681a3b5d7686a6f3c95d0346ac9bed9"
+  integrity sha512-v0A0Glbd7Sioa1N77q5AjzH85Mc9hWaWOnmvzHgGaaGyScqJrAWKBjGETum/ZrK3nN/uIOH6sqxPjzDiaUi6ZQ==
 
-"@percona/ui-lib@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@percona/ui-lib/-/ui-lib-1.0.0.tgz"
-  integrity sha512-3Lom91/x5hL0b+dZEQq6sj/vMzO7Ig7+fTQiKu6Y4biVBWhjMcv+gsyllIGGUcasiN1izxG8odhlQkgga26qFg==
+"@percona/ui-lib@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/ui-lib/-/ui-lib-1.1.0.tgz#5008cf7813cb70950fe458996abf371d9c62139d"
+  integrity sha512-6nRx1DyVBsy7YmZozZbboDF8revorTly/TldCcSlQe4ATMYfrL2WgT54epid4TwDEH4bXK2UJ2TuxRG9fOD7ew==
   dependencies:
     "@percona/design" "1.1.0"
     "@percona/types" "1.1.0"
@@ -1777,10 +1767,10 @@
     notistack "^3.0.1"
     react-hook-form "^7.47.0"
 
-"@percona/utils@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@percona/utils/-/utils-1.0.0.tgz"
-  integrity sha512-dJicwFS8QhnafKSTFIW+FAPw6/5F0IXiksGQxvMS81jxNUgPxc1qLDgkVQ12qCuKNlgJYWIOM7hHLQ/1rUCOOA==
+"@percona/utils@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/utils/-/utils-1.1.0.tgz#6201e27a42ad0784c450dfcd76daa205b4658cc9"
+  integrity sha512-bfSHj5z5FncgbSan1OtKFwxE5zfdulTV5DgPkA4sWkB/tKhpvIZHLQ8EscnU3OtTKYkOUT7mi6iKw/8KMNcocA==
 
 "@petamoriken/float16@^3.4.7":
   version "3.9.2"

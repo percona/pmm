@@ -28,7 +28,7 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
         borderStyle: 'solid',
         borderColor: theme.palette.divider,
         borderRadius: theme.shape.borderRadius / 2,
-        backgroundColor: theme.palette.surfaces?.default || 'transparent',
+        backgroundColor: theme.palette.surfaces?.elevation1 || 'transparent',
       }}
     >
       <ReactSyntaxHighlighter

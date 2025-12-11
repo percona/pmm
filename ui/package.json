@@ -15,7 +15,7 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
-    "@percona/prettier-config": "^1.0.0",
+    "@percona/prettier-config": "^1.1.0",
     "prettier": "^3.5.3",
     "turbo": "^2.4.4",
     "typescript": "5.8.2"

@@ -3,7 +3,10 @@ import { FC } from 'react';
 import { QueryCellProps } from './QueryCell.types';
 
 const QueryCell: FC<QueryCellProps> = ({ query }) => (
-  <CodeBlock code={query} language="mongodb" />
+  <CodeBlock
+    code={query.replace(/\n/g, '').replace(/  /g, '')}
+    language="mongodb"
+  />
 );
 
 export default QueryCell;

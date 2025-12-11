@@ -44,6 +44,9 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'status-down': () => import('icons/status-down.svg?react'),
   'status-updating': () => import('icons/status-updating.svg?react'),
   'arrow-link': () => import('icons/arrow-link.svg?react'),
+  'bottom-panel-close': () => import('icons/bottom-panel-close.svg?react'),
+  'collapse-content': () => import('icons/collapse-content.svg?react'),
+  'expand-content': () => import('icons/expand-content.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<

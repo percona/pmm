@@ -4,7 +4,15 @@ import { FC } from 'react';
 import { CodeBlockProps } from './CodeBlock.types';
 
 const CodeBlock: FC<CodeBlockProps> = ({ code, language }) => (
-  <Stack sx={{ flex: 1 }}>
+  <Stack
+    sx={{
+      flex: 1,
+
+      '*': {
+        textOverflow: 'ellipsis',
+      },
+    }}
+  >
     <SyntaxHighlighter language={language}>{code}</SyntaxHighlighter>
   </Stack>
 );
