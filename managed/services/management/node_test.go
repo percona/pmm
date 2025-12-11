@@ -128,7 +128,7 @@ func TestNodeService(t *testing.T) {
 				NodeName: getTestNodeName(),
 			})
 			assert.Nil(t, res)
-			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
+			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name test-node already exists.`), err)
 		})
 
 		t.Run("Reregister", func(t *testing.T) {

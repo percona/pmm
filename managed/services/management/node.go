@@ -44,7 +44,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			if !req.Reregister {
-				return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", req.NodeName)
+				return status.Errorf(codes.AlreadyExists, "Node with name %s already exists.", req.NodeName)
 			}
 			err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
 		case codes.NotFound:

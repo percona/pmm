@@ -39,14 +39,15 @@ import (
 )
 
 const (
-	connectionEndpoint = "/agent.v1.AgentService/Connect"
+	connectionEndpointV2 = "/agent.Agent/Connect"
+	connectionEndpoint   = "/agent.v1.AgentService/Connect"
 )
 
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
-	"/agent.Agent/Connect": admin, // compatibility for v2 agents
-	connectionEndpoint:     admin,
+	connectionEndpointV2: admin, // compatibility for v2 agents
+	connectionEndpoint:   admin,
 
 	"/inventory.":                               admin,
 	"/management.":                              admin,
@@ -184,6 +185,7 @@ func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 // Run runs cache invalidator which removes expired cache items.
 func (s *AuthServer) Run(ctx context.Context) {
 	t := time.NewTicker(cacheInvalidationPeriod)
+	defer t.Stop()
 
 	for {
 		select {
@@ -424,9 +426,9 @@ func nextPrefix(path string) string {
 
 func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
-	pmmAgent := req.Header.Get("Pmm-Agent-Id")
+	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
+	if ip == "127.0.0.1" && path == connectionEndpoint {
 		return true
 	}
 

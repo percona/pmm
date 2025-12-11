@@ -1101,7 +1101,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 		if err != nil {
 			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
 		}
-		if pointer.GetString(a.PMMAgentID) == "pmm-server" {
+		if pointer.GetString(a.PMMAgentID) == models.PMMServerAgentID {
 			return nil, status.Errorf(
 				codes.FailedPrecondition,
 				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",

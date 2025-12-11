@@ -85,9 +85,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			continue
 		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
 			continue
-
 		case "CONTAINER":
 			continue
+		case "NSS_WRAPPER_GROUP", "NSS_WRAPPER_PASSWD", "LD_PRELOAD":
+			// skip nss_wrapper environment variables
+			continue
+		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY":
+			continue
+
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
@@ -254,7 +259,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			// skip PMM test environment variables
 			if strings.HasPrefix(k, "PMM_TEST_") {
-				warns = append(warns, fmt.Sprintf("environment variable %q may be removed or replaced in the future", env))
+				warns = append(warns, fmt.Sprintf("environment variable %s may be removed or replaced in the future", env))
 				continue
 			}
 
@@ -263,7 +268,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
+			warns = append(warns, fmt.Sprintf("unknown environment variable %s", env))
 		}
 	}
 
@@ -282,18 +287,15 @@ func parseStringDuration(value string) (time.Duration, error) {
 
 func parsePlatformAPITimeout(d string) (time.Duration, string) {
 	if d == "" {
-		msg := fmt.Sprintf(
-			"Environment variable %q is not set, using %q as a default timeout for platform API.",
-			pkgenv.PlatformAPITimeout,
-			defaultPlatformAPITimeout.String())
+		msg := fmt.Sprintf("Setting the default timeout for Platform API to %s.", defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
 	duration, err := parseStringDuration(d)
 	if err != nil {
-		msg := fmt.Sprintf("Using %q as a default: failed to parse platform API timeout %q: %s.", defaultPlatformAPITimeout.String(), d, err)
+		msg := fmt.Sprintf("Set the default Platform API to %s: failed to parse timeout %s: %s.", defaultPlatformAPITimeout.String(), d, err)
 		return defaultPlatformAPITimeout, msg
 	}
-	msg := fmt.Sprintf("Using %q as a timeout for platform API.", duration.String())
+	msg := fmt.Sprintf("Set the timeout for Platform API to %s.", duration.String())
 	return duration, msg
 }
 
@@ -310,7 +312,7 @@ func GetPlatformAPITimeout(l *logrus.Entry) time.Duration {
 func GetPlatformAddress() (string, error) {
 	address := os.Getenv(pkgenv.PlatformAddress)
 	if address == "" {
-		logrus.Infof("Using default Percona Platform address %q.", defaultPlatformAddress)
+		logrus.Infof("Using default Percona Platform address: %s.", defaultPlatformAddress)
 		return defaultPlatformAddress, nil
 	}
 
@@ -318,7 +320,7 @@ func GetPlatformAddress() (string, error) {
 		return "", errors.Errorf("invalid percona platform address: %s", err)
 	}
 
-	logrus.Infof("Using Percona Platform address %q.", address)
+	logrus.Infof("Using Percona Platform address: %s.", address)
 	return address, nil
 }
 

@@ -71,9 +71,11 @@ To include PMM Server’s own queries in QAN, enable the feature in the settings
 
 1. Go to **PMM Configuration > Settings > Advanced Settings**.
 2. Switch on the **QAN for PMM Server** option.
-3. Go to **Dashboards > Query Analytics > PMM Query Analytics** and filter by the `pmm-server-postgresql` service to view queries.
+3. Open **PMM Query Analytics (QAN)** from the main menu and filter by the `pmm-server-postgresql` service to view queries.
 
-When enabled, QAN displays queries related to PMM’s internal operations—such as inventory, settings, advisor checks, alerts, backups, and authentication. These are usually lightweight, but unusual spikes in volume, latency, or unexpected queries may indicate performance issues or misuse of the database.
+When enabled, QAN displays queries related to PMM’s internal operations—such as inventory, settings, advisor checks, alerts, backups, and authentication. 
+
+These are usually lightweight, but unusual spikes in volume, latency, or unexpected queries may indicate performance issues or misuse of the database.
 
 !!! warning
-Do not use the default postgres database for application workloads. PMM monitors it for visibility, but applications should always run on dedicated databases.
+    Do not use the default PostgreSQL database for application workloads. PMM monitors it for visibility, but applications should always run on dedicated databases.

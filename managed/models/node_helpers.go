@@ -57,7 +57,7 @@ func checkUniqueNodeName(q *reform.Querier, name string) error {
 		return errors.WithStack(err)
 	}
 
-	return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
+	return status.Errorf(codes.AlreadyExists, "Node with name %s already exists.", name)
 }
 
 // CheckUniqueNodeAddressRegion checks for uniqueness of instance address and region.
@@ -198,7 +198,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		return nil, err
 	}
 
-	// do not check that machine-id is unique: https://jira.percona.com/browse/PMM-4196
+	// do not check that machine-id is unique: https://perconadev.atlassian.net/browse/PMM-4196
 
 	if nodeType == RemoteRDSNodeType {
 		if strings.Contains(params.InstanceID, ".") {
@@ -211,7 +211,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 	}
 
 	// Trim trailing \n received from broken 2.0.0 clients.
-	// See https://jira.percona.com/browse/PMM-4720
+	// See https://perconadev.atlassian.net/browse/PMM-4720
 	machineID := pointer.ToStringOrNil(strings.TrimSpace(pointer.GetString(params.MachineID)))
 
 	node := &Node{

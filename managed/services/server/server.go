@@ -61,6 +61,7 @@ type Server struct {
 	supervisord          supervisordService
 	telemetryService     telemetryService
 	grafanaClient        grafanaClient
+	qanClient            healthChecker
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
@@ -94,6 +95,7 @@ type Params struct {
 	Supervisord          supervisordService
 	TelemetryService     telemetryService
 	GrafanaClient        grafanaClient
+	QANClient            healthChecker
 	Updater              *Updater
 	Dus                  *distribution.Service
 	HAService            haService
@@ -119,6 +121,7 @@ func NewServer(params *Params) (*Server, error) {
 		supervisord:          params.Supervisord,
 		telemetryService:     params.TelemetryService,
 		grafanaClient:        params.GrafanaClient,
+		qanClient:            params.QANClient,
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
@@ -220,6 +223,7 @@ func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) 
 		"grafana":         s.grafanaClient,
 		"victoriametrics": s.vmdb,
 		"vmalert":         s.vmalert,
+		"qan":             s.qanClient,
 	} {
 		if err := svc.IsReady(ctx); err != nil {
 			s.l.Errorf("%s readiness check failed: %+v", n, err)
@@ -757,6 +761,9 @@ func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to find agents: %w", err)
+	}
+	if len(agents) == 0 {
+		return nil, fmt.Errorf("internal pgQAN agent not found")
 	}
 	return agents[0], nil
 }
