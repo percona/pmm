@@ -7,4 +7,6 @@ export interface DetailsPaneProps {
   onClose: () => void;
   onExpand: () => void;
   onCollapse: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
 }

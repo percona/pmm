@@ -8,7 +8,7 @@ import { Messages } from './RealTimeTable.messages';
 export const REAL_TIME_TABLE_MOCK_DATA: RealTimeQuery[] = Array.from(
   { length: 100 },
   (_, idx) => ({
-    query: `db.logs.aggregate([
+    query: idx + `\tdb.logs.aggregate([
   {
     $group: {
       _id: '$ip_address',

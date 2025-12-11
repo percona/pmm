@@ -16,6 +16,8 @@ const DetailsPane: FC<DetailsPaneProps> = ({
   onClose,
   onExpand,
   onCollapse,
+  onNext,
+  onPrevious,
   expanded,
 }) => {
   return (
@@ -49,10 +51,10 @@ const DetailsPane: FC<DetailsPaneProps> = ({
           <Tab value={2} label="Raw data" />
         </Tabs>
         <Stack gap={1} direction="row" alignItems="center">
-          <IconButton>
+          <IconButton onClick={onPrevious}>
             <KeyboardArrowUpOutlinedIcon />
           </IconButton>
-          <IconButton>
+          <IconButton onClick={onNext}>
             <KeyboardArrowDownOutlinedIcon />
           </IconButton>
           {expanded ? (

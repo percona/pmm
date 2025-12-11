@@ -3,6 +3,6 @@
 <rect width="24" height="24" fill="#D9D9D9"/>
 </mask>
 <g mask="url(#mask0_3449_987)">
-<path d="M11 13V19H9V15H5V13H11ZM15 5V9H19V11H13V5H15Z" fill="#2C323E"/>
+<path d="M11 13V19H9V15H5V13H11ZM15 5V9H19V11H13V5H15Z" fill="currentColor"/>
 </g>
 </svg>

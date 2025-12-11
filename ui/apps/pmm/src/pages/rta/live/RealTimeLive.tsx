@@ -10,9 +10,12 @@ import { useTheme } from '@mui/material/styles';
 const RealTimeLivePage: FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showFullDetails, setShowFullDetails] = useState(false);
-  const [query, setQuery] = useState<RealTimeQuery | null>(
-    REAL_TIME_TABLE_MOCK_DATA[0]
+  const queries = REAL_TIME_TABLE_MOCK_DATA;
+  const [selectedQueryIndex, setSelectedQueryIndex] = useState<number | null>(
+    0
   );
+  const selectedQuery =
+    selectedQueryIndex !== null ? queries[selectedQueryIndex] : null;
   const theme = useTheme();
   const transition = theme.transitions.create(
     ['flex-grow', 'flex-basis', 'min-height', 'opacity'],
@@ -22,17 +25,17 @@ const RealTimeLivePage: FC = () => {
     }
   );
 
-  const handleQueryChange = (selectedQuery: RealTimeQuery | null) => {
-    if (query === selectedQuery) {
-      setQuery(null);
+  const handleQueryChange = (query: RealTimeQuery | null, index: number) => {
+    if (selectedQuery === query) {
+      setSelectedQueryIndex(null);
       setShowFullDetails(false);
     } else {
-      setQuery(selectedQuery);
+      setSelectedQueryIndex(index);
     }
   };
 
   const handleCloseDetails = () => {
-    setQuery(null);
+    setSelectedQueryIndex(null);
     setShowFullDetails(false);
   };
 
@@ -67,9 +70,10 @@ const RealTimeLivePage: FC = () => {
         ]}
       >
         <RealTimeTable
+          queries={queries}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
-          selectedQuery={query}
+          selectedQuery={selectedQuery}
           setQuery={handleQueryChange}
         />
       </Stack>
@@ -78,7 +82,7 @@ const RealTimeLivePage: FC = () => {
           {
             transition,
           },
-          query
+          selectedQuery
             ? {
                 minHeight: 350,
                 flexGrow: showFullDetails ? 3 : 0,
@@ -93,11 +97,13 @@ const RealTimeLivePage: FC = () => {
         ]}
       >
         <DetailsPane
-          query={query}
+          query={selectedQuery}
           expanded={showFullDetails}
           onClose={handleCloseDetails}
           onExpand={() => setShowFullDetails(true)}
           onCollapse={() => setShowFullDetails(false)}
+          onNext={() => setSelectedQueryIndex((prev) => (prev || 0) + 1)}
+          onPrevious={() => setSelectedQueryIndex((prev) => (prev || 0) - 1)}
         />
       </Stack>
     </Stack>

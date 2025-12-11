@@ -7,7 +7,6 @@ const Table = <T extends Record<string, any>>(props: TableProps<T>) => {
 
   return (
     <PeakTable
-      {...props}
       muiTablePaperProps={{
         sx: {
           flex: '1 1 0',
@@ -72,6 +71,7 @@ const Table = <T extends Record<string, any>>(props: TableProps<T>) => {
           marginTop: 1,
         },
       }}
+      {...props}
     />
   );
 };
