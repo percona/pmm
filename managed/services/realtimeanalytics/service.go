@@ -59,7 +59,7 @@ func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRu
 	}
 
 	response := &rtav1.ListRunningRealtimeAgentsResponse{
-		Agents: make([]*rtav1.RunningRealtimeAgent, 0),
+		Agents: []*rtav1.RunningRealtimeAgent{},
 	}
 
 	for _, agent := range agents {
