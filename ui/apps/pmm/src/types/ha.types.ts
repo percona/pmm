@@ -1,5 +1,3 @@
-import { HighAvailabilityHealth } from './high-availability.types';
-
 export interface GetHAStatusResponse {
   status: HAStatus;
 }
@@ -26,7 +24,9 @@ export interface GetHANodeResponse {
 
 export interface HAInfo {
   enabled: boolean;
-  health: HighAvailabilityHealth;
+  health: HAHealth;
   leader?: GetHANodeResponse;
   nodes: GetHANodeResponse[];
 }
+
+export type HAHealth = 'healthy' | 'degraded' | 'critical' | 'down';

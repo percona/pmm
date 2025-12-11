@@ -5,7 +5,7 @@ import {
   GetHAStatusResponse,
   NodeRole,
 } from 'types/ha.types';
-import { HighAvailabilityHealth } from 'types/high-availability.types';
+import { getHAHealth } from 'utils/ha.utils';
 
 export const useHAStatus = (
   options?: Partial<UseQueryOptions<GetHAStatusResponse>>
@@ -31,8 +31,8 @@ export const useHaInfo = () => {
     enabled: statusQuery.data?.status === 'Enabled',
   });
 
-  const health: HighAvailabilityHealth = 'healthy';
-  const enabled: boolean = statusQuery.data?.status === 'Enabled';
+  const health = getHAHealth(nodesQuery.data?.nodes || []);
+  const enabled = statusQuery.data?.status === 'Enabled';
   const leader = nodesQuery.data?.nodes.find(
     (node) => node.role === NodeRole.leader
   );

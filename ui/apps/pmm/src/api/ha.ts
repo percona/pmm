@@ -40,6 +40,21 @@ export const getHANodes = async (): Promise<GetHANodesResponse> => {
           role: NodeRole.follower,
           status: 'alive',
         },
+        {
+          nodeName: 'pmm-ha-3',
+          role: NodeRole.follower,
+          status: 'alive',
+        },
+        {
+          nodeName: 'pmm-ha-4',
+          role: NodeRole.follower,
+          status: 'alive',
+        },
+        {
+          nodeName: 'pmm-ha-5',
+          role: NodeRole.follower,
+          status: 'alive',
+        },
       ],
     };
   }

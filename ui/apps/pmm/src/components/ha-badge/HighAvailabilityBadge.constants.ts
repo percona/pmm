@@ -1,6 +1,8 @@
-export const HIGH_AVAILABILITY_BADGE_HEALTH = {
+import { HAHealth } from 'types/ha.types';
+
+export const HIGH_AVAILABILITY_BADGE_HEALTH: Record<HAHealth, string> = {
   healthy: 'Healthy',
-  'at-risk': 'At Risk',
+  degraded: 'Degraded',
+  critical: 'Critical',
   down: 'Down',
-  updating: 'Updating',
 };

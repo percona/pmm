@@ -6,7 +6,7 @@ export const getStyles = (theme: Theme) => ({
     color: theme.palette.text.primary,
     borderColor: theme.palette.text.primary,
   },
-  'at-risk': {
+  degraded: {
     color:
       theme.palette.mode === 'light'
         ? PEAK_LIGHT_THEME.brand.sunrise[700]
@@ -16,25 +16,34 @@ export const getStyles = (theme: Theme) => ({
         ? PEAK_LIGHT_THEME.brand.sunrise[700]
         : PEAK_DARK_THEME.extra.yellow[100],
   },
-  down: {
+  critical: {
     color:
       theme.palette.mode === 'light'
         ? PEAK_DARK_THEME.error.dark
         : theme.palette.error.contrastText,
+    borderColor:
+      theme.palette.mode === 'light'
+        ? PEAK_LIGHT_THEME.extra.red[50]
+        : PEAK_DARK_THEME.error.dark,
     backgroundColor:
       theme.palette.mode === 'light'
         ? PEAK_LIGHT_THEME.extra.red[50]
         : PEAK_DARK_THEME.error.dark,
     transition: 'none',
   },
-  updating: {
+  down: {
     color:
       theme.palette.mode === 'light'
-        ? PEAK_LIGHT_THEME.brand.sky[600]
-        : PEAK_DARK_THEME.brand.sky[400],
+        ? PEAK_DARK_THEME.error.dark
+        : theme.palette.error.contrastText,
     borderColor:
       theme.palette.mode === 'light'
-        ? PEAK_LIGHT_THEME.brand.sky[600]
-        : PEAK_DARK_THEME.brand.sky[400],
+        ? PEAK_LIGHT_THEME.extra.red[50]
+        : PEAK_DARK_THEME.error.dark,
+    backgroundColor:
+      theme.palette.mode === 'light'
+        ? PEAK_LIGHT_THEME.extra.red[50]
+        : PEAK_DARK_THEME.error.dark,
+    transition: 'none',
   },
 });
