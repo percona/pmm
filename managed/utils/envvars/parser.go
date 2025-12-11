@@ -35,8 +35,12 @@ import (
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
 	defaultPlatformAPITimeout = 30 * time.Second
-	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
-	ENVvmAgentPrefix = "VMAGENT_"
+	// EnvVMAgentPrefix is the prefix for environment variables related to the VM agent.
+	EnvVMAgentPrefix   = "VMAGENT_"
+	EnvVMAuthPrefix    = "VMAUTH_"
+	EnvVMSelectPrefix  = "VMSELECT_"
+	EnvVMInsertPrefix  = "VMINSERT_"
+	EnvVMStoragePrefix = "VMSTORAGE_"
 )
 
 // InvalidDurationError invalid duration error.
@@ -233,7 +237,27 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 
 			// skip VM Agents environment variables
-			if strings.HasPrefix(k, ENVvmAgentPrefix) {
+			if strings.HasPrefix(k, EnvVMAgentPrefix) {
+				continue
+			}
+
+			// skip VMAuth environment variables
+			if strings.HasPrefix(k, EnvVMAuthPrefix) {
+				continue
+			}
+
+			// skip VMSelect environment variables
+			if strings.HasPrefix(k, EnvVMSelectPrefix) {
+				continue
+			}
+
+			// skip VMInsert environment variables
+			if strings.HasPrefix(k, EnvVMInsertPrefix) {
+				continue
+			}
+
+			// skip VMStorage environment variables
+			if strings.HasPrefix(k, EnvVMStoragePrefix) {
 				continue
 			}
 
@@ -254,6 +278,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			// skip PMM development environment variables
 			if strings.HasPrefix(k, "PMM_DEV_") {
+				continue
+			}
+
+			// skip PMM HA environment variables
+			if strings.HasPrefix(k, "PMM_HA_") {
 				continue
 			}
 
