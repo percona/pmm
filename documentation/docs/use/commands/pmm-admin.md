@@ -509,7 +509,8 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
             !!! caution ""
                 Avoid using special characters like '\', ';' and '$' in the custom password.
-
+        `--agent-env-vars=<env-vars>`
+        : Comma-separated list of environment variables to pass from `pmm-agent` to `mongodb_exporter`. Useful for configurations that require environment-level settings, such as Kerberos credentials. Only variables already set in the `pmm-agent` environment will be passed. *Example*: `--agent-env-vars="KRB5_CLIENT_KTNAME,OTHER_VAR"`.
     `--query-source=profiler`
     :  Source of queries, one of: `profiler`, `mongolog`, `none` (default: `profiler`).
 
@@ -643,6 +644,10 @@ When you remove a service, collected data remains on PMM Server for the specifie
     Enable all collectors and limit monitoring for `dbstats`, `indexstats`, `collstats` and `topmetrics` for all collections in `db1` and `col1` collection in `db2`, without limiting `max-collections-limit` for a number of collections in `db1`:
 
     `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --stats-collections=db1,db2.col1 mongodb_srv_1 127.0.0.1:27017`
+
+    To pass environment variables to mongodb_exporter:
+
+    `pmm-admin add mongodb --username=pmm --password=pmm --agent-env-vars="KRB5_CLIENT_KTNAME" --service-name mongodb-kerberos 127.0.0.1:27017`
 
     #### Resolutions
 
