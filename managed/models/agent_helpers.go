@@ -774,7 +774,7 @@ type CreateAgentParams struct {
 	Disabled                 bool
 	ExporterOptions          ExporterOptions
 	QANOptions               QANOptions
-	RTAOptions        RTAOptions
+	RTAOptions               RTAOptions
 	AWSOptions               AWSOptions
 	AzureOptions             AzureOptions
 	MongoDBOptions           MongoDBOptions
