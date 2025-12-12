@@ -1,9 +1,6 @@
-import {
-  GetHANodesResponse,
-  GetHAStatusResponse,
-  NodeRole,
-} from 'types/ha.types';
+import { GetHANodesResponse, GetHAStatusResponse } from 'types/ha.types';
 import { api } from './api';
+import { getNodesMock, HA_STATUS_MOCK } from './ha.mock';
 
 export const getHAStatus = async (): Promise<GetHAStatusResponse> => {
   try {
@@ -11,9 +8,7 @@ export const getHAStatus = async (): Promise<GetHAStatusResponse> => {
     return response.data;
     // todo: remove mock data
   } catch {
-    return {
-      status: 'Enabled',
-    };
+    return HA_STATUS_MOCK;
   }
 };
 
@@ -23,39 +18,6 @@ export const getHANodes = async (): Promise<GetHANodesResponse> => {
     return response.data;
     // todo: remove mock data
   } catch {
-    return {
-      nodes: [
-        {
-          nodeName: 'pmm-ha-1',
-          role: NodeRole.follower,
-          status: 'alive',
-        },
-        {
-          nodeName: 'pmm-ha-0',
-          role: NodeRole.leader,
-          status: 'alive',
-        },
-        {
-          nodeName: 'pmm-ha-2',
-          role: NodeRole.follower,
-          status: 'alive',
-        },
-        {
-          nodeName: 'pmm-ha-3',
-          role: NodeRole.follower,
-          status: 'alive',
-        },
-        {
-          nodeName: 'pmm-ha-4',
-          role: NodeRole.follower,
-          status: 'alive',
-        },
-        {
-          nodeName: 'pmm-ha-5',
-          role: NodeRole.follower,
-          status: 'alive',
-        },
-      ],
-    };
+    return getNodesMock();
   }
 };

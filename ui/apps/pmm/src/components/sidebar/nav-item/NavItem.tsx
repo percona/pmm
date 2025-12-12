@@ -161,7 +161,10 @@ const NavItem: FC<NavItemProps> = ({
 
   if (item.type === 'menu-divider') {
     return (
-      <ListItem sx={styles.listItemDivider}>
+      <ListItem
+        data-testid={dataTestid + '-divider'}
+        sx={styles.listItemDivider}
+      >
         <Divider sx={styles.divider} />
       </ListItem>
     );
@@ -171,7 +174,7 @@ const NavItem: FC<NavItemProps> = ({
     return (
       <ListItem
         key={item.id}
-        data-testid={dataTestid + '-list-item'}
+        data-testid={dataTestid + '-text-item'}
         disableGutters
         disablePadding
       >

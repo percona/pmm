@@ -29,6 +29,7 @@ export const useHaInfo = () => {
   const statusQuery = useHAStatus();
   const nodesQuery = useHANodes({
     enabled: statusQuery.data?.status === 'Enabled',
+    refetchInterval: 5000,
   });
 
   const health = getHAHealth(nodesQuery.data?.nodes || []);
