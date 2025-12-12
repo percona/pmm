@@ -184,7 +184,7 @@ export const addAccount = (
 ): NavItem => {
   const name = (user.name || '').split(' ')[0];
   const children = [...(NAV_ACCOUNT.children || [])];
-  const targetTheme = colorMode === 'light' ? 'Dark' : 'Light';
+  const targetMode = colorMode === 'light' ? 'dark' : 'light';
 
   if (
     !(
@@ -198,7 +198,7 @@ export const addAccount = (
   children.push({
     ...NAV_THEME_TOGGLE,
     icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
-    text: `Change to ${targetTheme} Theme`,
+    text: `Switch to ${targetMode} mode`,
     onClick: toggleMode,
   });
 

@@ -55,7 +55,7 @@ export const NAV_MYSQL: NavItem = {
     {
       id: 'mysql-high-availability',
       icon: 'high-availability',
-      text: 'High Availability',
+      text: 'High availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-group-replicaset-summary`,
       children: [
         {
@@ -213,7 +213,7 @@ export const NAV_POSTGRESQL: NavItem = {
     },
     {
       id: 'postgresql-ha',
-      text: 'High Availability',
+      text: 'High availability',
       icon: 'high-availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-replication-overview`,
       children: [
@@ -260,7 +260,7 @@ export const NAV_OS: NavItem = {
     },
     {
       id: 'cpu-utilization',
-      text: 'CPU utilization',
+      text: 'CPU Utilization',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-cpu/cpu-utilization-details`,
     },
     {
@@ -474,7 +474,7 @@ export const NAV_EXPLORE: NavItem = {
 //
 export const NAV_ALERTS_TEMPLATES: NavItem = {
   id: 'alerts-templates',
-  text: 'Percona Alert Templates',
+  text: 'Alert templates',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template/*`],
 };
@@ -560,12 +560,12 @@ export const NAV_INVENTORY: NavItem = {
     {
       id: 'add-instance',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
-      text: 'Add Service',
+      text: 'Add service',
       children: [
         {
           id: 'add-instance-form',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`,
-          text: 'Add Service',
+          text: 'Add service',
           hidden: true,
         },
       ],
@@ -746,7 +746,7 @@ export const NAV_CHANGE_PASSWORD: NavItem = {
 
 export const NAV_THEME_TOGGLE: NavItem = {
   id: 'theme-toggle',
-  text: 'Change to Dark Theme',
+  text: 'Switch to dark mode',
 };
 
 export const NAV_SIGN_OUT: NavItem = {
