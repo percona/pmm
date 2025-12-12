@@ -156,7 +156,7 @@
                         "x-order": 0
                       },
                       "agent_type": {
-                        "description": "AgentType describes supported Agent types.",
+                        "description": "AgentType describes supported Agent types.\n\n - AGENT_TYPE_OTEL_COLLECTOR: OTEL Collector for logs, traces, profiles, and eBPF collection",
                         "type": "string",
                         "default": "AGENT_TYPE_UNSPECIFIED",
                         "enum": [
@@ -178,7 +178,8 @@
                           "AGENT_TYPE_EXTERNAL_EXPORTER",
                           "AGENT_TYPE_RDS_EXPORTER",
                           "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
-                          "AGENT_TYPE_NOMAD_AGENT"
+                          "AGENT_TYPE_NOMAD_AGENT",
+                          "AGENT_TYPE_OTEL_COLLECTOR"
                         ],
                         "x-order": 1
                       },
@@ -354,7 +355,7 @@
                         "x-order": 0
                       },
                       "agent_type": {
-                        "description": "AgentType describes supported Agent types.",
+                        "description": "AgentType describes supported Agent types.\n\n - AGENT_TYPE_OTEL_COLLECTOR: OTEL Collector for logs, traces, profiles, and eBPF collection",
                         "type": "string",
                         "default": "AGENT_TYPE_UNSPECIFIED",
                         "enum": [
@@ -376,7 +377,8 @@
                           "AGENT_TYPE_EXTERNAL_EXPORTER",
                           "AGENT_TYPE_RDS_EXPORTER",
                           "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
-                          "AGENT_TYPE_NOMAD_AGENT"
+                          "AGENT_TYPE_NOMAD_AGENT",
+                          "AGENT_TYPE_OTEL_COLLECTOR"
                         ],
                         "x-order": 1
                       },

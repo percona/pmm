@@ -62,9 +62,11 @@ ListAgentsParams contains all the parameters to send to the API endpoint
 type ListAgentsParams struct {
 	/* AgentType.
 
-	   Return only agents of a particular type.
+	    Return only agents of a particular type.
 
-	   Default: "AGENT_TYPE_UNSPECIFIED"
+	- AGENT_TYPE_OTEL_COLLECTOR: OTEL Collector for logs, traces, profiles, and eBPF collection
+
+	    Default: "AGENT_TYPE_UNSPECIFIED"
 	*/
 	AgentType *string
 

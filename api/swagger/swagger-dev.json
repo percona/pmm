@@ -5196,11 +5196,12 @@
               "AGENT_TYPE_EXTERNAL_EXPORTER",
               "AGENT_TYPE_RDS_EXPORTER",
               "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
-              "AGENT_TYPE_NOMAD_AGENT"
+              "AGENT_TYPE_NOMAD_AGENT",
+              "AGENT_TYPE_OTEL_COLLECTOR"
             ],
             "type": "string",
             "default": "AGENT_TYPE_UNSPECIFIED",
-            "description": "Return only agents of a particular type.",
+            "description": "Return only agents of a particular type.\n\n - AGENT_TYPE_OTEL_COLLECTOR: OTEL Collector for logs, traces, profiles, and eBPF collection",
             "name": "agent_type",
             "in": "query"
           }
@@ -7190,6 +7191,136 @@
                     }
                   },
                   "x-order": 17
+                },
+                "otel_collector": {
+                  "type": "array",
+                  "items": {
+                    "description": "OTELCollector runs on Generic or Container Node and collects logs, traces, profiles.\nExtensible for future telemetry types (traces, metrics, eBPF, profiles).",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 3
+                      },
+                      "logs_config": {
+                        "description": "OTELLogsConfig represents configuration for logs collection.",
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "description": "Enable logs collection.",
+                            "type": "boolean",
+                            "x-order": 0
+                          },
+                          "log_sources": {
+                            "description": "Log sources to collect from.",
+                            "type": "array",
+                            "items": {
+                              "description": "LogSource represents a single log file to be collected by OTEL Collector.",
+                              "type": "object",
+                              "properties": {
+                                "path": {
+                                  "description": "Path to the log file (supports glob patterns).",
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "service_name": {
+                                  "description": "Service name to associate with logs from this source.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "parser_type": {
+                                  "description": "Parser type: raw, json, regex.",
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "attributes": {
+                                  "description": "Additional attributes to add to logs from this source.",
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": "string"
+                                  },
+                                  "x-order": 3
+                                }
+                              }
+                            },
+                            "x-order": 1
+                          },
+                          "enable_syslog": {
+                            "description": "Enable syslog receiver.",
+                            "type": "boolean",
+                            "x-order": 2
+                          },
+                          "syslog_port": {
+                            "description": "Port for syslog receiver.",
+                            "type": "integer",
+                            "format": "int64",
+                            "x-order": 3
+                          },
+                          "enable_journald": {
+                            "description": "Enable journald receiver for systemd logs.",
+                            "type": "boolean",
+                            "x-order": 4
+                          },
+                          "journald_units": {
+                            "description": "Systemd units to collect logs from.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 5
+                          }
+                        },
+                        "x-order": 4
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 5
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 7
+                      }
+                    }
+                  },
+                  "x-order": 18
                 }
               }
             }
@@ -8637,6 +8768,95 @@
                     }
                   },
                   "x-order": 15
+                },
+                "otel_collector": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 1
+                    },
+                    "logs_config": {
+                      "description": "OTELLogsConfig represents configuration for logs collection.",
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "description": "Enable logs collection.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "log_sources": {
+                          "description": "Log sources to collect from.",
+                          "type": "array",
+                          "items": {
+                            "description": "LogSource represents a single log file to be collected by OTEL Collector.",
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "description": "Path to the log file (supports glob patterns).",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "service_name": {
+                                "description": "Service name to associate with logs from this source.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "parser_type": {
+                                "description": "Parser type: raw, json, regex.",
+                                "type": "string",
+                                "x-order": 2
+                              },
+                              "attributes": {
+                                "description": "Additional attributes to add to logs from this source.",
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                },
+                                "x-order": 3
+                              }
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "enable_syslog": {
+                          "description": "Enable syslog receiver.",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "syslog_port": {
+                          "description": "Port for syslog receiver.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 3
+                        },
+                        "enable_journald": {
+                          "description": "Enable journald receiver for systemd logs.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "journald_units": {
+                          "description": "Systemd units to collect logs from.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 5
+                        }
+                      },
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -10481,6 +10701,133 @@
                     }
                   },
                   "x-order": 15
+                },
+                "otel_collector": {
+                  "description": "OTELCollector runs on Generic or Container Node and collects logs, traces, profiles.\nExtensible for future telemetry types (traces, metrics, eBPF, profiles).",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "logs_config": {
+                      "description": "OTELLogsConfig represents configuration for logs collection.",
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "description": "Enable logs collection.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "log_sources": {
+                          "description": "Log sources to collect from.",
+                          "type": "array",
+                          "items": {
+                            "description": "LogSource represents a single log file to be collected by OTEL Collector.",
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "description": "Path to the log file (supports glob patterns).",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "service_name": {
+                                "description": "Service name to associate with logs from this source.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "parser_type": {
+                                "description": "Parser type: raw, json, regex.",
+                                "type": "string",
+                                "x-order": 2
+                              },
+                              "attributes": {
+                                "description": "Additional attributes to add to logs from this source.",
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                },
+                                "x-order": 3
+                              }
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "enable_syslog": {
+                          "description": "Enable syslog receiver.",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "syslog_port": {
+                          "description": "Port for syslog receiver.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 3
+                        },
+                        "enable_journald": {
+                          "description": "Enable journald receiver for systemd logs.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "journald_units": {
+                          "description": "Systemd units to collect logs from.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 5
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 5
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -12467,6 +12814,133 @@
                     }
                   },
                   "x-order": 17
+                },
+                "otel_collector": {
+                  "description": "OTELCollector runs on Generic or Container Node and collects logs, traces, profiles.\nExtensible for future telemetry types (traces, metrics, eBPF, profiles).",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "logs_config": {
+                      "description": "OTELLogsConfig represents configuration for logs collection.",
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "description": "Enable logs collection.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "log_sources": {
+                          "description": "Log sources to collect from.",
+                          "type": "array",
+                          "items": {
+                            "description": "LogSource represents a single log file to be collected by OTEL Collector.",
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "description": "Path to the log file (supports glob patterns).",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "service_name": {
+                                "description": "Service name to associate with logs from this source.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "parser_type": {
+                                "description": "Parser type: raw, json, regex.",
+                                "type": "string",
+                                "x-order": 2
+                              },
+                              "attributes": {
+                                "description": "Additional attributes to add to logs from this source.",
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                },
+                                "x-order": 3
+                              }
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "enable_syslog": {
+                          "description": "Enable syslog receiver.",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "syslog_port": {
+                          "description": "Port for syslog receiver.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 3
+                        },
+                        "enable_journald": {
+                          "description": "Enable journald receiver for systemd logs.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "journald_units": {
+                          "description": "Systemd units to collect logs from.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 5
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 5
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 18
                 }
               }
             }
@@ -13361,6 +13835,103 @@
                     }
                   },
                   "x-order": 15
+                },
+                "otel_collector": {
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 1
+                    },
+                    "logs_config": {
+                      "description": "OTELLogsConfig represents configuration for logs collection.",
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "description": "Enable logs collection.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "log_sources": {
+                          "description": "Log sources to collect from.",
+                          "type": "array",
+                          "items": {
+                            "description": "LogSource represents a single log file to be collected by OTEL Collector.",
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "description": "Path to the log file (supports glob patterns).",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "service_name": {
+                                "description": "Service name to associate with logs from this source.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "parser_type": {
+                                "description": "Parser type: raw, json, regex.",
+                                "type": "string",
+                                "x-order": 2
+                              },
+                              "attributes": {
+                                "description": "Additional attributes to add to logs from this source.",
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                },
+                                "x-order": 3
+                              }
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "enable_syslog": {
+                          "description": "Enable syslog receiver.",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "syslog_port": {
+                          "description": "Port for syslog receiver.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 3
+                        },
+                        "enable_journald": {
+                          "description": "Enable journald receiver for systemd logs.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "journald_units": {
+                          "description": "Systemd units to collect logs from.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 5
+                        }
+                      },
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -15218,6 +15789,133 @@
                     }
                   },
                   "x-order": 15
+                },
+                "otel_collector": {
+                  "description": "OTELCollector runs on Generic or Container Node and collects logs, traces, profiles.\nExtensible for future telemetry types (traces, metrics, eBPF, profiles).",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "logs_config": {
+                      "description": "OTELLogsConfig represents configuration for logs collection.",
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "description": "Enable logs collection.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "log_sources": {
+                          "description": "Log sources to collect from.",
+                          "type": "array",
+                          "items": {
+                            "description": "LogSource represents a single log file to be collected by OTEL Collector.",
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "description": "Path to the log file (supports glob patterns).",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "service_name": {
+                                "description": "Service name to associate with logs from this source.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "parser_type": {
+                                "description": "Parser type: raw, json, regex.",
+                                "type": "string",
+                                "x-order": 2
+                              },
+                              "attributes": {
+                                "description": "Additional attributes to add to logs from this source.",
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                },
+                                "x-order": 3
+                              }
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "enable_syslog": {
+                          "description": "Enable syslog receiver.",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "syslog_port": {
+                          "description": "Port for syslog receiver.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 3
+                        },
+                        "enable_journald": {
+                          "description": "Enable journald receiver for systemd logs.",
+                          "type": "boolean",
+                          "x-order": 4
+                        },
+                        "journald_units": {
+                          "description": "Systemd units to collect logs from.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 5
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 5
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }

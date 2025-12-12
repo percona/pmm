@@ -242,7 +242,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			&cfg.Paths.VMAgent:          "vmagent",
 			// OpenTelemetry Collector binary (otelcol-contrib).
 			// Used for log collection (Phase 1), future: traces, eBPF, profiles.
-			&cfg.Paths.OTELCollector: "otelcol",
+			&cfg.Paths.OTELCollector:    "otelcol",
 			&cfg.Paths.PTSummary:        "tools/pt-summary",
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",

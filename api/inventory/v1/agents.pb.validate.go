@@ -366,6 +366,398 @@ var _ interface {
 	ErrorName() string
 } = NomadAgentValidationError{}
 
+// Validate checks the field values on LogSource with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *LogSource) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LogSource with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in LogSourceMultiError, or nil
+// if none found.
+func (m *LogSource) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LogSource) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Path
+
+	// no validation rules for ServiceName
+
+	// no validation rules for ParserType
+
+	// no validation rules for Attributes
+
+	if len(errors) > 0 {
+		return LogSourceMultiError(errors)
+	}
+
+	return nil
+}
+
+// LogSourceMultiError is an error wrapping multiple validation errors returned
+// by LogSource.ValidateAll() if the designated constraints aren't met.
+type LogSourceMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LogSourceMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LogSourceMultiError) AllErrors() []error { return m }
+
+// LogSourceValidationError is the validation error returned by
+// LogSource.Validate if the designated constraints aren't met.
+type LogSourceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LogSourceValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LogSourceValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LogSourceValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LogSourceValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LogSourceValidationError) ErrorName() string { return "LogSourceValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LogSourceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLogSource.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LogSourceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LogSourceValidationError{}
+
+// Validate checks the field values on OTELLogsConfig with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *OTELLogsConfig) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OTELLogsConfig with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in OTELLogsConfigMultiError,
+// or nil if none found.
+func (m *OTELLogsConfig) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OTELLogsConfig) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Enabled
+
+	for idx, item := range m.GetLogSources() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, OTELLogsConfigValidationError{
+						field:  fmt.Sprintf("LogSources[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, OTELLogsConfigValidationError{
+						field:  fmt.Sprintf("LogSources[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return OTELLogsConfigValidationError{
+					field:  fmt.Sprintf("LogSources[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for EnableSyslog
+
+	// no validation rules for SyslogPort
+
+	// no validation rules for EnableJournald
+
+	if len(errors) > 0 {
+		return OTELLogsConfigMultiError(errors)
+	}
+
+	return nil
+}
+
+// OTELLogsConfigMultiError is an error wrapping multiple validation errors
+// returned by OTELLogsConfig.ValidateAll() if the designated constraints
+// aren't met.
+type OTELLogsConfigMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OTELLogsConfigMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OTELLogsConfigMultiError) AllErrors() []error { return m }
+
+// OTELLogsConfigValidationError is the validation error returned by
+// OTELLogsConfig.Validate if the designated constraints aren't met.
+type OTELLogsConfigValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OTELLogsConfigValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OTELLogsConfigValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OTELLogsConfigValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OTELLogsConfigValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OTELLogsConfigValidationError) ErrorName() string { return "OTELLogsConfigValidationError" }
+
+// Error satisfies the builtin error interface
+func (e OTELLogsConfigValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOTELLogsConfig.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OTELLogsConfigValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OTELLogsConfigValidationError{}
+
+// Validate checks the field values on OTELCollector with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *OTELCollector) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OTELCollector with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in OTELCollectorMultiError, or
+// nil if none found.
+func (m *OTELCollector) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OTELCollector) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for CustomLabels
+
+	if all {
+		switch v := interface{}(m.GetLogsConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OTELCollectorValidationError{
+					field:  "LogsConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OTELCollectorValidationError{
+					field:  "LogsConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLogsConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OTELCollectorValidationError{
+				field:  "LogsConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for ProcessExecPath
+
+	// no validation rules for ListenPort
+
+	if len(errors) > 0 {
+		return OTELCollectorMultiError(errors)
+	}
+
+	return nil
+}
+
+// OTELCollectorMultiError is an error wrapping multiple validation errors
+// returned by OTELCollector.ValidateAll() if the designated constraints
+// aren't met.
+type OTELCollectorMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OTELCollectorMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OTELCollectorMultiError) AllErrors() []error { return m }
+
+// OTELCollectorValidationError is the validation error returned by
+// OTELCollector.Validate if the designated constraints aren't met.
+type OTELCollectorValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OTELCollectorValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OTELCollectorValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OTELCollectorValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OTELCollectorValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OTELCollectorValidationError) ErrorName() string { return "OTELCollectorValidationError" }
+
+// Error satisfies the builtin error interface
+func (e OTELCollectorValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOTELCollector.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OTELCollectorValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OTELCollectorValidationError{}
+
 // Validate checks the field values on NodeExporter with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -3487,6 +3879,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetOtelCollector() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("OtelCollector[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("OtelCollector[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("OtelCollector[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListAgentsResponseMultiError(errors)
 	}
@@ -4433,6 +4859,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_OtelCollector:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetOtelCollector()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtelCollector()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "OtelCollector",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -5419,6 +5886,47 @@ func (m *AddAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentRequest_OtelCollector:
+		if v == nil {
+			err := AddAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetOtelCollector()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtelCollector()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentRequestValidationError{
+					field:  "OtelCollector",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -6174,6 +6682,47 @@ func (m *AddAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return AddAgentResponseValidationError{
 					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddAgentResponse_OtelCollector:
+		if v == nil {
+			err := AddAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetOtelCollector()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtelCollector()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentResponseValidationError{
+					field:  "OtelCollector",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -6952,6 +7501,47 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentRequest_OtelCollector:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetOtelCollector()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtelCollector()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "OtelCollector",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -7709,6 +8299,47 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeAgentResponseValidationError{
 					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_OtelCollector:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetOtelCollector()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtelCollector()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "OtelCollector",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -12910,6 +13541,316 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeValkeyExporterParamsValidationError{}
+
+// Validate checks the field values on AddOTELCollectorParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddOTELCollectorParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddOTELCollectorParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddOTELCollectorParamsMultiError, or nil if none found.
+func (m *AddOTELCollectorParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddOTELCollectorParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddOTELCollectorParamsValidationError{
+			field:  "PmmAgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for CustomLabels
+
+	if all {
+		switch v := interface{}(m.GetLogsConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AddOTELCollectorParamsValidationError{
+					field:  "LogsConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AddOTELCollectorParamsValidationError{
+					field:  "LogsConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLogsConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AddOTELCollectorParamsValidationError{
+				field:  "LogsConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AddOTELCollectorParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddOTELCollectorParamsMultiError is an error wrapping multiple validation
+// errors returned by AddOTELCollectorParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddOTELCollectorParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddOTELCollectorParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddOTELCollectorParamsMultiError) AllErrors() []error { return m }
+
+// AddOTELCollectorParamsValidationError is the validation error returned by
+// AddOTELCollectorParams.Validate if the designated constraints aren't met.
+type AddOTELCollectorParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddOTELCollectorParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddOTELCollectorParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddOTELCollectorParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddOTELCollectorParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddOTELCollectorParamsValidationError) ErrorName() string {
+	return "AddOTELCollectorParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddOTELCollectorParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddOTELCollectorParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddOTELCollectorParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddOTELCollectorParamsValidationError{}
+
+// Validate checks the field values on ChangeOTELCollectorParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeOTELCollectorParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeOTELCollectorParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeOTELCollectorParamsMultiError, or nil if none found.
+func (m *ChangeOTELCollectorParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeOTELCollectorParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetLogsConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeOTELCollectorParamsValidationError{
+					field:  "LogsConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeOTELCollectorParamsValidationError{
+					field:  "LogsConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLogsConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeOTELCollectorParamsValidationError{
+				field:  "LogsConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeOTELCollectorParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeOTELCollectorParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeOTELCollectorParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ChangeOTELCollectorParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeOTELCollectorParamsMultiError is an error wrapping multiple validation
+// errors returned by ChangeOTELCollectorParams.ValidateAll() if the
+// designated constraints aren't met.
+type ChangeOTELCollectorParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeOTELCollectorParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeOTELCollectorParamsMultiError) AllErrors() []error { return m }
+
+// ChangeOTELCollectorParamsValidationError is the validation error returned by
+// ChangeOTELCollectorParams.Validate if the designated constraints aren't met.
+type ChangeOTELCollectorParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeOTELCollectorParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeOTELCollectorParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeOTELCollectorParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeOTELCollectorParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeOTELCollectorParamsValidationError) ErrorName() string {
+	return "ChangeOTELCollectorParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeOTELCollectorParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeOTELCollectorParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeOTELCollectorParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeOTELCollectorParamsValidationError{}
 
 // Validate checks the field values on RemoveAgentRequest with the rules
 // defined in the proto definition for this message. If any rules are

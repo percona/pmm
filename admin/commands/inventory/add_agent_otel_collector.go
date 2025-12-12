@@ -92,7 +92,7 @@ func (cmd *AddAgentOTELCollectorCommand) RunCmd() (commands.Result, error) {
 			Enabled:        cmd.EnableLogs || len(logSources) > 0,
 			LogSources:     logSources,
 			EnableSyslog:   cmd.EnableSyslog,
-			SyslogPort:     cmd.SyslogPort,
+			SyslogPort:     int64(cmd.SyslogPort),
 			EnableJournald: cmd.EnableJournald,
 			JournaldUnits:  cmd.JournaldUnits,
 		}
@@ -117,4 +117,3 @@ func (cmd *AddAgentOTELCollectorCommand) RunCmd() (commands.Result, error) {
 		Agent: resp.Payload.OtelCollector,
 	}, nil
 }
-
