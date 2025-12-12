@@ -2575,6 +2575,9 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// Environment variable names passed to the exporter.
+	EnvironmentVariableNames []string `json:"environment_variable_names"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMongodbMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -9580,6 +9583,10 @@ type AddServiceParamsBodyMongodb struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Environment variable names to pass to the exporter.
+	// Values will be resolved from pmm-agent's environment when starting the exporter.
+	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`
