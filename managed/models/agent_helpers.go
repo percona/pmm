@@ -760,26 +760,27 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 
 // CreateAgentParams params for add common exporter.
 type CreateAgentParams struct {
-	PMMAgentID        string
-	NodeID            string
-	ServiceID         string
-	Username          string
-	Password          string
-	AgentPassword     string
-	CustomLabels      map[string]string
-	TLS               bool
-	TLSSkipVerify     bool
-	LogLevel          string
-	Disabled          bool
-	ExporterOptions   ExporterOptions
-	QANOptions        QANOptions
+	PMMAgentID               string
+	NodeID                   string
+	ServiceID                string
+	Username                 string
+	Password                 string
+	AgentPassword            string
+	CustomLabels             map[string]string
+	EnvironmentVariableNames []string
+	TLS                      bool
+	TLSSkipVerify            bool
+	LogLevel                 string
+	Disabled                 bool
+	ExporterOptions          ExporterOptions
+	QANOptions               QANOptions
 	RTAOptions        RTAOptions
-	AWSOptions        AWSOptions
-	AzureOptions      AzureOptions
-	MongoDBOptions    MongoDBOptions
-	MySQLOptions      MySQLOptions
-	PostgreSQLOptions PostgreSQLOptions
-	ValkeyOptions     ValkeyOptions
+	AWSOptions               AWSOptions
+	AzureOptions             AzureOptions
+	MongoDBOptions           MongoDBOptions
+	MySQLOptions             MySQLOptions
+	PostgreSQLOptions        PostgreSQLOptions
+	ValkeyOptions            ValkeyOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -927,6 +928,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		Disabled:          params.Disabled,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+		return nil, err
+	}
+	if err := row.SetEnvironmentVariableNames(params.EnvironmentVariableNames); err != nil {
 		return nil, err
 	}
 

@@ -1166,6 +1166,9 @@ var databaseSchema = [][]string{
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
 	114: {
+		`ALTER TABLE agents ADD COLUMN environment_variables TEXT`,
+	},
+	115: {
 		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
 		`UPDATE agents SET rta_options = '{}'::jsonb`,
 	},
