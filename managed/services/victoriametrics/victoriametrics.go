@@ -270,7 +270,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	if err != nil {
 		svc.l.Errorf("%s", b)
 		s := string(b)
-		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 { //nolint:mnd
 			return status.Error(codes.Aborted, m[1])
 		}
 
@@ -285,7 +285,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	b, err = cmd.CombinedOutput()
 	if err != nil {
 		s := string(b)
-		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 { //nolint:mnd
 			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", m[1])
 		} else {
 			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", b)
@@ -468,7 +468,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	defer resp.Body.Close() //nolint:errcheck
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM health: %s", b)
