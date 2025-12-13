@@ -10346,6 +10346,11 @@
                           "type": "string"
                         },
                         "x-order": 8
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
@@ -10409,6 +10414,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 10
                       }
                     }
                   },
@@ -10895,6 +10905,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -10955,6 +10970,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -11210,6 +11230,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -11270,6 +11295,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
