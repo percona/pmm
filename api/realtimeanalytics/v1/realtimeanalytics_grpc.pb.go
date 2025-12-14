@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	RealtimeAnalyticsService_ListRunningRealtimeAgents_FullMethodName = "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents"
+	RealtimeAnalyticsService_ChangeRealtimeAnalytics_FullMethodName   = "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics"
 )
 
 // RealtimeAnalyticsServiceClient is the client API for RealtimeAnalyticsService service.
@@ -31,6 +32,8 @@ const (
 type RealtimeAnalyticsServiceClient interface {
 	// ListRunningRealtimeAgents returns the list of currently running RTA agents.
 	ListRunningRealtimeAgents(ctx context.Context, in *ListRunningRealtimeAgentsRequest, opts ...grpc.CallOption) (*ListRunningRealtimeAgentsResponse, error)
+	// ChangeRealtimeAnalytics enables or disables RTA for a service or cluster.
+	ChangeRealtimeAnalytics(ctx context.Context, in *ChangeRealtimeAnalyticsRequest, opts ...grpc.CallOption) (*ChangeRealtimeAnalyticsResponse, error)
 }
 
 type realtimeAnalyticsServiceClient struct {
@@ -51,6 +54,16 @@ func (c *realtimeAnalyticsServiceClient) ListRunningRealtimeAgents(ctx context.C
 	return out, nil
 }
 
+func (c *realtimeAnalyticsServiceClient) ChangeRealtimeAnalytics(ctx context.Context, in *ChangeRealtimeAnalyticsRequest, opts ...grpc.CallOption) (*ChangeRealtimeAnalyticsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangeRealtimeAnalyticsResponse)
+	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_ChangeRealtimeAnalytics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RealtimeAnalyticsServiceServer is the server API for RealtimeAnalyticsService service.
 // All implementations must embed UnimplementedRealtimeAnalyticsServiceServer
 // for forward compatibility.
@@ -59,6 +72,8 @@ func (c *realtimeAnalyticsServiceClient) ListRunningRealtimeAgents(ctx context.C
 type RealtimeAnalyticsServiceServer interface {
 	// ListRunningRealtimeAgents returns the list of currently running RTA agents.
 	ListRunningRealtimeAgents(context.Context, *ListRunningRealtimeAgentsRequest) (*ListRunningRealtimeAgentsResponse, error)
+	// ChangeRealtimeAnalytics enables or disables RTA for a service or cluster.
+	ChangeRealtimeAnalytics(context.Context, *ChangeRealtimeAnalyticsRequest) (*ChangeRealtimeAnalyticsResponse, error)
 	mustEmbedUnimplementedRealtimeAnalyticsServiceServer()
 }
 
@@ -71,6 +86,10 @@ type UnimplementedRealtimeAnalyticsServiceServer struct{}
 
 func (UnimplementedRealtimeAnalyticsServiceServer) ListRunningRealtimeAgents(context.Context, *ListRunningRealtimeAgentsRequest) (*ListRunningRealtimeAgentsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRunningRealtimeAgents not implemented")
+}
+
+func (UnimplementedRealtimeAnalyticsServiceServer) ChangeRealtimeAnalytics(context.Context, *ChangeRealtimeAnalyticsRequest) (*ChangeRealtimeAnalyticsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangeRealtimeAnalytics not implemented")
 }
 
 func (UnimplementedRealtimeAnalyticsServiceServer) mustEmbedUnimplementedRealtimeAnalyticsServiceServer() {
@@ -113,6 +132,24 @@ func _RealtimeAnalyticsService_ListRunningRealtimeAgents_Handler(srv interface{}
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RealtimeAnalyticsService_ChangeRealtimeAnalytics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeRealtimeAnalyticsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RealtimeAnalyticsServiceServer).ChangeRealtimeAnalytics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RealtimeAnalyticsService_ChangeRealtimeAnalytics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RealtimeAnalyticsServiceServer).ChangeRealtimeAnalytics(ctx, req.(*ChangeRealtimeAnalyticsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RealtimeAnalyticsService_ServiceDesc is the grpc.ServiceDesc for RealtimeAnalyticsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -123,6 +160,10 @@ var RealtimeAnalyticsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRunningRealtimeAgents",
 			Handler:    _RealtimeAnalyticsService_ListRunningRealtimeAgents_Handler,
+		},
+		{
+			MethodName: "ChangeRealtimeAnalytics",
+			Handler:    _RealtimeAnalyticsService_ChangeRealtimeAnalytics_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

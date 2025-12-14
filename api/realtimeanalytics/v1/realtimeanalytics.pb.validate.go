@@ -425,3 +425,240 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListRunningRealtimeAgentsResponseValidationError{}
+
+// Validate checks the field values on ChangeRealtimeAnalyticsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeRealtimeAnalyticsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeRealtimeAnalyticsRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ChangeRealtimeAnalyticsRequestMultiError, or nil if none found.
+func (m *ChangeRealtimeAnalyticsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeRealtimeAnalyticsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Enable
+
+	switch v := m.Target.(type) {
+	case *ChangeRealtimeAnalyticsRequest_ServiceId:
+		if v == nil {
+			err := ChangeRealtimeAnalyticsRequestValidationError{
+				field:  "Target",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+		// no validation rules for ServiceId
+	case *ChangeRealtimeAnalyticsRequest_Cluster:
+		if v == nil {
+			err := ChangeRealtimeAnalyticsRequestValidationError{
+				field:  "Target",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+		// no validation rules for Cluster
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return ChangeRealtimeAnalyticsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeRealtimeAnalyticsRequestMultiError is an error wrapping multiple
+// validation errors returned by ChangeRealtimeAnalyticsRequest.ValidateAll()
+// if the designated constraints aren't met.
+type ChangeRealtimeAnalyticsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeRealtimeAnalyticsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeRealtimeAnalyticsRequestMultiError) AllErrors() []error { return m }
+
+// ChangeRealtimeAnalyticsRequestValidationError is the validation error
+// returned by ChangeRealtimeAnalyticsRequest.Validate if the designated
+// constraints aren't met.
+type ChangeRealtimeAnalyticsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeRealtimeAnalyticsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeRealtimeAnalyticsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeRealtimeAnalyticsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeRealtimeAnalyticsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeRealtimeAnalyticsRequestValidationError) ErrorName() string {
+	return "ChangeRealtimeAnalyticsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeRealtimeAnalyticsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeRealtimeAnalyticsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeRealtimeAnalyticsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeRealtimeAnalyticsRequestValidationError{}
+
+// Validate checks the field values on ChangeRealtimeAnalyticsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeRealtimeAnalyticsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeRealtimeAnalyticsResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ChangeRealtimeAnalyticsResponseMultiError, or nil if none found.
+func (m *ChangeRealtimeAnalyticsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeRealtimeAnalyticsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ChangeRealtimeAnalyticsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeRealtimeAnalyticsResponseMultiError is an error wrapping multiple
+// validation errors returned by ChangeRealtimeAnalyticsResponse.ValidateAll()
+// if the designated constraints aren't met.
+type ChangeRealtimeAnalyticsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeRealtimeAnalyticsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeRealtimeAnalyticsResponseMultiError) AllErrors() []error { return m }
+
+// ChangeRealtimeAnalyticsResponseValidationError is the validation error
+// returned by ChangeRealtimeAnalyticsResponse.Validate if the designated
+// constraints aren't met.
+type ChangeRealtimeAnalyticsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeRealtimeAnalyticsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeRealtimeAnalyticsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeRealtimeAnalyticsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeRealtimeAnalyticsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeRealtimeAnalyticsResponseValidationError) ErrorName() string {
+	return "ChangeRealtimeAnalyticsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeRealtimeAnalyticsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeRealtimeAnalyticsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeRealtimeAnalyticsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeRealtimeAnalyticsResponseValidationError{}
