@@ -344,7 +344,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 			AgentType: &agentType,
 		})
 		require.NoError(t, err)
-		require.Len(t, agents, 0, "No agent should be created when disabling non-existent agent")
+		require.Empty(t, agents, "No agent should be created when disabling non-existent agent")
 	})
 
 	t.Run("cluster with mixed service types only affects MongoDB", func(t *testing.T) {
@@ -383,6 +383,6 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 			AgentType: &agentType,
 		})
 		require.NoError(t, err)
-		require.Len(t, pgAgents, 0, "PostgreSQL service should NOT have RTA agent")
+		require.Empty(t, pgAgents, "PostgreSQL service should NOT have RTA agent")
 	})
 }
