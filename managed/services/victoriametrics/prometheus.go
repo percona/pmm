@@ -73,8 +73,9 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		var paramsHost string
 		var paramPMMAgentVersion *version.Parsed
 		var pmmAgent *models.Agent
+		var pmmAgentNode *models.Node
 		if agent.PMMAgentID != nil {
-			// extract node address through pmm-agent
+			// find a related pmm-agent to get the node address (runs_on_node_id)
 			pmmAgent, err = models.FindAgentByID(q, *agent.PMMAgentID)
 			if err != nil {
 				return errors.WithStack(err)
@@ -85,12 +86,10 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			}
 		}
 		switch {
-		// special case for push metrics mode,
-		// vmagent scrapes it from localhost.
 		case pushMetrics:
 			paramsHost = "127.0.0.1"
 		case agent.PMMAgentID != nil:
-			pmmAgentNode := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
+			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
 			if err = q.Reload(pmmAgentNode); err != nil {
 				return errors.WithStack(err)
 			}
@@ -104,6 +103,15 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		default:
 			l.Warnf("It's not possible to get host, skipping scrape config for %s.", agent)
 
+			continue
+		}
+
+		// In HA mode, skip generating scrape config for agents that run on other PMM Server nodes.
+		// These agents listen on 127.0.0.1 and are unreachable from this PMM instance.
+		// We check the node where the pmm-agent runs (not the service node).
+		if !pushMetrics && pmmAgentNode != nil && pmmAgentNode.NodeID != models.PMMServerNodeID && pmmAgentNode.IsPMMServerNode {
+			l.Debugf("Skip the scrape config for %s agent %s running on remote PMM Server node %s in HA mode",
+				agent.AgentType, agent.AgentID, pmmAgentNode.NodeName)
 			continue
 		}
 
