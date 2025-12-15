@@ -647,7 +647,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     To pass environment variables to mongodb_exporter:
 
-    `pmm-admin add mongodb --username=pmm --password=pmm --agent-env-vars="KRB5_CLIENT_KTNAME" --service-name mongodb-kerberos 127.0.0.1:27017`
+    `pmm-admin add mongodb --username=pmm --password=pmm --agent-env-vars="LOG_LEVEL" --service-name mongodb-kerberos 127.0.0.1:27017`
 
     #### Resolutions
 
