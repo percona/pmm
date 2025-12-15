@@ -37,9 +37,8 @@ require (
 	github.com/go-openapi/validate v0.25.0
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/gogo/status v1.1.1
-	github.com/golang-migrate/migrate/v4 v4.18.1
+	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/gomodule/redigo v1.9.2
-	github.com/google/tink/go v1.7.0
 	github.com/google/uuid v1.6.0
 	github.com/grafana/grafana-api-golang-client v0.27.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
@@ -73,7 +72,7 @@ require (
 	go.mongodb.org/mongo-driver v1.17.6
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	go.yaml.in/yaml/v3 v3.0.4
-	golang.org/x/crypto v0.44.0
+	golang.org/x/crypto v0.45.0
 	golang.org/x/sync v0.18.0
 	golang.org/x/sys v0.38.0
 	golang.org/x/text v0.31.0
