@@ -76,9 +76,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 	var warns []string
 
 	for _, env := range envs {
-		p := strings.SplitN(env, "=", 2)
+		p := strings.SplitN(env, "=", 2) //nolint:mnd
 
-		if len(p) != 2 {
+		if len(p) != 2 { //nolint:mnd
 			errs = append(errs, fmt.Errorf("failed to parse environment variable %q", env))
 			continue
 		}
@@ -107,8 +107,20 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
 			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
-			"PMM_DISABLE_BUILTIN_CLICKHOUSE":
+			"PMM_CLICKHOUSE_IS_CLUSTER", "PMM_CLICKHOUSE_CLUSTER_NAME",
+			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE":
 			// skip env variables for external clickhouse
+			continue
+		case "PMM_POSTGRES_ADDR",
+			"PMM_POSTGRES_DBNAME",
+			"PMM_POSTGRES_USERNAME",
+			"PMM_POSTGRES_DBPASSWORD",
+			"PMM_POSTGRES_SSL_MODE",
+			"PMM_POSTGRES_SSL_CA_PATH",
+			"PMM_POSTGRES_SSL_KEY_PATH",
+			"PMM_POSTGRES_SSL_CERT_PATH",
+			"PMM_DISABLE_BUILTIN_POSTGRES":
+			// skip env variables for external postgres
 			continue
 		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
 			// skip watchtower environement variables
