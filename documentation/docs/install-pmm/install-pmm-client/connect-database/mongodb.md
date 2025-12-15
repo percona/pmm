@@ -424,7 +424,7 @@ After configuring your database server, add a MongoDB service using either the u
     --password=your_secure_password \
     --host=127.0.0.1 \
     --port=27017 \
-    --agent-env-vars="KRB5_CLIENT_KTNAME,OTHER_VAR" \
+    --agent-env-vars="LOG_LEVEL,OTHER_VAR" \
     --enable-all-collectors
     ```
     
