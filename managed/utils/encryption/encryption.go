@@ -25,12 +25,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/google/tink/go/tink"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tink-crypto/tink-go/aead"
 	"github.com/tink-crypto/tink-go/insecurecleartextkeyset"
 	"github.com/tink-crypto/tink-go/keyset"
+	"github.com/tink-crypto/tink-go/tink"
 	"gopkg.in/reform.v1"
 )
 
