@@ -1171,6 +1171,9 @@ var databaseSchema = [][]string{
 			OR settings->'updates'->'snooze_duration' IS NULL`,
 	},
 	114: {
+		`ALTER TABLE agents ADD COLUMN environment_variables TEXT`,
+	},
+	115: {
 		`ALTER TABLE agents ADD COLUMN is_connected BOOLEAN NOT NULL DEFAULT false`,
 	},
 }
