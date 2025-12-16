@@ -810,5 +810,5 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
   id: 'high-availability-nodes',
   icon: 'arrow-link',
   text: 'Identify Nodes',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?search-select=nodeName&search-text-input=`,
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
 };
