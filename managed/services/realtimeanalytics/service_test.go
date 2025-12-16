@@ -180,7 +180,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Verify RTA agent was created
-		agentType := models.MongoDBRealtimeAgentType
+		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service1.ServiceID,
 			AgentType: &agentType,
@@ -200,7 +200,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Verify RTA agent was disabled
-		agentType := models.MongoDBRealtimeAgentType
+		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service1.ServiceID,
 			AgentType: &agentType,
@@ -222,7 +222,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Verify RTA agents were created/enabled for both services
-		agentType := models.MongoDBRealtimeAgentType
+		agentType := models.RTAMongoDBAgentType
 		for _, service := range []*models.Service{service1, service2} {
 			agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 				ServiceID: service.ServiceID,
@@ -244,7 +244,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Verify RTA agents were disabled for both services
-		agentType := models.MongoDBRealtimeAgentType
+		agentType := models.RTAMongoDBAgentType
 		for _, service := range []*models.Service{service1, service2} {
 			agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 				ServiceID: service.ServiceID,
@@ -301,7 +301,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Should still have only one agent
-		agentType := models.MongoDBRealtimeAgentType
+		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service1.ServiceID,
 			AgentType: &agentType,
@@ -338,7 +338,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Verify no agent was created (disable non-existent is a no-op)
-		agentType := models.MongoDBRealtimeAgentType
+		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service3.ServiceID,
 			AgentType: &agentType,
@@ -367,7 +367,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Verify MongoDB services have RTA agents
-		agentType := models.MongoDBRealtimeAgentType
+		agentType := models.RTAMongoDBAgentType
 		for _, service := range []*models.Service{service1, service2} {
 			agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 				ServiceID: service.ServiceID,

@@ -152,7 +152,7 @@ func (s *Service) ChangeRealtimeAnalytics(_ context.Context, req *rtav1.ChangeRe
 	err := s.db.InTransaction(func(tx *reform.TX) error {
 		for _, serviceID := range serviceIDs {
 			// Find existing RTA agents for this service
-			agentType := models.MongoDBRealtimeAgentType
+			agentType := models.RTAMongoDBAgentType
 			existingAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{
 				ServiceID: serviceID,
 				AgentType: &agentType,
@@ -161,7 +161,7 @@ func (s *Service) ChangeRealtimeAnalytics(_ context.Context, req *rtav1.ChangeRe
 				return status.Errorf(codes.Internal, "Failed to find RTA agents for service %s: %v", serviceID, err)
 			}
 
-			if len(existingAgents) > 0 {
+			if len(existingAgents) != 0 {
 				// Agent exists - update its state
 				agent := existingAgents[0]
 				agent.Disabled = !req.Enable
