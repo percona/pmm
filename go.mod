@@ -11,7 +11,7 @@ replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.21.0-percon
 
 replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2.4.0-percona
 
-replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20231108144114-756dfb24eaf2
+replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20251126201349-d7d254a5171a
 
 require (
 	github.com/AlekSi/pointer v1.2.0
