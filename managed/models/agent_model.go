@@ -78,7 +78,7 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
-	MongoDBRealtimeAgentType            AgentType = "mongodb-realtime-agent"
+	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
 )
 
 var v2_42 = version.MustParse("2.42.0-0")
@@ -626,7 +626,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return cfg.FormatDSN()
 
-	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, MongoDBRealtimeAgentType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, RTAMongoDBAgentType:
 		q := make(url.Values)
 		if dsnParams.DialTimeout != 0 {
 			q.Set("connectTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
@@ -869,7 +869,7 @@ func (s Agent) Files() map[string]string {
 		return nil
 	case ProxySQLExporterType:
 		return nil
-	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, MongoDBRealtimeAgentType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, RTAMongoDBAgentType:
 		files := make(map[string]string)
 		if s.MongoDBOptions.TLSCa != "" {
 			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
