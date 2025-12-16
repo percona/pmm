@@ -64,7 +64,7 @@ func TestGetRunningRealtimeAgents(t *testing.T) {
 
 	// Create a MongoDB Realtime Agent with EnabledAt timestamp
 	now := time.Now()
-	agent, err := models.CreateAgent(db.Querier, models.MongoDBRealtimeAgentType, &models.CreateAgentParams{
+	agent, err := models.CreateAgent(db.Querier, models.RTAMongoDBAgentType, &models.CreateAgentParams{
 		PMMAgentID: pmmAgent.AgentID,
 		ServiceID:  service.ServiceID,
 		Username:   "test-user",
