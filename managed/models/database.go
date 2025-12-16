@@ -1168,7 +1168,7 @@ var databaseSchema = [][]string{
 	114: {
 		`ALTER TABLE agents ADD COLUMN environment_variables TEXT`,
 	},
-	115: {
+	120: {
 		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
 		`UPDATE agents SET rta_options = '{}'::jsonb`,
 	},
