@@ -1,6 +1,6 @@
 # MongoDB Instances Overview
 
-This dashboard provides a high-level view of all MongoDB deployments monitored by PMM, including sharded clusters, replica sets, and standalone instances. 
+Provides a high-level view of all MongoDB deployments monitored by PMM, including sharded clusters, replica sets, and standalone instances. 
 
 Use this dashboard as your starting point for MongoDB monitoring to quickly assess overall health before drilling down into specific instances.
 
