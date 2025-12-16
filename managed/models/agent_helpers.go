@@ -340,7 +340,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 		agentTypes = []AgentType{
 			MongoDBExporterType,
 			QANMongoDBProfilerAgentType,
-			MongoDBRealtimeAgentType,
+			RTAMongoDBAgentType,
 		}
 	case ExternalServiceType, HAProxyServiceType, ProxySQLServiceType:
 		fallthrough
@@ -828,7 +828,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		QANMongoDBMongologAgentType: {
 			MongoDBServiceType,
 		},
-		MongoDBRealtimeAgentType: {
+		RTAMongoDBAgentType: {
 			MongoDBServiceType,
 		},
 		PostgresExporterType: {
@@ -1113,7 +1113,7 @@ func IsPushMetricsSupported(pmmAgentVersion *string) bool {
 // If a MongoDB Realtime Agent already exists for the service, it returns the existing agent.
 func CreateMongoDBRealtimeAgent(q *reform.Querier, pmmAgentID, serviceID string, customLabels map[string]string, disabled bool) (*Agent, error) {
 	// Check if MongoDB Realtime Agent already exists for this service
-	realtimeAgentType := MongoDBRealtimeAgentType
+	realtimeAgentType := RTAMongoDBAgentType
 	existingRealtimeAgents, err := FindAgents(q, AgentFilters{
 		ServiceID: serviceID,
 		AgentType: &realtimeAgentType,
@@ -1183,5 +1183,5 @@ func CreateMongoDBRealtimeAgent(q *reform.Querier, pmmAgentID, serviceID string,
 		Disabled:       disabled,
 	}
 
-	return CreateAgent(q, MongoDBRealtimeAgentType, params)
+	return CreateAgent(q, RTAMongoDBAgentType, params)
 }
