@@ -4,6 +4,13 @@ This dashboard monitors MongoS router nodes in sharded MongoDB clusters.
 
 ![!image](../../images/MongoDB_Router_Summary.png)
 
+## Routers
+
+Shows the current status of all MongoS router nodes in the selected cluster at a glance. Each hexagon represents a router, color-coded by status: green indicates the router is UP and operational, while red shows it's DOWN or unreachable.
+
+Use this panel to quickly identify the health of your routing layer and spot any routers that need attention.
+
+
 ## Overview
 For each MongoS in the cluster, this section includes main monitoring metrics like CPU, memory and disk usage. Uptime and MongoS version are reported as well.
 
