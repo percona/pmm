@@ -264,16 +264,16 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 }
 
 // AddInternalServicesToScrape adds internal services metrics to scrape targets.
-func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service) []*config.ScrapeConfig {
+func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmServerNodeName string) []*config.ScrapeConfig {
 	cfg := []*config.ScrapeConfig{
-		scrapeConfigForGrafana(s.MR),
-		scrapeConfigForPMMManaged(s.MR),
-		scrapeConfigForQANAPI2(s.MR),
+		scrapeConfigForGrafana(s.MR, pmmServerNodeName),
+		scrapeConfigForPMMManaged(s.MR, pmmServerNodeName),
+		scrapeConfigForQANAPI2(s.MR, pmmServerNodeName),
 	}
 
 	if svc.params.ExternalVM() {
 		return cfg
 	}
 
-	return append(cfg, scrapeConfigForClickhouse(s.MR))
+	return append(cfg, scrapeConfigForClickhouse(s.MR, pmmServerNodeName))
 }

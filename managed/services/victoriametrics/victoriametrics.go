@@ -346,6 +346,12 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
+
+		pmmServerNodeName := models.PMMServerNodeID
+		if svc.haService.Params().Enabled {
+			pmmServerNodeName = svc.haService.Params().NodeID
+		}
+
 		resolutions := settings.MetricsResolutions
 		if cfg.GlobalConfig.ScrapeInterval == 0 {
 			cfg.GlobalConfig.ScrapeInterval = config.Duration(resolutions.LR)
@@ -358,10 +364,10 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		} else {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(resolutions.HR, svc.baseURL.Host))
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR))
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, addInternalServicesToScrape(resolutions, svc)...)
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR, pmmServerNodeName))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, addInternalServicesToScrape(resolutions, svc, pmmServerNodeName)...)
 		if pointer.GetBool(settings.Nomad.Enabled) {
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR))
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR, pmmServerNodeName))
 		}
 		// In HA mode, skip external exporter agents if this node is not the leader
 		skipExternalAgents := !svc.haService.IsLeader()
@@ -412,7 +418,7 @@ func scrapeConfigForInternalVMAgent(interval time.Duration, target string) *conf
 }
 
 // scrapeConfigForVMAlert returns scrape config for VMAlert in Prometheus format.
-func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "vmalert",
 		ScrapeInterval: config.Duration(interval),
@@ -422,7 +428,7 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 			StaticConfigs: []*config.Group{
 				{
 					Targets: []string{"127.0.0.1:8880"},
-					Labels:  map[string]string{"instance": "pmm-server"},
+					Labels:  map[string]string{"instance": pmmServerNodeName},
 				},
 			},
 		},
