@@ -206,6 +206,12 @@ func (m *Point) validate(all bool) error {
 
 	// no validation rules for MWalBytesSumPerSec
 
+	// no validation rules for MWalBuffersFullSumPerSec
+
+	// no validation rules for MParallelWorkersToLaunchSumPerSec
+
+	// no validation rules for MParallelWorkersLaunchedSumPerSec
+
 	// no validation rules for MPlanTimeSumPerSec
 
 	if len(errors) > 0 {
