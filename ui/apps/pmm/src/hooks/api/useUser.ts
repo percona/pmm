@@ -15,6 +15,7 @@ import {
 } from 'api/user';
 import { ApiError } from 'types/api.types';
 import {
+  GetPreferenceResponse,
   GetUserResponse,
   UpdatePreferencesBody,
   UpdateUserInfoPayload,
@@ -62,7 +63,7 @@ export const useCurrentUserOrgs = (
   });
 
 export const useUserPreferences = (
-  options?: Partial<UseQueryOptions<UpdatePreferencesBody>>
+  options?: Partial<UseQueryOptions<GetPreferenceResponse>>
 ) =>
   useQuery({
     queryKey: ['user:preferences'],
