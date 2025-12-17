@@ -7,6 +7,7 @@ import { ThemeContextProvider } from '@percona/design';
 import { NotistackMuiSnackbar } from '@percona/ui-lib';
 import { SnackbarProvider } from 'notistack';
 import pmmThemeOptions from 'themes/PmmTheme';
+import { ThemeClass } from 'components/theme-class';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,6 +22,7 @@ const App = () => (
     themeOptions={pmmThemeOptions}
     saveColorModeOnLocalStorage
   >
+    <ThemeClass />
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <SnackbarProvider
         maxSnack={3}
