@@ -184,6 +184,31 @@ func ParseDisableCollectors(collectors []string) []string {
 	return disableCollectors
 }
 
+// ValidateEnvironmentVariableNames validates environment variable names.
+func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
+	if len(varNames) == 0 {
+		return nil, nil
+	}
+
+	result := make([]string, 0, len(varNames))
+	validNamePattern := regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
+
+	for _, name := range varNames {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			return nil, fmt.Errorf("environment variable name cannot be empty")
+		}
+
+		if !validNamePattern.MatchString(name) {
+			return nil, fmt.Errorf("invalid environment variable name: %s (must match [A-Z_][A-Z0-9_]*)", name)
+		}
+
+		result = append(result, name)
+	}
+
+	return result, nil
+}
+
 // ReadFile reads file from filepath if filepath is not empty.
 func ReadFile(filePath string) (string, error) {
 	if filePath == "" {
