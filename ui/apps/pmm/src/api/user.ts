@@ -7,6 +7,8 @@ import {
 } from 'types/user.types';
 import { api, grafanaApi } from './api';
 
+export type GetPreferenceResponse = UpdatePreferencesBody;
+
 export const getCurrentUser = async () => {
   const res = await grafanaApi.get<GetUserResponse>('/user');
   return res.data;

@@ -10,7 +10,7 @@ import { FC, PropsWithChildren } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useThemeSync } from 'hooks/useThemeSync';
 
-const ProvidersContent: FC<PropsWithChildren> = ({ children }) => {
+const ThemedyProvider: FC<PropsWithChildren> = ({ children }) => {
   useThemeSync();
   return <>{children}</>;
 };
@@ -18,7 +18,7 @@ const ProvidersContent: FC<PropsWithChildren> = ({ children }) => {
 const Providers: FC<PropsWithChildren> = () => (
   <AuthProvider>
     <UserProvider>
-      <ProvidersContent>
+      <ThemedyProvider>
         <SettingsProvider>
           <UpdatesProvider>
             <GrafanaProvider>
@@ -40,7 +40,7 @@ const Providers: FC<PropsWithChildren> = () => (
             </GrafanaProvider>
           </UpdatesProvider>
         </SettingsProvider>
-      </ProvidersContent>
+      </ThemedyProvider>
     </UserProvider>
   </AuthProvider>
 );
