@@ -170,7 +170,8 @@ type Config struct {
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
 
-	Setup Setup `yaml:"-"`
+	Setup      Setup      `yaml:"-"`
+	Encryption Encryption `yaml:"-"`
 }
 
 // ConfigFileDoesNotExistError error is returned from Get method if configuration file is expected,
@@ -335,7 +336,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
-	fileCfg, err := loadFromFile(configFileF)
+	fileCfg, err := loadFromFile(configFileF, &cfg.Encryption)
 	if err != nil {
 		return configFileF, err
 	}
@@ -365,6 +366,10 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	configFileF := app.Flag("config-file", "Configuration file path [PMM_AGENT_CONFIG_FILE]").
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
+	app.Flag("config-file-key-file", "Path to the key file used to encrypt/decrypt the configuration file").
+		Envar("PMM_AGENT_CONFIG_FILE_KEY_FILE").StringVar(&cfg.Encryption.KeyFile)
+	app.Flag("config-file-key-password", "Password for the key file (if required)").
+		Envar("PMM_AGENT_CONFIG_FILE_KEY_PASSWORD").StringVar(&cfg.Encryption.KeyFilePassword)
 
 	app.Flag("id", "ID of this pmm-agent [PMM_AGENT_ID]").
 		Envar("PMM_AGENT_ID").StringVar(&cfg.ID)
@@ -526,7 +531,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 // As a special case, if file does not exist, it returns ConfigFileDoesNotExistError.
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
-func loadFromFile(path string) (*Config, error) {
+func loadFromFile(path string, enc *Encryption) (*Config, error) {
 	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}
@@ -535,6 +540,15 @@ func loadFromFile(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	encryptionEnabled := enc != nil && len(enc.KeyFile) > 0 && len(b) > 0
+	if encryptionEnabled {
+		b, err = enc.Decrypt(b)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	cfg := &Config{}
 	if err = yaml.Unmarshal(b, cfg); err != nil { //nolint:musttag // false positive
 		return nil, err
@@ -556,6 +570,14 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	}
 	res = append(res, "---\n"...)
 	res = append(res, b...)
+	encryptionEnabled := cfg != nil && len(cfg.Encryption.KeyFile) > 0
+	if encryptionEnabled {
+		res, err = cfg.Encryption.Encrypt(res)
+		if err != nil {
+			return err
+		}
+	}
+
 	return os.WriteFile(path, res, 0o640) //nolint:gosec
 }
 
