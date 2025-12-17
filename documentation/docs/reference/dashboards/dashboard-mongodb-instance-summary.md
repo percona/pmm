@@ -8,14 +8,16 @@ Provides detailed metrics for a single MongoDB instance, including performance, 
 
 At the top of the dashboard, summary panels show key metrics at a glance:
 
-| Panel | Description |
-|-------|-------------|
-| **Node** | Link to the Node Summary dashboard for the underlying host |
-| **MongoDB Uptime** | How long the MongoDB instance has been running. Color-coded: red (<1 hour), yellow (1-24 hours), green (>24 hours) |
-| **QPS** | Queries per second (excluding administrative commands) |
-| **Latency** | Average command latency in microseconds |
-| **ReplSet** | Name of the replica set this instance belongs to |
-| **Current ReplSet State** | Current role: PRIMARY, SECONDARY, ARBITER, or other states like STARTUP2 during initial sync |
+- **Node**: Link to the Node Summary dashboard for the underlying host.
+- **MongoDB Uptime**: How long the MongoDB instance has been running. Color-coded:
+  - Red: less than 1 hour
+  - Yellow: 1–24 hours
+  - Green: more than 24 hours
+- **QPS**: Queries per second, excluding administrative commands.
+- **Latency**: Average command latency in microseconds.
+- **ReplSet**: Name of the replica set the instance belongs to.
+- **Current ReplSet State**: Current role of the instance, such as PRIMARY, SECONDARY, ARBITER, or transitional states like STARTUP2 during initial sync.
+
 
 ## ReplSet States
 
@@ -77,15 +79,13 @@ Operating system memory page faults. These are system-level faults, not necessar
 
 The lower section shows host-level metrics:
 
-| Panel | Description |
-|-------|-------------|
-| **System Uptime** | How long the host has been running |
-| **Load Average** | 1-minute load average |
-| **RAM** | Total physical memory |
-| **Memory Available** | Percentage of memory available for applications |
-| **Virtual Memory** | RAM + swap space |
-| **Disk Space** | Total disk space across partitions |
-| **Min Space Available** | Lowest available space percentage across partitions |
+- **System Uptime**: How long the host has been running.
+- **Load Average**: One-minute load average.
+- **RAM**: Total physical memory.
+- **Memory Available**: Percentage of memory available for applications.
+- **Virtual Memory**: Total memory including RAM and swap space.
+- **Disk Space**: Total disk space across all partitions.
+- **Min Space Available**: Lowest available disk space percentage across partitions.
 
 ## CPU Usage
 
