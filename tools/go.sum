@@ -513,10 +513,10 @@ github.com/protocolbuffers/protoscope v0.0.0-20221109213918-8e7a6aafa2c9 h1:arwj
 github.com/protocolbuffers/protoscope v0.0.0-20221109213918-8e7a6aafa2c9/go.mod h1:SKZx6stCn03JN3BOWTwvVIO2ajMkb/zQdTceXYhKw/4=
 github.com/quasilyte/go-consistent v0.6.0 h1:tY8DYfgM+7ADpOyr5X47i8hV/XbMNoucqnqZWVjI+rU=
 github.com/quasilyte/go-consistent v0.6.0/go.mod h1:dKYK1JZl3150J1+Jh4cDYPCIu2MqybUBi0YVW2b2E6c=
-github.com/quic-go/qpack v0.5.1 h1:giqksBPnT/HDtZ6VhtFKgoLOWmlyo9Ei6u9PqzIMbhI=
-github.com/quic-go/qpack v0.5.1/go.mod h1:+PC4XFrEskIVkcLzpEkbLqq1uCoxPhQuvK5rH1ZgaEg=
-github.com/quic-go/quic-go v0.56.0 h1:q/TW+OLismmXAehgFLczhCDTYB3bFmua4D9lsNBWxvY=
-github.com/quic-go/quic-go v0.56.0/go.mod h1:9gx5KsFQtw2oZ6GZTyh+7YEvOxWCL9WZAepnHxgAo6c=
+github.com/quic-go/qpack v0.6.0 h1:g7W+BMYynC1LbYLSqRt8PBg5Tgwxn214ZZR34VIOjz8=
+github.com/quic-go/qpack v0.6.0/go.mod h1:lUpLKChi8njB4ty2bFLX2x4gzDqXwUpaO1DP9qMDZII=
+github.com/quic-go/quic-go v0.57.0 h1:AsSSrrMs4qI/hLrKlTH/TGQeTMY0ib1pAOX7vA3AdqE=
+github.com/quic-go/quic-go v0.57.0/go.mod h1:ly4QBAjHA2VhdnxhojRsCUOeJwKYg+taDlos92xb1+s=
 github.com/reva2/bitbucket-insights-api v1.0.0 h1:lpQ/Q7OmnG04w/EM77piOwZBxP41PeTlbytXxVrnplA=
 github.com/reva2/bitbucket-insights-api v1.0.0/go.mod h1:pLs+ki3MKUntrPryxaGIvpRLiEtBhwfJ/uvxQIMfqHU=
 github.com/reviewdog/errorformat v0.0.0-20250320004447-223c26dbe212 h1:vln3OhpVhkYTVwvdVKSqnJ80IGZyc9M7tIesYpfm/UQ=
