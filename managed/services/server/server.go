@@ -61,6 +61,7 @@ type Server struct {
 	supervisord          supervisordService
 	telemetryService     telemetryService
 	grafanaClient        grafanaClient
+	qanClient            healthChecker
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
@@ -94,6 +95,7 @@ type Params struct {
 	Supervisord          supervisordService
 	TelemetryService     telemetryService
 	GrafanaClient        grafanaClient
+	QANClient            healthChecker
 	Updater              *Updater
 	Dus                  *distribution.Service
 	HAService            haService
@@ -119,6 +121,7 @@ func NewServer(params *Params) (*Server, error) {
 		supervisord:          params.Supervisord,
 		telemetryService:     params.TelemetryService,
 		grafanaClient:        params.GrafanaClient,
+		qanClient:            params.QANClient,
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
@@ -220,6 +223,7 @@ func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) 
 		"grafana":         s.grafanaClient,
 		"victoriametrics": s.vmdb,
 		"vmalert":         s.vmalert,
+		"qan":             s.qanClient,
 	} {
 		if err := svc.IsReady(ctx); err != nil {
 			s.l.Errorf("%s readiness check failed: %+v", n, err)
@@ -496,8 +500,9 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
-		EnableAccessControl: settings.IsAccessControlEnabled(),
-		DefaultRoleId:       uint32(settings.DefaultRoleID),
+		EnableAccessControl:  settings.IsAccessControlEnabled(),
+		DefaultRoleId:        uint32(settings.DefaultRoleID),
+		UpdateSnoozeDuration: durationpb.New(settings.Updates.SnoozeDuration),
 	}
 
 	return res
@@ -606,6 +611,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
+	}
+
+	if !canUpdateDurationSetting(req.UpdateSnoozeDuration.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
+		return status.Error(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
 	}
 
 	return nil

@@ -72,6 +72,8 @@ type ClientService interface {
 
 	GetReport(params *GetReportParams, opts ...ClientOption) (*GetReportOK, error)
 
+	HealthCheck(params *HealthCheckParams, opts ...ClientOption) (*HealthCheckOK, error)
+
 	QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error)
 
 	SchemaByQueryID(params *SchemaByQueryIDParams, opts ...ClientOption) (*SchemaByQueryIDOK, error)
@@ -471,6 +473,50 @@ func (a *Client) GetReport(params *GetReportParams, opts ...ClientOption) (*GetR
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetReportDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+HealthCheck healths check
+
+Returns readiness of QAN API2 service.
+*/
+func (a *Client) HealthCheck(params *HealthCheckParams, opts ...ClientOption) (*HealthCheckOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewHealthCheckParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "HealthCheck",
+		Method:             "GET",
+		PathPattern:        "/v1/qan/health",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &HealthCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*HealthCheckOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*HealthCheckDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

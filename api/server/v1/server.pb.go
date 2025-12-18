@@ -1096,8 +1096,10 @@ type Settings struct {
 	DefaultRoleId uint32 `protobuf:"varint,18,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQan bool `protobuf:"varint,19,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3" json:"enable_internal_pg_qan,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Duration for which an update is snoozed
+	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,20,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
@@ -1254,6 +1256,13 @@ func (x *Settings) GetEnableInternalPgQan() bool {
 		return x.EnableInternalPgQan
 	}
 	return false
+}
+
+func (x *Settings) GetUpdateSnoozeDuration() *durationpb.Duration {
+	if x != nil {
+		return x.UpdateSnoozeDuration
+	}
+	return nil
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -1550,8 +1559,10 @@ type ChangeSettingsRequest struct {
 	EnableAccessControl *bool `protobuf:"varint,13,opt,name=enable_access_control,json=enableAccessControl,proto3,oneof" json:"enable_access_control,omitempty"`
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQan *bool `protobuf:"varint,14,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3,oneof" json:"enable_internal_pg_qan,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,15,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ChangeSettingsRequest) Reset() {
@@ -1682,6 +1693,13 @@ func (x *ChangeSettingsRequest) GetEnableInternalPgQan() bool {
 	return false
 }
 
+func (x *ChangeSettingsRequest) GetUpdateSnoozeDuration() *durationpb.Duration {
+	if x != nil {
+		return x.UpdateSnoozeDuration
+	}
+	return nil
+}
+
 type ChangeSettingsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Settings      *Settings              `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
@@ -1791,7 +1809,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\x96\a\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xe7\a\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1811,7 +1829,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
-	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\"\x8f\x03\n" +
+	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12O\n" +
+	"\x16update_snooze_duration\x18\x14 \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\"\x8f\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1826,7 +1845,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\x9f\b\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xf0\b\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1843,7 +1862,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x18enable_backup_management\x18\f \x01(\bH\bR\x16enableBackupManagement\x88\x01\x01\x127\n" +
 	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x128\n" +
 	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\n" +
-	"R\x13enableInternalPgQan\x88\x01\x01B\x11\n" +
+	"R\x13enableInternalPgQan\x88\x01\x01\x12O\n" +
+	"\x16update_snooze_duration\x18\x0f \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDurationB\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\n" +
 	"\n" +
@@ -1948,38 +1968,40 @@ var file_server_v1_server_proto_depIdxs = []int32{
 	17, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
 	28, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
 	18, // 18: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	19, // 19: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
-	20, // 20: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
-	17, // 21: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	28, // 22: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
-	29, // 23: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
-	18, // 24: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	19, // 25: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
-	2,  // 26: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
-	4,  // 27: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
-	6,  // 28: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
-	8,  // 29: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
-	11, // 30: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
-	13, // 31: server.v1.ServerService.StartUpdate:input_type -> server.v1.StartUpdateRequest
-	15, // 32: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
-	21, // 33: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
-	22, // 34: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
-	25, // 35: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
-	3,  // 36: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
-	5,  // 37: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
-	7,  // 38: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
-	10, // 39: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
-	12, // 40: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
-	14, // 41: server.v1.ServerService.StartUpdate:output_type -> server.v1.StartUpdateResponse
-	16, // 42: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
-	23, // 43: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
-	24, // 44: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
-	26, // 45: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
-	36, // [36:46] is the sub-list for method output_type
-	26, // [26:36] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	28, // 19: server.v1.Settings.update_snooze_duration:type_name -> google.protobuf.Duration
+	19, // 20: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
+	20, // 21: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
+	17, // 22: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
+	28, // 23: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
+	29, // 24: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
+	18, // 25: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
+	28, // 26: server.v1.ChangeSettingsRequest.update_snooze_duration:type_name -> google.protobuf.Duration
+	19, // 27: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
+	2,  // 28: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
+	4,  // 29: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
+	6,  // 30: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
+	8,  // 31: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
+	11, // 32: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
+	13, // 33: server.v1.ServerService.StartUpdate:input_type -> server.v1.StartUpdateRequest
+	15, // 34: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
+	21, // 35: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
+	22, // 36: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
+	25, // 37: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
+	3,  // 38: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
+	5,  // 39: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
+	7,  // 40: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
+	10, // 41: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
+	12, // 42: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
+	14, // 43: server.v1.ServerService.StartUpdate:output_type -> server.v1.StartUpdateResponse
+	16, // 44: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
+	23, // 45: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
+	24, // 46: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
+	26, // 47: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
+	38, // [38:48] is the sub-list for method output_type
+	28, // [28:38] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_server_v1_server_proto_init() }
