@@ -22,13 +22,7 @@ export const NAV_HOME_PAGE: NavItem = {
   icon: 'home',
   text: 'Home page',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
-  children: [
-    {
-      id: 'home-page-dashboard',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
-      hidden: true,
-    },
-  ],
+  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`],
 };
 
 //
@@ -561,14 +555,7 @@ export const NAV_INVENTORY: NavItem = {
       id: 'add-instance',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
       text: 'Add Service',
-      children: [
-        {
-          id: 'add-instance-form',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`,
-          text: 'Add Service',
-          hidden: true,
-        },
-      ],
+      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`],
     },
     {
       id: 'inventory-services',
@@ -598,14 +585,7 @@ export const NAV_BACKUPS: NavItem = {
       id: 'backup-inventory',
       text: 'All backups',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-      children: [
-        {
-          id: 'backups-new',
-          text: 'Create backup',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`,
-          hidden: true,
-        },
-      ],
+      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`],
     },
     {
       id: 'scheduled-backups',

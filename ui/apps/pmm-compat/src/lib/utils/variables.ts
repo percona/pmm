@@ -43,11 +43,28 @@ export const getLinkWithVariables = (url?: string): string => {
 const isDashboardUrl = (url?: string) => url?.includes('/d/');
 
 const checkDbType = (url: string): boolean => {
-  const currentDB = window.location.pathname?.split('/')[3]?.split('-')[0];
-  const targetDB = url?.split('/')[3]?.split('-')[0];
+  const currentDB = getDbType(window.location.pathname);
+  const targetDB = getDbType(url);
 
   // enable variable sharing between same db types and db type -> os/node
   return (currentDB !== undefined && currentDB === targetDB) || targetDB === 'node';
+};
+
+const getDbType = (url: string): string => {
+  const pathname = new URL(url, window.location.origin).pathname;
+  // normalize to the dashboard uid
+  const dashboardUid = pathname
+    .replace('/pmm-ui', '')
+    .replace('/next', '')
+    .replace('/graph', '')
+    .replace('/d/', '')
+    .split('/')[0];
+
+  if (dashboardUid.includes('-')) {
+    return dashboardUid.split('-')[0];
+  }
+
+  return dashboardUid;
 };
 
 const cleanupVariables = (urlWithLinks: string) => {

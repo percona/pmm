@@ -13,7 +13,6 @@ export interface NavItem {
   target?: HTMLAnchorElement['target'];
   isDivider?: boolean;
   onClick?: () => void;
-  hidden?: boolean;
   badge?: ChipProps;
   matches?: string[];
 }
