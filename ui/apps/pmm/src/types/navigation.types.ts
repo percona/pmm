@@ -13,7 +13,7 @@ export interface NavItem {
   target?: HTMLAnchorElement['target'];
   onClick?: () => void;
   hidden?: boolean;
-  badge?: ChipProps | React.Component;
+  badge?: ChipProps | React.ReactElement;
   badgeAlwaysVisible?: boolean;
   matches?: string[];
   type?: 'menu-item' | 'menu-text' | 'menu-divider';
