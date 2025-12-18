@@ -45,7 +45,6 @@ import {
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
   NAV_HIGH_AVAILABILITY_LEADER,
-  NAV_HIGH_AVAILABILITY_NODES,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -260,7 +259,8 @@ export const addHighAvailability = ({ health, leader }: HAInfo): NavItem => {
       ...NAV_HIGH_AVAILABILITY_LEADER,
       secondaryText: leader?.nodeName || 'Unknown',
     },
-    NAV_HIGH_AVAILABILITY_NODES,
+    // Remove Identify Nodes link for now
+    // NAV_HIGH_AVAILABILITY_NODES,
   ];
 
   return item;
