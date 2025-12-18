@@ -5735,6 +5735,14 @@
                           }
                         },
                         "x-order": 18
+                      },
+                      "environment_variable_names": {
+                        "description": "Environment variable names passed to the exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 19
                       }
                     }
                   },
@@ -7551,6 +7559,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 20
                     }
                   },
                   "x-order": 3
@@ -9114,6 +9130,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -11052,6 +11076,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 4
@@ -13803,6 +13835,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 2
@@ -21743,6 +21783,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 33
                     }
                   },
                   "x-order": 1
@@ -23696,6 +23744,14 @@
                             }
                           },
                           "x-order": 18
+                        },
+                        "environment_variable_names": {
+                          "description": "Environment variable names passed to the exporter.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 19
                         }
                       },
                       "x-order": 1
@@ -27937,11 +27993,29 @@
                               "format": "float",
                               "x-order": 74
                             },
+                            "m_wal_buffers_full_sum_per_sec": {
+                              "description": "Total number of times WAL buffers become full.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 75
+                            },
+                            "m_parallel_workers_to_launch_sum_per_sec": {
+                              "description": "Total number of parallel workers to launch.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 76
+                            },
+                            "m_parallel_workers_launched_sum_per_sec": {
+                              "description": "Total number of parallel workers launched.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 77
+                            },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 75
+                              "x-order": 78
                             }
                           }
                         },
@@ -29311,11 +29385,29 @@
                         "format": "float",
                         "x-order": 74
                       },
+                      "m_wal_buffers_full_sum_per_sec": {
+                        "description": "Total number of times WAL buffers become full.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 75
+                      },
+                      "m_parallel_workers_to_launch_sum_per_sec": {
+                        "description": "Total number of parallel workers to launch.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 76
+                      },
+                      "m_parallel_workers_launched_sum_per_sec": {
+                        "description": "Total number of parallel workers launched.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 77
+                      },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 75
+                        "x-order": 78
                       }
                     }
                   },
