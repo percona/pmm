@@ -90,6 +90,7 @@ export const getStyles = (
       fontSize: 12,
       fontWeight: 500,
       color: theme.palette.text.secondary,
+      fontFamily: theme.typography.body1.fontFamily,
     },
 
     [`.${listItemTextClasses.secondary}`]: {
