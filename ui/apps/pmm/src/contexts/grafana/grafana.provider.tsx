@@ -118,6 +118,8 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     return () => {
       messenger.unregister();
     };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, setFromGrafana, navigate]);
 
   // -------- OUTGOING TO GRAFANA --------
