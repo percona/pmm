@@ -17,6 +17,8 @@ import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
 import { getLocationUrl } from './grafana.utils';
 import messenger from 'lib/messenger';
+import { useSettings } from 'hooks/api/useSettings';
+import { useServiceTypes } from 'hooks/api/useServices';
 
 /** Guard DOM usage. */
 const isBrowser = () =>
@@ -33,6 +35,13 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const settingsQuery = useSettings({
+    enabled: false,
+  });
+  const serviceTypesQuery = useServiceTypes({
+    enabled: false,
+  });
 
   const src = location.pathname.replace(PMM_NEW_NAV_PATH, '');
   const isGrafanaPage = src.startsWith(GRAFANA_SUB_PATH);
@@ -92,6 +101,20 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       type: 'DOCUMENT_TITLE_CHANGE',
       onMessage: ({ payload }: DocumentTitleUpdateMessage) => {
         if (payload?.title) updateDocumentTitle(payload.title);
+      },
+    });
+
+    messenger.addListener({
+      type: 'SETTINGS_CHANGED',
+      onMessage: () => {
+        settingsQuery.refetch();
+      },
+    });
+
+    messenger.addListener({
+      type: 'SERVICE_ADDED',
+      onMessage: () => {
+        serviceTypesQuery.refetch();
       },
     });
 
