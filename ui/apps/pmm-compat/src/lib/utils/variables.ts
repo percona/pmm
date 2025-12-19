@@ -25,7 +25,7 @@ export const getLinkWithVariables = (url?: string): string => {
       url: url,
       keepTime: true,
       // Check if the DB type matches the current one used
-      includeVars: checkDbType(url),
+      includeVars: shouldIncludeVars(url),
       asDropdown: false,
       icon: '',
       tags: [],
@@ -42,7 +42,7 @@ export const getLinkWithVariables = (url?: string): string => {
 
 const isDashboardUrl = (url?: string) => url?.includes('/d/');
 
-const checkDbType = (url: string): boolean => {
+export const shouldIncludeVars = (url: string): boolean => {
   const currentDB = getDbType(window.location.pathname);
   const targetDB = getDbType(url);
 
