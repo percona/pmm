@@ -36,10 +36,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const settingsQuery = useSettings({
+  const { refetch: refetchSettings } = useSettings({
     enabled: false,
   });
-  const serviceTypesQuery = useServiceTypes({
+  const { refetch: refetchServiceTypes } = useServiceTypes({
     enabled: false,
   });
 
@@ -106,16 +106,12 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
     messenger.addListener({
       type: 'SETTINGS_CHANGED',
-      onMessage: () => {
-        settingsQuery.refetch();
-      },
+      onMessage: () => refetchSettings(),
     });
 
     messenger.addListener({
       type: 'SERVICE_ADDED',
-      onMessage: () => {
-        serviceTypesQuery.refetch();
-      },
+      onMessage: () => refetchServiceTypes(),
     });
 
     // Cleanup once provider unmounts
