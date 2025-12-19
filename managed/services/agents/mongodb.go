@@ -57,6 +57,10 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	sort.Strings(args)
 
 	database := exporter.MongoDBOptions.AuthenticationDatabase
+	envVarNames, err := exporter.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil, err
+	}
 	env := []string{
 		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)),
 	}
@@ -67,6 +71,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env:                env,
+		EnvVariableNames:   envVarNames,
 		TextFiles:          exporter.Files(),
 	}
 

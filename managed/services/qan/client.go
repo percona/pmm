@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"gopkg.in/reform.v1"
@@ -123,6 +122,16 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 	}
 	if !resp.Exists {
 		return fmt.Errorf("given query is not valid")
+	}
+
+	return nil
+}
+
+// IsReady verifies that qan-api2 works.
+func (c *Client) IsReady(ctx context.Context) error {
+	_, err := c.qsc.HealthCheck(ctx, nil)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -311,7 +320,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		c.l.Debugf("%+v", qanReq)
 		res, err := c.c.Collect(ctx, qanReq)
 		if err != nil {
-			return errors.Wrap(err, "failed to send CollectRequest to QAN")
+			return fmt.Errorf("failed to send CollectRequest to QAN: %w", err)
 		}
 		c.l.Debugf("%+v", res)
 
@@ -611,6 +620,15 @@ func fillPostgreSQL(mb *qanv1.MetricsBucket, bp *agentv1.MetricsBucket_PostgreSQ
 
 	mb.MWalBytesCnt = bp.MWalBytesCnt
 	mb.MWalBytesSum = bp.MWalBytesSum
+
+	mb.MWalBuffersFullCnt = bp.MWalBuffersFullCnt
+	mb.MWalBuffersFullSum = bp.MWalBuffersFullSum
+
+	mb.MParallelWorkersToLaunchCnt = bp.MParallelWorkersToLaunchCnt
+	mb.MParallelWorkersToLaunchSum = bp.MParallelWorkersToLaunchSum
+
+	mb.MParallelWorkersLaunchedCnt = bp.MParallelWorkersLaunchedCnt
+	mb.MParallelWorkersLaunchedSum = bp.MParallelWorkersLaunchedSum
 
 	mb.MPlanTimeSum = bp.MPlanTimeSum
 	mb.MPlanTimeMin = bp.MPlanTimeMin
