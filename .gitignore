@@ -45,3 +45,6 @@ packer.log
 encryption.key
 
 /tmp/
+settings.json
+GEMINI.md
+RTA-Jira-Tasks-Summary.md

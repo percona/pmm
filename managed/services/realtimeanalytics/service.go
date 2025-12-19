@@ -39,15 +39,17 @@ type agentsRegistry interface {
 type Service struct {
 	db       *reform.DB
 	registry agentsRegistry
+	store    *Store
 
 	rtav1.UnimplementedRealtimeAnalyticsServiceServer
 }
 
 // NewService creates a new Real-Time Analytics service.
-func NewService(db *reform.DB, registry agentsRegistry) *Service {
+func NewService(db *reform.DB, registry agentsRegistry, store *Store) *Service {
 	return &Service{
 		db:       db,
 		registry: registry,
+		store:    store,
 	}
 }
 
@@ -173,6 +175,8 @@ func (s *Service) ChangeRealtimeAnalytics(_ context.Context, req *rtav1.ChangeRe
 				} else {
 					// Clear EnabledAt when disabling
 					agent.RTAOptions.EnabledAt = nil
+					// Clear query data from store when disabling
+					s.store.Clear(serviceID)
 				}
 
 				if err := tx.Update(agent); err != nil {
