@@ -174,18 +174,19 @@ func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 
 // CreateNodeParams contains parameters for creating Nodes.
 type CreateNodeParams struct {
-	NodeName      string
-	MachineID     *string
-	Distro        string
-	NodeModel     string
-	AZ            string
-	ContainerID   *string
-	ContainerName *string
-	CustomLabels  map[string]string
-	Address       string
-	InstanceID    string
-	Region        *string
-	Password      *string
+	NodeName        string
+	MachineID       *string
+	Distro          string
+	NodeModel       string
+	AZ              string
+	ContainerID     *string
+	ContainerName   *string
+	CustomLabels    map[string]string
+	Address         string
+	InstanceID      string
+	Region          *string
+	Password        *string
+	IsPMMServerNode bool
 }
 
 // createNodeWithID creates a Node with given ID.
@@ -215,18 +216,19 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 	machineID := pointer.ToStringOrNil(strings.TrimSpace(pointer.GetString(params.MachineID)))
 
 	node := &Node{
-		NodeID:        id,
-		NodeType:      nodeType,
-		NodeName:      params.NodeName,
-		MachineID:     machineID,
-		Distro:        params.Distro,
-		NodeModel:     params.NodeModel,
-		AZ:            params.AZ,
-		ContainerID:   params.ContainerID,
-		ContainerName: params.ContainerName,
-		InstanceID:    params.InstanceID,
-		Address:       params.Address,
-		Region:        params.Region,
+		NodeID:          id,
+		NodeType:        nodeType,
+		NodeName:        params.NodeName,
+		MachineID:       machineID,
+		Distro:          params.Distro,
+		NodeModel:       params.NodeModel,
+		AZ:              params.AZ,
+		ContainerID:     params.ContainerID,
+		ContainerName:   params.ContainerName,
+		InstanceID:      params.InstanceID,
+		Address:         params.Address,
+		Region:          params.Region,
+		IsPMMServerNode: params.IsPMMServerNode,
 	}
 	if err := node.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err

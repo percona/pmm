@@ -67,6 +67,7 @@ import (
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	backupv1 "github.com/percona/pmm/api/backup/v1"
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
+	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	platformv1 "github.com/percona/pmm/api/platform/v1"
@@ -298,6 +299,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
+	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
+
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
 	if err != nil {
@@ -397,6 +400,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		uieventsv1.RegisterUIEventsServiceHandler,
 
 		userv1.RegisterUserServiceHandler,
+
+		hav1beta1.RegisterHAServiceHandler,
 	} {
 		if err := r(ctx, proxyMux, sharedConn); err != nil {
 			l.Panic(err)
@@ -918,7 +923,7 @@ func main() { //nolint:maintidx,cyclop
 	// Keep the agent always running, even on follower nodes.
 	err = supervisord.StartSupervisedService("pmm-agent")
 	if err != nil {
-		l.Warnf("Couldn not start pmm-agent: %s", err)
+		l.Warnf("Could not start pmm-agent: %s", err)
 	}
 
 	platformAddress, err := envvars.GetPlatformAddress()
