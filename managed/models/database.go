@@ -1175,6 +1175,7 @@ var databaseSchema = [][]string{
 	},
 	115: {
 		`ALTER TABLE agents ADD COLUMN is_connected BOOLEAN NOT NULL DEFAULT false`,
+		`ALTER TABLE nodes ADD COLUMN is_pmm_server_node BOOLEAN NOT NULL DEFAULT false`,
 	},
 }
 
@@ -1533,9 +1534,10 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
-		NodeName:     params.HANodeID,
-		Address:      "127.0.0.1",
-		CustomLabels: labels,
+		NodeName:        params.HANodeID,
+		Address:         "127.0.0.1",
+		CustomLabels:    labels,
+		IsPMMServerNode: true,
 	})
 	if err != nil {
 		logrus.Errorf("Failed to create a node with ID %s: %s", nodeID, err)
@@ -1563,8 +1565,9 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
-		NodeName: "pmm-server",
-		Address:  "127.0.0.1",
+		NodeName:        "pmm-server",
+		Address:         "127.0.0.1",
+		IsPMMServerNode: true,
 	})
 	if err != nil {
 		if status.Code(err) == codes.AlreadyExists {
@@ -1658,7 +1661,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 // parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
 func parsePGAddress(address string) (string, uint16, error) {
 	if !strings.Contains(address, ":") {
-		return address, 5432, nil
+		return address, 5432, nil //nolint:mnd
 	}
 	address, portStr, err := net.SplitHostPort(address)
 	if err != nil {

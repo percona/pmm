@@ -69,6 +69,9 @@ type Node struct {
 	ContainerName *string `reform:"container_name"`
 
 	Region *string `reform:"region"` // non-nil value must be unique in combination with instance/address
+
+	// IsPMMServerNode indicates if this node is a PMM Server node.
+	IsPMMServerNode bool `reform:"is_pmm_server_node"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

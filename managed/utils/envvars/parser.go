@@ -35,8 +35,16 @@ import (
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
 	defaultPlatformAPITimeout = 30 * time.Second
-	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
-	ENVvmAgentPrefix = "VMAGENT_"
+	// EnvVMAgentPrefix is the prefix for environment variables related to the VMAgent.
+	EnvVMAgentPrefix = "VMAGENT_"
+	// EnvVMAuthPrefix is the prefix for environment variables related to VMAuth.
+	EnvVMAuthPrefix = "VMAUTH_"
+	// EnvVMSelectPrefix is the prefix for environment variables related to VMSelect.
+	EnvVMSelectPrefix = "VMSELECT_"
+	// EnvVMInsertPrefix is the prefix for environment variables related to VMInsert.
+	EnvVMInsertPrefix = "VMINSERT_"
+	// EnvVMStoragePrefix is the prefix for environment variables related to VMStorage.
+	EnvVMStoragePrefix = "VMSTORAGE_"
 )
 
 // InvalidDurationError invalid duration error.
@@ -68,9 +76,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 	var warns []string
 
 	for _, env := range envs {
-		p := strings.SplitN(env, "=", 2)
+		p := strings.SplitN(env, "=", 2) //nolint:mnd
 
-		if len(p) != 2 {
+		if len(p) != 2 { //nolint:mnd
 			errs = append(errs, fmt.Errorf("failed to parse environment variable %q", env))
 			continue
 		}
@@ -99,8 +107,20 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
 			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
-			"PMM_DISABLE_BUILTIN_CLICKHOUSE":
+			"PMM_CLICKHOUSE_IS_CLUSTER", "PMM_CLICKHOUSE_CLUSTER_NAME",
+			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE":
 			// skip env variables for external clickhouse
+			continue
+		case "PMM_POSTGRES_ADDR",
+			"PMM_POSTGRES_DBNAME",
+			"PMM_POSTGRES_USERNAME",
+			"PMM_POSTGRES_DBPASSWORD",
+			"PMM_POSTGRES_SSL_MODE",
+			"PMM_POSTGRES_SSL_CA_PATH",
+			"PMM_POSTGRES_SSL_KEY_PATH",
+			"PMM_POSTGRES_SSL_CERT_PATH",
+			"PMM_DISABLE_BUILTIN_POSTGRES":
+			// skip env variables for external postgres
 			continue
 		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
 			// skip watchtower environement variables
@@ -227,13 +247,33 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			// skip Victoria Metric's environment variables
+			// skip Victoria Metrics' environment variables
 			if strings.HasPrefix(k, "VM_") {
 				continue
 			}
 
 			// skip VM Agents environment variables
-			if strings.HasPrefix(k, ENVvmAgentPrefix) {
+			if strings.HasPrefix(k, EnvVMAgentPrefix) {
+				continue
+			}
+
+			// skip VMAuth environment variables
+			if strings.HasPrefix(k, EnvVMAuthPrefix) {
+				continue
+			}
+
+			// skip VMSelect environment variables
+			if strings.HasPrefix(k, EnvVMSelectPrefix) {
+				continue
+			}
+
+			// skip VMInsert environment variables
+			if strings.HasPrefix(k, EnvVMInsertPrefix) {
+				continue
+			}
+
+			// skip VMStorage environment variables
+			if strings.HasPrefix(k, EnvVMStoragePrefix) {
 				continue
 			}
 
@@ -254,6 +294,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			// skip PMM development environment variables
 			if strings.HasPrefix(k, "PMM_DEV_") {
+				continue
+			}
+
+			// skip PMM HA environment variables
+			if strings.HasPrefix(k, "PMM_HA_") {
 				continue
 			}
 

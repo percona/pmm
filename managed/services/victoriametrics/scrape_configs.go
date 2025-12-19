@@ -43,11 +43,11 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	case interval <= 2*time.Second:
 		return config.Duration(time.Second)
 	default:
-		return config.Duration(float64(interval) * 0.9)
+		return config.Duration(float64(interval) * 0.9) //nolint:mnd
 	}
 }
 
-func scrapeConfigForClickhouse(mr time.Duration) *config.ScrapeConfig {
+func scrapeConfigForClickhouse(mr time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "clickhouse",
 		ScrapeInterval: config.Duration(mr),
@@ -56,13 +56,13 @@ func scrapeConfigForClickhouse(mr time.Duration) *config.ScrapeConfig {
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
 				Targets: []string{"127.0.0.1:9363"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 	}
 }
 
-func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForGrafana(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "grafana",
 		ScrapeInterval: config.Duration(interval),
@@ -71,13 +71,13 @@ func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
 				Targets: []string{"127.0.0.1:3000"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 	}
 }
 
-func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForPMMManaged(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "pmm-managed",
 		ScrapeInterval: config.Duration(interval),
@@ -86,13 +86,13 @@ func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
 				Targets: []string{"127.0.0.1:7773"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 	}
 }
 
-func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForQANAPI2(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "qan-api2",
 		ScrapeInterval: config.Duration(interval),
@@ -101,13 +101,13 @@ func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
 				Targets: []string{"127.0.0.1:9933"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 	}
 }
 
-func scrapeConfigForNomadServer(resolution time.Duration) *config.ScrapeConfig {
+func scrapeConfigForNomadServer(resolution time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "nomad",
 		ScrapeInterval: config.Duration(resolution),
@@ -117,7 +117,7 @@ func scrapeConfigForNomadServer(resolution time.Duration) *config.ScrapeConfig {
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
 				Targets: []string{"127.0.0.1:4646"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 		HTTPClientConfig: config.HTTPClientConfig{
@@ -549,7 +549,7 @@ func scrapeConfigsForRDSExporter(params []*scrapeConfigParams) []*config.ScrapeC
 	}
 	sort.Strings(hostports)
 
-	r := make([]*config.ScrapeConfig, 0, len(hostports)*2)
+	r := make([]*config.ScrapeConfig, 0, len(hostports)*2) //nolint:mnd
 	for _, hostport := range hostports {
 		metricsResolutions := hostportMap[hostport]
 		mr := scrapeConfigForRDSExporter("mr", metricsResolutions.MR, hostport, "/enhanced")

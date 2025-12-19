@@ -270,7 +270,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	if err != nil {
 		svc.l.Errorf("%s", b)
 		s := string(b)
-		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 { //nolint:mnd
 			return status.Error(codes.Aborted, m[1])
 		}
 
@@ -285,7 +285,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	b, err = cmd.CombinedOutput()
 	if err != nil {
 		s := string(b)
-		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 { //nolint:mnd
 			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", m[1])
 		} else {
 			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", b)
@@ -346,6 +346,12 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
+
+		pmmServerNodeName := models.PMMServerNodeID
+		if svc.haService.Params().Enabled {
+			pmmServerNodeName = svc.haService.Params().NodeID
+		}
+
 		resolutions := settings.MetricsResolutions
 		if cfg.GlobalConfig.ScrapeInterval == 0 {
 			cfg.GlobalConfig.ScrapeInterval = config.Duration(resolutions.LR)
@@ -358,10 +364,10 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		} else {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(resolutions.HR, svc.baseURL.Host))
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR))
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, addInternalServicesToScrape(resolutions, svc)...)
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR, pmmServerNodeName))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, addInternalServicesToScrape(resolutions, svc, pmmServerNodeName)...)
 		if pointer.GetBool(settings.Nomad.Enabled) {
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR))
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR, pmmServerNodeName))
 		}
 		// In HA mode, skip external exporter agents if this node is not the leader
 		skipExternalAgents := !svc.haService.IsLeader()
@@ -412,7 +418,7 @@ func scrapeConfigForInternalVMAgent(interval time.Duration, target string) *conf
 }
 
 // scrapeConfigForVMAlert returns scrape config for VMAlert in Prometheus format.
-func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "vmalert",
 		ScrapeInterval: config.Duration(interval),
@@ -422,7 +428,7 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 			StaticConfigs: []*config.Group{
 				{
 					Targets: []string{"127.0.0.1:8880"},
-					Labels:  map[string]string{"instance": "pmm-server"},
+					Labels:  map[string]string{"instance": pmmServerNodeName},
 				},
 			},
 		},
@@ -468,7 +474,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	defer resp.Body.Close() //nolint:errcheck
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM health: %s", b)
