@@ -96,16 +96,6 @@ func TestListRunningRealtimeAgents(t *testing.T) {
 		assert.WithinDuration(t, now, resp.Agents[0].StartedAt.AsTime(), time.Second)
 	})
 
-	t.Run("filter by cluster", func(t *testing.T) {
-		resp, err := svc.ListRunningRealtimeAgents(context.Background(), &rtav1.ListRunningRealtimeAgentsRequest{Cluster: "test-cluster"})
-		require.NoError(t, err)
-		require.Len(t, resp.Agents, 1)
-
-		resp, err = svc.ListRunningRealtimeAgents(context.Background(), &rtav1.ListRunningRealtimeAgentsRequest{Cluster: "other-cluster"})
-		require.NoError(t, err)
-		require.Empty(t, resp.Agents)
-	})
-
 	t.Run("show disconnected agents with unknown status", func(t *testing.T) {
 		registry.connectedAgents[pmmAgent.AgentID] = false
 		resp, err := svc.ListRunningRealtimeAgents(context.Background(), &rtav1.ListRunningRealtimeAgentsRequest{})
@@ -175,8 +165,8 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 
 	t.Run("enable RTA for single service", func(t *testing.T) {
 		resp, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: true,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_ServiceId{ServiceId: service1.ServiceID},
+			Enable:    true,
+			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
@@ -195,8 +185,8 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 
 	t.Run("disable RTA for single service", func(t *testing.T) {
 		resp, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: false,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_ServiceId{ServiceId: service1.ServiceID},
+			Enable:    false,
+			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
@@ -213,91 +203,28 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		assert.Nil(t, agents[0].RTAOptions.EnabledAt)
 	})
 
-	t.Run("enable RTA for entire cluster", func(t *testing.T) {
-		// First ensure both services have disabled agents from previous test
-		// Re-enable to test cluster-wide enable
-		resp, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: true,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_Cluster{Cluster: "cluster-1"},
-		})
-		require.NoError(t, err)
-		assert.NotNil(t, resp)
-
-		// Verify RTA agents were created/enabled for both services
-		agentType := models.RTAMongoDBAgentType
-		for _, service := range []*models.Service{service1, service2} {
-			agents, err := models.FindAgents(db.Querier, models.AgentFilters{
-				ServiceID: service.ServiceID,
-				AgentType: &agentType,
-			})
-			require.NoError(t, err)
-			require.Len(t, agents, 1, "Service %s should have exactly one RTA agent", service.ServiceName)
-			assert.False(t, agents[0].Disabled, "Agent for service %s should be enabled", service.ServiceName)
-			assert.NotNil(t, agents[0].RTAOptions.EnabledAt, "EnabledAt should be set for service %s", service.ServiceName)
-		}
-	})
-
-	t.Run("disable RTA for entire cluster", func(t *testing.T) {
-		resp, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: false,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_Cluster{Cluster: "cluster-1"},
-		})
-		require.NoError(t, err)
-		assert.NotNil(t, resp)
-
-		// Verify RTA agents were disabled for both services
-		agentType := models.RTAMongoDBAgentType
-		for _, service := range []*models.Service{service1, service2} {
-			agents, err := models.FindAgents(db.Querier, models.AgentFilters{
-				ServiceID: service.ServiceID,
-				AgentType: &agentType,
-			})
-			require.NoError(t, err)
-			require.Len(t, agents, 1)
-			assert.True(t, agents[0].Disabled)
-			assert.Nil(t, agents[0].RTAOptions.EnabledAt)
-		}
-	})
-
-	t.Run("error on missing target", func(t *testing.T) {
-		_, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: true,
-		})
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "Either service_id or cluster must be specified")
-	})
-
 	t.Run("error on non-existent service", func(t *testing.T) {
 		_, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: true,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_ServiceId{ServiceId: "non-existent"},
+			Enable:    true,
+			ServiceId: "non-existent",
 		})
 		require.Error(t, err)
 		// CreateMongoDBRealtimeAgent validates the service exists, so we get NotFound
 		assert.Contains(t, err.Error(), "not found")
 	})
 
-	t.Run("error on non-existent cluster", func(t *testing.T) {
-		_, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: true,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_Cluster{Cluster: "non-existent-cluster"},
-		})
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "No MongoDB services found in cluster")
-	})
-
 	t.Run("idempotent enable", func(t *testing.T) {
 		// Enable twice
 		resp, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: true,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_ServiceId{ServiceId: service1.ServiceID},
+			Enable:    true,
+			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 
 		resp, err = svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: true,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_ServiceId{ServiceId: service1.ServiceID},
+			Enable:    true,
+			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
@@ -333,8 +260,8 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 
 		// Call disable on service that has no RTA agent yet
 		resp, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: false,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_ServiceId{ServiceId: service3.ServiceID},
+			Enable:    false,
+			ServiceId: service3.ServiceID,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
@@ -347,44 +274,5 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.Empty(t, agents, "No agent should be created when disabling non-existent agent")
-	})
-
-	t.Run("cluster with mixed service types only affects MongoDB", func(t *testing.T) {
-		// Create a PostgreSQL service in cluster-1
-		pgService, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
-			ServiceName: "postgresql-1",
-			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.4"),
-			Port:        pointer.ToUint16(5432),
-			Cluster:     "cluster-1",
-		})
-		require.NoError(t, err)
-
-		// Enable RTA for cluster-1 (should only affect MongoDB services)
-		resp, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
-			Enable: true,
-			Target: &rtav1.ChangeRealtimeAnalyticsRequest_Cluster{Cluster: "cluster-1"},
-		})
-		require.NoError(t, err)
-		assert.NotNil(t, resp)
-
-		// Verify MongoDB services have RTA agents
-		agentType := models.RTAMongoDBAgentType
-		for _, service := range []*models.Service{service1, service2} {
-			agents, err := models.FindAgents(db.Querier, models.AgentFilters{
-				ServiceID: service.ServiceID,
-				AgentType: &agentType,
-			})
-			require.NoError(t, err)
-			require.Len(t, agents, 1, "MongoDB service %s should have RTA agent", service.ServiceName)
-		}
-
-		// Verify PostgreSQL service does NOT have RTA agent
-		pgAgents, err := models.FindAgents(db.Querier, models.AgentFilters{
-			ServiceID: pgService.ServiceID,
-			AgentType: &agentType,
-		})
-		require.NoError(t, err)
-		require.Empty(t, pgAgents, "PostgreSQL service should NOT have RTA agent")
 	})
 }

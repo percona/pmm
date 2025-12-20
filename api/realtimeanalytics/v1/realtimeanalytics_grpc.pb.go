@@ -32,7 +32,7 @@ const (
 type RealtimeAnalyticsServiceClient interface {
 	// ListRunningRealtimeAgents returns the list of currently running RTA agents.
 	ListRunningRealtimeAgents(ctx context.Context, in *ListRunningRealtimeAgentsRequest, opts ...grpc.CallOption) (*ListRunningRealtimeAgentsResponse, error)
-	// ChangeRealtimeAnalytics enables or disables RTA for a service or cluster.
+	// ChangeRealtimeAnalytics enables or disables RTA for a service.
 	ChangeRealtimeAnalytics(ctx context.Context, in *ChangeRealtimeAnalyticsRequest, opts ...grpc.CallOption) (*ChangeRealtimeAnalyticsResponse, error)
 }
 
@@ -72,7 +72,7 @@ func (c *realtimeAnalyticsServiceClient) ChangeRealtimeAnalytics(ctx context.Con
 type RealtimeAnalyticsServiceServer interface {
 	// ListRunningRealtimeAgents returns the list of currently running RTA agents.
 	ListRunningRealtimeAgents(context.Context, *ListRunningRealtimeAgentsRequest) (*ListRunningRealtimeAgentsResponse, error)
-	// ChangeRealtimeAnalytics enables or disables RTA for a service or cluster.
+	// ChangeRealtimeAnalytics enables or disables RTA for a service.
 	ChangeRealtimeAnalytics(context.Context, *ChangeRealtimeAnalyticsRequest) (*ChangeRealtimeAnalyticsResponse, error)
 	mustEmbedUnimplementedRealtimeAnalyticsServiceServer()
 }

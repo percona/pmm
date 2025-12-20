@@ -82,11 +82,6 @@ func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRu
 			return nil, err
 		}
 
-		// Apply cluster filter if specified
-		if req.Cluster != "" && service.Cluster != req.Cluster {
-			continue
-		}
-
 		// Determine started_at from RTAOptions.EnabledAt or fall back to CreatedAt
 		startedAt := agent.CreatedAt
 		if agent.RTAOptions.EnabledAt != nil {
@@ -112,86 +107,47 @@ func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRu
 	return response, nil
 }
 
-// ChangeRealtimeAnalytics enables or disables RTA for a service or cluster (gRPC handler).
+// ChangeRealtimeAnalytics enables or disables RTA for a service (gRPC handler).
 func (s *Service) ChangeRealtimeAnalytics(_ context.Context, req *rtav1.ChangeRealtimeAnalyticsRequest) (*rtav1.ChangeRealtimeAnalyticsResponse, error) {
-	// Validate request: must have either service_id or cluster
-	if req.GetServiceId() == "" && req.GetCluster() == "" {
-		return nil, status.Error(codes.InvalidArgument, "Either service_id or cluster must be specified")
-	}
-
-	var serviceIDs []string
-
-	// Get list of services based on target
-	switch target := req.Target.(type) {
-	case *rtav1.ChangeRealtimeAnalyticsRequest_ServiceId:
-		// Single service
-		serviceIDs = []string{target.ServiceId}
-
-	case *rtav1.ChangeRealtimeAnalyticsRequest_Cluster:
-		// All MongoDB services in cluster (RTA only supports MongoDB)
-		serviceType := models.MongoDBServiceType
-		services, err := models.FindServices(s.db.Querier, models.ServiceFilters{
-			Cluster:     target.Cluster,
-			ServiceType: &serviceType,
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		// Find existing RTA agents for this service
+		agentType := models.RTAMongoDBAgentType
+		existingAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{
+			ServiceID: req.ServiceId,
+			AgentType: &agentType,
 		})
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Failed to find services in cluster: %v", err)
+			return status.Errorf(codes.Internal, "Failed to find RTA agents for service %s: %v", req.ServiceId, err)
 		}
 
-		if len(services) == 0 {
-			return nil, status.Errorf(codes.NotFound, "No MongoDB services found in cluster: %s", target.Cluster)
-		}
+		if len(existingAgents) != 0 {
+			// Agent exists - update its state
+			agent := existingAgents[0]
+			agent.Disabled = !req.Enable
 
-		for _, service := range services {
-			serviceIDs = append(serviceIDs, service.ServiceID)
-		}
+			if req.Enable {
+				// Set EnabledAt when enabling
+				now := time.Now()
+				agent.RTAOptions.EnabledAt = &now
+			} else {
+				// Clear EnabledAt when disabling
+				agent.RTAOptions.EnabledAt = nil
+				// Clear query data from store when disabling
+				s.store.Clear(req.ServiceId)
+			}
 
-	default:
-		return nil, status.Error(codes.InvalidArgument, "Either service_id or cluster must be specified")
-	}
-
-	// Apply enable/disable to all target services
-	err := s.db.InTransaction(func(tx *reform.TX) error {
-		for _, serviceID := range serviceIDs {
-			// Find existing RTA agents for this service
-			agentType := models.RTAMongoDBAgentType
-			existingAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{
-				ServiceID: serviceID,
-				AgentType: &agentType,
-			})
+			if err := tx.Update(agent); err != nil {
+				return status.Errorf(codes.Internal, "Failed to update RTA agent %s: %v", agent.AgentID, err)
+			}
+		} else if req.Enable {
+			// Agent doesn't exist - create it with appropriate state
+			// CreateMongoDBRealtimeAgent will validate service type and find pmm-agent
+			_, err = models.CreateMongoDBRealtimeAgent(tx.Querier, req.ServiceId, nil, !req.Enable)
 			if err != nil {
-				return status.Errorf(codes.Internal, "Failed to find RTA agents for service %s: %v", serviceID, err)
+				return status.Errorf(codes.Internal, "Failed to create RTA agent for service %s: %v", req.ServiceId, err)
 			}
-
-			if len(existingAgents) != 0 {
-				// Agent exists - update its state
-				agent := existingAgents[0]
-				agent.Disabled = !req.Enable
-
-				if req.Enable {
-					// Set EnabledAt when enabling
-					now := time.Now()
-					agent.RTAOptions.EnabledAt = &now
-				} else {
-					// Clear EnabledAt when disabling
-					agent.RTAOptions.EnabledAt = nil
-					// Clear query data from store when disabling
-					s.store.Clear(serviceID)
-				}
-
-				if err := tx.Update(agent); err != nil {
-					return status.Errorf(codes.Internal, "Failed to update RTA agent %s: %v", agent.AgentID, err)
-				}
-			} else if req.Enable {
-				// Agent doesn't exist - create it with appropriate state
-				// CreateMongoDBRealtimeAgent will validate service type and find pmm-agent
-				_, err = models.CreateMongoDBRealtimeAgent(tx.Querier, serviceID, nil, !req.Enable)
-				if err != nil {
-					return status.Errorf(codes.Internal, "Failed to create RTA agent for service %s: %v", serviceID, err)
-				}
-			}
-			// TODO: send set state request to pmm-agent
 		}
+		// TODO: send set state request to pmm-agent
 
 		return nil
 	})

@@ -203,8 +203,6 @@ func (m *ListRunningRealtimeAgentsRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Cluster
-
 	if len(errors) > 0 {
 		return ListRunningRealtimeAgentsRequestMultiError(errors)
 	}
@@ -450,33 +448,15 @@ func (m *ChangeRealtimeAnalyticsRequest) validate(all bool) error {
 
 	// no validation rules for Enable
 
-	switch v := m.Target.(type) {
-	case *ChangeRealtimeAnalyticsRequest_ServiceId:
-		if v == nil {
-			err := ChangeRealtimeAnalyticsRequestValidationError{
-				field:  "Target",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := ChangeRealtimeAnalyticsRequestValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
 		}
-		// no validation rules for ServiceId
-	case *ChangeRealtimeAnalyticsRequest_Cluster:
-		if v == nil {
-			err := ChangeRealtimeAnalyticsRequestValidationError{
-				field:  "Target",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+		if !all {
+			return err
 		}
-		// no validation rules for Cluster
-	default:
-		_ = v // ensures v is used
+		errors = append(errors, err)
 	}
 
 	if len(errors) > 0 {
