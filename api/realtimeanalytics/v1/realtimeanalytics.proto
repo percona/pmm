@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/agent_status.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 // RunningRealtimeAgent represents a currently running RTA agent.
 message RunningRealtimeAgent {
@@ -25,8 +26,7 @@ message RunningRealtimeAgent {
 
 // ListRunningRealtimeAgentsRequest contains optional filters for listing running RTA agents.
 message ListRunningRealtimeAgentsRequest {
-  // Optional filter by cluster name.
-  string cluster = 1;
+  // TODO: add filters if needed
 }
 
 // ListRunningRealtimeAgentsResponse returns the list of running RTA agents.
@@ -39,13 +39,8 @@ message ListRunningRealtimeAgentsResponse {
 message ChangeRealtimeAnalyticsRequest {
   // Enable or disable RTA.
   bool enable = 1;
-  // Target to enable/disable RTA for (either service_id or cluster).
-  oneof target {
-    // Service identifier.
-    string service_id = 2;
-    // Cluster name - enables/disables RTA for all services in the cluster.
-    string cluster = 3;
-  }
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string = {min_len: 1}];
 }
 
 // ChangeRealtimeAnalyticsResponse is the response for changing RTA configuration.
@@ -64,7 +59,7 @@ service RealtimeAnalyticsService {
     };
   }
 
-  // ChangeRealtimeAnalytics enables or disables RTA for a service or cluster.
+  // ChangeRealtimeAnalytics enables or disables RTA for a service.
   rpc ChangeRealtimeAnalytics(ChangeRealtimeAnalyticsRequest) returns (ChangeRealtimeAnalyticsResponse) {
     option (google.api.http) = {
       post: "/v1/realtime/change"
@@ -72,7 +67,7 @@ service RealtimeAnalyticsService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Real-Time Analytics Configuration"
-      description: "Enables or disables Real-Time Analytics for a specific service or all services in a cluster."
+      description: "Enables or disables Real-Time Analytics for a specific service."
     };
   }
 }
