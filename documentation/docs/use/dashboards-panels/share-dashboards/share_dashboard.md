@@ -48,7 +48,7 @@ To enable image rendering:
     docker run -d \
     --name pmm-server \
     --network=pmm-network \
-    -p 8443:443 \
+    -p 443:8443 \
     -e GF_RENDERING_SERVER_URL=http://renderer:8081/render \
     -e GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/ \
     percona/pmm-server:3

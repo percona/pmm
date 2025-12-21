@@ -1,8 +1,5 @@
 # PMM installation overview
 
-!!! info "Content under improvement"
-    We're currently enhancing this chapter to make it more accurate and easier to follow. Content may be updated as improvements are made. [Share your feedback](https://docs.google.com/forms/d/1bkWACehjqlwA0AKf-qTJcXvYbOSYgze8iTPXjntqmNo/edit) to help us improve it.
-
 Installing Percona Monitoring and Management (PMM) involves setting up a central PMM Server and distributed PMM Clients that work together to monitor your database environment. 
 
 PMM Server provides the web interface with dashboards and analytics, while PMM Clients collect data from your databases with minimal performance impact and send it back to PMM Server for analysis and visualization.
@@ -32,7 +29,9 @@ Compare the available deployment methods to choose what works best for your setu
 |-------------------|----------|------------|----------------|
 | [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | Quick setup, development environments | • Fast deployment<br>• Easy to manage<br>• Runs without root privileges<br>• Minimal resource overhead | • Requires Docker knowledge<br>• May need additional network configuration |
 | [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | Security-conscious environments | • Rootless by default<br>• Enhanced security<br>• Docker-compatible commands<br>• No daemon required | • Requires Podman installation<br>• Less common than Docker |
-<!---| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs. --->
+| [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) |  Kubernetes and OpenShift environments | • Native Kubernetes deployment<br>• Scalable and orchestrated<br>• ConfigMap and Secret management<br>• Ingress controller support | • Requires Kubernetes cluster<br>• Helm knowledge needed<br>• More complex setup |
+| [Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md) | Traditional VM environments | • Pre-configured virtual machine<br>• Works with VMware, VirtualBox<br>• No container knowledge required<br>• Isolated environment | • Larger resource footprint<br>• VM management overhead<br>• Less flexible than containers |
+| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md) | AWS cloud deployments | • Wizard-driven install<br>• Rootless deployment<br>• Integrated with AWS services | • Paid service, incurs infrastructure costs<br>• AWS-specific deployment |
 
 ## Installation steps 
 
@@ -51,7 +50,7 @@ Install and run at least one PMM Server using one of the following deployment me
     [**Get started with Podman deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/podman/index.md)
 
 === ":material-kubernetes: Helm"
-    Deploy PMM Server on a Kubernetes cluster
+    Deploy PMM Server on Kubernetes or OpenShift clusters
     
     [**Get started with Kubernetes deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
 
@@ -60,10 +59,10 @@ Install and run at least one PMM Server using one of the following deployment me
     
     [**Get started with Virtual Appliance** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
 
-<!---=== ":material-aws: AWS Marketplace"
+=== ":material-aws: AWS Marketplace"
     Deploy PMM Server from AWS Marketplace
     
-    [**Get started with AWS deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) -->
+    [**Get started with AWS deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md).
 
 ### 2. Install PMM Client
 
@@ -96,6 +95,7 @@ PMM supports monitoring across the following database technologies, cloud servic
     - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md) and variants (Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
     - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
     - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
+    - [Valkey/Redis](../install-pmm/install-pmm-client/connect-database/valkey-redis.md)
 
 === ":material-cloud: Cloud services"
 

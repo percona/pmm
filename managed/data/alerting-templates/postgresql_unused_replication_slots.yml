@@ -1,0 +1,13 @@
+templates:
+  - name: pmm_postgresql_unused_replication_slots
+    version: 1
+    summary: PostgreSQL unused replication slots
+    expr: pg_replication_slots_active == 0
+    for: 1m
+    severity: warning
+    annotations:
+      description: |-
+        Unused Replication Slots
+          VALUE = {{ $value }}
+          LABELS = {{ $labels }}
+      summary: Postgresql unused replication slot (instance {{ $labels.instance }})

@@ -1,0 +1,45 @@
+---
+checks:
+  - version: 2
+    name: mysql_configuration_max_connections_usage
+    summary: Check max connections usage
+    description: Checks for MySQL max_connections configuration option for maximum utilization
+    interval: standard
+    advisor: configuration_connection
+    #subcategory: connection
+    #author:Kedar Vaijanapurkar
+    family: MYSQL
+    category: configuration
+    queries:
+      - type: MYSQL_SELECT
+        query: "@@global.max_connections as max_connections, @@global.version as version, @@global.hostname as service"
+      - type: METRICS_INSTANT
+        query: mysql_global_status_max_used_connections{service_name=~"{{.ServiceName}}"}
+      - type: METRICS_INSTANT
+        query: mysql_global_status_max_used_connections_time{service_name=~"{{.ServiceName}}"}
+    script: |
+      def check_context(docs, context):
+           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           results = []
+           max_conn = ""
+           max_used_conn = ""
+           max_used_conn_time = ""
+           for row in docs[0]:
+               version = row["version"]
+               service = row["service"]
+               max_conn = row["max_connections"]
+           max_used_conn = int(docs[1][0]["value"][1])
+           max_used_conn_time = int(docs[2][0]["value"][1])
+           perc = (int(max_used_conn) * 100) // int(max_conn)
+           if perc > 80:
+               results.append({
+                   "summary": "MySQL max_used_connection ({}) is {}% of configured max_connections ({})".format(max_used_conn, perc, max_conn),
+                   "description": "MySQL max_used_connection ({}) is {}% of configured max_connections ({}). Max connection utilization happened on {}. Consider revisiting the max_connections configuration option.".format(max_used_conn, perc, max_conn, max_used_conn_time),
+                   "read_more_url": read_url.format("mysql_configuration_max_connections_usage"),
+                   "severity": "warning",
+                   "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                   }
+               })
+           return results

@@ -1,0 +1,99 @@
+---
+checks:
+  - version: 2
+    name: mongodb_collection_fragmented
+    summary: MongoDB Collections Fragmented
+    description: This check returns a warning if the Storage size is greater than the Data size of a collection. That condition indicates that the collection is fragmented and needs a Compaction or Initial sync to reclaim disk space.
+    interval: rare
+    family: MONGODB
+    advisor: configuration_resources
+    #author: Parag Bhayani
+    queries:
+      - type: MONGODB_GETCMDLINEOPTS
+      - type: METRICS_INSTANT
+        query: avg by (mountpoint,node_name) (((node_filesystem_size_bytes{fstype="xfs", node_name=~"{{.NodeName}}"} - node_filesystem_free_bytes{fstype="xfs", node_name=~"{{.NodeName}}"}) / node_filesystem_size_bytes{fstype="xfs", node_name=~"{{.NodeName}}"}) * 100)
+      - type: METRICS_INSTANT
+        query: avg by(database,node_name) (mongodb_dbstats_dataSize{database!="admin", database!="config", database!="local", node_name=~"{{.NodeName}}"} / (1024*1024*1024))
+      - type: METRICS_INSTANT
+        query: avg by(collection,database) (mongodb_collstats_storageStats_storageSize{database!="admin", database!="config", database!="local", collection!="system.profile", node_name=~"{{.NodeName}}"})
+      - type: METRICS_INSTANT
+        query: avg by(collection,database) (mongodb_collstats_storageStats_size{database!="admin", database!="config", database!="local", collection!="system.profile", node_name=~"{{.NodeName}}"})
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          info = docs[0]
+          mount_cnt = 0
+          total_size = 0
+          ns = []
+          cnt = 0
+          results = []
+
+          #Gather DBPATH details.
+          for row in info:
+              dbpath = row["parsed"]["storage"]["dbPath"]
+
+          #Gather DBPATH mount point details and it's disk usage percentage.
+          for type in docs[1]:
+              mount = type["metric"]["mountpoint"]
+              usage = float(type["value"][1])
+              usage_per = int(usage)
+
+              #count how many mount path startswith for DBPATH
+              if dbpath.startswith(mount):
+                  mount_cnt = int(mount_cnt) + 1
+
+          #Evaluating if mount point is other that "/" partition.
+          if mount_cnt > 1:
+              if (dbpath == mount or dbpath.startswith(mount)) and mount != "/":
+                  dbpath_mount = mount
+
+          #Evaluating if mount point is "/" partition.
+          if mount_cnt == 1:
+              dbpath_mount = "/"
+
+          #Calculate the Total Database size in GB.
+          for tsize in docs[2]:
+              size = float(tsize["value"][1])
+              total_size = float(total_size) + size
+
+          #Gather storage size of each collection in bytes.
+          for ssize in docs[3]:
+              sdb = ssize["metric"]["database"]
+              scollection = ssize["metric"]["collection"]
+              sns = "{}.{}".format(sdb, scollection)
+              cssize = int(ssize["value"][1])
+
+              #Gather data size of each collection in bytes.
+              for dsize in docs[4]:
+                  ddb = dsize["metric"]["database"]
+                  dcollection = dsize["metric"]["collection"]
+                  dns = "{}.{}".format(ddb, dcollection)
+                  cdsize = int(dsize["value"][1])
+
+                  #if Total Database size is less than 100GB, then datasize threshold for each collection is 100MB.
+                  if total_size < 100:
+                      cdsize_thres =  int(1024*1024*100)
+
+                      #Evaluate & compare storage & data size of each collection. Also Disk usage is greater than 75%.
+                      if sns == dns and cssize > cdsize and cdsize > cdsize_thres and usage_per > 75:
+                          ns.append(dns)
+                          cnt = int(cnt) + 1
+
+                  #if Total Database size is less than 100GB, then datasize threshold for each collection is 1GB.
+                  if total_size > 100:
+                      cdsize_thres =  int(1024*1024*1024)
+
+                      #Evaluate & compare storage & data size of each collection
+                      if sns == dns and cssize > cdsize and cdsize > cdsize_thres and usage_per > 75:
+                          ns.append(dns)
+                          cnt = int(cnt) + 1
+
+          if cnt > 0:
+              results.append({
+                  "summary": "MongoDB collections are fragmented. Need for Compact or Initial sync",
+                  "description": "There are {} collections that are fragmented and the disk utilization is above 75%. Please use the compact command or perform an initial sync in a rolling fashion to release the space. Below are the collection details - {}. For more information please check the Read More documentation.".format(cnt, ns),
+                  "read_more_url": read_url.format("mongodb-collections-fragmented"),
+                  "severity": "warning",
+              })
+          return results

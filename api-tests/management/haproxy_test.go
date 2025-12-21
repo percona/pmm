@@ -399,7 +399,7 @@ func TestRemoveHAProxy(t *testing.T) {
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Haproxy.Service)
 		serviceID = addHAProxyOK.Payload.Haproxy.Service.ServiceID
-		return
+		return nodeID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {

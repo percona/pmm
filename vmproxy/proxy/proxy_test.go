@@ -34,11 +34,14 @@ const (
 func TestProxy(t *testing.T) {
 	t.Parallel()
 
-	setup := func(t *testing.T, filters []string) http.HandlerFunc {
+	setup := func(t *testing.T, filters []string, headers map[string]string) http.HandlerFunc {
 		t.Helper()
 		server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 			if filters != nil {
 				assert.Equal(t, url.Values{"extra_filters[]": filters}.Encode(), r.URL.RawQuery)
+			}
+			for k, v := range headers {
+				assert.Equal(t, v, r.Header.Get(k))
 			}
 		}))
 		t.Cleanup(func() {
@@ -56,17 +59,16 @@ func TestProxy(t *testing.T) {
 		return handler
 	}
 
-	handler := setup(t, nil)
-
 	t.Run("shall proxy request", func(t *testing.T) {
 		t.Parallel()
+		handler := setup(t, nil, nil)
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
-		url, err := url.Parse(targetURL)
+		uri, err := url.Parse(targetURL)
 		require.NoError(t, err)
 
-		prepareRequest(req, url, headerName)
+		prepareRequest(req, uri, headerName)
 
 		handler.ServeHTTP(rec, req)
 		resp := rec.Result()
@@ -81,6 +83,7 @@ func TestProxy(t *testing.T) {
 		type testParams struct {
 			expectedFilters []string
 			expectedStatus  int
+			expectedHeader  map[string]string
 			headerContent   string
 			name            string
 			targetURL       string
@@ -124,6 +127,16 @@ func TestProxy(t *testing.T) {
 				expectedStatus:  http.StatusPreconditionFailed,
 				headerContent:   base64.StdEncoding.EncodeToString([]byte(`"abc, "def"]`)),
 			},
+			{
+				name:            "shall add authorization header",
+				expectedFilters: []string{"abc", "def"},
+				expectedHeader: map[string]string{
+					"Authorization": "Basic dm1hZG1pbjp2bXBhc3M=",
+				},
+				expectedStatus: http.StatusOK,
+				headerContent:  base64.StdEncoding.EncodeToString([]byte(`["abc", "def"]`)),
+				targetURL:      "http://vmadmin:vmpass@127.0.0.1/a",
+			},
 		}
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
@@ -134,14 +147,14 @@ func TestProxy(t *testing.T) {
 					testTargetURL = tc.targetURL
 				}
 
-				handler := setup(t, tc.expectedFilters)
+				handler := setup(t, tc.expectedFilters, tc.expectedHeader)
 
 				rec := httptest.NewRecorder()
 				req := httptest.NewRequest(http.MethodGet, testTargetURL, nil)
 
-				url, err := url.Parse(testTargetURL)
+				uri, err := url.Parse(testTargetURL)
 				require.NoError(t, err)
-				prepareRequest(req, url, headerName)
+				prepareRequest(req, uri, headerName)
 				req.Header.Set(headerName, tc.headerContent)
 
 				handler.ServeHTTP(rec, req)
@@ -189,5 +202,21 @@ func TestProxy(t *testing.T) {
 				require.Equal(t, expectedHost, req.Header[headerName][0])
 			})
 		}
+	})
+
+	t.Run("prepareRequest: add credentials to request", func(t *testing.T) {
+		t.Parallel()
+
+		uri, err := url.Parse(targetURL)
+		require.NoError(t, err)
+
+		username := "user"
+		password := "password"
+		uri.User = url.UserPassword(username, password)
+
+		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		prepareRequest(req, uri, headerName)
+
+		require.Equal(t, "Basic dXNlcjpwYXNzd29yZA==", req.Header.Get("Authorization"))
 	})
 }

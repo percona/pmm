@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_tmp_table_size_limit
+    summary: Temp table size is larger than Heap Table size
+    description: Check if the Temporary table size exceeds the heap table size.
+    interval: standard
+    advisor: configuration_generic
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@global.max_heap_table_size as max_heap_table_size, @@global.tmp_table_size as tmp_table_size, @@version version,@@hostname service;"
+    script: |
+      def check_tmp_table_size(doc,read_url):
+          for row in doc:
+             max_heap_table_size = row["max_heap_table_size"]
+             tmp_table_size = row["tmp_table_size"]
+             version = row["version"]
+             service = row["service"]
+
+          if tmp_table_size > max_heap_table_size:
+              return {
+                  "summary": "Temp table size is larger than Heap table size",
+                  "description": "The Temp table size cannot be larger than Heap table size . Temp Table size = {}; Heap Table size = {}.".format(tmp_table_size,max_heap_table_size),
+                  "severity": "error",
+                  "read_more_url": read_url.format("configuration-check-tmp-table-size-limit"),
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  }
+              }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          in_result = check_tmp_table_size(docs[0],read_url)
+          if in_result:
+            results.append(in_result)
+
+          return results

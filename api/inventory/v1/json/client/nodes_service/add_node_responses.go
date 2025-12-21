@@ -8,6 +8,7 @@ package nodes_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type AddNodeReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddNodeOK()
@@ -106,7 +107,7 @@ func (o *AddNodeOK) readResponse(response runtime.ClientResponse, consumer runti
 	o.Payload = new(AddNodeOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -179,7 +180,7 @@ func (o *AddNodeDefault) readResponse(response runtime.ClientResponse, consumer 
 	o.Payload = new(AddNodeDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -244,11 +245,15 @@ func (o *AddNodeBody) validateContainer(formats strfmt.Registry) error {
 
 	if o.Container != nil {
 		if err := o.Container.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "container")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "container")
 			}
+
 			return err
 		}
 	}
@@ -263,11 +268,15 @@ func (o *AddNodeBody) validateGeneric(formats strfmt.Registry) error {
 
 	if o.Generic != nil {
 		if err := o.Generic.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "generic")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "generic")
 			}
+
 			return err
 		}
 	}
@@ -282,11 +291,15 @@ func (o *AddNodeBody) validateRemote(formats strfmt.Registry) error {
 
 	if o.Remote != nil {
 		if err := o.Remote.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "remote")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "remote")
 			}
+
 			return err
 		}
 	}
@@ -301,11 +314,15 @@ func (o *AddNodeBody) validateRemoteAzure(formats strfmt.Registry) error {
 
 	if o.RemoteAzure != nil {
 		if err := o.RemoteAzure.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "remote_azure")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "remote_azure")
 			}
+
 			return err
 		}
 	}
@@ -320,11 +337,15 @@ func (o *AddNodeBody) validateRemoteRDS(formats strfmt.Registry) error {
 
 	if o.RemoteRDS != nil {
 		if err := o.RemoteRDS.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "remote_rds")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "remote_rds")
 			}
+
 			return err
 		}
 	}
@@ -370,11 +391,15 @@ func (o *AddNodeBody) contextValidateContainer(ctx context.Context, formats strf
 		}
 
 		if err := o.Container.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "container")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "container")
 			}
+
 			return err
 		}
 	}
@@ -390,11 +415,15 @@ func (o *AddNodeBody) contextValidateGeneric(ctx context.Context, formats strfmt
 		}
 
 		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "generic")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "generic")
 			}
+
 			return err
 		}
 	}
@@ -410,11 +439,15 @@ func (o *AddNodeBody) contextValidateRemote(ctx context.Context, formats strfmt.
 		}
 
 		if err := o.Remote.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "remote")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "remote")
 			}
+
 			return err
 		}
 	}
@@ -430,11 +463,15 @@ func (o *AddNodeBody) contextValidateRemoteAzure(ctx context.Context, formats st
 		}
 
 		if err := o.RemoteAzure.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "remote_azure")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "remote_azure")
 			}
+
 			return err
 		}
 	}
@@ -450,11 +487,15 @@ func (o *AddNodeBody) contextValidateRemoteRDS(ctx context.Context, formats strf
 		}
 
 		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "remote_rds")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "remote_rds")
 			}
+
 			return err
 		}
 	}
@@ -521,11 +562,15 @@ func (o *AddNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("AddNode default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("AddNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -558,11 +603,15 @@ func (o *AddNodeDefaultBody) contextValidateDetails(ctx context.Context, formats
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("AddNode default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("AddNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -598,7 +647,7 @@ type AddNodeDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// add node default body details items0
-	AddNodeDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	AddNodeDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -625,9 +674,9 @@ func (o *AddNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -758,11 +807,15 @@ func (o *AddNodeOKBody) validateContainer(formats strfmt.Registry) error {
 
 	if o.Container != nil {
 		if err := o.Container.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "container")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "container")
 			}
+
 			return err
 		}
 	}
@@ -777,11 +830,15 @@ func (o *AddNodeOKBody) validateGeneric(formats strfmt.Registry) error {
 
 	if o.Generic != nil {
 		if err := o.Generic.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "generic")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "generic")
 			}
+
 			return err
 		}
 	}
@@ -796,11 +853,15 @@ func (o *AddNodeOKBody) validateRemote(formats strfmt.Registry) error {
 
 	if o.Remote != nil {
 		if err := o.Remote.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "remote")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "remote")
 			}
+
 			return err
 		}
 	}
@@ -815,11 +876,15 @@ func (o *AddNodeOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) err
 
 	if o.RemoteAzureDatabase != nil {
 		if err := o.RemoteAzureDatabase.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "remote_azure_database")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "remote_azure_database")
 			}
+
 			return err
 		}
 	}
@@ -834,11 +899,15 @@ func (o *AddNodeOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 
 	if o.RemoteRDS != nil {
 		if err := o.RemoteRDS.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "remote_rds")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "remote_rds")
 			}
+
 			return err
 		}
 	}
@@ -884,11 +953,15 @@ func (o *AddNodeOKBody) contextValidateContainer(ctx context.Context, formats st
 		}
 
 		if err := o.Container.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "container")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "container")
 			}
+
 			return err
 		}
 	}
@@ -904,11 +977,15 @@ func (o *AddNodeOKBody) contextValidateGeneric(ctx context.Context, formats strf
 		}
 
 		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "generic")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "generic")
 			}
+
 			return err
 		}
 	}
@@ -924,11 +1001,15 @@ func (o *AddNodeOKBody) contextValidateRemote(ctx context.Context, formats strfm
 		}
 
 		if err := o.Remote.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "remote")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "remote")
 			}
+
 			return err
 		}
 	}
@@ -944,11 +1025,15 @@ func (o *AddNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, 
 		}
 
 		if err := o.RemoteAzureDatabase.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "remote_azure_database")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "remote_azure_database")
 			}
+
 			return err
 		}
 	}
@@ -964,11 +1049,15 @@ func (o *AddNodeOKBody) contextValidateRemoteRDS(ctx context.Context, formats st
 		}
 
 		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addNodeOk" + "." + "remote_rds")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addNodeOk" + "." + "remote_rds")
 			}
+
 			return err
 		}
 	}
@@ -1254,6 +1343,9 @@ type AddNodeOKBodyRemoteRDS struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID.
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this add node OK body remote RDS

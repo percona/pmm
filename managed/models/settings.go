@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
 // Default values for settings. These values are used when settings are not set.
@@ -33,6 +32,8 @@ const (
 	VictoriaMetricsCacheEnabledDefault = false
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
+	InternalPgQANEnabledDefault        = false
+	awsPartitionID                     = "aws"
 )
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
@@ -63,7 +64,8 @@ type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
 
 	Updates struct {
-		Enabled *bool `json:"enabled"`
+		Enabled        *bool         `json:"enabled"`
+		SnoozeDuration time.Duration `json:"snooze_duration"`
 	} `json:"updates"`
 
 	Telemetry struct {
@@ -216,7 +218,7 @@ func (s *Settings) fillDefaults() {
 	}
 
 	if len(s.AWSPartitions) == 0 {
-		s.AWSPartitions = []string{endpoints.AwsPartitionID}
+		s.AWSPartitions = []string{awsPartitionID}
 	}
 
 	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
@@ -229,5 +231,9 @@ func (s *Settings) fillDefaults() {
 
 	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
 		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour
+	}
+
+	if s.Updates.SnoozeDuration == 0 {
+		s.Updates.SnoozeDuration = DefaultSnoozeDuration
 	}
 }

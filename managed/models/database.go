@@ -29,6 +29,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -38,6 +39,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/utils/encryption"
+	"github.com/percona/pmm/managed/utils/env"
 )
 
 const (
@@ -58,6 +60,8 @@ const (
 	VerifyCaSSLMode string = "verify-ca"
 	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
+	// DefaultSnoozeDuration represents duration for which an update is snoozed (default = 7 days).
+	DefaultSnoozeDuration time.Duration = 7 * 24 * time.Hour
 )
 
 // DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
@@ -105,7 +109,6 @@ var databaseSchema = [][]string{
 			container_name VARCHAR CHECK (container_name <> ''),
 
 			-- RemoteAmazonRDS
-			-- RDS instance is stored in address
 			region VARCHAR CHECK (region <> ''),
 
 			PRIMARY KEY (node_id),
@@ -1138,6 +1141,30 @@ var databaseSchema = [][]string{
 	109: {
 		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
 	},
+	110: {
+		`ALTER TABLE nodes ADD COLUMN instance_id VARCHAR NOT NULL DEFAULT ''`,
+		`UPDATE nodes SET instance_id = address WHERE instance_id = ''`,
+	},
+	111: {
+		`ALTER TABLE agents ADD COLUMN valkey_options JSONB`,
+		`UPDATE agents SET valkey_options = '{}'::jsonb`,
+	},
+	112: {
+		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatements-agent' AND service_id = (SELECT service_id FROM services WHERE service_name = 'pmm-server-postgresql' LIMIT 1);`,
+	},
+	113: {
+		// Reset product tour for new navigation
+		`UPDATE user_flags SET tour_done = false;
+
+		ALTER TABLE user_flags
+			ADD COLUMN snoozed_at TIMESTAMP,
+			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0;
+
+		UPDATE settings
+			SET settings = settings || '{"updates": {"snooze_duration": ` + strconv.FormatInt(DefaultSnoozeDuration.Nanoseconds(), 10) + `}}'
+			WHERE settings->'updates' IS NULL
+			OR settings->'updates'->'snooze_duration' IS NULL`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1506,10 +1533,16 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
+
+	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
+	// It can be enabled by setting PMM_ENABLE_INTERNAL_PG_QAN=1
+	// We rely on just the environment variable here since we run this set up before loading the server settings.
+	ap.Disabled = !env.GetBool(env.EnableInternalPgQAN)
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

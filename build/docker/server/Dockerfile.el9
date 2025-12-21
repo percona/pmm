@@ -39,7 +39,7 @@ LABEL org.opencontainers.image.title="Percona Monitoring and Management"
 LABEL org.opencontainers.image.vendor="Percona LLC"
 LABEL org.opencontainers.image.version=${VERSION}
 
-USER pmm
+USER 1000
 
 VOLUME [ "/srv" ]
 

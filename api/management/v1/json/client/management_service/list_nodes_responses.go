@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListNodesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListNodesOK()
@@ -107,7 +108,7 @@ func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer run
 	o.Payload = new(ListNodesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consume
 	o.Payload = new(ListNodesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *ListNodesDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, forma
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type ListNodesDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list nodes default body details items0
-	ListNodesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListNodesDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -442,11 +451,15 @@ func (o *ListNodesOKBody) validateNodes(formats strfmt.Registry) error {
 
 		if o.Nodes[i] != nil {
 			if err := o.Nodes[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listNodesOk" + "." + "nodes" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listNodesOk" + "." + "nodes" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -479,11 +492,15 @@ func (o *ListNodesOKBody) contextValidateNodes(ctx context.Context, formats strf
 			}
 
 			if err := o.Nodes[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listNodesOk" + "." + "nodes" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listNodesOk" + "." + "nodes" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -573,6 +590,9 @@ type ListNodesOKBodyNodesItems0 struct {
 
 	// List of services running on this node.
 	Services []*ListNodesOKBodyNodesItems0ServicesItems0 `json:"services"`
+
+	// Instance ID for cloud providers (e.g. AWS RDS).
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this list nodes OK body nodes items0
@@ -629,7 +649,7 @@ func (o *ListNodesOKBodyNodesItems0) validateUpdatedAt(formats strfmt.Registry) 
 	return nil
 }
 
-var listNodesOkBodyNodesItems0TypeStatusPropEnum []interface{}
+var listNodesOkBodyNodesItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -689,11 +709,15 @@ func (o *ListNodesOKBodyNodesItems0) validateAgents(formats strfmt.Registry) err
 
 		if o.Agents[i] != nil {
 			if err := o.Agents[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -715,11 +739,15 @@ func (o *ListNodesOKBodyNodesItems0) validateServices(formats strfmt.Registry) e
 
 		if o.Services[i] != nil {
 			if err := o.Services[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -756,11 +784,15 @@ func (o *ListNodesOKBodyNodesItems0) contextValidateAgents(ctx context.Context, 
 			}
 
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -778,11 +810,15 @@ func (o *ListNodesOKBodyNodesItems0) contextValidateServices(ctx context.Context
 			}
 
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}

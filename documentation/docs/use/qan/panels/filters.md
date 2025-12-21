@@ -49,15 +49,20 @@ These filter groups are available for all database types:
 
 ## Custom filter groups
 
-!!! caution alert alert-warning "Important/Caution"
-    This feature is still in [Technical Preview](../../../reference/glossary.md#technical-preview) and is subject to change. We recommend that early adopters use this feature for testing purposes only.
-
-Filter queries using custom key=value pairs from query comments. This feature is disabled by default.
+Filter queries using custom `key='value'` pairs from query comments. Only genuine comments are parsed, not quoted string that contain comment-like characters. This feature is disabled by default.
 
 ### Supported technologies and agents
 
-- MySQL (`perfschema`, `slowlog`),
-- PostgreSQL (`pg_stat_statements`, `pg_stat_monitor`)
+- MySQL (`perfschema`),
+- PostgreSQL (`pg_stat_monitor`)
+
+**Supported formats**
+```sh
+key='value'
+key = 'value'
+key ='value'
+key= 'value'
+```
 
 **Example**
 

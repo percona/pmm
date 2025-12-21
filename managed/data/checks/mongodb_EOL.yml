@@ -1,0 +1,49 @@
+---
+checks:
+  - version: 2
+    name: mongodb_EOL
+    summary: MongoDB version EOL
+    description: This check returns errors or warnings if your current PSMDB or MongoDB version has reached or is about to reach End-of-Life.
+    interval: standard
+    family: MONGODB
+    advisor: configuration_version
+    #category: configuration
+    #subcategory: version configuration
+    #author: Parag Bhayani
+    queries:
+      - type: MONGODB_BUILDINFO
+    script: |
+      read_url = "https://www.percona.com/services/policies/percona-software-support-lifecycle"
+
+      def check_context(docs, context):
+          """
+          This check returns errors or warnings if your current PSMDB or MongoDB version has reached or is about to reach End-of-Life.
+          """
+
+          info = docs[0]
+          results = []
+
+          for row in info:
+              # Checking MongoDB version
+              # parse_version returns a dict with keys: major, minor, patch, rest, num
+              version = parse_version(row["version"])
+              num = version["num"]
+              mm = "{}.{}".format(version["major"], version["minor"])
+
+              # Evaluating EOL
+              if mm == "4.4":
+                  results.append({
+                      "summary": "MongoDB version {} is about to reach EOL".format(mm),
+                      "description": "MongoDB version {} End-of-Life date is 29-Feb-2024. PSMDB and MongoDB follow similar EOL timelines. Please review the software lifecycle policy at the Read More link in the details section and plan your upgrade accordingly. It is recommended to upgrade to the most recent version of your major release for security and performance reasons.".format(mm),
+                      "read_more_url": read_url,
+                      "severity": "warning",
+                  })
+
+              if mm < "4.4":
+                  results.append({
+                      "summary": "MongoDB version {} has reached EOL".format(mm),
+                      "description": "MongoDB version {} has reached its End-of-Life date. In general, Percona does not support EOL versions. PSMDB and MongoDB follow similar EOL timelines. Please review the software lifecycle policy at the Read More link in the details section. Kindly upgrade your MongoDB instance to the most recent version of your major release for security and performance reasons asap for seamless support.".format(mm),
+                      "read_more_url": read_url,
+                      "severity": "error",
+                  })
+              return results

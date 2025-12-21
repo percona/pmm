@@ -13,6 +13,11 @@ type mockAgentsStateUpdater struct {
 	mock.Mock
 }
 
+// RequestStateUpdate provides a mock function with given fields: ctx, pmmAgentID
+func (_m *mockAgentsStateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string) {
+	_m.Called(ctx, pmmAgentID)
+}
+
 // UpdateAgentsState provides a mock function with given fields: ctx
 func (_m *mockAgentsStateUpdater) UpdateAgentsState(ctx context.Context) error {
 	ret := _m.Called(ctx)

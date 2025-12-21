@@ -8,6 +8,7 @@ package platform_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type DisconnectReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DisconnectReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DisconnectReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDisconnectOK()
@@ -55,7 +56,7 @@ DisconnectOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type DisconnectOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this disconnect Ok response has a 2xx status code
@@ -98,13 +99,13 @@ func (o *DisconnectOK) String() string {
 	return fmt.Sprintf("[POST /v1/platform:disconnect][%d] disconnectOk %s", 200, payload)
 }
 
-func (o *DisconnectOK) GetPayload() interface{} {
+func (o *DisconnectOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *DisconnectOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,7 +178,7 @@ func (o *DisconnectDefault) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(DisconnectDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -262,11 +263,15 @@ func (o *DisconnectDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("Disconnect default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("Disconnect default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -299,11 +304,15 @@ func (o *DisconnectDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("Disconnect default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("Disconnect default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -339,7 +348,7 @@ type DisconnectDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// disconnect default body details items0
-	DisconnectDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	DisconnectDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -366,9 +375,9 @@ func (o *DisconnectDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

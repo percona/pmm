@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: performance_generic
+    summary: Generic Performance
+    description: Provides basic database configuration recommendations for high-performance query execution.
+    category: performance

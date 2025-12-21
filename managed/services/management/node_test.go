@@ -149,7 +149,7 @@ func TestNodeService(t *testing.T) {
 				Reregister: false,
 			})
 
-			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with instance "some.address.org" and region "region" already exists.`), err)
+			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with address "some.address.org" and region "region" already exists.`), err)
 		})
 
 		t.Run("Reregister-force", func(t *testing.T) {

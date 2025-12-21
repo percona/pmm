@@ -10,8 +10,8 @@ This is the simplest and most efficient way to install PMM with Docker.
     - [Deploy on Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md)
     - [Deploy based on a Docker image](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
     - [Deploy on Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
-    - [Deploy on Kubernetes via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
-   <!--- - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)-->
+    - [Deploy on Kubernetes/OpenShift via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
+    - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md)
 
 #### Prerequisites
 
@@ -242,49 +242,58 @@ Once PMM is set up, choose the database or the application that you want it to m
  
         ```
         db.createRole({
-            "role":"explainRole",
-            "privileges":[
-                {
-                    "resource":{
-                        "db":"",
-                        "collection":""
-                    },
-                    "actions":[
-                        "collStats",
-                        "dbHash",
-                        "dbStats",
-                        "find",
-                        "listIndexes",
-                        "listCollections"
-                    ]
-                }
+            "role": "pmmMonitor",
+            "privileges":
+            [
+               { 
+                 "resource": { "db": "", "collection": "" },
+                 "actions": [ "collStats", "dbHash", "dbStats", "indexStats", "find", "listIndexes", "listCollections" ]
+               },
+               {
+                 "resource": { "db": "", "collection": "system.version" },
+                 "actions": [ "find" ]
+               },
+               {
+                 "resource": { "db": "", "collection": "system.profile" },
+                 "actions": [ "dbStats", "collStats", "indexStats" ]
+               }                  
             ],
-            "roles":[]
+            "roles": []
         })
         ```
 
     2. Create a user and grant it the role created above:
 
-        ```
-        db.getSiblingDB("admin").createUser({
-            "user":"pmm",
-            "pwd":"<your_password>",
-            "roles":[
-                {
-                    "role":"explainRole",
-                    "db":"admin"
-                },
-                {
-                    "role":"clusterMonitor",
-                    "db":"admin"
-                },
-                {
-                    "role":"read",
-                    "db":"local"
-                }
-            ]
-        })
-        ```
+        === "MongoDB 8.0+"
+          
+            MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the `directShardOperations` role to collect complete metrics from all cluster components.
+          
+            ```javascript
+              db.getSiblingDB("admin").createUser({
+                  "user": "pmm",
+                  "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
+                  "roles": [
+                      { "db": "admin", "role": "pmmMonitor" },
+                      { "db": "local", "role": "read" },
+                      { "db": "admin", "role": "clusterMonitor" },
+                      { "db": "admin", "role": "directShardOperations" }
+                  ]
+              })
+            ```
+
+        === "MongoDB <8.0"
+
+            ```javascript
+            db.getSiblingDB("admin").createUser({
+                  "user": "pmm",
+                  "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
+                  "roles": [
+                      { "db": "admin", "role": "pmmMonitor" },
+                      { "db": "local", "role": "read" },
+                      { "db": "admin", "role": "clusterMonitor" }
+                  ]
+              })
+            ```
 
     3. To optimize server-side resources, install PMM Client via Package Manager on the database node:
         { .power-number}     
@@ -342,12 +351,81 @@ Once PMM is set up, choose the database or the application that you want it to m
     5. Add the MongoDB database:
 
         ```
-        pmm-admin add mongodb --username=pmm --password=<your_password>
+        pmm-admin add mongodb --username=pmm --password=<your_password> --cluster <your_cluster_or_replica_set_name>
         ```
    
     For detailed instructions, see [Adding a MongoDB database for monitoring](../install-pmm/install-pmm-client/connect-database/mongodb.md).
 
-=== ":simple-nginxproxymanager: ProxySQL"
+=== ":simple-redis: Valkey/Redis"
+    To connect a Valkey or Redis database:
+    { .power-number}
+    
+    1.  Set up authentication for PMM monitoring. If you're using Valkey 6.0+ with ACL enabled, run the following command in the Valkey CLI to create a dedicated monitoring user with read-only permissions. For Redis or Valkey instances without ACL, use the password-based authentication method instead:
+ 
+        ```
+        ACL SETUSER pmm on ><your_password> ~* +@read +info +config|get +slowlog +latency
+            
+        ```
+
+    2. Install PMM Client on the database node via Package Manager:
+
+        === ":material-debian: Debian-based"
+
+            Install the following with `root` permission: 
+            { .power-number} 
+
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            ```sh
+            wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+            dpkg -i percona-release_latest.generic_all.deb
+            ```
+
+            2. Enable the PMM client repository:
+            ```sh
+            percona-release enable pmm3-client release
+            ```
+            3. Install the PMM Client package:
+            ```sh
+            apt update
+            apt install -y pmm-client
+            ```
+
+        === ":material-redhat: Red Hat-based"
+
+            Install the following with `root` permission: 
+
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            ```sh
+                yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+            ```
+
+            2. Enable the PMM client repository:
+            ```sh
+                percona-release enable pmm3-client release
+            ```
+            3. Install the PMM Client package:
+            ```sh
+                yum install -y pmm-client
+            ```
+
+    3. Register PMM Client:
+        ```sh
+        pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
+        ```
+
+    4. Add the Valkey or Redis database:
+        ```sh
+        pmm-admin add valkey \
+          Valkey-Primary \
+          localhost:6379 \
+          --username=pmm \
+          --password=<your_password> \
+          --environment=production
+        ```
+
+    For detailed setup instructions, remote monitoring, TLS and advanced options, see [Connecting Valkey/Redis databases to PMM](../install-pmm/install-pmm-client/connect-database/valkey-redis.md).
+
+=== ":material-hub: ProxySQL"
     To connect a ProxySQL service:
     { .power-number}
 
@@ -414,7 +492,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../install-pmm/install-pmm-client/connect-database/proxysql.md).
 
-=== ":material-database: HAProxy"
+=== ":material-shuffle: HAProxy"
     To connect an HAProxy service:
     { .power-number}
 

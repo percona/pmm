@@ -2,7 +2,7 @@
 services:
   # PMM with external DBs
   ch:
-    image: ${CH_IMAGE:-clickhouse/clickhouse-server:23.8.2.7-alpine}
+    image: ${CH_IMAGE:-clickhouse/clickhouse-server:25.3.6.56-alpine}
     platform: linux/amd64
     hostname: ${CH_HOSTNAME:-ch}
     ports:

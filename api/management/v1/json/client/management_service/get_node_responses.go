@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type GetNodeReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetNodeOK()
@@ -107,7 +108,7 @@ func (o *GetNodeOK) readResponse(response runtime.ClientResponse, consumer runti
 	o.Payload = new(GetNodeOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer 
 	o.Payload = new(GetNodeDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *GetNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type GetNodeDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// get node default body details items0
-	GetNodeDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	GetNodeDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *GetNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -437,11 +446,15 @@ func (o *GetNodeOKBody) validateNode(formats strfmt.Registry) error {
 
 	if o.Node != nil {
 		if err := o.Node.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("getNodeOk" + "." + "node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("getNodeOk" + "." + "node")
 			}
+
 			return err
 		}
 	}
@@ -471,11 +484,15 @@ func (o *GetNodeOKBody) contextValidateNode(ctx context.Context, formats strfmt.
 		}
 
 		if err := o.Node.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("getNodeOk" + "." + "node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("getNodeOk" + "." + "node")
 			}
+
 			return err
 		}
 	}
@@ -564,6 +581,9 @@ type GetNodeOKBodyNode struct {
 
 	// List of services running on this node.
 	Services []*GetNodeOKBodyNodeServicesItems0 `json:"services"`
+
+	// Instance ID for cloud providers (e.g. AWS RDS).
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this get node OK body node
@@ -620,7 +640,7 @@ func (o *GetNodeOKBodyNode) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-var getNodeOkBodyNodeTypeStatusPropEnum []interface{}
+var getNodeOkBodyNodeTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -680,11 +700,15 @@ func (o *GetNodeOKBodyNode) validateAgents(formats strfmt.Registry) error {
 
 		if o.Agents[i] != nil {
 			if err := o.Agents[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -706,11 +730,15 @@ func (o *GetNodeOKBodyNode) validateServices(formats strfmt.Registry) error {
 
 		if o.Services[i] != nil {
 			if err := o.Services[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getNodeOk" + "." + "node" + "." + "services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getNodeOk" + "." + "node" + "." + "services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -747,11 +775,15 @@ func (o *GetNodeOKBodyNode) contextValidateAgents(ctx context.Context, formats s
 			}
 
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -769,11 +801,15 @@ func (o *GetNodeOKBodyNode) contextValidateServices(ctx context.Context, formats
 			}
 
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("getNodeOk" + "." + "node" + "." + "services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("getNodeOk" + "." + "node" + "." + "services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}

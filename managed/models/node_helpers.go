@@ -60,22 +60,22 @@ func checkUniqueNodeName(q *reform.Querier, name string) error {
 	return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
 }
 
-// CheckUniqueNodeInstanceRegion checks for uniqueness of instance address and region.
-// This function not only returns an error in case of finding an existing node with those paramenters but
+// CheckUniqueNodeAddressRegion checks for uniqueness of instance address and region.
+// This function not only returns an error in case it finds an existing node with the same address and region, but
 // also returns the Node itself if there is any, because if we are recreating the instance (--force in pmm-admin)
-// we need to know the Node.ID to remove it and its dependencies.
-// This check only applies if region is not empty.
-func CheckUniqueNodeInstanceRegion(q *reform.Querier, instance string, region *string) (*Node, error) {
+// we need to know the Node.ID to remove it along with its dependencies.
+// This check is performed only if the region is not empty.
+func CheckUniqueNodeAddressRegion(q *reform.Querier, address string, region *string) (*Node, error) {
 	if pointer.GetString(region) == "" {
 		return nil, nil //nolint:nilnil
 	}
 
-	if instance == "" {
-		return nil, status.Error(codes.InvalidArgument, "Empty Node instance.")
+	if address == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Node address.")
 	}
 
 	var node Node
-	err := q.SelectOneTo(&node, "WHERE address = $1 AND region = $2 LIMIT 1", instance, region)
+	err := q.SelectOneTo(&node, "WHERE address = $1 AND region = $2 LIMIT 1", address, region)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, nil //nolint:nilnil
@@ -83,7 +83,7 @@ func CheckUniqueNodeInstanceRegion(q *reform.Querier, instance string, region *s
 		return nil, errors.WithStack(err)
 	}
 
-	return &node, status.Errorf(codes.AlreadyExists, "Node with instance %q and region %q already exists.", instance, *region)
+	return &node, status.Errorf(codes.AlreadyExists, "Node with address %q and region %q already exists.", address, *region)
 }
 
 // NodeFilters represents filters for nodes list.
@@ -95,7 +95,7 @@ type NodeFilters struct {
 // FindNodes returns Nodes by filters.
 func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
 	var whereClause string
-	var args []interface{}
+	var args []any
 	if filters.NodeType != nil {
 		whereClause = "WHERE node_type = $1"
 		args = append(args, *filters.NodeType)
@@ -138,7 +138,7 @@ func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p)
-	args := make([]interface{}, len(ids))
+	args := make([]any, len(ids))
 	for i, id := range ids {
 		args[i] = id
 	}
@@ -183,6 +183,7 @@ type CreateNodeParams struct {
 	ContainerName *string
 	CustomLabels  map[string]string
 	Address       string
+	InstanceID    string
 	Region        *string
 	Password      *string
 }
@@ -200,12 +201,12 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 	// do not check that machine-id is unique: https://jira.percona.com/browse/PMM-4196
 
 	if nodeType == RemoteRDSNodeType {
-		if strings.Contains(params.Address, ".") {
-			return nil, status.Error(codes.InvalidArgument, "DB instance identifier should not contain dot.")
+		if strings.Contains(params.InstanceID, ".") {
+			return nil, status.Error(codes.InvalidArgument, "DB instance identifier should not contain dots.")
 		}
 	}
 
-	if _, err := CheckUniqueNodeInstanceRegion(q, params.Address, params.Region); err != nil {
+	if _, err := CheckUniqueNodeAddressRegion(q, params.Address, params.Region); err != nil {
 		return nil, err
 	}
 
@@ -223,6 +224,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		AZ:            params.AZ,
 		ContainerID:   params.ContainerID,
 		ContainerName: params.ContainerName,
+		InstanceID:    params.InstanceID,
 		Address:       params.Address,
 		Region:        params.Region,
 	}

@@ -598,9 +598,9 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			}
 
 			if !m.disableCommentsParsing && currentPSM.Comments != nil {
-				comments, err := queryparser.PostgreSQLComments(*currentPSM.Comments)
+				comments, err := queryparser.PostgreSQLComments(currentPSM.Query)
 				if err != nil {
-					m.l.WithError(err).Errorf("failed to parse comments from: %s", *currentPSM.Comments)
+					m.l.WithError(err).Errorf("failed to parse comments from: %s", currentPSM.Query)
 				}
 				mb.Common.Comments = comments
 			}

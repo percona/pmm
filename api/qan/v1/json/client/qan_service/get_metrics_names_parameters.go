@@ -64,7 +64,7 @@ type GetMetricsNamesParams struct {
 
 	   MetricsNamesRequest is empty.
 	*/
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -120,13 +120,13 @@ func (o *GetMetricsNamesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get metrics names params
-func (o *GetMetricsNamesParams) WithBody(body interface{}) *GetMetricsNamesParams {
+func (o *GetMetricsNamesParams) WithBody(body any) *GetMetricsNamesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get metrics names params
-func (o *GetMetricsNamesParams) SetBody(body interface{}) {
+func (o *GetMetricsNamesParams) SetBody(body any) {
 	o.Body = body
 }
 

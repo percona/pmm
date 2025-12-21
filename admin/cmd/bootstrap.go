@@ -42,19 +42,13 @@ import (
 )
 
 // Bootstrap is used to initialize the application.
-func Bootstrap(opts any) {
+func Bootstrap(opts cli.PMMAdminCommands) {
 	var kongCtx *kong.Context
 	var kongParser *kong.Kong
 	var parsedOpts any
 
-	switch o := opts.(type) {
-	case cli.PMMAdminCommands:
-		kongParser = kong.Must(&o, getDefaultKongOptions("pmm-admin")...)
-		parsedOpts = &o
-	case cli.PMMCommands:
-		kongParser = kong.Must(&o, getDefaultKongOptions("pmm")...)
-		parsedOpts = &o
-	}
+	kongParser = kong.Must(&opts, getDefaultKongOptions("pmm-admin")...)
+	parsedOpts = &opts
 
 	kongcompletion.Register(kongParser)
 	kongCtx, err := kongParser.Parse(expandArgs(os.Args[1:]))

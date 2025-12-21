@@ -1,9 +1,6 @@
 ---
 # This playbook is run by the `pmm-init` supervisord process
 - hosts: all
-  become: true
-  become_method: su
-  become_user: pmm
   gather_facts: true
 
 

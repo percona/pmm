@@ -3,7 +3,6 @@ templates:
     - name: %s
       version: 1
       summary: Test summary
-      tiers: [anonymous, registered]
       expr: %s
       params:
         - name: param1

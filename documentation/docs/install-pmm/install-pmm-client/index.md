@@ -40,6 +40,7 @@ Each database service requires specific configuration parameters. Configure your
 - [MySQL](connect-database/mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
 - [MongoDB](connect-database/mongodb.md)
 - [PostgreSQL](connect-database/postgresql.md)
+- [Valkey/Redis](connect-database/valkey-redis.md)
 - [ProxySQL](connect-database/proxysql.md)
 - [Amazon RDS](connect-database/aws.md)
 - [Microsoft Azure](connect-database/azure.md)
@@ -57,3 +58,4 @@ If you need to modify the configuration of a service you've already added, you'l
 
 - [Connect database services](connect-database/index.md) for monitoring
 - [Configure optimization settings](connect-database/mysql/improve_perf.md) for specific database types
+- [Optimize resource usage with centralized vmagent settings](../install-pmm-server/deployment-options/docker/env_var.md#configure-vmagent-on-pmm-client)

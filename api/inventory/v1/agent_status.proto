@@ -15,7 +15,7 @@ enum AgentStatus {
   AGENT_STATUS_WAITING = 3;
   // Agent is stopping.
   AGENT_STATUS_STOPPING = 4;
-  // Agent finished.
+  // Agent has been stopped or disabled.
   AGENT_STATUS_DONE = 5;
   // Agent is not connected, we don't know anything about it's state.
   AGENT_STATUS_UNKNOWN = 6;

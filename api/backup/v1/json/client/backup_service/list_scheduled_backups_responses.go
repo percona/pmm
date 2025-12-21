@@ -8,6 +8,7 @@ package backup_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListScheduledBackupsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListScheduledBackupsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListScheduledBackupsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListScheduledBackupsOK()
@@ -107,7 +108,7 @@ func (o *ListScheduledBackupsOK) readResponse(response runtime.ClientResponse, c
 	o.Payload = new(ListScheduledBackupsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ListScheduledBackupsDefault) readResponse(response runtime.ClientRespon
 	o.Payload = new(ListScheduledBackupsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *ListScheduledBackupsDefaultBody) validateDetails(formats strfmt.Registr
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *ListScheduledBackupsDefaultBody) contextValidateDetails(ctx context.Con
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type ListScheduledBackupsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list scheduled backups default body details items0
-	ListScheduledBackupsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListScheduledBackupsDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *ListScheduledBackupsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -442,11 +451,15 @@ func (o *ListScheduledBackupsOKBody) validateScheduledBackups(formats strfmt.Reg
 
 		if o.ScheduledBackups[i] != nil {
 			if err := o.ScheduledBackups[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -479,11 +492,15 @@ func (o *ListScheduledBackupsOKBody) contextValidateScheduledBackups(ctx context
 			}
 
 			if err := o.ScheduledBackups[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -620,7 +637,7 @@ func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateStartTime(for
 	return nil
 }
 
-var listScheduledBackupsOkBodyScheduledBackupsItems0TypeDataModelPropEnum []interface{}
+var listScheduledBackupsOkBodyScheduledBackupsItems0TypeDataModelPropEnum []any
 
 func init() {
 	var res []string
@@ -665,7 +682,7 @@ func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateDataModel(for
 	return nil
 }
 
-var listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum []interface{}
+var listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum []any
 
 func init() {
 	var res []string

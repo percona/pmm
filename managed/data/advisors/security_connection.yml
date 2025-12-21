@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: security_connection
+    summary: Connection Security
+    description: Helps identify security issues on network connections and provides recommendations for enhancing security.
+    category: security

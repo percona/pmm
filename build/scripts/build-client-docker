@@ -11,7 +11,7 @@ if [ -f "${docker_client_tarball}" ]; then
 fi
 
 DOCKER_FILE_LOCATION=tmp/source/pmm/build/docker/client # relative to `root_dir`
-cp ${root_dir}/results/tarball/pmm-client-*.tar.gz ${root_dir}/${DOCKER_FILE_LOCATION}/pmm-client.tar.gz
+cp "${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz" "${root_dir}/${DOCKER_FILE_LOCATION}/pmm-client.tar.gz"
 
 if [ -z "${DOCKER_CLIENT_TAG}" ]; then
     DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${full_pmm_version}

@@ -16,19 +16,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
-)
-
-var (
-	// ErrRoleNotFound is returned when a role is not found.
-	ErrRoleNotFound = fmt.Errorf("RoleNotFound")
-	// ErrRoleIsDefaultRole is returned when trying to delete a default role.
-	ErrRoleIsDefaultRole = fmt.Errorf("RoleIsDefaultRole")
 )
 
 // CreateRole creates a new role.
@@ -51,7 +44,7 @@ func AssignRoles(tx *reform.TX, userID int, roleIDs []int) error {
 	s := make([]reform.Struct, 0, len(roleIDs))
 	for _, roleID := range roleIDs {
 		var role Role
-		if err := FindAndLockRole(tx, roleID, &role); err != nil {
+		if err := findRole(tx, roleID, &role); err != nil {
 			return err
 		}
 
@@ -83,7 +76,7 @@ func DeleteRole(tx *reform.TX, roleID, replacementRoleID int) error {
 	q := tx.Querier
 
 	var role Role
-	if err := FindAndLockRole(tx, roleID, &role); err != nil {
+	if err := findRole(tx, roleID, &role); err != nil {
 		return err
 	}
 
@@ -102,7 +95,7 @@ func DeleteRole(tx *reform.TX, roleID, replacementRoleID int) error {
 	}
 
 	if err := q.Delete(&role); err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+		if errors.Is(err, reform.ErrNoRows) {
 			return ErrRoleNotFound
 		}
 
@@ -121,7 +114,7 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 		return err
 	}
 
-	if err := FindAndLockRole(tx, newRoleID, &Role{}); err != nil {
+	if err := findRole(tx, newRoleID, &Role{}); err != nil {
 		return err
 	}
 
@@ -178,11 +171,11 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 	return nil
 }
 
-// FindAndLockRole retrieves a role by ID and locks it for update.
-func FindAndLockRole(tx *reform.TX, roleID int, role *Role) error {
-	err := tx.Querier.SelectOneTo(role, "WHERE id = $1 FOR UPDATE", roleID)
+// findRole retrieves a role by ID.
+func findRole(tx *reform.TX, roleID int, role *Role) error {
+	err := tx.Querier.SelectOneTo(role, "WHERE id = $1", roleID)
 	if err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+		if errors.Is(err, reform.ErrNoRows) {
 			return ErrRoleNotFound
 		}
 		return err
@@ -194,7 +187,7 @@ func FindAndLockRole(tx *reform.TX, roleID int, role *Role) error {
 // ChangeDefaultRole changes default role in the settings.
 func ChangeDefaultRole(tx *reform.TX, roleID int) error {
 	var role Role
-	if err := FindAndLockRole(tx, roleID, &role); err != nil {
+	if err := findRole(tx, roleID, &role); err != nil {
 		return err
 	}
 

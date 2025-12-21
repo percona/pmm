@@ -122,6 +122,21 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
 		}
+
+	case models.ValkeyServiceType:
+		tdp := agent.TemplateDelimiters(service)
+		request = &agentv1.ServiceInfoRequest{
+			Tls:  agent.TLS,
+			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second},
+				nil, pmmAgentVersion),
+			Timeout: durationpb.New(3 * time.Second),
+			TextFiles: &agentv1.TextFiles{
+				Files:              agent.Files(),
+				TemplateLeftDelim:  tdp.Left,
+				TemplateRightDelim: tdp.Right,
+			},
+		}
 	default:
 		return nil, errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
@@ -211,7 +226,8 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.MongoDBServiceType,
-		models.ProxySQLServiceType:
+		models.ProxySQLServiceType,
+		models.ValkeyServiceType:
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.ExternalServiceType, models.HAProxyServiceType:
 		return nil

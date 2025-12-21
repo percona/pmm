@@ -209,7 +209,7 @@ Choose the option that best fits your infrastructure and requirements:
     1.  Pull the ClickHouse Docker image:
 
         ```sh
-        docker pull clickhouse/clickhouse-server:23.8.2.7-alpine
+        docker pull clickhouse/clickhouse-server:25.3.6.56-alpine
         ```
 
     2.  Create a Docker volume for ClickHouse data:
@@ -229,7 +229,7 @@ Choose the option that best fits your infrastructure and requirements:
             --ip ${CH_HOST_IP} \
             -p 9000:9000 \
             -v ch_data:/var/lib/clickhouse \
-            clickhouse/clickhouse-server:23.8.2.7-alpine
+            clickhouse/clickhouse-server:25.3.6.56-alpine
             ```
 
             The `--network` and `--ip` flags assign a specific IP address within the Docker network created in Step 2.
@@ -241,7 +241,7 @@ Choose the option that best fits your infrastructure and requirements:
             --name ch \
             -p 9000:9000 \
             -v ch_data:/var/lib/clickhouse \
-            clickhouse/clickhouse-server:23.8.2.7-alpine
+            clickhouse/clickhouse-server:25.3.6.56-alpine
             ```
 
             When running on separate instances, ClickHouse binds to the default network interface.

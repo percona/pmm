@@ -1,6 +1,6 @@
 # pmm-admin
 
-pmm-admin for PMM 2.x.
+pmm-admin for PMM
 
 # Contributing notes
 
@@ -24,7 +24,7 @@ Node name: mysql-server-test-1
 
 PMM Server:
         URL    : https://127.0.0.1:443/
-        Version: 2.2.0-HEAD-fcde194
+        Version: 3.4.0-HEAD-fcde194
 
 PMM-agent:
         Connected : true

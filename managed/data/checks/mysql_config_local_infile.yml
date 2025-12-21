@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_local_infile
+    summary: Load data in file active
+    description: Identify if a load data in file is active.
+    interval: standard
+    advisor: security_configuration
+    #subcategory: generic
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, @@global.local_infile as local_infile;"
+    script: |
+      def check_local_infile(doc,read_url):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            local_infile = row["local_infile"]
+
+            if local_infile == 1:
+               return {
+                 "summary": "Load data in file active",
+                 "description": "Node has load data in file enable this can be a security concern. Current settings = {};".format(local_infile),
+                 "severity": "warning",
+                 "read_more_url": read_url.format("local-option-of-load-data-enabled"),
+                 "labels": {
+                    "mysql_version": "{}".format(version),
+                     "service": "{}".format(service),
+                    }
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = check_local_infile(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

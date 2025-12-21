@@ -8,6 +8,7 @@ package actions_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type StartServiceActionReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StartServiceActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *StartServiceActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStartServiceActionOK()
@@ -106,7 +107,7 @@ func (o *StartServiceActionOK) readResponse(response runtime.ClientResponse, con
 	o.Payload = new(StartServiceActionOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -179,7 +180,7 @@ func (o *StartServiceActionDefault) readResponse(response runtime.ClientResponse
 	o.Payload = new(StartServiceActionDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -293,11 +294,15 @@ func (o *StartServiceActionBody) validateMongodbExplain(formats strfmt.Registry)
 
 	if o.MongodbExplain != nil {
 		if err := o.MongodbExplain.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_explain")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_explain")
 			}
+
 			return err
 		}
 	}
@@ -312,11 +317,15 @@ func (o *StartServiceActionBody) validateMysqlExplain(formats strfmt.Registry) e
 
 	if o.MysqlExplain != nil {
 		if err := o.MysqlExplain.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_explain")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_explain")
 			}
+
 			return err
 		}
 	}
@@ -331,11 +340,15 @@ func (o *StartServiceActionBody) validateMysqlExplainJSON(formats strfmt.Registr
 
 	if o.MysqlExplainJSON != nil {
 		if err := o.MysqlExplainJSON.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_explain_json")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_explain_json")
 			}
+
 			return err
 		}
 	}
@@ -350,11 +363,15 @@ func (o *StartServiceActionBody) validateMysqlExplainTraditionalJSON(formats str
 
 	if o.MysqlExplainTraditionalJSON != nil {
 		if err := o.MysqlExplainTraditionalJSON.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_explain_traditional_json")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_explain_traditional_json")
 			}
+
 			return err
 		}
 	}
@@ -369,11 +386,15 @@ func (o *StartServiceActionBody) validateMysqlShowCreateTable(formats strfmt.Reg
 
 	if o.MysqlShowCreateTable != nil {
 		if err := o.MysqlShowCreateTable.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_show_create_table")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_show_create_table")
 			}
+
 			return err
 		}
 	}
@@ -388,11 +409,15 @@ func (o *StartServiceActionBody) validateMysqlShowIndex(formats strfmt.Registry)
 
 	if o.MysqlShowIndex != nil {
 		if err := o.MysqlShowIndex.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_show_index")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_show_index")
 			}
+
 			return err
 		}
 	}
@@ -407,11 +432,15 @@ func (o *StartServiceActionBody) validateMysqlShowTableStatus(formats strfmt.Reg
 
 	if o.MysqlShowTableStatus != nil {
 		if err := o.MysqlShowTableStatus.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_show_table_status")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_show_table_status")
 			}
+
 			return err
 		}
 	}
@@ -426,11 +455,15 @@ func (o *StartServiceActionBody) validatePostgresShowCreateTable(formats strfmt.
 
 	if o.PostgresShowCreateTable != nil {
 		if err := o.PostgresShowCreateTable.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_show_create_table")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_show_create_table")
 			}
+
 			return err
 		}
 	}
@@ -445,11 +478,15 @@ func (o *StartServiceActionBody) validatePostgresShowIndex(formats strfmt.Regist
 
 	if o.PostgresShowIndex != nil {
 		if err := o.PostgresShowIndex.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_show_index")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_show_index")
 			}
+
 			return err
 		}
 	}
@@ -464,11 +501,15 @@ func (o *StartServiceActionBody) validatePTMongodbSummary(formats strfmt.Registr
 
 	if o.PTMongodbSummary != nil {
 		if err := o.PTMongodbSummary.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "pt_mongodb_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "pt_mongodb_summary")
 			}
+
 			return err
 		}
 	}
@@ -483,11 +524,15 @@ func (o *StartServiceActionBody) validatePTMysqlSummary(formats strfmt.Registry)
 
 	if o.PTMysqlSummary != nil {
 		if err := o.PTMysqlSummary.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "pt_mysql_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "pt_mysql_summary")
 			}
+
 			return err
 		}
 	}
@@ -502,11 +547,15 @@ func (o *StartServiceActionBody) validatePTPostgresSummary(formats strfmt.Regist
 
 	if o.PTPostgresSummary != nil {
 		if err := o.PTPostgresSummary.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "pt_postgres_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "pt_postgres_summary")
 			}
+
 			return err
 		}
 	}
@@ -580,11 +629,15 @@ func (o *StartServiceActionBody) contextValidateMongodbExplain(ctx context.Conte
 		}
 
 		if err := o.MongodbExplain.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb_explain")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_explain")
 			}
+
 			return err
 		}
 	}
@@ -600,11 +653,15 @@ func (o *StartServiceActionBody) contextValidateMysqlExplain(ctx context.Context
 		}
 
 		if err := o.MysqlExplain.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_explain")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_explain")
 			}
+
 			return err
 		}
 	}
@@ -620,11 +677,15 @@ func (o *StartServiceActionBody) contextValidateMysqlExplainJSON(ctx context.Con
 		}
 
 		if err := o.MysqlExplainJSON.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_explain_json")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_explain_json")
 			}
+
 			return err
 		}
 	}
@@ -640,11 +701,15 @@ func (o *StartServiceActionBody) contextValidateMysqlExplainTraditionalJSON(ctx 
 		}
 
 		if err := o.MysqlExplainTraditionalJSON.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_explain_traditional_json")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_explain_traditional_json")
 			}
+
 			return err
 		}
 	}
@@ -660,11 +725,15 @@ func (o *StartServiceActionBody) contextValidateMysqlShowCreateTable(ctx context
 		}
 
 		if err := o.MysqlShowCreateTable.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_show_create_table")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_show_create_table")
 			}
+
 			return err
 		}
 	}
@@ -680,11 +749,15 @@ func (o *StartServiceActionBody) contextValidateMysqlShowIndex(ctx context.Conte
 		}
 
 		if err := o.MysqlShowIndex.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_show_index")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_show_index")
 			}
+
 			return err
 		}
 	}
@@ -700,11 +773,15 @@ func (o *StartServiceActionBody) contextValidateMysqlShowTableStatus(ctx context
 		}
 
 		if err := o.MysqlShowTableStatus.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql_show_table_status")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql_show_table_status")
 			}
+
 			return err
 		}
 	}
@@ -720,11 +797,15 @@ func (o *StartServiceActionBody) contextValidatePostgresShowCreateTable(ctx cont
 		}
 
 		if err := o.PostgresShowCreateTable.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_show_create_table")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_show_create_table")
 			}
+
 			return err
 		}
 	}
@@ -740,11 +821,15 @@ func (o *StartServiceActionBody) contextValidatePostgresShowIndex(ctx context.Co
 		}
 
 		if err := o.PostgresShowIndex.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgres_show_index")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgres_show_index")
 			}
+
 			return err
 		}
 	}
@@ -760,11 +845,15 @@ func (o *StartServiceActionBody) contextValidatePTMongodbSummary(ctx context.Con
 		}
 
 		if err := o.PTMongodbSummary.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "pt_mongodb_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "pt_mongodb_summary")
 			}
+
 			return err
 		}
 	}
@@ -780,11 +869,15 @@ func (o *StartServiceActionBody) contextValidatePTMysqlSummary(ctx context.Conte
 		}
 
 		if err := o.PTMysqlSummary.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "pt_mysql_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "pt_mysql_summary")
 			}
+
 			return err
 		}
 	}
@@ -800,11 +893,15 @@ func (o *StartServiceActionBody) contextValidatePTPostgresSummary(ctx context.Co
 		}
 
 		if err := o.PTPostgresSummary.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "pt_postgres_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "pt_postgres_summary")
 			}
+
 			return err
 		}
 	}
@@ -871,11 +968,15 @@ func (o *StartServiceActionDefaultBody) validateDetails(formats strfmt.Registry)
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("StartServiceAction default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("StartServiceAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -908,11 +1009,15 @@ func (o *StartServiceActionDefaultBody) contextValidateDetails(ctx context.Conte
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("StartServiceAction default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("StartServiceAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -948,7 +1053,7 @@ type StartServiceActionDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// start service action default body details items0
-	StartServiceActionDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	StartServiceActionDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -975,9 +1080,9 @@ func (o *StartServiceActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -1157,11 +1262,15 @@ func (o *StartServiceActionOKBody) validateMongodbExplain(formats strfmt.Registr
 
 	if o.MongodbExplain != nil {
 		if err := o.MongodbExplain.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mongodb_explain")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mongodb_explain")
 			}
+
 			return err
 		}
 	}
@@ -1176,11 +1285,15 @@ func (o *StartServiceActionOKBody) validateMysqlExplain(formats strfmt.Registry)
 
 	if o.MysqlExplain != nil {
 		if err := o.MysqlExplain.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_explain")
 			}
+
 			return err
 		}
 	}
@@ -1195,11 +1308,15 @@ func (o *StartServiceActionOKBody) validateMysqlExplainJSON(formats strfmt.Regis
 
 	if o.MysqlExplainJSON != nil {
 		if err := o.MysqlExplainJSON.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain_json")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_explain_json")
 			}
+
 			return err
 		}
 	}
@@ -1214,11 +1331,15 @@ func (o *StartServiceActionOKBody) validateMysqlExplainTraditionalJSON(formats s
 
 	if o.MysqlExplainTraditionalJSON != nil {
 		if err := o.MysqlExplainTraditionalJSON.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain_traditional_json")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_explain_traditional_json")
 			}
+
 			return err
 		}
 	}
@@ -1233,11 +1354,15 @@ func (o *StartServiceActionOKBody) validateMysqlShowCreateTable(formats strfmt.R
 
 	if o.MysqlShowCreateTable != nil {
 		if err := o.MysqlShowCreateTable.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_create_table")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_show_create_table")
 			}
+
 			return err
 		}
 	}
@@ -1252,11 +1377,15 @@ func (o *StartServiceActionOKBody) validateMysqlShowIndex(formats strfmt.Registr
 
 	if o.MysqlShowIndex != nil {
 		if err := o.MysqlShowIndex.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_index")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_show_index")
 			}
+
 			return err
 		}
 	}
@@ -1271,11 +1400,15 @@ func (o *StartServiceActionOKBody) validateMysqlShowTableStatus(formats strfmt.R
 
 	if o.MysqlShowTableStatus != nil {
 		if err := o.MysqlShowTableStatus.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_table_status")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_show_table_status")
 			}
+
 			return err
 		}
 	}
@@ -1290,11 +1423,15 @@ func (o *StartServiceActionOKBody) validatePostgresqlShowCreateTable(formats str
 
 	if o.PostgresqlShowCreateTable != nil {
 		if err := o.PostgresqlShowCreateTable.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "postgresql_show_create_table")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "postgresql_show_create_table")
 			}
+
 			return err
 		}
 	}
@@ -1309,11 +1446,15 @@ func (o *StartServiceActionOKBody) validatePostgresqlShowIndex(formats strfmt.Re
 
 	if o.PostgresqlShowIndex != nil {
 		if err := o.PostgresqlShowIndex.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "postgresql_show_index")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "postgresql_show_index")
 			}
+
 			return err
 		}
 	}
@@ -1328,11 +1469,15 @@ func (o *StartServiceActionOKBody) validatePTMongodbSummary(formats strfmt.Regis
 
 	if o.PTMongodbSummary != nil {
 		if err := o.PTMongodbSummary.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_mongodb_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "pt_mongodb_summary")
 			}
+
 			return err
 		}
 	}
@@ -1347,11 +1492,15 @@ func (o *StartServiceActionOKBody) validatePTMysqlSummary(formats strfmt.Registr
 
 	if o.PTMysqlSummary != nil {
 		if err := o.PTMysqlSummary.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_mysql_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "pt_mysql_summary")
 			}
+
 			return err
 		}
 	}
@@ -1366,11 +1515,15 @@ func (o *StartServiceActionOKBody) validatePTPostgresSummary(formats strfmt.Regi
 
 	if o.PTPostgresSummary != nil {
 		if err := o.PTPostgresSummary.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_postgres_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "pt_postgres_summary")
 			}
+
 			return err
 		}
 	}
@@ -1444,11 +1597,15 @@ func (o *StartServiceActionOKBody) contextValidateMongodbExplain(ctx context.Con
 		}
 
 		if err := o.MongodbExplain.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mongodb_explain")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mongodb_explain")
 			}
+
 			return err
 		}
 	}
@@ -1464,11 +1621,15 @@ func (o *StartServiceActionOKBody) contextValidateMysqlExplain(ctx context.Conte
 		}
 
 		if err := o.MysqlExplain.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_explain")
 			}
+
 			return err
 		}
 	}
@@ -1484,11 +1645,15 @@ func (o *StartServiceActionOKBody) contextValidateMysqlExplainJSON(ctx context.C
 		}
 
 		if err := o.MysqlExplainJSON.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain_json")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_explain_json")
 			}
+
 			return err
 		}
 	}
@@ -1504,11 +1669,15 @@ func (o *StartServiceActionOKBody) contextValidateMysqlExplainTraditionalJSON(ct
 		}
 
 		if err := o.MysqlExplainTraditionalJSON.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain_traditional_json")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_explain_traditional_json")
 			}
+
 			return err
 		}
 	}
@@ -1524,11 +1693,15 @@ func (o *StartServiceActionOKBody) contextValidateMysqlShowCreateTable(ctx conte
 		}
 
 		if err := o.MysqlShowCreateTable.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_create_table")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_show_create_table")
 			}
+
 			return err
 		}
 	}
@@ -1544,11 +1717,15 @@ func (o *StartServiceActionOKBody) contextValidateMysqlShowIndex(ctx context.Con
 		}
 
 		if err := o.MysqlShowIndex.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_index")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_show_index")
 			}
+
 			return err
 		}
 	}
@@ -1564,11 +1741,15 @@ func (o *StartServiceActionOKBody) contextValidateMysqlShowTableStatus(ctx conte
 		}
 
 		if err := o.MysqlShowTableStatus.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_table_status")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "mysql_show_table_status")
 			}
+
 			return err
 		}
 	}
@@ -1584,11 +1765,15 @@ func (o *StartServiceActionOKBody) contextValidatePostgresqlShowCreateTable(ctx 
 		}
 
 		if err := o.PostgresqlShowCreateTable.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "postgresql_show_create_table")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "postgresql_show_create_table")
 			}
+
 			return err
 		}
 	}
@@ -1604,11 +1789,15 @@ func (o *StartServiceActionOKBody) contextValidatePostgresqlShowIndex(ctx contex
 		}
 
 		if err := o.PostgresqlShowIndex.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "postgresql_show_index")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "postgresql_show_index")
 			}
+
 			return err
 		}
 	}
@@ -1624,11 +1813,15 @@ func (o *StartServiceActionOKBody) contextValidatePTMongodbSummary(ctx context.C
 		}
 
 		if err := o.PTMongodbSummary.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_mongodb_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "pt_mongodb_summary")
 			}
+
 			return err
 		}
 	}
@@ -1644,11 +1837,15 @@ func (o *StartServiceActionOKBody) contextValidatePTMysqlSummary(ctx context.Con
 		}
 
 		if err := o.PTMysqlSummary.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_mysql_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "pt_mysql_summary")
 			}
+
 			return err
 		}
 	}
@@ -1664,11 +1861,15 @@ func (o *StartServiceActionOKBody) contextValidatePTPostgresSummary(ctx context.
 		}
 
 		if err := o.PTPostgresSummary.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_postgres_summary")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("startServiceActionOk" + "." + "pt_postgres_summary")
 			}
+
 			return err
 		}
 	}

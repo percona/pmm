@@ -69,6 +69,13 @@ client {
     "driver.allowlist" = "raw_exec"
   }
 
+  # Garbage collection settings
+  gc_interval = "{{ .GCInterval }}"
+  gc_disk_usage_threshold = {{ .GCDiskUsageThreshold }}
+  gc_inode_usage_threshold = {{ .GCInodeUsageThreshold }}
+  gc_max_allocs = {{ .GCMaxAllocs }}
+  gc_parallel_destroys = {{ .GCParallelDestroys }}
+
   # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
     pmm-agent = "1"
@@ -110,7 +117,7 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 
 	tdp := models.TemplateDelimsPair()
 
-	config, err := generateNomadAgentConfig(node, exporter, tdp)
+	config, err := generateNomadAgentConfig(node, exporter, tdp, n.GetClientConfig())
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +150,7 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 	return params, nil
 }
 
-func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp models.DelimiterPair) (string, error) {
+func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp models.DelimiterPair, clientConfig models.NomadClient) (string, error) {
 	logLevel := "info"
 	if exporter.LogLevel != nil {
 		logLevel = *exporter.LogLevel
@@ -154,17 +161,22 @@ func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp mod
 	}
 
 	nomadConfigParams := map[string]interface{}{
-		"NodeName":         node.NodeName,
-		"NodeID":           node.NodeID,
-		"Labels":           labels,
-		"PMMServerAddress": tdp.Left + " .server_host " + tdp.Right + ":4647",
-		"NodeAddress":      node.Address,
-		"CaFile":           tdp.Left + " .TextFiles.caCert " + tdp.Right,
-		"CertFile":         tdp.Left + " .TextFiles.certFile " + tdp.Right,
-		"KeyFile":          tdp.Left + " .TextFiles.keyFile " + tdp.Right,
-		"DataDir":          tdp.Left + " .nomad_data_dir " + tdp.Right,
-		"listen_port":      tdp.Left + " .listen_port " + tdp.Right,
-		"LogLevel":         strings.ToUpper(logLevel),
+		"NodeName":              node.NodeName,
+		"NodeID":                node.NodeID,
+		"Labels":                labels,
+		"PMMServerAddress":      tdp.Left + " .server_host " + tdp.Right + ":4647",
+		"NodeAddress":           node.Address,
+		"CaFile":                tdp.Left + " .TextFiles.caCert " + tdp.Right,
+		"CertFile":              tdp.Left + " .TextFiles.certFile " + tdp.Right,
+		"KeyFile":               tdp.Left + " .TextFiles.keyFile " + tdp.Right,
+		"DataDir":               tdp.Left + " .nomad_data_dir " + tdp.Right,
+		"listen_port":           tdp.Left + " .listen_port " + tdp.Right,
+		"LogLevel":              strings.ToUpper(logLevel),
+		"GCDiskUsageThreshold":  clientConfig.GCDiskUsageThreshold,
+		"GCInodeUsageThreshold": clientConfig.GCInodeUsageThreshold,
+		"GCInterval":            clientConfig.GCInterval,
+		"GCMaxAllocs":           clientConfig.GCMaxAllocs,
+		"GCParallelDestroys":    clientConfig.GCParallelDestroys,
 	}
 
 	var configBuffer bytes.Buffer

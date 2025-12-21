@@ -104,7 +104,7 @@ func (cmd *AddExternalServerlessCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddExternalServerlessCommand.
 func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	scheme, metricsPath, address, port, err := cmd.processURLFlags()
 	if err != nil {

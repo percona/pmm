@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: query_schema_design
+    summary: Schema Design Query
+    description: Helps create efficient database schemas by analyzing queries and offering suggestions for optimization.
+    category: query
