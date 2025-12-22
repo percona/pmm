@@ -45,7 +45,7 @@ func TestStore(t *testing.T) {
 
 		store.Set("service1", queries)
 
-		results := store.Get("service1", "")
+		results := store.Get("service1")
 		require.Len(t, results, 1)
 		assert.Equal(t, "q1", results[0].QueryID)
 		assert.Equal(t, "service1", results[0].ServiceID)
@@ -105,28 +105,21 @@ func TestStore(t *testing.T) {
 			{QueryID: "q4", ServiceID: "s3", Cluster: "c2", Timestamp: time.Now()},
 		})
 
-		t.Run("filter by service", func(t *testing.T) {
-			results := store.Get("s1", "")
-			require.Len(t, results, 2)
-			assert.Equal(t, "q1", results[0].QueryID)
-			assert.Equal(t, "q2", results[1].QueryID)
-		})
-
-		t.Run("filter by service and cluster", func(t *testing.T) {
-			results := store.Get("s1", "c1")
+		t.Run("get by service", func(t *testing.T) {
+			results := store.Get("s1")
 			require.Len(t, results, 2)
 			assert.Equal(t, "q1", results[0].QueryID)
 			assert.Equal(t, "q2", results[1].QueryID)
 		})
 
 		t.Run("different service", func(t *testing.T) {
-			results := store.Get("s2", "")
+			results := store.Get("s2")
 			require.Len(t, results, 1)
 			assert.Equal(t, "q3", results[0].QueryID)
 		})
 
 		t.Run("non-existent service returns empty", func(t *testing.T) {
-			results := store.Get("nonexistent", "")
+			results := store.Get("nonexistent")
 			require.Empty(t, results)
 		})
 	})
@@ -146,7 +139,7 @@ func TestStore(t *testing.T) {
 		time.Sleep(150 * time.Millisecond)
 
 		// Get should return empty because bucket is expired
-		results := store.Get("service1", "")
+		results := store.Get("service1")
 		require.Empty(t, results, "Should return empty for expired bucket")
 	})
 
@@ -171,11 +164,11 @@ func TestStore(t *testing.T) {
 		store.cleanup()
 
 		// Check that expired bucket was removed
-		results := store.Get("service1", "")
+		results := store.Get("service1")
 		assert.Empty(t, results, "Expired bucket should be removed")
 
 		// Check that fresh bucket remains
-		results = store.Get("service2", "")
+		results = store.Get("service2")
 		assert.Len(t, results, 1, "Fresh bucket should remain")
 	})
 
@@ -187,15 +180,15 @@ func TestStore(t *testing.T) {
 
 		store.Clear("service1")
 
-		results := store.Get("service1", "")
+		results := store.Get("service1")
 		assert.Empty(t, results, "service1 queries should be cleared")
 
-		results = store.Get("service2", "")
+		results = store.Get("service2")
 		assert.Len(t, results, 1, "service2 queries should remain")
 
 		// Test that clearing non-existent service doesn't panic
 		store.Clear("nonexistent")
-		results = store.Get("nonexistent", "")
+		results = store.Get("nonexistent")
 		assert.Empty(t, results, "non-existent service should return empty")
 	})
 
@@ -235,7 +228,7 @@ func TestStore(t *testing.T) {
 		store.cleanup()
 
 		// Check that expired data was removed
-		results := store.Get("service1", "")
+		results := store.Get("service1")
 		assert.Empty(t, results, "Cleanup should have removed expired bucket")
 	})
 
@@ -261,14 +254,14 @@ func TestStore(t *testing.T) {
 		// Concurrent reads
 		for range 50 {
 			wg.Go(func() {
-				_ = store.Get("service1", "")
+				_ = store.Get("service1")
 			})
 		}
 
 		wg.Wait()
 
 		// Should not panic and should have data
-		results := store.Get("service1", "")
+		results := store.Get("service1")
 		assert.NotEmpty(t, results)
 	})
 }

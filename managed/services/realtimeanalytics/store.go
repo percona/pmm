@@ -23,12 +23,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+//nolint:godot
 const (
-	// defaultTTL is the time-to-live for query data buckets in the store. //nolint:godot
+	// defaultTTL is the time-to-live for query data buckets in the store.
 	defaultTTL = 30 * time.Second
-	// cleanupInterval is how often to run TTL cleanup. //nolint:godot
+	// cleanupInterval is how often to run TTL cleanup.
 	cleanupInterval = 5 * time.Second
-	// numShards is the number of shards for the store. //nolint:godot
+	// numShards is the number of shards for the store.
 	// We use 256 shards to minimize lock contention in high-throughput scenarios.
 	//
 	// Performance characteristics:
@@ -168,7 +169,7 @@ func (s *Store) Set(serviceID string, queries []*QueryData) {
 // Get retrieves queries for a specific service.
 // ServiceID must be specified - this ensures we only read from a single shard for optimal performance.
 // Returns an empty slice if the service has no data or if the bucket is expired (never panics).
-func (s *Store) Get(serviceID, cluster string) []*QueryData {
+func (s *Store) Get(serviceID string) []*QueryData {
 	now := time.Now()
 	cutoff := now.Add(-s.ttl)
 
