@@ -340,6 +340,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 		agentTypes = []AgentType{
 			MongoDBExporterType,
 			QANMongoDBProfilerAgentType,
+			RTAMongoDBAgentType,
 		}
 	case ExternalServiceType, HAProxyServiceType, ProxySQLServiceType:
 		fallthrough
@@ -773,6 +774,7 @@ type CreateAgentParams struct {
 	Disabled                 bool
 	ExporterOptions          ExporterOptions
 	QANOptions               QANOptions
+	RTAOptions               RTAOptions
 	AWSOptions               AWSOptions
 	AzureOptions             AzureOptions
 	MongoDBOptions           MongoDBOptions
@@ -824,6 +826,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 			MongoDBServiceType,
 		},
 		QANMongoDBMongologAgentType: {
+			MongoDBServiceType,
+		},
+		RTAMongoDBAgentType: {
 			MongoDBServiceType,
 		},
 		PostgresExporterType: {
@@ -912,6 +917,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		TLSSkipVerify:     params.TLSSkipVerify,
 		ExporterOptions:   params.ExporterOptions,
 		QANOptions:        params.QANOptions,
+		RTAOptions:        params.RTAOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
 		MongoDBOptions:    params.MongoDBOptions,
@@ -1100,4 +1106,74 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 // IsPushMetricsSupported return if PUSH mode is supported for pmm agent version.
 func IsPushMetricsSupported(pmmAgentVersion *string) bool {
 	return true
+}
+
+// CreateMongoDBRealtimeAgent creates a MongoDB Realtime Analytics agent.
+// It retrieves credentials from existing MongoDB agents for the service as per Option 3 requirements.
+// If a MongoDB Realtime Agent already exists for the service, it returns the existing agent.
+func CreateMongoDBRealtimeAgent(q *reform.Querier, pmmAgentID, serviceID string, customLabels map[string]string, disabled bool) (*Agent, error) {
+	// Check if MongoDB Realtime Agent already exists for this service
+	realtimeAgentType := RTAMongoDBAgentType
+	existingRealtimeAgents, err := FindAgents(q, AgentFilters{
+		ServiceID: serviceID,
+		AgentType: &realtimeAgentType,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(existingRealtimeAgents) != 0 {
+		// Return existing agent instead of creating a duplicate
+		return existingRealtimeAgents[0], nil
+	}
+
+	// Verify service exists and is MongoDB type
+	service, err := FindServiceByID(q, serviceID)
+	if err != nil {
+		return nil, err
+	}
+	if service.ServiceType != MongoDBServiceType {
+		return nil, status.Errorf(codes.InvalidArgument, "Service must be MongoDB type, got %s", service.ServiceType)
+	}
+
+	// Retrieve credentials from existing MongoDB agents for this service
+	// Try to find credentials from QAN or exporter agents
+	agentTypes := []AgentType{
+		QANMongoDBProfilerAgentType,
+		QANMongoDBMongologAgentType,
+		MongoDBExporterType,
+	}
+
+	var existingAgent *Agent
+	for _, agentType := range agentTypes {
+		agents, err := FindAgents(q, AgentFilters{
+			ServiceID: serviceID,
+			AgentType: &agentType,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if len(agents) != 0 {
+			existingAgent = agents[0]
+			break
+		}
+	}
+
+	if existingAgent == nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "No existing MongoDB agent found for service %s to retrieve credentials", serviceID)
+	}
+
+	// Create the MongoDB realtime agent with credentials from existing agent
+	params := &CreateAgentParams{
+		PMMAgentID:     pmmAgentID,
+		ServiceID:      serviceID,
+		Username:       pointer.GetString(existingAgent.Username),
+		Password:       pointer.GetString(existingAgent.Password),
+		CustomLabels:   customLabels,
+		TLS:            existingAgent.TLS,
+		TLSSkipVerify:  existingAgent.TLSSkipVerify,
+		MongoDBOptions: existingAgent.MongoDBOptions,
+		Disabled:       disabled,
+	}
+
+	return CreateAgent(q, RTAMongoDBAgentType, params)
 }
