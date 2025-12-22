@@ -80,6 +80,11 @@ func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRu
 			return nil, err
 		}
 
+		// Apply cluster filter if specified
+		if req.Cluster != "" && service.Cluster != req.Cluster {
+			continue
+		}
+
 		// Determine started_at from RTAOptions.EnabledAt or fall back to CreatedAt
 		startedAt := agent.CreatedAt
 		if agent.RTAOptions.EnabledAt != nil {
