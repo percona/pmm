@@ -44,10 +44,10 @@ github.com/JiriCtvrtka/spec v0.0.0-20251222101011-485c12f10ee3 h1:2aHgm38ogDjrKQ
 github.com/JiriCtvrtka/spec v0.0.0-20251222101011-485c12f10ee3/go.mod h1:7qfIlq148Z8Rj+L01WQmtYy4j7T0SLw20yWrsNVYCMk=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
-github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20251222130839-b558e3f95d0f h1:LqGTNTDJctDKtQHDrwmKVRClcWo8TuYJeW7k4adT+dQ=
-github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20251222130839-b558e3f95d0f/go.mod h1:n22RClY4lNWXfEMUnRT70Xb5Pv2sFwG8itdw/9oGCHc=
-github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a h1:cSFSkTUvha9980XVr92QVhWAmRCvVjjml6EbrIgIX80=
-github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a/go.mod h1:FNfzbagm1xiKLqjKilIqV3aS8I2pNJ1J6KggCdATuQA=
+github.com/Percona-Lab/kingpin/v2 v2.4.0-percona h1:WJb6lHtyyzyS0mKs89zqj+s9gQhWBuFRAZ7xY1MwY/0=
+github.com/Percona-Lab/kingpin/v2 v2.4.0-percona/go.mod h1:0gyi0zQnjuFk8xrkNKamJoyUo382HRL7ATRpFZCw6tE=
+github.com/Percona-Lab/spec v0.21.0-percona h1:WGOweXkZlFw9Koz6b+4qWAyns+FoIhH3LPCWYyQaZwg=
+github.com/Percona-Lab/spec v0.21.0-percona/go.mod h1:78u6VdPw81XU44qEWGhtr982gJ5BWg2c0I5XwVMotYk=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/alecthomas/assert/v2 v2.11.0 h1:2Q9r3ki8+JYXvGsDyBXwH3LcJ+WK5D0gc5E8vS6K3D0=
 github.com/alecthomas/assert/v2 v2.11.0/go.mod h1:Bze95FyfUr7x34QZrjL+XP+0qgp/zg8yS+TtBj1WA3k=
@@ -303,6 +303,8 @@ github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853 h1:cLN4IBkmkYZNnk7E
 github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853/go.mod h1:+JKpmjMGhpgPL+rXZ5nsZieVzvarn86asRlBg4uNGnk=
 github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 h1:UH//fgunKIs4JdUbpDl1VZCDaL56wXCB/5+wF6uHfaI=
 github.com/grpc-ecosystem/go-grpc-middleware v1.4.0/go.mod h1:g5qyo/la0ALbONm6Vbp88Yd8NsDy6rZz+RcrMPxvld8=
+github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 h1:Ovs26xHkKqVztRpIrF/92BcuyuQ/YW4NSIpoGtfXNho=
+github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0/go.mod h1:8NvIoxWQoOIhqOTXgfV/d3M/q6VIi02HzZEHgUlZvzk=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 h1:8Tjv8EJ+pM1xP8mK6egEbD1OgnVTyacbefKhmbLhIhU=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2/go.mod h1:pkJQ2tZHJ0aFOVEEot6oZmaVEZcRme73eIFmhiVuRWs=
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=

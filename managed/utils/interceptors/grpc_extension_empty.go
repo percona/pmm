@@ -16,13 +16,9 @@
 // Package interceptors contains gRPC wrappers for logging and Prometheus metrics.
 package interceptors
 
-import (
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-)
-
 // GRPCMetricsExtensionEmpty is a no-op extension for the original metrics (no extra labels).
 type GRPCMetricsExtensionEmpty struct {
-	grpc_prometheus.DefaultExtension
+	DefaultExtension
 }
 
-var _ grpc_prometheus.ServerExtension = &GRPCMetricsExtensionEmpty{}
+var _ ServerExtension = &GRPCMetricsExtensionEmpty{}
