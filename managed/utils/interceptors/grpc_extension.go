@@ -51,8 +51,7 @@ type ServerExtension interface {
 	ServerHandledHistogramValues(ctx context.Context) []string
 }
 
-type DefaultExtension struct {
-}
+type DefaultExtension struct{}
 
 var emptyExtension ServerExtension = DefaultExtension{}
 
@@ -363,14 +362,12 @@ const (
 	BidiStream   grpcType = "bidi_stream"
 )
 
-var (
-	allCodes = []codes.Code{
-		codes.OK, codes.Canceled, codes.Unknown, codes.InvalidArgument, codes.DeadlineExceeded, codes.NotFound,
-		codes.AlreadyExists, codes.PermissionDenied, codes.Unauthenticated, codes.ResourceExhausted,
-		codes.FailedPrecondition, codes.Aborted, codes.OutOfRange, codes.Unimplemented, codes.Internal,
-		codes.Unavailable, codes.DataLoss,
-	}
-)
+var allCodes = []codes.Code{
+	codes.OK, codes.Canceled, codes.Unknown, codes.InvalidArgument, codes.DeadlineExceeded, codes.NotFound,
+	codes.AlreadyExists, codes.PermissionDenied, codes.Unauthenticated, codes.ResourceExhausted,
+	codes.FailedPrecondition, codes.Aborted, codes.OutOfRange, codes.Unimplemented, codes.Internal,
+	codes.Unavailable, codes.DataLoss,
+}
 
 func splitMethodName(fullMethodName string) (string, string) {
 	fullMethodName = strings.TrimPrefix(fullMethodName, "/") // remove leading slash
