@@ -96,6 +96,16 @@ func TestListRunningRealtimeAgents(t *testing.T) {
 		assert.WithinDuration(t, now, resp.Agents[0].StartedAt.AsTime(), time.Second)
 	})
 
+	t.Run("filter by cluster", func(t *testing.T) {
+		resp, err := svc.ListRunningRealtimeAgents(context.Background(), &rtav1.ListRunningRealtimeAgentsRequest{Cluster: "test-cluster"})
+		require.NoError(t, err)
+		require.Len(t, resp.Agents, 1)
+
+		resp, err = svc.ListRunningRealtimeAgents(context.Background(), &rtav1.ListRunningRealtimeAgentsRequest{Cluster: "other-cluster"})
+		require.NoError(t, err)
+		require.Empty(t, resp.Agents)
+	})
+
 	t.Run("show disconnected agents with unknown status", func(t *testing.T) {
 		registry.connectedAgents[pmmAgent.AgentID] = false
 		resp, err := svc.ListRunningRealtimeAgents(context.Background(), &rtav1.ListRunningRealtimeAgentsRequest{})

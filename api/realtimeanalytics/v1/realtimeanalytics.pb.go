@@ -121,7 +121,9 @@ func (x *RunningRealtimeAgent) GetStatus() v1.AgentStatus {
 
 // ListRunningRealtimeAgentsRequest contains optional filters for listing running RTA agents.
 type ListRunningRealtimeAgentsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional filter by cluster name.
+	Cluster       string `protobuf:"bytes,1,opt,name=cluster,proto3" json:"cluster,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -154,6 +156,13 @@ func (x *ListRunningRealtimeAgentsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListRunningRealtimeAgentsRequest.ProtoReflect.Descriptor instead.
 func (*ListRunningRealtimeAgentsRequest) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListRunningRealtimeAgentsRequest) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
 }
 
 // ListRunningRealtimeAgentsResponse returns the list of running RTA agents.
@@ -307,8 +316,9 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\acluster\x18\x04 \x01(\tR\acluster\x129\n" +
 	"\n" +
 	"started_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x121\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\"\"\n" +
-	" ListRunningRealtimeAgentsRequest\"g\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\"<\n" +
+	" ListRunningRealtimeAgentsRequest\x12\x18\n" +
+	"\acluster\x18\x01 \x01(\tR\acluster\"g\n" +
 	"!ListRunningRealtimeAgentsResponse\x12B\n" +
 	"\x06agents\x18\x01 \x03(\v2*.realtimeanalytics.v1.RunningRealtimeAgentR\x06agents\"`\n" +
 	"\x1eChangeRealtimeAnalyticsRequest\x12\x16\n" +

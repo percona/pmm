@@ -203,6 +203,8 @@ func (m *ListRunningRealtimeAgentsRequest) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Cluster
+
 	if len(errors) > 0 {
 		return ListRunningRealtimeAgentsRequestMultiError(errors)
 	}

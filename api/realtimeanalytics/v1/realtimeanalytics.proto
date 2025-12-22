@@ -26,7 +26,8 @@ message RunningRealtimeAgent {
 
 // ListRunningRealtimeAgentsRequest contains optional filters for listing running RTA agents.
 message ListRunningRealtimeAgentsRequest {
-  // TODO: add filters if needed
+  // Optional filter by cluster name.
+  string cluster = 1;
 }
 
 // ListRunningRealtimeAgentsResponse returns the list of running RTA agents.
