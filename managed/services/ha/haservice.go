@@ -301,7 +301,7 @@ func (s *Service) Run(ctx context.Context) error {
 				{
 					Suffrage: raft.Voter,
 					ID:       raft.ServerID(s.params.NodeID),
-					Address:  raft.ServerAddress(net.JoinHostPort(s.lookupFQDN(s.params.AdvertiseAddress), strconv.Itoa(s.params.RaftPort))),
+					Address:  raft.ServerAddress(net.JoinHostPort(s.lookupFQDN(ctx, s.params.AdvertiseAddress), strconv.Itoa(s.params.RaftPort))),
 				},
 			},
 		}
@@ -348,7 +348,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 			node := event.Node
 			switch event.Event {
 			case memberlist.NodeJoin:
-				s.addMemberlistNodeToRaft(node)
+				s.addMemberlistNodeToRaft(ctx, node)
 			case memberlist.NodeLeave:
 				s.removeMemberlistNodeFromRaft(node)
 			case memberlist.NodeUpdate:
@@ -375,7 +375,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 			s.l.Debugf("HA memberlist: %v", members)
 			for _, node := range members {
 				if _, ok := raftServers[node.Name]; !ok {
-					s.addMemberlistNodeToRaft(node)
+					s.addMemberlistNodeToRaft(ctx, node)
 				}
 			}
 		case <-ctx.Done():
@@ -393,11 +393,11 @@ func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 	}
 }
 
-func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
+func (s *Service) addMemberlistNodeToRaft(ctx context.Context, node *memberlist.Node) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
-	hostname := s.lookupFQDN(node.Addr.String())
+	hostname := s.lookupFQDN(ctx, node.Addr.String())
 	serverAddress := raft.ServerAddress(fmt.Sprintf("%s:%d", hostname, s.params.RaftPort))
 
 	err := s.raftNode.AddVoter(raft.ServerID(node.Name), serverAddress, 0, defaultServerOpTimeout).Error()
@@ -409,12 +409,12 @@ func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
 }
 
 // lookupFQDN performs reverse DNS lookup to get FQDN from IP address.
-func (s *Service) lookupFQDN(address string) string {
+func (s *Service) lookupFQDN(ctx context.Context, address string) string {
 	if net.ParseIP(address) == nil {
 		return address
 	}
 
-	names, err := net.LookupAddr(address)
+	names, err := net.DefaultResolver.LookupAddr(ctx, address)
 	if err != nil || len(names) == 0 {
 		s.l.Warnf("Failed to lookup FQDN for %s, using IP: %s", address, err)
 		return address
@@ -443,7 +443,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 					if peer.Name == s.params.NodeID {
 						continue
 					}
-					s.addMemberlistNodeToRaft(peer)
+					s.addMemberlistNodeToRaft(ctx, peer)
 				}
 			} else {
 				s.l.Info("I am not a leader!")
