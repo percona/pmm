@@ -44,10 +44,8 @@ github.com/JiriCtvrtka/spec v0.0.0-20251222101011-485c12f10ee3 h1:2aHgm38ogDjrKQ
 github.com/JiriCtvrtka/spec v0.0.0-20251222101011-485c12f10ee3/go.mod h1:7qfIlq148Z8Rj+L01WQmtYy4j7T0SLw20yWrsNVYCMk=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
-github.com/Percona-Lab/kingpin/v2 v2.4.0-percona h1:WJb6lHtyyzyS0mKs89zqj+s9gQhWBuFRAZ7xY1MwY/0=
-github.com/Percona-Lab/kingpin/v2 v2.4.0-percona/go.mod h1:0gyi0zQnjuFk8xrkNKamJoyUo382HRL7ATRpFZCw6tE=
-github.com/Percona-Lab/spec v0.21.0-percona h1:WGOweXkZlFw9Koz6b+4qWAyns+FoIhH3LPCWYyQaZwg=
-github.com/Percona-Lab/spec v0.21.0-percona/go.mod h1:78u6VdPw81XU44qEWGhtr982gJ5BWg2c0I5XwVMotYk=
+github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a h1:cSFSkTUvha9980XVr92QVhWAmRCvVjjml6EbrIgIX80=
+github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a/go.mod h1:FNfzbagm1xiKLqjKilIqV3aS8I2pNJ1J6KggCdATuQA=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/alecthomas/assert/v2 v2.11.0 h1:2Q9r3ki8+JYXvGsDyBXwH3LcJ+WK5D0gc5E8vS6K3D0=
 github.com/alecthomas/assert/v2 v2.11.0/go.mod h1:Bze95FyfUr7x34QZrjL+XP+0qgp/zg8yS+TtBj1WA3k=
