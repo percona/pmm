@@ -83,7 +83,7 @@ func TestStore(t *testing.T) {
 		// Verify shards are being used (buckets should be distributed)
 		usedShards := 0
 		for i := 0; i < numShards; i++ {
-			if len(store.shards[i].buckets) > 0 {
+			if len(store.shards[i].buckets) != 0 {
 				usedShards++
 			}
 		}
