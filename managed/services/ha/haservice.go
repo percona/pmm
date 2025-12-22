@@ -226,8 +226,7 @@ func (s *Service) Run(ctx context.Context) error {
 		tcpAddr,
 		defaultRaftRetries,
 		defaultTransportTimeout,
-		nil,
-	)
+		nil)
 	if err != nil {
 		return err
 	}
