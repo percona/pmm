@@ -320,17 +320,17 @@ type monitoredServerStream struct {
 }
 
 func (s *monitoredServerStream) SendMsg(m interface{}) error {
-	err := s.ServerStream.SendMsg(m)
+	err := s.SendMsg(m)
 	if err == nil {
-		s.monitor.SentMessage(s.ServerStream.Context())
+		s.monitor.SentMessage(s.Context())
 	}
 	return err
 }
 
 func (s *monitoredServerStream) RecvMsg(m interface{}) error {
-	err := s.ServerStream.RecvMsg(m)
+	err := s.RecvMsg(m)
 	if err == nil {
-		s.monitor.ReceivedMessage(s.ServerStream.Context())
+		s.monitor.ReceivedMessage(s.Context())
 	}
 	return err
 }
