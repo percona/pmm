@@ -131,7 +131,7 @@ func newMemberlistLogWriter(logger *logrus.Entry) *memberlistLogWriter {
 }
 
 // Write implements io.Writer interface and converts memberlist logs to logrus format.
-func (w *memberlistLogWriter) Write(p []byte) (n int, err error) {
+func (w *memberlistLogWriter) Write(p []byte) (int, error) {
 	// Remove trailing newline
 	msg := string(bytes.TrimRight(p, "\n"))
 
