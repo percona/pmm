@@ -17,6 +17,7 @@
 package ha
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -24,6 +25,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -112,6 +114,52 @@ func (f *fsmSnapshot) Persist(sink raft.SnapshotSink) error {
 // Release is called when we are finished with the snapshot.
 func (f *fsmSnapshot) Release() {
 	// Nothing to release for stateless FSM
+}
+
+// memberlistLogWriter is an io.Writer that converts memberlist's standard log format to structured output.
+type memberlistLogWriter struct {
+	logger   *logrus.Entry
+	logRegex *regexp.Regexp
+}
+
+// newMemberlistLogWriter creates a new log writer for memberlist.
+func newMemberlistLogWriter(logger *logrus.Entry) *memberlistLogWriter {
+	return &memberlistLogWriter{
+		logger:   logger,
+		logRegex: regexp.MustCompile(`^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \[(\w+)\] (.+)$`),
+	}
+}
+
+// Write implements io.Writer interface and converts memberlist logs to logrus format.
+func (w *memberlistLogWriter) Write(p []byte) (n int, err error) {
+	// Remove trailing newline
+	msg := string(bytes.TrimRight(p, "\n"))
+
+	// Parse memberlist log format: "2025/12/22 21:43:27 [DEBUG] message"
+	matches := w.logRegex.FindStringSubmatch(msg)
+	if len(matches) == 3 { //nolint:mnd
+		level := strings.ToLower(matches[1])
+		message := matches[2]
+
+		// Log with appropriate level
+		switch level {
+		case "debug":
+			w.logger.Debug(message)
+		case "info":
+			w.logger.Info(message)
+		case "warn", "warning":
+			w.logger.Warn(message)
+		case "error", "err":
+			w.logger.Error(message)
+		default:
+			w.logger.Info(message)
+		}
+	} else {
+		// Fallback for unparseable logs
+		w.logger.Info(msg)
+	}
+
+	return len(p), nil
 }
 
 // setupRaftStorage sets up persistent storage for Raft.
@@ -275,7 +323,7 @@ func (s *Service) Run(ctx context.Context) error {
 	memberlistConfig.AdvertiseAddr = s.params.AdvertiseAddress
 	memberlistConfig.AdvertisePort = s.params.GossipPort
 	memberlistConfig.Events = &memberlist.ChannelEventDelegate{Ch: s.nodeCh}
-	memberlistConfig.LogOutput = s.l.Logger.Out
+	memberlistConfig.LogOutput = newMemberlistLogWriter(s.l.WithField("subsystem", "memberlist"))
 
 	// Create the memberlist
 	s.memberlist, err = memberlist.Create(memberlistConfig)
