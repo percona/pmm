@@ -53,8 +53,6 @@ type ServerExtension interface {
 
 type DefaultExtension struct{}
 
-var emptyExtension ServerExtension = DefaultExtension{}
-
 func (DefaultExtension) ServerHandledCounterCustomLabels() []string {
 	return nil
 }
