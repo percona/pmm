@@ -24,11 +24,11 @@ import (
 )
 
 const (
-	// defaultTTL is the time-to-live for query data in the store
+	// defaultTTL is the time-to-live for query data buckets in the store. //nolint:godot
 	defaultTTL = 30 * time.Second
-	// cleanupInterval is how often to run TTL cleanup
+	// cleanupInterval is how often to run TTL cleanup. //nolint:godot
 	cleanupInterval = 5 * time.Second
-	// numShards is the number of shards for the store.
+	// numShards is the number of shards for the store. //nolint:godot
 	// We use 256 shards to minimize lock contention in high-throughput scenarios.
 	//
 	// Performance characteristics:
@@ -60,12 +60,19 @@ type QueryData struct {
 	Timestamp   time.Time
 }
 
+// queryBucket represents a collection of queries for a service with metadata.
+// The bucket's timestamp indicates when it was last updated, which is used for TTL.
+type queryBucket struct {
+	timestamp time.Time    // When this bucket was last updated (Set was called)
+	queries   []*QueryData // The actual query data
+}
+
 // shard represents a single shard of the store with its own lock.
 // Each shard is completely independent, allowing concurrent operations
 // on different shards without any lock contention.
 type shard struct {
 	mu      sync.RWMutex            // Lock only for this shard's data
-	queries map[string][]*QueryData // Query data stored in this shard
+	buckets map[string]*queryBucket // Query buckets stored in this shard
 }
 
 // Store provides thread-safe in-memory storage for real-time query data.
@@ -95,7 +102,7 @@ func NewStore() *Store {
 	// Initialize all shards
 	for i := range numShards {
 		s.shards[i] = &shard{
-			queries: make(map[string][]*QueryData),
+			buckets: make(map[string]*queryBucket),
 		}
 	}
 
@@ -122,7 +129,7 @@ func (s *Store) getShard(serviceID string) *shard {
 	return s.shards[hash%numShards]
 }
 
-// Run starts the cleanup goroutine that removes expired query data.
+// Run starts the cleanup goroutine that removes expired query buckets.
 func (s *Store) Run(ctx context.Context) {
 	ticker := time.NewTicker(cleanupInterval)
 	defer ticker.Stop()
@@ -140,6 +147,7 @@ func (s *Store) Run(ctx context.Context) {
 }
 
 // Set sets the queries for a specific service.
+// Creates a new bucket with the current timestamp, which is used for TTL.
 //
 // Performance: Only locks the specific shard, allowing concurrent writes to different services.
 // For example, if 1000 agents are writing simultaneously to 1000 different services,
@@ -151,46 +159,40 @@ func (s *Store) Set(serviceID string, queries []*QueryData) {
 	shard.mu.Lock() // Lock ONLY this shard, not the entire store
 	defer shard.mu.Unlock()
 
-	shard.queries[serviceID] = queries
+	shard.buckets[serviceID] = &queryBucket{
+		timestamp: time.Now(),
+		queries:   queries,
+	}
 }
 
-// Get retrieves queries for a specific service, optionally filtered by cluster.
-// Only returns queries that are within the TTL.
+// Get retrieves queries for a specific service.
 // ServiceID must be specified - this ensures we only read from a single shard for optimal performance.
-// Returns an empty slice if the service has no data (never panics).
+// Returns an empty slice if the service has no data or if the bucket is expired (never panics).
 func (s *Store) Get(serviceID, cluster string) []*QueryData {
 	now := time.Now()
 	cutoff := now.Add(-s.ttl)
 
-	var result []*QueryData
-
 	// Read from the specific shard for this service
 	shard := s.getShard(serviceID)
 	shard.mu.RLock()
-	queries, exists := shard.queries[serviceID]
+	bucket, exists := shard.buckets[serviceID]
 	shard.mu.RUnlock()
 
 	// If service has no data, return empty slice (safe - no panic)
-	if !exists || len(queries) == 0 {
-		return result
+	if !exists {
+		return []*QueryData{}
 	}
 
-	for _, q := range queries {
-		// Filter by TTL
-		if q.Timestamp.Before(cutoff) {
-			continue
-		}
-		// Filter by cluster if specified
-		if cluster != "" && q.Cluster != cluster {
-			continue
-		}
-		result = append(result, q)
+	// Check if the bucket is expired
+	if bucket.timestamp.Before(cutoff) {
+		return []*QueryData{}
 	}
 
-	return result
+	return bucket.queries
 }
 
-// cleanup removes expired queries from all shards.
+// cleanup removes expired query buckets from all shards.
+// A bucket is expired if its timestamp is older than TTL.
 //
 // Performance: Locks each shard independently and briefly. While one shard is being
 // cleaned, operations on other shards can proceed normally. This is much better than
@@ -204,20 +206,10 @@ func (s *Store) cleanup() {
 		shard := s.shards[i]
 		shard.mu.Lock() // Lock only this shard during its cleanup
 
-		for serviceID, queries := range shard.queries {
-			// Filter out expired queries
-			valid := queries[:0] // Reuse slice memory
-			for _, q := range queries {
-				if q.Timestamp.After(cutoff) {
-					valid = append(valid, q)
-				}
-			}
-
-			if len(valid) == 0 {
-				// Remove the service entirely if no queries remain
-				delete(shard.queries, serviceID)
-			} else {
-				shard.queries[serviceID] = valid
+		for serviceID, bucket := range shard.buckets {
+			// Check if bucket is expired
+			if bucket.timestamp.Before(cutoff) {
+				delete(shard.buckets, serviceID)
 			}
 		}
 
@@ -232,7 +224,7 @@ func (s *Store) Clear(serviceID string) {
 	shard.mu.Lock()
 	defer shard.mu.Unlock()
 
-	delete(shard.queries, serviceID) // Safe: delete on non-existent key is a no-op
+	delete(shard.buckets, serviceID) // Safe: delete on non-existent key is a no-op
 }
 
 // Stats returns the number of queries stored per service across all shards.
@@ -243,8 +235,8 @@ func (s *Store) Stats() map[string]int {
 	for i := range numShards {
 		shard := s.shards[i]
 		shard.mu.RLock()
-		for serviceID, queries := range shard.queries {
-			stats[serviceID] += len(queries)
+		for serviceID, bucket := range shard.buckets {
+			stats[serviceID] += len(bucket.queries)
 		}
 		shard.mu.RUnlock()
 	}
