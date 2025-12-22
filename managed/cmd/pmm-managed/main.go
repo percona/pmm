@@ -39,7 +39,6 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
@@ -236,14 +235,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
-	grpcMetrics := grpc_prometheus.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
 	prom.MustRegister(grpcMetrics)
 
 	gRPCServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			interceptors.Unary(grpcMetrics.UnaryServerInterceptor()),
+			interceptors.UnaryM(grpcMetrics.UnaryServerInterceptor()),
 			interceptors.UnaryServiceEnabledInterceptor(),
 			grpc_validator.UnaryServerInterceptor())),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
