@@ -5,13 +5,13 @@ go 1.25.5
 // Update saas with
 // go get -v github.com/percona/saas@latest
 
-replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592
+replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20251222130839-b558e3f95d0f
 
-replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.21.0-percona
+replace github.com/go-openapi/spec => github.com/JiriCtvrtka/spec v0.0.0-20251222101011-485c12f10ee3
 
-replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2.4.0-percona
+replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a
 
-replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20251126201349-d7d254a5171a
+replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20251219125031-82d8ba2cda22
 
 require (
 	github.com/AlekSi/pointer v1.2.0
@@ -44,8 +44,8 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2
-	github.com/hashicorp/go-version v1.8.0
-	github.com/hashicorp/raft v1.7.0
+	github.com/hashicorp/go-version v1.7.0
+	github.com/hashicorp/raft v1.7.3
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.9
@@ -70,15 +70,15 @@ require (
 	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
 	go.mongodb.org/mongo-driver v1.17.6
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
-	golang.org/x/crypto v0.45.0
+	golang.org/x/crypto v0.46.0
 	golang.org/x/sync v0.19.0
 	golang.org/x/sys v0.39.0
 	golang.org/x/text v0.32.0
 	golang.org/x/tools v0.39.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20251022142026-3a174f9686a8
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251213004720-97cd9d5aeac2
 	google.golang.org/grpc v1.77.0
-	google.golang.org/protobuf v1.36.10
+	google.golang.org/protobuf v1.36.11
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
@@ -101,16 +101,16 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/swag/cmdutils v0.25.1 // indirect
-	github.com/go-openapi/swag/conv v0.25.1 // indirect
+	github.com/go-openapi/swag/conv v0.25.4 // indirect
 	github.com/go-openapi/swag/fileutils v0.25.1 // indirect
-	github.com/go-openapi/swag/jsonname v0.25.1 // indirect
-	github.com/go-openapi/swag/jsonutils v0.25.1 // indirect
-	github.com/go-openapi/swag/loading v0.25.1 // indirect
+	github.com/go-openapi/swag/jsonname v0.25.4 // indirect
+	github.com/go-openapi/swag/jsonutils v0.25.4 // indirect
+	github.com/go-openapi/swag/loading v0.25.4 // indirect
 	github.com/go-openapi/swag/mangling v0.25.1 // indirect
 	github.com/go-openapi/swag/netutils v0.25.1 // indirect
-	github.com/go-openapi/swag/stringutils v0.25.1 // indirect
-	github.com/go-openapi/swag/typeutils v0.25.1 // indirect
-	github.com/go-openapi/swag/yamlutils v0.25.1 // indirect
+	github.com/go-openapi/swag/stringutils v0.25.4 // indirect
+	github.com/go-openapi/swag/typeutils v0.25.4 // indirect
+	github.com/go-openapi/swag/yamlutils v0.25.4 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gogo/googleapis v0.0.0-20180223154316-0cd9801be74a // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
@@ -118,7 +118,8 @@ require (
 	github.com/google/btree v1.0.1 // indirect
 	github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
-	github.com/hashicorp/go-msgpack/v2 v2.1.1 // indirect
+	github.com/hashicorp/go-metrics v0.5.4 // indirect
+	github.com/hashicorp/go-msgpack/v2 v2.1.2 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/miekg/dns v1.1.68 // indirect
@@ -152,8 +153,8 @@ require (
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-openapi/analysis v0.24.0 // indirect
-	github.com/go-openapi/jsonpointer v0.22.1 // indirect
-	github.com/go-openapi/jsonreference v0.21.2 // indirect
+	github.com/go-openapi/jsonpointer v0.22.4 // indirect
+	github.com/go-openapi/jsonreference v0.21.4 // indirect
 	github.com/go-openapi/loads v0.23.1 // indirect
 	github.com/go-openapi/spec v0.22.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -181,7 +182,7 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/procfs v0.16.1 // indirect
+	github.com/prometheus/procfs v0.19.2 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
@@ -192,5 +193,5 @@ require (
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/net v0.48.0 // indirect
 )
