@@ -1163,6 +1163,13 @@ func CreateMongoDBRealtimeAgent(q *reform.Querier, pmmAgentID, serviceID string,
 	}
 
 	// Create the MongoDB realtime agent with credentials from existing agent
+	rtaOptions := RTAOptions{}
+	if !disabled {
+		// Only set EnabledAt when the agent is actually enabled
+		now := time.Now()
+		rtaOptions.EnabledAt = &now
+	}
+
 	params := &CreateAgentParams{
 		PMMAgentID:     pmmAgentID,
 		ServiceID:      serviceID,
@@ -1172,6 +1179,7 @@ func CreateMongoDBRealtimeAgent(q *reform.Querier, pmmAgentID, serviceID string,
 		TLS:            existingAgent.TLS,
 		TLSSkipVerify:  existingAgent.TLSSkipVerify,
 		MongoDBOptions: existingAgent.MongoDBOptions,
+		RTAOptions:     rtaOptions,
 		Disabled:       disabled,
 	}
 
