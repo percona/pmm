@@ -1,3 +1,4 @@
+//nolint:all
 // Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,6 +15,12 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package interceptors contains gRPC wrappers for logging and Prometheus metrics.
+// Beware: this code is copied from Percona-Lab/go-grpc-prometheus to get rid of that fork.
+// Everything needed is contained in this file. There is a ticket (PMM-14659) related to
+// upgrading go-grpc-middleware. We need to upgrade in the near future because the upstream
+// go-grpc-prometheus repository is now archived. After upgrade, this file should be removed/uppdated.
+// Lint is disabled for this file because the code is expected to be removed in the near future.
+
 package interceptors
 
 import (
@@ -27,6 +34,12 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
+
+type GRPCMetricsExtensionEmpty struct {
+	DefaultExtension
+}
+
+var _ ServerExtension = &GRPCMetricsExtensionEmpty{}
 
 type grpcCallerOrigin struct{}
 
