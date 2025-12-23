@@ -132,7 +132,9 @@ func newMemberlistLogWriter(logger *logrus.Entry) *memberlistLogWriter {
 
 // Write implements io.Writer interface and converts memberlist logs to logrus format.
 func (w *memberlistLogWriter) Write(p []byte) (int, error) {
-	// Remove trailing newline
+	n := len(p)
+
+	// Remove trailing newline for parsing
 	msg := string(bytes.TrimRight(p, "\n"))
 
 	// Parse memberlist log format: "2025/12/22 21:43:27 [DEBUG] message"
@@ -159,8 +161,10 @@ func (w *memberlistLogWriter) Write(p []byte) (int, error) {
 		w.logger.Info(msg)
 	}
 
-	return len(p), nil
+	return n, nil
 }
+
+var _ io.Writer = (*memberlistLogWriter)(nil)
 
 // setupRaftStorage sets up persistent storage for Raft.
 func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, *raft.FileSnapshotStore, error) {
