@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/agent_status.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 // RunningRealtimeAgent represents a currently running RTA agent.
 message RunningRealtimeAgent {
@@ -35,6 +36,19 @@ message ListRunningRealtimeAgentsResponse {
   repeated RunningRealtimeAgent agents = 1;
 }
 
+// ChangeRealtimeAnalyticsRequest contains parameters for enabling or disabling RTA.
+message ChangeRealtimeAnalyticsRequest {
+  // Enable or disable RTA.
+  bool enable = 1;
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string = {min_len: 1}];
+}
+
+// ChangeRealtimeAnalyticsResponse is the response for changing RTA configuration.
+message ChangeRealtimeAnalyticsResponse {
+  // Empty response for now.
+}
+
 // RealtimeAnalyticsService provides public API for managing Real-Time Analytics.
 service RealtimeAnalyticsService {
   // ListRunningRealtimeAgents returns the list of currently running RTA agents.
@@ -43,6 +57,18 @@ service RealtimeAnalyticsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Running RTA Agents"
       description: "Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information."
+    };
+  }
+
+  // ChangeRealtimeAnalytics enables or disables RTA for a service.
+  rpc ChangeRealtimeAnalytics(ChangeRealtimeAnalyticsRequest) returns (ChangeRealtimeAnalyticsResponse) {
+    option (google.api.http) = {
+      post: "/v1/realtime/change"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change Real-Time Analytics Configuration"
+      description: "Enables or disables Real-Time Analytics for a specific service."
     };
   }
 }
