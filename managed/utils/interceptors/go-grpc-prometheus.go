@@ -19,6 +19,7 @@
 // upgrading go-grpc-middleware. We need to upgrade in the near future because the upstream
 // go-grpc-prometheus repository is now archived. After upgrade, this file should be removed/uppdated.
 // Lint is disabled for this file because the code is expected to be removed in the near future.
+// Remove excluded lint rule for managed/utils/interceptors/go-grpc-prometheus.go in .golangci.yml after the file is removed.
 package interceptors
 
 import (
