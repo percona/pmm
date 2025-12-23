@@ -16,8 +16,8 @@
 // Package interceptors contains gRPC wrappers for logging and Prometheus metrics.
 // Beware: this code is copied from Percona-Lab/go-grpc-prometheus to get rid of that fork.
 // Everything needed is contained in this file. There is a ticket (PMM-14659) related to
-// upgrading go-grpc-middleware. We need to upgrade in the near future because the upstream
-// go-grpc-prometheus repository is now archived. After upgrade, this file should be removed/uppdated.
+// upgrading to go-grpc-middleware. We need to upgrade in the near future because the upstream
+// go-grpc-prometheus repository is now archived. After upgrade, this file should be removed/updated.
 // Lint is disabled for this file because the code is expected to be removed in the near future.
 // Remove excluded lint rule for managed/utils/interceptors/go-grpc-prometheus.go in .golangci.yml after the file is removed.
 package interceptors
