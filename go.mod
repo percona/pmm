@@ -5,8 +5,6 @@ go 1.25.5
 // Update saas with
 // go get -v github.com/percona/saas@latest
 
-//replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592
-
 replace github.com/go-openapi/spec => github.com/JiriCtvrtka/spec v0.0.0-20251222101011-485c12f10ee3
 
 replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a
