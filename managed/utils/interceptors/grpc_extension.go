@@ -246,8 +246,7 @@ func (m *ServerMetrics) EnableHandlingTimeHistogram(opts ...HistogramOption) {
 	if !m.serverHandledHistogramEnabled {
 		m.serverHandledHistogram = prom.NewHistogramVec(
 			m.serverHandledHistogramOpts,
-			[]string{"grpc_type", "grpc_service", "grpc_method"},
-		)
+			[]string{"grpc_type", "grpc_service", "grpc_method"})
 	}
 	m.serverHandledHistogramEnabled = true
 }
