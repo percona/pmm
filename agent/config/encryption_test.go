@@ -57,7 +57,6 @@ func writeKey(t *testing.T, keyname, key string) string {
 }
 
 func TestEncryption(t *testing.T) {
-
 	t.Run("Encrypted", func(t *testing.T) {
 		key := writeKey(t, "key", rsaKey)
 		enc := Encryption{
@@ -67,7 +66,6 @@ func TestEncryption(t *testing.T) {
 		cfg, err := loadFromFile(configfilef, &enc)
 		require.NoError(t, err)
 		assert.Equal(t, &Config{ID: "agent-id"}, cfg)
-
 	})
 
 	t.Run("EncryptedPassword", func(t *testing.T) {
@@ -80,7 +78,6 @@ func TestEncryption(t *testing.T) {
 		cfg, err := loadFromFile(configfilef, &enc)
 		require.NoError(t, err)
 		assert.Equal(t, &Config{ID: "agent-id"}, cfg)
-
 	})
 
 	t.Run("EncryptedWrongPassword", func(t *testing.T) {
@@ -112,5 +109,4 @@ func TestEncryption(t *testing.T) {
 		require.EqualError(t, err, "unable to RSA-unwrap AES key: crypto/rsa: decryption error")
 		assert.Nil(t, cfg)
 	})
-
 }
