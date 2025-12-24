@@ -126,18 +126,16 @@ type memberlistLogWriter struct {
 func newMemberlistLogWriter(logger *logrus.Entry) *memberlistLogWriter {
 	return &memberlistLogWriter{
 		logger:   logger,
-		logRegex: regexp.MustCompile(`^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \[(\w+)\] (.+)$`),
+		logRegex: regexp.MustCompile(`^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \[(\w+)\] (?:memberlist: )?(.+)$`),
 	}
 }
 
 // Write implements io.Writer interface and converts memberlist logs to logrus format.
 func (w *memberlistLogWriter) Write(p []byte) (int, error) {
-	n := len(p)
-
 	// Remove trailing newline for parsing
 	msg := string(bytes.TrimRight(p, "\n"))
 
-	// Parse memberlist log format: "2025/12/22 21:43:27 [DEBUG] message"
+	// Parse memberlist log format: "2025/12/22 21:43:27 [DEBUG|INFO|WARN|ERR] message"
 	matches := w.logRegex.FindStringSubmatch(msg)
 	if len(matches) == 3 { //nolint:mnd
 		level := strings.ToLower(matches[1])
@@ -149,9 +147,9 @@ func (w *memberlistLogWriter) Write(p []byte) (int, error) {
 			w.logger.Debug(message)
 		case "info":
 			w.logger.Info(message)
-		case "warn", "warning":
+		case "warn":
 			w.logger.Warn(message)
-		case "error", "err":
+		case "err":
 			w.logger.Error(message)
 		default:
 			w.logger.Info(message)
@@ -161,7 +159,7 @@ func (w *memberlistLogWriter) Write(p []byte) (int, error) {
 		w.logger.Info(msg)
 	}
 
-	return n, nil
+	return len(p), nil
 }
 
 var _ io.Writer = (*memberlistLogWriter)(nil)
