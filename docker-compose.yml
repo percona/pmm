@@ -107,7 +107,7 @@ services:
       #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
       # command: >
       #   bash -c "
-      #     script you want to run before entrypoint, e.g.
+      #     # script you want to run before entrypoint, e.g.
       #     bash /tmp/wait-for-it.sh -t 30 some-service:some-port --
       #     /opt/entrypoint.sh
       #   "
