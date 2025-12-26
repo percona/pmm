@@ -541,7 +541,7 @@ func loadFromFile(path string, enc *Encryption) (*Config, error) {
 		return nil, err
 	}
 
-	encryptionEnabled := enc != nil && len(enc.KeyFile) > 0 && len(b) > 0
+	encryptionEnabled := enc != nil && len(enc.KeyFile) != 0 && len(b) != 0
 	if encryptionEnabled {
 		b, err = enc.Decrypt(b)
 		if err != nil {
