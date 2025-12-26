@@ -21,49 +21,55 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/pem"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 
-	"github.com/pkg/errors"
 	"github.com/youmark/pkcs8"
 )
 
+// Encryption handles encryption and decryption of data using hybrid RSA + AES-GCM scheme.
 type Encryption struct {
 	KeyFile         string
 	KeyFilePassword string
 }
 
-const gcmNonceSize = 12
+const (
+	gcmNonceSize = 12
+	aesKeySize   = 32
+)
 
+// Encrypt encrypts the given plaintext.
 func (enc Encryption) Encrypt(plain []byte) ([]byte, error) {
 	priv, err := enc.readKeyFile()
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to get RSA key from KeyFile")
+		return nil, fmt.Errorf("unable to get RSA key from KeyFile: %w", err)
 	}
 
-	aesKey := make([]byte, 32)
+	aesKey := make([]byte, aesKeySize)
 	if _, err := io.ReadFull(rand.Reader, aesKey); err != nil {
-		return nil, errors.Wrap(err, "unable to generate AES key")
+		return nil, fmt.Errorf("unable to generate AES key: %w", err)
 	}
 
 	block, err := aes.NewCipher(aesKey)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to init AES")
+		return nil, fmt.Errorf("unable to init AES: %w", err)
 	}
 	gcm, err := cipher.NewGCMWithNonceSize(block, gcmNonceSize)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to init GCM")
+		return nil, fmt.Errorf("unable to init GCM: %w", err)
 	}
 	nonce := make([]byte, gcmNonceSize)
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, errors.Wrap(err, "unable to generate nonce")
+		return nil, fmt.Errorf("unable to generate nonce: %w", err)
 	}
 
 	ciphertext := gcm.Seal(nil, nonce, plain, nil)
 
 	wrappedKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, &priv.PublicKey, aesKey, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to RSA-wrap AES key")
+		return nil, fmt.Errorf("unable to RSA-wrap AES key: %w", err)
 	}
 
 	out := make([]byte, 0, len(wrappedKey)+len(nonce)+len(ciphertext))
@@ -73,13 +79,14 @@ func (enc Encryption) Encrypt(plain []byte) ([]byte, error) {
 	return out, nil
 }
 
+// Decrypt decrypts the given ciphertext.
 func (enc Encryption) Decrypt(in []byte) ([]byte, error) {
 	priv, err := enc.readKeyFile()
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to get RSA key from KeyFile")
+		return nil, fmt.Errorf("unable to get RSA key from KeyFile: %w", err)
 	}
 
-	k := priv.PublicKey.Size()
+	k := priv.Size()
 	if len(in) < k+gcmNonceSize+1 {
 		return nil, errors.New("ciphertext too short")
 	}
@@ -90,24 +97,24 @@ func (enc Encryption) Decrypt(in []byte) ([]byte, error) {
 
 	aesKey, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, priv, wrappedKey, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to RSA-unwrap AES key")
+		return nil, fmt.Errorf("unable to RSA-unwrap AES key: %w", err)
 	}
-	if len(aesKey) != 32 {
-		return nil, errors.Errorf("unexpected AES key length: %d", len(aesKey))
+	if len(aesKey) != aesKeySize {
+		return nil, fmt.Errorf("unexpected AES key length: %d", len(aesKey))
 	}
 
 	block, err := aes.NewCipher(aesKey)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to init AES")
+		return nil, fmt.Errorf("unable to init AES: %w", err)
 	}
 	gcm, err := cipher.NewGCMWithNonceSize(block, gcmNonceSize)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to init GCM")
+		return nil, fmt.Errorf("unable to init GCM: %w", err)
 	}
 
 	plain, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to decrypt (wrong key or data tampered)")
+		return nil, fmt.Errorf("unable to decrypt (wrong key or data tampered): %w", err)
 	}
 	return plain, nil
 }
@@ -115,7 +122,7 @@ func (enc Encryption) Decrypt(in []byte) ([]byte, error) {
 func (enc Encryption) readKeyFile() (*rsa.PrivateKey, error) {
 	f, err := os.ReadFile(enc.KeyFile)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to read KeyFile")
+		return nil, fmt.Errorf("unable to read KeyFile: %w", err)
 	}
 
 	block, _ := pem.Decode(f)
@@ -125,7 +132,7 @@ func (enc Encryption) readKeyFile() (*rsa.PrivateKey, error) {
 
 	k, err := pkcs8.ParsePKCS8PrivateKey(block.Bytes, []byte(enc.KeyFilePassword))
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to parse private key")
+		return nil, fmt.Errorf("unable to parse private key: %w", err)
 	}
 
 	rsaKey, ok := k.(*rsa.PrivateKey)
