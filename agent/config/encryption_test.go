@@ -42,6 +42,7 @@ TF1yxL9OKxrMpQ==
 -----END PRIVATE KEY-----
 `
 
+//nolint:gosec
 const rsaPasswordKey = `
 -----BEGIN ENCRYPTED PRIVATE KEY-----
 MIIC5TBfBgkqhkiG9w0BBQ0wUjAxBgkqhkiG9w0BBQwwJAQQ1vE1Ke5aqPfS+DEA
