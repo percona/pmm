@@ -7,34 +7,161 @@ build:
   tagPolicy:
     envTemplate:
       template: "{{.PMM_VERSION}}"
+  
   artifacts:
-    # Main PMM Client builder artifact
-    - image: pmm-client-builder
+    # Workspace components
+    - image: pmm-admin
       context: ../..
       docker:
-        dockerfile: build/skaffold/Dockerfile.builder
+        dockerfile: build/skaffold/Dockerfile.component
+        target: pmm-admin-artifacts
         buildArgs:
           BASE_IMAGE: "{{.BASE_IMAGE}}"
           PMM_VERSION: "{{.PMM_VERSION}}"
-          FULL_PMM_VERSION: "{{.FULL_PMM_VERSION}}"
           BUILD_TYPE: "{{.BUILD_TYPE}}"
-          GOOS: "{{.GOOS}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: pmm-agent
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.component
+        target: pmm-agent-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+          BUILD_TYPE: "{{.BUILD_TYPE}}"
+      platforms:
+        - "linux/amd64"
+    
+    # External components
+    - image: node_exporter
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: node_exporter-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: mysqld_exporter
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: mysqld_exporter-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: mongodb_exporter
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: mongodb_exporter-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+          BUILD_TYPE: "{{.BUILD_TYPE}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: postgres_exporter
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: postgres_exporter-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: proxysql_exporter
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: proxysql_exporter-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: rds_exporter
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: rds_exporter-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: azure_metrics_exporter
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: azure_metrics_exporter-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: redis_exporter
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: redis_exporter-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: vmagent
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: vmagent-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+    
+    - image: nomad
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: nomad-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
           GOARCH: "{{.GOARCH}}"
       platforms:
         - "linux/amd64"
-      sync:
-        manual:
-          - src: "admin/**/*.go"
-            dest: /workspace/admin
-          - src: "agent/**/*.go"
-            dest: /workspace/agent
-          - src: "build/**"
-            dest: /workspace/build
-
+    
+    - image: percona_toolkit
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.external
+        target: percona_toolkit-artifacts
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+      platforms:
+        - "linux/amd64"
+  
   local:
     push: false
     useBuildkit: true
-    concurrency: 1
+    concurrency: 4
 
 # Profiles for different build types and architectures
 profiles:
@@ -42,20 +169,18 @@ profiles:
   - name: static
     activation:
       - env: BUILD_TYPE=static
-    build:
-      artifacts:
-        - image: pmm-client-builder
-          docker:
-            buildArgs:
-              BUILD_TYPE: static
-
+  
   # Dynamic build (for GSSAPI support)
   - name: dynamic
     activation:
       - env: BUILD_TYPE=dynamic
     build:
       artifacts:
-        - image: pmm-client-builder
+        - image: pmm-agent
+          docker:
+            buildArgs:
+              BUILD_TYPE: dynamic
+        - image: mongodb-exporter
           docker:
             buildArgs:
               BUILD_TYPE: dynamic
@@ -66,30 +191,14 @@ profiles:
       - env: GOARCH=arm64
     build:
       artifacts:
-        - image: pmm-client-builder
+        - image: "*"
           docker:
             buildArgs:
               GOARCH: arm64
+          platforms:
+            - "linux/arm64"
 
   # AMD64 architecture (default)
   - name: amd64
     activation:
       - env: GOARCH=amd64
-    build:
-      artifacts:
-        - image: pmm-client-builder
-          docker:
-            buildArgs:
-              GOARCH: amd64
-
-  # Development build with race detector
-  - name: dev
-    activation:
-      - env: BUILD_MODE=dev
-    build:
-      artifacts:
-        - image: pmm-client-builder
-          docker:
-            target: dev-builder
-            buildArgs:
-              BUILD_TYPE: static

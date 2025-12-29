@@ -1,0 +1,66 @@
+# Multi-stage Dockerfile for workspace components (pmm-admin, pmm-agent)
+ARG BASE_IMAGE=golang:latest
+FROM ${BASE_IMAGE} AS base
+
+RUN apt-get update && apt-get install -y zip && rm -rf /var/lib/apt/lists/*
+
+ENV CGO_ENABLED=0
+ENV GO111MODULE=auto
+ENV GOMODCACHE=/go/pkg/mod
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+WORKDIR /workspace
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
+COPY . .
+
+ARG PMM_VERSION
+ARG BUILD_TYPE=static
+
+# Fetch VERSION file
+RUN curl -fsSL https://raw.githubusercontent.com/Percona-Lab/pmm-submodules/refs/heads/v3/VERSION -o /tmp/VERSION
+
+# Validate PMM_VERSION
+RUN if [ -z "${PMM_VERSION}" ]; then \
+        echo "ERROR: PMM_VERSION is required" >&2; \
+        exit 1; \
+    fi
+
+# pmm-admin target
+FROM base AS pmm-admin
+ARG PMM_VERSION
+ARG BUILD_TYPE
+RUN --mount=type=cache,target=/go/pkg/mod \
+    mkdir -p /output && \
+    cd admin && \
+    export PMM_RELEASE_VERSION="${PMM_VERSION}" && \
+    export PMM_RELEASE_TIMESTAMP=$(date '+%s') && \
+    export PMM_RELEASE_PATH=/output && \
+    export PMM_RELEASE_FULLCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown") && \
+    export PMM_RELEASE_BRANCH=$(git describe --always --contains --all 2>/dev/null || echo "unknown") && \
+    make release PMM_RELEASE_PATH=/output
+
+FROM scratch AS pmm-admin-artifacts
+COPY --from=pmm-admin /output /output
+
+# pmm-agent target
+FROM base AS pmm-agent
+ARG PMM_VERSION
+ARG BUILD_TYPE
+RUN --mount=type=cache,target=/go/pkg/mod \
+    mkdir -p /output && \
+    cd agent && \
+    export PMM_RELEASE_VERSION="${PMM_VERSION}" && \
+    export PMM_RELEASE_TIMESTAMP=$(date '+%s') && \
+    export PMM_RELEASE_PATH=/output && \
+    export PMM_RELEASE_FULLCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown") && \
+    export PMM_RELEASE_BRANCH=$(git describe --always --contains --all 2>/dev/null || echo "unknown") && \
+    if [ "${BUILD_TYPE}" = "dynamic" ]; then \
+        make release-gssapi PMM_RELEASE_PATH=/output; \
+    else \
+        make release PMM_RELEASE_PATH=/output; \
+    fi
+
+FROM scratch AS pmm-agent-artifacts
+COPY --from=pmm-agent /output /output
