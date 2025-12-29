@@ -355,6 +355,7 @@ github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+o
 github.com/klauspost/compress v1.13.6/go.mod h1:/3/Vjq9QcHkK5uEr5lBEmyoZ1iFhe47etQ6QUkpK6sk=
 github.com/klauspost/compress v1.18.1 h1:bcSGx7UbpBqMChDtsF28Lw6v/G94LPrrbMbdC3JH2co=
 github.com/klauspost/compress v1.18.1/go.mod h1:ZQFFVG+MdnR0P+l6wpXgIL4NTtwiKIdBnrBd8Nrxr+0=
+github.com/klauspost/compress v1.18.2/go.mod h1:R0h/fSBs8DE4ENlcrlib3PsXS61voFxhIs2DeRhCvJ4=
 github.com/klauspost/cpuid/v2 v2.0.1/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/klauspost/cpuid/v2 v2.2.4 h1:acbojRNwl3o09bUq+yDCtZFc1aiwaAAxtcn8YkZXnvk=
 github.com/klauspost/cpuid/v2 v2.2.4/go.mod h1:RVVoqg1df56z8g3pUjL/3lE5UfnlrJX8tyFgg4nqhuY=
@@ -442,8 +443,11 @@ github.com/percona/exporter_shared v0.7.5 h1:sIhdDtKOfH0jsqtTAi41C7wm1R42yXYeAkK
 github.com/percona/exporter_shared v0.7.5/go.mod h1:P8ZHDzveyJRGD4ZIRNiEMuAdDexBpQWf2mAVwtyVcYU=
 github.com/percona/go-mysql v0.0.0-20251201040229-5d45a34bb47e h1:hBRgF3kVLEnO2jEjpmCMxV6QhmSylle6Hs273KQsYOM=
 github.com/percona/go-mysql v0.0.0-20251201040229-5d45a34bb47e/go.mod h1:Ld01LWPTK0Ggx5Amb9Za0oJHHjEtLgHyogYiMr8NlTo=
+github.com/percona/go-mysql v0.0.0-20251202083530-b3e1c16efc74/go.mod h1:8n6mF3Igr3YYdh19ZUvyVyEH+hQr9LVSjG9hrlp0YTU=
 github.com/percona/percona-toolkit v0.0.0-20250623101308-06d5966106f5 h1:u+IKhOU3HM35mNt+5Y6b7KBacRPi0nSJJ3iXh8ozdaA=
 github.com/percona/percona-toolkit v0.0.0-20250623101308-06d5966106f5/go.mod h1:VqRg3o7QU8wpAfRHlgZCT8epVtFc5Naa8x63BoQgtQk=
+github.com/percona/percona-toolkit v0.0.0-20251217124347-6b3e5ed485dd h1:V5I+drJ8ZsCTBRlZZCS0BHPPTG+ZVuQHQtLCs+TA0J8=
+github.com/percona/percona-toolkit v0.0.0-20251217124347-6b3e5ed485dd/go.mod h1:r44H7VKB5Fvw5lZNw0v7IF7plpHMSpjg8f59QO0J9jg=
 github.com/percona/promconfig v0.3.0 h1:uGNaHD9Hc+MbUyk24F4GsjEUZdvj/wpGGvvw0U7uDLM=
 github.com/percona/promconfig v0.3.0/go.mod h1:GQ3NeieiBFy0dCDtNTl/xR9L6spdzU1zfspT/HWNeMw=
 github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e h1:xhk5ivxlTPat0SwLBqU1UdfqJb+2R3x4yAhjCf6WMEU=
@@ -545,6 +549,7 @@ github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT
 github.com/xdg-go/scram v1.1.1/go.mod h1:RaEWvsqvNKKvBPvcKeFjrG2cJqOkHTiyTpzz23ni57g=
 github.com/xdg-go/scram v1.1.2 h1:FHX5I5B4i4hKRVRBCFRxq1iQRej7WO3hhBuJf+UUySY=
 github.com/xdg-go/scram v1.1.2/go.mod h1:RT/sEzTbU5y00aCK8UOx6R7YryM0iF1N2MOmC3kKLN4=
+github.com/xdg-go/scram v1.2.0/go.mod h1:3dlrS0iBaWKYVt2ZfA4cj48umJZ+cAEbR6/SjLA88I8=
 github.com/xdg-go/stringprep v1.0.3/go.mod h1:W3f5j4i+9rC0kuIEJL0ky1VpHXQU3ocBgklLGvcBnW8=
 github.com/xdg-go/stringprep v1.0.4 h1:XLI/Ng3O1Atzq0oBs3TWm+5ZVgkq2aqdlvP9JtoZ6c8=
 github.com/xdg-go/stringprep v1.0.4/go.mod h1:mPGuuIYwz7CmR2bT9j4GbQqutWS1zV24gijq1dTyGkM=
