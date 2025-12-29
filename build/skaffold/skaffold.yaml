@@ -1,0 +1,95 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: pmm-client
+
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.PMM_VERSION}}"
+  artifacts:
+    # Main PMM Client builder artifact
+    - image: pmm-client-builder
+      context: ../..
+      docker:
+        dockerfile: build/skaffold/Dockerfile.builder
+        buildArgs:
+          BASE_IMAGE: "{{.BASE_IMAGE}}"
+          PMM_VERSION: "{{.PMM_VERSION}}"
+          FULL_PMM_VERSION: "{{.FULL_PMM_VERSION}}"
+          BUILD_TYPE: "{{.BUILD_TYPE}}"
+          GOOS: "{{.GOOS}}"
+          GOARCH: "{{.GOARCH}}"
+      platforms:
+        - "linux/amd64"
+      sync:
+        manual:
+          - src: "admin/**/*.go"
+            dest: /workspace/admin
+          - src: "agent/**/*.go"
+            dest: /workspace/agent
+          - src: "build/**"
+            dest: /workspace/build
+
+  local:
+    push: false
+    useBuildkit: true
+    concurrency: 1
+
+# Profiles for different build types and architectures
+profiles:
+  # Static build (default)
+  - name: static
+    activation:
+      - env: BUILD_TYPE=static
+    build:
+      artifacts:
+        - image: pmm-client-builder
+          docker:
+            buildArgs:
+              BUILD_TYPE: static
+
+  # Dynamic build (for GSSAPI support)
+  - name: dynamic
+    activation:
+      - env: BUILD_TYPE=dynamic
+    build:
+      artifacts:
+        - image: pmm-client-builder
+          docker:
+            buildArgs:
+              BUILD_TYPE: dynamic
+
+  # ARM64 architecture
+  - name: arm64
+    activation:
+      - env: GOARCH=arm64
+    build:
+      artifacts:
+        - image: pmm-client-builder
+          docker:
+            buildArgs:
+              GOARCH: arm64
+
+  # AMD64 architecture (default)
+  - name: amd64
+    activation:
+      - env: GOARCH=amd64
+    build:
+      artifacts:
+        - image: pmm-client-builder
+          docker:
+            buildArgs:
+              GOARCH: amd64
+
+  # Development build with race detector
+  - name: dev
+    activation:
+      - env: BUILD_MODE=dev
+    build:
+      artifacts:
+        - image: pmm-client-builder
+          docker:
+            target: dev-builder
+            buildArgs:
+              BUILD_TYPE: static

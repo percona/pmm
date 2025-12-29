@@ -1,0 +1,59 @@
+# .dockerignore for PMM Client Skaffold build
+# Reduces build context size by excluding unnecessary files
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Build artifacts
+bin/
+results/
+tmp/
+*.tar.gz
+*.rpm
+*.deb
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation (not needed for build)
+documentation/
+*.md
+!build/skaffold/*.md
+
+# Test files
+*_test.go
+testdata/
+**/testdata/
+
+# Development
+.devcontainer/
+dev/
+
+# Node modules and UI (not needed for client build)
+ui/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# CI/CD
+.github/
+.circleci/
+
+# Docker
+docker-compose*.yml
+Dockerfile
+!build/skaffold/Dockerfile.builder
+
+# Misc
+*.log
+*.out
+*.prof
+coverage.txt
+cover.out
