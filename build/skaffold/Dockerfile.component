@@ -41,8 +41,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     export PMM_RELEASE_BRANCH=$(git describe --always --contains --all 2>/dev/null || echo "unknown") && \
     make release PMM_RELEASE_PATH=/output
 
-FROM scratch AS pmm-admin-artifacts
+FROM alpine AS pmm-admin-artifacts
 COPY --from=pmm-admin /output /output
+CMD ["/bin/sh"]
 
 # pmm-agent target
 FROM base AS pmm-agent
@@ -62,5 +63,6 @@ RUN --mount=type=cache,target=/go/pkg/mod \
         make release PMM_RELEASE_PATH=/output; \
     fi
 
-FROM scratch AS pmm-agent-artifacts
+FROM alpine AS pmm-agent-artifacts
 COPY --from=pmm-agent /output /output
+CMD ["/bin/sh"]

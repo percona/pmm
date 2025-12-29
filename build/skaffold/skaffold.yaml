@@ -147,11 +147,11 @@ build:
       platforms:
         - "linux/amd64"
     
-    - image: percona_toolkit
+    - image: percona-toolkit
       context: ../..
       docker:
         dockerfile: build/skaffold/Dockerfile.external
-        target: percona_toolkit-artifacts
+        target: percona-toolkit-artifacts
         buildArgs:
           BASE_IMAGE: "{{.BASE_IMAGE}}"
           PMM_VERSION: "{{.PMM_VERSION}}"
@@ -180,7 +180,7 @@ profiles:
           docker:
             buildArgs:
               BUILD_TYPE: dynamic
-        - image: mongodb-exporter
+        - image: mongodb_exporter
           docker:
             buildArgs:
               BUILD_TYPE: dynamic

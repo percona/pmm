@@ -39,8 +39,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     . /scripts/component-helpers.sh && \
     build_component "node_exporter" "make release && cp node_exporter /output/"
 
-FROM scratch AS node_exporter-artifacts
+FROM alpine AS node_exporter-artifacts
 COPY --from=node_exporter /output /output
+CMD ["/bin/sh"]
 
 # mysqld_exporter target
 FROM base AS mysqld_exporter
@@ -49,8 +50,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     . /scripts/component-helpers.sh && \
     build_component "mysqld_exporter" "make release && cp mysqld_exporter /output/"
 
-FROM scratch AS mysqld_exporter-artifacts
+FROM alpine AS mysqld_exporter-artifacts
 COPY --from=mysqld_exporter /output /output
+CMD ["/bin/sh"]
 
 # mongodb_exporter target
 FROM base AS mongodb_exporter
@@ -64,8 +66,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
         build_component "mongodb_exporter" "make build && cp mongodb_exporter /output/"; \
     fi
 
-FROM scratch AS mongodb_exporter-artifacts
+FROM alpine AS mongodb_exporter-artifacts
 COPY --from=mongodb_exporter /output /output
+CMD ["/bin/sh"]
 
 # postgres_exporter target
 FROM base AS postgres_exporter
@@ -74,8 +77,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     . /scripts/component-helpers.sh && \
     build_component "postgres_exporter" "make release && cp postgres_exporter /output/"
 
-FROM scratch AS postgres_exporter-artifacts
+FROM alpine AS postgres_exporter-artifacts
 COPY --from=postgres_exporter /output /output
+CMD ["/bin/sh"]
 
 # proxysql_exporter target
 FROM base AS proxysql_exporter
@@ -84,8 +88,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     . /scripts/component-helpers.sh && \
     build_component "proxysql_exporter" "make release && cp proxysql_exporter /output/"
 
-FROM scratch AS proxysql_exporter-artifacts
+FROM alpine AS proxysql_exporter-artifacts
 COPY --from=proxysql_exporter /output /output
+CMD ["/bin/sh"]
 
 # rds_exporter target
 FROM base AS rds_exporter
@@ -94,8 +99,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     . /scripts/component-helpers.sh && \
     build_component "rds_exporter" "make release && cp rds_exporter /output/"
 
-FROM scratch AS rds_exporter-artifacts
+FROM alpine AS rds_exporter-artifacts
 COPY --from=rds_exporter /output /output
+CMD ["/bin/sh"]
 
 # azure_metrics_exporter target
 FROM base AS azure_metrics_exporter
@@ -104,8 +110,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     . /scripts/component-helpers.sh && \
     build_component "azure_metrics_exporter" "make release && cp azure_exporter /output/"
 
-FROM scratch AS azure_metrics_exporter-artifacts
+FROM alpine AS azure_metrics_exporter-artifacts
 COPY --from=azure_metrics_exporter /output /output
+CMD ["/bin/sh"]
 
 # redis_exporter target
 FROM base AS redis_exporter
@@ -114,8 +121,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     . /scripts/component-helpers.sh && \
     build_component "redis_exporter" "make build && cp redis_exporter /output/"
 
-FROM scratch AS redis_exporter-artifacts
+FROM alpine AS redis_exporter-artifacts
 COPY --from=redis_exporter /output /output
+CMD ["/bin/sh"]
 
 # vmagent target
 FROM base AS vmagent
@@ -124,8 +132,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     . /scripts/component-helpers.sh && \
     build_component "VictoriaMetrics" "make vmagent-linux-amd64 && cp bin/vmagent-linux-amd64 /output/vmagent"
 
-FROM scratch AS vmagent-artifacts
+FROM alpine AS vmagent-artifacts
 COPY --from=vmagent /output /output
+CMD ["/bin/sh"]
 
 # nomad target
 FROM base AS nomad
@@ -136,11 +145,12 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     NOMAD_TARGET="linux_${GOARCH}" && \
     build_component "nomad" "env CGO_ENABLED=0 TARGETS=${NOMAD_TARGET} make deps release && cp pkg/${NOMAD_TARGET}/nomad /output/"
 
-FROM scratch AS nomad-artifacts
+FROM alpine AS nomad-artifacts
 COPY --from=nomad /output /output
+CMD ["/bin/sh"]
 
-# percona_toolkit target
-FROM base AS percona_toolkit
+# percona-toolkit target
+FROM base AS percona-toolkit
 RUN --mount=type=cache,target=/build/source \
     . /scripts/component-helpers.sh && \
     build_component "percona-toolkit" "\
@@ -150,5 +160,6 @@ RUN --mount=type=cache,target=/build/source \
         cd src/go/pt-mongodb-summary && go build -o /output/pt-mongodb-summary . && \
         cd ../pt-pg-summary && go build -o /output/pt-pg-summary ."
 
-FROM scratch AS percona_toolkit-artifacts
-COPY --from=percona_toolkit /output /output
+FROM alpine AS percona-toolkit-artifacts
+COPY --from=percona-toolkit /output /output
+CMD ["/bin/sh"]

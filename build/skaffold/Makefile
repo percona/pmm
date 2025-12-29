@@ -50,9 +50,9 @@ GOARCH ?= amd64
 export GOARCH
 
 # Component list
-COMPONENTS := pmm-admin pmm-agent node-exporter mysqld-exporter mongodb-exporter \
-              postgres-exporter proxysql-exporter rds-exporter azure-metrics-exporter \
-              redis-exporter vmagent nomad percona-toolkit
+COMPONENTS := pmm-admin pmm-agent node_exporter mysqld_exporter mongodb_exporter \
+              postgres_exporter proxysql_exporter rds_exporter azure_metrics_exporter \
+              redis_exporter vmagent nomad percona-toolkit
 
 # Build all components
 build:
@@ -94,9 +94,17 @@ extract:
 	@for component in $(COMPONENTS); do \
 		image="$$component:$(PMM_VERSION)"; \
 		echo "Extracting from $$image..."; \
-		docker create --name pmm-extract-$$component $$image 2>/dev/null || true; \
-		docker cp pmm-extract-$$component:/output/. $(RESULTS_DIR)/ 2>/dev/null || true; \
-		docker rm pmm-extract-$$component 2>/dev/null || true; \
+		if docker image inspect $$image >/dev/null 2>&1; then \
+			container_id=$$(docker create $$image /bin/sh 2>/dev/null); \
+			if [ -n "$$container_id" ]; then \
+				docker cp $$container_id:/output/. $(RESULTS_DIR)/ 2>/dev/null || echo "Warning: No files in $$image"; \
+				docker rm $$container_id 2>/dev/null; \
+			else \
+				echo "Warning: Failed to create container from $$image"; \
+			fi; \
+		else \
+			echo "Warning: Image $$image not found"; \
+		fi; \
 	done
 	@echo "Binaries extracted to $(RESULTS_DIR)"
 	@ls -lh $(RESULTS_DIR)
