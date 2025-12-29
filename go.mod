@@ -28,7 +28,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
-	github.com/envoyproxy/protoc-gen-validate v1.2.1
+	github.com/envoyproxy/protoc-gen-validate v1.3.0
 	github.com/go-co-op/gocron v1.37.0
 	github.com/go-openapi/errors v0.22.4
 	github.com/go-openapi/runtime v0.29.0
