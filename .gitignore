@@ -32,14 +32,17 @@ compose.yml
 # ViM temporary files
 *.sw[o,p]
 
+# build ops
 .env
 .netrc
 .modules
 build.log
 ci.yml
+/build/pipeline/output/
+/build/pipeline/scripts/gitmodules
 
-api-tests/pmm-api-tests-output.txt
-api-tests/pmm-api-tests-junit-report.xml
+/api-tests/pmm-api-tests-output.txt
+/api-tests/pmm-api-tests-junit-report.xml
 
 packer.log
 encryption.key

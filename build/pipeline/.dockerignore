@@ -1,4 +1,4 @@
-# .dockerignore for PMM Client Skaffold build
+# .dockerignore for PMM builds
 # Reduces build context size by excluding unnecessary files
 
 # Git
@@ -25,7 +25,6 @@ tmp/
 # Documentation (not needed for build)
 documentation/
 *.md
-!build/skaffold/*.md
 
 # Test files
 *_test.go
@@ -48,8 +47,9 @@ yarn-error.log
 
 # Docker
 docker-compose*.yml
-Dockerfile
-!build/skaffold/Dockerfile.builder
+Dockerfile.builder
+build/source/
+output/
 
 # Misc
 *.log

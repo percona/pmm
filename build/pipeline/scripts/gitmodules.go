@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 4 {
+	if len(os.Args) < 4 { //nolint:mnd
 		fmt.Fprintf(os.Stderr, "Usage: %s <gitmodules-file> <component> <field>\n", os.Args[0])
 		os.Exit(1)
 	}
