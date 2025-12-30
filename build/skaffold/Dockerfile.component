@@ -2,6 +2,8 @@
 ARG BASE_IMAGE=golang:latest
 FROM ${BASE_IMAGE} AS base
 
+SHELL ["/bin/bash", "-c"]
+
 RUN apt-get update && apt-get install -y zip && rm -rf /var/lib/apt/lists/*
 
 ENV CGO_ENABLED=0
@@ -18,12 +20,9 @@ COPY . .
 ARG PMM_VERSION
 ARG BUILD_TYPE=static
 
-# Fetch VERSION file
-RUN curl -fsSL https://raw.githubusercontent.com/Percona-Lab/pmm-submodules/refs/heads/v3/VERSION -o /tmp/VERSION
-
 # Validate PMM_VERSION
 RUN if [ -z "${PMM_VERSION}" ]; then \
-        echo "ERROR: PMM_VERSION is required" >&2; \
+        echo "Error: PMM_VERSION is required" >&2; \
         exit 1; \
     fi
 

@@ -38,7 +38,7 @@ build_component() {
                 ref="HEAD"
                 ;;
             *)
-                echo "ERROR: No URL/ref found for ${component}" >&2
+                echo "Error: No URL/ref found for ${component}" >&2
                 return 1
                 ;;
         esac
@@ -49,7 +49,7 @@ build_component() {
     # Clone or update repository
     if [ ! -d "${src_dir}" ]; then
         echo "Cloning ${component}..."
-        if [[ "${ref}" =~ ^[0-9a-f]{7,40}$ ]]; then
+        if grep -qE '^[0-9a-f]{7,40}$' <<< "${ref}"; then
             git clone "${url}" "${src_dir}"
             cd "${src_dir}"
             git checkout "${ref}"
