@@ -102,7 +102,7 @@ func New(configDir string, params *models.Params) *Service {
 }
 
 // Run reads supervisord's log (maintail) and sends events to subscribers.
-func (s *Service) Run(ctx context.Context) {
+func (s *Service) Run(ctx context.Context) { //nolint:gocognit
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, updates are disabled.")
 		return

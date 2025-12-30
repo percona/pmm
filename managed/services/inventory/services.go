@@ -299,7 +299,7 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 // Remove removes Service without any Agents.
 // Removes Service with the Agents if force == true.
 // Returns an error if force == false and Service has Agents.
-func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error {
+func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error { //nolint:gocognit
 	pmmAgentIDs := make(map[string]struct{})
 
 	if e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

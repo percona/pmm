@@ -210,7 +210,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 	}
 }
 
-func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport {
+func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport { //nolint:gocognit
 	initializedDataSources := make(map[DataSourceName]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration

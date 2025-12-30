@@ -178,7 +178,7 @@ const (
 )
 
 // Init initializes telemetry config.
-func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
+func (c *ServiceConfig) Init(l *logrus.Entry) error {
 	c.l = l
 
 	configFile := os.Getenv(envConfigFile)

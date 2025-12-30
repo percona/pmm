@@ -621,7 +621,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
+func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) { //nolint:gocognit
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 	if err := s.validateChangeSettingsRequest(ctx, req); err != nil {
