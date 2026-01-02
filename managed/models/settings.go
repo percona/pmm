@@ -106,7 +106,7 @@ type Settings struct {
 	} `json:"backup_management"`
 
 	// PMMServerID is generated on the first start of PMM server.
-	PMMServerID string `json:"pmmServerID"`
+	PMMServerID string `json:"pmmServerID"` //nolint:tagliatelle
 
 	// DefaultRoleID defines a default role to be assigned to new users.
 	DefaultRoleID int `json:"default_role_id"`

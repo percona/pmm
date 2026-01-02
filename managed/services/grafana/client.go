@@ -321,8 +321,8 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 }
 
 type serviceAccountSearch struct {
-	TotalCount      int              `json:"totalCount"`
-	ServiceAccounts []serviceAccount `json:"serviceAccounts"`
+	TotalCount      int              `json:"totalCount"`      //nolint:tagliatelle
+	ServiceAccounts []serviceAccount `json:"serviceAccounts"` //nolint:tagliatelle
 }
 
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {

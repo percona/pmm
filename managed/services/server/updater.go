@@ -297,12 +297,12 @@ func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
 
 type result struct {
 	Version   string    `json:"version"`
-	ImageInfo imageInfo `json:"imageInfo"`
+	ImageInfo imageInfo `json:"imageInfo"` //nolint:tagliatelle
 }
 
 type imageInfo struct {
-	ImagePath             string    `json:"imagePath"`
-	ImageReleaseTimestamp time.Time `json:"imageReleaseTimestamp"`
+	ImagePath             string    `json:"imagePath"`             //nolint:tagliatelle
+	ImageReleaseTimestamp time.Time `json:"imageReleaseTimestamp"` //nolint:tagliatelle
 }
 
 // MetadataResponse is a response from the metadata endpoint on Percona version service.
@@ -312,7 +312,7 @@ type MetadataResponse struct {
 
 // ReleaseNotesResponse is a response from the release-notes endpoint on Percona version service.
 type ReleaseNotesResponse struct {
-	ReleaseNote string `json:"releaseNote"`
+	ReleaseNote string `json:"releaseNote"` //nolint:tagliatelle
 }
 
 // latestAvailableFromVersionService queries Percona version service and returns:

@@ -42,14 +42,14 @@ type listLabels struct {
 	Name []testValuesUnmarshal `json:"name,omitempty"`
 }
 type testValues struct {
-	MainMetricPercent float32 `json:"mainMetricPercent,omitempty"`
-	MainMetricPerSec  float32 `json:"mainMetricPerSec,omitempty"`
+	MainMetricPercent float32 `json:"mainMetricPercent,omitempty"` //nolint:tagliatelle
+	MainMetricPerSec  float32 `json:"mainMetricPerSec,omitempty"`  //nolint:tagliatelle
 }
 
 type testValuesUnmarshal struct {
 	Value             string `json:"value,omitempty"`
-	MainMetricPercent any    `json:"mainMetricPercent,omitempty"`
-	MainMetricPerSec  any    `json:"mainMetricPerSec,omitempty"`
+	MainMetricPercent any    `json:"mainMetricPercent,omitempty"` //nolint:tagliatelle
+	MainMetricPerSec  any    `json:"mainMetricPerSec,omitempty"`  //nolint:tagliatelle
 }
 
 func TestService_GetFilters(t *testing.T) {

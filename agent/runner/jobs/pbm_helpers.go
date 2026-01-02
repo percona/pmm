@@ -111,14 +111,14 @@ type pbmRestore struct {
 	StartedAt time.Time
 	Name      string `json:"name"`
 	Snapshot  string `json:"snapshot"`
-	PITR      string `json:"point-in-time"`
+	PITR      string `json:"point-in-time"` //nolint:tagliatelle
 }
 
 type pbmSnapshot struct {
 	Name       string `json:"name"`
 	Status     string `json:"status"`
-	RestoreTo  int64  `json:"restoreTo"`
-	PbmVersion string `json:"pbmVersion"`
+	RestoreTo  int64  `json:"restoreTo"`  //nolint:tagliatelle
+	PbmVersion string `json:"pbmVersion"` //nolint:tagliatelle
 	Type       string `json:"type"`
 	Error      string `json:"error"`
 }
@@ -128,7 +128,7 @@ type pbmListRestore struct {
 	Status   string `json:"status"`
 	Type     string `json:"type"`
 	Snapshot string `json:"snapshot"`
-	PITR     int64  `json:"point-in-time"`
+	PITR     int64  `json:"point-in-time"` //nolint:tagliatelle
 	Name     string `json:"name"`
 	Error    string `json:"error"`
 }
@@ -141,7 +141,7 @@ type pbmStatus struct {
 		Snapshot   []pbmSnapshot `json:"snapshot"`
 		PitrChunks struct {
 			Size int `json:"size"`
-		} `json:"pitrChunks"`
+		} `json:"pitrChunks"` //nolint:tagliatelle
 	} `json:"backups"`
 	Cluster []struct {
 		Rs    string `json:"rs"`
@@ -159,14 +159,14 @@ type pbmStatus struct {
 	Running struct {
 		Type    string `json:"type"`
 		Name    string `json:"name"`
-		StartTS int    `json:"startTS"`
+		StartTS int    `json:"startTS"` //nolint:tagliatelle
 		Status  string `json:"status"`
-		OpID    string `json:"opID"`
+		OpID    string `json:"opID"` //nolint:tagliatelle
 	} `json:"running"`
 }
 
 type pbmError struct {
-	Error string `json:"Error"`
+	Error string `json:"Error"` //nolint:tagliatelle
 }
 
 // pbmConfigParams groups the flags/options for configuring PBM.

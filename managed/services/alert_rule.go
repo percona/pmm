@@ -33,17 +33,17 @@ type RelativeTimeRange struct {
 
 // Model represents grafana query model.
 type Model struct {
-	RefID   string `json:"refId"`
+	RefID   string `json:"refId"` //nolint:tagliatelle
 	Expr    string `json:"expr"`
 	Instant bool   `json:"instant"`
 }
 
 // Data represents grafana API alert rule data.
 type Data struct {
-	RefID             string            `json:"refId"`
-	DatasourceUID     string            `json:"datasourceUid"`
-	QueryType         string            `json:"queryType"`
-	RelativeTimeRange RelativeTimeRange `json:"relativeTimeRange,omitempty"`
+	RefID             string            `json:"refId"`                       //nolint:tagliatelle
+	DatasourceUID     string            `json:"datasourceUid"`               //nolint:tagliatelle
+	QueryType         string            `json:"queryType"`                   //nolint:tagliatelle
+	RelativeTimeRange RelativeTimeRange `json:"relativeTimeRange,omitempty"` //nolint:tagliatelle
 	Model             Model             `json:"model,omitempty"`
 }
 

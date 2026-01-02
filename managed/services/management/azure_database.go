@@ -71,7 +71,7 @@ type AzureDatabaseInstanceData struct {
 	Properties    map[string]interface{} `json:"properties"`
 	Tags          map[string]string      `json:"tags"`
 	Sku           map[string]interface{} `json:"sku"`
-	ResourceGroup string                 `json:"resourceGroup"`
+	ResourceGroup string                 `json:"resourceGroup"` //nolint:tagliatelle
 	Type          string                 `json:"type"`
 	Zones         string                 `json:"zones"`
 }

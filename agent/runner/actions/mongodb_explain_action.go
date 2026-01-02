@@ -46,7 +46,7 @@ type explain struct {
 	Op                 string `json:"op"`
 	Query              bson.D `json:"query,omitempty"`
 	Command            bson.D `json:"command,omitempty"`
-	OriginatingCommand bson.D `json:"originatingCommand,omitempty"`
+	OriginatingCommand bson.D `json:"originatingCommand,omitempty"` //nolint:tagliatelle
 	UpdateObj          bson.D `json:"updateobj,omitempty"`
 }
 

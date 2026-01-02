@@ -165,7 +165,7 @@ type Config struct {
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	LogLinesCount         uint   `json:"log-lines-count"`
+	LogLinesCount         uint   `json:"log-lines-count"` //nolint:tagliatelle
 	PerfschemaRefreshRate uint16 `yaml:"perfschema-refresh-rate,omitempty"`
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`

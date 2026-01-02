@@ -82,7 +82,7 @@ linters:
         rules:
           avro: snake
           bson: camel
-          json: ""
+          json: snake
           xml: camel
           yaml: ""
     unparam:
