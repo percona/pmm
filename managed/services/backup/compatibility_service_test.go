@@ -379,6 +379,7 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 }
 
 func TestFindArtifactCompatibleServices(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	cSvc := NewCompatibilityService(db, nil)
@@ -465,6 +466,7 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			serviceModel, nodeModel, locationModel := setupSoftwareTest(t, db)
 			t.Cleanup(func() {
 				dropRecords(serviceModel, nodeModel, locationModel)
@@ -493,6 +495,7 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 	}
 
 	t.Run("find several services", func(t *testing.T) {
+		t.Parallel()
 		serviceModel, nodeModel, locationModel := setupSoftwareTest(t, db)
 		t.Cleanup(func() {
 			dropRecords(serviceModel, nodeModel, locationModel)

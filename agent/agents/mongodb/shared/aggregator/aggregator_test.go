@@ -34,9 +34,14 @@ import (
 )
 
 func TestAggregator(t *testing.T) {
+	t.Parallel(
 	// we need at least one test per package to correctly calculate coverage
+	)
+
 	t.Run("Add", func(t *testing.T) {
+		t.Parallel()
 		t.Run("error if aggregator is not running", func(t *testing.T) {
+			t.Parallel()
 			a := New(time.Now(), "test-agent", logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
 			err := a.Add(context.TODO(), proto.SystemProfile{})
 			assert.EqualError(t, err, "aggregator is not running")
@@ -44,6 +49,7 @@ func TestAggregator(t *testing.T) {
 	})
 
 	t.Run("createResult", func(t *testing.T) {
+		t.Parallel()
 		agentID := "test-agent"
 		startPeriod := time.Now()
 		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
@@ -103,6 +109,7 @@ func TestAggregator(t *testing.T) {
 	})
 
 	t.Run("createResultInvalidUTF8", func(t *testing.T) {
+		t.Parallel()
 		agentID := "test-agent"
 		startPeriod := time.Now()
 		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())

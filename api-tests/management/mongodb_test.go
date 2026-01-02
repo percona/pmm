@@ -33,7 +33,9 @@ import (
 )
 
 func TestAddMongoDB(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -108,6 +110,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With agents", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -213,6 +216,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With labels", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -272,6 +276,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With the same name", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -322,6 +327,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With add_node block", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -444,6 +450,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With Wrong Node Type", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "generic-node-for-wrong-node-type")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -477,6 +484,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("Empty Service Name", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -499,6 +507,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("Empty Address", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -524,6 +533,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("Empty Port", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -550,6 +560,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("Empty Pmm Agent ID", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -576,6 +587,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("Address And Socket Conflict.", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -606,6 +618,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("Socket", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-mongo-socket-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -677,6 +690,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With MetricsModePush", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -751,6 +765,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With MetricsModePull", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -824,6 +839,7 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With MetricsModeAuto", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -899,6 +915,7 @@ func TestAddMongoDB(t *testing.T) {
 }
 
 func TestRemoveMongoDB(t *testing.T) {
+	t.Parallel()
 	addMongoDB := func(t *testing.T, serviceName, nodeName string, withAgents bool) (nodeID string, pmmAgentID string, serviceID string) {
 		t.Helper()
 		nodeID, pmmAgentID = RegisterGenericNode(t, mservice.RegisterNodeBody{
@@ -933,6 +950,7 @@ func TestRemoveMongoDB(t *testing.T) {
 	}
 
 	t.Run("By name", func(t *testing.T) {
+		t.Parallel()
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
 		nodeID, pmmAgentID, serviceID := addMongoDB(t, serviceName, nodeName, true)
@@ -960,6 +978,7 @@ func TestRemoveMongoDB(t *testing.T) {
 	})
 
 	t.Run("By ID", func(t *testing.T) {
+		t.Parallel()
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
 		nodeID, pmmAgentID, serviceID := addMongoDB(t, serviceName, nodeName, true)
@@ -987,6 +1006,7 @@ func TestRemoveMongoDB(t *testing.T) {
 	})
 
 	t.Run("Wrong type", func(t *testing.T) {
+		t.Parallel()
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
 		nodeID, pmmAgentID, serviceID := addMongoDB(t, serviceName, nodeName, false)

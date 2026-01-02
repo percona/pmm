@@ -41,12 +41,14 @@ func setupDB(t *testing.T) (*reform.DB, func()) {
 }
 
 func TestPerconaSSODetails(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	issuerURL := "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
 	wrongIssuerURL := "https://id-dev.percona.com/wrong"
 	orgID := uuid.NewString()
 
 	t.Run("CorrectCredentials", func(t *testing.T) {
+		t.Parallel()
 		clientID, clientSecret := os.Getenv("PMM_DEV_OAUTH_CLIENT_ID"), os.Getenv("PMM_DEV_OAUTH_CLIENT_SECRET")
 		if clientID == "" || clientSecret == "" {
 			t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")
@@ -100,6 +102,7 @@ func TestPerconaSSODetails(t *testing.T) {
 	})
 
 	t.Run("WrongCredentials", func(t *testing.T) {
+		t.Parallel()
 		db, cleanup := setupDB(t)
 		defer cleanup()
 
@@ -117,6 +120,7 @@ func TestPerconaSSODetails(t *testing.T) {
 	})
 
 	t.Run("WrongURL", func(t *testing.T) {
+		t.Parallel()
 		clientID, clientSecret := os.Getenv("PMM_DEV_OAUTH_CLIENT_ID"), os.Getenv("PMM_DEV_OAUTH_CLIENT_SECRET")
 		if clientID == "" || clientSecret == "" {
 			t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")

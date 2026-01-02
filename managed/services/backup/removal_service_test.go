@@ -41,6 +41,7 @@ const (
 )
 
 func TestDeleteArtifact(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -86,6 +87,7 @@ func TestDeleteArtifact(t *testing.T) {
 	mockedStorage := &MockStorage{}
 
 	t.Run("artifact not in final status", func(t *testing.T) {
+		t.Parallel()
 		artifact := createArtifact(models.PendingBackupStatus)
 		t.Cleanup(func() {
 			err := models.DeleteArtifact(db.Querier, artifact.ID)
@@ -102,6 +104,7 @@ func TestDeleteArtifact(t *testing.T) {
 	})
 
 	t.Run("failed to remove restore history sets artifact error status", func(t *testing.T) {
+		t.Parallel()
 		artifact := createArtifact(models.SuccessBackupStatus)
 		t.Cleanup(func() {
 			err := models.DeleteArtifact(db.Querier, artifact.ID)
@@ -138,6 +141,7 @@ func TestDeleteArtifact(t *testing.T) {
 	})
 
 	t.Run("error during removing files", func(t *testing.T) {
+		t.Parallel()
 		artifact := createArtifact(models.SuccessBackupStatus)
 		t.Cleanup(func() {
 			err := models.DeleteArtifact(db.Querier, artifact.ID)
@@ -162,6 +166,7 @@ func TestDeleteArtifact(t *testing.T) {
 	})
 
 	t.Run("successful delete snapshot", func(t *testing.T) {
+		t.Parallel()
 		artifact := createArtifact(models.SuccessBackupStatus)
 
 		mockedStorage.On("RemoveRecursive", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, artifact.Name+"/").
@@ -179,6 +184,7 @@ func TestDeleteArtifact(t *testing.T) {
 	})
 
 	t.Run("successful delete pitr", func(t *testing.T) {
+		t.Parallel()
 		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service2")
 
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
@@ -240,6 +246,7 @@ func TestDeleteArtifact(t *testing.T) {
 }
 
 func TestTrimPITRArtifact(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -306,6 +313,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("artifact not in final status", func(t *testing.T) {
+		t.Parallel()
 		err := removalService.TrimPITRArtifact(mockedStorage, artifact.ID, 1)
 		require.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
@@ -319,6 +327,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 	})
 
 	t.Run("error during removing files sets artifact status", func(t *testing.T) {
+		t.Parallel()
 		artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{Status: models.SuccessBackupStatus.Pointer()})
 		require.NoError(t, err)
 
@@ -338,6 +347,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 	})
 
 	t.Run("successful", func(t *testing.T) {
+		t.Parallel()
 		chunksRet := []*oplogChunk{
 			{FName: "chunk1"},
 			{FName: "chunk2"},
@@ -379,6 +389,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 }
 
 func TestLockArtifact(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -411,6 +422,7 @@ func TestLockArtifact(t *testing.T) {
 	removalService := NewRemovalService(db, nil)
 
 	t.Run("wrong locking status", func(t *testing.T) {
+		t.Parallel()
 		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.FailedToDeleteBackupStatus)
 		assert.Nil(t, res)
 		assert.Empty(t, oldStatus)
@@ -423,6 +435,7 @@ func TestLockArtifact(t *testing.T) {
 	})
 
 	t.Run("artifact not in final status", func(t *testing.T) {
+		t.Parallel()
 		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
 		assert.Nil(t, res)
 		assert.Empty(t, oldStatus)
@@ -435,6 +448,7 @@ func TestLockArtifact(t *testing.T) {
 	})
 
 	t.Run("restore in progress", func(t *testing.T) {
+		t.Parallel()
 		artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{Status: models.SuccessBackupStatus.Pointer()})
 		require.NoError(t, err)
 
@@ -462,6 +476,7 @@ func TestLockArtifact(t *testing.T) {
 	})
 
 	t.Run("success", func(t *testing.T) {
+		t.Parallel()
 		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
 		require.NotNil(t, res)
 		assert.Equal(t, models.SuccessBackupStatus, oldStatus)
@@ -475,6 +490,7 @@ func TestLockArtifact(t *testing.T) {
 }
 
 func TestReleaseArtifact(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -507,6 +523,7 @@ func TestReleaseArtifact(t *testing.T) {
 	removalService := NewRemovalService(db, nil)
 
 	t.Run("wrong releasing status", func(t *testing.T) {
+		t.Parallel()
 		err := removalService.releaseArtifact(artifact.ID, models.PendingBackupStatus)
 		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
@@ -517,6 +534,7 @@ func TestReleaseArtifact(t *testing.T) {
 	})
 
 	t.Run("success", func(t *testing.T) {
+		t.Parallel()
 		err := removalService.releaseArtifact(artifact.ID, models.SuccessBackupStatus)
 		assert.NoError(t, err)
 

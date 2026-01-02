@@ -54,7 +54,9 @@ func teardownVMAlert(t *testing.T, rules *ExternalRules, db *reform.DB) {
 }
 
 func TestVMAlert(t *testing.T) {
+	t.Parallel()
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		check := require.New(t)
 		db, rules, svc := setupVMAlert(t)
 		defer teardownVMAlert(t, rules, db)
@@ -62,6 +64,7 @@ func TestVMAlert(t *testing.T) {
 	})
 
 	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
 		check := require.New(t)
 		db, rules, svc := setupVMAlert(t)
 		defer teardownVMAlert(t, rules, db)

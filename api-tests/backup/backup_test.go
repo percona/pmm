@@ -34,7 +34,9 @@ import (
 )
 
 func TestScheduleBackup(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := management.RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -104,6 +106,7 @@ func TestScheduleBackup(t *testing.T) {
 		defer deleteLocation(t, backupClient.Default.LocationsService, locationID)
 
 		t.Run("schedule logical backup", func(t *testing.T) {
+			t.Parallel()
 			client := backupClient.Default.BackupService
 			backupRes, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{
@@ -183,6 +186,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("create multiple snapshot backups", func(t *testing.T) {
+			t.Parallel()
 			client := backupClient.Default.BackupService
 			sb1, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{
@@ -220,6 +224,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("create PITR backup when other backups disabled", func(t *testing.T) {
+			t.Parallel()
 			client := backupClient.Default.BackupService
 
 			sb1, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
@@ -275,6 +280,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("only one enabled PITR backup allowed for the same cluster", func(t *testing.T) {
+			t.Parallel()
 			client := backupClient.Default.BackupService
 			sb1, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{
@@ -311,6 +317,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
+			t.Parallel()
 			client := backupClient.Default.BackupService
 			_, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{
@@ -330,6 +337,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("physical backup snapshots can be scheduled", func(t *testing.T) {
+			t.Parallel()
 			client := backupClient.Default.BackupService
 			backupRes, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{

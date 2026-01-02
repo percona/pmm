@@ -37,7 +37,9 @@ import (
 )
 
 func TestStartAdvisorChecks(t *testing.T) {
+	t.Parallel()
 	t.Run("internal error", func(t *testing.T) {
+		t.Parallel()
 		var checksService mockChecksService
 		checksService.On("StartChecks", []string(nil)).Return(errors.New("random error"))
 
@@ -49,6 +51,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 	})
 
 	t.Run("Advisors disabled error", func(t *testing.T) {
+		t.Parallel()
 		var checksService mockChecksService
 		checksService.On("StartChecks", []string(nil)).Return(services.ErrAdvisorsDisabled)
 
@@ -300,7 +303,9 @@ func TestListFailedServices(t *testing.T) {
 }
 
 func TestListAdvisorChecks(t *testing.T) {
+	t.Parallel()
 	t.Run("normal", func(t *testing.T) {
+		t.Parallel()
 		var checksService mockChecksService
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
 		checksService.On("GetChecks", mock.Anything).
@@ -328,6 +333,7 @@ func TestListAdvisorChecks(t *testing.T) {
 	})
 
 	t.Run("get disabled checks error", func(t *testing.T) {
+		t.Parallel()
 		var checksService mockChecksService
 		checksService.On("GetDisabledChecks", mock.Anything).Return(nil, errors.New("random error"))
 
@@ -340,7 +346,9 @@ func TestListAdvisorChecks(t *testing.T) {
 }
 
 func TestUpdateAdvisorChecks(t *testing.T) {
+	t.Parallel()
 	t.Run("enable advisor checks error", func(t *testing.T) {
+		t.Parallel()
 		var checksService mockChecksService
 		checksService.On("EnableChecks", mock.Anything).Return(errors.New("random error"))
 
@@ -352,6 +360,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 	})
 
 	t.Run("disable advisor checks error", func(t *testing.T) {
+		t.Parallel()
 		var checksService mockChecksService
 		checksService.On("EnableChecks", mock.Anything).Return(nil)
 		checksService.On("DisableChecks", mock.Anything).Return(errors.New("random error"))
@@ -364,6 +373,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 	})
 
 	t.Run("change interval error", func(t *testing.T) {
+		t.Parallel()
 		var checksService mockChecksService
 		checksService.On("ChangeInterval", mock.Anything).Return(errors.New("random error"))
 
@@ -380,6 +390,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 	})
 
 	t.Run("ChangeInterval success", func(t *testing.T) {
+		t.Parallel()
 		var checksService mockChecksService
 		checksService.On("ChangeInterval", mock.Anything).Return(nil)
 		checksService.On("EnableChecks", mock.Anything).Return(nil)

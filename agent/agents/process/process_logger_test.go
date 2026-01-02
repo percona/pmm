@@ -22,6 +22,7 @@ import (
 )
 
 func TestProcessLogger(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		testName       string
 		writerLines    int
@@ -130,6 +131,7 @@ func TestProcessLogger(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
+			t.Parallel()
 			pl := newProcessLogger(nil, tt.writerLines, tt.redactWords)
 			for _, arg := range tt.writeArgs {
 				_, err := pl.Write([]byte(arg))

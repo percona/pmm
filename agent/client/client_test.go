@@ -121,7 +121,9 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("WithServer", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			serverMD := &agentv1.ServerConnectMetadata{
 				ServerVersion: t.Name(),
 			}
@@ -171,6 +173,7 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("NoManaged", func(t *testing.T) {
+			t.Parallel()
 			t.Skip("FIXME https://jira.percona.com/browse/PMM-4076")
 
 			ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
@@ -201,6 +204,7 @@ func TestClient(t *testing.T) {
 }
 
 func TestUnexpectedActionType(t *testing.T) {
+	t.Parallel()
 	serverMD := &agentv1.ServerConnectMetadata{
 		ServerVersion: t.Name(),
 	}
@@ -254,6 +258,7 @@ func TestUnexpectedActionType(t *testing.T) {
 
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 				err = stream.Send(&agentv1.ServerMessage{Id: tc.id, Payload: tc.payload})
 				require.NoError(t, err)
 
@@ -289,6 +294,7 @@ func TestUnexpectedActionType(t *testing.T) {
 }
 
 func TestArgListFromPgParams(t *testing.T) {
+	t.Parallel()
 	type testParams struct {
 		req      *agentv1.StartActionRequest_PTPgSummaryParams
 		expected []string
@@ -323,6 +329,7 @@ func TestArgListFromPgParams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(prototext.Format(tc.req), func(t *testing.T) {
+			t.Parallel()
 			actual := argListFromPgParams(tc.req)
 			t.Logf("\n%+v\n", actual)
 			assert.ElementsMatch(t, tc.expected, actual)
@@ -331,6 +338,7 @@ func TestArgListFromPgParams(t *testing.T) {
 }
 
 func TestArgListFromMongoDBParams(t *testing.T) {
+	t.Parallel()
 	type testParams struct {
 		req      *agentv1.StartActionRequest_PTMongoDBSummaryParams
 		expected []string
@@ -372,6 +380,7 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(prototext.Format(tc.req), func(t *testing.T) {
+			t.Parallel()
 			actual := argListFromMongoDBParams(tc.req)
 			assert.ElementsMatch(t, tc.expected, actual)
 		})

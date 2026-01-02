@@ -22,6 +22,7 @@ import (
 )
 
 func TestDisableDefaultEnabledCollectors(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		prefix             string
 		defaultCollectors  []string
@@ -71,6 +72,7 @@ func TestDisableDefaultEnabledCollectors(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			actual := DisableDefaultEnabledCollectors(tt.args.prefix, tt.args.defaultCollectors, tt.args.disabledCollectors)
 			require.Equal(t, tt.want, actual, "DisableDefaultEnabledCollectors() = %v, want %v", actual, tt.want)
 		})

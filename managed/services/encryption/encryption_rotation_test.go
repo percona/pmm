@@ -39,6 +39,7 @@ const (
 )
 
 func TestEncryptionRotation(t *testing.T) {
+	t.Parallel()
 	db := testdb.Open(t, models.SkipFixtures, nil)
 	defer db.Close() //nolint:errcheck
 

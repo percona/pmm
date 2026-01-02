@@ -16,6 +16,7 @@ package report
 
 import "testing"
 
-func TestReport(_ *testing.T) {
+func TestReport(t *testing.T) {
+	t.Parallel()
 	// we need at least one test per package to correctly calculate coverage
 }

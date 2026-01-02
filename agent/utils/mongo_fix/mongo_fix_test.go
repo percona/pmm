@@ -23,6 +23,7 @@ import (
 )
 
 func TestClientOptionsForDSN(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name             string
 		error            string
@@ -67,6 +68,7 @@ func TestClientOptionsForDSN(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := ClientOptionsForDSN(tt.dsn)
 			if tt.error != "" {
 				assert.Equal(t, err.Error(), tt.error)

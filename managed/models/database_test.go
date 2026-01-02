@@ -63,7 +63,9 @@ func getTX(t *testing.T, db *sql.DB) (*sql.Tx, func()) {
 }
 
 func TestDatabaseChecks(t *testing.T) {
+	t.Parallel()
 	t.Run("Nodes", func(t *testing.T) {
+		t.Parallel()
 		db := testdb.Open(t, models.SkipFixtures, nil)
 		defer func() {
 			require.NoError(t, db.Close())
@@ -138,6 +140,7 @@ func TestDatabaseChecks(t *testing.T) {
 	})
 
 	t.Run("Services", func(t *testing.T) {
+		t.Parallel()
 		db := testdb.Open(t, models.SkipFixtures, nil)
 		defer func() {
 			require.NoError(t, db.Close())
@@ -187,6 +190,7 @@ func TestDatabaseChecks(t *testing.T) {
 	})
 
 	t.Run("Agents", func(t *testing.T) {
+		t.Parallel()
 		db := testdb.Open(t, models.SkipFixtures, nil)
 		defer func() {
 			require.NoError(t, db.Close())
@@ -211,7 +215,9 @@ func TestDatabaseChecks(t *testing.T) {
 		require.NoError(t, err)
 
 		t.Run("runs_on_node_id_xor_pmm_agent_id", func(t *testing.T) {
+			t.Parallel()
 			t.Run("Normal", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -228,6 +234,7 @@ func TestDatabaseChecks(t *testing.T) {
 			})
 
 			t.Run("BothNULL", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -239,6 +246,7 @@ func TestDatabaseChecks(t *testing.T) {
 			})
 
 			t.Run("BothSet", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -250,7 +258,9 @@ func TestDatabaseChecks(t *testing.T) {
 			})
 		})
 		t.Run("runs_on_node_id_only_for_pmm_agent", func(t *testing.T) {
+			t.Parallel()
 			t.Run("NotPMMAgent", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -262,6 +272,7 @@ func TestDatabaseChecks(t *testing.T) {
 			})
 
 			t.Run("PMMAgent", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -273,9 +284,12 @@ func TestDatabaseChecks(t *testing.T) {
 			})
 		})
 		t.Run("node_id_or_service_id_or_pmm_agent_id", func(t *testing.T) {
+			t.Parallel(
 			// pmm_agent_id is always set in that test - NULL is tested above
+			)
 
 			t.Run("node_id set", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -287,6 +301,7 @@ func TestDatabaseChecks(t *testing.T) {
 			})
 
 			t.Run("service_id set", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -298,6 +313,7 @@ func TestDatabaseChecks(t *testing.T) {
 			})
 
 			t.Run("Both NULL", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -309,6 +325,7 @@ func TestDatabaseChecks(t *testing.T) {
 			})
 
 			t.Run("Both set", func(t *testing.T) {
+				t.Parallel()
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
@@ -323,7 +340,9 @@ func TestDatabaseChecks(t *testing.T) {
 }
 
 func TestDatabaseMigrations(t *testing.T) {
+	t.Parallel()
 	t.Run("push metrics field migration: from root to exporter_options", func(t *testing.T) {
+		t.Parallel()
 		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(58))
 		defer sqlDB.Close() //nolint:errcheck
 

@@ -26,6 +26,7 @@ import (
 )
 
 func TestServiceConfigUnmarshal(t *testing.T) {
+	t.Parallel()
 	input := `
 enabled: true
 saas_hostname: "check.localhost"

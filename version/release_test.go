@@ -40,6 +40,7 @@ func setupDataForExporter() {
 }
 
 func TestShortInfoManaged(t *testing.T) {
+	t.Parallel()
 	setupDataForManaged()
 
 	expected := fmt.Sprintf("%s v%s", ProjectName, PMMVersion)
@@ -50,6 +51,7 @@ func TestShortInfoManaged(t *testing.T) {
 }
 
 func TestFullInfoPlainManaged(t *testing.T) {
+	t.Parallel()
 	setupDataForManaged()
 
 	expected := strings.Join([]string{
@@ -67,6 +69,7 @@ func TestFullInfoPlainManaged(t *testing.T) {
 }
 
 func TestFullInfoJsonManaged(t *testing.T) {
+	t.Parallel()
 	setupDataForManaged()
 
 	expected := "{" + strings.Join([]string{
@@ -85,6 +88,7 @@ func TestFullInfoJsonManaged(t *testing.T) {
 }
 
 func TestShortInfoExporter(t *testing.T) {
+	t.Parallel()
 	setupDataForExporter()
 
 	expected := fmt.Sprintf("external_exporter v%s (PMM v%s)", Version, PMMVersion)
@@ -95,6 +99,7 @@ func TestShortInfoExporter(t *testing.T) {
 }
 
 func TestFullInfoPlainExporter(t *testing.T) {
+	t.Parallel()
 	setupDataForExporter()
 
 	expected := strings.Join([]string{
@@ -113,6 +118,7 @@ func TestFullInfoPlainExporter(t *testing.T) {
 }
 
 func TestFullInfoJsonExporter(t *testing.T) {
+	t.Parallel()
 	setupDataForExporter()
 
 	expected := "{" + strings.Join([]string{

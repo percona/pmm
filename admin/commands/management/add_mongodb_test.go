@@ -24,7 +24,9 @@ import (
 )
 
 func TestAddMongoDB(t *testing.T) {
+	t.Parallel()
 	t.Run("TablestatEnabled", func(t *testing.T) {
+		t.Parallel()
 		res := &addMongoDBResult{
 			Service: &mservice.AddServiceOKBodyMongodbService{
 				ServiceID:   "1",

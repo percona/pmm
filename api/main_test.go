@@ -24,6 +24,7 @@ import (
 )
 
 func TestImports(t *testing.T) {
+	t.Parallel()
 	type constraint struct {
 		blacklistPrefixes []string
 	}

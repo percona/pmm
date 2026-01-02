@@ -29,7 +29,9 @@ import (
 )
 
 func TestUpdateSnoozing(t *testing.T) {
+	t.Parallel()
 	t.Run("provides default snooze information in user info", func(t *testing.T) {
+		t.Parallel()
 		res, err := userClient.Default.UserService.GetUser(nil)
 
 		require.NoError(t, err)
@@ -40,6 +42,7 @@ func TestUpdateSnoozing(t *testing.T) {
 	})
 
 	t.Run("snoozes the update", func(t *testing.T) {
+		t.Parallel()
 		res, err1 := userClient.Default.UserService.UpdateUser(&userService.UpdateUserParams{
 			Body: userService.UpdateUserBody{
 				SnoozedPMMVersion: pointer.ToString("1.0.0"),
@@ -54,6 +57,7 @@ func TestUpdateSnoozing(t *testing.T) {
 	})
 
 	t.Run("increments the snooze count", func(t *testing.T) {
+		t.Parallel()
 		res, err := userClient.Default.UserService.UpdateUser(&userService.UpdateUserParams{
 			Body: userService.UpdateUserBody{
 				SnoozedPMMVersion: pointer.ToString("1.0.0"),
@@ -68,6 +72,7 @@ func TestUpdateSnoozing(t *testing.T) {
 	})
 
 	t.Run("resets the snooze count when version is different", func(t *testing.T) {
+		t.Parallel()
 		res, err := userClient.Default.UserService.UpdateUser(&userService.UpdateUserParams{
 			Body: userService.UpdateUserBody{
 				SnoozedPMMVersion: pointer.ToString("2.0.0"),

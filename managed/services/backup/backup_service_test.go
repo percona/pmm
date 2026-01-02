@@ -68,6 +68,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 }
 
 func TestPerformBackup(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
@@ -108,6 +109,7 @@ func TestPerformBackup(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
+		t.Parallel()
 		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
 
 		for _, tc := range []struct {
@@ -149,6 +151,7 @@ func TestPerformBackup(t *testing.T) {
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 				var retErr error
 				if tc.errFromCheckSoftwareCompatibilityForService {
 					retErr = tc.expectedError
@@ -191,9 +194,11 @@ func TestPerformBackup(t *testing.T) {
 	})
 
 	t.Run("mongodb", func(t *testing.T) {
+		t.Parallel()
 		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-backup-service")
 
 		t.Run("PITR is incompatible with physical backups", func(t *testing.T) {
+			t.Parallel()
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
@@ -209,6 +214,7 @@ func TestPerformBackup(t *testing.T) {
 		})
 
 		t.Run("backup fails for empty service ID", func(t *testing.T) {
+			t.Parallel()
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, "").Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
 				ServiceID:  "",
@@ -223,6 +229,7 @@ func TestPerformBackup(t *testing.T) {
 		})
 
 		t.Run("Incremental backups fails for MongoDB", func(t *testing.T) {
+			t.Parallel()
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
@@ -242,6 +249,7 @@ func TestPerformBackup(t *testing.T) {
 }
 
 func TestRestoreBackup(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
@@ -284,6 +292,7 @@ func TestRestoreBackup(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
+		t.Parallel()
 		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "mysql-artifact-name",
@@ -320,6 +329,7 @@ func TestRestoreBackup(t *testing.T) {
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 				mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 					Return(tc.dbVersion, nil).Once()
 				mockedCompatibilityService.On("CheckArtifactCompatibility", artifact.ID, tc.dbVersion).Return(tc.expectedError).Once()
@@ -340,6 +350,7 @@ func TestRestoreBackup(t *testing.T) {
 		}
 
 		t.Run("artifact not ready", func(t *testing.T) {
+			t.Parallel()
 			updatedArtifact, err := models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 				Status: models.PendingBackupStatus.Pointer(),
 			})
@@ -353,6 +364,7 @@ func TestRestoreBackup(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		agent, service := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
 		artifactWithVersion, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "mongodb-artifact-name-version",
@@ -415,6 +427,7 @@ func TestRestoreBackup(t *testing.T) {
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 				mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 					Return(tc.dbVersion, nil).Once()
 				mockedCompatibilityService.On("CheckArtifactCompatibility", tc.artifact.ID, tc.dbVersion).Return(tc.expectedError).Once()
@@ -442,6 +455,7 @@ func TestRestoreBackup(t *testing.T) {
 		}
 
 		t.Run("artifact not ready", func(t *testing.T) {
+			t.Parallel()
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 				Name:       "mongo-artifact-name-s3",
 				Vendor:     string(models.MongoDBServiceType),
@@ -459,6 +473,7 @@ func TestRestoreBackup(t *testing.T) {
 		})
 
 		t.Run("PITR not supported for local storages", func(t *testing.T) {
+			t.Parallel()
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 				Name:       "mongo-artifact-name-local",
 				Vendor:     string(models.MongoDBServiceType),
@@ -480,6 +495,7 @@ func TestRestoreBackup(t *testing.T) {
 }
 
 func TestCheckArtifactModePreconditions(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
@@ -507,6 +523,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
+		t.Parallel()
 		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 
 		for _, tc := range []struct {
@@ -562,6 +579,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 				artifact, err := models.CreateArtifact(db.Querier, tc.artifactParams)
 				require.NoError(t, err)
 
@@ -576,6 +594,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-mongodb-restore-service")
 
 		rangeStart1 := uint32(1)
@@ -699,6 +718,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 				artifact, err := models.CreateArtifact(db.Querier, tc.artifactParams)
 				require.NoError(t, err)
 
@@ -720,6 +740,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 }
 
 func TestInTimeSpan(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 	for _, tc := range []struct {
 		name    string
@@ -758,6 +779,7 @@ func TestInTimeSpan(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			res := inTimeSpan(tc.start, tc.end, tc.value)
 			assert.Equal(t, tc.inRange, res)
 		})

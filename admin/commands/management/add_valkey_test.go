@@ -24,7 +24,9 @@ import (
 )
 
 func TestAddValkey(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		res := &addValkeyResult{
 			Service: &mservice.AddServiceOKBodyValkeyService{
 				ServiceID:   "uuid-valkey",

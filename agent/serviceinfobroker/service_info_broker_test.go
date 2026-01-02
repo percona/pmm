@@ -199,6 +199,7 @@ func TestServiceInfoBroker(t *testing.T) {
 	}
 
 	t.Run("TableCount", func(t *testing.T) {
+		t.Parallel()
 		cfgStorage := config.NewStorage(&config.Config{
 			Paths: config.Paths{TempDir: t.TempDir()},
 		})
@@ -212,6 +213,7 @@ func TestServiceInfoBroker(t *testing.T) {
 	})
 
 	t.Run("PostgreSQLOptions", func(t *testing.T) {
+		t.Parallel()
 		cfgStorage := config.NewStorage(&config.Config{
 			Paths: config.Paths{TempDir: t.TempDir()},
 		})
@@ -319,6 +321,7 @@ func TestServiceInfoBrokerMongoDB(t *testing.T) {
 	}
 
 	t.Run("MongoDB no params", func(t *testing.T) {
+		t.Parallel()
 		cfgStorage := config.NewStorage(&config.Config{
 			Paths: config.Paths{TempDir: t.TempDir()},
 		})
@@ -342,6 +345,7 @@ func TestServiceInfoBrokerMongoDB(t *testing.T) {
 	})
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
+		t.Parallel()
 		mongoDBDSNWithSSL, mongoDBTextFiles := tests.GetTestMongoDBWithSSLDSN(t, "../")
 
 		cfgStorage := config.NewStorage(&config.Config{

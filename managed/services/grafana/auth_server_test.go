@@ -42,6 +42,7 @@ import (
 )
 
 func TestNextPrefix(t *testing.T) {
+	t.Parallel()
 	for _, paths := range [][]string{
 		{"/inventory.Nodes/ListNodes", "/inventory.Nodes/", "/inventory.Nodes", "/inventory.", "/inventory", "/", "/"},
 		{"/v1/inventory/Nodes/List", "/v1/inventory/Nodes/", "/v1/inventory/Nodes", "/v1/inventory/", "/v1/inventory", "/v1/", "/v1", "/", "/"},
@@ -53,6 +54,7 @@ func TestNextPrefix(t *testing.T) {
 		{"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List'"},
 	} {
 		t.Run(paths[0], func(t *testing.T) {
+			t.Parallel()
 			for i, path := range paths[:len(paths)-1] {
 				tests.AddToFuzzCorpus(t, "", []byte(path))
 
@@ -246,6 +248,7 @@ func TestServerClientConnection(t *testing.T) {
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
+	t.Parallel()
 	ctx := logger.Set(context.Background(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
@@ -303,6 +306,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	}
 
 	t.Run("shall properly evaluate adding filters", func(t *testing.T) {
+		t.Parallel()
 		for uri, shallAdd := range map[string]bool{
 			"/":                          false,
 			"/dummy":                     false,
@@ -339,8 +343,8 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		}
 	})
 
-	//nolint:paralleltest
 	t.Run("shall be a valid JSON array", func(t *testing.T) {
+		t.Parallel()
 		rw := httptest.NewRecorder()
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
 		require.NoError(t, err)
@@ -362,8 +366,8 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.Equal(t, "filter B", parsed[1])
 	})
 
-	//nolint:paralleltest
 	t.Run("shall not add any filters if at least one role has full access", func(t *testing.T) {
+		t.Parallel()
 		rw := httptest.NewRecorder()
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
 		require.NoError(t, err)

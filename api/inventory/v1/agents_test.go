@@ -30,6 +30,7 @@ import (
 // result is a non-empty string, meaning that the AgentTypeNames list matches the proto
 // definitions.
 func TestAgentTypes(t *testing.T) {
+	t.Parallel()
 	for _, val := range AgentType_name {
 		if strings.HasSuffix(val, "UNSPECIFIED") {
 			continue

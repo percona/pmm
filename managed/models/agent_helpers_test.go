@@ -35,6 +35,7 @@ import (
 )
 
 func TestAgentHelpers(t *testing.T) {
+	t.Parallel()
 	now, origNowF := models.Now(), models.Now
 	models.Now = func() time.Time {
 		return now
@@ -219,6 +220,7 @@ func TestAgentHelpers(t *testing.T) {
 	}
 
 	t.Run("AgentsForNode", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -334,6 +336,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("AgentsRunningByPMMAgent", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -362,6 +365,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("AgentsRunningByPMMAgentAndType", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -381,6 +385,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("AgentsForService", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -418,6 +423,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("RemoveAgent", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -452,6 +458,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("FindPMMAgentsForNode", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -466,6 +473,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("FindPMMAgentsForServicesOnNode", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -476,6 +484,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("FindPMMAgentsForService", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -490,7 +499,9 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("CreateExternalExporter", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Basic", func(t *testing.T) {
+			t.Parallel()
 			q, teardown := setup(t)
 			defer teardown(t)
 			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
@@ -514,6 +525,7 @@ func TestAgentHelpers(t *testing.T) {
 			}, agent)
 		})
 		t.Run("Invalid listen port", func(t *testing.T) {
+			t.Parallel()
 			q, teardown := setup(t)
 			defer teardown(t)
 			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
@@ -526,6 +538,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("TestFindPMMAgentsForVersion", func(t *testing.T) {
+		t.Parallel()
 		l := logrus.WithField("component", "test")
 		agentInvalid := &models.Agent{
 			Version: pointer.ToString("invalid"),
@@ -552,6 +565,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("FindAgentsForScrapeConfig", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -577,6 +591,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("FindAllPMMAgentsIDs", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -587,6 +602,7 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("FindAllAgentsWithoutNomad", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 		agents, err := models.FindAgents(q, models.AgentFilters{IgnoreNomad: true, PMMAgentID: "A12"})

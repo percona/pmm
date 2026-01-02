@@ -30,6 +30,7 @@ import (
 )
 
 func TestRestoreHistory(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -104,6 +105,7 @@ func TestRestoreHistory(t *testing.T) {
 	}
 
 	t.Run("create", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -129,6 +131,7 @@ func TestRestoreHistory(t *testing.T) {
 	})
 
 	t.Run("change", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -167,6 +170,7 @@ func TestRestoreHistory(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -211,6 +215,7 @@ func TestRestoreHistory(t *testing.T) {
 	})
 
 	t.Run("remove", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {

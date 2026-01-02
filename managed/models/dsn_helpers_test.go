@@ -33,6 +33,7 @@ import (
 )
 
 func TestFindDSNByServiceID(t *testing.T) {
+	t.Parallel()
 	now, origNowF := models.Now(), models.Now
 	models.Now = func() time.Time {
 		return now
@@ -177,6 +178,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 	}
 
 	t.Run("FindDSNByServiceIDandPMMAgentIDWithNoAgent", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -186,6 +188,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 	})
 
 	t.Run("FindDSNByServiceIDandPMMAgentID", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -197,6 +200,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 	})
 
 	t.Run("FindDSNWithSocketByServiceIDandPMMAgentID", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -208,6 +212,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 	})
 
 	t.Run("FindDSNWithFilesByServiceIDandPMMAgentID", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -228,6 +233,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 	})
 
 	t.Run("FindDSNByServiceIDandPMMAgentIDWithTwoAgentsOfSameType", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 

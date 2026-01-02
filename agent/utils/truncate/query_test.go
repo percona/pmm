@@ -21,6 +21,7 @@ import (
 )
 
 func TestQuery(t *testing.T) {
+	t.Parallel()
 	for q, expected := range map[string]struct {
 		query     string
 		truncated bool

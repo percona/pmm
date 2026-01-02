@@ -29,6 +29,7 @@ import (
 )
 
 func TestPackages(t *testing.T) {
+	t.Parallel()
 	cmd := exec.Command("pmm-managed", "-h")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
@@ -39,6 +40,7 @@ func TestPackages(t *testing.T) {
 }
 
 func TestImports(t *testing.T) {
+	t.Parallel()
 	type constraint struct {
 		blacklistPrefixes []string
 		whitelistPrefixes []string

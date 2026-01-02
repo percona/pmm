@@ -44,7 +44,9 @@ const (
 )
 
 func TestAuth(t *testing.T) {
+	t.Parallel()
 	t.Run("AuthErrors", func(t *testing.T) {
+		t.Parallel()
 		for user, code := range map[*url.Userinfo]int{
 			nil:                              401,
 			url.UserPassword("bad", "wrong"): 401,
@@ -76,6 +78,7 @@ func TestAuth(t *testing.T) {
 	})
 
 	t.Run("NormalErrors", func(t *testing.T) {
+		t.Parallel()
 		for grpcCode, httpCode := range map[codes.Code]int{
 			codes.Unauthenticated:  401,
 			codes.PermissionDenied: 403,
@@ -171,6 +174,7 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 }
 
 func TestBasicAuthPermissions(t *testing.T) {
+	t.Parallel()
 	ts := strconv.FormatInt(time.Now().Unix(), 10)
 	none := "none-" + ts
 	viewer := "viewer-" + ts
@@ -211,8 +215,11 @@ func TestBasicAuthPermissions(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			for _, user := range test.userCase {
-				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
+				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) {
+					t. //nolint:perfsprint
+						Parallel()
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -307,10 +314,13 @@ func setRole(t *testing.T, userID int, role string) {
 }
 
 func TestServiceAccountPermissions(t *testing.T) {
+	t.Parallel(
 	// service account role options: viewer, editor, admin
 	// service token role options: editor, admin
 	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about currently used token in request) requires Bearer authorization
 	// service_token:token format could be used in pmm-agent and pmm-admin (its transformed into Bearer authorization)
+	)
+
 	nodeName, err := stringsgen.GenerateRandomString(256)
 	require.NoError(t, err)
 
@@ -354,8 +364,11 @@ func TestServiceAccountPermissions(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			for _, user := range test.userCase {
-				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
+				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) {
+					t. //nolint:perfsprint
+						Parallel()
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -374,7 +387,9 @@ func TestServiceAccountPermissions(t *testing.T) {
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
 
-				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) { //nolint:perfsprint
+				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) {
+					t. //nolint:perfsprint
+						Parallel()
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword("service_token", user.serviceToken)

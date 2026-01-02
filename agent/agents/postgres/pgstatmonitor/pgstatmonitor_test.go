@@ -90,12 +90,14 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 }
 
 func TestVersion(t *testing.T) {
+	t.Parallel()
 	pgsmVersion, err := ver.NewVersion("1.0.0-beta-2")
 	require.NoError(t, err)
 	require.True(t, pgsmVersion.LessThan(v10))
 }
 
 func TestPGStatMonitorSchema(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
 	defer sqlDB.Close() //nolint:errcheck
@@ -205,6 +207,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	}
 
 	t.Run("AllCountries", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, db, false, false)
 
 		_, err := db.Exec(selectAllCountries)
@@ -339,6 +342,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("AllCountriesTruncated", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, db, false, false)
 
 		const n = 500
@@ -478,6 +482,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
+		t.Parallel()
 		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`

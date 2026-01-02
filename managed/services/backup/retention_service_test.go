@@ -30,6 +30,7 @@ import (
 )
 
 func TestEnsureRetention(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -60,6 +61,7 @@ func TestEnsureRetention(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("wrong task mode", func(t *testing.T) {
+		t.Parallel()
 		wrongModetask, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 			CronExpression: "* * * * *",
 			Type:           models.ScheduledMongoDBBackupTask,
@@ -80,6 +82,7 @@ func TestEnsureRetention(t *testing.T) {
 	})
 
 	t.Run("successful snapshot", func(t *testing.T) {
+		t.Parallel()
 		task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 			CronExpression: "* * * * *",
 			Type:           models.ScheduledMongoDBBackupTask,
@@ -170,6 +173,7 @@ func TestEnsureRetention(t *testing.T) {
 	})
 
 	t.Run("pitr", func(t *testing.T) {
+		t.Parallel()
 		task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 			CronExpression: "* * * * *",
 			Type:           models.ScheduledMongoDBBackupTask,
@@ -189,6 +193,7 @@ func TestEnsureRetention(t *testing.T) {
 		require.NoError(t, err)
 
 		t.Run("successful", func(t *testing.T) {
+			t.Parallel()
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 				Name:       gofakeit.Name(),
 				Vendor:     "MongoDB",
@@ -223,6 +228,7 @@ func TestEnsureRetention(t *testing.T) {
 		})
 
 		t.Run("more than one pitr artifact", func(t *testing.T) {
+			t.Parallel()
 			_, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 				Name:       gofakeit.Name(),
 				Vendor:     "MongoDB",

@@ -67,7 +67,9 @@ func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) {
 }
 
 func TestVictoriaMetrics(t *testing.T) {
+	t.Parallel()
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		check := require.New(t)
 		db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
@@ -80,6 +82,7 @@ func TestVictoriaMetrics(t *testing.T) {
 	})
 
 	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
 		check := require.New(t)
 		db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
@@ -834,9 +837,11 @@ scrape_configs:
 }
 
 func TestConfigReload(t *testing.T) {
+	t.Parallel()
 	db, svc, original := setup(t)
 	defer teardown(t, db, svc, original)
 	t.Run("Good file, reload ok", func(t *testing.T) {
+		t.Parallel()
 		err := svc.configAndReload(context.TODO(), []byte(strings.TrimSpace(`
 # Managed by pmm-managed. DO NOT EDIT.
 ---
@@ -870,11 +875,13 @@ scrape_configs:
 	})
 
 	t.Run("Bad scrape config file", func(t *testing.T) {
+		t.Parallel()
 		err := svc.configAndReload(context.TODO(), []byte(`unexpected input`))
 		assert.Errorf(t, err, "error when checking Prometheus config")
 	})
 
 	t.Run("Scrape config file with unknown params", func(t *testing.T) {
+		t.Parallel()
 		err := svc.configAndReload(context.TODO(), []byte(strings.TrimSpace(`
 # Managed by pmm-managed. DO NOT EDIT.
 ---
@@ -892,6 +899,7 @@ unknown_filed: unknown_value
 }
 
 func TestBaseConfig(t *testing.T) {
+	t.Parallel()
 	db, svc, original := setup(t)
 	defer teardown(t, db, svc, original)
 

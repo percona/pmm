@@ -29,6 +29,7 @@ import (
 )
 
 func TestRDSExporterConfig(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.28.0")
 
 	node1 := &models.Node{

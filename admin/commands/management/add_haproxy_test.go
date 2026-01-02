@@ -24,7 +24,9 @@ import (
 )
 
 func TestAddHAProxy(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		res := &addHAProxyResult{
 			Service: &mservice.AddServiceOKBodyHaproxyService{
 				ServiceID:   "1",

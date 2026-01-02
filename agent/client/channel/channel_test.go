@@ -107,6 +107,7 @@ func setup(t *testing.T, connect func(agentv1.AgentService_ConnectServer) error,
 }
 
 func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
+	t.Parallel()
 	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
 	fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';", defaultMaxQueryLength, truncate.GetDefaultMaxQueryLength())
 	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
@@ -156,6 +157,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 }
 
 func TestAgentRequest(t *testing.T) {
+	t.Parallel()
 	const count = 50
 	require.Greater(t, count, serverRequestsCap)
 
@@ -220,6 +222,7 @@ pmm_agent_channel_messages_sent_total 50
 }
 
 func TestServerRequest(t *testing.T) {
+	t.Parallel()
 	const count = 50
 	require.Greater(t, count, serverRequestsCap)
 
@@ -260,6 +263,7 @@ func TestServerRequest(t *testing.T) {
 }
 
 func TestServerExitsWithGRPCError(t *testing.T) {
+	t.Parallel()
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()
@@ -279,6 +283,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 }
 
 func TestServerExitsWithUnknownError(t *testing.T) {
+	t.Parallel()
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
@@ -297,6 +302,7 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 }
 
 func TestAgentClosesStream(t *testing.T) {
+	t.Parallel()
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		err := stream.Send(&agentv1.ServerMessage{
 			Id:      1,
@@ -323,6 +329,7 @@ func TestAgentClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
+	t.Parallel()
 	var wg sync.WaitGroup
 	wg.Add(1)
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
@@ -360,6 +367,7 @@ func TestAgentClosesConnection(t *testing.T) {
 }
 
 func TestUnexpectedResponseIDFromServer(t *testing.T) {
+	t.Parallel()
 	unexpectedIDSent := make(chan struct{})
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		// This message triggers no error, we ignore message ids that have no subscriber.
@@ -395,6 +403,7 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 }
 
 func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
+	t.Parallel()
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		// establish the connection
 		err := stream.Send(&agentv1.ServerMessage{

@@ -16,7 +16,6 @@ linters:
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
     - nlreturn            # too annoying
-    - paralleltest
     - protogetter         # we need direct access to proto fields
     - rowserrcheck        # disabled because of generics
     - tagalign

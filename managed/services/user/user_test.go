@@ -43,6 +43,7 @@ func (m *mockGrafanaClient) GetUserID(ctx context.Context) (int, error) {
 }
 
 func TestSnoozeUpdate(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	defer func() {
@@ -72,6 +73,7 @@ func TestSnoozeUpdate(t *testing.T) {
 	}
 
 	t.Run("user info returns snooze information", func(t *testing.T) {
+		t.Parallel()
 		service, _, cleanup := setup(t)
 		defer cleanup()
 
@@ -86,6 +88,7 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("user info support snooze", func(t *testing.T) {
+		t.Parallel()
 		service, _, cleanup := setup(t)
 		defer cleanup()
 
@@ -106,6 +109,7 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("user info supports incrementing snooze count", func(t *testing.T) {
+		t.Parallel()
 		service, _, cleanup := setup(t)
 		defer cleanup()
 
@@ -128,6 +132,7 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("user info resets counts on version change", func(t *testing.T) {
+		t.Parallel()
 		service, _, cleanup := setup(t)
 		defer cleanup()
 
@@ -159,6 +164,7 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("snooze the same update to increase snooze count", func(t *testing.T) {
+		t.Parallel()
 		service, mockClient, cleanup := setup(t)
 		defer cleanup()
 
@@ -205,6 +211,7 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("resets snooze count when called with different version", func(t *testing.T) {
+		t.Parallel()
 		service, mockClient, cleanup := setup(t)
 		defer cleanup()
 
@@ -252,6 +259,7 @@ func TestSnoozeUpdate(t *testing.T) {
 	})
 
 	t.Run("multiple subsequent snoozes with same version", func(t *testing.T) {
+		t.Parallel()
 		service, mockClient, cleanup := setup(t)
 		defer cleanup()
 

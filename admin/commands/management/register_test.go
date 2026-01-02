@@ -23,6 +23,7 @@ import (
 )
 
 func TestRegisterResult(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		result registerResult
@@ -61,6 +62,7 @@ Warning: Couldn't create a Service Key
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			assert.Equalf(t, tt.want, tt.result.String(), "String()")
 		})
 	}

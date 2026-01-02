@@ -36,6 +36,7 @@ const (
 )
 
 func TestCollect(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {

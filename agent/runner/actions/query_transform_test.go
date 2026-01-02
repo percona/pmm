@@ -168,6 +168,7 @@ func Test_dmlToSelect(t *testing.T) {
 }
 
 func Test_isDMLQuery(t *testing.T) {
+	t.Parallel()
 	assert.True(t, isDMLQuery("SELECT * FROM table"))
 	assert.True(t, isDMLQuery(`update tabla set nombre = "carlos" where id = 0`))
 	assert.True(t, isDMLQuery("delete from tabla join tabla2 on tabla.id = tabla2.tabla2_id"))

@@ -23,7 +23,9 @@ import (
 )
 
 func TestAddServiceExternal(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		res := &addServiceExternalResult{
 			Service: &services.AddServiceOKBodyExternal{
 				ServiceID:      "1",

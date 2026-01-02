@@ -42,6 +42,7 @@ import (
 )
 
 func TestUpdater(t *testing.T) {
+	t.Parallel()
 	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	watchtowerURL, _ := url.Parse("http://watchtower:8080")
 	const tmpDistributionFile = "/tmp/distribution"
@@ -50,6 +51,7 @@ func TestUpdater(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("TestNextVersion", func(t *testing.T) {
+		t.Parallel()
 		type args struct {
 			currentVersion string
 			results        []result
@@ -264,6 +266,7 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("TestSortedVersionList", func(t *testing.T) {
+		t.Parallel()
 		versions := version.DockerVersionsInfo{
 			{Version: *version.MustParse("3.0.0")},
 			{Version: *version.MustParse("3.1.0")},
@@ -279,10 +282,12 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("TestLatest", func(t *testing.T) {
+		t.Parallel()
 		version.Version = "2.41.0"
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
 
 		t.Run("LatestFromProduction", func(t *testing.T) {
+			t.Parallel()
 			_, latest, err := u.latest(context.Background())
 			require.NoError(t, err)
 			if latest != nil {
@@ -291,6 +296,7 @@ func TestUpdater(t *testing.T) {
 			}
 		})
 		t.Run("LatestFromStaging", func(t *testing.T) {
+			t.Parallel()
 			versionServiceURL, err := envvars.GetPlatformAddress() // defaults to production
 			require.NoError(t, err)
 			defer func() {
@@ -305,6 +311,7 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("TestParseFile", func(t *testing.T) {
+		t.Parallel()
 		fileBody := `{ "version": "2.41.1" , "docker_image": "2.41.1" , "build_time": "2024-03-20T15:48:07.14562Z" }`
 		oldFileName := fileName
 		fileName = filepath.Join(os.TempDir(), "pmm-update.json")
@@ -322,6 +329,7 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("with disabled updates check", func(t *testing.T) {
+		t.Parallel()
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
 			EnableUpdates: pointer.ToBool(false),
 		})
@@ -337,6 +345,7 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("TestUpdateEnvFile", func(t *testing.T) {
+		t.Parallel()
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
 		tmpFile := filepath.Join(os.TempDir(), "pmm-service.env")
 		content := `PMM_WATCHTOWER_HOST=http://watchtower:8080

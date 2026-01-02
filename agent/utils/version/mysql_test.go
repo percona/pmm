@@ -25,6 +25,7 @@ import (
 )
 
 func TestGetMySQLVersion(t *testing.T) {
+	t.Parallel()
 	sqlDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Log("error creating mock database")
@@ -110,12 +111,14 @@ func TestGetMySQLVersion(t *testing.T) {
 		},
 	}
 
-	//nolint:paralleltest
 	for _, testCase := range testCases {
 		tc := testCase //nolint:varnamelen
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel(
 			// Don't run in parallel. If this is ran in parallel, there is no way to know
 			// in which case we are.
+			)
+
 			columns := []string{"variable_name", "value"}
 			for _, mockedVar := range tc.mockedData {
 				mock.ExpectQuery("SHOW").

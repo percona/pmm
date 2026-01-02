@@ -34,6 +34,7 @@ import (
 )
 
 func TestService(t *testing.T) {
+	t.Parallel()
 	setup := func(t *testing.T, ctx context.Context, serviceType models.ServiceType, serviceName string) (*Service, *models.Service, *models.BackupLocation) {
 		t.Helper()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -79,6 +80,7 @@ func TestService(t *testing.T) {
 	}
 
 	t.Run("invalid cron expression", func(t *testing.T) {
+		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")
@@ -106,6 +108,7 @@ func TestService(t *testing.T) {
 	})
 
 	t.Run("normal", func(t *testing.T) {
+		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")

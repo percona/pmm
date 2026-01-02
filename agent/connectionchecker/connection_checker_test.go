@@ -265,6 +265,7 @@ func TestConnectionChecker(t *testing.T) {
 	}
 
 	t.Run("Stats should be empty", func(t *testing.T) {
+		t.Parallel()
 		cfgStorage := config.NewStorage(&config.Config{
 			Paths: config.Paths{TempDir: t.TempDir()},
 		})
@@ -277,6 +278,7 @@ func TestConnectionChecker(t *testing.T) {
 	})
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
+		t.Parallel()
 		mongoDBDSNWithSSL, mongoDBTextFiles := tests.GetTestMongoDBWithSSLDSN(t, "../")
 
 		cfgStorage := config.NewStorage(&config.Config{

@@ -24,7 +24,9 @@ import (
 )
 
 func TestNode(t *testing.T) {
+	t.Parallel()
 	t.Run("UnifiedLabels", func(t *testing.T) {
+		t.Parallel()
 		node := &Node{
 			NodeID:       "node_id",
 			Region:       pointer.ToString("hidden"),

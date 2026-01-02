@@ -31,11 +31,13 @@ type expectedResult struct {
 }
 
 func TestExtractTables(t *testing.T) {
+	t.Parallel()
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.sql"))
 	require.NoError(t, err)
 
 	for _, file := range files {
 		t.Run(filepath.Base(file), func(t *testing.T) {
+			t.Parallel()
 			d, err := os.ReadFile(file) //nolint:gosec
 			require.NoError(t, err)
 			query := string(d)

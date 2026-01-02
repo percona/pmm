@@ -37,6 +37,7 @@ import (
 )
 
 func TestAnnotations(t *testing.T) {
+	t.Parallel()
 	authorization := "admin:admin"
 
 	setup := func(t *testing.T) (context.Context, *ManagementService, *reform.DB, *mockGrafanaClient, func(t *testing.T)) {
@@ -89,6 +90,7 @@ func TestAnnotations(t *testing.T) {
 	}
 
 	t.Run("Non-existing service", func(t *testing.T) {
+		t.Parallel()
 		ctx, ss, _, _, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -100,6 +102,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("Non-existing node", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, _, _, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -111,6 +114,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("Existing service", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, db, grafanaClient, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -133,6 +137,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("Existing node", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, db, grafanaClient, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -152,6 +157,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("Non-existing service and non-existing node", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, _, _, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -164,6 +170,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("Empty service and empty node", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, _, grafanaClient, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -180,6 +187,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("Existing service and non-existing node", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, db, _, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -200,6 +208,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("Existing service and existing node", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, db, grafanaClient, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -228,6 +237,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("More services", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, db, grafanaClient, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -258,6 +268,7 @@ func TestAnnotations(t *testing.T) {
 	})
 
 	t.Run("More services, but one non-existing", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, db, _, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 

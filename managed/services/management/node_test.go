@@ -41,7 +41,9 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
+	t.Parallel()
 	t.Run("NodeRegistration", func(t *testing.T) {
+		t.Parallel()
 		getTestNodeName := func() string {
 			return "test-node"
 		}
@@ -96,6 +98,7 @@ func TestNodeService(t *testing.T) {
 		defer teardown(t)
 
 		t.Run("New", func(t *testing.T) {
+			t.Parallel()
 			nodeName := getTestNodeName()
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
@@ -123,6 +126,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("Exist", func(t *testing.T) {
+			t.Parallel()
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 				NodeName: getTestNodeName(),
@@ -132,6 +136,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("Reregister", func(t *testing.T) {
+			t.Parallel()
 			serviceAccountID := int(0)
 			nodeName := "test-node-new"
 			reregister := false
@@ -153,6 +158,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("Reregister-force", func(t *testing.T) {
+			t.Parallel()
 			serviceAccountID := int(0)
 			nodeName := "test-node-new"
 			reregister := true
@@ -188,6 +194,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("Register/Unregister", func(t *testing.T) {
+			t.Parallel()
 			serviceAccountID := int(0)
 			nodeName := getTestNodeName()
 			reregister := true
@@ -231,6 +238,7 @@ func TestNodeService(t *testing.T) {
 	})
 
 	t.Run("ListNodes", func(t *testing.T) {
+		t.Parallel()
 		now = models.Now()
 
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
@@ -298,6 +306,7 @@ func TestNodeService(t *testing.T) {
 		)
 
 		t.Run("should output an unfiltered list of all nodes", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -365,6 +374,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("should output an empty list of nodes when filter condition is not satisfied", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -381,6 +391,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("should output a list of nodes when filter condition is satisfied", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -451,6 +462,7 @@ func TestNodeService(t *testing.T) {
 	})
 
 	t.Run("GetNode", func(t *testing.T) {
+		t.Parallel()
 		now := models.Now()
 
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
@@ -513,6 +525,7 @@ func TestNodeService(t *testing.T) {
 		}
 
 		t.Run("should query the node by its id", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -557,6 +570,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("should return an error if such node_id doesn't exist", func(t *testing.T) {
+			t.Parallel()
 			const nodeID = "00000000-0000-4000-8000-000000000000"
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
@@ -570,6 +584,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("should return an error if the node_id parameter is empty", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 

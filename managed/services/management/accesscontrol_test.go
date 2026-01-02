@@ -34,8 +34,8 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-//nolint:paralleltest
 func TestAccessControlService(t *testing.T) {
+	t.Parallel()
 	ctx := logger.Set(context.Background(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
@@ -60,9 +60,10 @@ func TestAccessControlService(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	//nolint:paralleltest
 	t.Run("Create role", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Shall work", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			res, err := s.CreateRole(ctx, &rolev1beta1.CreateRoleRequest{
@@ -74,9 +75,10 @@ func TestAccessControlService(t *testing.T) {
 		})
 	})
 
-	//nolint:paralleltest
 	t.Run("Update role", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Shall work", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			_, roleID := createDummyRoles(ctx, t, s)
@@ -100,6 +102,7 @@ func TestAccessControlService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -111,9 +114,10 @@ func TestAccessControlService(t *testing.T) {
 		})
 	})
 
-	//nolint:paralleltest
 	t.Run("Delete role", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Shall work", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			_, roleID := createDummyRoles(ctx, t, s)
@@ -128,6 +132,7 @@ func TestAccessControlService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -137,9 +142,10 @@ func TestAccessControlService(t *testing.T) {
 		})
 	})
 
-	//nolint:paralleltest
 	t.Run("Get role", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Shall work", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			_, roleID := createDummyRoles(ctx, t, s)
@@ -150,6 +156,7 @@ func TestAccessControlService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -159,9 +166,10 @@ func TestAccessControlService(t *testing.T) {
 		})
 	})
 
-	//nolint:paralleltest
 	t.Run("List roles", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Shall work", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -172,9 +180,10 @@ func TestAccessControlService(t *testing.T) {
 		})
 	})
 
-	//nolint:paralleltest
 	t.Run("Assign role", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Shall assign role to the correct user", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			roleIDA, roleIDB := createDummyRoles(ctx, t, s)
@@ -198,6 +207,7 @@ func TestAccessControlService(t *testing.T) {
 		})
 
 		t.Run("Shall assign multiple roles", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			roleIDA, roleIDB := createDummyRoles(ctx, t, s)
@@ -216,6 +226,7 @@ func TestAccessControlService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found for non-existent role", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -229,7 +240,9 @@ func TestAccessControlService(t *testing.T) {
 	})
 
 	t.Run("Set default role", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Shall work", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 			settings, err := models.GetSettings(db)
 			require.NoError(t, err)
@@ -248,6 +261,7 @@ func TestAccessControlService(t *testing.T) {
 		})
 
 		t.Run("shall return error on non existent role", func(t *testing.T) {
+			t.Parallel()
 			defer teardown(t)
 			_, err := s.SetDefaultRole(ctx, &rolev1beta1.SetDefaultRoleRequest{
 				RoleId: 1337,

@@ -56,6 +56,7 @@ func TestPTMySQLSummaryActionRunAndCancel(t *testing.T) {
 }
 
 func TestBuildMyCnfConfig(t *testing.T) {
+	t.Parallel()
 	type testParams struct {
 		Params   *agentv1.StartActionRequest_PTMySQLSummaryParams
 		Expected string
@@ -106,6 +107,7 @@ func TestBuildMyCnfConfig(t *testing.T) {
 			params: tc.Params,
 		}
 		t.Run(fmt.Sprintf(t.Name()+" %d", i), func(t *testing.T) {
+			t.Parallel()
 			s, err := a.buildMyCnfConfig()
 			if tc.WantErr != nil {
 				require.Error(t, err)

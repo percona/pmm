@@ -28,7 +28,9 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
-func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
+func TestAzureDatabaseExporter(t *testing.T) {
+	t. //nolint:tparallel
+		Parallel()
 	// TODO Fix this test to run in parallel.
 	// t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
@@ -219,6 +221,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 	})
 
 	t.Run("With PushMetrics", func(t *testing.T) {
+		t.Parallel()
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)

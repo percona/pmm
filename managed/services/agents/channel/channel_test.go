@@ -110,6 +110,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 }
 
 func TestAgentRequest(t *testing.T) {
+	t.Parallel()
 	const count = 50
 	require.Greater(t, count, agentRequestsCap)
 
@@ -162,6 +163,7 @@ func TestAgentRequest(t *testing.T) {
 }
 
 func TestServerRequest(t *testing.T) {
+	t.Parallel()
 	const count = 50
 	require.Greater(t, count, agentRequestsCap)
 
@@ -203,6 +205,7 @@ func TestServerRequest(t *testing.T) {
 }
 
 func TestServerExitsWithGRPCError(t *testing.T) {
+	t.Parallel()
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
 	connect := func(ch *Channel) error {
 		req := <-ch.Requests()
@@ -228,6 +231,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 }
 
 func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
+	t.Parallel()
 	connect := func(ch *Channel) error {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
@@ -252,6 +256,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 }
 
 func TestAgentClosesStream(t *testing.T) {
+	t.Parallel()
 	connect := func(ch *Channel) error {
 		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
 		assert.Errorf(t, err, "channel is closed")
@@ -273,6 +278,7 @@ func TestAgentClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
+	t.Parallel()
 	connect := func(ch *Channel) error {
 		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
 		assert.Errorf(t, err, "channel is closed")
@@ -294,6 +300,7 @@ func TestAgentClosesConnection(t *testing.T) {
 }
 
 func TestUnexpectedResponseIdFromAgent(t *testing.T) {
+	t.Parallel()
 	invalidIDSent := make(chan struct{})
 	connect := func(ch *Channel) error {
 		<-invalidIDSent
@@ -341,6 +348,7 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 }
 
 func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
+	t.Parallel()
 	stop := make(chan struct{})
 	stopServer := make(chan struct{})
 	connect := func(_ *Channel) error {

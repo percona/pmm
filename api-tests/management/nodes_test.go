@@ -33,8 +33,11 @@ import (
 )
 
 func TestNodeRegister(t *testing.T) {
+	t.Parallel()
 	t.Run("Generic Node", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Basic", func(t *testing.T) {
+			t.Parallel()
 			nodeName := pmmapitests.TestString(t, "node-name")
 			nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
@@ -59,6 +62,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Reregister with same node name (no re-register - should fail)", func(t *testing.T) {
+			t.Parallel()
 			nodeName := pmmapitests.TestString(t, "node-all")
 			nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
@@ -85,6 +89,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Reregister with same node name (re-register)", func(t *testing.T) {
+			t.Parallel()
 			nodeName := pmmapitests.TestString(t, "node-all")
 			nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
@@ -116,6 +121,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Reregister with different node name (no re-register - should fail)", func(t *testing.T) {
+			t.Parallel()
 			nodeName := pmmapitests.TestString(t, "node-all")
 			nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
@@ -142,6 +148,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Reregister with different node name (re-register)", func(t *testing.T) {
+			t.Parallel()
 			nodeName := pmmapitests.TestString(t, "node-all")
 			nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
@@ -174,6 +181,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("With all fields", func(t *testing.T) {
+			t.Parallel()
 			nodeName := pmmapitests.TestString(t, "node-name")
 			machineID := pmmapitests.TestString(t, "machine-id")
 			nodeModel := pmmapitests.TestString(t, "node-model")
@@ -235,6 +243,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Re-register", func(t *testing.T) {
+			t.Parallel()
 			t.Skip("Re-register logic is not defined yet. https://jira.percona.com/browse/PMM-3717")
 
 			nodeName := pmmapitests.TestString(t, "node-name")
@@ -292,7 +301,9 @@ func TestNodeRegister(t *testing.T) {
 	})
 
 	t.Run("Container Node", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Basic", func(t *testing.T) {
+			t.Parallel()
 			nodeName := pmmapitests.TestString(t, "node-name")
 			nodeID, pmmAgentID := registerContainerNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
@@ -321,6 +332,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("With all fields", func(t *testing.T) {
+			t.Parallel()
 			nodeName := pmmapitests.TestString(t, "node-name")
 			nodeModel := pmmapitests.TestString(t, "node-model")
 			containerID := pmmapitests.TestString(t, "container-id")
@@ -366,6 +378,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Re-register", func(t *testing.T) {
+			t.Parallel()
 			t.Skip("Re-register logic is not defined yet. https://jira.percona.com/browse/PMM-3717")
 
 			nodeName := pmmapitests.TestString(t, "node-name")
@@ -424,6 +437,7 @@ func TestNodeRegister(t *testing.T) {
 	})
 
 	t.Run("Empty node name", func(t *testing.T) {
+		t.Parallel()
 		params := mservice.RegisterNodeParams{
 			Context: pmmapitests.Context,
 			Body:    mservice.RegisterNodeBody{},
@@ -434,6 +448,7 @@ func TestNodeRegister(t *testing.T) {
 	})
 
 	t.Run("Unsupported node type", func(t *testing.T) {
+		t.Parallel()
 		params := mservice.RegisterNodeParams{
 			Context: pmmapitests.Context,
 			Body: mservice.RegisterNodeBody{

@@ -32,6 +32,7 @@ import (
 )
 
 func TestScrapeConfig(t *testing.T) {
+	t.Parallel()
 	s := &models.MetricsResolutions{
 		HR: 5 * time.Second,
 		MR: 5 * time.Second,
@@ -39,7 +40,9 @@ func TestScrapeConfig(t *testing.T) {
 	}
 
 	t.Run("scrapeConfigsForNodeExporter", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -176,6 +179,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("MacOS", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -243,7 +247,9 @@ func TestScrapeConfig(t *testing.T) {
 	})
 
 	t.Run("scrapeConfigsForMySQLdExporter", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -400,6 +406,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("DisabledCollectors", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -553,6 +560,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("ManyTables", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:   "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName: "node_name",
@@ -693,6 +701,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
@@ -713,7 +722,9 @@ func TestScrapeConfig(t *testing.T) {
 	})
 
 	t.Run("scrapeConfigsForMongoDBExporter", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -814,6 +825,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 		})
 		t.Run("Without enable-all option on v2.43+", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -916,6 +928,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
@@ -937,7 +950,9 @@ func TestScrapeConfig(t *testing.T) {
 	})
 
 	t.Run("scrapeConfigsForPostgresExporter", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -1068,6 +1083,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
@@ -1088,7 +1104,9 @@ func TestScrapeConfig(t *testing.T) {
 	})
 
 	t.Run("scrapeConfigsForProxySQLExporter", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -1152,6 +1170,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
+			t.Parallel()
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
@@ -1171,7 +1190,9 @@ func TestScrapeConfig(t *testing.T) {
 	})
 
 	t.Run("scrapeConfigsForRDSExporter", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			params := []*scrapeConfigParams{
 				// two RDS configs on the same host/port combination: single pmm-agent, single rds_exporter process
 				{
@@ -1275,6 +1296,7 @@ func TestScrapeConfig(t *testing.T) {
 	})
 
 	t.Run("scrapeConfigsForExternalExporter", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{
 			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			NodeName:     "node_name",
@@ -1289,6 +1311,7 @@ func TestScrapeConfig(t *testing.T) {
 			ExternalGroup: "rabbitmq",
 		}
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			agent := &models.Agent{
 				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:       models.ExternalExporterType,
@@ -1334,6 +1357,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("WithExtraParams", func(t *testing.T) {
+			t.Parallel()
 			agent := &models.Agent{
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.ExternalExporterType,
@@ -1396,6 +1420,7 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
+			t.Parallel()
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
 				ListenPort:      pointer.ToUint16(12345),

@@ -37,7 +37,9 @@ func setup(t *testing.T, filter string) context.Context {
 }
 
 func TestParseFilters(t *testing.T) {
+	t.Parallel()
 	t.Run("empty filters", func(t *testing.T) {
+		t.Parallel()
 		result, err := parseFilters(nil)
 		require.NoError(t, err)
 		require.Nil(t, result)
@@ -48,6 +50,7 @@ func TestParseFilters(t *testing.T) {
 	})
 
 	t.Run("valid filters", func(t *testing.T) {
+		t.Parallel()
 		filters := []string{"abc", "def"}
 		encoded := base64.StdEncoding.EncodeToString([]byte(`["abc", "def"]`))
 		result, err := parseFilters([]string{encoded})
@@ -56,12 +59,14 @@ func TestParseFilters(t *testing.T) {
 	})
 
 	t.Run("invalid base64", func(t *testing.T) {
+		t.Parallel()
 		_, err := parseFilters([]string{"invalid-base64"})
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "failed to decode filters")
 	})
 
 	t.Run("invalid JSON", func(t *testing.T) {
+		t.Parallel()
 		encoded := base64.StdEncoding.EncodeToString([]byte("invalid-json"))
 		_, err := parseFilters([]string{encoded})
 		require.Error(t, err)
@@ -70,8 +75,12 @@ func TestParseFilters(t *testing.T) {
 }
 
 func TestHeadersToLbacFilter(t *testing.T) {
+	t.Parallel(
 	// Selector example: `[{service_type=~"mysql|mongodb", environment!~"prod"}, {service_type="postgresql", az!="us-east-1"}]`
+	)
+
 	t.Run("no metadata in context", func(t *testing.T) {
+		t.Parallel()
 		filter, err := headersToLbacFilter(context.TODO())
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "failed to extract metadata from context")
@@ -79,6 +88,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("empty filter", func(t *testing.T) {
+		t.Parallel()
 		md := metadata.New(make(map[string]string))
 		ctx := metadata.NewIncomingContext(context.TODO(), md)
 		filter, err := headersToLbacFilter(ctx)
@@ -87,6 +97,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("invalid base64 in filter", func(t *testing.T) {
+		t.Parallel()
 		md := metadata.New(map[string]string{
 			LBACHeaderName: "invalid-base64",
 		})
@@ -99,6 +110,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("invalid JSON after decoding", func(t *testing.T) {
+		t.Parallel()
 		invalidJSON := base64.StdEncoding.EncodeToString([]byte("invalid-json"))
 		md := metadata.New(map[string]string{
 			LBACHeaderName: invalidJSON,
@@ -112,6 +124,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("single dimension filter", func(t *testing.T) {
+		t.Parallel()
 		ctx := setup(t, `["{service_type=\"mysql\"}"]`)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
@@ -119,6 +132,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("multiple dimension filters with OR", func(t *testing.T) {
+		t.Parallel()
 		ctx := setup(t, `["{service_type=\"mysql\"}", "{service_type=\"postgresql\"}"]`)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
@@ -126,6 +140,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("complex filter with multiple conditions", func(t *testing.T) {
+		t.Parallel()
 		ctx := setup(t, `["{service_type=\"mysql\", environment!=\"dev\"}", "{service_type=\"postgresql\", environment!=\"prod\"}"]`)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
@@ -133,6 +148,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("regex match", func(t *testing.T) {
+		t.Parallel()
 		ctx := setup(t, `["{service_type=~\"mysql|postgresql\"}"]`)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
@@ -140,6 +156,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("custom label", func(t *testing.T) {
+		t.Parallel()
 		ctx := setup(t, `["{custom_label=\"value\"}"]`)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
@@ -147,6 +164,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("complex filter with custom label and dimension", func(t *testing.T) {
+		t.Parallel()
 		ctx := setup(t, `["{custom_label=\"value\",service_type=\"mysql\"}"]`)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
@@ -155,7 +173,9 @@ func TestHeadersToLbacFilter(t *testing.T) {
 }
 
 func TestMatchersToSQL(t *testing.T) {
+	t.Parallel()
 	t.Run("standard dimension matchers", func(t *testing.T) {
+		t.Parallel()
 		testCases := []struct {
 			name     string
 			matchers []*labels.Matcher
@@ -208,6 +228,7 @@ func TestMatchersToSQL(t *testing.T) {
 
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 				result, err := matchersToSQL(tc.matchers)
 				require.NoError(t, err)
 				require.Equal(t, tc.expected, result)
@@ -216,6 +237,7 @@ func TestMatchersToSQL(t *testing.T) {
 	})
 
 	t.Run("custom label matchers", func(t *testing.T) {
+		t.Parallel()
 		testCases := []struct {
 			name     string
 			matchers []*labels.Matcher
@@ -253,6 +275,7 @@ func TestMatchersToSQL(t *testing.T) {
 
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
 				result, err := matchersToSQL(tc.matchers)
 				require.NoError(t, err)
 				require.Equal(t, tc.expected, result)
@@ -261,6 +284,7 @@ func TestMatchersToSQL(t *testing.T) {
 	})
 
 	t.Run("mixed dimension and custom label matchers", func(t *testing.T) {
+		t.Parallel()
 		matchers := []*labels.Matcher{
 			labels.MustNewMatcher(labels.MatchEqual, "service_type", "mysql"),
 			labels.MustNewMatcher(labels.MatchEqual, "custom_label", "value"),
@@ -271,7 +295,10 @@ func TestMatchersToSQL(t *testing.T) {
 	})
 
 	t.Run("unsupported matcher type", func(t *testing.T) {
+		t.Parallel(
 		// Create a custom matcher with an invalid type (5)
+		)
+
 		invalidMatcher := &labels.Matcher{
 			Type:  5, // Invalid type
 			Name:  "service_type",

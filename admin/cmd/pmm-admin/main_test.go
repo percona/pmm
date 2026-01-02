@@ -24,6 +24,7 @@ import (
 )
 
 func TestPackages(t *testing.T) {
+	t.Parallel()
 	cmd := exec.Command("pmm-admin", "-h")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
@@ -34,6 +35,7 @@ func TestPackages(t *testing.T) {
 }
 
 func TestVersionPlain(t *testing.T) {
+	t.Parallel()
 	cmd := exec.Command("pmm-admin", "--version")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
@@ -43,6 +45,7 @@ func TestVersionPlain(t *testing.T) {
 }
 
 func TestVersionJson(t *testing.T) {
+	t.Parallel()
 	cmd := exec.Command("pmm-admin", "--version", "--json")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)

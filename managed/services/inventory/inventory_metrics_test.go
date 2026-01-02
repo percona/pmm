@@ -33,7 +33,9 @@ import (
 )
 
 func TestNewInventoryMetricsCollector(t *testing.T) {
+	t.Parallel()
 	t.Run("Metrics returns inventory metrics", func(t *testing.T) {
+		t.Parallel()
 		client := http.Client{}
 
 		ctx, cancelCtx := context.WithTimeout(context.Background(), 3*time.Second)
@@ -56,6 +58,7 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 	})
 
 	t.Run("Collector", func(t *testing.T) {
+		t.Parallel()
 		metricsMock := &mockInventoryMetrics{}
 		metricsMock.Test(t)
 

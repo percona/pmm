@@ -28,6 +28,7 @@ import (
 )
 
 func TestPGStatMonitorStructs(t *testing.T) {
+	t.Parallel()
 	sqlDB := tests.OpenTestPostgreSQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))

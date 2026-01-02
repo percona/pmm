@@ -29,12 +29,14 @@ import (
 )
 
 func TestSettings(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
 	}()
 
 	t.Run("Defaults", func(t *testing.T) {
+		t.Parallel()
 		actual, err := models.GetSettings(sqlDB)
 		require.NoError(t, err)
 		require.Empty(t, actual.EncryptedItems)
@@ -61,6 +63,7 @@ func TestSettings(t *testing.T) {
 	})
 
 	t.Run("SaveWithDefaults", func(t *testing.T) {
+		t.Parallel()
 		s := &models.Settings{}
 		err := models.SaveSettings(sqlDB, s)
 		require.NoError(t, err)
@@ -85,7 +88,9 @@ func TestSettings(t *testing.T) {
 	})
 
 	t.Run("Validation", func(t *testing.T) {
+		t.Parallel()
 		t.Run("AWSPartitions", func(t *testing.T) {
+			t.Parallel()
 			s := &models.ChangeSettingsParams{
 				AWSPartitions: []string{"foo"},
 			}
@@ -122,6 +127,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("", func(t *testing.T) {
+			t.Parallel()
 			mr := models.MetricsResolutions{MR: 500 * time.Millisecond} // 0.5s
 			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
@@ -151,6 +157,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("Updates validation", func(t *testing.T) {
+			t.Parallel()
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				EnableUpdates: pointer.ToBool(true),
 			})
@@ -173,7 +180,10 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("Telemetry and Advisors validation", func(t *testing.T) {
+			t.Parallel(
 			// ensure initial default state
+			)
+
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				EnableTelemetry: pointer.ToBool(true),
 				EnableAdvisors:  pointer.ToBool(true),
@@ -236,6 +246,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("Check that telemetry disabling resets telemetry UUID", func(t *testing.T) {
+			t.Parallel()
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				EnableTelemetry: pointer.ToBool(true),
 			})
@@ -258,6 +269,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("disable checks", func(t *testing.T) {
+			t.Parallel()
 			disChecks := []string{"one", "two", "three"}
 
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -268,6 +280,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("enable checks", func(t *testing.T) {
+			t.Parallel()
 			disChecks := []string{"one", "two", "three"}
 
 			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAdvisorChecks: disChecks})
@@ -279,6 +292,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("enable azure discover", func(t *testing.T) {
+			t.Parallel()
 			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: pointer.ToBool(false)})
 			require.NoError(t, err)
 			assert.False(t, *s.Azurediscover.Enabled)
@@ -289,6 +303,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("enable Access Control", func(t *testing.T) {
+			t.Parallel()
 			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: pointer.ToBool(false)})
 			require.NoError(t, err)
 			assert.False(t, *s.AccessControl.Enabled)
@@ -299,6 +314,7 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("disable percona alerting", func(t *testing.T) {
+			t.Parallel()
 			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: pointer.ToBool(false)})
 			require.NoError(t, err)
 			assert.False(t, *s.Alerting.Enabled)
@@ -309,7 +325,9 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("Set PMM server ID", func(t *testing.T) {
+			t.Parallel()
 			t.Run("not set", func(t *testing.T) {
+				t.Parallel()
 				settings, err := models.GetSettings(sqlDB)
 				require.NoError(t, err)
 				require.NotNil(t, settings)
@@ -324,6 +342,7 @@ func TestSettings(t *testing.T) {
 				assert.NotEmpty(t, settings.PMMServerID)
 			})
 			t.Run("already set", func(t *testing.T) {
+				t.Parallel()
 				settings, err := models.GetSettings(sqlDB)
 				require.NoError(t, err)
 				require.NotNil(t, settings)

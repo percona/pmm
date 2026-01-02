@@ -102,7 +102,9 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 }
 
 func TestAgentService(t *testing.T) {
+	t.Parallel()
 	t.Run("Should return a validation error when no params passed", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -112,6 +114,7 @@ func TestAgentService(t *testing.T) {
 	})
 
 	t.Run("Should return a validation error when both params passed", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -121,12 +124,14 @@ func TestAgentService(t *testing.T) {
 	})
 
 	t.Run("ListAgents", func(t *testing.T) {
+		t.Parallel()
 		const (
 			pgExporterID      = "00000000-0000-4000-8000-000000000003"
 			pgStatStatementID = "00000000-0000-4000-8000-000000000004"
 		)
 
 		t.Run("should output a list of agents provisioned by default", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -194,6 +199,7 @@ func TestAgentService(t *testing.T) {
 		})
 
 		t.Run("should output a list of agents provisioned for RDS service", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -244,6 +250,7 @@ func TestAgentService(t *testing.T) {
 		})
 
 		t.Run("should output a list of agents provisioned for Azure service", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -297,7 +304,9 @@ func TestAgentService(t *testing.T) {
 }
 
 func TestListAgentVersions(t *testing.T) {
+	t.Parallel()
 	t.Run("Should suggest critical severity if major versions differ", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -320,6 +329,7 @@ func TestListAgentVersions(t *testing.T) {
 	})
 
 	t.Run("Should suggest an update if minor versions differ", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -342,6 +352,7 @@ func TestListAgentVersions(t *testing.T) {
 	})
 
 	t.Run("Should suggest an update if patch versions differ", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -364,6 +375,7 @@ func TestListAgentVersions(t *testing.T) {
 	})
 
 	t.Run("Should suggest no update if versions are the same", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -386,6 +398,7 @@ func TestListAgentVersions(t *testing.T) {
 	})
 
 	t.Run("Should say unsupported if client version is newer", func(t *testing.T) {
+		t.Parallel()
 		ctx, s, teardown := setup(t)
 		t.Cleanup(func() { teardown(t) })
 

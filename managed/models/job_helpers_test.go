@@ -32,6 +32,7 @@ import (
 )
 
 func TestJobs(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	tx, err := db.Begin()
@@ -42,6 +43,7 @@ func TestJobs(t *testing.T) {
 	})
 
 	t.Run("create", func(t *testing.T) {
+		t.Parallel()
 		createJobParams := models.CreateJobParams{
 			PMMAgentID: "agentid",
 			Type:       models.MongoDBBackupJob,
@@ -71,6 +73,7 @@ func TestJobs(t *testing.T) {
 	})
 
 	t.Run("find", func(t *testing.T) {
+		t.Parallel()
 		findTX, err := db.Begin()
 		require.NoError(t, err)
 		defer findTX.Rollback() //nolint:errcheck
@@ -126,6 +129,7 @@ func TestJobs(t *testing.T) {
 }
 
 func TestJobLogs(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	tx, err := db.Begin()
@@ -168,6 +172,7 @@ func TestJobLogs(t *testing.T) {
 	}
 
 	t.Run("create", func(t *testing.T) {
+		t.Parallel()
 		for _, req := range createRequests {
 			log, err := models.CreateJobLog(tx.Querier, req)
 			require.NoError(t, err)
@@ -179,6 +184,7 @@ func TestJobLogs(t *testing.T) {
 	})
 
 	t.Run("find", func(t *testing.T) {
+		t.Parallel()
 		type expectLog struct {
 			JobID   string
 			ChunkID int
@@ -237,6 +243,7 @@ func TestJobLogs(t *testing.T) {
 		for _, tc := range testCases {
 			tc := tc
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
 				logs, err := models.FindJobLogs(tx.Querier, tc.Filters)
 				require.NoError(t, err)
 				require.Len(t, logs, len(tc.Expect))
@@ -249,6 +256,7 @@ func TestJobLogs(t *testing.T) {
 	})
 
 	t.Run("delete job", func(t *testing.T) {
+		t.Parallel()
 		require.NoError(t, models.CleanupOldJobs(tx.Querier, time.Now()))
 		for _, jobID := range []string{job1.ID, job2.ID} {
 			logs, err := models.FindJobLogs(tx.Querier, models.JobLogsFilter{

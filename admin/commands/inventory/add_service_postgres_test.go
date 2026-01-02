@@ -23,7 +23,9 @@ import (
 )
 
 func TestAddServicePostgreSQL(t *testing.T) {
+	t.Parallel()
 	t.Run("Address and port", func(t *testing.T) {
+		t.Parallel()
 		res := &addServicePostgreSQLResult{
 			Service: &services.AddServiceOKBodyPostgresql{
 				ServiceID:      "1",
@@ -52,6 +54,7 @@ Custom labels  : map[foo:bar key:value]
 	})
 
 	t.Run("Socket", func(t *testing.T) {
+		t.Parallel()
 		res := &addServicePostgreSQLResult{
 			Service: &services.AddServiceOKBodyPostgresql{
 				ServiceID:      "1",

@@ -65,6 +65,7 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 }
 
 func TestPGStatStatementsQAN(t *testing.T) {
+	t.Parallel()
 	sqlDB := tests.OpenTestPostgreSQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -177,6 +178,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	}
 
 	t.Run("AllCities", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, db)
 
 		_, err := db.Exec(selectAllCities)
@@ -267,6 +269,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	})
 
 	t.Run("AllCitiesTruncated", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, db)
 
 		const n = 500
@@ -368,6 +371,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
+		t.Parallel()
 		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
@@ -464,6 +468,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 }
 
 func TestPGStatStatementsQPS(t *testing.T) {
+	t.Parallel()
 	sqlDB := tests.OpenTestPostgreSQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
@@ -492,11 +497,13 @@ func TestPGStatStatementsQPS(t *testing.T) {
 	}
 
 	t.Run("uses pgss.max value", func(t *testing.T) {
+		t.Parallel()
 		p := setup(t, db)
 		assert.Equal(t, uint(10000), p.statementsCache.cache.Capacity())
 	})
 
 	t.Run("check query count when cache size equals pgss.max", func(t *testing.T) {
+		t.Parallel()
 		var cacheSize uint
 		err = db.Querier.QueryRow(pgssMaxQuery).Scan(&cacheSize)
 		require.NoError(t, err)

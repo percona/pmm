@@ -34,7 +34,9 @@ import (
 )
 
 func TestAddExternal(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
@@ -100,6 +102,7 @@ func TestAddExternal(t *testing.T) {
 	})
 
 	t.Run("With labels", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
@@ -159,6 +162,7 @@ func TestAddExternal(t *testing.T) {
 	})
 
 	t.Run("OnRemoteNode", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
@@ -247,6 +251,7 @@ func TestAddExternal(t *testing.T) {
 	})
 
 	t.Run("With the same name", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
@@ -294,6 +299,7 @@ func TestAddExternal(t *testing.T) {
 	})
 
 	t.Run("Empty Service Name", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
@@ -316,6 +322,7 @@ func TestAddExternal(t *testing.T) {
 	})
 
 	t.Run("Empty ListenPort", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
@@ -340,6 +347,7 @@ func TestAddExternal(t *testing.T) {
 	})
 
 	t.Run("Empty Node ID", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
@@ -364,6 +372,7 @@ func TestAddExternal(t *testing.T) {
 	})
 
 	t.Run("Empty Runs On Node ID", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
@@ -388,6 +397,7 @@ func TestAddExternal(t *testing.T) {
 	})
 
 	t.Run("Empty Address for Add Node", func(t *testing.T) {
+		t.Parallel()
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
@@ -416,6 +426,7 @@ func TestAddExternal(t *testing.T) {
 }
 
 func TestRemoveExternal(t *testing.T) {
+	t.Parallel()
 	addExternal := func(t *testing.T, serviceName, nodeName string) (nodeID string, serviceID string) {
 		t.Helper()
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
@@ -445,6 +456,7 @@ func TestRemoveExternal(t *testing.T) {
 	}
 
 	t.Run("By name", func(t *testing.T) {
+		t.Parallel()
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
@@ -471,6 +483,7 @@ func TestRemoveExternal(t *testing.T) {
 	})
 
 	t.Run("By ID", func(t *testing.T) {
+		t.Parallel()
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
@@ -497,6 +510,7 @@ func TestRemoveExternal(t *testing.T) {
 	})
 
 	t.Run("Wrong type", func(t *testing.T) {
+		t.Parallel()
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
@@ -513,6 +527,7 @@ func TestRemoveExternal(t *testing.T) {
 	})
 
 	t.Run("No params", func(t *testing.T) {
+		t.Parallel()
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			Context: pmmapitests.Context,
 		})

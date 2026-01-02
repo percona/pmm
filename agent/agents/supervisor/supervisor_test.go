@@ -46,6 +46,7 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentv1.StateChange
 }
 
 func TestSupervisor(t *testing.T) {
+	t.Parallel()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	tempDir := t.TempDir()
@@ -59,6 +60,7 @@ func TestSupervisor(t *testing.T) {
 	go s.Run(ctx)
 
 	t.Run("Start13", func(t *testing.T) {
+		t.Parallel()
 		expectedList := []*agentlocal.AgentInfo{}
 		require.Equal(t, expectedList, s.AgentsList())
 
@@ -91,6 +93,7 @@ func TestSupervisor(t *testing.T) {
 	})
 
 	t.Run("Restart1Start2", func(t *testing.T) {
+		t.Parallel()
 		expectedList := []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
@@ -133,6 +136,7 @@ func TestSupervisor(t *testing.T) {
 	})
 
 	t.Run("Restart3Start4", func(t *testing.T) {
+		t.Parallel()
 		expectedList := []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
@@ -180,6 +184,7 @@ func TestSupervisor(t *testing.T) {
 	})
 
 	t.Run("Stop1", func(t *testing.T) {
+		t.Parallel()
 		expectedList := []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
@@ -211,6 +216,7 @@ func TestSupervisor(t *testing.T) {
 	})
 
 	t.Run("Stop3", func(t *testing.T) {
+		t.Parallel()
 		expectedList := []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
@@ -239,6 +245,7 @@ func TestSupervisor(t *testing.T) {
 	})
 
 	t.Run("Exit", func(t *testing.T) {
+		t.Parallel()
 		expectedList := []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
@@ -259,6 +266,7 @@ func TestSupervisor(t *testing.T) {
 }
 
 func TestStartProcessFail(t *testing.T) {
+	t.Parallel()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	tempDir := t.TempDir()
@@ -272,6 +280,7 @@ func TestStartProcessFail(t *testing.T) {
 	go s.Run(ctx)
 
 	t.Run("Start", func(t *testing.T) {
+		t.Parallel()
 		expectedList := []*agentlocal.AgentInfo{}
 		require.Equal(t, expectedList, s.AgentsList())
 

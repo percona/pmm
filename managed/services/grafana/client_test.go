@@ -32,6 +32,7 @@ import (
 )
 
 func TestClient(t *testing.T) {
+	t.Parallel()
 	logrus.SetLevel(logrus.TraceLevel)
 	l := logrus.WithField("test", t.Name())
 
@@ -44,7 +45,9 @@ func TestClient(t *testing.T) {
 	authHeaders := req.Header
 
 	t.Run("getRole", func(t *testing.T) {
+		t.Parallel()
 		t.Run("GrafanaAdmin", func(t *testing.T) {
+			t.Parallel()
 			u, err := c.getAuthUser(ctx, authHeaders, l)
 			role := u.role
 			assert.NoError(t, err)
@@ -53,8 +56,10 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("NoAnonymousAccess", func(t *testing.T) {
+			t.Parallel(
 			// See [auth.anonymous] in grafana.ini.
 			// Even if anonymous access is enabled, returned role is None, not org_role.
+			)
 
 			u, err := c.getAuthUser(ctx, nil, l)
 			role := u.role
@@ -72,7 +77,9 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("NewUserViewerByDefault", func(t *testing.T) {
+			t.Parallel(
 			// See [users] in grafana.ini.
+			)
 
 			login := fmt.Sprintf("%s-%d", none, time.Now().Nanosecond())
 			userID, err := c.testCreateUser(ctx, login, none, authHeaders)
@@ -99,6 +106,7 @@ func TestClient(t *testing.T) {
 
 		for _, role := range []role{viewer, editor, admin} {
 			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
+				t.Parallel()
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
 				require.NoError(t, err)
@@ -123,6 +131,7 @@ func TestClient(t *testing.T) {
 			})
 
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
+				t.Parallel()
 				name, err := stringsgen.GenerateRandomString(256)
 				require.NoError(t, err)
 				nodeName := fmt.Sprintf("%s-%s", name, role)
@@ -154,12 +163,14 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("CreateAnnotation", func(t *testing.T) {
+		t.Parallel()
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 		authorization := req.Header.Get("Authorization")
 
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			from := time.Now()
 			msg, err := c.CreateAnnotation(ctx, []string{"tag1", "tag2"}, from, "Normal", authorization)
 			require.NoError(t, err)
@@ -178,11 +189,13 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("Empty", func(t *testing.T) {
+			t.Parallel()
 			_, err := c.CreateAnnotation(ctx, nil, time.Now(), "", authorization)
 			require.Error(t, err)
 		})
 
 		t.Run("No tags", func(t *testing.T) {
+			t.Parallel()
 			from := time.Now()
 			msg, err := c.CreateAnnotation(ctx, nil, from, "No tags", authorization)
 			require.NoError(t, err)
@@ -201,6 +214,7 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("Auth error", func(t *testing.T) {
+			t.Parallel()
 			req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 			req.SetBasicAuth("nouser", "wrongpassword")
 			authorization := req.Header.Get("Authorization")
@@ -211,6 +225,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("IsReady", func(t *testing.T) {
+		t.Parallel()
 		err := c.IsReady(ctx)
 		require.NoError(t, err)
 	})

@@ -29,6 +29,7 @@ import (
 )
 
 func TestMongoRun(t *testing.T) {
+	t.Parallel()
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../../")
 	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)

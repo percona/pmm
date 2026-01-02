@@ -23,6 +23,7 @@ import (
 )
 
 func TestCreatePBMConfig(t *testing.T) {
+	t.Parallel()
 	s3Config := S3LocationConfig{
 		Endpoint:     "test_endpoint",
 		AccessKey:    "test_access_key",
@@ -114,6 +115,7 @@ func TestCreatePBMConfig(t *testing.T) {
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			inputLocation := test.inputLocation
 			res, err := createPBMConfig(&inputLocation, "test_prefix", test.inputPitr)
 			if test.errString != "" {
@@ -128,7 +130,10 @@ func TestCreatePBMConfig(t *testing.T) {
 }
 
 func TestFindPITRRestore(t *testing.T) {
+	t.Parallel(
 	// Tested func searches from the end, so we place records to be skipped at the end.
+	)
+
 	testList := []pbmListRestore{
 		{
 			Name: "2022-10-11T14:53:19.000000001Z",
@@ -188,6 +193,7 @@ func TestFindPITRRestore(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			startedAt, err := time.Parse(time.RFC3339Nano, tc.startedAtString)
 			require.NoError(t, err)
 

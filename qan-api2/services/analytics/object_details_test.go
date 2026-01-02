@@ -31,6 +31,7 @@ import (
 )
 
 func TestService_GetQueryExample(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -123,6 +124,7 @@ func TestService_GetQueryExample(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			s := &Service{
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
@@ -148,6 +150,7 @@ func TestService_GetQueryExample(t *testing.T) {
 }
 
 func TestService_GetMetricsError(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -257,6 +260,7 @@ func TestService_GetMetricsError(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			s := &Service{
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
@@ -270,6 +274,7 @@ func TestService_GetMetricsError(t *testing.T) {
 }
 
 func TestService_GetMetrics(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -277,6 +282,7 @@ func TestService_GetMetrics(t *testing.T) {
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
 
 	t.Run("group_by_queryid", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -301,6 +307,7 @@ func TestService_GetMetrics(t *testing.T) {
 
 	t3, _ := time.Parse(time.RFC3339, "2019-01-01T01:30:00Z")
 	t.Run("sparklines_90_points", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -324,6 +331,7 @@ func TestService_GetMetrics(t *testing.T) {
 	})
 
 	t.Run("total", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -349,6 +357,7 @@ func TestService_GetMetrics(t *testing.T) {
 }
 
 func TestService_GetLabels(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -382,6 +391,7 @@ func TestService_GetLabels(t *testing.T) {
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
@@ -412,6 +422,7 @@ func TestService_GetLabels(t *testing.T) {
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
@@ -434,6 +445,7 @@ func TestService_GetLabels(t *testing.T) {
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
@@ -457,6 +469,7 @@ func TestService_GetLabels(t *testing.T) {
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
@@ -480,6 +493,7 @@ func TestService_GetLabels(t *testing.T) {
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
@@ -511,6 +525,7 @@ func TestService_GetLabels(t *testing.T) {
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
@@ -534,6 +549,7 @@ func TestService_GetLabels(t *testing.T) {
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,

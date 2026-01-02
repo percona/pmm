@@ -26,6 +26,7 @@ import (
 )
 
 func TestStatus(t *testing.T) {
+	t.Parallel()
 	res := newStatusResult(&agentlocal.Status{
 		AgentID:       "pmm-server",
 		NodeID:        "pmm-server",
@@ -78,6 +79,7 @@ Agents:
 }
 
 func TestStatusJSON(t *testing.T) {
+	t.Parallel()
 	res := newStatusResult(&agentlocal.Status{
 		ServerURL: "https://username:password@address/",
 	})

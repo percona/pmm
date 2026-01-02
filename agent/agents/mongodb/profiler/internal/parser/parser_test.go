@@ -32,6 +32,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	docsChan := make(chan pm.SystemProfile)
 	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
 
@@ -55,6 +56,7 @@ func TestNew(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := New(tt.args.docsChan, tt.args.aggregator, logrus.WithField("component", "test-parser")); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("New(%v, %v) = %v, want %v", tt.args.docsChan, tt.args.aggregator, got, tt.want)
 			}
@@ -63,6 +65,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestParserStartStop(t *testing.T) {
+	t.Parallel()
 	var err error
 	docsChan := make(chan pm.SystemProfile)
 	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
@@ -82,6 +85,7 @@ func TestParserStartStop(t *testing.T) {
 }
 
 func TestParserRunning(t *testing.T) {
+	t.Parallel()
 	oldInterval := aggregator.DefaultInterval
 	aggregator.DefaultInterval = 10 * time.Second
 	defer func() { aggregator.DefaultInterval = oldInterval }()

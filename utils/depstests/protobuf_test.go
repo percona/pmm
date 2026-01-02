@@ -26,9 +26,11 @@ import (
 )
 
 func TestDuration(t *testing.T) {
+	t.Parallel(
 	// https://google.golang.org/protobuf/issues/883
 	// https://google.golang.org/protobuf/issues/1219
 	// https://jira.percona.com/browse/PMM-6760
+	)
 
 	s, err := protojson.Marshal(durationpb.New(-time.Nanosecond))
 	require.NoError(t, err)

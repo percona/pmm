@@ -208,6 +208,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 }
 
 func TestAutoDiscovery(t *testing.T) {
+	t.Parallel()
 	const discoveryFlag = "--auto-discover-databases"
 	const excludedFlag = "--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin"
 
@@ -252,6 +253,7 @@ func TestAutoDiscovery(t *testing.T) {
 	}
 
 	t.Run("Not supported version - disabled", func(t *testing.T) {
+		t.Parallel()
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, res)
@@ -260,6 +262,7 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Supported version - enabled", func(t *testing.T) {
+		t.Parallel()
 		pmmAgentVersion = version.MustParse("2.16.0")
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
 		assert.NoError(t, err)
@@ -268,6 +271,7 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Database count more than limit - disabled", func(t *testing.T) {
+		t.Parallel()
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      10,
@@ -279,6 +283,7 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Database count equal to limit - enabled", func(t *testing.T) {
+		t.Parallel()
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      5,
@@ -290,6 +295,7 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Database count less than limit - enabled", func(t *testing.T) {
+		t.Parallel()
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      3,
@@ -301,6 +307,7 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Negative limit - disabled", func(t *testing.T) {
+		t.Parallel()
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			AutoDiscoveryLimit: pointer.ToInt32(-1),
 			DatabaseCount:      3,
@@ -312,6 +319,7 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Default - enabled", func(t *testing.T) {
+		t.Parallel()
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			AutoDiscoveryLimit: pointer.ToInt32(0),
 			DatabaseCount:      3,
@@ -324,6 +332,7 @@ func TestAutoDiscovery(t *testing.T) {
 }
 
 func TestMaxConnections(t *testing.T) {
+	t.Parallel()
 	const maxConnectionsFlag = "--max-connections"
 
 	pmmAgentVersion := version.MustParse("2.42.0")
@@ -372,6 +381,7 @@ func TestMaxConnections(t *testing.T) {
 	}
 
 	t.Run("Not supported version - disabled", func(t *testing.T) {
+		t.Parallel()
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, version.MustParse("2.41.0"))
 		assert.NoError(t, err)
 		assert.Equal(t, expected, res)
@@ -379,12 +389,14 @@ func TestMaxConnections(t *testing.T) {
 	})
 
 	t.Run("Supported version - enabled", func(t *testing.T) {
+		t.Parallel()
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
 		assert.NoError(t, err)
 		assert.Contains(t, res.Args, fmt.Sprintf("%s=%d", maxConnectionsFlag, 10))
 	})
 
 	t.Run("Max exporter connections set to 0 - ignore", func(t *testing.T) {
+		t.Parallel()
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			MaxExporterConnections: 0,
 		}
@@ -394,6 +406,7 @@ func TestMaxConnections(t *testing.T) {
 	})
 
 	t.Run("Max exporter connections set to 5 - apply", func(t *testing.T) {
+		t.Parallel()
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			MaxExporterConnections: 5,
 		}
@@ -562,5 +575,6 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 }
 
 func TestPostgresExporterConfigTestSuite(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, &PostgresExporterConfigTestSuite{})
 }

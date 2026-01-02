@@ -23,16 +23,20 @@ import (
 )
 
 func TestVictoriaMetricsParams(t *testing.T) {
+	t.Parallel()
 	t.Run("read non exist baseConfigFile", func(t *testing.T) {
+		t.Parallel()
 		_, err := NewVictoriaMetricsParams("nonExistConfigFile.yml", VMBaseURL)
 		require.NoError(t, err)
 	})
 	t.Run("check params for VMAlert", func(t *testing.T) {
+		t.Parallel()
 		vmp, err := NewVictoriaMetricsParams("../testdata/victoriametrics/prometheus.external.alerts.yml", VMBaseURL)
 		require.NoError(t, err)
 		require.Equal(t, []string{"--rule=/srv/external_rules/rul1.yml", "--rule=/srv/external_rules/rule2.yml", "--evaluationInterval=10s"}, vmp.VMAlertFlags)
 	})
 	t.Run("check external VM", func(t *testing.T) {
+		t.Parallel()
 		tests := []struct {
 			url  string
 			want bool
@@ -56,6 +60,7 @@ func TestVictoriaMetricsParams(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.url, func(t *testing.T) {
+				t.Parallel()
 				vmp, err := NewVictoriaMetricsParams(BasePrometheusConfigPath, tt.url)
 				require.NoError(t, err)
 				assert.Equalf(t, tt.want, vmp.ExternalVM(), "ExternalVM()")

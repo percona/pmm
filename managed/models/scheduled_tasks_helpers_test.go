@@ -31,6 +31,7 @@ import (
 )
 
 func TestScheduledTaskHelpers(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	t.Cleanup(func() {
@@ -118,6 +119,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 	}
 
 	t.Run("CreateAndFind", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -153,6 +155,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 	})
 
 	t.Run("Change", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -194,6 +197,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 	})
 
 	t.Run("Remove", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -211,6 +215,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 	})
 
 	t.Run("Find", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {

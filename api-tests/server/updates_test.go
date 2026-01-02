@@ -33,7 +33,9 @@ import (
 )
 
 func TestCheckUpdates(t *testing.T) {
+	t.Parallel(
 	// do not run this test in parallel with other tests as it also tests timings
+	)
 
 	const fast, slow = 5 * time.Second, 60 * time.Second
 
@@ -95,6 +97,7 @@ func TestCheckUpdates(t *testing.T) {
 	assert.NotEmpty(t, res.Payload.LastCheck)
 
 	t.Run("HotCache", func(t *testing.T) {
+		t.Parallel()
 		params = &server.CheckUpdatesParams{
 			Context: pmmapitests.Context,
 		}
@@ -106,6 +109,7 @@ func TestCheckUpdates(t *testing.T) {
 	})
 
 	t.Run("Force", func(t *testing.T) {
+		t.Parallel()
 		params = &server.CheckUpdatesParams{
 			Force:   pointer.ToBool(true),
 			Context: pmmapitests.Context,
@@ -120,6 +124,7 @@ func TestCheckUpdates(t *testing.T) {
 	})
 
 	t.Run("forced with updates disabled", func(t *testing.T) {
+		t.Parallel()
 		defer restoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
@@ -142,6 +147,7 @@ func TestCheckUpdates(t *testing.T) {
 }
 
 func TestListUpdates(t *testing.T) {
+	t.Parallel()
 	const fast, slow = 5 * time.Second, 60 * time.Second
 
 	if !pmmapitests.RunUpdateTest {
@@ -167,6 +173,7 @@ func TestListUpdates(t *testing.T) {
 	}
 
 	t.Run("with updates disabled", func(t *testing.T) {
+		t.Parallel()
 		defer restoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
@@ -187,7 +194,9 @@ func TestListUpdates(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	t.Parallel(
 	// do not run this test in parallel with other tests
+	)
 
 	if !pmmapitests.RunUpdateTest {
 		t.Skip("skipping PMM Server update test")
@@ -214,6 +223,7 @@ func TestUpdate(t *testing.T) {
 	pmmapitests.AssertAPIErrorf(t, err, 401, codes.Unauthenticated, "Unauthorized")
 
 	t.Run("with PMM updates disabled", func(t *testing.T) {
+		t.Parallel()
 		defer restoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{

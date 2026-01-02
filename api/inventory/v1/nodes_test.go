@@ -30,6 +30,7 @@ import (
 // result is a non-empty string, meaning that the NodetypeNames list matches the proto
 // definitions.
 func TestNodeTypes(t *testing.T) {
+	t.Parallel()
 	for _, val := range NodeType_name {
 		if strings.HasSuffix(val, "UNSPECIFIED") {
 			continue

@@ -33,6 +33,7 @@ import (
 )
 
 func TestActionHelpers(t *testing.T) {
+	t.Parallel()
 	now, origNowF := models.Now(), models.Now
 	models.Now = func() time.Time {
 		return now
@@ -63,6 +64,7 @@ func TestActionHelpers(t *testing.T) {
 	}
 
 	t.Run("FindActionResultByID", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -75,6 +77,7 @@ func TestActionHelpers(t *testing.T) {
 	})
 
 	t.Run("FindPmmAgentIDToRunActionOrJob", func(t *testing.T) {
+		t.Parallel()
 		a := []*models.Agent{
 			{AgentID: "A1", AgentType: models.PMMAgentType},
 			{AgentID: "A2", AgentType: models.MySQLdExporterType, PMMAgentID: pointer.ToString("A1")},
@@ -104,6 +107,7 @@ func TestActionHelpers(t *testing.T) {
 	})
 
 	t.Run("QueryActionBinaryData", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -113,6 +117,7 @@ func TestActionHelpers(t *testing.T) {
 }
 
 func TestCleanupResults(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
@@ -166,6 +171,7 @@ func TestCleanupResults(t *testing.T) {
 	}
 
 	t.Run("CheckActionResultByID", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 

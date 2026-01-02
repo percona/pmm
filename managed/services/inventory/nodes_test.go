@@ -30,7 +30,9 @@ import (
 )
 
 func TestNodes(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -69,6 +71,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("GetEmptyID", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -78,6 +81,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -90,6 +94,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -114,6 +119,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddHostnameNotUnique", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -139,6 +145,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddRemoteRDSNodeNotUnique", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -151,6 +158,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -160,7 +168,9 @@ func TestNodes(t *testing.T) {
 }
 
 func TestAddNode(t *testing.T) {
+	t.Parallel()
 	t.Run("BasicGeneric", func(t *testing.T) {
+		t.Parallel()
 		const nodeID = "00000000-0000-4000-8000-000000000005"
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
@@ -201,6 +211,7 @@ func TestAddNode(t *testing.T) {
 	})
 
 	t.Run("AddAllNodeTypes", func(t *testing.T) {
+		t.Parallel()
 		const (
 			nodeID1 = "00000000-0000-4000-8000-000000000005"
 			nodeID2 = "00000000-0000-4000-8000-000000000006"
@@ -334,6 +345,7 @@ func TestAddNode(t *testing.T) {
 	})
 
 	t.Run("AddRemoteRDSNodeNonUnique", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -354,6 +366,7 @@ func TestAddNode(t *testing.T) {
 	})
 
 	t.Run("AddHostnameNotUnique", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -373,6 +386,7 @@ func TestAddNode(t *testing.T) {
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -387,6 +401,7 @@ func TestAddNode(t *testing.T) {
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
+		t.Parallel()
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 

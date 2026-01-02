@@ -48,7 +48,9 @@ func generateTempDirPath(t *testing.T, basePath string) string {
 }
 
 func TestLoadFromFile(t *testing.T) {
+	t.Parallel()
 	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
 		name := writeConfig(t, &Config{ID: "agent-id"})
 		t.Cleanup(func() { removeConfig(t, name) })
 
@@ -58,12 +60,14 @@ func TestLoadFromFile(t *testing.T) {
 	})
 
 	t.Run("NotExist", func(t *testing.T) {
+		t.Parallel()
 		cfg, err := loadFromFile("not-exist.yaml")
 		assert.Equal(t, ConfigFileDoesNotExistError("not-exist.yaml"), err)
 		assert.Nil(t, cfg)
 	})
 
 	t.Run("PermissionDenied", func(t *testing.T) {
+		t.Parallel()
 		name := writeConfig(t, &Config{ID: "agent-id"})
 		require.NoError(t, os.Chmod(name, 0o000))
 		t.Cleanup(func() { removeConfig(t, name) })
@@ -76,6 +80,7 @@ func TestLoadFromFile(t *testing.T) {
 	})
 
 	t.Run("NotYAML", func(t *testing.T) {
+		t.Parallel()
 		name := writeConfig(t, nil)
 		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666)) //nolint:gosec
 		t.Cleanup(func() { removeConfig(t, name) })
@@ -88,7 +93,9 @@ func TestLoadFromFile(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
+	t.Parallel()
 	t.Run("OnlyFlags", func(t *testing.T) {
+		t.Parallel()
 		var actual Config
 		configFilepath, err := get([]string{
 			"--id=agent-id",
@@ -137,6 +144,7 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("OnlyConfig", func(t *testing.T) {
+		t.Parallel()
 		var name string
 		var actual Config
 
@@ -202,6 +210,7 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("BothFlagsAndConfig", func(t *testing.T) {
+		t.Parallel()
 		var name string
 		var actual Config
 		tmpDir := generateTempDirPath(t, "/foo/bar")
@@ -269,6 +278,7 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("MixExportersBase", func(t *testing.T) {
+		t.Parallel()
 		var name string
 		var actual Config
 
@@ -339,6 +349,7 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("MixPathsBase", func(t *testing.T) {
+		t.Parallel()
 		var name string
 		var actual Config
 
@@ -408,6 +419,7 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("MixPathsBaseExporterBase", func(t *testing.T) {
+		t.Parallel()
 		var name string
 		var actual Config
 
@@ -475,6 +487,7 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("NoFile", func(t *testing.T) {
+		t.Parallel()
 		wd, err := os.Getwd()
 		require.NoError(t, err)
 
@@ -529,6 +542,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestFilteredURL(t *testing.T) {
+	t.Parallel()
 	s := &Server{
 		Address:  "1.2.3.4:443",
 		Username: "username",
@@ -541,6 +555,7 @@ func TestFilteredURL(t *testing.T) {
 		"$&+,/:*;=?@", // all special reserved characters from RFC plus *
 	} {
 		t.Run(password, func(t *testing.T) {
+			t.Parallel()
 			s.Password = password
 			assert.Equal(t, "https://username:***@1.2.3.4:443/", s.FilteredURL())
 		})

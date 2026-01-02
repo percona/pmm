@@ -33,6 +33,7 @@ import (
 )
 
 func TestServiceHelpers(t *testing.T) {
+	t.Parallel()
 	now, origNowF := models.Now(), models.Now
 	models.Now = func() time.Time {
 		return now
@@ -156,6 +157,7 @@ func TestServiceHelpers(t *testing.T) {
 	}
 
 	t.Run("FindServices", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -286,6 +288,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("FindActiveServiceTypes", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -295,6 +298,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("RemoveService", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -323,6 +327,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("MySQL Conflict socket and address", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -337,6 +342,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("MySQL empty connection", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -348,6 +354,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("PostgreSQL conflict socket and address", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -362,6 +369,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("PostgreSQL empty connection", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 
 		defer teardown(t)
@@ -373,6 +381,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("MongoDB conflict socket and address", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -387,6 +396,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("MongoDB empty connection", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -397,6 +407,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("ProxySQL empty connection", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -408,6 +419,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("ProxySQL conflict socket and address", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -422,6 +434,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("MongoDB find services in the same cluster", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 		s1, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
@@ -460,6 +473,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("Change standard labels", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 		s, err := models.AddNewService(q, models.ExternalServiceType, &models.AddDBMSServiceParams{
@@ -490,6 +504,7 @@ func TestServiceHelpers(t *testing.T) {
 	})
 
 	t.Run("Software versions record created when adding a service", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 

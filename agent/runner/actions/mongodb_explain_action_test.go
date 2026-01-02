@@ -37,6 +37,7 @@ import (
 )
 
 func TestQueryExplain(t *testing.T) {
+	t.Parallel()
 	database := "testdb"
 	ctx := context.TODO()
 
@@ -48,6 +49,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("Find", func(t *testing.T) {
+		t.Parallel()
 		query := `{
 			"ns": "config.collections",
 			"op": "query",
@@ -66,6 +68,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("Count", func(t *testing.T) {
+		t.Parallel()
 		query := `{
 			"ns": "testdb.collection",
 			"op": "command",
@@ -86,6 +89,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("Count with aggregate", func(t *testing.T) {
+		t.Parallel()
 		query := `{
 			"ns": "testdb.collection",
 			"op": "command",
@@ -118,6 +122,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("Update", func(t *testing.T) {
+		t.Parallel()
 		query := `{
 			"ns": "testdb.inventory",
 			"op": "update",
@@ -142,6 +147,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("Remove", func(t *testing.T) {
+		t.Parallel()
 		query := `{
 			"ns": "testdb.inventory",
 			"op": "remove",
@@ -171,6 +177,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("Distinct", func(t *testing.T) {
+		t.Parallel()
 		query := `{
 			"ns": "testdb.inventory",
 			"op": "command",
@@ -186,6 +193,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("Insert - not supported", func(t *testing.T) {
+		t.Parallel()
 		query := `{
 			"ns": "testdb.listingsAndReviews",
 			"op": "insert",
@@ -199,6 +207,7 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("Drop - not supported", func(t *testing.T) {
+		t.Parallel()
 		query := `{
 			"ns": "testdb.listingsAndReviews",
 			"op": "command",
@@ -211,7 +220,10 @@ func TestQueryExplain(t *testing.T) {
 	})
 
 	t.Run("PMM-12451", func(t *testing.T) {
+		t.Parallel(
 		// Query from customer to prevent wrong date/time, timestamp parsing in future and prevent regression.
+		)
+
 		query := `{"ns":"testdb.testDoc","op":"query","command":{"find":"testDoc","filter":{"$and":[{"c23":{"$ne":""}},{"c23":{"$ne":null},"delete":{"$ne":true}},{"$and":[{"c23":"985662747"},{"c15":{"$gte":{"$date":"2023-09-19T22:00:00.000Z"}}},{"c15":{"$lte":{"$date":"2023-10-20T21:59:59.000Z"}}},{"c8":{"$in":["X1118630710X","X1118630720X","X1118630730X","X1118630740X","X1118630750X","X1118630760X"]},"c22":{"$in":["X1118630710X","X1118630710XA","X1118630710XB","X1118630710XC","X1118630710XD","X1118630710XE"]},"c34":{"$in":["X1118630710X","X1118630710Y","X1118630710Z","X1118630710U","X1118630710V","X1118630710W"]}},{"c2":"xxxxxxx"},{"c29":{"$in":["X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X","X1118630710X"]}}]}]},"lsid":{"id":{"$binary":{"base64":"n/f5RI2jTTCoyt0y+8D9Cw==","subType":"04"}}},"$db":"testdb"}}`
 		runExplain(ctx, t, prepareParams(t, query))
 	})
@@ -252,6 +264,7 @@ func runExplainExpectError(ctx context.Context, t *testing.T, params *agentv1.St
 }
 
 func TestMongoDBExplain(t *testing.T) {
+	t.Parallel()
 	database := "test"
 	collection := "test_col"
 	id := "abcd1234"
@@ -265,6 +278,7 @@ func TestMongoDBExplain(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Valid MongoDB query", func(t *testing.T) {
+		t.Parallel()
 		params := &agentv1.StartActionRequest_MongoDBExplainParams{
 			Dsn:   tests.GetTestMongoDBDSN(t),
 			Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
@@ -321,6 +335,7 @@ func TestMongoDBExplain(t *testing.T) {
 
 // These tests are based on v3 tests. The previous ones are inherited from PMM 1/Toolkit.
 func TestNewMongoDBExplain(t *testing.T) {
+	t.Parallel()
 	database := "sbtest"
 	id := "abcd1234"
 	ctx := context.TODO()
@@ -354,6 +369,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 	}
 	for _, tf := range testFiles {
 		t.Run(tf.in, func(t *testing.T) {
+			t.Parallel()
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
 			assert.NoError(t, err)
 			params := &agentv1.StartActionRequest_MongoDBExplainParams{

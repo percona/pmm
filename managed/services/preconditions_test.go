@@ -35,6 +35,7 @@ import (
 )
 
 func TestCheckMongoDBBackupPreconditions(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	t.Cleanup(func() {
@@ -78,6 +79,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("unable to create snapshot backup for cluster with enabled PITR backup", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "cluster1", "", "")
 		})
@@ -85,6 +87,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("unable to create second PITR backup for cluster", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "cluster1", "", "")
 		})
@@ -92,6 +95,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("able to update existing PITR backup for cluster", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "cluster1", "", schedule1.ID)
 		})
@@ -99,6 +103,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("unable to create second PITR backup for service", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "", "service1", "")
 		})
@@ -106,6 +111,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("able to update existing PITR backup for service", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "", "service1", schedule1.ID)
 		})
@@ -113,6 +119,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("unable to create PITR backup for cluster with scheduled snapshot backup", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "cluster2", "", "")
 		})
@@ -120,6 +127,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("able to create second snapshot backup for cluster", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "cluster2", "", "")
 		})
@@ -127,6 +135,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("unable to create PITR backup for service with scheduled snapshot backup", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "", "service2", "")
 		})
@@ -134,6 +143,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("able to create second snapshot backup for service", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "", "service2", "")
 		})
@@ -141,6 +151,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	})
 
 	t.Run("incremental backups are not supported", func(t *testing.T) {
+		t.Parallel()
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Incremental, "cluster1", "", "")
 		})
@@ -149,6 +160,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 }
 
 func TestCheckArtifactOverlapping(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	t.Cleanup(func() {

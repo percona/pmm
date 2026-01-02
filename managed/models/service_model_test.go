@@ -23,7 +23,9 @@ import (
 )
 
 func TestService(t *testing.T) {
+	t.Parallel()
 	t.Run("UnifiedLabels", func(t *testing.T) {
+		t.Parallel()
 		service := &Service{
 			ServiceID:      "service_id",
 			Cluster:        "hidden",
