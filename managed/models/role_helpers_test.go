@@ -99,8 +99,7 @@ func TestRoleHelpers(t *testing.T) {
 	})
 
 	t.Run("unassigned role", func(t *testing.T) {
-		t.Parallel(
-		)
+		t.Parallel()
 
 		t.Run("shall delete role with no replacement", func(t *testing.T) {
 			t.Parallel()
@@ -128,8 +127,7 @@ func TestRoleHelpers(t *testing.T) {
 	})
 
 	t.Run("single role assigned", func(t *testing.T) {
-		t.Parallel(
-		)
+		t.Parallel()
 
 		t.Run("shall delete role with no replacement", func(t *testing.T) {
 			t.Parallel()
@@ -168,8 +166,7 @@ func TestRoleHelpers(t *testing.T) {
 	})
 
 	t.Run("multiple roles assigned", func(t *testing.T) {
-		t.Parallel(
-		)
+		t.Parallel()
 
 		t.Run("shall delete role with no replacement", func(t *testing.T) {
 			t.Parallel()
