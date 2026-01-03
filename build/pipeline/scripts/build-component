@@ -92,7 +92,13 @@ setup_gitmodules() {
     # Build gitmodules binary if not exists
     if [ ! -f "${gitmodules_bin}" ]; then
         echo "Building gitmodules parser..."
-        ( cd "${SCRIPT_DIR}" && go mod init github.com/percona/pmm/gitmodules && go mod tidy -v && go build -o gitmodules gitmodules.go && rm go.{mod,sum} )
+        ( 
+            cd "${SCRIPT_DIR}" && \
+            go mod init github.com/percona/pmm/gitmodules && \
+            go mod tidy -v && \
+            go build -o gitmodules gitmodules.go && \
+            rm go.{mod,sum}
+        )
     fi
     
     # Download .gitmodules if not exists
@@ -338,7 +344,7 @@ if echo " ${WORKSPACE_COMPONENTS} " | grep -q " ${COMPONENT} "; then
 elif echo " ${EXTERNAL_COMPONENTS} " | grep -q " ${COMPONENT} "; then
     build_external_component "${COMPONENT}"
 else
-    echo "Error: Unknown component '${COMPONENT}'"
+    echo "Error: unknown component '${COMPONENT}'"
     echo ""
     echo "Available workspace components: ${WORKSPACE_COMPONENTS}"
     echo "Available external components: ${EXTERNAL_COMPONENTS}"
