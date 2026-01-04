@@ -244,7 +244,7 @@ build_external_component() {
             build_cmd="make release && cp azure_exporter /output/"
             ;;
         redis_exporter)
-            build_cmd="make build && cp redis_exporter /output/"
+            build_cmd="make build && cp redis_exporter /output/valkey_exporter"
             ;;
         vmagent)
             build_cmd="make vmagent-linux-amd64 && cp bin/vmagent-linux-amd64 /output/vmagent"
