@@ -97,23 +97,20 @@ services:
       - go-modules:/root/go/pkg/mod
       - go-cache:/root/.cache
       - srv:/srv
-      # temporarily mount advisor files until we package them.
+      # mount advisor files for easy development
       - ./managed/data/advisors/:/usr/local/percona/advisors/
       - ./managed/data/checks/:/usr/local/percona/checks/
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # grafana
-    #  - "../grafana:/workspace"
-    #  - "../grafana/public:/usr/share/grafana/public"
-    #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
-    # command: >
-    #   bash -c "
-    #     rm -rf /tmp/certs
-    #     mkdir /tmp/certs
-    #     cp -R /root/go/src/github.com/percona/pmm/managed/testdata/pg/certs/* /tmp/certs
-    #     chown grafana:grafana /tmp/certs/*
-    #     chmod 600 /tmp/certs/*
-    #     /opt/entrypoint.sh
-    #   "
+      #  - "../grafana:/workspace"
+      #  - "../grafana/public:/usr/share/grafana/public"
+      #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
+      # command: >
+      #   bash -c "
+      #     # script you want to run before entrypoint, e.g.
+      #     bash /tmp/wait-for-it.sh -t 30 some-service:some-port --
+      #     /opt/entrypoint.sh
+      #   "
 
   renderer:
     image: grafana/grafana-image-renderer:latest
