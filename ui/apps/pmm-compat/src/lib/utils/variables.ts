@@ -46,19 +46,29 @@ export const shouldIncludeVars = (url: string): boolean => {
   const currentDB = getDbType(window.location.pathname);
   const targetDB = getDbType(url);
 
+  if (currentDB === undefined || targetDB === undefined) {
+    return false;
+  }
+
   // enable variable sharing between same db types and db type -> os/node
-  return (currentDB !== undefined && currentDB === targetDB) || targetDB === 'node';
+  return currentDB === targetDB || targetDB === 'node';
 };
 
-const getDbType = (url: string): string => {
+const getDbType = (url: string): string | undefined => {
   const pathname = new URL(url, window.location.origin).pathname;
   // normalize to the dashboard uid
-  const dashboardUid = pathname
+  const pathParts = pathname
     .replace('/pmm-ui', '')
     .replace('/next', '')
     .replace('/graph', '')
     .replace('/d/', '')
-    .split('/')[0];
+    .split('/');
+
+  if (pathParts.length < 1 || !pathParts[0]) {
+    return undefined;
+  }
+
+  const dashboardUid = pathParts[0];
 
   if (dashboardUid.includes('-')) {
     return dashboardUid.split('-')[0];
