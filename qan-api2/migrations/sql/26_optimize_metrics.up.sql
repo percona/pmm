@@ -1,1 +1,0 @@
-OPTIMIZE TABLE metrics FINAL;
