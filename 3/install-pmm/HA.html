@@ -16695,7 +16695,7 @@ docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w
 </li>
 </ol>
 <h3 id="step-7-set-up-haproxy">Step 7: Set up HAProxy<a class="headerlink" href="#step-7-set-up-haproxy" title="Permanent link">&para;</a></h3>
-<p class="power-number">HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the <code>/v1/leaderHealthCheck</code> endpoint:</p>
+<p class="power-number">HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the <code>/v1/server/leaderHealthCheck</code> endpoint:</p>
 <ol>
 <li>
 <p>Pull the HAProxy Docker image:</p>
@@ -16733,7 +16733,7 @@ docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w
 <p>Replace <code>/path/to/haproxy-config</code> with the path where you want to store your HAProxy configuration.</p>
 </li>
 <li>
-<p>Create an HAProxy configuration file named <code>haproxy.cfg.template</code> in that directory. This configuration tells HAProxy to use the <code>/v1/leaderHealthCheck</code> endpoint of each PMM server to identify the leader:</p>
+<p>Create an HAProxy configuration file named <code>haproxy.cfg.template</code> in that directory. This configuration tells HAProxy to use the <code>/v1/server/leaderHealthCheck</code> endpoint of each PMM server to identify the leader:</p>
 <div class="highlight"><pre><span></span><code>global
     log stdout    local0 debug
     log stdout    local1 info
@@ -16759,7 +16759,7 @@ frontend https_front
 
 backend http_back
     option httpchk
-    http-check send meth POST uri /v1/leaderHealthCheck ver HTTP/1.1 hdr Host www
+    http-check send meth GET uri /v1/server/leaderHealthCheck ver HTTP/1.1 hdr Host www
     http-check expect status 200
     server pmm-server-active-http PMM_ACTIVE_IP:8080 check
     server pmm-server-passive-http PMM_PASSIVE_IP:8080 check backup
@@ -16767,7 +16767,7 @@ backend http_back
 
 backend https_back
     option httpchk
-    http-check send meth POST uri /v1/leaderHealthCheck ver HTTP/1.1 hdr Host www
+    http-check send meth GET uri /v1/server/leaderHealthCheck ver HTTP/1.1 hdr Host www
     http-check expect status 200
     server pmm-server-active-https PMM_ACTIVE_IP:8443 check ssl verify none
     server pmm-server-passive-https PMM_PASSIVE_IP:8443 check ssl verify none
@@ -16831,7 +16831,7 @@ haproxy:2.4.2-alpine
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 30, 2025 11:25:09 UTC">October 30, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="January 5, 2026 20:27:31 UTC">January 5, 2026</span>
   </span>
 
     
@@ -16879,7 +16879,7 @@ haproxy:2.4.2-alpine
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
     <div class="md-copyright__highlight">
-      <a href="https://percona.com/about" target='_blank'>Percona LLC</a> and its affiliates &copy; 2025 —
+      <a href="https://percona.com/about" target='_blank'>Percona LLC</a> and its affiliates &copy; 2026 —
       <a href="#" onclick="Osano.cm.showDrawer('osano-cm-dom-info-dialog-open')">Cookie Preferences</a>
 
     </div>
