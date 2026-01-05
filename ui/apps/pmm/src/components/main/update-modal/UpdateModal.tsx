@@ -22,7 +22,8 @@ const UpdateModal: FC = () => {
   const isOnUpdatesPage = location.pathname.startsWith(
     PMM_NEW_NAV_UPDATES_PATH
   );
-  const latestVersion = versionInfo?.latest.version || '';
+
+  const latestVersion = versionInfo?.latest?.version || '';
   const releaseNotesUrl = versionInfo?.latest?.releaseNotesUrl ?? '';
   const updateAvailable = Boolean(versionInfo?.updateAvailable);
 
