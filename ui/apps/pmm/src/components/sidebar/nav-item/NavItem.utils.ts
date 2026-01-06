@@ -22,7 +22,7 @@ export const getLinkProps = (item: NavItem, url?: string) => {
 };
 
 export const shouldShowBadge = (item: NavItem, expanded: boolean): boolean => {
-  if (item.badge && !expanded) {
+  if (item.badge && !expanded && !item.badgeAlwaysVisible) {
     return true;
   }
 
