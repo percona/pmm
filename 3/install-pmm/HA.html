@@ -16200,39 +16200,35 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <td style="text-align: left;">The username for your Grafana database user.<br><br>Example: <code>gfuser</code></td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>GF_PASSWORD</code></td>
-<td style="text-align: left;">The password for your Grafana database user.<br><br>Example: <code>gfpassword</code></td>
+<td style="text-align: left;"><code>PMM_CLICKHOUSE_IS_CLUSTER</code></td>
+<td style="text-align: left;">Set to <code>1</code> to indicate that ClickHouse is running in cluster mode. This enables PMM to use distributed tables and cluster-aware queries for Query Analytics (QAN) metrics.<br><br>Example: <code>1</code></td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>PMM_ACTIVE_IP</code></td>
-<td style="text-align: left;">The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.5</code></td>
+<td style="text-align: left;"><code>PMM_CLICKHOUSE_CLUSTER_NAME</code></td>
+<td style="text-align: left;">Optional. If set, specifies the ClickHouse cluster name to use for distributed table operations. Used together with PMM_CLICKHOUSE_IS_CLUSTER.<br><br>Example: <code>my_cluster</code></td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>PMM_ACTIVE_NODE_ID</code></td>
-<td style="text-align: left;">The unique ID for your active PMM server node.<br><br>Example: <code>pmm-server-active</code></td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>PMM_PASSIVE_IP</code></td>
-<td style="text-align: left;">The IP address of the instance where the first passive PMM server is running or the desired IP address for your first passive PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.6</code></td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>PMM_PASSIVE_NODE_ID</code></td>
-<td style="text-align: left;">The unique ID for your first passive PMM server node.<br><br>Example: <code>pmm-server-passive</code></td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>PMM_PASSIVE2_IP</code></td>
-<td style="text-align: left;">The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.7</code></td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>PMM_PASSIVE2_NODE_ID</code></td>
-<td style="text-align: left;">The unique ID for your second passive PMM server node.<br><br>Example: <code>pmm-server-passive2</code></td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>PMM_DOCKER_IMAGE</code></td>
-<td style="text-align: left;">The specific PMM Server Docker image for this guide.<br><br>Example: <code>percona/pmm-server:3</code></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>[!WARNING]
+<strong>Cluster Name Character Limitations:</strong>
+Use only letters, digits, and underscores (<code>a-z</code>, <code>A-Z</code>, <code>0-9</code>, <code>_</code>) in ClickHouse cluster names. Avoid dashes (<code>-</code>), spaces, and other special characters.</p>
+<p>[!NOTE]
+<strong>QAN Initialization Delay:</strong>
+When using ClickHouse in cluster mode (<code>PMM_CLICKHOUSE_IS_CLUSTER=1</code>), it can take up to 5 minutes for Query Analytics (QAN) to become fully operational after startup or configuration changes. During this period, you may receive error messages in the QAN interface. This is expected and will resolve automatically once the cluster is ready.
+| <code>GF_PASSWORD</code> | The password for your Grafana database user.<br><br>Example: <code>gfpassword</code> |
+| <code>PMM_ACTIVE_IP</code> | The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.5</code> |
+| <code>PMM_ACTIVE_NODE_ID</code> | The unique ID for your active PMM server node.<br><br>Example: <code>pmm-server-active</code> |
+| <code>PMM_PASSIVE_IP</code> | The IP address of the instance where the first passive PMM server is running or the desired IP address for your first passive PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.6</code> |
+| <code>PMM_PASSIVE_NODE_ID</code> | The unique ID for your first passive PMM server node.<br><br>Example: <code>pmm-server-passive</code> |
+| <code>PMM_PASSIVE2_IP</code> | The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.7</code> |
+| <code>PMM_PASSIVE2_NODE_ID</code> | The unique ID for your second passive PMM server node.<br><br>Example: <code>pmm-server-passive2</code> |
+| <code>PMM_DOCKER_IMAGE</code> | The specific PMM Server Docker image for this guide.<br><br>Example: <code>percona/pmm-server:3</code> |</p>
+</blockquote>
 <details class="example">
 <summary>Expected output</summary>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">CH_HOST_IP</span><span class="o">=</span><span class="m">17</span>.10.1.2
@@ -16491,14 +16487,13 @@ docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w
 -e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\ </span><span class="w">           </span>
 -e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_BOOTSTRAP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 -v<span class="w"> </span>pmm-server-active_data:/srv<span class="w"> </span><span class="se">\</span>
 <span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
 </code></pre></div>
@@ -16527,14 +16522,13 @@ docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w
 -e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_BOOTSTRAP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 -v<span class="w"> </span>pmm-server-active_data:/srv<span class="w"> </span><span class="se">\</span>
 <span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
 </code></pre></div>
@@ -16566,14 +16560,13 @@ docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w
 -e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\ </span><span class="w">           </span>
 -e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_BOOTSTRAP</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 -v<span class="w"> </span>pmm-server-passive_data:/srv<span class="w"> </span><span class="se">\</span>
 <span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
 </code></pre></div>
@@ -16602,14 +16595,13 @@ docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w
 -e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\ </span><span class="w">           </span>
 -e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_BOOTSTRAP</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 -v<span class="w"> </span>pmm-server-passive_data:/srv<span class="w"> </span><span class="se">\</span>
 <span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
 </code></pre></div>
@@ -16641,14 +16633,13 @@ docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w
 -e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\ </span><span class="w">           </span>
 -e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_BOOTSTRAP</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 -v<span class="w"> </span>pmm-server-passive-2_data:/srv<span class="w"> </span><span class="se">\</span>
 <span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
 </code></pre></div>
@@ -16677,14 +16668,13 @@ docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w
 -e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_BOOTSTRAP</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_TEST_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 -v<span class="w"> </span>pmm-server-passive-2_data:/srv<span class="w"> </span><span class="se">\</span>
 <span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
 </code></pre></div>
@@ -16831,7 +16821,7 @@ haproxy:2.4.2-alpine
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="January 5, 2026 20:27:31 UTC">January 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="January 6, 2026 13:10:07 UTC">January 6, 2026</span>
   </span>
 
     
