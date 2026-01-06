@@ -1,0 +1,31 @@
+---
+# CVE-2025-14847: MongoDB Zlib Compression Heap Memory Vulnerability
+# Alert if version is vulnerable AND zlib is actively being used (last 24h)
+# Fixed versions: 4.4.30, 5.0.32, 6.0.27, 7.0.28, 8.0.17, 8.2.3
+# EOL (no fix): 3.6.x, 4.0.x, 4.2.x
+#
+templates:
+  - name: mongodb_cve_2025_14847_zlib
+    version: 1
+    summary: MongoDB CVE-2025-14847 - Vulnerable Version with Active Zlib Compression
+    expr: |-
+      (
+        mongodb_version_info{mongodb=~"3\\.6\\..*|4\\.[02]\\..*|4\\.4\\.([0-9]|[12][0-9])($|[-.].*)$|5\\.0\\.([0-9]|[12][0-9]|3[01])($|[-.].*)$|6\\.0\\.([0-9]|1[0-9]|2[0-6])($|[-.].*)$|7\\.0\\.([0-9]|1[0-9]|2[0-7])($|[-.].*)$|8\\.0\\.([0-9]|1[0-6])($|[-.].*)$|8\\.2\\.[0-2]($|[-.].*)$"}
+        * on(service_name, node_name) group_left()
+        (increase(mongodb_ss_network_compression_zlib_compressor_bytesIn[24h]) > 0)
+      ) > 0
+    for: 5m
+    severity: critical
+    annotations:
+      summary: "MongoDB {{ $labels.mongodb }} vulnerable to CVE-2025-14847 ({{ $labels.service_name }})"
+      description: |-
+        {{ $labels.service_name }} on {{ $labels.node_name }} running {{ $labels.mongodb }} with active Zlib compression.
+        
+        FIXED VERSIONS: 4.4.30+, 5.0.32+, 6.0.27+, 7.0.28+, 8.0.17+, 8.2.3+
+        (3.6.x, 4.0.x, 4.2.x are EOL - no fix available)
+        
+        ACTIONS:
+        1. Upgrade to a patched version
+        2. Or disable Zlib: remove 'zlib' from net.compression.compressors in mongod.conf
+        
+        Reference: https://nvd.nist.gov/vuln/detail/CVE-2025-14847

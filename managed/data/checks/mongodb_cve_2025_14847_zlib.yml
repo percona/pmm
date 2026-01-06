@@ -1,0 +1,84 @@
+---
+checks:
+  - version: 2
+    name: mongodb_cve_2025_14847_zlib
+    summary: MongoDB CVE-2025-14847 - Zlib Compression Heap Memory Vulnerability
+    description: |
+      Checks if MongoDB Server is vulnerable to CVE-2025-14847 with active Zlib compression.
+      Fixed versions: 4.4.30+, 5.0.32+, 6.0.27+, 7.0.28+, 8.0.17+, 8.2.3+
+      EOL (no fix): 3.6.x, 4.0.x, 4.2.x
+    interval: frequent
+    family: MONGODB
+    advisor: security_cve
+    queries:
+      - type: MONGODB_BUILDINFO
+      - type: METRICS_INSTANT
+        query: increase(mongodb_ss_network_compression_zlib_compressor_bytesIn{service_name=~"{{.ServiceName}}"}[24h])
+    script: |
+      # CVE-2025-14847: Zlib compressed protocol headers heap memory disclosure
+      # Reference: https://nvd.nist.gov/vuln/detail/CVE-2025-14847
+      
+      FIXED_VERSIONS = {
+          "3.6": None,
+          "4.0": None,
+          "4.2": None,
+          "4.4": 40430,
+          "5.0": 50032,
+          "6.0": 60027,
+          "7.0": 70028,
+          "8.0": 80017,
+          "8.2": 80203,
+      }
+      
+      def check_context(docs, context):
+          parse_version = context.get("parse_version", fail)
+          format_version_num = context.get("format_version_num", fail)
+          
+          build_info = docs[0]
+          if len(build_info) != 1:
+              return "Unexpected number of documents from buildInfo"
+          
+          info = build_info[0]
+          version = parse_version(info["version"])
+          major = version["major"]
+          minor = version["minor"]
+          patch = version["patch"]
+          mm = "{}.{}".format(major, minor)
+          version_num = version["num"]
+          version_str = "{}.{}.{}".format(major, minor, patch)
+          
+          # Check if zlib is actively being used (last 24h)
+          zlib_active = False
+          metrics_result = docs[1]
+          if len(metrics_result) > 0 and "value" in metrics_result[0]:
+              value_data = metrics_result[0].get("value", [0, "0"])
+              if len(value_data) >= 2:
+                  val_str = str(value_data[1])
+                  if val_str and val_str != "0" and val_str != "NaN":
+                      zlib_active = float(val_str) > 0
+          
+          if not zlib_active:
+              return []
+          
+          fixed_version = FIXED_VERSIONS.get(mm)
+          
+          if fixed_version == None:
+              return [{
+                  "summary": "MongoDB {} vulnerable to CVE-2025-14847 (EOL - no fix)".format(version_str),
+                  "description": "Version {}.x is EOL. Upgrade to 5.0.32+, 6.0.27+, 7.0.28+, or 8.0.17+, or disable Zlib compression.".format(major),
+                  "read_more_url": "https://nvd.nist.gov/vuln/detail/CVE-2025-14847",
+                  "severity": "error",
+                  "labels": {"mongodb_version": version_str, "cve": "CVE-2025-14847"},
+              }]
+          
+          if version_num < fixed_version:
+              fixed_str = format_version_num(fixed_version)
+              return [{
+                  "summary": "MongoDB {} vulnerable to CVE-2025-14847".format(version_str),
+                  "description": "Update to {} or later, or disable Zlib compression.".format(fixed_str),
+                  "read_more_url": "https://nvd.nist.gov/vuln/detail/CVE-2025-14847",
+                  "severity": "error",
+                  "labels": {"mongodb_version": version_str, "cve": "CVE-2025-14847"},
+              }]
+          
+          return []
