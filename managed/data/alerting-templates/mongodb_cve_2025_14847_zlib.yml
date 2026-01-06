@@ -5,7 +5,7 @@
 # EOL (no fix): 3.6.x, 4.0.x, 4.2.x
 #
 templates:
-  - name: mongodb_cve_2025_14847_zlib
+  - name: pmm_mongodb_cve_2025_14847_zlib
     version: 1
     summary: MongoDB CVE-2025-14847 - Vulnerable Version with Active Zlib Compression
     expr: |-
