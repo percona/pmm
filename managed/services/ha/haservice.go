@@ -17,6 +17,7 @@
 package ha
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -24,7 +25,9 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -112,6 +115,54 @@ func (f *fsmSnapshot) Persist(sink raft.SnapshotSink) error {
 func (f *fsmSnapshot) Release() {
 	// Nothing to release for stateless FSM
 }
+
+// memberlistLogWriter is an io.Writer that converts memberlist's standard log format to structured output.
+type memberlistLogWriter struct {
+	logger   *logrus.Entry
+	logRegex *regexp.Regexp
+}
+
+// newMemberlistLogWriter creates a new log writer for memberlist.
+func newMemberlistLogWriter(logger *logrus.Entry) *memberlistLogWriter {
+	return &memberlistLogWriter{
+		logger:   logger,
+		logRegex: regexp.MustCompile(`^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \[(\w+)\] (?:memberlist: )?(.+)$`),
+	}
+}
+
+// Write implements io.Writer interface and converts memberlist logs to logrus format.
+func (w *memberlistLogWriter) Write(p []byte) (int, error) {
+	// Remove trailing newline for parsing
+	msg := string(bytes.TrimRight(p, "\n"))
+
+	// Parse memberlist log format: "2025/12/22 21:43:27 [DEBUG|INFO|WARN|ERR] message"
+	matches := w.logRegex.FindStringSubmatch(msg)
+	if len(matches) == 3 { //nolint:mnd
+		level := strings.ToLower(matches[1])
+		message := matches[2]
+
+		// Log with appropriate level
+		switch level {
+		case "debug":
+			w.logger.Debug(message)
+		case "info":
+			w.logger.Info(message)
+		case "warn":
+			w.logger.Warn(message)
+		case "err":
+			w.logger.Error(message)
+		default:
+			w.logger.Info(message)
+		}
+	} else {
+		// Fallback for unparseable logs
+		w.logger.Info(msg)
+	}
+
+	return len(p), nil
+}
+
+var _ io.Writer = (*memberlistLogWriter)(nil)
 
 // setupRaftStorage sets up persistent storage for Raft.
 func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, *raft.FileSnapshotStore, error) {
@@ -215,12 +266,17 @@ func (s *Service) Run(ctx context.Context) error {
 	raftConfig.SnapshotThreshold = defaultSnapshotThreshold
 	raftConfig.TrailingLogs = defaultTrailingLogs
 
-	// Create a new Raft transport
-	raa, err := net.ResolveTCPAddr("", net.JoinHostPort(s.params.AdvertiseAddress, strconv.Itoa(s.params.RaftPort)))
+	tcpAddr, err := net.ResolveTCPAddr("tcp", net.JoinHostPort(s.params.AdvertiseAddress, strconv.Itoa(s.params.RaftPort)))
 	if err != nil {
 		return err
 	}
-	raftTrans, err := raft.NewTCPTransport(net.JoinHostPort("0.0.0.0", strconv.Itoa(s.params.RaftPort)), raa, defaultRaftRetries, defaultTransportTimeout, nil)
+
+	raftTrans, err := raft.NewTCPTransport(
+		net.JoinHostPort("0.0.0.0", strconv.Itoa(s.params.RaftPort)),
+		tcpAddr,
+		defaultRaftRetries,
+		defaultTransportTimeout,
+		nil)
 	if err != nil {
 		return err
 	}
@@ -266,9 +322,10 @@ func (s *Service) Run(ctx context.Context) error {
 	memberlistConfig.Name = s.params.NodeID
 	memberlistConfig.BindAddr = "0.0.0.0"
 	memberlistConfig.BindPort = s.params.GossipPort
-	memberlistConfig.AdvertiseAddr = raa.IP.String()
+	memberlistConfig.AdvertiseAddr = s.params.AdvertiseAddress
 	memberlistConfig.AdvertisePort = s.params.GossipPort
 	memberlistConfig.Events = &memberlist.ChannelEventDelegate{Ch: s.nodeCh}
+	memberlistConfig.LogOutput = newMemberlistLogWriter(s.l.WithField("subsystem", "memberlist"))
 
 	// Create the memberlist
 	s.memberlist, err = memberlist.Create(memberlistConfig)
@@ -293,7 +350,7 @@ func (s *Service) Run(ctx context.Context) error {
 				{
 					Suffrage: raft.Voter,
 					ID:       raft.ServerID(s.params.NodeID),
-					Address:  raft.ServerAddress(raa.String()),
+					Address:  raft.ServerAddress(net.JoinHostPort(s.lookupFQDN(ctx, s.params.AdvertiseAddress), strconv.Itoa(s.params.RaftPort))),
 				},
 			},
 		}
@@ -340,7 +397,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 			node := event.Node
 			switch event.Event {
 			case memberlist.NodeJoin:
-				s.addMemberlistNodeToRaft(node)
+				s.addMemberlistNodeToRaft(ctx, node)
 			case memberlist.NodeLeave:
 				s.removeMemberlistNodeFromRaft(node)
 			case memberlist.NodeUpdate:
@@ -364,10 +421,10 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				raftServers[string(server.ID)] = struct{}{}
 			}
 			members := s.memberlist.Members()
-			s.l.Infof("HA memberlist: %v", members)
+			s.l.Debugf("HA memberlist: %v", members)
 			for _, node := range members {
 				if _, ok := raftServers[node.Name]; !ok {
-					s.addMemberlistNodeToRaft(node)
+					s.addMemberlistNodeToRaft(ctx, node)
 				}
 			}
 		case <-ctx.Done():
@@ -385,14 +442,36 @@ func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 	}
 }
 
-func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
+func (s *Service) addMemberlistNodeToRaft(ctx context.Context, node *memberlist.Node) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	serverAddress := raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort))
+
+	hostname := s.lookupFQDN(ctx, node.Addr.String())
+	serverAddress := raft.ServerAddress(fmt.Sprintf("%s:%d", hostname, s.params.RaftPort))
+
 	err := s.raftNode.AddVoter(raft.ServerID(node.Name), serverAddress, 0, defaultServerOpTimeout).Error()
 	if err != nil {
-		s.l.Errorf("couldn't add a server node %s: %q", node.Name, err)
+		s.l.Errorf("Couldn't add a server node %s (address: %s): %s", node.Name, serverAddress, err)
+	} else {
+		s.l.Infof("Added node %s to Raft cluster with address: %s", node.Name, serverAddress)
 	}
+}
+
+// lookupFQDN performs reverse DNS lookup to get FQDN from IP address.
+func (s *Service) lookupFQDN(ctx context.Context, address string) string {
+	if net.ParseIP(address) == nil {
+		return address
+	}
+
+	names, err := net.DefaultResolver.LookupAddr(ctx, address)
+	if err != nil || len(names) == 0 {
+		s.l.Warnf("Failed to lookup FQDN for %s, using IP: %s", address, err)
+		return address
+	}
+
+	fqdn := strings.TrimSuffix(names[0], ".")
+	s.l.Debugf("Resolved %s to FQDN: %s", address, fqdn)
+	return fqdn
 }
 
 func (s *Service) runLeaderObserver(ctx context.Context) {
@@ -413,7 +492,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 					if peer.Name == s.params.NodeID {
 						continue
 					}
-					s.addMemberlistNodeToRaft(peer)
+					s.addMemberlistNodeToRaft(ctx, peer)
 				}
 			} else {
 				s.l.Info("I am not a leader!")
@@ -422,7 +501,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 		case <-t.C:
 			address, serverID := node.LeaderWithID()
 			if serverID != "" {
-				s.l.Infof("Leader is %s on %s", serverID, address)
+				s.l.Debugf("Leader is %s on %s", serverID, address)
 			}
 		case <-ctx.Done():
 			return

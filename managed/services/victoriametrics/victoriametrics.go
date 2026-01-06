@@ -359,9 +359,10 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
 			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(resolutions.LR)
 		}
-		if !svc.params.ExternalVM() {
+		if !svc.params.ExternalVM() && !svc.haService.Params().Enabled {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, resolutions.HR, svc.params))
-		} else {
+		}
+		if svc.params.ExternalVM() && !svc.haService.Params().Enabled {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(resolutions.HR, svc.baseURL.Host))
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR, pmmServerNodeName))

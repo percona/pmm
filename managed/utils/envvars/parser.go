@@ -225,6 +225,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
+		case "PMM_ENCRYPTION_KEY_PATH":
+			continue
+
 		case pkgenv.EnableAccessControl:
 			b, err := strconv.ParseBool(v)
 			if err != nil {
