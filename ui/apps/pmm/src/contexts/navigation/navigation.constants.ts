@@ -399,6 +399,16 @@ export const NAV_QAN: NavItem = {
 };
 
 //
+// Real-Time Query Analytics (RTA)
+//
+export const NAV_RTA: NavItem = {
+  id: 'rta',
+  icon: 'qan',
+  text: 'Real-Time Query Analysis',
+  url: `${PMM_NEW_NAV_PATH}/rta/selection`,
+};
+
+//
 // All Dashbaords
 //
 export const NAV_DASHBOARDS: NavItem = {
