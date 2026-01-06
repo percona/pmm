@@ -56,7 +56,7 @@ on:
         type: string
       PMM_SERVER_IMAGE:
         description: "PMM Server image version"
-        default: "perconalab/pmm-server:dev-latest"
+        default: "perconalab/pmm-server:3-dev-latest"
         required: true
         type: string
 
@@ -72,7 +72,7 @@ jobs:
       BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
       MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
       POSTGRESQL_IMAGE: ${{ github.event.inputs.POSTGRESQL_IMAGE || 'postgres:12' }}
-      MONGODB_IMAGE: ${{ github.event.inputs.MONGODB_IMAGE || 'percona/percona-server-mongodb:4.4' }}
+      MONGODB_IMAGE: ${{ github.event.inputs.MONGODB_IMAGE || 'percona/percona-server-mongodb:7.0' }}
       PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE || 'perconalab/pmm-server:3-dev-latest' }}
 
     steps:

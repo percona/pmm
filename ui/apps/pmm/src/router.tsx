@@ -1,3 +1,4 @@
+import React from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Main } from 'components/main/Main';
 import { Updates } from 'pages/updates';
@@ -8,7 +9,6 @@ import { HelpCenter } from 'pages/help-center';
 import { RealTimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
-import React from 'react';
 
 const router = createBrowserRouter(
   [

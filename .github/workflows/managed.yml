@@ -66,6 +66,7 @@ jobs:
             -e PMM_ENABLE_TELEMETRY=0 \
             -e PMM_RELEASE_VERSION=3.0.0 \
             -e GOMODCACHE=/home/pmm/.cache/go/mod \
+            -e GOCACHE=/home/pmm/.cache/go-build \
             -w /root/go/src/github.com/percona/pmm \
             -v ./:/root/go/src/github.com/percona/pmm \
             -v ~/go-mod-cache:/home/pmm/.cache/go/mod \
