@@ -19,6 +19,7 @@ package interceptors
 import (
 	"context"
 	"io"
+	"regexp"
 	"runtime/debug"
 	"runtime/pprof"
 	"time"
@@ -81,6 +82,8 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 // UnaryInterceptorType represents the type of a unary gRPC interceptor.
 type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
 
+var dropEndpointsRE = regexp.MustCompile(`^/server.v1.ServerService/(Readiness|LeaderHealthCheck)$`)
+
 // Unary adds context logger and Prometheus metrics to unary server RPC.
 func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -92,7 +95,7 @@ func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 		// set logger
 		l := logrus.WithField("request", logger.MakeRequestID())
 		ctx = logger.SetEntry(ctx, l)
-		if info.FullMethod == "/server.v1.ServerService/Readiness" && l.Level < logrus.DebugLevel {
+		if l.Level < logrus.DebugLevel && dropEndpointsRE.MatchString(info.FullMethod) {
 			l = logrus.NewEntry(logrus.New())
 			l.Logger.SetOutput(io.Discard)
 		}

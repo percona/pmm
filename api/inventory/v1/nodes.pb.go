@@ -104,9 +104,11 @@ type GenericNode struct {
 	// Node availability zone.
 	Az string `protobuf:"bytes,8,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
-	CustomLabels  map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CustomLabels map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// True if this node is a PMM Server node (HA mode).
+	IsPmmServerNode bool `protobuf:"varint,10,opt,name=is_pmm_server_node,json=isPmmServerNode,proto3" json:"is_pmm_server_node,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GenericNode) Reset() {
@@ -202,6 +204,13 @@ func (x *GenericNode) GetCustomLabels() map[string]string {
 	return nil
 }
 
+func (x *GenericNode) GetIsPmmServerNode() bool {
+	if x != nil {
+		return x.IsPmmServerNode
+	}
+	return false
+}
+
 // ContainerNode represents a Docker container.
 type ContainerNode struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -224,9 +233,11 @@ type ContainerNode struct {
 	// Node availability zone.
 	Az string `protobuf:"bytes,9,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
-	CustomLabels  map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// True if this node is a PMM Server node (HA mode).
+	IsPmmServerNode bool `protobuf:"varint,11,opt,name=is_pmm_server_node,json=isPmmServerNode,proto3" json:"is_pmm_server_node,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ContainerNode) Reset() {
@@ -327,6 +338,13 @@ func (x *ContainerNode) GetCustomLabels() map[string]string {
 		return x.CustomLabels
 	}
 	return nil
+}
+
+func (x *ContainerNode) GetIsPmmServerNode() bool {
+	if x != nil {
+		return x.IsPmmServerNode
+	}
+	return false
 }
 
 // RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
@@ -1783,7 +1801,7 @@ var File_inventory_v1_nodes_proto protoreflect.FileDescriptor
 
 const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\n" +
-	"\x18inventory/v1/nodes.proto\x12\finventory.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xee\x02\n" +
+	"\x18inventory/v1/nodes.proto\x12\finventory.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x9b\x03\n" +
 	"\vGenericNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x18\n" +
@@ -1795,10 +1813,12 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"node_model\x18\x06 \x01(\tR\tnodeModel\x12\x16\n" +
 	"\x06region\x18\a \x01(\tR\x06region\x12\x0e\n" +
 	"\x02az\x18\b \x01(\tR\x02az\x12P\n" +
-	"\rcustom_labels\x18\t \x03(\v2+.inventory.v1.GenericNode.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	"\rcustom_labels\x18\t \x03(\v2+.inventory.v1.GenericNode.CustomLabelsEntryR\fcustomLabels\x12+\n" +
+	"\x12is_pmm_server_node\x18\n" +
+	" \x01(\bR\x0fisPmmServerNode\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa4\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd1\x03\n" +
 	"\rContainerNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x18\n" +
@@ -1812,7 +1832,8 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x06region\x18\b \x01(\tR\x06region\x12\x0e\n" +
 	"\x02az\x18\t \x01(\tR\x02az\x12R\n" +
 	"\rcustom_labels\x18\n" +
-	" \x03(\v2-.inventory.v1.ContainerNode.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	" \x03(\v2-.inventory.v1.ContainerNode.CustomLabelsEntryR\fcustomLabels\x12+\n" +
+	"\x12is_pmm_server_node\x18\v \x01(\bR\x0fisPmmServerNode\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb5\x02\n" +
