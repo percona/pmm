@@ -90,7 +90,7 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 	// First, collect all VMAGENT_ environment variables from the system
 	systemEnvs := make(map[string]string)
 	for _, env := range os.Environ() {
-		if strings.HasPrefix(env, envvars.ENVvmAgentPrefix) {
+		if strings.HasPrefix(env, envvars.EnvVMAgentPrefix) {
 			parts := strings.SplitN(env, "=", 2)
 			if len(parts) == 2 {
 				systemEnvs[parts[0]] = parts[1]
