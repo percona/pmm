@@ -659,7 +659,7 @@ Choose the option that best fits your infrastructure and requirements:
 
     ### Step 7: Set up HAProxy
     
-    HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint:
+    HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/server/leaderHealthCheck` endpoint:
     {.power-number}
 
     1.  Pull the HAProxy Docker image:
@@ -708,7 +708,7 @@ Choose the option that best fits your infrastructure and requirements:
 
         Replace `/path/to/haproxy-config` with the path where you want to store your HAProxy configuration.
 
-    7.  Create an HAProxy configuration file named `haproxy.cfg.template` in that directory. This configuration tells HAProxy to use the `/v1/leaderHealthCheck` endpoint of each PMM server to identify the leader:
+    7.  Create an HAProxy configuration file named `haproxy.cfg.template` in that directory. This configuration tells HAProxy to use the `/v1/server/leaderHealthCheck` endpoint of each PMM server to identify the leader:
 
         ```
         global
@@ -736,7 +736,7 @@ Choose the option that best fits your infrastructure and requirements:
 
         backend http_back
             option httpchk
-            http-check send meth POST uri /v1/leaderHealthCheck ver HTTP/1.1 hdr Host www
+            http-check send meth GET uri /v1/server/leaderHealthCheck ver HTTP/1.1 hdr Host www
             http-check expect status 200
             server pmm-server-active-http PMM_ACTIVE_IP:8080 check
             server pmm-server-passive-http PMM_PASSIVE_IP:8080 check backup
@@ -744,7 +744,7 @@ Choose the option that best fits your infrastructure and requirements:
 
         backend https_back
             option httpchk
-            http-check send meth POST uri /v1/leaderHealthCheck ver HTTP/1.1 hdr Host www
+            http-check send meth GET uri /v1/server/leaderHealthCheck ver HTTP/1.1 hdr Host www
             http-check expect status 200
             server pmm-server-active-https PMM_ACTIVE_IP:8443 check ssl verify none
             server pmm-server-passive-https PMM_PASSIVE_IP:8443 check ssl verify none
