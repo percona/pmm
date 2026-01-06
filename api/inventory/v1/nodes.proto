@@ -36,6 +36,8 @@ message GenericNode {
   string az = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 9;
+  // True if this node is a PMM Server node (HA mode).
+  bool is_pmm_server_node = 10;
 }
 
 // ContainerNode represents a Docker container.
@@ -60,6 +62,8 @@ message ContainerNode {
   string az = 9;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // True if this node is a PMM Server node (HA mode).
+  bool is_pmm_server_node = 11;
 }
 
 // RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.

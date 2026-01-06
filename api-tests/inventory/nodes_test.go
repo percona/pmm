@@ -185,7 +185,7 @@ func TestGenericNode(t *testing.T) {
 
 		// Check for duplicates.
 		res, err = client.Default.NodesService.AddNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Node with name %q already exists.", nodeName)
+		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Node with name %s already exists.", nodeName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Generic.NodeID)
 		}
@@ -250,7 +250,7 @@ func TestContainerNode(t *testing.T) {
 
 		// Check for duplicates.
 		res, err = client.Default.NodesService.AddNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Node with name %q already exists.", nodeName)
+		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Node with name %s already exists.", nodeName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Container.NodeID)
 		}
@@ -314,7 +314,7 @@ func TestRemoteNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.NodesService.AddNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Node with name %q already exists.", nodeName)
+		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Node with name %s already exists.", nodeName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Remote.NodeID)
 		}

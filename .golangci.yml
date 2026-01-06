@@ -105,6 +105,7 @@ linters:
           - nonamedreturns   # not critical for tests, albeit desirable
           - testpackage      # senseless
           - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
+          - unusedwrite      # not critical for tests
         path: _test\.go
       - linters:
           - recvcheck
