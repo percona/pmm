@@ -24,7 +24,10 @@ import (
 )
 
 func Test_sanitizeSAName(t *testing.T) {
+	t.Parallel(
 	// max possible length without hashing
+	)
+
 	len180, err := stringsgen.GenerateRandomString(180)
 	require.NoError(t, err)
 	require.Equal(t, len180, SanitizeSAName(len180))

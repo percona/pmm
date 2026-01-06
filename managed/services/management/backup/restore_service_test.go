@@ -36,6 +36,7 @@ import (
 )
 
 func TestRestoreServiceGetLogs(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -77,6 +78,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 	}
 
 	t.Run("get physical restore logs", func(t *testing.T) {
+		t.Parallel()
 		restoreID := uuid.New().String()
 		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
@@ -114,6 +116,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 	})
 
 	t.Run("get logical restore logs", func(t *testing.T) {
+		t.Parallel()
 		restoreID := uuid.New().String()
 		logicalRestore, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
@@ -153,6 +156,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 }
 
 func TestRestoreBackupErrors(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	backupService := &mockBackupService{}
@@ -191,6 +195,7 @@ func TestRestoreBackupErrors(t *testing.T) {
 		},
 	} {
 		t.Run(tc.testName, func(t *testing.T) {
+			t.Parallel()
 			backupError := fmt.Errorf("error: %w", tc.backupError)
 			backupService.On("RestoreBackup", mock.Anything, "serviceID1", "artifactID1", mock.Anything).
 				Return("", backupError).Once()

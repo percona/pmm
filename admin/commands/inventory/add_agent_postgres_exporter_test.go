@@ -25,7 +25,9 @@ import (
 )
 
 func TestAddAgentPostgresExporter(t *testing.T) {
+	t.Parallel()
 	t.Run("TablestatEnabled", func(t *testing.T) {
+		t.Parallel()
 		res := &addAgentPostgresExporterResult{
 			Agent: &agents.AddAgentOKBodyPostgresExporter{
 				AgentID:    "1",

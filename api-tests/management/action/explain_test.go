@@ -29,9 +29,11 @@ import (
 )
 
 func TestRunExplain(t *testing.T) {
+	t.Parallel()
 	t.Skip("not implemented yet")
 
 	t.Run("ByQueryID", func(t *testing.T) {
+		t.Parallel()
 		explainActionOK, err := client.Default.ActionsService.StartServiceAction(
 			&actions.StartServiceActionParams{
 				Context: pmmapitests.Context,
@@ -59,8 +61,11 @@ func TestRunExplain(t *testing.T) {
 }
 
 func TestRunMongoDBExplain(t *testing.T) {
+	t.Parallel(
 	// When we have an pmm-agent in dev-container and we can remove this skip, please remove the t.Logf at the end
 	// of this test and replace it with a proper test that checks the results.
+	)
+
 	t.Skip("pmm-agent in dev-container is not fully implemented yet")
 
 	explainActionOK, err := client.Default.ActionsService.StartServiceAction(

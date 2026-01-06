@@ -34,6 +34,7 @@ import (
 )
 
 func TestPitrMetaFromFileName(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		filename string
@@ -76,6 +77,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 	prefix := path.Join("test_artifact_name", pitrFSPrefix)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			chunk := pitrMetaFromFileName(prefix, tt.filename)
 			assert.Equal(t, tt.expected, chunk)
 		})
@@ -83,6 +85,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 }
 
 func TestGetPITROplogs(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	location := &models.BackupLocation{
 		S3Config: &models.S3LocationConfig{
@@ -97,6 +100,7 @@ func TestGetPITROplogs(t *testing.T) {
 	mockedStorage := &MockStorage{}
 
 	t.Run("successful", func(t *testing.T) {
+		t.Parallel()
 		listedFiles := []minio.FileInfo{
 			{
 				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
@@ -117,6 +121,7 @@ func TestGetPITROplogs(t *testing.T) {
 	})
 
 	t.Run("fails on file list error", func(t *testing.T) {
+		t.Parallel()
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error")).Once()
 
 		service := NewPBMPITRService()
@@ -126,6 +131,7 @@ func TestGetPITROplogs(t *testing.T) {
 	})
 
 	t.Run("skips artifacts with deletion markers", func(t *testing.T) {
+		t.Parallel()
 		listedFiles := []minio.FileInfo{
 			{
 				Name:           "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
@@ -146,6 +152,7 @@ func TestGetPITROplogs(t *testing.T) {
 }
 
 func TestPitrParseTs(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		filename string
@@ -170,6 +177,7 @@ func TestPitrParseTs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			ts := pitrParseTS(tt.filename)
 			assert.Equal(t, tt.expected, ts)
 		})
@@ -177,6 +185,7 @@ func TestPitrParseTs(t *testing.T) {
 }
 
 func TestPITRMergeTimelines(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		tl     [][]Timeline
@@ -430,6 +439,7 @@ func TestPITRMergeTimelines(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			got := mergeTimelines(test.tl...)
 			if len(test.expect) != len(got) {
 				t.Fatalf("wrong timelines, exepct <%d> %v, got <%d> %v", len(test.expect), printTTL(test.expect...), len(got), printTTL(got...))
@@ -497,6 +507,7 @@ func printTTL(tlns ...Timeline) string {
 }
 
 func TestGetPITRFiles(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	S3Config := models.S3LocationConfig{
 		Endpoint:     "https://s3.us-west-2.amazonaws.com",
@@ -521,6 +532,7 @@ func TestGetPITRFiles(t *testing.T) {
 	}
 
 	t.Run("'until' not specified", func(t *testing.T) {
+		t.Parallel()
 		mockedStorage.On("List", ctx, S3Config.Endpoint, S3Config.AccessKey, S3Config.SecretKey, S3Config.BucketName, pitrFSPrefix, "").Return(listedFiles, nil).Twice()
 
 		PITRChunks, err := service.GetPITRFiles(ctx, mockedStorage, location, &models.Artifact{}, nil)
@@ -533,6 +545,7 @@ func TestGetPITRFiles(t *testing.T) {
 	})
 
 	t.Run("'until' specified", func(t *testing.T) {
+		t.Parallel()
 		mockedStorage.On("List", ctx, S3Config.Endpoint, S3Config.AccessKey, S3Config.SecretKey, S3Config.BucketName, pitrFSPrefix, "").Return(listedFiles, nil).Twice()
 
 		until, err := time.Parse("2006-01-02T15:04:05", "2023-04-11T11:25:14")

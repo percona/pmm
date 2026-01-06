@@ -25,7 +25,9 @@ import (
 )
 
 func TestAddAgentMysqldExporter(t *testing.T) {
+	t.Parallel()
 	t.Run("TablestatEnabled", func(t *testing.T) {
+		t.Parallel()
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "1",
@@ -61,6 +63,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 	})
 
 	t.Run("TablestatEnabledNoLimit", func(t *testing.T) {
+		t.Parallel()
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "1",
@@ -96,6 +99,7 @@ Tablestat collectors  : enabled (the table count limit is not set).
 	})
 
 	t.Run("TablestatEnabledUnknown", func(t *testing.T) {
+		t.Parallel()
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "1",
@@ -131,6 +135,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 	})
 
 	t.Run("TablestatDisabled", func(t *testing.T) {
+		t.Parallel()
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "1",
@@ -166,6 +171,7 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 	})
 
 	t.Run("TablestatDisabledAlways", func(t *testing.T) {
+		t.Parallel()
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "1",
@@ -201,6 +207,7 @@ Tablestat collectors  : disabled (always).
 	})
 
 	t.Run("with allowCleartextPasswords DSN param", func(t *testing.T) {
+		t.Parallel()
 		res := &addAgentMysqldExporterResult{
 			Agent: &agents.AddAgentOKBodyMysqldExporter{
 				AgentID:    "1",

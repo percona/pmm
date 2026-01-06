@@ -32,8 +32,8 @@ const (
 	roleBTitle = "Role B"
 )
 
-//nolint:paralleltest
 func TestRoleHelpers(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
@@ -62,8 +62,8 @@ func TestRoleHelpers(t *testing.T) {
 		return tx, teardown
 	}
 
-	//nolint:paralleltest
 	t.Run("shall assign role", func(t *testing.T) {
+		t.Parallel()
 		tx, teardown := setup(t)
 		defer teardown(t)
 
@@ -76,8 +76,8 @@ func TestRoleHelpers(t *testing.T) {
 		require.Equal(t, roles[0].ID, role.ID)
 	})
 
-	//nolint:paralleltest
 	t.Run("shall throw on assigning non-existent role", func(t *testing.T) {
+		t.Parallel()
 		tx, teardown := setup(t)
 		defer teardown(t)
 
@@ -85,8 +85,8 @@ func TestRoleHelpers(t *testing.T) {
 		require.True(t, errors.Is(err, models.ErrRoleNotFound))
 	})
 
-	//nolint:paralleltest
 	t.Run("shall create a new user on role assign", func(t *testing.T) {
+		t.Parallel()
 		tx, teardown := setup(t)
 		defer teardown(t)
 
@@ -98,10 +98,11 @@ func TestRoleHelpers(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	//nolint:paralleltest
 	t.Run("unassigned role", func(t *testing.T) {
-		//nolint:paralleltest
+		t.Parallel()
+
 		t.Run("shall delete role with no replacement", func(t *testing.T) {
+			t.Parallel()
 			tx, teardown := setup(t)
 			defer teardown(t)
 
@@ -111,8 +112,8 @@ func TestRoleHelpers(t *testing.T) {
 			require.NoError(t, models.DeleteRole(tx, int(role.ID), 0))
 		})
 
-		//nolint:paralleltest
 		t.Run("shall delete role with replacement", func(t *testing.T) {
+			t.Parallel()
 			tx, teardown := setup(t)
 			defer teardown(t)
 
@@ -125,10 +126,11 @@ func TestRoleHelpers(t *testing.T) {
 		})
 	})
 
-	//nolint:paralleltest
 	t.Run("single role assigned", func(t *testing.T) {
-		//nolint:paralleltest
+		t.Parallel()
+
 		t.Run("shall delete role with no replacement", func(t *testing.T) {
+			t.Parallel()
 			tx, teardown := setup(t)
 			defer teardown(t)
 
@@ -143,8 +145,8 @@ func TestRoleHelpers(t *testing.T) {
 			require.Empty(t, roles)
 		})
 
-		//nolint:paralleltest
 		t.Run("shall delete role with replacement", func(t *testing.T) {
+			t.Parallel()
 			tx, teardown := setup(t)
 			defer teardown(t)
 
@@ -163,10 +165,11 @@ func TestRoleHelpers(t *testing.T) {
 		})
 	})
 
-	//nolint:paralleltest
 	t.Run("multiple roles assigned", func(t *testing.T) {
-		//nolint:paralleltest
+		t.Parallel()
+
 		t.Run("shall delete role with no replacement", func(t *testing.T) {
+			t.Parallel()
 			tx, teardown := setup(t)
 			defer teardown(t)
 
@@ -184,8 +187,8 @@ func TestRoleHelpers(t *testing.T) {
 			require.Equal(t, roles[0].ID, roleB.ID)
 		})
 
-		//nolint:paralleltest
 		t.Run("shall delete role with replacement", func(t *testing.T) {
+			t.Parallel()
 			tx, teardown := setup(t)
 			defer teardown(t)
 
@@ -204,8 +207,8 @@ func TestRoleHelpers(t *testing.T) {
 		})
 	})
 
-	//nolint:paralleltest
 	t.Run("shall not delete default role", func(t *testing.T) {
+		t.Parallel()
 		tx, teardown := setup(t)
 		defer teardown(t)
 
@@ -218,8 +221,8 @@ func TestRoleHelpers(t *testing.T) {
 		require.Equal(t, err, models.ErrRoleIsDefaultRole)
 	})
 
-	//nolint:paralleltest
 	t.Run("shall return roles for a user", func(t *testing.T) {
+		t.Parallel()
 		tx, teardown := setup(t)
 		defer teardown(t)
 

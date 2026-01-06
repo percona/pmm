@@ -41,6 +41,7 @@ func requireNoDuplicateFlags(t *testing.T, flags []string) {
 }
 
 func TestPathsBaseForDifferentVersions(t *testing.T) {
+	t.Parallel()
 	left := "{{"
 	right := "}}"
 	assert.Equal(t, "/usr/local/percona/pmm", pathsBase(version.MustParse("2.22.01"), left, right))
@@ -51,7 +52,9 @@ func TestPathsBaseForDifferentVersions(t *testing.T) {
 }
 
 func TestGetExporterListenAddress(t *testing.T) {
+	t.Parallel()
 	t.Run("uses 127.0.0.1 in push mode", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{
 			Address: "1.2.3.4",
 		}
@@ -64,6 +67,7 @@ func TestGetExporterListenAddress(t *testing.T) {
 		assert.Equal(t, "127.0.0.1", getExporterListenAddress(node, exporter))
 	})
 	t.Run("exposes exporter address when enabled in push mode", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{
 			Address: "1.2.3.4",
 		}
@@ -77,6 +81,7 @@ func TestGetExporterListenAddress(t *testing.T) {
 		assert.Equal(t, "0.0.0.0", getExporterListenAddress(node, exporter))
 	})
 	t.Run("exposes exporter address when enabled in pull mode", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{
 			Address: "1.2.3.4",
 		}
@@ -90,6 +95,7 @@ func TestGetExporterListenAddress(t *testing.T) {
 		assert.Equal(t, "0.0.0.0", getExporterListenAddress(node, exporter))
 	})
 	t.Run("exposes exporter address if node IP is unavailable in pull mode", func(t *testing.T) {
+		t.Parallel()
 		exporter := &models.Agent{
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics: false,

@@ -36,6 +36,7 @@ func TestChecksSettings(t *testing.T) { //nolint:tparallel
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("create", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -51,6 +52,7 @@ func TestChecksSettings(t *testing.T) { //nolint:tparallel
 	})
 
 	t.Run("change", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -72,6 +74,7 @@ func TestChecksSettings(t *testing.T) { //nolint:tparallel
 	})
 
 	t.Run("find by name", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -89,6 +92,7 @@ func TestChecksSettings(t *testing.T) { //nolint:tparallel
 	})
 
 	t.Run("find all", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {

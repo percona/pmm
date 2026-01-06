@@ -32,10 +32,12 @@ func (m *mockedExec) CombinedOutput() ([]byte, error) { //nolint:unparam
 }
 
 func TestVersioner(t *testing.T) {
+	t.Parallel()
 	execMock := &MockExecFunctions{}
 	versioner := New(execMock)
 
 	t.Run("not found", func(t *testing.T) {
+		t.Parallel()
 		execMock.On("LookPath", mysqldBin).Return("", &exec.Error{Err: exec.ErrNotFound}).Once()
 
 		version, err := versioner.MySQLdVersion()
@@ -45,6 +47,7 @@ func TestVersioner(t *testing.T) {
 
 	// mysql software
 	t.Run("mysqld", func(t *testing.T) {
+		t.Parallel()
 		mysqldVersionOutput := []byte(`/usr/sbin/mysqld  Ver 8.0.22-13 for Linux on x86_64 (Percona Server (GPL), Release '13', Revision '6f7822f')
 `)
 		execMock.On("LookPath", mysqldBin).Return("", nil).Once()
@@ -56,6 +59,7 @@ func TestVersioner(t *testing.T) {
 	})
 
 	t.Run("xtrabackup 2", func(t *testing.T) {
+		t.Parallel()
 		xtrabackup2VersionOutput := []byte(`xtrabackup: recognized server arguments: --datadir=/var/lib/mysql
 xtrabackup version 2.4.23 based on MySQL server 5.7.34 Linux (x86_64) (revision id: 3320f39)
 `)
@@ -68,6 +72,7 @@ xtrabackup version 2.4.23 based on MySQL server 5.7.34 Linux (x86_64) (revision 
 	})
 
 	t.Run("xtrabackup 8", func(t *testing.T) {
+		t.Parallel()
 		xtrabackup8VersionOutput := []byte(`xtrabackup version 8.0.23-16 based on MySQL server 8.0.23 Linux (x86_64) (revision id: 934bc8f)
 `)
 		execMock.On("LookPath", xtrabackupBin).Return("", nil).Once()
@@ -79,6 +84,7 @@ xtrabackup version 2.4.23 based on MySQL server 5.7.34 Linux (x86_64) (revision 
 	})
 
 	t.Run("xbcloud", func(t *testing.T) {
+		t.Parallel()
 		xbcloudVersionOutput := []byte(`xbcloud  Ver 8.0.23-16 for Linux (x86_64) (revision id: 934bc8f)
 `)
 		execMock.On("LookPath", xbcloudBin).Return("", nil).Once()
@@ -90,6 +96,7 @@ xtrabackup version 2.4.23 based on MySQL server 5.7.34 Linux (x86_64) (revision 
 	})
 
 	t.Run("qpress", func(t *testing.T) {
+		t.Parallel()
 		qpressVersionOutput := []byte(`qpress 1.1 - Copyright 2006-2010 Lasse Reinhold - www.quicklz.com
 Using QuickLZ 1.4.1 compression library
 Compiled for: Windows [*nix]    [x86/x64] RISC    32-bit [64-bit]
@@ -105,6 +112,7 @@ Compiled for: Windows [*nix]    [x86/x64] RISC    32-bit [64-bit]
 
 	// mongo software
 	t.Run("mongod", func(t *testing.T) {
+		t.Parallel()
 		mongodVersionOutput := []byte(`db version v6.0.2-1
 Build Info: {
     "version": "6.0.2-1",
@@ -119,6 +127,7 @@ Build Info: {
 	})
 
 	t.Run("pbm", func(t *testing.T) {
+		t.Parallel()
 		pbmVersionOutput := []byte(`Version:   2.0.2
 Platform:  linux/amd64
 GitCommit: 3ec38a5fc6706515fb1be72b015972af1500aa17

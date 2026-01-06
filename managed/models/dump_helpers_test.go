@@ -31,6 +31,7 @@ import (
 )
 
 func TestDumps(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	tx, err := db.Begin()
@@ -40,7 +41,9 @@ func TestDumps(t *testing.T) {
 	})
 
 	t.Run("create", func(t *testing.T) {
+		t.Parallel()
 		t.Run("normal", func(t *testing.T) {
+			t.Parallel()
 			endTime := time.Now()
 			startTime := endTime.Add(-10 * time.Minute)
 
@@ -63,6 +66,7 @@ func TestDumps(t *testing.T) {
 		})
 
 		t.Run("invalid start and end time", func(t *testing.T) {
+			t.Parallel()
 			endTime := time.Now()
 			startTime := endTime.Add(10 * time.Minute)
 
@@ -79,6 +83,7 @@ func TestDumps(t *testing.T) {
 	})
 
 	t.Run("find", func(t *testing.T) {
+		t.Parallel()
 		findTX, err := db.Begin()
 		require.NoError(t, err)
 		defer findTX.Rollback() //nolint:errcheck
@@ -164,6 +169,7 @@ func TestDumps(t *testing.T) {
 }
 
 func TestDumpLogs(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	tx, err := db.Begin()
@@ -198,6 +204,7 @@ func TestDumpLogs(t *testing.T) {
 	}
 
 	t.Run("create", func(t *testing.T) {
+		t.Parallel()
 		for _, req := range createRequests {
 			log, err := models.CreateDumpLog(tx.Querier, req)
 			require.NoError(t, err)
@@ -209,6 +216,7 @@ func TestDumpLogs(t *testing.T) {
 	})
 
 	t.Run("find", func(t *testing.T) {
+		t.Parallel()
 		type expectLog struct {
 			DumpID  string
 			ChunkID uint32
@@ -266,6 +274,7 @@ func TestDumpLogs(t *testing.T) {
 
 		for _, tc := range testCases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
 				logs, err := models.FindDumpLogs(tx.Querier, tc.Filters)
 				require.NoError(t, err)
 				require.Len(t, logs, len(tc.Expect))

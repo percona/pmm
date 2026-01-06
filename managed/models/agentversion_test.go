@@ -84,17 +84,20 @@ func TestPMMAgentSupported(t *testing.T) {
 	}
 
 	t.Run("No version info", func(t *testing.T) {
+		t.Parallel()
 		err := models.IsAgentSupported(&models.Agent{AgentID: "Test agent ID"}, prefix, version.Must(version.NewVersion("2.30.0")))
 		assert.Contains(t, err.Error(), "has no version info")
 	})
 
 	t.Run("Nil agent", func(t *testing.T) {
+		t.Parallel()
 		err := models.IsAgentSupported(nil, prefix, version.Must(version.NewVersion("2.30.0")))
 		assert.Contains(t, err.Error(), "nil agent")
 	})
 }
 
 func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
+	t.Parallel()
 	now, origNowF := models.Now(), models.Now
 	models.Now = func() time.Time {
 		return now
@@ -161,6 +164,7 @@ func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.pmmAgentID, func(t *testing.T) {
+			t.Parallel()
 			actual, err := models.IsPostgreSQLSSLSniSupported(q, tt.pmmAgentID)
 			assert.Equal(t, tt.expected, actual)
 			assert.NoError(t, err)
@@ -168,6 +172,7 @@ func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
 	}
 
 	t.Run("Non-existing ID", func(t *testing.T) {
+		t.Parallel()
 		_, err := models.IsPostgreSQLSSLSniSupported(q, "Not exist")
 		assert.Error(t, err)
 	})

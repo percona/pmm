@@ -36,6 +36,7 @@ import (
 )
 
 func TestServerStatus(t *testing.T) {
+	t.Parallel()
 	setup := func(t *testing.T) ([]*agentlocal.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
 		agentInfo := []*agentlocal.AgentInfo{{
@@ -65,6 +66,7 @@ func TestServerStatus(t *testing.T) {
 	}
 
 	t.Run("without network info", func(t *testing.T) {
+		t.Parallel()
 		agentInfo, supervisor, client, cfg := setup(t)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
@@ -90,6 +92,7 @@ func TestServerStatus(t *testing.T) {
 	})
 
 	t.Run("with network info", func(t *testing.T) {
+		t.Parallel()
 		agentInfo, supervisor, client, cfg := setup(t)
 		latency := 5 * time.Millisecond
 		clockDrift := time.Second
@@ -121,6 +124,7 @@ func TestServerStatus(t *testing.T) {
 }
 
 func TestGetZipFile(t *testing.T) {
+	t.Parallel()
 	setup := func(t *testing.T) ([]*agentlocal.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
 		agentInfo := []*agentlocal.AgentInfo{{
@@ -157,6 +161,7 @@ func TestGetZipFile(t *testing.T) {
 	}
 
 	t.Run("test zip file", func(t *testing.T) {
+		t.Parallel()
 		_, supervisor, client, cfg := setup(t)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)

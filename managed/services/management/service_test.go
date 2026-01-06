@@ -40,7 +40,9 @@ import (
 )
 
 func TestServiceService(t *testing.T) {
+	t.Parallel()
 	t.Run("Remove", func(t *testing.T) {
+		t.Parallel()
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
 			t.Helper()
 
@@ -94,6 +96,7 @@ func TestServiceService(t *testing.T) {
 			return ctx, s, teardown, vmdb
 		}
 		t.Run("No params", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
@@ -103,6 +106,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Not found", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
@@ -112,6 +116,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Wrong service type", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
@@ -129,6 +134,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Basic", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
@@ -167,6 +173,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("RDS", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
@@ -221,6 +228,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Azure", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
@@ -276,6 +284,7 @@ func TestServiceService(t *testing.T) {
 	})
 
 	t.Run("List", func(t *testing.T) {
+		t.Parallel()
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
 			t.Helper()
 
@@ -337,6 +346,7 @@ func TestServiceService(t *testing.T) {
 		)
 
 		t.Run("Basic", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -352,6 +362,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("RDS", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
@@ -405,6 +416,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Azure", func(t *testing.T) {
+			t.Parallel()
 			ctx, s, teardown, _ := setup(t)
 			t.Cleanup(func() { teardown(t) })
 

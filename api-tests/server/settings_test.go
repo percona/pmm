@@ -37,7 +37,9 @@ import (
 )
 
 func TestSettings(t *testing.T) {
+	t.Parallel()
 	t.Run("GetSettings", func(t *testing.T) {
+		t.Parallel()
 		res, err := serverClient.Default.ServerService.GetSettings(nil)
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
@@ -60,10 +62,13 @@ func TestSettings(t *testing.T) {
 		assert.True(t, res.Payload.Settings.AlertingEnabled)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
+			t.Parallel()
 			defer restoreSettingsDefaults(t)
 
 			t.Run("Updates", func(t *testing.T) {
+				t.Parallel()
 				t.Run("DisableAndEnableUpdatesSettingsUpdate", func(t *testing.T) {
+					t.Parallel()
 					defer restoreSettingsDefaults(t)
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
@@ -94,6 +99,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("ValidAlertingSettingsUpdate", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -107,6 +113,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("EnableAdviorsAndEnableTelemetry", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -127,6 +134,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("EnableAdvisorsAndDisableTelemetry", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -142,6 +150,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DisableAdvisorsAndEnableTelemetry", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -162,6 +171,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DisableAdvisorsAndDisableTelemetry", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -182,6 +192,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("EnableAdvisorsWhileTelemetryEnabled", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				// Ensure Telemetry is enabled
@@ -210,6 +221,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DisableAdvisorsWhileItIsDisabled", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -228,6 +240,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdvisorsEnabledState", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -246,6 +259,7 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 
 				t.Run("EnableAdvisorsWhileItIsEnabled", func(t *testing.T) {
+					t.Parallel()
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
 							EnableAdvisor: pointer.ToBool(true),
@@ -262,6 +276,7 @@ func TestSettings(t *testing.T) {
 				})
 
 				t.Run("DisableTelemetryWhileAdvisorsEnabled", func(t *testing.T) {
+					t.Parallel()
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
 							EnableTelemetry: pointer.ToBool(false),
@@ -275,6 +290,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("TelemetryDisabledState", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -293,6 +309,7 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 
 				t.Run("EnableAdvisorsWhileTelemetryDisabled", func(t *testing.T) {
+					t.Parallel()
 					defer restoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -312,6 +329,7 @@ func TestSettings(t *testing.T) {
 				})
 
 				t.Run("EnableTelemetryWhileItIsDisabled", func(t *testing.T) {
+					t.Parallel()
 					defer restoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -331,6 +349,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("InvalidPartition", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -345,6 +364,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("TooManyPartitions", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -360,6 +380,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRInvalid", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -376,6 +397,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRTooSmall", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -392,6 +414,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRFractional", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -408,6 +431,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdvisorsCheckIntervalInvalid", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -424,6 +448,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("SetPMMPublicAddressWithoutScheme", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 				publicAddress := "192.168.0.42:8443"
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -437,6 +462,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdvisorsCheckIntervalTooSmall", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -453,6 +479,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdviorsCheckIntervalFractional", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -469,6 +496,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionInvalid", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -483,6 +511,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionInvalidToSmall", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -497,6 +526,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionFractional", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -511,6 +541,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("InvalidSSHKey", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -524,6 +555,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("ChangeSSHKey only on AMI and OVF", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				sshKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClY/8sz3w03vA2bY6mBFgUzrvb2FIoHw8ZjUXGGClJzJg5HC" +
@@ -542,6 +574,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("OK", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -580,6 +613,7 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 
 				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
+					t.Parallel()
 					defer restoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -612,6 +646,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdvisorCheckIntervalsValid", func(t *testing.T) {
+				t.Parallel()
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -642,6 +677,7 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
 
 				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
+					t.Parallel()
 					defer restoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -669,8 +705,10 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("grpc-gateway", func(t *testing.T) {
+				t.Parallel(
 				// Test with pure JSON without swagger for tracking grpc-gateway behavior:
 				// https://github.com/grpc-ecosystem/grpc-gateway/issues/400
+				)
 
 				// do not use generated types as they can do extra work in generated methods
 				type params struct {
@@ -698,6 +736,7 @@ func TestSettings(t *testing.T) {
 					"1w":  "", // w suffix => error
 				} {
 					t.Run(change, func(t *testing.T) {
+						t.Parallel()
 						defer restoreSettingsDefaults(t)
 
 						var p params
@@ -765,7 +804,10 @@ func TestSettings(t *testing.T) {
 	})
 
 	t.Run("InternalPgQAN", func(t *testing.T) {
+		t.Parallel(
 		// First, get the internal PostgreSQL QAN agent to verify it exists
+		)
+
 		listAgentsRes, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 		})

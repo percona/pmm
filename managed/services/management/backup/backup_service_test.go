@@ -79,7 +79,9 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 }
 
 func TestStartBackup(t *testing.T) {
+	t.Parallel()
 	t.Run("mysql", func(t *testing.T) {
+		t.Parallel()
 		backupService := &mockBackupService{}
 		mockedPbmPITRService := &mockPbmPITRService{}
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -109,6 +111,7 @@ func TestStartBackup(t *testing.T) {
 			},
 		} {
 			t.Run(tc.testName, func(t *testing.T) {
+				t.Parallel()
 				backupError := fmt.Errorf("error: %w", tc.backupError)
 				backupService.On("PerformBackup", mock.Anything, mock.Anything).
 					Return("", backupError).Once()
@@ -136,6 +139,7 @@ func TestStartBackup(t *testing.T) {
 	})
 
 	t.Run("mongodb", func(t *testing.T) {
+		t.Parallel()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
@@ -156,6 +160,7 @@ func TestStartBackup(t *testing.T) {
 		require.NoError(t, err)
 
 		t.Run("starting mongodb physical snapshot is successful", func(t *testing.T) {
+			t.Parallel()
 			ctx := context.Background()
 			backupService := &mockBackupService{}
 			mockedPbmPITRService := &mockPbmPITRService{}
@@ -174,6 +179,7 @@ func TestStartBackup(t *testing.T) {
 		})
 
 		t.Run("check folder and artifact name", func(t *testing.T) {
+			t.Parallel()
 			ctx := context.Background()
 			backupService := &mockBackupService{}
 			mockedPbmPITRService := &mockPbmPITRService{}
@@ -226,6 +232,7 @@ func TestStartBackup(t *testing.T) {
 
 			for _, test := range tc {
 				t.Run(test.TestName, func(t *testing.T) {
+					t.Parallel()
 					if test.ErrString == "" {
 						backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("", nil).Once()
 					}
@@ -251,6 +258,7 @@ func TestStartBackup(t *testing.T) {
 }
 
 func TestScheduledBackups(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -273,6 +281,7 @@ func TestScheduledBackups(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
+		t.Parallel()
 		backupService := &mockBackupService{}
 		mockedPbmPITRService := &mockPbmPITRService{}
 		schedulerService := scheduler.New(db, backupService)
@@ -281,6 +290,7 @@ func TestScheduledBackups(t *testing.T) {
 		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
 
 		t.Run("schedule/change", func(t *testing.T) {
+			t.Parallel()
 			req := &backupv1.ScheduleBackupRequest{
 				ServiceId:      pointer.GetString(agent.ServiceID),
 				LocationId:     locationRes.ID,
@@ -336,6 +346,7 @@ func TestScheduledBackups(t *testing.T) {
 		})
 
 		t.Run("list", func(t *testing.T) {
+			t.Parallel()
 			res, err := backupSvc.ListScheduledBackups(ctx, &backupv1.ListScheduledBackupsRequest{})
 
 			assert.NoError(t, err)
@@ -343,6 +354,7 @@ func TestScheduledBackups(t *testing.T) {
 		})
 
 		t.Run("remove", func(t *testing.T) {
+			t.Parallel()
 			task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 				CronExpression: "* * * * *",
 				Type:           models.ScheduledMySQLBackupTask,
@@ -383,9 +395,11 @@ func TestScheduledBackups(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
 
 		t.Run("PITR unsupported for physical model", func(t *testing.T) {
+			t.Parallel()
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			mockedPbmPITRService := &mockPbmPITRService{}
@@ -407,6 +421,7 @@ func TestScheduledBackups(t *testing.T) {
 		})
 
 		t.Run("normal", func(t *testing.T) {
+			t.Parallel()
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			mockedPbmPITRService := &mockPbmPITRService{}
@@ -428,6 +443,7 @@ func TestScheduledBackups(t *testing.T) {
 }
 
 func TestGetLogs(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -468,6 +484,7 @@ func TestGetLogs(t *testing.T) {
 	}
 
 	t.Run("get backup logs", func(t *testing.T) {
+		t.Parallel()
 		artifactID := uuid.New().String()
 		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
 			PMMAgentID: "agent",
@@ -506,6 +523,7 @@ func TestGetLogs(t *testing.T) {
 }
 
 func TestListPitrTimeranges(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -550,6 +568,7 @@ func TestListPitrTimeranges(t *testing.T) {
 	locationID = loc.ID
 
 	t.Run("successfully lists PITR time ranges", func(t *testing.T) {
+		t.Parallel()
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "test_artifact",
 			Vendor:     "test_vendor",
@@ -571,6 +590,7 @@ func TestListPitrTimeranges(t *testing.T) {
 	})
 
 	t.Run("fails for invalid artifact ID", func(t *testing.T) {
+		t.Parallel()
 		unknownID := uuid.New().String()
 		response, err := backupSvc.ListPitrTimeranges(ctx, &backupv1.ListPitrTimerangesRequest{
 			ArtifactId: unknownID,
@@ -580,6 +600,7 @@ func TestListPitrTimeranges(t *testing.T) {
 	})
 
 	t.Run("fails for non-PITR artifact", func(t *testing.T) {
+		t.Parallel()
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "test_non_pitr_artifact",
 			Vendor:     "test_vendor",
@@ -602,6 +623,7 @@ func TestListPitrTimeranges(t *testing.T) {
 }
 
 func TestArtifactMetadataListToProto(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())

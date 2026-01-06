@@ -29,6 +29,7 @@ import (
 )
 
 func TestSummary(t *testing.T) {
+	t.Parallel()
 	agentlocal.SetTransport(context.TODO(), true, agentlocal.DefaultPMMAgentListenPort)
 
 	f, err := os.CreateTemp("", "pmm-admin-test-summary")
@@ -40,6 +41,7 @@ func TestSummary(t *testing.T) {
 	assert.NoError(t, f.Close())
 
 	t.Run("Summary default", func(t *testing.T) {
+		t.Parallel()
 		cmd := &SummaryCommand{
 			Filename: filename,
 		}
@@ -52,6 +54,7 @@ func TestSummary(t *testing.T) {
 	})
 
 	t.Run("Summary skip server", func(t *testing.T) {
+		t.Parallel()
 		cmd := &SummaryCommand{
 			Filename:   filename,
 			SkipServer: true,
@@ -65,6 +68,7 @@ func TestSummary(t *testing.T) {
 	})
 
 	t.Run("Summary pprof", func(t *testing.T) {
+		t.Parallel()
 		if os.Getenv("DEVCONTAINER") == "" {
 			t.Skip("can be tested only inside devcontainer")
 		}

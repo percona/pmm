@@ -93,6 +93,7 @@ exit status 2
 */
 
 func TestImports(t *testing.T) {
+	t.Parallel()
 	type constraint struct {
 		denyPrefixes  []string
 		allowPrefixes []string

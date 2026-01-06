@@ -25,6 +25,7 @@ import (
 )
 
 func TestTarget_Copy(t1 *testing.T) {
+	t1.Parallel()
 	target := Target{
 		AgentID:     "agent_id",
 		ServiceID:   "service_id",

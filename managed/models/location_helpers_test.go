@@ -35,6 +35,7 @@ import (
 )
 
 func TestBackupLocations(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
@@ -42,6 +43,7 @@ func TestBackupLocations(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("create - pmm client", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -70,6 +72,7 @@ func TestBackupLocations(t *testing.T) {
 	})
 
 	t.Run("create - s3", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -106,6 +109,7 @@ func TestBackupLocations(t *testing.T) {
 	})
 
 	t.Run("create - two configs", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -136,6 +140,7 @@ func TestBackupLocations(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -191,6 +196,7 @@ func TestBackupLocations(t *testing.T) {
 	})
 
 	t.Run("update", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -242,6 +248,7 @@ func TestBackupLocations(t *testing.T) {
 	})
 
 	t.Run("remove restrict", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -271,6 +278,7 @@ func TestBackupLocations(t *testing.T) {
 		assert.Empty(t, locations)
 	})
 	t.Run("remove cascade", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -348,6 +356,7 @@ func TestBackupLocations(t *testing.T) {
 }
 
 func TestCreateBackupLocationValidation(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
@@ -551,6 +560,7 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 
 	for _, test := range tableTests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			tx, err := db.Begin()
 			require.NoError(t, err)
 			defer func() {
@@ -571,6 +581,7 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 }
 
 func TestParseEndpoint(t *testing.T) {
+	t.Parallel()
 	tableTests := []struct {
 		name     string
 		endpoint string
@@ -609,6 +620,7 @@ func TestParseEndpoint(t *testing.T) {
 	}
 	for _, test := range tableTests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			res, err := models.ParseEndpoint(test.endpoint)
 			if test.errorMsg != "" {
 				assert.EqualError(t, err, test.errorMsg)

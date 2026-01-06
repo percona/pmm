@@ -27,7 +27,9 @@ import (
 )
 
 func TestGenerateNomadAgentConfig(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		node := &models.Node{
 			NodeName: "node-name",
 			NodeID:   "node-id",

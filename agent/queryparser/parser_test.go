@@ -29,6 +29,7 @@ type testCase struct {
 }
 
 func TestMySQL(t *testing.T) {
+	t.Parallel()
 	sqls := []testCase{
 		{
 			Query:                     "SELECT /* Sleep */ sleep(0.1)",
@@ -88,6 +89,7 @@ type testCaseComments struct {
 }
 
 func TestMySQLComments(t *testing.T) {
+	t.Parallel()
 	testCases := []testCaseComments{
 		{
 			Name: "No comment",
@@ -156,6 +158,7 @@ func TestMySQLComments(t *testing.T) {
 
 	for _, c := range testCases {
 		t.Run(c.Name, func(t *testing.T) {
+			t.Parallel()
 			comments, err := MySQLComments(c.Query)
 			require.NoError(t, err)
 			require.Equal(t, c.Comments, comments)
@@ -164,6 +167,7 @@ func TestMySQLComments(t *testing.T) {
 }
 
 func TestPostgreSQLComments(t *testing.T) {
+	t.Parallel()
 	testCases := []testCaseComments{
 		{
 			Name: "No comment",
@@ -205,6 +209,7 @@ func TestPostgreSQLComments(t *testing.T) {
 
 	for _, c := range testCases {
 		t.Run(c.Name, func(t *testing.T) {
+			t.Parallel()
 			comments, err := PostgreSQLComments(c.Query)
 			require.NoError(t, err)
 			require.Equal(t, c.Comments, comments)

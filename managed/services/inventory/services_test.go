@@ -96,7 +96,9 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 }
 
 func TestServices(t *testing.T) {
+	t.Parallel()
 	t.Run("BasicMySQL", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -138,6 +140,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("RDSServiceRemoving", func(t *testing.T) {
+		t.Parallel()
 		ss, as, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -200,6 +203,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AzureServiceRemoving", func(t *testing.T) {
+		t.Parallel()
 		ss, as, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -261,6 +265,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicMySQLWithSocket", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -300,6 +305,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("MySQLSocketAddressConflict", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -317,6 +323,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("MySQLSocketAndPort", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -334,6 +341,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicMongoDB", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -375,7 +383,9 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("PostgreSQL", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Basic", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -417,6 +427,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocket", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -456,6 +467,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocketAddressConflict", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -475,6 +487,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocketAndPort", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -494,7 +507,9 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("Valkey", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Basic", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -535,6 +550,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocket", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -573,6 +589,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocketAddressConflict", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -592,6 +609,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocketAndPort", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -611,6 +629,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicProxySQL", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -651,6 +670,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicProxySQLWithSocket", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -689,6 +709,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("ProxySQLSocketAddressConflict", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -706,6 +727,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("ProxySQLSocketAndPort", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -723,6 +745,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicHAProxyService", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -759,6 +782,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicExternalService", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -797,6 +821,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("GetEmptyID", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -806,6 +831,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -828,6 +854,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AddNodeNotFound", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -841,6 +868,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
+		t.Parallel()
 		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
@@ -849,7 +877,9 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("MongoDB", func(t *testing.T) {
+		t.Parallel()
 		t.Run("WithSocket", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -888,6 +918,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("SocketAddressConflict", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -905,6 +936,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("SocketAndPort", func(t *testing.T) {
+			t.Parallel()
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -923,7 +955,9 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AddCustomLabels", func(t *testing.T) {
+		t.Parallel()
 		t.Run("No Service ID", func(t *testing.T) {
+			t.Parallel()
 			t.Skip("TODO: fix")
 			s, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
@@ -934,6 +968,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("Add a label", func(t *testing.T) {
+			t.Parallel()
 			t.Skip("FIXME: fix")
 			s, _, _, teardown, ctx, vmdb := setup(t)
 			defer teardown(t)
@@ -975,6 +1010,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("Replace a label", func(t *testing.T) {
+			t.Parallel()
 			t.Skip("FIXME: fix")
 			s, _, _, teardown, ctx, vmdb := setup(t)
 			defer teardown(t)
@@ -1020,7 +1056,9 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("RemoveCustomLabels", func(t *testing.T) {
+		t.Parallel()
 		t.Run("No Service ID", func(t *testing.T) {
+			t.Parallel()
 			s, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
@@ -1030,6 +1068,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("Remove a label", func(t *testing.T) {
+			t.Parallel()
 			t.Skip("FIXME: fix")
 			s, _, _, teardown, ctx, vmdb := setup(t)
 			defer teardown(t)

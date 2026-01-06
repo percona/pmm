@@ -38,6 +38,7 @@ func (w *testWriter) Write(actual *report.Report) error {
 }
 
 func TestSender(t *testing.T) {
+	t.Parallel()
 	expected := &report.Report{
 		StartTS: time.Now(),
 		EndTS:   time.Now().Add(time.Second * 10),

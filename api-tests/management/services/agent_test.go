@@ -28,11 +28,13 @@ import (
 )
 
 func TestListAgentVersions(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skip for now, it fails randomly")
 	ctx, cancel := context.WithTimeout(pmmapitests.Context, 30*time.Second)
 	t.Cleanup(func() { cancel() })
 
 	t.Run("PMM Agent needs no update", func(t *testing.T) {
+		t.Parallel()
 		resp, err := client.Default.ManagementService.ListAgentVersions(
 			&mgmtSvc.ListAgentVersionsParams{
 				Context: ctx,

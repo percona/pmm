@@ -47,6 +47,7 @@ func getDataFromFile(t *testing.T, filePath string, data interface{}) {
 }
 
 func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
+	t.Parallel()
 	const agentID = "73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
 	periodStart := time.Unix(1557137220, 0)
 
@@ -228,6 +229,7 @@ func TestSlowLog(t *testing.T) {
 	})
 
 	t.Run("NormalWithRotation", func(t *testing.T) {
+		t.Parallel()
 		params := &Params{
 			DSN:                tests.GetTestMySQLDSN(t),
 			MaxSlowlogFileSize: 1,

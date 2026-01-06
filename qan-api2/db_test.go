@@ -71,6 +71,7 @@ func cleanup() {
 }
 
 func TestDropOldPartition(t *testing.T) {
+	t.Parallel()
 	db := setup()
 
 	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and visible = 1 ORDER BY partition`
@@ -83,6 +84,7 @@ func TestDropOldPartition(t *testing.T) {
 	daysNewestPartition := uint(math.Abs(difference.Hours()) / 24)
 
 	t.Run("no so old partition", func(t *testing.T) {
+		t.Parallel()
 		partitions := []string{}
 		days := daysNewestPartition + 1
 		DropOldPartition(db, "pmm_test_parts", days)
@@ -96,6 +98,7 @@ func TestDropOldPartition(t *testing.T) {
 	})
 
 	t.Run("delete one day old partition", func(t *testing.T) {
+		t.Parallel()
 		partitions := []string{}
 		days := daysNewestPartition
 		DropOldPartition(db, "pmm_test_parts", days)
@@ -110,7 +113,9 @@ func TestDropOldPartition(t *testing.T) {
 }
 
 func TestCreateDbIfNotExists(t *testing.T) {
+	t.Parallel()
 	t.Run("connect to db that doesnt exist", func(t *testing.T) {
+		t.Parallel()
 		dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 
 		dsn = strings.Replace(dsn, "/pmm_test", "/pmm_created_db", 1)

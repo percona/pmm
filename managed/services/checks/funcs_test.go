@@ -27,6 +27,7 @@ import (
 )
 
 func TestVersion(t *testing.T) {
+	t.Parallel()
 	script := strings.TrimSpace(`
 def check_context(rows, context):
     v = parse_version(rows[0].get("version"))

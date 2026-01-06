@@ -35,9 +35,11 @@ import (
 )
 
 func TestPerfSchemaMakeBuckets(t *testing.T) {
+	t.Parallel()
 	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
 
 	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
 				Digest:          pointer.ToString("Normal"),
@@ -72,6 +74,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	})
 
 	t.Run("New", func(t *testing.T) {
+		t.Parallel()
 		prev := make(map[string]*eventsStatementsSummaryByDigest)
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"New": {
@@ -99,6 +102,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	})
 
 	t.Run("Same", func(t *testing.T) {
+		t.Parallel()
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Same": {
 				Digest:          pointer.ToString("Same"),
@@ -120,6 +124,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	})
 
 	t.Run("Truncate", func(t *testing.T) {
+		t.Parallel()
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Truncate": {
 				Digest:          pointer.ToString("Truncate"),
@@ -134,6 +139,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	})
 
 	t.Run("TruncateAndNew", func(t *testing.T) {
+		t.Parallel()
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"TruncateAndNew": {
 				Digest:          pointer.ToString("TruncateAndNew"),
@@ -266,6 +272,7 @@ func prepareDBCopy(t *testing.T, db *reform.DB) {
 }
 
 func TestPerfSchema(t *testing.T) {
+	t.Parallel()
 	sqlDB := tests.OpenTestMySQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -360,6 +367,7 @@ func TestPerfSchema(t *testing.T) {
 	}
 
 	t.Run("Sleep", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: false,
@@ -407,6 +415,7 @@ func TestPerfSchema(t *testing.T) {
 	})
 
 	t.Run("AllCities", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: false,
@@ -459,6 +468,7 @@ func TestPerfSchema(t *testing.T) {
 	})
 
 	t.Run("Same queries in different DBs", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: false,
@@ -522,6 +532,7 @@ func TestPerfSchema(t *testing.T) {
 	})
 
 	t.Run("Invalid UTF-8", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: false,
@@ -602,6 +613,7 @@ func TestPerfSchema(t *testing.T) {
 	})
 
 	t.Run("DisableQueryExamples", func(t *testing.T) {
+		t.Parallel()
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: true,

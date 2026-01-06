@@ -27,7 +27,9 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func TestJSON(t *testing.T) { //nolint:tparallel
+func TestJSON(t *testing.T) {
+	t. //nolint:tparallel
+		Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 

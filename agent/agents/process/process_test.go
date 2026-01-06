@@ -69,7 +69,9 @@ func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
 }
 
 func TestProcess(t *testing.T) {
+	t.Parallel()
 	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
 		ctx, cancel, l := setup(t)
 		p := New(&Params{Path: "sleep", Args: []string{"100500"}}, nil, l)
 		go p.Run(ctx)
@@ -80,6 +82,7 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("FailedToStart", func(t *testing.T) {
+		t.Parallel()
 		ctx, _, l := setup(t)
 		p := New(&Params{Path: "no_such_command"}, nil, l)
 		go p.Run(ctx)
@@ -89,6 +92,7 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("ExitedEarly", func(t *testing.T) {
+		t.Parallel()
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
 		ctx, _, l := setup(t)
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
@@ -99,6 +103,7 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("Exited", func(t *testing.T) {
+		t.Parallel()
 		sleep := strconv.FormatFloat(runningT.Seconds()+0.5, 'f', -1, 64)
 		ctx, cancel, l := setup(t)
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
@@ -110,6 +115,7 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("Killed", func(t *testing.T) {
+		t.Parallel()
 		f, err := os.CreateTemp("", "pmm-agent-process-test-noterm")
 		require.NoError(t, err)
 		require.NoError(t, f.Close())
@@ -129,6 +135,7 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("KillChild", func(t *testing.T) {
+		t.Parallel()
 		if runtime.GOOS != "linux" {
 			t.Skip("Pdeathsig is implemented only on Linux")
 		}
@@ -177,6 +184,7 @@ func TestProcess(t *testing.T) {
 }
 
 func TestExtractLogLevel(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		testName      string
 		line          string
@@ -195,6 +203,7 @@ func TestExtractLogLevel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
+			t.Parallel()
 			level, found, err := extractLogLevel(tt.line)
 
 			require.Equal(t, tt.expectedLevel, level)

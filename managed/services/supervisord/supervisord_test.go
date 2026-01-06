@@ -71,6 +71,7 @@ func TestConfig(t *testing.T) {
 }
 
 func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
+	t.Parallel()
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
@@ -108,6 +109,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		}
 
 		t.Run(tmpl.Name(), func(t *testing.T) {
+			t.Parallel()
 			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini")) //nolint:gosec
 			require.NoError(t, err)
 			actual, err := s.marshalConfig(tmpl, settings, nil)

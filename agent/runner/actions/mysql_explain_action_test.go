@@ -346,6 +346,7 @@ func TestMySQLExplain(t *testing.T) {
 }
 
 func TestParseRealTableNameMySQL(t *testing.T) {
+	t.Parallel()
 	type testCase struct {
 		Query    string
 		Expected string
@@ -370,6 +371,7 @@ func TestParseRealTableNameMySQL(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Query, func(t *testing.T) {
+			t.Parallel()
 			assert.Equal(t, test.Expected, parseRealTableName(test.Query))
 		})
 	}

@@ -28,7 +28,9 @@ import (
 )
 
 func TestArtifactMetadataFromProto(t *testing.T) {
+	t.Parallel()
 	t.Run("all fields are filled", func(t *testing.T) {
+		t.Parallel()
 		protoMetadata := backuppb.Metadata{
 			FileList:           []*backuppb.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
 			RestoreTo:          &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
@@ -46,6 +48,7 @@ func TestArtifactMetadataFromProto(t *testing.T) {
 	})
 
 	t.Run("some fields are empty", func(t *testing.T) {
+		t.Parallel()
 		protoMetadata := backuppb.Metadata{
 			FileList: []*backuppb.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
 		}
@@ -59,6 +62,7 @@ func TestArtifactMetadataFromProto(t *testing.T) {
 	})
 
 	t.Run("argument is nil", func(t *testing.T) {
+		t.Parallel()
 		var protoMetadata *backuppb.Metadata
 		var expected *models.Metadata
 

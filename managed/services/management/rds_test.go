@@ -44,7 +44,9 @@ import (
 )
 
 func TestRDSService(t *testing.T) {
+	t.Parallel(
 	// logrus.SetLevel(logrus.DebugLevel)
+	)
 
 	uuid.SetRand(&tests.IDReader{})
 	defer uuid.SetRand(nil)
@@ -83,7 +85,9 @@ func TestRDSService(t *testing.T) {
 	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
 	t.Run("DiscoverRDS", func(t *testing.T) {
+		t.Parallel()
 		t.Run("ListRegions", func(t *testing.T) {
+			t.Parallel()
 			expected := []string{
 				"af-south-1",
 				"ap-east-1",
@@ -127,6 +131,7 @@ func TestRDSService(t *testing.T) {
 		})
 
 		t.Run("InvalidClientTokenId", func(t *testing.T) {
+			t.Parallel()
 			ctx := logger.Set(context.Background(), t.Name())
 			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 
@@ -140,6 +145,7 @@ func TestRDSService(t *testing.T) {
 		})
 
 		t.Run("DeadlineExceeded", func(t *testing.T) {
+			t.Parallel()
 			ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
 			defer cancel()
 			ctx = logger.Set(ctx, t.Name())
@@ -155,6 +161,7 @@ func TestRDSService(t *testing.T) {
 		})
 
 		t.Run("Normal", func(t *testing.T) {
+			t.Parallel()
 			ctx := logger.Set(context.Background(), t.Name())
 			accessKey, secretKey := tests.GetAWSKeys(t)
 
@@ -222,6 +229,7 @@ func TestRDSService(t *testing.T) {
 			{"us-west-2", []instance{{"us-west-2b", "autotest-aurora-psql-11"}, {"us-west-2c", "autotest-mysql-57"}}},
 		} {
 			t.Run(fmt.Sprintf("discoverRDSRegion %s", tt.region), func(t *testing.T) {
+				t.Parallel()
 				ctx := logger.Set(context.Background(), t.Name())
 				accessKey, secretKey := tests.GetAWSKeys(t)
 				creds := credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
@@ -251,6 +259,7 @@ func TestRDSService(t *testing.T) {
 	})
 
 	t.Run("AddRDS", func(t *testing.T) {
+		t.Parallel()
 		ctx := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 
@@ -343,6 +352,7 @@ func TestRDSService(t *testing.T) {
 	})
 
 	t.Run("AddRDSPostgreSQL", func(t *testing.T) {
+		t.Parallel()
 		ctx := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 

@@ -65,6 +65,7 @@ var commonExpectedFiles = []string{
 }
 
 func TestReadLog(t *testing.T) {
+	t.Parallel()
 	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
@@ -82,6 +83,7 @@ func TestReadLog(t *testing.T) {
 	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("LimitByLines", func(t *testing.T) {
+		t.Parallel()
 		b, m, err := readLog(f.Name(), 5)
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
@@ -91,6 +93,7 @@ func TestReadLog(t *testing.T) {
 	})
 
 	t.Run("LimitByLines - no new line ending", func(t *testing.T) {
+		t.Parallel()
 		b, m, err := readLog(fNoNewLineEnding.Name(), 5)
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
@@ -101,6 +104,7 @@ func TestReadLog(t *testing.T) {
 }
 
 func TestReadLogUnlimited(t *testing.T) {
+	t.Parallel()
 	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
@@ -118,6 +122,7 @@ func TestReadLogUnlimited(t *testing.T) {
 	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("UnlimitedLineCount", func(t *testing.T) {
+		t.Parallel()
 		b, m, err := readLogUnlimited(f.Name())
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
@@ -127,6 +132,7 @@ func TestReadLogUnlimited(t *testing.T) {
 	})
 
 	t.Run("UnlimitedLineCount - no new line ending", func(t *testing.T) {
+		t.Parallel()
 		b, m, err := readLogUnlimited(fNoNewLineEnding.Name())
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
@@ -137,6 +143,7 @@ func TestReadLogUnlimited(t *testing.T) {
 }
 
 func TestAddAdminSummary(t *testing.T) {
+	t.Parallel()
 	t.Skip("FIXME")
 
 	zipfile, err := os.CreateTemp("", "*-test.zip")
@@ -162,6 +169,7 @@ func TestAddAdminSummary(t *testing.T) {
 }
 
 func TestFiles(t *testing.T) {
+	t.Parallel()
 	updater := &Updater{}
 	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
@@ -193,6 +201,7 @@ func TestFiles(t *testing.T) {
 }
 
 func TestZip(t *testing.T) {
+	t.Parallel()
 	t.Skip("FIXME")
 
 	updater := &Updater{}

@@ -32,6 +32,7 @@ import (
 )
 
 func TestPlatform(t *testing.T) {
+	t.Parallel()
 	t.Skip("Skip until we have the environment ready.")
 
 	client := platformClient.Default.PlatformService
@@ -42,7 +43,9 @@ func TestPlatform(t *testing.T) {
 
 	const serverName = string("my PMM")
 	t.Run("connect and disconnect", func(t *testing.T) {
+		t.Parallel()
 		t.Run("PMM server does not have address set", func(t *testing.T) {
+			t.Parallel()
 			_, err := client.Connect(&platform.ConnectParams{
 				Body: platform.ConnectBody{
 					PersonalAccessToken: "JReeZA5EqM4b6bZMxBOEaAxoc4rWd5teK7HF",
@@ -64,6 +67,7 @@ func TestPlatform(t *testing.T) {
 		assert.Equal(t, "localhost", res.Payload.Settings.PMMPublicAddress)
 
 		t.Run("empty access token", func(t *testing.T) {
+			t.Parallel()
 			_, err := client.Connect(&platform.ConnectParams{
 				Body: platform.ConnectBody{
 					PersonalAccessToken: "",
@@ -75,6 +79,7 @@ func TestPlatform(t *testing.T) {
 		})
 
 		t.Run("empty server name", func(t *testing.T) {
+			t.Parallel()
 			_, err := client.Connect(&platform.ConnectParams{
 				Body: platform.ConnectBody{
 					PersonalAccessToken: "JReeZA5EqM4b6bZMxBOEaAxoc4rWd5teK7HF",
@@ -86,6 +91,7 @@ func TestPlatform(t *testing.T) {
 		})
 
 		t.Run("successful connect and disconnect", func(t *testing.T) {
+			t.Parallel()
 			_, err := client.Connect(&platform.ConnectParams{
 				Body: platform.ConnectBody{
 					ServerName:          serverName,
@@ -115,7 +121,9 @@ func TestPlatform(t *testing.T) {
 	})
 
 	t.Run("search tickets", func(t *testing.T) {
+		t.Parallel()
 		t.Run("success", func(t *testing.T) {
+			t.Parallel()
 			_, err := client.Connect(&platform.ConnectParams{
 				Body: platform.ConnectBody{
 					ServerName:          serverName,
@@ -137,8 +145,11 @@ func TestPlatform(t *testing.T) {
 		})
 	})
 
-	t.Run("search entitlements", func(t *testing.T) { //nolint:dupl
+	t.Run("search entitlements", func(t *testing.T) {
+		t. //nolint:dupl
+			Parallel()
 		t.Run("success", func(t *testing.T) {
+			t.Parallel()
 			_, err := client.Connect(&platform.ConnectParams{
 				Body: platform.ConnectBody{
 					ServerName:          serverName,
@@ -160,8 +171,11 @@ func TestPlatform(t *testing.T) {
 		})
 	})
 
-	t.Run("get contact information", func(t *testing.T) { //nolint:dupl
+	t.Run("get contact information", func(t *testing.T) {
+		t. //nolint:dupl
+			Parallel()
 		t.Run("success", func(t *testing.T) {
+			t.Parallel()
 			_, err := client.Connect(&platform.ConnectParams{
 				Body: platform.ConnectBody{
 					ServerName:          serverName,

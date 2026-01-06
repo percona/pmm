@@ -29,6 +29,7 @@ import (
 )
 
 func TestMySQLdExporterConfig(t *testing.T) {
+	t.Parallel()
 	mysql := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(3306),
@@ -105,6 +106,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
+		t.Parallel()
 		exporter.Password = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -112,6 +114,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
+		t.Parallel()
 		exporter.Username = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -119,6 +122,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	})
 
 	t.Run("SSLEnabled", func(t *testing.T) {
+		t.Parallel()
 		exporter.TLS = true
 		exporter.MySQLOptions = models.MySQLOptions{
 			TLSCa:   "content-of-tls-ca",
@@ -138,6 +142,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	})
 
 	t.Run("with allowCleartextPasswords dsn param", func(t *testing.T) {
+		t.Parallel()
 		pmmAgentVersion = version.MustParse("3.4.0")
 		t.Cleanup(func() {
 			pmmAgentVersion = version.MustParse("2.21.0")
@@ -155,6 +160,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 }
 
 func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
+	t.Parallel()
 	node := &models.Node{
 		Address: "1.2.3.4",
 	}
@@ -236,6 +242,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
+		t.Parallel()
 		exporter.Password = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -243,6 +250,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
+		t.Parallel()
 		exporter.Username = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -250,6 +258,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	})
 
 	t.Run("V236_EnablesPluginCollector", func(t *testing.T) {
+		t.Parallel()
 		pmmAgentVersion := version.MustParse("2.36.0")
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -257,6 +266,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	})
 
 	t.Run("beforeV236_NoPluginCollector", func(t *testing.T) {
+		t.Parallel()
 		pmmAgentVersion := version.MustParse("2.35.0")
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -265,6 +275,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 }
 
 func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
+	t.Parallel()
 	node := &models.Node{
 		Address: "1.2.3.4",
 	}
@@ -339,6 +350,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 }
 
 func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
+	t.Parallel()
 	mysql := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(3306),
@@ -357,6 +369,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 	pmmAgentVersion := version.MustParse("3.2.0")
 
 	t.Run("SSLEnabled", func(t *testing.T) {
+		t.Parallel()
 		exporter.MySQLOptions = models.MySQLOptions{
 			TLSCa:   "content-of-tls-ca",
 			TLSCert: "content-of-tls-certificate-key",
@@ -427,6 +440,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 	})
 
 	t.Run("EmptyPassword", func(t *testing.T) {
+		t.Parallel()
 		exporter.Password = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
@@ -489,6 +503,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
+		t.Parallel()
 		exporter.Username = nil
 		exporter.Password = pointer.ToString("s3cur3 p@$$w0r4.")
 		exporter.MySQLOptions = models.MySQLOptions{}

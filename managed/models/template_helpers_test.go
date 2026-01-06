@@ -35,10 +35,12 @@ import (
 )
 
 func TestRuleTemplates(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("create", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -84,6 +86,7 @@ func TestRuleTemplates(t *testing.T) {
 	})
 
 	t.Run("change", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -134,6 +137,7 @@ func TestRuleTemplates(t *testing.T) {
 	})
 
 	t.Run("change err - mismatch names", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -155,6 +159,7 @@ func TestRuleTemplates(t *testing.T) {
 	})
 
 	t.Run("remove", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {
@@ -178,6 +183,7 @@ func TestRuleTemplates(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		defer func() {

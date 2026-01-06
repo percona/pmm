@@ -31,6 +31,7 @@ import (
 )
 
 func TestCleaner(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
@@ -79,6 +80,7 @@ func TestCleaner(t *testing.T) {
 	}
 
 	t.Run("CheckActionResultByID", func(t *testing.T) {
+		t.Parallel()
 		db, q, teardown := setup(t)
 		defer teardown(t)
 

@@ -27,7 +27,9 @@ import (
 )
 
 func TestRegistry(t *testing.T) {
+	t.Parallel()
 	t.Run("create and collect Alerts", func(t *testing.T) {
+		t.Parallel()
 		r := newRegistry()
 		checkResults := []services.CheckResult{
 			{
@@ -81,6 +83,7 @@ func TestRegistry(t *testing.T) {
 	})
 
 	t.Run("delete check results by interval", func(t *testing.T) {
+		t.Parallel()
 		r := newRegistry()
 		checkResults := []services.CheckResult{
 			{
@@ -134,6 +137,7 @@ func TestRegistry(t *testing.T) {
 	})
 
 	t.Run("delete check result by name", func(t *testing.T) {
+		t.Parallel()
 		r := newRegistry()
 		checkResults := []services.CheckResult{
 			{
@@ -187,6 +191,7 @@ func TestRegistry(t *testing.T) {
 	})
 
 	t.Run("empty interval recognized as standard", func(t *testing.T) {
+		t.Parallel()
 		r := newRegistry()
 		checkResults := []services.CheckResult{
 			{

@@ -37,7 +37,9 @@ import (
 )
 
 func TestAgents(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -56,6 +58,7 @@ func TestAgents(t *testing.T) {
 		)
 
 		t.Run("AddPMMAgent", func(t *testing.T) {
+			t.Parallel()
 			as.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)
 			actualAgents, err := as.List(ctx, models.AgentFilters{})
 			require.NoError(t, err)
@@ -88,6 +91,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("AddNodeExporter", func(t *testing.T) {
+			t.Parallel()
 			actualNodeExporter, err := as.AddNodeExporter(ctx, &inventoryv1.AddNodeExporterParams{
 				PmmAgentId:   pmmAgentID,
 				CustomLabels: map[string]string{"cluster": "test-cluster", "environment": "test-env"},
@@ -106,6 +110,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("ChangeNodeExporterAndRemoveCustomLabels", func(t *testing.T) {
+			t.Parallel()
 			actualNodeExporter, err := as.ChangeNodeExporter(
 				ctx,
 				"00000000-0000-4000-8000-000000000006",
@@ -136,6 +141,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("AddMySQLExporter", func(t *testing.T) {
+			t.Parallel()
 			var err error
 			ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 			ms, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
@@ -167,6 +173,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("AddMongoDBExporter", func(t *testing.T) {
+			t.Parallel()
 			ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mongo",
 				NodeID:      models.PMMServerNodeID,
@@ -198,6 +205,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("AddQANMySQLSlowlogAgent", func(t *testing.T) {
+			t.Parallel()
 			actualAgent, err := as.AddQANMySQLSlowlogAgent(ctx, &inventoryv1.AddQANMySQLSlowlogAgentParams{
 				PmmAgentId: pmmAgentID,
 				ServiceId:  ms.ServiceId,
@@ -219,6 +227,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("AddPostgreSQLExporter", func(t *testing.T) {
+			t.Parallel()
 			var err error
 			ps, err = ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-postgres",
@@ -249,6 +258,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("AddExternalExporter", func(t *testing.T) {
+			t.Parallel()
 			actualAgent, err := as.AddExternalExporter(ctx, &inventoryv1.AddExternalExporterParams{
 				RunsOnNodeId: models.PMMServerNodeID,
 				ServiceId:    ps.ServiceId,
@@ -269,6 +279,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("AddValkeyExporter", func(t *testing.T) {
+			t.Parallel()
 			var err error
 			valkey, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
@@ -301,6 +312,7 @@ func TestAgents(t *testing.T) {
 
 		var actualAgents []inventoryv1.Agent
 		t.Run("ListAllAgents", func(t *testing.T) {
+			t.Parallel()
 			actualAgents, err := as.List(ctx, models.AgentFilters{})
 			require.NoError(t, err)
 			for i, a := range actualAgents {
@@ -319,6 +331,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("FilterByServiceID", func(t *testing.T) {
+			t.Parallel()
 			actualAgents, err := as.List(ctx, models.AgentFilters{ServiceID: ms.ServiceId})
 			require.NoError(t, err)
 			require.Len(t, actualAgents, 2)
@@ -327,6 +340,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("FilterByPMMAgent", func(t *testing.T) {
+			t.Parallel()
 			actualAgents, err := as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgentID})
 			require.NoError(t, err)
 			require.Len(t, actualAgents, 6)
@@ -338,6 +352,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("FilterByNode", func(t *testing.T) {
+			t.Parallel()
 			actualAgents, err := as.List(ctx, models.AgentFilters{NodeID: models.PMMServerNodeID})
 			require.NoError(t, err)
 			require.Len(t, actualAgents, 2)
@@ -345,6 +360,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("FilterByAgentType", func(t *testing.T) {
+			t.Parallel()
 			agentType := models.ExternalExporterType
 			actualAgents, err := as.List(ctx, models.AgentFilters{AgentType: &agentType})
 			require.NoError(t, err)
@@ -353,12 +369,14 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("FilterByMultipleFields", func(t *testing.T) {
+			t.Parallel()
 			actualAgents, err := as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgentID, NodeID: models.PMMServerNodeID})
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `expected at most one param: pmm_agent_id, node_id or service_id`), err)
 			assert.Nil(t, actualAgents)
 		})
 
 		t.Run("RemovePMMAgent", func(t *testing.T) {
+			t.Parallel()
 			as.r.(*mockAgentsRegistry).On("Kick", ctx, "00000000-0000-4000-8000-000000000005").Return(true)
 			err := as.Remove(ctx, "00000000-0000-4000-8000-000000000005", true)
 			require.NoError(t, err)
@@ -373,6 +391,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("GetEmptyID", func(t *testing.T) {
+		t.Parallel()
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -382,6 +401,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("AddPMMAgent", func(t *testing.T) {
+		t.Parallel()
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -411,6 +431,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("AddPmmAgentNotFound", func(t *testing.T) {
+		t.Parallel()
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -421,6 +442,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("AddRDSExporter", func(t *testing.T) {
+		t.Parallel()
 		_, as, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -466,6 +488,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("AddExternalExporter", func(t *testing.T) {
+		t.Parallel()
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -503,6 +526,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("AddServiceNotFound", func(t *testing.T) {
+		t.Parallel()
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -520,6 +544,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
+		t.Parallel()
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -528,6 +553,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("PushMetricsMongodbExporter", func(t *testing.T) {
+		t.Parallel()
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -583,6 +609,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("PushMetricsNodeExporter", func(t *testing.T) {
+		t.Parallel()
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -620,6 +647,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("PushMetricsPostgresSQLExporter", func(t *testing.T) {
+		t.Parallel()
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -676,6 +704,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("PushMetricsMySQLExporter", func(t *testing.T) {
+		t.Parallel()
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -734,6 +763,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("PushMetricsRdsExporter", func(t *testing.T) {
+		t.Parallel()
 		_, as, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -781,6 +811,7 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("PushMetricsExternalExporter", func(t *testing.T) {
+		t.Parallel()
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
@@ -820,7 +851,9 @@ func TestAgents(t *testing.T) {
 }
 
 func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
+	t.Parallel()
 	t.Run("FailWhenEnvVarSet", func(t *testing.T) {
+		t.Parallel()
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -838,6 +871,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 	})
 
 	t.Run("SucceedWhenEnvVarNotSet", func(t *testing.T) {
+		t.Parallel()
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 

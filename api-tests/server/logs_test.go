@@ -31,6 +31,7 @@ import (
 )
 
 func TestDownloadLogs(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	res, err := serverClient.Default.ServerService.Logs(&server_service.LogsParams{
 		Context: pmmapitests.Context,

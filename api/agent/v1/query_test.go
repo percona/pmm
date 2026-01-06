@@ -25,7 +25,9 @@ import (
 )
 
 func TestQuerySQLResultsSerialization(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		now := time.Now().UTC().Round(0) // strip monotonic clock reading
 		columns := []string{
 			"bool",
@@ -139,6 +141,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 	})
 
 	t.Run("InvalidColumns", func(t *testing.T) {
+		t.Parallel()
 		columns := []string{"foo"}
 		rows := [][]interface{}{{}}
 
@@ -148,7 +151,9 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 }
 
 func TestQueryDocsResultsSerialization(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		now := time.Now().UTC().Round(0) // strip monotonic clock reading
 		expected := []map[string]interface{}{
 			{},
@@ -189,6 +194,7 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 	})
 
 	t.Run("Conversions", func(t *testing.T) {
+		t.Parallel()
 		now := time.Now().UTC().Round(0) // strip monotonic clock reading
 		b, err := MarshalActionQueryDocsResult([]map[string]interface{}{
 			// non-zero values

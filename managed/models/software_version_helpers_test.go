@@ -30,6 +30,7 @@ import (
 )
 
 func TestSoftwareVersions(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -69,6 +70,7 @@ func TestSoftwareVersions(t *testing.T) {
 	}
 
 	t.Run("create", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -106,6 +108,7 @@ func TestSoftwareVersions(t *testing.T) {
 	})
 
 	t.Run("list and remove", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -183,6 +186,7 @@ func TestSoftwareVersions(t *testing.T) {
 	})
 
 	t.Run("update", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -245,6 +249,7 @@ func TestSoftwareVersions(t *testing.T) {
 }
 
 func TestSoftwareVersionsParamsValidation(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -300,6 +305,7 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			tx, err := db.Begin()
 			require.NoError(t, err)
 			t.Cleanup(func() {
@@ -322,6 +328,7 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 }
 
 func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
+	t.Parallel()
 	for _, test := range []struct {
 		name     string
 		params   models.UpdateServiceSoftwareVersionsParams
@@ -361,6 +368,7 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			err := test.params.Validate()
 			if test.errorMsg != "" {
 				assert.EqualError(t, err, test.errorMsg)

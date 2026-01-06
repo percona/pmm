@@ -30,6 +30,7 @@ import (
 // result is a non-empty string, meaning that the ServiceTypeNames list matches the proto
 // definitions.
 func TestServiceTypes(t *testing.T) {
+	t.Parallel()
 	for _, val := range ServiceType_name {
 		if strings.HasSuffix(val, "UNSPECIFIED") {
 			continue

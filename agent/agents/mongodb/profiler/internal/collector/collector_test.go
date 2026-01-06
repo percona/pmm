@@ -112,6 +112,7 @@ func BenchmarkCollector(b *testing.B) {
 }
 
 func TestCollector(t *testing.T) {
+	t.Parallel()
 	maxLoops := 3
 	maxDocs := 100
 

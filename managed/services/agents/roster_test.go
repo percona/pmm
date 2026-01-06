@@ -28,6 +28,7 @@ import (
 )
 
 func TestRoster(t *testing.T) {
+	t.Parallel()
 	setup := func(t *testing.T) (*roster, func(t *testing.T)) {
 		t.Helper()
 
@@ -45,6 +46,7 @@ func TestRoster(t *testing.T) {
 	}
 
 	t.Run("Add", func(t *testing.T) {
+		t.Parallel()
 		r, teardown := setup(t)
 		defer teardown(t)
 
@@ -73,6 +75,7 @@ func TestRoster(t *testing.T) {
 	})
 
 	t.Run("Get", func(t *testing.T) {
+		t.Parallel()
 		r, teardown := setup(t)
 		defer teardown(t)
 
@@ -85,6 +88,7 @@ func TestRoster(t *testing.T) {
 	})
 
 	t.Run("Clear", func(t *testing.T) {
+		t.Parallel()
 		r, teardown := setup(t)
 		defer teardown(t)
 

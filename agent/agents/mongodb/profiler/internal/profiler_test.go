@@ -55,6 +55,7 @@ func GetMongoVersion(ctx context.Context, client *mongo.Client) (string, error) 
 }
 
 func TestProfiler(t *testing.T) {
+	t.Parallel()
 	defaultInterval := aggregator.DefaultInterval
 	aggregator.DefaultInterval = time.Second
 	defer func() { aggregator.DefaultInterval = defaultInterval }()
@@ -71,6 +72,7 @@ func TestProfiler(t *testing.T) {
 		"ssl":    sslDSN,
 	} {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			testProfiler(t, url)
 		})
 	}

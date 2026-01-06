@@ -36,6 +36,7 @@ import (
 )
 
 func TestCreateBackupLocation(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -45,6 +46,7 @@ func TestCreateBackupLocation(t *testing.T) {
 		mock.Anything).Return("us-east-2", nil)
 	svc := NewLocationsService(db, mockedS3)
 	t.Run("add server config", func(t *testing.T) {
+		t.Parallel()
 		loc, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
 			FilesystemConfig: &backuppb.FilesystemLocationConfig{
@@ -57,6 +59,7 @@ func TestCreateBackupLocation(t *testing.T) {
 	})
 
 	t.Run("add client config", func(t *testing.T) {
+		t.Parallel()
 		loc, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
 			FilesystemConfig: &backuppb.FilesystemLocationConfig{
@@ -69,6 +72,7 @@ func TestCreateBackupLocation(t *testing.T) {
 	})
 
 	t.Run("add awsS3", func(t *testing.T) {
+		t.Parallel()
 		loc, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
 			S3Config: &backuppb.S3LocationConfig{
@@ -84,6 +88,7 @@ func TestCreateBackupLocation(t *testing.T) {
 	})
 
 	t.Run("multiple configs", func(t *testing.T) {
+		t.Parallel()
 		_, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
 			FilesystemConfig: &backuppb.FilesystemLocationConfig{
@@ -101,6 +106,7 @@ func TestCreateBackupLocation(t *testing.T) {
 }
 
 func TestListBackupLocations(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -131,6 +137,7 @@ func TestListBackupLocations(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("list", func(t *testing.T) {
+		t.Parallel()
 		res, err := svc.ListLocations(ctx, &backuppb.ListLocationsRequest{})
 		require.NoError(t, err)
 
@@ -172,6 +179,7 @@ func TestListBackupLocations(t *testing.T) {
 }
 
 func TestChangeBackupLocation(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -181,6 +189,7 @@ func TestChangeBackupLocation(t *testing.T) {
 		mock.Anything).Return("us-east-2", nil)
 	svc := NewLocationsService(db, mockedS3)
 	t.Run("update existing config", func(t *testing.T) {
+		t.Parallel()
 		loc, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
 			FilesystemConfig: &backuppb.FilesystemLocationConfig{
@@ -217,6 +226,7 @@ func TestChangeBackupLocation(t *testing.T) {
 	})
 
 	t.Run("update only name", func(t *testing.T) {
+		t.Parallel()
 		addReq := &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
 			FilesystemConfig: &backuppb.FilesystemLocationConfig{
@@ -242,6 +252,7 @@ func TestChangeBackupLocation(t *testing.T) {
 	})
 
 	t.Run("update to existing name", func(t *testing.T) {
+		t.Parallel()
 		name := gofakeit.Name()
 		_, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: name,
@@ -272,6 +283,7 @@ func TestChangeBackupLocation(t *testing.T) {
 }
 
 func TestRemoveBackupLocation(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -327,6 +339,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 }
 
 func TestVerifyBackupLocationValidation(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -444,6 +457,7 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 
 	for _, test := range tableTests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			_, err := svc.TestLocationConfig(ctx, test.req)
 			if test.errorMsg != "" {
 				assert.EqualError(t, err, test.errorMsg)

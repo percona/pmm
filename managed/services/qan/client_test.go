@@ -39,6 +39,7 @@ import (
 )
 
 func TestClient(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
@@ -124,6 +125,7 @@ func TestClient(t *testing.T) {
 	}
 
 	t.Run("Test MySQL Metrics conversion", func(t *testing.T) {
+		t.Parallel()
 		c := &mockQanCollectorClient{}
 		c.Test(t)
 		defer c.AssertExpectations(t)
@@ -210,6 +212,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("Test MongoDB Metrics conversion", func(t *testing.T) {
+		t.Parallel()
 		c := &mockQanCollectorClient{}
 		c.Test(t)
 		defer c.AssertExpectations(t)
@@ -276,6 +279,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("Test PostgreSQL Metrics conversion", func(t *testing.T) {
+		t.Parallel()
 		c := &mockQanCollectorClient{}
 		c.Test(t)
 		defer c.AssertExpectations(t)
@@ -411,6 +415,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("Test conversion skips bad buckets", func(t *testing.T) {
+		t.Parallel()
 		c := &mockQanCollectorClient{}
 		c.Test(t)
 		defer c.AssertExpectations(t)
@@ -437,6 +442,7 @@ func TestClient(t *testing.T) {
 }
 
 func TestClientPerformance(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)

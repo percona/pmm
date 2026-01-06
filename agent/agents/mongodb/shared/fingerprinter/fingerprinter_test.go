@@ -86,7 +86,9 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 }
 
 func TestProfilerFingerprinter(t *testing.T) {
+	t.Parallel()
 	t.Run("CheckWithRealDB", func(t *testing.T) {
+		t.Parallel()
 		url := "mongodb://root:root-password@127.0.0.1:27017"
 		dbName := "test_fingerprint"
 
@@ -305,6 +307,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			pf := &ProfilerFingerprinter{}
 			fingerprint, err := pf.Fingerprint(tt.doc)
 			require.NoError(t, err)

@@ -429,12 +429,15 @@ func TestModifyTemplatesAPI(t *testing.T) {
 // We keep it separate from the tests in TestModifyTemplatesAPI to avoid
 // race conditions when other tests add or remove templates while we are listing them.
 func TestListTemplatesAPI(t *testing.T) {
+	t.Parallel()
 	client := alertingClient.Default.AlertingService
 
 	templateData, err := os.ReadFile("../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 	t.Run("list", func(t *testing.T) {
+		t.Parallel()
 		t.Run("without pagination", func(t *testing.T) {
+			t.Parallel()
 			name := uuid.New().String()
 			expr := uuid.New().String()
 			alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
@@ -459,6 +462,7 @@ func TestListTemplatesAPI(t *testing.T) {
 		})
 
 		t.Run("with pagination", func(t *testing.T) {
+			t.Parallel()
 			const templatesCount = 5
 
 			templateNames := make(map[string]struct{})

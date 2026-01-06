@@ -24,6 +24,7 @@ import (
 )
 
 func TestAddNodeRemoteRDS(t *testing.T) {
+	t.Parallel()
 	res := &addNodeRemoteRDSResult{
 		Node: &nodes.AddNodeOKBodyRemoteRDS{
 			NodeID:       "1",

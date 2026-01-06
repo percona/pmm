@@ -24,7 +24,9 @@ import (
 )
 
 func TestAddMySQL(t *testing.T) {
+	t.Parallel()
 	t.Run("TablestatEnabled", func(t *testing.T) {
+		t.Parallel()
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
 				ServiceID:   "1",
@@ -47,6 +49,7 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 	})
 
 	t.Run("TablestatEnabledNoLimit", func(t *testing.T) {
+		t.Parallel()
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
 				ServiceID:   "1",
@@ -69,6 +72,7 @@ Table statistics collection enabled (the table count limit is not set).
 	})
 
 	t.Run("TablestatEnabledUnknown", func(t *testing.T) {
+		t.Parallel()
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
 				ServiceID:   "1",
@@ -91,6 +95,7 @@ Table statistics collection enabled (the limit is 1000, the actual table count i
 	})
 
 	t.Run("TablestatDisabled", func(t *testing.T) {
+		t.Parallel()
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
 				ServiceID:   "1",
@@ -117,6 +122,7 @@ Table statistics collection disabled (the limit is 1000, the actual table count 
 	})
 
 	t.Run("TablestatDisabledAlways", func(t *testing.T) {
+		t.Parallel()
 		res := &addMySQLResult{
 			Service: &mservice.AddServiceOKBodyMysqlService{
 				ServiceID:   "1",
@@ -139,6 +145,7 @@ Table statistics collection disabled (always).
 	})
 
 	t.Run("EmptyMysqlExporter", func(t *testing.T) {
+		t.Parallel()
 		res := &addMySQLResult{
 			MysqldExporter: nil,
 		}
@@ -148,7 +155,9 @@ Table statistics collection disabled (always).
 }
 
 func TestRun(t *testing.T) {
+	t.Parallel()
 	t.Run("CreateUser", func(t *testing.T) {
+		t.Parallel()
 		cmd := &AddMySQLCommand{
 			CreateUser: true,
 		}

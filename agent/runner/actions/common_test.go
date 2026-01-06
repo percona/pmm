@@ -22,6 +22,7 @@ import (
 )
 
 func TestPrepareQueryWithDatabaseTableName(t *testing.T) {
+	t.Parallel()
 	expected := "SHOW /* pmm-agent */ INDEX IN `table`"
 	assert.Equal(t, expected, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "table"))
 	assert.Equal(t, expected, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "`table`"))

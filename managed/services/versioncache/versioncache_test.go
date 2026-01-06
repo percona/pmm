@@ -33,10 +33,12 @@ import (
 )
 
 func TestVersionCache(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("success", func(t *testing.T) {
+		t.Parallel()
 		versionerMock := &MockVersioner{}
 		versionerMock.Test(t)
 
@@ -169,6 +171,7 @@ func TestVersionCache(t *testing.T) {
 	})
 
 	t.Run("no version request if no backup software declared", func(t *testing.T) {
+		t.Parallel()
 		nodeID1 := "node_id_1"
 		serviceID1 := "service_id_1"
 		agentID1, agentID2 := "agent_id_1", "agent_id_2"

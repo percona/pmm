@@ -33,6 +33,7 @@ import (
 )
 
 func TestNodeHelpers(t *testing.T) {
+	t.Parallel()
 	now, origNowF := models.Now(), models.Now
 	models.Now = func() time.Time {
 		return now
@@ -119,8 +120,11 @@ func TestNodeHelpers(t *testing.T) {
 	}
 
 	t.Run("CreateNode", func(t *testing.T) {
+		t.Parallel()
 		t.Run("DuplicateMachineID", func(t *testing.T) {
+			t.Parallel(
 			// https://jira.percona.com/browse/PMM-4196
+			)
 
 			q, teardown := setup(t)
 			defer teardown(t)
@@ -157,6 +161,7 @@ func TestNodeHelpers(t *testing.T) {
 	})
 
 	t.Run("FindNodes", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -201,6 +206,7 @@ func TestNodeHelpers(t *testing.T) {
 	})
 
 	t.Run("FindNodesByType", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 
@@ -221,6 +227,7 @@ func TestNodeHelpers(t *testing.T) {
 	})
 
 	t.Run("RemoveNode", func(t *testing.T) {
+		t.Parallel()
 		q, teardown := setup(t)
 		defer teardown(t)
 

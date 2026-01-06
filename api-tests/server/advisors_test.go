@@ -32,7 +32,9 @@ import (
 )
 
 func TestStartChecks(t *testing.T) {
+	t.Parallel()
 	t.Run("with advisors enabled", func(t *testing.T) {
+		t.Parallel()
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -42,6 +44,7 @@ func TestStartChecks(t *testing.T) {
 	})
 
 	t.Run("with advisors disabled", func(t *testing.T) {
+		t.Parallel()
 		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -52,7 +55,9 @@ func TestStartChecks(t *testing.T) {
 }
 
 func TestGetAdvisorCheckResults(t *testing.T) {
+	t.Parallel()
 	t.Run("with disabled Advisors", func(t *testing.T) {
+		t.Parallel()
 		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -62,6 +67,7 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 	})
 
 	t.Run("with enabled Advisors", func(t *testing.T) {
+		t.Parallel()
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -76,6 +82,7 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 }
 
 func TestListAdvisorChecks(t *testing.T) {
+	t.Parallel()
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -91,6 +98,7 @@ func TestListAdvisorChecks(t *testing.T) {
 }
 
 func TestListAdvisors(t *testing.T) {
+	t.Parallel()
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
@@ -115,11 +123,14 @@ func TestListAdvisors(t *testing.T) {
 }
 
 func TestChangeAdvisorChecks(t *testing.T) {
+	t.Parallel()
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 	t.Run("enable disable", func(t *testing.T) {
+		t.Parallel()
 		t.Run("enable disable", func(t *testing.T) {
+			t.Parallel()
 			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
@@ -159,6 +170,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 		})
 
 		t.Run("unrecognized interval is ignored", func(t *testing.T) {
+			t.Parallel()
 			t.Cleanup(func() { restoreCheckIntervalDefaults(t) })
 
 			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
@@ -198,6 +210,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 		})
 
 		t.Run("change interval normal", func(t *testing.T) {
+			t.Parallel()
 			t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
@@ -229,6 +242,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 			}
 
 			t.Run("intervals should be preserved on restart", func(t *testing.T) {
+				t.Parallel()
 				resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 				require.NoError(t, err)
 				require.NotEmpty(t, resp.Payload.Checks)

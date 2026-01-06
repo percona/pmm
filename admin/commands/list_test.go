@@ -28,6 +28,7 @@ import (
 )
 
 func TestListResultString(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name       string
 		listResult listResult
@@ -82,6 +83,7 @@ external-exporter        Running                            8b732ac3-8256-40b0-a
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			actual := strings.TrimSpace(tt.listResult.String())
 			assert.Equal(t, tt.expected, actual)
 		})
@@ -89,6 +91,7 @@ external-exporter        Running                            8b732ac3-8256-40b0-a
 }
 
 func TestNiceAgentStatus(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		Status   string
 		Disabled bool
@@ -115,6 +118,7 @@ func TestNiceAgentStatus(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			a := listResultAgent{
 				Status:   tt.fields.Status,
 				Disabled: tt.fields.Disabled,

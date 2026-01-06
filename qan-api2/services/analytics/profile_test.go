@@ -78,6 +78,7 @@ func getExpectedJSON(t *testing.T, got proto.Message, filename string) []byte {
 }
 
 func TestService_GetReport(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -145,6 +146,7 @@ func TestService_GetReport(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			s := &Service{
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
@@ -171,6 +173,7 @@ func TestService_GetReport(t *testing.T) {
 }
 
 func TestService_GetReport_Mix(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -211,6 +214,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		false,
 	}
 	t.Run("reverse_order", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -231,6 +235,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 	})
 
 	t.Run("correct_load", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -251,6 +256,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 	})
 
 	t.Run("correct_latency", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -271,6 +277,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 	})
 
 	t.Run("no error on limit is 0", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -285,6 +292,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 	})
 
 	t.Run("Limit is 0", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -301,6 +309,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 }
 
 func TestService_GetReport_Groups(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -308,6 +317,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
 
 	t.Run("group_by_queryid", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -346,6 +356,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 	})
 
 	t.Run("group_by_service_name", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -384,6 +395,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 	})
 
 	t.Run("group_by_database", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -422,6 +434,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 	})
 
 	t.Run("group_by_schema", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -460,6 +473,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 	})
 
 	t.Run("group_by_username", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -498,6 +512,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 	})
 
 	t.Run("group_by_client_host", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -537,6 +552,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 }
 
 func TestService_GetReport_AllLabels(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -632,6 +648,7 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 		false,
 	}
 	t.Run("Use all label keys", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -652,6 +669,7 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 }
 
 func TestService_GetReport_Sparklines(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -659,6 +677,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T01:00:00Z")
 
 	t.Run("sparklines_60_points", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -698,6 +717,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 
 	t3, _ := time.Parse(time.RFC3339, "2019-01-01T01:30:00Z")
 	t.Run("sparklines_90_points", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -737,6 +757,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 }
 
 func TestService_GetReport_Search(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -744,6 +765,7 @@ func TestService_GetReport_Search(t *testing.T) {
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
 
 	t.Run("search_queryid", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -775,6 +797,7 @@ func TestService_GetReport_Search(t *testing.T) {
 	})
 
 	t.Run("search_fingerprint", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -806,6 +829,7 @@ func TestService_GetReport_Search(t *testing.T) {
 	})
 
 	t.Run("search_service_name", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -838,6 +862,7 @@ func TestService_GetReport_Search(t *testing.T) {
 }
 
 func TestServiceGetReportSpecialMetrics(t *testing.T) {
+	t.Parallel()
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -845,6 +870,7 @@ func TestServiceGetReportSpecialMetrics(t *testing.T) {
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
 
 	t.Run("num_queries_with_errors", func(t *testing.T) {
+		t.Parallel()
 		s := &Service{
 			rm: rm,
 			mm: mm,

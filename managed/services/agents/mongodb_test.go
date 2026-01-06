@@ -29,6 +29,7 @@ import (
 )
 
 func TestMongodbExporterConfig225(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.25.0")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -72,6 +73,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("Having collstats limit", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections: []string{"col1", "col2", "col3"},
 			CollectionsLimit: 79014,
@@ -91,6 +93,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 }
 
 func TestMongodbExporterConfig226(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.26.0")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -135,6 +138,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("Having collstats limit", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections: []string{"col1", "col2", "col3"},
 			CollectionsLimit: 79014,
@@ -156,6 +160,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	})
 
 	t.Run("Enabling all collectors with non zero limit", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections:    []string{"col1", "col2", "col3"},
 			CollectionsLimit:    79014,
@@ -183,6 +188,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	})
 
 	t.Run("Enabling all collectors", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
@@ -211,6 +217,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	})
 
 	t.Run("collstats-limit=-1 -> automatically set the limit", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
@@ -239,6 +246,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 }
 
 func TestMongodbExporterConfig2411(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.41.1")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -286,6 +294,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("Having collstats limit", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections: []string{"col1", "col2", "col3"},
 			CollectionsLimit: 79014,
@@ -308,6 +317,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("Enabling all collectors with non zero limit", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections:    []string{"col1", "col2", "col3"},
 			CollectionsLimit:    79014,
@@ -337,6 +347,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("Enabling all collectors", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
@@ -367,6 +378,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("collstats-limit=-1 -> automatically set the limit", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
@@ -396,6 +408,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("Enable all collectors and disable some", func(t *testing.T) {
+		t.Parallel()
 		exporter.ExporterOptions = models.ExporterOptions{
 			DisabledCollectors: []string{"dbstats", "topmetrics"},
 		}
@@ -428,6 +441,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 }
 
 func TestMongodbExporterConfig2432(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.43.2")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -477,6 +491,7 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("Enabling all collectors", func(t *testing.T) {
+		t.Parallel()
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
@@ -511,6 +526,7 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 }
 
 func TestMongodbExporterConfig(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.0.0")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -554,6 +570,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
+		t.Parallel()
 		exporter.Password = nil
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -561,12 +578,14 @@ func TestMongodbExporterConfig(t *testing.T) {
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
+		t.Parallel()
 		exporter.Username = nil
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
 	t.Run("SSLEnabled", func(t *testing.T) {
+		t.Parallel()
 		exporter.TLS = true
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			TLSCertificateKey:             "content-of-tls-certificate-key",
@@ -586,6 +605,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 	})
 
 	t.Run("AuthenticationDatabase", func(t *testing.T) {
+		t.Parallel()
 		exporter.TLS = true
 		exporter.MongoDBOptions = models.MongoDBOptions{
 			TLSCertificateKey:             "content-of-tls-certificate-key",
@@ -613,6 +633,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 	})
 
 	t.Run("DisabledCollectors", func(t *testing.T) {
+		t.Parallel()
 		exporter.ExporterOptions = models.ExporterOptions{
 			DisabledCollectors: []string{"topmetrics"},
 		}
@@ -636,6 +657,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 }
 
 func TestNewMongodbExporterConfig(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.10.0")
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -675,6 +697,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
+		t.Parallel()
 		exporter.Password = nil
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -682,6 +705,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
+		t.Parallel()
 		exporter.Username = nil
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)

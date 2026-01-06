@@ -53,6 +53,7 @@ type testValuesUnmarshal struct {
 }
 
 func TestService_GetFilters(t *testing.T) {
+	t.Parallel()
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 	if !ok {
 		dsn = "clickhouse://default:clickhouse@0.0.0.0:19000/pmm_test"
@@ -179,6 +180,7 @@ func TestService_GetFilters(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			s := &Service{
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,

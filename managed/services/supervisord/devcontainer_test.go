@@ -30,8 +30,12 @@ import (
 
 // TODO move tests to other files and remove this one.
 func TestDevContainer(t *testing.T) {
+	t.Parallel()
 	t.Run("UpdateConfiguration", func(t *testing.T) {
+		t.Parallel(
 		// logrus.SetLevel(logrus.DebugLevel)
+		)
+
 		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 		require.NoError(t, err)
 

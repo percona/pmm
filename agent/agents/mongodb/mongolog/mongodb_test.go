@@ -30,6 +30,7 @@ import (
 )
 
 func TestMongoRun(t *testing.T) {
+	t.Parallel()
 	testdata, err := filepath.Abs("../../../testdata/mongo")
 	require.NoError(t, err)
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../..")

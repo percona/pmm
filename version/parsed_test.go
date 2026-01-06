@@ -23,7 +23,9 @@ import (
 )
 
 func TestParsed(t *testing.T) {
+	t.Parallel()
 	t.Run("PMM", func(t *testing.T) {
+		t.Parallel()
 		data := []struct {
 			s string
 			p *Parsed
@@ -59,6 +61,7 @@ func TestParsed(t *testing.T) {
 		}
 		for i, expected := range data {
 			t.Run(expected.s, func(t *testing.T) {
+				t.Parallel()
 				actual, err := Parse(expected.s)
 				require.NoError(t, err)
 				assert.Equal(t, *expected.p, *actual)
@@ -75,6 +78,7 @@ func TestParsed(t *testing.T) {
 	})
 
 	t.Run("MySQL", func(t *testing.T) {
+		t.Parallel()
 		data := []struct {
 			s string
 			p *Parsed
@@ -101,6 +105,7 @@ func TestParsed(t *testing.T) {
 		}
 		for i, expected := range data {
 			t.Run(expected.s, func(t *testing.T) {
+				t.Parallel()
 				actual, err := Parse(expected.s)
 				require.NoError(t, err)
 				assert.Equal(t, *expected.p, *actual)

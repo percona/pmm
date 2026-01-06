@@ -30,6 +30,7 @@ import (
 )
 
 func TestArtifacts(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -88,6 +89,7 @@ func TestArtifacts(t *testing.T) {
 	}
 
 	t.Run("create and update", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -138,6 +140,7 @@ func TestArtifacts(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -216,6 +219,7 @@ func TestArtifacts(t *testing.T) {
 	})
 
 	t.Run("remove", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -247,6 +251,7 @@ func TestArtifacts(t *testing.T) {
 	})
 
 	t.Run("MetadataRemoveFirstN", func(t *testing.T) {
+		t.Parallel()
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -297,6 +302,7 @@ func TestArtifacts(t *testing.T) {
 }
 
 func TestArtifactValidation(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -426,6 +432,7 @@ func TestArtifactValidation(t *testing.T) {
 
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			tx, err := db.Begin()
 			require.NoError(t, err)
 			t.Cleanup(func() {

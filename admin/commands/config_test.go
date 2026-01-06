@@ -25,6 +25,7 @@ import (
 )
 
 func TestConfigCommandArgs(t *testing.T) {
+	t.Parallel()
 	cmd := &ConfigCommand{
 		NodeAddress: "1.2.3.4",
 		NodeType:    "generic",
@@ -32,6 +33,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	}
 
 	t.Run("SwitchToTLS1", func(t *testing.T) {
+		t.Parallel()
 		u, err := url.Parse("http://127.0.0.1:80")
 		require.NoError(t, err)
 		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
@@ -45,6 +47,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	})
 
 	t.Run("SwitchToTLS2", func(t *testing.T) {
+		t.Parallel()
 		cmd := &ConfigCommand{
 			NodeAddress: "1.2.3.4",
 			NodeType:    "generic",
@@ -64,6 +67,7 @@ func TestConfigCommandArgs(t *testing.T) {
 		assert.True(t, switchedToTLS)
 	})
 	t.Run("DisableCollectors", func(t *testing.T) {
+		t.Parallel()
 		cmd := &ConfigCommand{
 			NodeAddress:       "1.2.3.4",
 			NodeType:          "generic",
@@ -87,6 +91,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	})
 
 	t.Run("LoggingLevel", func(t *testing.T) {
+		t.Parallel()
 		cmd := &ConfigCommand{
 			NodeAddress: "1.2.3.4",
 			NodeType:    "generic",

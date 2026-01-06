@@ -31,11 +31,13 @@ import (
 )
 
 func TestAdvisorMetrics(t *testing.T) {
+	t.Parallel()
 	if !pmmapitests.RunAdvisorTests {
 		t.Skip("Skipping Advisor tests until we have environment: https://jira.percona.com/browse/PMM-5106")
 	}
 
 	t.Run("StartAdvisorChecksAndRecordMetrics", func(t *testing.T) {
+		t.Parallel()
 		client, err := api.NewClient(api.Config{
 			Address: pmmapitests.BaseURL.ResolveReference(&url.URL{
 				Path: "/prometheus",

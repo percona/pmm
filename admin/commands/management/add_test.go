@@ -22,6 +22,7 @@ import (
 )
 
 func TestManagementGlobalFlags(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		testName string
 
@@ -111,6 +112,7 @@ func TestManagementGlobalFlags(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.testName, func(t *testing.T) {
+			t.Parallel()
 			cmd := &AddMongoDBCommand{
 				ServiceName: test.nameArg,
 				Address:     test.addressArg,

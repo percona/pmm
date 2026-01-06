@@ -38,6 +38,7 @@ import (
 )
 
 func TestServer(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	newServer := func(t *testing.T) *Server {
@@ -95,7 +96,9 @@ func TestServer(t *testing.T) {
 	}
 
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
+		t.Parallel()
 		t.Run("Typical", func(t *testing.T) {
+			t.Parallel()
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_UPDATES=true",
@@ -119,6 +122,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
+			t.Parallel()
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY=TrUe",
@@ -132,6 +136,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("NoValue", func(t *testing.T) {
+			t.Parallel()
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY",
@@ -142,6 +147,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("InvalidValue", func(t *testing.T) {
+			t.Parallel()
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY=",
@@ -152,6 +158,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("MetricsLessThenMin", func(t *testing.T) {
+			t.Parallel()
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_METRICS_RESOLUTION=5ns",
@@ -164,6 +171,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("DataRetentionLessThenMin", func(t *testing.T) {
+			t.Parallel()
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=12h",
@@ -176,6 +184,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Data retention is not a natural number of days", func(t *testing.T) {
+			t.Parallel()
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=30h",
@@ -188,6 +197,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Data retention without suffix", func(t *testing.T) {
+			t.Parallel()
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=30",
@@ -199,6 +209,7 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("ValidateChangeSettingsRequest", func(t *testing.T) {
+		t.Parallel()
 		s := newServer(t)
 
 		ctx := context.TODO()
@@ -248,6 +259,7 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("ChangeSettings", func(t *testing.T) {
+		t.Parallel()
 		server := newServer(t)
 
 		server.UpdateSettingsFromEnv(context.TODO(), []string{
@@ -271,6 +283,7 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("ChangeSettings Alerting", func(t *testing.T) {
+		t.Parallel()
 		server := newServer(t)
 		server.UpdateSettingsFromEnv(context.TODO(), []string{})
 

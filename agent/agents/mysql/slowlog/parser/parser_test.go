@@ -93,6 +93,7 @@ func TestParserGolden(t *testing.T) {
 }
 
 func TestParseTime(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		description string
 		input       string
@@ -112,6 +113,7 @@ func TestParseTime(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.description, func(t *testing.T) {
+			t.Parallel()
 			p := NewSlowLogParser(nil, log.Options{})
 			p.parseTime(tc.input)
 			actual := p.event.Ts
@@ -123,6 +125,7 @@ func TestParseTime(t *testing.T) {
 }
 
 func TestParseUser(t *testing.T) {
+	t.Parallel()
 	type Expected struct {
 		UserName string
 		Host     string
@@ -153,6 +156,7 @@ func TestParseUser(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.description, func(t *testing.T) {
+			t.Parallel()
 			p := NewSlowLogParser(nil, log.Options{})
 			p.parseUser(tc.input)
 			actualEvent := p.event
@@ -165,6 +169,7 @@ func TestParseUser(t *testing.T) {
 }
 
 func TestParseMetrics(t *testing.T) {
+	t.Parallel()
 	const (
 		TimeMetrics int = iota
 		NumberMetrics
@@ -246,6 +251,7 @@ func TestParseMetrics(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.description, func(t *testing.T) {
+			t.Parallel()
 			p := NewSlowLogParser(nil, log.Options{})
 			p.parseMetrics(tc.input)
 			actualEvent := p.event

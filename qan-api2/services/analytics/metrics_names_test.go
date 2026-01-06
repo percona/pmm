@@ -25,6 +25,7 @@ import (
 )
 
 func TestService_GetMetricsNames(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		rm models.Reporter
 		mm models.Metrics
@@ -46,6 +47,7 @@ func TestService_GetMetricsNames(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			s := &Service{
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
