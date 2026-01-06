@@ -162,6 +162,8 @@ message UniversalNode {
   repeated Service services = 17;
   // Instance ID for cloud providers (e.g. AWS RDS).
   string instance_id = 18;
+  // True if this node is a PMM Server node (HA mode).
+  bool is_pmm_server_node = 19;
 }
 
 message ListNodesRequest {

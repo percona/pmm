@@ -1,0 +1,144 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package templatefs
+
+import (
+	"embed"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+//go:embed testdata
+var testFS embed.FS
+
+func TestNewTemplateFS(t *testing.T) {
+	data := map[string]any{
+		"TableName":    "users",
+		"DatabaseName": "testdb",
+	}
+	tfs := NewTemplateFS(testFS, data, "testdata")
+	assert.NotNil(t, tfs)
+	assert.Equal(t, testFS, tfs.EmbedFS)
+	assert.Equal(t, data, tfs.Data)
+}
+
+func TestTemplateFS_ReadFile_WithTemplating(t *testing.T) {
+	data := map[string]any{
+		"TableName":    "users",
+		"DatabaseName": "testdb",
+	}
+	tfs := NewTemplateFS(testFS, data, "testdata")
+	content, err := tfs.ReadFile("simple.sql")
+	require.NoError(t, err)
+	contentStr := string(content)
+	assert.Contains(t, contentStr, "users")
+	assert.Contains(t, contentStr, "testdb")
+	assert.NotContains(t, contentStr, "{{.TableName}}")
+	assert.NotContains(t, contentStr, "{{.DatabaseName}}")
+}
+
+func TestTemplateFS_ReadFile_WithoutTemplateData(t *testing.T) {
+	tfs := NewTemplateFS(testFS, nil, "testdata")
+	content, err := tfs.ReadFile("simple.sql")
+	require.NoError(t, err)
+	contentStr := string(content)
+	assert.Contains(t, contentStr, "{{.TableName}}")
+	assert.Contains(t, contentStr, "{{.DatabaseName}}")
+}
+
+func TestTemplateFS_ReadFile_WithEmptyTemplateData(t *testing.T) {
+	data := make(map[string]any)
+	tfs := NewTemplateFS(testFS, data, "testdata")
+	content, err := tfs.ReadFile("simple.sql")
+	require.NoError(t, err)
+	contentStr := string(content)
+	assert.NotContains(t, contentStr, "{{.TableName}}")
+	assert.NotContains(t, contentStr, "{{.DatabaseName}}")
+}
+
+func TestTemplateFS_ReadFile_InvalidTemplate(t *testing.T) {
+	data := map[string]any{
+		"TableName": "users",
+	}
+	tfs := NewTemplateFS(testFS, data, "testdata")
+	content, err := tfs.ReadFile("invalid.sql")
+	require.NoError(t, err)
+	contentStr := string(content)
+	assert.Contains(t, contentStr, "{{.TableName")
+}
+
+func TestTemplateFS_ReadFile_NonexistentFile(t *testing.T) {
+	tfs := NewTemplateFS(testFS, nil, "")
+	_, err := tfs.ReadFile("nonexistent.sql")
+	assert.Error(t, err)
+}
+
+func TestTemplateFS_ReadDir(t *testing.T) {
+	tfs := NewTemplateFS(testFS, nil, "testdata")
+	entries, err := tfs.Names()
+	require.NoError(t, err)
+	assert.NotEmpty(t, entries)
+	names := append([]string{}, entries...)
+	assert.Contains(t, names, "simple.sql")
+}
+
+func TestTemplateFS_ReadDir_NonexistentDir(t *testing.T) {
+	tfs := NewTemplateFS(testFS, nil, "nonexistent")
+	_, err := tfs.Names()
+	assert.Error(t, err)
+}
+
+func TestTemplateFS_FilenameExtraction(t *testing.T) {
+	data := map[string]any{
+		"TableName": "extracted",
+	}
+	tfs := NewTemplateFS(testFS, data, "testdata")
+	content, err := tfs.ReadFile("simple.sql")
+	require.NoError(t, err)
+	contentStr := string(content)
+	assert.Contains(t, contentStr, "extracted")
+}
+
+func TestTemplateFS_ConditionalTemplating(t *testing.T) {
+	data := map[string]any{
+		"TableName":  "users",
+		"AddIndexes": true,
+		"IndexName":  "idx_users_email",
+		"ColumnName": "email",
+	}
+	tfs := NewTemplateFS(testFS, data, "testdata")
+	content, err := tfs.ReadFile("conditional.sql")
+	require.NoError(t, err)
+	contentStr := string(content)
+	assert.Contains(t, contentStr, "CREATE TABLE users")
+	assert.Contains(t, contentStr, "CREATE INDEX idx_users_email")
+	assert.Contains(t, contentStr, "ON users (email)")
+}
+
+func TestTemplateFS_ConditionalTemplating_False(t *testing.T) {
+	data := map[string]any{
+		"TableName":  "users",
+		"AddIndexes": false,
+	}
+	tfs := NewTemplateFS(testFS, data, "testdata")
+	content, err := tfs.ReadFile("conditional.sql")
+	require.NoError(t, err)
+	contentStr := string(content)
+	assert.Contains(t, contentStr, "CREATE TABLE users")
+	assert.NotContains(t, contentStr, "CREATE INDEX")
+}
