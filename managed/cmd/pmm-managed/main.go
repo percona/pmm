@@ -300,13 +300,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
-	// Register RTA service with in-memory store
-	rtaStore := realtimeanalytics.NewStore()
-	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry, rtaStore)
+	// Register RTA service
+	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry)
 	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
-
-	// Start RTA store cleanup goroutine
-	go rtaStore.Run(ctx)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
