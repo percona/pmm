@@ -16,3 +16,14 @@ export interface GetAgentVersionItem {
 export interface GetAgentVersionsResponse {
   agentVersions: GetAgentVersionItem[];
 }
+
+export enum AgentStatus {
+  UNSPECIFIED = 'AGENT_STATUS_UNSPECIFIED',
+  STARTING = 'AGENT_STATUS_STARTING',
+  INITIALIZATION_ERROR = 'AGENT_STATUS_INITIALIZATION_ERROR',
+  RUNNING = 'AGENT_STATUS_RUNNING',
+  WAITING = 'AGENT_STATUS_WAITING',
+  STOPPING = 'AGENT_STATUS_STOPPING',
+  DONE = 'AGENT_STATUS_DONE',
+  UNKNOWN = 'AGENT_STATUS_UNKNOWN',
+}

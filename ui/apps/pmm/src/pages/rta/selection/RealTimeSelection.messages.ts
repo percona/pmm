@@ -8,5 +8,5 @@ export const Messages = {
   featureAvailable:
     'Feature available for MongoDB database technology only, more to come soon.',
   documentation: 'Documentation',
-  provideFeedback: 'Provide Feedback',
+  provideFeedback: 'Provide feedback',
 };
