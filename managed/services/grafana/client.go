@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package grafana provides facilities for working with Grafana.
 package grafana
 
 import (
@@ -156,7 +155,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		return errors.WithStack(cErr)
 	}
 
-	if len(b) > 0 && target != nil {
+	if len(b) != 0 && target != nil {
 		if err = json.Unmarshal(b, target); err != nil {
 			return errors.WithStack(err)
 		}
