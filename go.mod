@@ -5,11 +5,11 @@ go 1.25.5
 // Update saas with
 // go get -v github.com/percona/saas@latest
 
-replace github.com/go-openapi/spec => github.com/JiriCtvrtka/spec v0.0.0-20251222101011-485c12f10ee3
+replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.0.0-20260107120000-15cbcf569b9f
 
 replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a
 
-replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20251219125031-82d8ba2cda22
+replace golang.org/x/crypto => github.com/Percona-Lab/crypto v0.0.0-20251219125031-82d8ba2cda22
 
 require (
 	github.com/AlekSi/pointer v1.2.0
