@@ -16368,7 +16368,7 @@ Before proceeding with migration, you must <a href="../install-pmm/install-pmm-s
 <h2 id="step-3-migrate-pmm-2-clients-to-pmm-3">Step 3: Migrate PMM 2 Clients to PMM 3<a class="headerlink" href="#step-3-migrate-pmm-2-clients-to-pmm-3" title="Permanent link">&para;</a></h2>
 <div class="admonition caution alert alert-warning">
 <p class="admonition-title">Important</p>
-<p>PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only). This support will be removed in PMM 3.3.</p>
+<p>PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only).</p>
 </div>
 <p>Depending on your initial installation method, update PMM Clients using your operating system&rsquo;s package manager or using a tarball.
 For detailed instructions, see the <a href="upgrade_client.html">Upgrade PMM Client topic</a>.</p>
@@ -16379,7 +16379,7 @@ For detailed instructions, see the <a href="upgrade_client.html">Upgrade PMM Cli
 <div class="tabbed-block">
 <p>You can also initiate the conversion using the following command. </p>
 <p>Be sure to replace <code>admin:admin</code> with your credentials and update the server address to match your PMM Server address (the same URL you use to access the PMM web interface):</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-k<span class="w"> </span>https://YOUR<span class="w"> </span>PMM<span class="w"> </span>SERVER<span class="w"> </span>ADDRESS/graph/api/serviceaccounts/migrate<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-k<span class="w"> </span>https://&lt;pmm-server-address&gt;/graph/api/serviceaccounts/migrate<span class="w"> </span><span class="se">\</span>
 -u<span class="w"> </span>admin:admin<span class="w"> </span><span class="se">\</span>
 -H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span>
 </code></pre></div>
@@ -16714,7 +16714,7 @@ If no popup appears, it likely means there are no API keys to migrate—this is 
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 19, 2025 09:16:09 UTC">August 19, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="January 8, 2026 11:08:26 UTC">January 8, 2026</span>
   </span>
 
     
