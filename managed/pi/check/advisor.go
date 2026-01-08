@@ -5,19 +5,16 @@ import (
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
-
-	"github.com/percona/pmm/managed/pi/common"
 )
 
 // Advisor represents group of checks with the common idea.
 type Advisor struct {
-	Version     uint32        `yaml:"version"`
-	Name        string        `yaml:"name"`
-	Summary     string        `yaml:"summary"`
-	Description string        `yaml:"description"`
-	Category    string        `yaml:"category"`
-	Tiers       []common.Tier `yaml:"tiers,flow"`
-	Checks      []Check       `yaml:"checks"`
+	Version     uint32  `yaml:"version"`
+	Name        string  `yaml:"name"`
+	Summary     string  `yaml:"summary"`
+	Description string  `yaml:"description"`
+	Category    string  `yaml:"category"`
+	Checks      []Check `yaml:"checks"`
 }
 
 // ParseAdvisors returns a slice of validated advisors parsed from YAML passed via a reader.
@@ -79,10 +76,6 @@ func (a *Advisor) Validate() error { //nolint:cyclop
 
 	if a.Category == "" {
 		return errors.New("category is empty")
-	}
-
-	if err := common.ValidateTiers(a.Tiers); err != nil {
-		return err
 	}
 
 	checkNames := make(map[string]struct{}, len(a.Checks))

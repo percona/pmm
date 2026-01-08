@@ -71,7 +71,6 @@ type Template struct {
 	Name        string              `yaml:"name"`                  // required
 	Version     uint32              `yaml:"version"`               // required
 	Summary     string              `yaml:"summary"`               // required
-	Tiers       []common.Tier       `yaml:"tiers,flow,omitempty"`  // optional
 	Expr        string              `yaml:"expr"`                  // required
 	Params      []Parameter         `yaml:"params,omitempty"`      // optional
 	For         promconfig.Duration `yaml:"for"`                   // required
@@ -93,10 +92,6 @@ func (r *Template) Validate() error {
 
 	if r.Summary == "" {
 		return errors.New("template summary is empty")
-	}
-
-	if err = common.ValidateTiers(r.Tiers); err != nil {
-		return err
 	}
 
 	if r.Expr == "" {
