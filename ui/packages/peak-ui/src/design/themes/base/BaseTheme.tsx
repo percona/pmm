@@ -1,29 +1,20 @@
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-
-import '@fontsource/poppins/400.css';
-import '@fontsource/poppins/500.css';
-import '@fontsource/poppins/600.css';
-
-import '@fontsource/roboto-mono/400.css';
 import {
   ComponentsOverrides,
   createTheme,
   PaletteMode,
   ThemeOptions,
-} from '@mui/material';
-import { DatePickerToolbarClassKey } from '@mui/x-date-pickers/DatePicker';
-import { MultiSectionDigitalClockClassKey } from '@mui/x-date-pickers';
-import { outlinedInputClasses } from '@mui/material/OutlinedInput';
+} from "@mui/material";
+import { DatePickerToolbarClassKey } from "@mui/x-date-pickers/DatePicker";
+import { MultiSectionDigitalClockClassKey } from "@mui/x-date-pickers";
+import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 
-declare module '@mui/material/styles' {
+declare module "@mui/material/styles" {
   interface PaletteOptions {
     surfaces?: {
+      default?: string;
       backdrop?: string;
-      elevation0?: string;
-      elevation1?: string;
+      high?: string;
+      low?: string;
     };
     dividers?: {
       divider?: string;
@@ -78,14 +69,14 @@ declare module '@mui/material/styles' {
 
   interface Components<Theme = unknown> {
     MuiDateCalendar?: {
-      styleOverrides?: ComponentsOverrides<Theme>['MuiDateCalendar'];
+      styleOverrides?: ComponentsOverrides<Theme>["MuiDateCalendar"];
     };
     MuiMultiSectionDigitalClock?: {
-      styleOverrides?: ComponentsOverrides<Theme>['MuiMultiSectionDigitalClock'];
+      styleOverrides?: ComponentsOverrides<Theme>["MuiMultiSectionDigitalClock"];
     };
   }
 }
-declare module '@mui/material/Typography' {
+declare module "@mui/material/Typography" {
   interface TypographyPropsVariantOverrides {
     sectionHeading: true;
     subHead1: true;
@@ -97,7 +88,7 @@ declare module '@mui/material/Typography' {
   }
 }
 
-declare module '@mui/material/Paper' {
+declare module "@mui/material/Paper" {
   interface PaperPropsVariantOverrides {
     grey: true;
   }
@@ -108,143 +99,143 @@ const BaseTheme = createTheme();
 const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
   palette: {
     mode,
-    ...(mode === 'light'
+    ...(mode === "light"
       ? {
           default: {
-            light: '#4B5468',
-            main: '#3A4151',
-            dark: '#2C323E',
-            contrastText: '#3A4151',
-            surface: 'rgba(44, 50, 62, 0.122)',
+            light: "#4B5468",
+            main: "#3A4151",
+            dark: "#2C323E",
+            contrastText: "#3A4151",
+            surface: "rgba(44, 50, 62, 0.122)",
           },
           error: {
-            light: '#CC352E',
-            main: '#B10810',
-            dark: '#920000',
-            contrastText: '#920000',
-            surface: '#FFECE9',
+            light: "#CC352E",
+            main: "#B10810",
+            dark: "#920000",
+            contrastText: "#920000",
+            surface: "#FFECE9",
           },
           warning: {
-            light: '#AA7F26',
-            main: '#9C7407',
-            dark: '#654B17',
-            contrastText: '#654B17',
-            surface: '#FFF5C2',
+            light: "#AA7F26",
+            main: "#9C7407",
+            dark: "#654B17",
+            contrastText: "#654B17",
+            surface: "#FFF5C2",
           },
           info: {
-            light: '#127AE8',
-            main: '#0E5FB5',
-            dark: '#0B4A8C',
-            contrastText: '#0B4A8C',
-            surface: '#E8F3FF',
+            light: "#127AE8",
+            main: "#0E5FB5",
+            dark: "#0B4A8C",
+            contrastText: "#0B4A8C",
+            surface: "#E8F3FF",
           },
           success: {
-            light: '#008C71',
-            main: '#00745B',
-            dark: '#005C45',
-            contrastText: '#005C45',
-            surface: '#E7F6F1',
+            light: "#008C71",
+            main: "#00745B",
+            dark: "#005C45",
+            contrastText: "#005C45",
+            surface: "#E7F6F1",
           },
           text: {
-            primary: 'rgba(44, 50, 62, 1)',
-            secondary: 'rgba(44, 50, 62, 0.72)',
-            disabled: 'rgba(44, 50, 62, 0.4)',
+            primary: "rgba(44, 50, 62, 1)",
+            secondary: "rgba(44, 50, 62, 0.72)",
+            disabled: "rgba(44, 50, 62, 0.4)",
           },
           action: {
-            hover: 'rgba(44, 50, 62, 0.04)',
+            hover: "rgba(44, 50, 62, 0.04)",
             hoverOpacity: 0.04,
-            disabled: 'rgba(44, 50, 62, 0.12)',
+            disabled: "rgba(44, 50, 62, 0.12)",
             disabledOpacity: 0.12,
-            focus: 'rgba(44, 50, 62, 0.12)',
+            focus: "rgba(44, 50, 62, 0.12)",
             focusOpacity: 0.12,
           },
           background: {
-            default: '#FFFFFF',
-            paper: '#FFFFFF',
+            default: "#FFFFFF",
+            paper: "#FFFFFF",
           },
           surfaces: {
-            backdrop: 'rgba(44, 50, 62, 0.72)',
-            elevation0: 'rgba(240, 241, 244, 1)',
-            elevation1: 'rgba(255, 255, 255, 1)',
+            backdrop: "rgba(44, 50, 62, 0.72)",
+            low: "rgba(240, 241, 244, 1)",
+            high: "rgba(255, 255, 255, 1)",
           },
           dividers: {
-            divider: 'rgba(44, 50, 62, 0.25)',
-            dividerStrong: 'rgba(44, 50, 62, 0.5)',
-            dividerStronger: '#2C323E',
-            contour: 'rgba(0, 0, 0, 0.06)',
+            divider: "rgba(44, 50, 62, 0.25)",
+            dividerStrong: "rgba(44, 50, 62, 0.5)",
+            dividerStronger: "#2C323E",
+            contour: "rgba(0, 0, 0, 0.06)",
           },
           tooltips: {
-            background: '#3A4151',
-            color: '#FFFFFF',
+            background: "#3A4151",
+            color: "#FFFFFF",
           },
         }
       : {
           default: {
-            light: '#FFFFFF',
-            main: '#F0F1F4',
-            dark: '#D1D5DE',
-            contrastText: '#F0F1F4',
-            surface: 'rgba(240, 241, 244, 0.149)',
+            light: "#FFFFFF",
+            main: "#F0F1F4",
+            dark: "#D1D5DE",
+            contrastText: "#F0F1F4",
+            surface: "rgba(240, 241, 244, 0.149)",
           },
           error: {
-            light: '#FEA195',
-            main: '#F37C6F',
-            dark: '#E2584D',
-            contrastText: '#FFFFFF',
-            surface: '#E2584D',
+            light: "#FEA195",
+            main: "#F37C6F",
+            dark: "#E2584D",
+            contrastText: "#FFFFFF",
+            surface: "#E2584D",
           },
           warning: {
-            light: '#FFF5C2',
-            main: '#FFEE99',
-            dark: '#FFE770',
-            contrastText: '#654B17',
-            surface: '#FFE770',
+            light: "#FFF5C2",
+            main: "#FFEE99",
+            dark: "#FFE770",
+            contrastText: "#654B17",
+            surface: "#FFE770",
           },
           info: {
-            light: '#439EFF',
-            main: '#1486FF',
-            dark: '#127AE8',
-            contrastText: '#FFFFFF',
-            surface: '#127AE8',
+            light: "#439EFF",
+            main: "#1486FF",
+            dark: "#127AE8",
+            contrastText: "#FFFFFF",
+            surface: "#127AE8",
           },
           success: {
-            light: '#51BAA2',
-            main: '#00A489',
-            dark: '#008C71',
-            contrastText: '#FFFFFF',
-            surface: '#008C71',
+            light: "#51BAA2",
+            main: "#00A489",
+            dark: "#008C71",
+            contrastText: "#FFFFFF",
+            surface: "#008C71",
           },
           text: {
-            primary: '#FBFBFB',
-            secondary: 'rgba(251, 251, 251, 0.72)',
-            disabled: 'rgba(251, 251, 251, 0.4)',
+            primary: "#FBFBFB",
+            secondary: "rgba(251, 251, 251, 0.72)",
+            disabled: "rgba(251, 251, 251, 0.4)",
           },
           action: {
-            hover: 'rgba(240, 241, 244, 0.06)',
+            hover: "rgba(240, 241, 244, 0.06)",
             hoverOpacity: 0.06,
-            disabled: 'rgba(240, 241, 244, 0.14)',
+            disabled: "rgba(240, 241, 244, 0.14)",
             disabledOpacity: 0.14,
-            focus: 'rgba(240, 241, 244, 0.14)',
+            focus: "rgba(240, 241, 244, 0.14)",
             focusOpacity: 0.14,
           },
           background: {
-            default: '#3A4151',
-            paper: '#3A4151',
+            default: "#3A4151",
+            paper: "#3A4151",
           },
           surfaces: {
-            backdrop: 'rgba(44, 50, 62, 0.72)',
-            elevation0: 'rgba(44, 50, 62, 1)',
-            elevation1: 'rgba(58, 65, 81, 1)',
+            backdrop: "rgba(44, 50, 62, 0.72)",
+            low: "rgba(44, 50, 62, 1)",
+            high: "rgba(58, 65, 81, 1)",
           },
           dividers: {
-            divider: 'rgba(209, 213, 222, 0.25)',
-            dividerStrong: 'rgba(209, 213, 222, 0.5)',
-            dividerStronger: '#FFFFFF',
-            contour: 'rgba(255, 255, 255, 0.08)',
+            divider: "rgba(209, 213, 222, 0.25)",
+            dividerStrong: "rgba(209, 213, 222, 0.5)",
+            dividerStronger: "#FFFFFF",
+            contour: "rgba(255, 255, 255, 0.08)",
           },
           tooltips: {
-            background: '#F0F1F4',
-            color: '#2C323E',
+            background: "#F0F1F4",
+            color: "#2C323E",
           },
         }),
   },
@@ -252,158 +243,158 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     h1: {
       fontWeight: 600,
       fontFamily: "'Poppins', sans-serif",
-      [BaseTheme.breakpoints.down('sm')]: {
-        fontSize: '32px',
+      [BaseTheme.breakpoints.down("sm")]: {
+        fontSize: "32px",
       },
-      [BaseTheme.breakpoints.up('sm')]: {
-        fontSize: '48px',
+      [BaseTheme.breakpoints.up("sm")]: {
+        fontSize: "48px",
       },
     },
     h2: {
       fontWeight: 600,
       fontFamily: "'Poppins', sans-serif",
-      [BaseTheme.breakpoints.down('sm')]: {
-        fontSize: '29px',
+      [BaseTheme.breakpoints.down("sm")]: {
+        fontSize: "29px",
       },
-      [BaseTheme.breakpoints.up('sm')]: {
-        fontSize: '40px',
+      [BaseTheme.breakpoints.up("sm")]: {
+        fontSize: "40px",
       },
     },
     h3: {
       fontWeight: 600,
       fontFamily: "'Poppins', sans-serif",
-      [BaseTheme.breakpoints.down('sm')]: {
-        fontSize: '26px',
+      [BaseTheme.breakpoints.down("sm")]: {
+        fontSize: "26px",
       },
-      [BaseTheme.breakpoints.up('sm')]: {
-        fontSize: '33px',
+      [BaseTheme.breakpoints.up("sm")]: {
+        fontSize: "33px",
       },
     },
     h4: {
       fontWeight: 600,
       fontFamily: "'Poppins', sans-serif",
-      [BaseTheme.breakpoints.down('sm')]: {
-        fontSize: '23px',
+      [BaseTheme.breakpoints.down("sm")]: {
+        fontSize: "23px",
       },
-      [BaseTheme.breakpoints.up('sm')]: {
-        fontSize: '28px',
+      [BaseTheme.breakpoints.up("sm")]: {
+        fontSize: "28px",
       },
     },
     h5: {
       fontWeight: 600,
       fontFamily: "'Poppins', sans-serif",
-      lineHeight: '22.5px',
-      [BaseTheme.breakpoints.down('sm')]: {
-        fontSize: '20px',
+      lineHeight: "22.5px",
+      [BaseTheme.breakpoints.down("sm")]: {
+        fontSize: "20px",
       },
-      [BaseTheme.breakpoints.up('sm')]: {
-        fontSize: '23px',
+      [BaseTheme.breakpoints.up("sm")]: {
+        fontSize: "23px",
       },
     },
     h6: {
       fontWeight: 600,
       fontFamily: "'Poppins', sans-serif",
-      [BaseTheme.breakpoints.down('sm')]: {
-        fontSize: '18px',
+      [BaseTheme.breakpoints.down("sm")]: {
+        fontSize: "18px",
       },
-      [BaseTheme.breakpoints.up('sm')]: {
-        fontSize: '19px',
+      [BaseTheme.breakpoints.up("sm")]: {
+        fontSize: "19px",
       },
     },
     subtitle1: {
       fontWeight: 600,
-      fontSize: '19px',
-      lineHeight: '1',
+      fontSize: "19px",
+      lineHeight: "1",
     },
     subtitle2: {
       fontWeight: 600,
-      fontSize: '16px',
-      lineHeight: '22px',
+      fontSize: "16px",
+      lineHeight: "22px",
     },
     overline: {
       fontFamily: "'Poppins', sans-serif",
       fontWeight: 800,
-      fontSize: '12px',
+      fontSize: "12px",
     },
     sectionHeading: {
       fontFamily: "'Poppins', sans-serif",
       fontWeight: 700,
-      fontSize: '14px',
-      lineHeight: '17.5px',
+      fontSize: "14px",
+      lineHeight: "17.5px",
     },
     subHead1: {
       fontWeight: 600,
-      fontSize: '19px',
-      lineHeight: '26.13px',
+      fontSize: "19px",
+      lineHeight: "26.13px",
     },
     subHead2: {
       fontWeight: 600,
-      fontSize: '16px',
-      lineHeight: '22px',
+      fontSize: "16px",
+      lineHeight: "22px",
     },
     helperText: {
       fontWeight: 450,
-      fontSize: '12px',
-      lineHeight: '15px',
+      fontSize: "12px",
+      lineHeight: "15px",
     },
     menuText: {
       fontWeight: 500,
-      fontSize: '16px',
-      lineHeight: '20px',
+      fontSize: "16px",
+      lineHeight: "20px",
     },
     body1: {
       fontWeight: 400,
-      fontSize: '16px',
+      fontSize: "16px",
     },
     body2: {
       fontWeight: 400,
-      fontSize: '14px',
+      fontSize: "14px",
     },
     caption: {
       fontWeight: 400,
-      fontSize: '13px',
+      fontSize: "13px",
     },
     button: {
       fontFamily: "'Poppins', sans-serif",
-      textTransform: 'none',
-      lineHeight: '1',
-      letterSpacing: '0.025em',
+      textTransform: "none",
+      lineHeight: "1",
+      letterSpacing: "0.025em",
     },
     inputText: {
-      fontSize: '16px',
+      fontSize: "16px",
       fontWeight: 400,
     },
     inputLabel: {
-      fontSize: '12px',
+      fontSize: "12px",
       fontWeight: 500,
     },
   },
   shadows: [
-    'none',
-    '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)',
-    '0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px rgba(0, 0, 0, 0.14), 0px 1px 5px rgba(0, 0, 0, 0.12)',
-    '0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12)',
-    '0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px rgba(0, 0, 0, 0.14), 0px 1px 10px rgba(0, 0, 0, 0.12)',
-    '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12)',
-    '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)',
-    '0px 4px 5px -2px rgba(0, 0, 0, 0.2), 0px 7px 10px 1px rgba(0, 0, 0, 0.14), 0px 2px 16px 1px rgba(0, 0, 0, 0.12)',
-    '0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12)',
-    '0px 5px 6px -3px rgba(0, 0, 0, 0.2), 0px 9px 12px 1px rgba(0, 0, 0, 0.14), 0px 3px 16px 2px rgba(0, 0, 0, 0.12)',
-    '0px 6px 6px -3px rgba(0, 0, 0, 0.2), 0px 10px 14px 1px rgba(0, 0, 0, 0.14), 0px 4px 18px 3px rgba(0, 0, 0, 0.12)',
-    '0px 6px 7px -4px rgba(0, 0, 0, 0.2), 0px 11px 15px 1px rgba(0, 0, 0, 0.14), 0px 4px 20px 3px rgba(0, 0, 0, 0.12)',
-    '0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 12px 17px 2px rgba(0, 0, 0, 0.14), 0px 5px 22px 4px rgba(0, 0, 0, 0.12)',
-    '0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 13px 19px 2px rgba(0, 0, 0, 0.14), 0px 5px 24px 4px rgba(0, 0, 0, 0.12)',
-    '0px 7px 9px -4px rgba(0, 0, 0, 0.2), 0px 14px 21px 2px rgba(0, 0, 0, 0.14), 0px 5px 26px 4px rgba(0, 0, 0, 0.12)',
-    '0px 8px 9px -5px rgba(0, 0, 0, 0.2), 0px 15px 22px 2px rgba(0, 0, 0, 0.14), 0px 6px 28px 5px rgba(0, 0, 0, 0.12)',
-    '0px 8px 10px -5px rgba(0, 0, 0, 0.2), 0px 16px 24px 2px rgba(0, 0, 0, 0.14), 0px 6px 30px 5px rgba(0, 0, 0, 0.12)',
-    '0px 8px 11px -5px rgba(0, 0, 0, 0.2), 0px 17px 26px 2px rgba(0, 0, 0, 0.14), 0px 6px 32px 5px rgba(0, 0, 0, 0.12)',
-    '0px 9px 11px -5px rgba(0, 0, 0, 0.2), 0px 18px 28px 2px rgba(0, 0, 0, 0.14), 0px 7px 34px 6px rgba(0, 0, 0, 0.12)',
-    '0px 9px 12px -6px rgba(0, 0, 0, 0.2), 0px 19px 29px 2px rgba(0, 0, 0, 0.14), 0px 7px 36px 6px rgba(0, 0, 0, 0.12)',
-    '0px 10px 13px -6px rgba(0, 0, 0, 0.2), 0px 20px 31px 3px rgba(0, 0, 0, 0.14), 0px 8px 38px 7px rgba(0, 0, 0, 0.12)',
-    '0px 10px 13px -6px rgba(0, 0, 0, 0.2), 0px 21px 33px 3px rgba(0, 0, 0, 0.14), 0px 8px 40px 7px rgba(0, 0, 0, 0.12)',
-    '0px 10px 14px -6px rgba(0, 0, 0, 0.2), 0px 22px 35px 3px rgba(0, 0, 0, 0.14), 0px 8px 42px 7px rgba(0, 0, 0, 0.12)',
-    '0px 11px 14px -7px rgba(0, 0, 0, 0.2), 0px 23px 36px 3px rgba(0, 0, 0, 0.14), 0px 9px 44px 8px rgba(0, 0, 0, 0.12)',
-    '0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12)',
+    "none",
+    "0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)",
+    "0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px rgba(0, 0, 0, 0.14), 0px 1px 5px rgba(0, 0, 0, 0.12)",
+    "0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12)",
+    "0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px rgba(0, 0, 0, 0.14), 0px 1px 10px rgba(0, 0, 0, 0.12)",
+    "0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12)",
+    "0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)",
+    "0px 4px 5px -2px rgba(0, 0, 0, 0.2), 0px 7px 10px 1px rgba(0, 0, 0, 0.14), 0px 2px 16px 1px rgba(0, 0, 0, 0.12)",
+    "0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12)",
+    "0px 5px 6px -3px rgba(0, 0, 0, 0.2), 0px 9px 12px 1px rgba(0, 0, 0, 0.14), 0px 3px 16px 2px rgba(0, 0, 0, 0.12)",
+    "0px 6px 6px -3px rgba(0, 0, 0, 0.2), 0px 10px 14px 1px rgba(0, 0, 0, 0.14), 0px 4px 18px 3px rgba(0, 0, 0, 0.12)",
+    "0px 6px 7px -4px rgba(0, 0, 0, 0.2), 0px 11px 15px 1px rgba(0, 0, 0, 0.14), 0px 4px 20px 3px rgba(0, 0, 0, 0.12)",
+    "0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 12px 17px 2px rgba(0, 0, 0, 0.14), 0px 5px 22px 4px rgba(0, 0, 0, 0.12)",
+    "0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 13px 19px 2px rgba(0, 0, 0, 0.14), 0px 5px 24px 4px rgba(0, 0, 0, 0.12)",
+    "0px 7px 9px -4px rgba(0, 0, 0, 0.2), 0px 14px 21px 2px rgba(0, 0, 0, 0.14), 0px 5px 26px 4px rgba(0, 0, 0, 0.12)",
+    "0px 8px 9px -5px rgba(0, 0, 0, 0.2), 0px 15px 22px 2px rgba(0, 0, 0, 0.14), 0px 6px 28px 5px rgba(0, 0, 0, 0.12)",
+    "0px 8px 10px -5px rgba(0, 0, 0, 0.2), 0px 16px 24px 2px rgba(0, 0, 0, 0.14), 0px 6px 30px 5px rgba(0, 0, 0, 0.12)",
+    "0px 8px 11px -5px rgba(0, 0, 0, 0.2), 0px 17px 26px 2px rgba(0, 0, 0, 0.14), 0px 6px 32px 5px rgba(0, 0, 0, 0.12)",
+    "0px 9px 11px -5px rgba(0, 0, 0, 0.2), 0px 18px 28px 2px rgba(0, 0, 0, 0.14), 0px 7px 34px 6px rgba(0, 0, 0, 0.12)",
+    "0px 9px 12px -6px rgba(0, 0, 0, 0.2), 0px 19px 29px 2px rgba(0, 0, 0, 0.14), 0px 7px 36px 6px rgba(0, 0, 0, 0.12)",
+    "0px 10px 13px -6px rgba(0, 0, 0, 0.2), 0px 20px 31px 3px rgba(0, 0, 0, 0.14), 0px 8px 38px 7px rgba(0, 0, 0, 0.12)",
+    "0px 10px 13px -6px rgba(0, 0, 0, 0.2), 0px 21px 33px 3px rgba(0, 0, 0, 0.14), 0px 8px 40px 7px rgba(0, 0, 0, 0.12)",
+    "0px 10px 14px -6px rgba(0, 0, 0, 0.2), 0px 22px 35px 3px rgba(0, 0, 0, 0.14), 0px 8px 42px 7px rgba(0, 0, 0, 0.12)",
+    "0px 11px 14px -7px rgba(0, 0, 0, 0.2), 0px 23px 36px 3px rgba(0, 0, 0, 0.14), 0px 9px 44px 8px rgba(0, 0, 0, 0.12)",
+    "0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12)",
   ],
   breakpoints: {
     values: {
@@ -418,9 +409,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiInputBase: {
       styleOverrides: {
         root: () => ({
-          fontSize: '16px',
+          fontSize: "16px",
           fontWeight: 400,
-          maxWidth: '100%',
+          maxWidth: "100%",
         }),
       },
     },
@@ -430,14 +421,14 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
       },
       styleOverrides: {
         root: {
-          '&.MuiIconButton-root:not(:focus-visible):focus': {
-            backgroundColor: 'transparent',
+          "&.MuiIconButton-root:not(:focus-visible):focus": {
+            backgroundColor: "transparent",
           },
-          '&.MuiIconButton-root:focus-visible:focus': {
-            backgroundColor: 'rgba(18, 119, 227, 0.3)',
+          "&.MuiIconButton-root:focus-visible:focus": {
+            backgroundColor: "rgba(18, 119, 227, 0.3)",
           },
-          '&.MuiIconButton-root:focus-visible': {
-            backgroundColor: 'rgba(18, 119, 227, 0.3)',
+          "&.MuiIconButton-root:focus-visible": {
+            backgroundColor: "rgba(18, 119, 227, 0.3)",
           },
         },
       },
@@ -451,71 +442,71 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
           borderRadius: 128,
           borderWidth: 2,
 
-          '.MuiButton-startIcon': {
+          ".MuiButton-startIcon": {
             height: 0,
-            alignItems: 'center',
+            alignItems: "center",
           },
 
-          ...(ownerState.variant === 'contained' && {
-            ...(ownerState.size === 'large' && {
-              padding: '12px 24px',
+          ...(ownerState.variant === "contained" && {
+            ...(ownerState.size === "large" && {
+              padding: "12px 24px",
             }),
-            ...(ownerState.size === 'medium' && {
-              padding: '11px 16px',
+            ...(ownerState.size === "medium" && {
+              padding: "11px 16px",
             }),
-            ...(ownerState.size === 'small' && {
-              padding: '8px 12px',
+            ...(ownerState.size === "small" && {
+              padding: "8px 12px",
             }),
           }),
 
-          ...(ownerState.variant === 'outlined' && {
-            ...(ownerState.size === 'large' && {
-              padding: '12px 22px',
+          ...(ownerState.variant === "outlined" && {
+            ...(ownerState.size === "large" && {
+              padding: "12px 22px",
             }),
-            ...(ownerState.size === 'medium' && {
-              padding: '11px 16px',
+            ...(ownerState.size === "medium" && {
+              padding: "11px 16px",
             }),
-            ...(ownerState.size === 'small' && {
-              padding: '8px 10px',
+            ...(ownerState.size === "small" && {
+              padding: "8px 10px",
             }),
             borderColor: theme.palette.primary.main,
           }),
 
-          ...(ownerState.variant === 'text' && {
-            ...(ownerState.size === 'large' && {
-              padding: '8px 11px',
+          ...(ownerState.variant === "text" && {
+            ...(ownerState.size === "large" && {
+              padding: "8px 11px",
             }),
-            ...(ownerState.size === 'medium' && {
-              padding: '6px 8px',
+            ...(ownerState.size === "medium" && {
+              padding: "6px 8px",
             }),
-            ...(ownerState.size === 'small' && {
-              padding: '4px 5px',
+            ...(ownerState.size === "small" && {
+              padding: "4px 5px",
             }),
             borderColor: theme.palette.primary.main,
           }),
 
-          ...(ownerState.size === 'large' && {
+          ...(ownerState.size === "large" && {
             fontSize: 15,
           }),
-          ...(ownerState.size === 'medium' && {
+          ...(ownerState.size === "medium" && {
             fontSize: 13,
           }),
-          ...(ownerState.size === 'small' && {
+          ...(ownerState.size === "small" && {
             fontSize: 13,
           }),
 
-          '&:hover': {
-            borderWidth: '2px',
-            ...(ownerState.variant === 'outlined' && {
+          "&:hover": {
+            borderWidth: "2px",
+            ...(ownerState.variant === "outlined" && {
               backgroundColor: theme.palette.action.focus,
             }),
-            ...(ownerState.variant === 'text' && {
+            ...(ownerState.variant === "text" && {
               backgroundColor: theme.palette.action.focus,
             }),
           },
-          '&:disabled': {
-            borderWidth: '2px',
-            ...(ownerState.variant === 'contained' && {
+          "&:disabled": {
+            borderWidth: "2px",
+            ...(ownerState.variant === "contained" && {
               backgroundColor: theme.palette.action.disabled,
             }),
             color: theme.palette.text.disabled,
@@ -526,17 +517,17 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiButtonGroup: {
       styleOverrides: {
         root: {
-          borderRadius: '128px',
+          borderRadius: "128px",
         },
         grouped: ({ ownerState }) => ({
-          '&:not(:last-of-type)': {
-            ...(ownerState.variant === 'contained' && {
+          "&:not(:last-of-type)": {
+            ...(ownerState.variant === "contained" && {
               borderRight: 0,
             }),
-            marginLeft: '-2px',
+            marginLeft: "-2px",
           },
-          '&:not(:first-of-type)': {
-            marginLeft: '-2px',
+          "&:not(:first-of-type)": {
+            marginLeft: "-2px",
           },
         }),
       },
@@ -546,10 +537,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
         root: ({ theme }) => ({
           ...theme.typography.menuText,
           // This should override any other nested typography (e.g. form labels)
-          '.MuiTypography-root': {
+          ".MuiTypography-root": {
             ...theme.typography.menuText,
           },
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             opacity: 0.5,
           },
         }),
@@ -559,7 +550,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
       styleOverrides: {
         root: ({ theme }) => ({
           ...theme.typography.inputText,
-          '& fieldset': {
+          "& fieldset": {
             borderColor: theme.palette.dividers?.divider,
           },
           [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
@@ -584,7 +575,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiFormGroup: {
       styleOverrides: {
         root: () => ({
-          '> *:first-child': {
+          "> *:first-child": {
             marginTop: 0,
           },
         }),
@@ -593,9 +584,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiFormControl: {
       styleOverrides: {
         root: ({ theme }) => ({
-          '.MuiInputLabel-root': {
+          ".MuiInputLabel-root": {
             color: theme.palette.text.secondary,
-            '&.Mui-focused': {
+            "&.Mui-focused": {
               color: theme.palette.text.primary,
             },
           },
@@ -605,7 +596,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiFormHelperText: {
       styleOverrides: {
         root: {
-          fontSize: '12px',
+          fontSize: "12px",
           fontWeight: 400,
         },
       },
@@ -613,16 +604,16 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiTabs: {
       styleOverrides: {
         root: {
-          minHeight: '32px',
-          '.MuiButtonBase-root': {
-            fontSize: '16px',
-            padding: '8px 12px',
+          minHeight: "32px",
+          ".MuiButtonBase-root": {
+            fontSize: "16px",
+            padding: "8px 12px",
           },
-          '.MuiTabs-indicator': {
-            height: '3px',
+          ".MuiTabs-indicator": {
+            height: "3px",
           },
-          '.MuiTabScrollButton-root': {
-            '&.Mui-disabled': {
+          ".MuiTabScrollButton-root": {
+            "&.Mui-disabled": {
               opacity: 0.1,
             },
           },
@@ -631,8 +622,8 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     },
     MuiDialogTitle: {
       defaultProps: {
-        component: 'h5',
-        variant: 'h5',
+        component: "h5",
+        variant: "h5",
       },
       styleOverrides: {
         root: {
@@ -675,18 +666,18 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiAccordion: {
       styleOverrides: {
         root: ({ theme }) => ({
-          borderWidth: '1px',
-          borderStyle: 'solid',
-          borderColor: 'rgba(44, 50, 62, 0.25)', // TODO move into pallet =#2C323E 25%
+          borderWidth: "1px",
+          borderStyle: "solid",
+          borderColor: "rgba(44, 50, 62, 0.25)", // TODO move into pallet =#2C323E 25%
           borderRadius: theme.spacing(1),
           backgroundColor: theme.palette.action.hover,
-          boxShadow: 'none',
-          '&:before': {
+          boxShadow: "none",
+          "&:before": {
             height: 0,
           },
-          marginTop: '8px',
-          '&.Mui-expanded': {
-            marginTop: '8px',
+          marginTop: "8px",
+          "&.Mui-expanded": {
+            marginTop: "8px",
           },
         }),
       },
@@ -694,8 +685,8 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiAccordionSummary: {
       styleOverrides: {
         root: () => ({
-          '&.Mui-disabled': {
-            opacity: '0.5 !important',
+          "&.Mui-disabled": {
+            opacity: "0.5 !important",
           },
         }),
       },
@@ -703,23 +694,23 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiCard: {
       variants: [
         {
-          props: { variant: 'grey' },
+          props: { variant: "grey" },
           style: ({ theme }) => ({
             border: `${theme.palette.dividers?.divider} 1px solid`,
-            '.MuiCardHeader-root': {
-              backgroundColor: theme.palette.surfaces?.elevation0,
+            ".MuiCardHeader-root": {
+              backgroundColor: theme.palette.surfaces?.low,
               borderBottomColor: theme.palette.dividers?.divider,
               borderBottomWidth: 1,
-              borderBottomStyle: 'solid',
+              borderBottomStyle: "solid",
               padding: `${theme.spacing(1.5)} ${theme.spacing(2)}`,
-              '.MuiTypography-root': {
+              ".MuiTypography-root": {
                 ...theme.typography.sectionHeading,
               },
-              '#database-icon, #network-node-icon': {
+              "#database-icon, #network-node-icon": {
                 path: { fill: theme.palette.text.primary },
               },
             },
-            '.MuiCardContent': {
+            ".MuiCardContent": {
               py: 1,
               px: 2,
             },
@@ -730,20 +721,20 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiDateCalendar: {
       styleOverrides: {
         root: ({ theme }) => ({
-          '.MuiPickersCalendarHeader-root': {
+          ".MuiPickersCalendarHeader-root": {
             marginTop: theme.spacing(2),
             marginBottom: theme.spacing(2),
           },
-          '.MuiPickersCalendarHeader-label': {
+          ".MuiPickersCalendarHeader-label": {
             fontSize: theme.typography.inputText.fontSize,
             fontWeight: theme.typography.inputText.fontWeight,
           },
-          '.MuiDayCalendar-weekDayLabel': {
+          ".MuiDayCalendar-weekDayLabel": {
             fontSize: theme.typography.helperText.fontSize,
             fontWeight: theme.typography.helperText.fontWeight,
             color: theme.palette.text.disabled,
           },
-          '.MuiPickersDay-root': {
+          ".MuiPickersDay-root": {
             fontSize: theme.typography.body2.fontSize,
             fontWeight: theme.typography.body2.fontWeight,
           },
@@ -753,9 +744,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiMultiSectionDigitalClock: {
       styleOverrides: {
         root: () => ({
-          '.MuiMultiSectionDigitalClockSection-root': {
-            '&::after': {
-              height: 'calc(100% - 40px - 2px)',
+          ".MuiMultiSectionDigitalClockSection-root": {
+            "&::after": {
+              height: "calc(100% - 40px - 2px)",
             },
           },
         }),
@@ -772,13 +763,13 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
       styleOverrides: {
         root: ({ theme, ownerState: { severity } }) => ({
           ...theme.typography.body2,
-          borderRadius: '4px',
-          borderWidth: '1px',
-          borderStyle: 'solid',
+          borderRadius: "4px",
+          borderWidth: "1px",
+          borderStyle: "solid",
           borderColor:
-            theme.palette.mode === 'light'
-              ? 'rgba(0, 0, 0, 0.059)'
-              : 'transparent',
+            theme.palette.mode === "light"
+              ? "rgba(0, 0, 0, 0.059)"
+              : "transparent",
           backgroundColor: theme.palette[severity!].surface,
         }),
         icon: ({ theme, ownerState: { severity } }) => ({
@@ -800,8 +791,8 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiTableHead: {
       styleOverrides: {
         root: () => ({
-          '.MuiBadge-overlapCircular': {
-            backgroundColor: 'transparent',
+          ".MuiBadge-overlapCircular": {
+            backgroundColor: "transparent",
           },
         }),
       },
@@ -810,10 +801,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiTableBody: {
       styleOverrides: {
         root: ({ theme }) => ({
-          '#empty-state-icon': {
+          "#empty-state-icon": {
             path: {
               // complex selector we need in order to provide dark theme style for this icon, instead of having a separate one
-              '&:not(:nth-child(n+8)), &:last-child': {
+              "&:not(:nth-child(n+8)), &:last-child": {
                 stroke: theme.palette.text.primary,
               },
             },

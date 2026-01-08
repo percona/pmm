@@ -4,19 +4,21 @@
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",
+    "build:watch": "rollup -c -w",
     "storybook:dev": "storybook dev -p 6006",
     "storybook:build": "storybook build"
   },
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "devDependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.6",
-    "@mui/material": "^7.3.6",
-    "@mui/x-date-pickers": "^8.22.0",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.18",
+    "@mui/material": "^5.14.14",
+    "@mui/x-date-pickers": "^7.6.2",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
@@ -27,9 +29,9 @@
     "@storybook/blocks": "^8.6.14",
     "@storybook/react": "^8.6.14",
     "@storybook/react-vite": "^8.6.14",
-    "@types/react": "^19.2.7",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "@types/react": "^18.2.15",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "rollup": "^4.53.5",
     "rollup-plugin-dts": "^6.3.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
@@ -41,20 +43,20 @@
     "vite-tsconfig-paths": "^6.0.3"
   },
   "peerDependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.6",
-    "@mui/material": "^7.3.6",
-    "@mui/x-date-pickers": "^8.22.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.18",
+    "@mui/material": "^5.14.14",
+    "@mui/x-date-pickers": "^7.6.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "dependencies": {
     "@fontsource/poppins": "^5.2.7",
     "@fontsource/roboto": "^5.2.9",
     "@fontsource/roboto-mono": "^5.2.8",
-    "@mui/utils": "^7.3.6",
-    "material-react-table": "^3.2.1",
+    "@mui/utils": "^5.14.15",
+    "material-react-table": "^1.15.1",
     "react-hook-form": "^7.68.0"
   }
 }

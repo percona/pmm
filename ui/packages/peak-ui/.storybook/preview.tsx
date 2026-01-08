@@ -49,6 +49,7 @@ const preview: Preview = {
         items: [
           { value: "base", icon: "palette", title: "Base Theme" },
           { value: "everest", icon: "palette", title: "Everest Theme" },
+          { value: "pmm", icon: "palette", title: "PMM Theme" },
         ],
         showName: true,
         dynamicTitle: true,
