@@ -19,9 +19,10 @@ import (
 	"database/sql/driver"
 	"time"
 
-	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/pi/common"
 )
 
 //go:generate ../../bin/reform
