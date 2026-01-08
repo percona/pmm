@@ -111,6 +111,7 @@ linters:
           - recvcheck
         path: managed/models/
     paths:
+      - managed/utils/interceptors/go-grpc-prometheus.go
       - agent/agents/mongodb/internal/
       - qan-api2/migrations/
       - third_party$
