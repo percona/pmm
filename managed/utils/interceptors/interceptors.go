@@ -85,7 +85,7 @@ type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grp
 var dropEndpointsRE = regexp.MustCompile(`^/server.v1.ServerService/(Readiness|LeaderHealthCheck)$`)
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.
-func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
+func UnaryAdd(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		// add pprof labels for more useful profiles
 		defer pprof.SetGoroutineLabels(ctx)
@@ -146,6 +146,6 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 
 // check interfaces.
 var (
-	_ grpc.UnaryServerInterceptor  = Unary(nil)
+	_ grpc.UnaryServerInterceptor  = UnaryAdd(nil)
 	_ grpc.StreamServerInterceptor = Stream(nil)
 )
