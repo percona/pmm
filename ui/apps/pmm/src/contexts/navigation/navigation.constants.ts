@@ -260,7 +260,7 @@ export const NAV_OS: NavItem = {
     },
     {
       id: 'cpu-utilization',
-      text: 'CPU Utilization',
+      text: 'CPU utilization',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-cpu/cpu-utilization-details`,
     },
     {
@@ -538,13 +538,13 @@ export const NAV_ALERTS: NavItem = {
 export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
   icon: 'intelligence',
-  text: 'Percona Advisors',
+  text: 'Advisors',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
-  text: 'Advisor Insights',
+  text: 'Advisor insights',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
 };
 

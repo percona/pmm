@@ -168,7 +168,7 @@ export const addAdvisors = (advisors: Advisor[]): NavItem => {
   for (const category of Object.keys(categories)) {
     children.push({
       id: `advisors-${category}`,
-      text: `${capitalize(category)} Advisors`,
+      text: `${capitalize(category)} advisors`,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/${category}`,
     });
   }
