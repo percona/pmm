@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package agent.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// MongoDBRealtimeQueryData represents a single running query/op from MongoDB.
+message MongoDBRealtimeQueryData {
+  string query_id = 1;
+  string query_text = 2;
+  string state = 3;
+  double current_execution_time = 4;
+  int64 rows_examined = 5;
+  int64 rows_sent = 6;
+  google.protobuf.Timestamp timestamp = 7;
+  string raw_query_json = 8;
+  // MongoDB-specific fields
+  string opid = 9;
+  int64 secs_running = 10;
+  string client = 11;
+  bool waiting_for_lock = 12;
+  bool index_utilized = 13;
+}
+
+// MongoDBRealtimeRequest is sent from agent to server with a batch of queries.
+message MongoDBRealtimeRequest {
+  repeated MongoDBRealtimeQueryData queries = 1;
+}
+
+// MongoDBRealtimeResponse is sent from server to agent (ack or config).
+message MongoDBRealtimeResponse {
+  // Optionally, server can send new polling interval or config.
+  int32 polling_interval_seconds = 1;
+}
+
+// Service for streaming MongoDB real-time queries.
+service MongoDBRealtime {
+  // Bidirectional streaming for real-time query data.
+  rpc StreamRealtimeQueries(stream MongoDBRealtimeRequest) returns (stream MongoDBRealtimeResponse);
+}

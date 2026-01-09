@@ -262,9 +262,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		l.Debug("RPC response latency histogram enabled.")
 		grpcMetrics.EnableHandlingTimeHistogram()
 	}
+
 	serverv1.RegisterServerServiceServer(gRPCServer, deps.server)
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentPBServer(deps.handler))
+
+	// Register MongoDBRealtime gRPC server
+	agentv1.RegisterMongoDBRealtimeServer(gRPCServer, agentgrpc.NewMongoDBRealtimeServer(deps.handler))
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	agentsSvc := inventory.NewAgentsService(
