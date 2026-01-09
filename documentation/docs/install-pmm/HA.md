@@ -158,6 +158,17 @@ Choose the option that best fits your infrastructure and requirements:
     | `PG_USERNAME` | The username for your PostgreSQL server.<br><br> Example: `pmmuser` |
     | `PG_PASSWORD` | The password for your PostgreSQL server.<br><br>Example: `pgpassword` |
     | `GF_USERNAME` | The username for your Grafana database user.<br><br>Example: `gfuser` |
+    | `PMM_CLICKHOUSE_IS_CLUSTER` | Set to `1` to indicate that ClickHouse is running in cluster mode. This enables PMM to use distributed tables and cluster-aware queries for Query Analytics (QAN) metrics.<br><br>Example: `1` |
+    | `PMM_CLICKHOUSE_CLUSTER_NAME` | Optional. If set, specifies the ClickHouse cluster name to use for distributed table operations. Used together with PMM_CLICKHOUSE_IS_CLUSTER.<br><br>Example: `my_cluster` |
+    |  |
+
+    > [!WARNING]
+    > **Cluster Name Character Limitations:**
+    > Use only letters, digits, and underscores (`a-z`, `A-Z`, `0-9`, `_`) in ClickHouse cluster names. Avoid dashes (`-`), spaces, and other special characters.
+
+    > [!NOTE]
+    > **QAN Initialization Delay:**
+    > When using ClickHouse in cluster mode (`PMM_CLICKHOUSE_IS_CLUSTER=1`), it can take up to 5 minutes for Query Analytics (QAN) to become fully operational after startup or configuration changes. During this period, you may receive error messages in the QAN interface. This is expected and will resolve automatically once the cluster is ready.
     | `GF_PASSWORD` | The password for your Grafana database user.<br><br>Example: `gfpassword` |
     | `PMM_ACTIVE_IP` | The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.<br><br>Example: `17.10.1.5` |
     | `PMM_ACTIVE_NODE_ID` | The unique ID for your active PMM server node.<br><br>Example: `pmm-server-active` |
@@ -447,14 +458,13 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
-            -e PMM_TEST_HA_BOOTSTRAP=1 \
-            -e PMM_TEST_HA_NODE_ID=${PMM_ACTIVE_NODE_ID} \
-            -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_ACTIVE_IP} \
-            -e PMM_TEST_HA_GOSSIP_PORT=9096 \
-            -e PMM_TEST_HA_RAFT_PORT=9097 \
-            -e PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094 \
-            -e PMM_TEST_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
+            -e PMM_HA_ENABLE=1 \
+            -e PMM_HA_NODE_ID=${PMM_ACTIVE_NODE_ID} \
+            -e PMM_HA_ADVERTISE_ADDRESS=${PMM_ACTIVE_IP} \
+            -e PMM_HA_GOSSIP_PORT=9096 \
+            -e PMM_HA_RAFT_PORT=9097 \
+            -e PMM_HA_GRAFANA_GOSSIP_PORT=9094 \
+            -e PMM_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
             -v pmm-server-active_data:/srv \
             ${PMM_DOCKER_IMAGE}
             ```
@@ -486,14 +496,13 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
-            -e PMM_TEST_HA_BOOTSTRAP=1 \
-            -e PMM_TEST_HA_NODE_ID=${PMM_ACTIVE_NODE_ID} \
-            -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_ACTIVE_IP} \
-            -e PMM_TEST_HA_GOSSIP_PORT=9096 \
-            -e PMM_TEST_HA_RAFT_PORT=9097 \
-            -e PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094 \
-            -e PMM_TEST_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
+            -e PMM_HA_ENABLE=1 \
+            -e PMM_HA_NODE_ID=${PMM_ACTIVE_NODE_ID} \
+            -e PMM_HA_ADVERTISE_ADDRESS=${PMM_ACTIVE_IP} \
+            -e PMM_HA_GOSSIP_PORT=9096 \
+            -e PMM_HA_RAFT_PORT=9097 \
+            -e PMM_HA_GRAFANA_GOSSIP_PORT=9094 \
+            -e PMM_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
             -v pmm-server-active_data:/srv \
             ${PMM_DOCKER_IMAGE}
             ```
@@ -523,14 +532,13 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
-            -e PMM_TEST_HA_BOOTSTRAP=0 \
-            -e PMM_TEST_HA_NODE_ID=${PMM_PASSIVE_NODE_ID} \
-            -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE_IP} \
-            -e PMM_TEST_HA_GOSSIP_PORT=9096 \
-            -e PMM_TEST_HA_RAFT_PORT=9097 \
-            -e PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094 \
-            -e PMM_TEST_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
+            -e PMM_HA_ENABLE=1 \
+            -e PMM_HA_NODE_ID=${PMM_PASSIVE_NODE_ID} \
+            -e PMM_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE_IP} \
+            -e PMM_HA_GOSSIP_PORT=9096 \
+            -e PMM_HA_RAFT_PORT=9097 \
+            -e PMM_HA_GRAFANA_GOSSIP_PORT=9094 \
+            -e PMM_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
             -v pmm-server-passive_data:/srv \
             ${PMM_DOCKER_IMAGE}
             ```
@@ -562,14 +570,13 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
-            -e PMM_TEST_HA_BOOTSTRAP=0 \
-            -e PMM_TEST_HA_NODE_ID=${PMM_PASSIVE_NODE_ID} \
-            -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE_IP} \
-            -e PMM_TEST_HA_GOSSIP_PORT=9096 \
-            -e PMM_TEST_HA_RAFT_PORT=9097 \
-            -e PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094 \
-            -e PMM_TEST_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
+            -e PMM_HA_ENABLE=1 \
+            -e PMM_HA_NODE_ID=${PMM_PASSIVE_NODE_ID} \
+            -e PMM_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE_IP} \
+            -e PMM_HA_GOSSIP_PORT=9096 \
+            -e PMM_HA_RAFT_PORT=9097 \
+            -e PMM_HA_GRAFANA_GOSSIP_PORT=9094 \
+            -e PMM_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
             -v pmm-server-passive_data:/srv \
             ${PMM_DOCKER_IMAGE}
             ```
@@ -599,14 +606,13 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
-            -e PMM_TEST_HA_BOOTSTRAP=0 \
-            -e PMM_TEST_HA_NODE_ID=${PMM_PASSIVE2_NODE_ID} \
-            -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE2_IP} \
-            -e PMM_TEST_HA_GOSSIP_PORT=9096 \
-            -e PMM_TEST_HA_RAFT_PORT=9097 \
-            -e PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094 \
-            -e PMM_TEST_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
+            -e PMM_HA_ENABLE=1 \
+            -e PMM_HA_NODE_ID=${PMM_PASSIVE2_NODE_ID} \
+            -e PMM_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE2_IP} \
+            -e PMM_HA_GOSSIP_PORT=9096 \
+            -e PMM_HA_RAFT_PORT=9097 \
+            -e PMM_HA_GRAFANA_GOSSIP_PORT=9094 \
+            -e PMM_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
             -v pmm-server-passive-2_data:/srv \
             ${PMM_DOCKER_IMAGE}
             ```
@@ -638,14 +644,13 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
-            -e PMM_TEST_HA_BOOTSTRAP=0 \
-            -e PMM_TEST_HA_NODE_ID=${PMM_PASSIVE2_NODE_ID} \
-            -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE2_IP} \
-            -e PMM_TEST_HA_GOSSIP_PORT=9096 \
-            -e PMM_TEST_HA_RAFT_PORT=9097 \
-            -e PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094 \
-            -e PMM_TEST_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
+            -e PMM_HA_ENABLE=1 \
+            -e PMM_HA_NODE_ID=${PMM_PASSIVE2_NODE_ID} \
+            -e PMM_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE2_IP} \
+            -e PMM_HA_GOSSIP_PORT=9096 \
+            -e PMM_HA_RAFT_PORT=9097 \
+            -e PMM_HA_GRAFANA_GOSSIP_PORT=9094 \
+            -e PMM_HA_PEERS=${PMM_ACTIVE_IP},${PMM_PASSIVE_IP},${PMM_PASSIVE2_IP} \
             -v pmm-server-passive-2_data:/srv \
             ${PMM_DOCKER_IMAGE}
             ```
@@ -654,7 +659,7 @@ Choose the option that best fits your infrastructure and requirements:
 
     ### Step 7: Set up HAProxy
     
-    HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint:
+    HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/server/leaderHealthCheck` endpoint:
     {.power-number}
 
     1.  Pull the HAProxy Docker image:
@@ -703,7 +708,7 @@ Choose the option that best fits your infrastructure and requirements:
 
         Replace `/path/to/haproxy-config` with the path where you want to store your HAProxy configuration.
 
-    7.  Create an HAProxy configuration file named `haproxy.cfg.template` in that directory. This configuration tells HAProxy to use the `/v1/leaderHealthCheck` endpoint of each PMM server to identify the leader:
+    7.  Create an HAProxy configuration file named `haproxy.cfg.template` in that directory. This configuration tells HAProxy to use the `/v1/server/leaderHealthCheck` endpoint of each PMM server to identify the leader:
 
         ```
         global
@@ -731,7 +736,7 @@ Choose the option that best fits your infrastructure and requirements:
 
         backend http_back
             option httpchk
-            http-check send meth POST uri /v1/leaderHealthCheck ver HTTP/1.1 hdr Host www
+            http-check send meth GET uri /v1/server/leaderHealthCheck ver HTTP/1.1 hdr Host www
             http-check expect status 200
             server pmm-server-active-http PMM_ACTIVE_IP:8080 check
             server pmm-server-passive-http PMM_PASSIVE_IP:8080 check backup
@@ -739,7 +744,7 @@ Choose the option that best fits your infrastructure and requirements:
 
         backend https_back
             option httpchk
-            http-check send meth POST uri /v1/leaderHealthCheck ver HTTP/1.1 hdr Host www
+            http-check send meth GET uri /v1/server/leaderHealthCheck ver HTTP/1.1 hdr Host www
             http-check expect status 200
             server pmm-server-active-https PMM_ACTIVE_IP:8443 check ssl verify none
             server pmm-server-passive-https PMM_PASSIVE_IP:8443 check ssl verify none

@@ -16,19 +16,20 @@
 package main
 
 import (
-	"embed"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
+	"time"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
-	"github.com/golang-migrate/migrate/v4"
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2"          // register database/sql driver
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
-	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
+	"github.com/jmoiron/sqlx"                                    // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
+	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/qan-api2/migrations"
+	"github.com/percona/pmm/utils/dsnutils"
 )
 
 const (
@@ -36,20 +37,51 @@ const (
 )
 
 // NewDB return updated db.
-func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
+func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
+	l := logrus.WithField("component", "db")
+	// If ClickHouse is a cluster, wait until the cluster is ready.
+	if isCluster {
+		l.Info("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
+		dsnURL, err := url.Parse(dsn)
+		if err != nil {
+			l.Fatalf("Error parsing DSN: %v", err)
+		}
+		dsnURL.Path = "/default"
+		dsnDefault := dsnURL.String()
+		l.Infof("DSN for cluster check: %s", dsnutils.RedactDSN(dsnDefault))
+
+		for {
+			isClusterReady, err := migrations.IsClickhouseClusterReady(dsnDefault, clusterName)
+			if err != nil {
+				l.Fatalf("Error checking ClickHouse cluster status: %v", err)
+			}
+			if isClusterReady {
+				l.Info("ClickHouse cluster is ready")
+				break
+			}
+
+			l.Info("Waiting for ClickHouse cluster to be ready... (system.clusters where remote_hosts > 0)")
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	l.Infof("New connection with DSN: %s", dsnutils.RedactDSN(dsn))
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
-			err = createDB(dsn)
+		l.Errorf("Error connecting to ClickHouse: %v", err)
+		var exception *clickhouse.Exception
+		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
+			err = createDB(dsn, clusterName)
 			if err != nil {
-				log.Fatalf("Database wasn't created: %v", err)
+				l.Fatalf("Database wasn't created: %v", err)
 			}
+			l.Infof("Database created, connecting again %s", dsnutils.RedactDSN(dsn))
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
-				log.Fatalf("Connection: %v", err)
+				l.Fatalf("Connection: %v", err)
 			}
 		} else {
-			log.Fatalf("Connection: %v", err)
+			l.Fatalf("Connection: %v", err)
 		}
 	}
 
@@ -65,15 +97,24 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	if err := runMigrations(dsn); err != nil {
-		log.Fatal("Migrations: ", err)
+	data := map[string]any{
+		"engine": migrations.GetEngine(isCluster),
 	}
-	log.Println("Migrations applied.")
+	if clusterName != "" {
+		l.Infof("Using ClickHouse cluster name: %s", clusterName)
+		data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
+	}
+	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
+		l.Fatalf("migrations: %v", err)
+	}
+	l.Info("Migrations applied successfully")
+
 	return db
 }
 
-func createDB(dsn string) error {
-	log.Println("Creating database")
+func createDB(dsn string, clusterName string) error {
+	l := logrus.WithField("component", "db")
+	l.Info("Creating database...")
 	clickhouseURL, err := url.Parse(dsn)
 	if err != nil {
 		return err
@@ -87,68 +128,32 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
+	sql := fmt.Sprintf("CREATE DATABASE %s", databaseName)
+	if clusterName != "" {
+		l.Infof("Using ClickHouse cluster name: %s", clusterName)
+		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
+	}
+	sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
+
+	result, err := defaultDB.Exec(sql)
 	if err != nil {
-		log.Printf("Result: %v", result)
+		l.Infof("Result: %v", result)
 		return err
 	}
-	log.Println("Database was created")
-	return nil
+	l.Info("Database was created")
+
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
-}
-
-//go:embed migrations/sql/*.sql
-var fs embed.FS
-
-func runMigrations(dsn string) error {
-	d, err := iofs.New(fs, "migrations/sql")
-	if err != nil {
-		return err
-	}
-
-	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
-	if err != nil {
-		return err
-	}
-
-	// run up to the latest migration
-	err = m.Up()
-	if err == nil || errors.Is(err, migrate.ErrNoChange) {
-		return nil
-	}
-
-	// If the database is in dirty state, try to fix it (PMM-14305)
-	var errDirty migrate.ErrDirty
-	if errors.As(err, &errDirty) {
-		log.Printf("Migration %d was unsuccessful, trying to fix it...", errDirty.Version)
-
-		ver := errDirty.Version - 1
-		if ver == 0 {
-			// Note: since 0th migration does not exist, we set it to -1, which means "start from scratch"
-			ver = -1
-		}
-		err = m.Force(ver)
-		if err != nil {
-			return fmt.Errorf("can't force the migration %d: %w", ver, err)
-		}
-
-		// try to run migrations again, starting from the forced version
-		err = m.Up()
-		if errors.Is(err, migrate.ErrNoChange) {
-			return nil
-		}
-	}
-
-	return err
+	return nil
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
 func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
+	l := logrus.WithField("component", "db")
 	partitions := []string{}
 	const query = `
 		SELECT DISTINCT partition
 		FROM system.parts
-		WHERE toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?)) AND database = ? and visible = 1 ORDER BY partition
+		WHERE toUInt32OrZero(partition) < toYYYYMMDD(now() - toIntervalDay(?)) AND database = ? and visible = 1 ORDER BY partition
 	`
 	err := db.Select(
 		&partitions,
@@ -156,11 +161,11 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 		days,
 		dbName)
 	if err != nil {
-		log.Printf("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
+		l.Infof("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return
 	}
 	for _, part := range partitions {
 		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE metrics DROP PARTITION %s`, part))
-		log.Printf("Drop %s partitions of metrics. Result: %v, Error: %v", part, result, err)
+		l.Infof("Drop %s partitions of metrics. Result: %v, Error: %v", part, result, err)
 	}
 }
