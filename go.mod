@@ -50,8 +50,8 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/percona/exporter_shared v0.7.5
-	github.com/percona/go-mysql v0.0.0-20251201040229-5d45a34bb47e
-	github.com/percona/percona-toolkit v0.0.0-20250623101308-06d5966106f5
+	github.com/percona/go-mysql v0.0.0-20251202083530-b3e1c16efc74
+	github.com/percona/percona-toolkit v0.0.0-20251217124347-6b3e5ed485dd
 	github.com/percona/promconfig v0.3.0
 	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
@@ -188,7 +188,7 @@ require (
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
-	github.com/xdg-go/scram v1.1.2 // indirect
+	github.com/xdg-go/scram v1.2.0 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.opentelemetry.io/otel v1.39.0 // indirect
