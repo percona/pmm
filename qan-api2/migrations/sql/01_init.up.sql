@@ -1,4 +1,4 @@
-CREATE TABLE metrics (
+CREATE TABLE metrics{{ if .cluster }} {{ .cluster }}{{ end }} (
   -- Main dimensions
   `queryid` LowCardinality(String) COMMENT 'hash of query fingerprint',
   `service_name` LowCardinality(String) COMMENT 'Name of service (IP or hostname of DB server by default)',
@@ -188,7 +188,7 @@ CREATE TABLE metrics (
   `m_docs_scanned_min` Float32,
   `m_docs_scanned_max` Float32,
   `m_docs_scanned_p99` Float32
-) ENGINE = MergeTree PARTITION BY toYYYYMMDD(period_start)
+) ENGINE = {{ .engine }} PARTITION BY toYYYYMMDD(period_start)
 ORDER BY
   (
     queryid,
