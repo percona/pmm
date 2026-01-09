@@ -17,10 +17,7 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <ThemeContextProvider
-    themeOptions={pmmThemeOptions}
-    saveColorModeOnLocalStorage
-  >
+  <ThemeContextProvider themeOptions={pmmThemeOptions}>
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <SnackbarProvider
         maxSnack={3}
