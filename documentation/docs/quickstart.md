@@ -7,11 +7,11 @@ This is the simplest and most efficient way to install PMM with Docker.
 ??? info "Alternative installation options"
      For alternative setups or if you're not using Docker, explore the additional installation options detailed in the **Setting up** chapter:
 
-    - [Deploy on Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md)
-    - [Deploy based on a Docker image](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
-    - [Deploy on Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
-    - [Deploy on Kubernetes/OpenShift via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
-    - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md)
+    - [Deploy on Podman](../docs/install-pmm/install-pmm-server/deployment-options/podman/index.md)
+    - [Deploy based on a Docker image](../docs/install-pmm/install-pmm-server/deployment-options/docker/index.md)
+    - [Deploy on Virtual Appliance](../docs/install-pmm/install-pmm-server/deployment-options/virtual/index.md)
+    - [Deploy on Kubernetes/OpenShift via Helm](../docs/install-pmm/install-pmm-server/deployment-options/helm/index.md)
+    - [Run a PMM instance hosted at AWS Marketplace](../docs/install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md)
 
 #### Prerequisites
 
@@ -231,7 +231,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add postgresql --username=pmm --password=<your_password>
         ```
             
-    For detailed instructions and advanced installation options, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md).
+    For detailed instructions and advanced installation options, see [Adding a PostgreSQL database](../docs/install-pmm/install-pmm-client/connect-database/postgresql.md).
 
 === ":simple-mongodb: MongoDB"
 
@@ -562,11 +562,11 @@ Once PMM is set up, choose the database or the application that you want it to m
 
 After installing PMM and connecting the database, go to the database's Instance Summary dashboard. This shows essential information about your database performance and an overview of your environment.
 
-For more information, see [PMM Dashboards](../use/dashboards-panels/index.md).
+For more information, see [PMM Dashboards](../docs/use/dashboards-panels/index.md).
 
 ## Next steps
 
-- [Configure PMM via the interface](../configure-pmm/configure.md)
-- [Manage users in PMM](../admin/manage-users/index.md)
-- [Set up roles and permissions](../admin/roles/index.md)
-- [Back up and restore data in PMM](../backup/index.md)
+- [Configure PMM via the interface](../docs/configure-pmm/configure.md)
+- [Manage users in PMM](../docs/admin/manage-users/index.md)
+- [Set up roles and permissions](../docs/admin/roles/index.md)
+- [Back up and restore data in PMM](../docs/backup/index.md)
