@@ -410,7 +410,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to parse rule template: %v.", err)
 	}
 
@@ -463,7 +463,7 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), parseParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
 	}
 

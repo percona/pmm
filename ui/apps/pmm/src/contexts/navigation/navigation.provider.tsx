@@ -9,6 +9,7 @@ import {
   addConfiguration,
   addDashboardItems,
   addExplore,
+  addHighAvailability,
   addUsersAndAccess,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
@@ -28,6 +29,7 @@ import {
 import { useFolders } from 'hooks/api/useFolders';
 import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
+import { useHaInfo } from 'hooks/api/useHA';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
@@ -45,6 +47,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     'pmm-ui.sidebar.expanded',
     true
   );
+  const { data: haInfo } = useHaInfo();
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
@@ -54,6 +57,10 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       : ALL_SERVICE_TYPES;
 
     items.push(NAV_HOME_PAGE);
+
+    if (haInfo.enabled) {
+      items.push(addHighAvailability(haInfo));
+    }
 
     items.push(NAV_DIVIDERS.home);
 
@@ -107,6 +114,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     settings,
     advisors,
     colorMode,
+    haInfo,
     toggleColorMode,
   ]);
 

@@ -876,6 +876,9 @@ type RegisterNodeOKBodyContainerNode struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if this node is a PMM Server node (HA mode).
+	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
 }
 
 // Validate validates this register node OK body container node
@@ -937,6 +940,9 @@ type RegisterNodeOKBodyGenericNode struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if this node is a PMM Server node (HA mode).
+	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
 }
 
 // Validate validates this register node OK body generic node
