@@ -783,6 +783,9 @@ type GetNodeOKBodyContainer struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if this node is a PMM Server node (HA mode).
+	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
 }
 
 // Validate validates this get node OK body container
@@ -844,6 +847,9 @@ type GetNodeOKBodyGeneric struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if this node is a PMM Server node (HA mode).
+	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
 }
 
 // Validate validates this get node OK body generic

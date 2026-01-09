@@ -166,4 +166,31 @@ describe('NavItem', () => {
 
     expect(screen.getByTestId('navitem-dot')).toBeInTheDocument();
   });
+
+  it('renders divider if item has type "menu-divider"', () => {
+    renderNavItem({
+      props: {
+        item: { id: 'divider', type: 'menu-divider' },
+      },
+    });
+
+    expect(screen.queryByTestId('navitem-divider-divider')).toBeInTheDocument();
+  });
+
+  it('renders text item if item has type "menu-text"', () => {
+    renderNavItem({
+      props: {
+        item: {
+          id: 'desc',
+          type: 'menu-text',
+          text: 'description',
+          secondaryText: 'secondary text',
+        },
+      },
+    });
+
+    expect(screen.queryByTestId('navitem-desc-text-item')).toBeInTheDocument();
+    expect(screen.getByText('description')).toBeInTheDocument();
+    expect(screen.getByText('secondary text')).toBeInTheDocument();
+  });
 });
