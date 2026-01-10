@@ -76,6 +76,37 @@ PLATFORM="${PLATFORM:-linux/amd64}"
 - Changing .gitmodules location or format
 - Adding new fields to parse
 
+### scripts/package-tarball
+
+**Purpose**: Generate pmm-client distribution tarball  
+**Output**: `pmm-client-${VERSION}.tar.gz` in `PACKAGE_DIR`  
+**Dependencies**: Requires built components in `OUTPUT_DIR`
+
+**Archive Structure**:
+```
+pmm-client-${VERSION}/
+├── bin/               # All built binaries
+├── config/            # systemd service files
+├── debian/            # Debian packaging files
+├── rpm/               # RPM spec files
+├── queries-*.yml      # Query examples (if present)
+├── install_tarball    # Installation script
+└── VERSION            # Version identifier
+```
+
+**Key Variables**:
+```bash
+OUTPUT_DIR="${OUTPUT_DIR:-./output}"     # Source binaries
+PACKAGE_DIR="${PACKAGE_DIR:-./package}"  # Output location
+PMM_VERSION="${PMM_VERSION}"             # Version string
+```
+
+**When to modify**:
+- Adding new files to distribution
+- Changing directory structure
+- Modifying VERSION file format
+- Adjusting query file locations
+
 ### Makefile
 
 **Purpose**: User-facing build targets  
@@ -85,6 +116,7 @@ PLATFORM="${PLATFORM:-linux/amd64}"
 - `build-dynamic` - Build with dynamic linking (GSSAPI)
 - `build-arm64` - Build for ARM64 architecture
 - `builder-image` - Build pmm-builder Docker image
+- `package-tarball` - Generate pmm-client distribution archive
 - `clean` - Remove output directory
 - `clean-volumes` - Remove Docker volumes (cache)
 
@@ -94,6 +126,8 @@ WORKSPACE_COMPONENTS := pmm-admin pmm-agent
 EXTERNAL_COMPONENTS := node_exporter mysqld_exporter ...
 GO_VERSION ?= 1.25
 PLATFORM ?= linux/amd64
+OUTPUT_DIR ?= ./output
+PACKAGE_DIR ?= ./package
 ```
 
 **When to modify**:

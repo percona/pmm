@@ -54,6 +54,7 @@ Built from external Git repositories:
 | `PLATFORM` | Docker platform: `linux/amd64` or `linux/arm64` | Auto-detected |
 | `GO_VERSION` | Go version for builder image | `latest` |
 | `OUTPUT_DIR` | Output directory for artifacts | `./output` |
+| `PACKAGE_DIR` | Output directory for tarball packages | `./package` |
 
 
 ## Build Process
@@ -126,6 +127,28 @@ PMM_VERSION=3.0.0-rc1 make build COMPONENT=pmm-agent
 
 ```bash
 BUILD_TYPE=dynamic GOARCH=arm64 make build COMPONENT=mongodb_exporter
+```
+
+### Create distribution tarball
+
+First build all components, then package them:
+
+```bash
+make build-all
+make package-tarball
+```
+
+The tarball will be created at `./package/pmm-client-${VERSION}.tar.gz` with the following structure:
+
+```
+pmm-client-${VERSION}/
+├── bin/               # All built binaries (pmm-admin, pmm-agent, exporters, etc.)
+├── config/            # Configuration files (systemd services)
+├── debian/            # Debian packaging files
+├── rpm/               # RPM spec files
+├── queries-*.yml      # Query examples (if present)
+├── install_tarball    # Installation script
+└── VERSION            # Version identifier
 ```
 
 ## Troubleshooting

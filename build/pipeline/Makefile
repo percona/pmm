@@ -1,10 +1,12 @@
 # Makefile for building PMM components using Docker
 
-.PHONY: help build build-all build-dynamic build-arm64 clean volumes builder-image
+.PHONY: help build build-all build-dynamic build-arm64 clean volumes builder-image package-tarball
 
 # Build script location
 BUILD_SCRIPT := ./scripts/build-component
+PACKAGE_SCRIPT := ./scripts/package-tarball
 OUTPUT_DIR ?= $(CURDIR)/output
+PACKAGE_DIR ?= $(CURDIR)/package
 
 # Default target
 help:
@@ -16,6 +18,7 @@ help:
 	@echo "  make build-arm64 COMPONENT=<name>   - Build for ARM64"
 	@echo "  make builder-image            - Build the pmm-builder Docker image"
 	@echo "  make volumes                  - Create Docker volumes for caching"
+	@echo "  make package-tarball          - Generate pmm-client tarball from built components"
 	@echo "  make clean                    - Remove output directory"
 	@echo ""
 	@echo "Workspace Components:"
@@ -53,6 +56,7 @@ export GOARCH
 export PLATFORM
 export GO_VERSION
 export OUTPUT_DIR
+export PACKAGE_DIR
 
 # Component lists
 WORKSPACE_COMPONENTS := pmm-admin pmm-agent
@@ -126,3 +130,9 @@ clean-volumes:
 	@echo "Removing Docker volumes..."
 	@docker volume rm pmm-mod pmm-build pmm-source 2>/dev/null || true
 	@echo "Volumes removed"
+
+# Generate tarball package
+package-tarball:
+	@echo "Creating pmm-client tarball package..."
+	@$(PACKAGE_SCRIPT)
+	@echo "Package created successfully!"

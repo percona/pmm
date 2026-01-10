@@ -219,10 +219,10 @@ build_external_component() {
     local build_cmd
     case "${component}" in
         node_exporter)
-            build_cmd="make release && cp node_exporter /output/"
+            build_cmd="make release && cp node_exporter /output/ && mkdir -p /output/queries && cp example.prom /output/queries/"
             ;;
         mysqld_exporter)
-            build_cmd="make release && cp mysqld_exporter /output/"
+            build_cmd="make release && cp mysqld_exporter /output/ && mkdir -p /output/queries && cp queries-mysqld.yml queries-mysqld-group-replication.yml /output/queries/"
             ;;
         mongodb_exporter)
             if [ "${BUILD_TYPE}" = "dynamic" ]; then
@@ -232,7 +232,7 @@ build_external_component() {
             fi
             ;;
         postgres_exporter)
-            build_cmd="make release && cp postgres_exporter /output/"
+            build_cmd="make release && cp postgres_exporter /output/ && mkdir -p /output/queries && cp example-queries-postgres.yml queries-postgres-uptime.yml queries-hr.yml queries-mr.yaml queries-lr.yaml /output/queries/"
             ;;
         proxysql_exporter)
             build_cmd="make release && cp proxysql_exporter /output/"
