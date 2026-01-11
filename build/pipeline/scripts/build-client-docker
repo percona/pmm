@@ -1,0 +1,105 @@
+#!/bin/bash
+# Build PMM Client Docker image
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# Default values
+SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
+WORKSPACE_DIR="$(realpath "$SCRIPT_DIR/../../..")"
+PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
+PACKAGE_DIR="${PACKAGE_DIR:-${PIPELINE_DIR}/package}"
+DOCKER_BUILD_DIR="${PIPELINE_DIR}"
+
+# Docker configuration
+DOCKERFILE="${DOCKERFILE:-Dockerfile.client}"
+DOCKER_TAG="${DOCKER_TAG:-perconalab/pmm-client:${PMM_VERSION}}"
+PUSH_DOCKER="${PUSH_DOCKER:-}"
+PLATFORM="${PLATFORM:-linux/amd64}"
+
+# Package name
+PACKAGE_NAME="pmm-client-${PMM_VERSION}"
+TARBALL="${PACKAGE_DIR}/${PACKAGE_NAME}.tar.gz"
+
+usage() {
+    cat <<EOF
+Usage: $0
+
+Build PMM Client Docker image from tarball.
+
+Environment Variables:
+  PMM_VERSION    - Version to build (required)
+  PACKAGE_DIR    - Directory containing tarball (default: ../package)
+  DOCKERFILE     - Dockerfile name (default: Dockerfile.client)
+  DOCKER_TAG     - Docker tag (default: perconalab/pmm-client:\${PMM_VERSION})
+  PUSH_DOCKER    - If set, push image to registry
+  PLATFORM       - Docker platform (default: linux/amd64)
+
+Examples:
+  $0
+  PUSH_DOCKER=1 $0
+  DOCKER_TAG=myregistry/pmm-client:latest $0
+EOF
+    exit 1
+}
+
+echo "PMM Client Docker Builder"
+echo "=========================="
+echo "Version: ${PMM_VERSION}"
+echo "Tarball: ${TARBALL}"
+echo "Dockerfile: ${DOCKERFILE}"
+echo "Docker Tag: ${DOCKER_TAG}"
+echo "Platform: ${PLATFORM}"
+echo "Docker script dir: ${DOCKER_BUILD_DIR}"
+echo ""
+
+# Check if tarball exists
+if [ ! -f "${TARBALL}" ]; then
+    echo "Error: Tarball not found: ${TARBALL}"
+    echo "Please run 'make package-tarball' first"
+    exit 1
+fi
+
+# Check if Dockerfile exists
+if [ ! -f "${DOCKER_BUILD_DIR}/${DOCKERFILE}" ]; then
+    echo "Error: Dockerfile not found: ${DOCKER_BUILD_DIR}/${DOCKERFILE}"
+    exit 1
+fi
+
+# Copy tarball to Docker build context
+echo "Copying files to Docker build context..."
+cp "${TARBALL}" "${DOCKER_BUILD_DIR}/pmm-client.tar.gz"
+cp "${WORKSPACE_DIR}/build/docker/client/LICENSE" "${DOCKER_BUILD_DIR}/LICENSE"
+
+# Build Docker image
+echo "Building Docker image..."
+docker buildx build \
+    --platform "${PLATFORM}" \
+    --build-arg BUILD_DATE="$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+    --build-arg VERSION="${PMM_VERSION}" \
+    --build-arg RELEASE="$(date +%s)" \
+    --progress=plain \
+    --load \
+    -f "${DOCKER_BUILD_DIR}/${DOCKERFILE}" \
+    -t "${DOCKER_TAG}" \
+    "${DOCKER_BUILD_DIR}"
+
+echo "Docker image built successfully: ${DOCKER_TAG}"
+
+# Push to registry if requested
+if [ -n "${PUSH_DOCKER}" ]; then
+    echo "Pushing Docker image to registry..."
+    docker push "${DOCKER_TAG}"
+    echo "Image pushed: ${DOCKER_TAG}"
+fi
+
+# Clean up
+echo "Cleaning up..."
+rm -f "${DOCKER_BUILD_DIR}/pmm-client.tar.gz"
+rm -f "${DOCKER_BUILD_DIR}/LICENSE"
+
+echo ""
+echo "Build complete!"
+echo "Docker image: ${DOCKER_TAG}"

@@ -1,10 +1,11 @@
 # Makefile for building PMM components using Docker
 
-.PHONY: help build build-all build-dynamic build-arm64 clean volumes builder-image package-tarball
+.PHONY: help build build-all build-dynamic build-arm64 clean volumes builder-image package-tarball build-client-docker push-client-docker
 
 # Build script location
 BUILD_SCRIPT := ./scripts/build-component
 PACKAGE_SCRIPT := ./scripts/package-tarball
+DOCKER_SCRIPT := ./scripts/build-client-docker
 OUTPUT_DIR ?= $(CURDIR)/output
 PACKAGE_DIR ?= $(CURDIR)/package
 
@@ -19,6 +20,8 @@ help:
 	@echo "  make builder-image            - Build the pmm-builder Docker image"
 	@echo "  make volumes                  - Create Docker volumes for caching"
 	@echo "  make package-tarball          - Generate pmm-client tarball from built components"
+	@echo "  make build-client-docker      - Build PMM Client Docker image"
+	@echo "  make push-client-docker       - Build and push PMM Client Docker image"
 	@echo "  make clean                    - Remove output directory"
 	@echo ""
 	@echo "Workspace Components:"
@@ -57,6 +60,13 @@ export PLATFORM
 export GO_VERSION
 export OUTPUT_DIR
 export PACKAGE_DIR
+
+# Docker configuration
+DOCKERFILE ?= Dockerfile.client
+DOCKER_TAG ?= perconalab/pmm-client:$(PMM_VERSION)
+
+export DOCKERFILE
+export DOCKER_TAG
 
 # Component lists
 WORKSPACE_COMPONENTS := pmm-admin pmm-agent
@@ -136,3 +146,15 @@ package-tarball:
 	@echo "Creating pmm-client tarball package..."
 	@$(PACKAGE_SCRIPT)
 	@echo "Package created successfully!"
+
+# Build PMM Client Docker image
+build-client-docker:
+	@echo "Building PMM Client Docker image..."
+	@$(DOCKER_SCRIPT)
+	@echo "Docker image built successfully!"
+
+# Build and push PMM Client Docker image
+push-client-docker:
+	@echo "Building and pushing PMM Client Docker image..."
+	@PUSH_DOCKER=1 $(DOCKER_SCRIPT)
+	@echo "Docker image pushed successfully!"

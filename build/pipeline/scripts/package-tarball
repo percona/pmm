@@ -81,9 +81,10 @@ do
     fi
 done
 
-echo "Copying configuration files..."
+echo "Copying the configuration files..."
 # Copy config files
 cp "${WORKSPACE_DIR}/build/packages/config/pmm-agent.service" "${PACKAGE_ROOT}/config/"
+cp "${WORKSPACE_DIR}/build/docker/client/LICENSE" "${PIPELINE_DIR}/"
 
 echo "Copying Debian packaging files..."
 # Copy debian packaging files
@@ -123,13 +124,17 @@ do
     fi
 done
 
-# Create VERSION file
 echo "${PMM_VERSION}" > "${PACKAGE_ROOT}/VERSION"
 
+# Copy install_tarball script
+echo "Copying install_tarball script..."
+cp "${WORKSPACE_DIR}/build/scripts/install_tarball" "${PACKAGE_ROOT}/"
+chmod +x "${PACKAGE_ROOT}/install_tarball"
+
 echo "Creating tarball..."
-# Create tarball
-cd "${PACKAGE_DIR}"
-tar -czf "${PACKAGE_NAME}.tar.gz" "${PACKAGE_NAME}"
+declare XATTRS=""
+[ "$(uname -s)" = "Darwin" ] && XATTRS="--no-xattrs"
+tar -czf "${PACKAGE_DIR}/${PACKAGE_NAME}.tar.gz" "$XATTRS" -C "${PACKAGE_DIR}" "${PACKAGE_NAME}"
 
 echo ""
 echo "Package created successfully!"

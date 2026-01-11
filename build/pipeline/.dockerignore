@@ -10,7 +10,6 @@
 bin/
 results/
 tmp/
-*.tar.gz
 *.rpm
 *.deb
 
