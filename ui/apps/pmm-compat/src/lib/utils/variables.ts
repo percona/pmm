@@ -25,7 +25,7 @@ export const getLinkWithVariables = (url?: string): string => {
       url: url,
       keepTime: true,
       // Check if the DB type matches the current one used
-      includeVars: checkDbType(url),
+      includeVars: shouldIncludeVars(url),
       asDropdown: false,
       icon: '',
       tags: [],
@@ -42,12 +42,39 @@ export const getLinkWithVariables = (url?: string): string => {
 
 const isDashboardUrl = (url?: string) => url?.includes('/d/');
 
-const checkDbType = (url: string): boolean => {
-  const currentDB = window.location.pathname?.split('/')[3]?.split('-')[0];
-  const targetDB = url?.split('/')[3]?.split('-')[0];
+export const shouldIncludeVars = (url: string): boolean => {
+  const currentDB = getDbType(window.location.pathname);
+  const targetDB = getDbType(url);
+
+  if (currentDB === undefined || targetDB === undefined) {
+    return false;
+  }
 
   // enable variable sharing between same db types and db type -> os/node
-  return (currentDB !== undefined && currentDB === targetDB) || targetDB === 'node';
+  return currentDB === targetDB || targetDB === 'node';
+};
+
+const getDbType = (url: string): string | undefined => {
+  const pathname = new URL(url, window.location.origin).pathname;
+  // normalize to the dashboard uid
+  const pathParts = pathname
+    .replace('/pmm-ui', '')
+    .replace('/next', '')
+    .replace('/graph', '')
+    .replace('/d/', '')
+    .split('/');
+
+  if (pathParts.length < 1 || !pathParts[0]) {
+    return undefined;
+  }
+
+  const dashboardUid = pathParts[0];
+
+  if (dashboardUid.includes('-')) {
+    return dashboardUid.split('-')[0];
+  }
+
+  return dashboardUid;
 };
 
 const cleanupVariables = (urlWithLinks: string) => {

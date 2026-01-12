@@ -102,6 +102,7 @@ func (c *Service) removeFirstElementsUntilIndex(i int) {
 func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
+		defer ticker.Stop()
 		for {
 			select {
 			case <-ticker.C:
