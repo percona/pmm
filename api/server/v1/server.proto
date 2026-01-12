@@ -159,7 +159,6 @@ message Settings {
   repeated string aws_partitions = 6;
   // True if Advisor is enabled.
   bool advisor_enabled = 7;
-  // Percona Platform user's email, if this PMM instance is linked to the Platform.
   string platform_email = 8;
   // True if Alerting is enabled.
   bool alerting_enabled = 10;

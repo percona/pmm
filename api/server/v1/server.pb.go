@@ -1073,9 +1073,8 @@ type Settings struct {
 	SshKey             string               `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3" json:"ssh_key,omitempty"`
 	AwsPartitions      []string             `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
 	// True if Advisor is enabled.
-	AdvisorEnabled bool `protobuf:"varint,7,opt,name=advisor_enabled,json=advisorEnabled,proto3" json:"advisor_enabled,omitempty"`
-	// Percona Platform user's email, if this PMM instance is linked to the Platform.
-	PlatformEmail string `protobuf:"bytes,8,opt,name=platform_email,json=platformEmail,proto3" json:"platform_email,omitempty"`
+	AdvisorEnabled bool   `protobuf:"varint,7,opt,name=advisor_enabled,json=advisorEnabled,proto3" json:"advisor_enabled,omitempty"`
+	PlatformEmail  string `protobuf:"bytes,8,opt,name=platform_email,json=platformEmail,proto3" json:"platform_email,omitempty"`
 	// True if Alerting is enabled.
 	AlertingEnabled bool `protobuf:"varint,10,opt,name=alerting_enabled,json=alertingEnabled,proto3" json:"alerting_enabled,omitempty"`
 	// PMM Server public address.

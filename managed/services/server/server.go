@@ -471,7 +471,7 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
-// Checking if PMM is connected to Platform is separated from settings for security and concurrency reasons.
+// While platform is no longer supported, the connectedToPlatform parameter is kept for compatibility.
 func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan bool, connectedToPlatform bool) *serverv1.Settings {
 	res := &serverv1.Settings{
 		UpdatesEnabled:   settings.IsUpdatesEnabled(),
@@ -544,10 +544,8 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 		disabledInternalPgQan = internalPgQanAgent.Disabled
 	}
 
-	_, err = models.GetPerconaSSODetails(ctx, s.db.Querier)
-
 	return &serverv1.GetSettingsResponse{
-		Settings: s.convertSettings(settings, disabledInternalPgQan, err == nil),
+		Settings: s.convertSettings(settings, disabledInternalPgQan, false),
 	}, nil
 }
 
