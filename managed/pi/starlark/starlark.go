@@ -87,7 +87,7 @@ func makeFunc(f GoFunc) starlarkFunc {
 
 		res, err := f(fargs...)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%s: %w", fn.Name(), err)
 		}
 
 		v, err := goToStarlark(res)

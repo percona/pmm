@@ -42,7 +42,7 @@ type ParseParams struct {
 // that contains templates form every parsed document.
 func Parse(reader io.Reader, params *ParseParams) ([]Template, error) {
 	if params == nil {
-		params = new(ParseParams)
+		params = &ParseParams{}
 	}
 
 	d := yaml.NewDecoder(reader)

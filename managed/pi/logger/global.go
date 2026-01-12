@@ -44,7 +44,7 @@ func SetupGlobal(opts *SetupGlobalOpts) {
 	}
 
 	if opts == nil {
-		opts = new(SetupGlobalOpts)
+		opts = &SetupGlobalOpts{}
 	}
 
 	cfg := &zap.Config{

@@ -38,7 +38,7 @@ type Advisor struct {
 // that contains advisors from every parsed document.
 func ParseAdvisors(reader io.Reader, params *ParseParams) ([]Advisor, error) {
 	if params == nil {
-		params = new(ParseParams)
+		params = &ParseParams{}
 	}
 
 	d := yaml.NewDecoder(reader)
@@ -108,8 +108,7 @@ func (a *Advisor) Validate() error {
 
 		if check.Advisor != a.Name {
 			return fmt.Errorf("advisor name '%s' doesn't match name '%s' specified in corresponding check '%s'",
-				a.Name, check.Advisor, check.Name,
-			)
+				a.Name, check.Advisor, check.Name)
 		}
 
 		if _, ok := checkNames[check.Name]; ok {

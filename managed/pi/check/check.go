@@ -107,7 +107,7 @@ type ParseParams struct {
 // that contains checks from every parsed document.
 func ParseChecks(reader io.Reader, params *ParseParams) ([]Check, error) {
 	if params == nil {
-		params = new(ParseParams)
+		params = &ParseParams{}
 	}
 
 	d := yaml.NewDecoder(reader)
