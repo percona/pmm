@@ -22,7 +22,7 @@ PMM Client supports:
 - Architectures: x86_64 (AMD64) and ARM64 (aarch64)
 - Operating systems:
 
-    - Red Hat/CentOS/Oracle Linux 8 and 9
+    - Red Hat/CentOS/Oracle Linux 8, 9 and 10
     - Debian 11 (Bullseye) and 12 (Bookworm)
     - Ubuntu 22.04 (Jammy) and 24.04 (Noble)
     - Amazon Linux 2023

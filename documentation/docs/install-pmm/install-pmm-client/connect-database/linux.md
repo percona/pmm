@@ -4,7 +4,7 @@
 
 PMM Client supports collecting system metrics from various Linux distributions:
 
-- Red Hat/CentOS/Oracle Linux 8 and 9
+- Red Hat/CentOS/Oracle Linux 8, 9 and 10
 - Amazon Linux 2023 (native support added in PMM 3.2.0)
 - Debian 11 (Bullseye) and 12 (Bookworm)
 - Ubuntu 22.04 (Jammy) and 24.04 (Noble)
