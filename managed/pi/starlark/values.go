@@ -1,9 +1,24 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 package starlark
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"go.starlark.net/starlark"
 )
 
@@ -17,7 +32,7 @@ import (
 //   - time.Time -> int (UNIX timestamp in nanoseconds);
 //   - []interface{} -> list;
 //   - map[string]interface{} -> dict.
-func goToStarlark(v interface{}) (starlark.Value, error) { //nolint: cyclop,funlen
+func goToStarlark(v any) (starlark.Value, error) { //nolint: ireturn
 	switch v := v.(type) {
 	case nil:
 		return starlark.None, nil
@@ -43,54 +58,63 @@ func goToStarlark(v interface{}) (starlark.Value, error) { //nolint: cyclop,funl
 	case time.Time:
 		return starlark.MakeInt64(v.UnixNano()), nil
 
-	case []interface{}:
+	case []any:
 		res := make([]starlark.Value, len(v))
 		for i, el := range v {
 			sv, err := goToStarlark(el)
 			if err != nil {
 				return nil, err
 			}
+
 			res[i] = sv
 		}
+
 		return starlark.NewList(res), nil
 
-	case []map[string]interface{}:
+	case []map[string]any:
 		res := make([]starlark.Value, len(v))
 		for i, el := range v {
 			sv, err := goToStarlark(el)
 			if err != nil {
 				return nil, err
 			}
+
 			res[i] = sv
 		}
+
 		return starlark.NewList(res), nil
 
-	case [][]map[string]interface{}:
+	case [][]map[string]any:
 		res := make([]starlark.Value, len(v))
 		for i, el := range v {
 			sv, err := goToStarlark(el)
 			if err != nil {
 				return nil, err
 			}
+
 			res[i] = sv
 		}
+
 		return starlark.NewList(res), nil
 
-	case map[string]interface{}:
+	case map[string]any:
 		res := starlark.NewDict(len(v))
 		for k, gv := range v {
 			sv, err := goToStarlark(gv)
 			if err != nil {
 				return nil, err
 			}
-			if err := res.SetKey(starlark.String(k), sv); err != nil {
-				return nil, errors.Wrapf(err, "failed to add %[1]v (%[1]T) = %[2]v (%[2]T) to dict", k, gv)
+
+			err = res.SetKey(starlark.String(k), sv)
+			if err != nil {
+				return nil, err
 			}
 		}
+
 		return res, nil
 
 	default:
-		return nil, errors.Errorf("unhandled type %[1]T (%[1]v)", v)
+		return nil, fmt.Errorf("unhandled type %[1]T (%[1]v)", v)
 	}
 }
 
@@ -104,7 +128,7 @@ func goToStarlark(v interface{}) (starlark.Value, error) { //nolint: cyclop,funl
 //   - tuple -> []interface{}
 //   - list -> []interface{}
 //   - dict (with string keys) -> map[string]interface{}.
-func starlarkToGo(v starlark.Value) (interface{}, error) { //nolint:funlen, cyclop
+func starlarkToGo(v starlark.Value) (any, error) {
 	switch v := v.(type) {
 	case starlark.NoneType:
 		return nil, nil //nolint:nilnil //intended
@@ -116,10 +140,12 @@ func starlarkToGo(v starlark.Value) (interface{}, error) { //nolint:funlen, cycl
 		if i, ok := v.Int64(); ok {
 			return i, nil
 		}
+
 		if u, ok := v.Uint64(); ok {
 			return u, nil
 		}
-		return nil, errors.Errorf("interger value %s is too big", v)
+
+		return nil, fmt.Errorf("integer value %s is too big", v)
 
 	case starlark.Float:
 		return float64(v), nil
@@ -128,44 +154,52 @@ func starlarkToGo(v starlark.Value) (interface{}, error) { //nolint:funlen, cycl
 		return string(v), nil
 
 	case starlark.Tuple:
-		res := make([]interface{}, len(v))
+		res := make([]any, len(v))
 		for i, el := range v {
 			gv, err := starlarkToGo(el)
 			if err != nil {
 				return nil, err
 			}
+
 			res[i] = gv
 		}
+
 		return res, nil
 
 	case *starlark.List:
-		res := make([]interface{}, v.Len())
+		res := make([]any, v.Len())
 		for i := range v.Len() {
 			gv, err := starlarkToGo(v.Index(i))
 			if err != nil {
 				return nil, err
 			}
+
 			res[i] = gv
 		}
+
 		return res, nil
 
 	case *starlark.Dict:
-		res := make(map[string]interface{}, v.Len())
+		res := make(map[string]any, v.Len())
 		for _, tu := range v.Items() {
 			k, v := tu[0], tu[1]
 			ks, ok := k.(starlark.String)
+
 			if !ok {
-				return nil, errors.Errorf("unhandled dict key type %[1]T (%[1]v)", k)
+				return nil, fmt.Errorf("unhandled dict key type %[1]T (%[1]v)", k)
 			}
+
 			gv, err := starlarkToGo(v)
 			if err != nil {
 				return nil, err
 			}
+
 			res[string(ks)] = gv
 		}
+
 		return res, nil
 
 	default:
-		return nil, errors.Errorf("unhandled type %T", v)
+		return nil, fmt.Errorf("unhandled type %T", v)
 	}
 }

@@ -1,3 +1,18 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 // Package check implements checks parsing and validation.
 package check
 
@@ -5,13 +20,14 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"encoding/base64"
+	"errors"
+	"fmt"
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"golang.org/x/crypto/blake2b"
 	"gopkg.in/yaml.v3"
 )
@@ -21,7 +37,7 @@ var nameRE = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
 // Verify checks signature of passed data with provided public key and
 // returns error in case of any problem.
-func Verify(data []byte, publicKey, sig string) error { //nolint: cyclop
+func Verify(data []byte, publicKey, sig string) error {
 	lines := strings.SplitN(sig, "\n", 4) //nolint:mnd
 	if len(lines) < 4 {                   //nolint:mnd
 		return errors.New("incomplete signature")
@@ -31,10 +47,12 @@ func Verify(data []byte, publicKey, sig string) error { //nolint: cyclop
 	if err != nil || len(sBin) != 74 {
 		return errors.New("invalid signature")
 	}
+
 	gBin, err := base64.StdEncoding.DecodeString(lines[3])
 	if err != nil || len(gBin) != 64 {
 		return errors.New("invalid global signature")
 	}
+
 	kBin, err := base64.StdEncoding.DecodeString(publicKey)
 	if err != nil || len(kBin) != 42 {
 		return errors.New("invalid public key")
@@ -62,15 +80,19 @@ func Verify(data []byte, publicKey, sig string) error { //nolint: cyclop
 	if !bytes.Equal(kKeyID, sKeyID) {
 		return errors.New("incompatible key identifiers")
 	}
+
 	if !strings.HasPrefix(lines[2], "trusted comment: ") {
 		return errors.New("unexpected format for the trusted comment")
 	}
-	if !ed25519.Verify(ed25519.PublicKey(kKey), data, sSig) {
+
+	if !ed25519.Verify(kKey, data, sSig) {
 		return errors.New("invalid signature")
 	}
-	if !ed25519.Verify(ed25519.PublicKey(kKey), append(sSig, []byte(lines[2])[17:]...), gBin) {
+
+	if !ed25519.Verify(kKey, append(sSig, []byte(lines[2])[17:]...), gBin) {
 		return errors.New("invalid global signature")
 	}
+
 	return nil
 }
 
@@ -80,20 +102,12 @@ type ParseParams struct {
 	DisallowInvalidChecks bool // if true, return errors for invalid checks instead of skipping them
 }
 
-// Parse returns a slice of validated checks parsed from YAML passed via a reader.
-// It can handle multi-document YAMLs: parsing result will be a single slice
-// that contains checks from every parsed document.
-// Deprecated: use ParseChecks instead.
-func Parse(reader io.Reader, params *ParseParams) ([]Check, error) {
-	return ParseChecks(reader, params)
-}
-
 // ParseChecks returns a slice of validated checks parsed from YAML passed via a reader.
 // It can handle multi-document YAMLs: parsing result will be a single slice
 // that contains checks from every parsed document.
 func ParseChecks(reader io.Reader, params *ParseParams) ([]Check, error) {
 	if params == nil {
-		params = new(ParseParams)
+		params = &ParseParams{}
 	}
 
 	d := yaml.NewDecoder(reader)
@@ -104,17 +118,22 @@ func ParseChecks(reader io.Reader, params *ParseParams) ([]Check, error) {
 	}
 
 	var res []Check
+
 	for {
 		var c checks
-		if err := d.Decode(&c); err != nil { //nolint:musttag
+
+		err := d.Decode(&c) //nolint:musttag
+		if err != nil {
 			if errors.Is(err, io.EOF) {
 				return res, nil
 			}
-			return nil, errors.Wrap(err, "failed to parse checks")
+
+			return nil, err
 		}
 
 		for _, check := range c.Checks {
-			if err := check.Validate(); err != nil {
+			err := check.Validate()
+			if err != nil {
 				if params.DisallowInvalidChecks {
 					return nil, err
 				}
@@ -156,12 +175,12 @@ func (t Type) Validate() error {
 	case "":
 		return errors.New("check type is empty")
 	default:
-		return errors.Errorf("unknown check type: %s", t)
+		return fmt.Errorf("unknown check type: %s", t)
 	}
 }
 
 func isTypeSupportedByV1(t Type) bool {
-	switch t { //nolint:exhaustive
+	switch t {
 	case MySQLShow, MySQLSelect, PostgreSQLShow, PostgreSQLSelect, MongoDBGetParameter,
 		MongoDBBuildInfo, MongoDBGetCmdLineOpts, MongoDBReplSetGetStatus, MongoDBGetDiagnosticData:
 		return true
@@ -192,7 +211,7 @@ func (f Family) Validate() error {
 	case "":
 		return errors.New("check family is empty")
 	default:
-		return errors.Errorf("unknown check family: %s", f)
+		return fmt.Errorf("unknown check family: %s", f)
 	}
 }
 
@@ -218,7 +237,7 @@ func (i Interval) Validate() error {
 	case "":
 		return nil
 	default:
-		return errors.Errorf("unknown check interval: %s", i)
+		return fmt.Errorf("unknown check interval: %s", i)
 	}
 }
 
@@ -242,11 +261,13 @@ type Query struct {
 
 // Validate validates query.
 func (q Query) Validate() error {
-	if err := q.Type.Validate(); err != nil {
+	err := q.Type.Validate()
+	if err != nil {
 		return err
 	}
 
-	if err := validateQuery(q.Type, q.Query); err != nil {
+	err = validateQuery(q.Type, q.Query)
+	if err != nil {
 		return err
 	}
 
@@ -295,18 +316,20 @@ func (c *Check) GetFamily() Family {
 }
 
 // Validate validates check for minimal correctness.
-func (c *Check) Validate() error { //nolint: cyclop
+func (c *Check) Validate() error {
 	var err error
 
 	if !nameRE.MatchString(c.Name) {
 		return errors.New("invalid check name")
 	}
 
-	if err = c.Interval.Validate(); err != nil {
+	err = c.Interval.Validate()
+	if err != nil {
 		return err
 	}
 
-	if err = c.validateScript(); err != nil {
+	err = c.validateScript()
+	if err != nil {
 		return err
 	}
 
@@ -332,21 +355,24 @@ func (c *Check) Validate() error { //nolint: cyclop
 	case 2: //nolint:mnd
 		return c.validateV2()
 	default:
-		return errors.Errorf("unexpected version %d", c.Version)
+		return fmt.Errorf("unexpected version %d", c.Version)
 	}
 }
 
 func (c *Check) validateV1() error {
 	var err error
-	if err = c.Type.Validate(); err != nil {
+
+	err = c.Type.Validate()
+	if err != nil {
 		return err
 	}
 
 	if !isTypeSupportedByV1(c.Type) {
-		return errors.Errorf("check type '%s' is not supprted in V1", c.Type)
+		return fmt.Errorf("check type '%s' is not supprted in V1", c.Type)
 	}
 
-	if err = validateQuery(c.Type, c.Query); err != nil {
+	err = validateQuery(c.Type, c.Query)
+	if err != nil {
 		return err
 	}
 
@@ -363,11 +389,14 @@ func (c *Check) validateV1() error {
 
 func (c *Check) validateV2() error {
 	var err error
-	if err = c.Family.Validate(); err != nil {
+
+	err = c.Family.Validate()
+	if err != nil {
 		return err
 	}
 
-	if err = c.validateQueries(); err != nil {
+	err = c.validateQueries()
+	if err != nil {
 		return err
 	}
 
@@ -395,7 +424,7 @@ func validateQuery(typ Type, query string) error {
 	case PostgreSQLShow, MongoDBGetParameter, MongoDBBuildInfo, MongoDBGetCmdLineOpts,
 		MongoDBReplSetGetStatus, MongoDBGetDiagnosticData:
 		if query != "" {
-			return errors.Errorf("query should be empty for '%s' type", typ)
+			return fmt.Errorf("query should be empty for '%s' type", typ)
 		}
 	case PostgreSQLSelect, MySQLShow, MySQLSelect, ClickHouseSelect,
 		MetricsInstant, MetricsRange:
@@ -412,7 +441,7 @@ func validateQueryParameters(typ Type, params map[Parameter]string) error {
 	case PostgreSQLShow, MongoDBGetParameter, MongoDBBuildInfo, MongoDBGetCmdLineOpts,
 		MongoDBReplSetGetStatus, MongoDBGetDiagnosticData, MySQLShow, MySQLSelect:
 		if len(params) != 0 {
-			return errors.Errorf("query for '%s' type should not have any parameters", typ)
+			return fmt.Errorf("query for '%s' type should not have any parameters", typ)
 		}
 
 	case PostgreSQLSelect:
@@ -430,11 +459,12 @@ func validateQueryParameters(typ Type, params map[Parameter]string) error {
 func validateParametersForPostgreSQLSelectQuery(params map[Parameter]string) error {
 	for param, value := range params {
 		if param != AllDBs {
-			return errors.Errorf("unsupported parameter '%s' for postgreSQL select query", param)
+			return fmt.Errorf("unsupported parameter '%s' for postgreSQL select query", param)
 		}
 
-		if _, err := strconv.ParseBool(value); err != nil {
-			return errors.Wrapf(err, "failed to parse all_dbs parameter value %s, it should be a boolean", value)
+		_, err := strconv.ParseBool(value)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -444,11 +474,12 @@ func validateParametersForPostgreSQLSelectQuery(params map[Parameter]string) err
 func validateParametersForMetricsInstantQuery(params map[Parameter]string) error {
 	for param, value := range params {
 		if param != Lookback {
-			return errors.Errorf("unsupported parameter '%s' for instant metris query", param)
+			return fmt.Errorf("unsupported parameter '%s' for instant metris query", param)
 		}
 
-		if _, err := time.ParseDuration(value); err != nil {
-			return errors.Wrapf(err, "failed to parse loopback parameter value '%s', it should be a duration", value)
+		_, err := time.ParseDuration(value)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -465,13 +496,14 @@ func validateParametersForMetricsRangeQuery(params map[Parameter]string) error {
 	}
 
 	for param, value := range params {
-		switch param { //nolint:exhaustive
+		switch param {
 		case Lookback, Range, Step:
-			if _, err := time.ParseDuration(value); err != nil {
-				return errors.Wrapf(err, "failed to parse '%s' parameter value %s, it should be a duration", param, value)
+			_, err := time.ParseDuration(value)
+			if err != nil {
+				return err
 			}
 		default:
-			return errors.Errorf("unsupported parameter '%s' for range metris query", param)
+			return fmt.Errorf("unsupported parameter '%s' for range metris query", param)
 		}
 	}
 
@@ -485,7 +517,8 @@ func (c *Check) validateQueries() error {
 
 	var err error
 	for _, q := range c.Queries {
-		if err = q.Validate(); err != nil {
+		err = q.Validate()
+		if err != nil {
 			return err
 		}
 	}
@@ -498,20 +531,20 @@ func (c *Check) validateQueries() error {
 	case MongoDB:
 		return checkQueryCompatibilityWithMongoDBFamily(c.Queries)
 	default:
-		return errors.Errorf("unknown check family: %s", c.Family)
+		return fmt.Errorf("unknown check family: %s", c.Family)
 	}
 }
 
 func checkQueryForCompatibilityWithMySQLFamily(queries []Query) error {
 	for _, q := range queries {
-		switch q.Type { //nolint:exhaustive
+		switch q.Type {
 		case MySQLShow:
 		case MySQLSelect:
 		case MetricsInstant:
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return errors.Errorf("unsupported query type '%s' for mySQL family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for mySQL family", q.Type)
 		}
 	}
 
@@ -520,23 +553,23 @@ func checkQueryForCompatibilityWithMySQLFamily(queries []Query) error {
 
 func checkQueryForCompatibilityWithPostgreSQLFamily(queries []Query) error {
 	for _, q := range queries {
-		switch q.Type { //nolint:exhaustive
+		switch q.Type {
 		case PostgreSQLShow:
 		case PostgreSQLSelect:
 		case MetricsInstant:
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return errors.Errorf("unsupported query type '%s' for postgreSQL family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for postgreSQL family", q.Type)
 		}
 	}
 
 	return nil
 }
 
-func checkQueryCompatibilityWithMongoDBFamily(queries []Query) error { //nolint:cyclop
+func checkQueryCompatibilityWithMongoDBFamily(queries []Query) error {
 	for _, q := range queries {
-		switch q.Type { //nolint:exhaustive
+		switch q.Type {
 		case MongoDBGetParameter:
 		case MongoDBBuildInfo:
 		case MongoDBGetCmdLineOpts:
@@ -546,7 +579,7 @@ func checkQueryCompatibilityWithMongoDBFamily(queries []Query) error { //nolint:
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return errors.Errorf("unsupported query type '%s' for mongoDB family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for mongoDB family", q.Type)
 		}
 	}
 

@@ -1,16 +1,31 @@
-package common
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package common //nolint:revive
 
 import (
+	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
 //go:generate ../../../bin/stringer -type=Severity -linecomment
 
 // Severity represents alert severity level as present in Advisors.
-type Severity int
+type Severity int //nolint:recvcheck
 
 // Supported severity levels.
 const (
@@ -57,23 +72,26 @@ func ParseSeverity(s string) Severity {
 // Validate returns error in case of invalid severity value.
 func (s Severity) Validate() error {
 	if s < Emergency || s > Debug {
-		return errors.Errorf("unknown severity level: %s", s)
+		return fmt.Errorf("unknown severity level: %s", s)
 	}
 
 	return nil
 }
 
 // MarshalYAML implements the yaml.Marshaler interface.
-func (s Severity) MarshalYAML() (interface{}, error) {
+func (s Severity) MarshalYAML() (any, error) {
 	return s.String(), nil
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
-func (s *Severity) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *Severity) UnmarshalYAML(unmarshal func(any) error) error {
 	var str string
-	if err := unmarshal(&str); err != nil {
+
+	err := unmarshal(&str)
+	if err != nil {
 		return err
 	}
+
 	*s = ParseSeverity(str)
 
 	return nil

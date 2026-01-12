@@ -1,3 +1,18 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 package logger
 
 import (
@@ -58,8 +73,7 @@ func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	resp, err := rt.rt.RoundTrip(req)
-
-	if err != nil { //nolint: nestif
+	if err != nil {
 		rl.Error("Received error", zap.Error(err))
 	} else if resp != nil {
 		if rl.Core().Enabled(zap.DebugLevel) && rt.logFullRequest {
@@ -71,5 +85,6 @@ func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 			rl.Info("Received response: " + resp.Status)
 		}
 	}
+
 	return resp, err
 }

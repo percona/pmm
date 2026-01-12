@@ -120,7 +120,6 @@ func TestUpdateAdvisorsList(t *testing.T) {
 		require.Equal(t, "Dev Advisor", advisor.Summary)
 		require.Equal(t, "Advisor used for developing checks", advisor.Description)
 		require.Equal(t, "development", advisor.Category)
-		require.Empty(t, advisor.Tiers)
 		require.Len(t, advisor.Checks, 1)
 
 		checkNames := make([]string, 0, len(advisor.Checks))

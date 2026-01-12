@@ -1,10 +1,25 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 // Package starlark provides Starlark execution environment.
 package starlark
 
 import (
+	"errors"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"go.starlark.net/starlark"
 
 	"github.com/percona/pmm/managed/pi/check"
@@ -12,10 +27,10 @@ import (
 )
 
 // PrintFunc represents fmt.Println-like function that is used by Starlark 'print' function implementation.
-type PrintFunc func(args ...interface{})
+type PrintFunc func(args ...any)
 
 // GoFunc represent a Go function that can be registered in Starlark environment.
-type GoFunc func(args ...interface{}) (interface{}, error)
+type GoFunc func(args ...any) (any, error)
 
 // Env represents Starlark execution environment.
 type Env struct {
@@ -24,17 +39,21 @@ type Env struct {
 }
 
 // NewEnv creates a new Starlark execution environment.
-func NewEnv(name, script string, predeclaredFuncs map[string]GoFunc) (env *Env, err error) {
+func NewEnv(name, script string, predeclaredFuncs map[string]GoFunc) (*Env, error) {
+	var env *Env
+
 	predeclared := make(starlark.StringDict, len(predeclaredFuncs))
+
 	for n, f := range predeclaredFuncs {
 		predeclared[n] = starlark.NewBuiltin(n, makeFunc(f))
 	}
+
 	predeclared.Freeze()
 
 	var p *starlark.Program
-	_, p, err = starlark.SourceProgram(name, script, predeclared.Has)
+
+	_, p, err := starlark.SourceProgram(name, script, predeclared.Has)
 	if err != nil {
-		err = errors.Wrap(err, "failed to parse script")
 		return env, err
 	}
 
@@ -42,6 +61,7 @@ func NewEnv(name, script string, predeclaredFuncs map[string]GoFunc) (env *Env, 
 		p:           p,
 		predeclared: predeclared,
 	}
+
 	return env, err
 }
 
@@ -50,29 +70,31 @@ type starlarkFunc func(*starlark.Thread, *starlark.Builtin, starlark.Tuple, []st
 
 // makeFunc converts GoFunc to starlarkFunc.
 func makeFunc(f GoFunc) starlarkFunc {
-	return func(_ *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) { //nolint:lll
+	return func(_ *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		if len(kwargs) != 0 {
-			return nil, errors.Errorf("%s: kwargs are not supported", fn.Name())
+			return nil, fmt.Errorf("%s: kwargs are not supported", fn.Name())
 		}
 
-		fargs := make([]interface{}, len(args))
+		fargs := make([]any, len(args))
 		for i, arg := range args {
 			farg, err := starlarkToGo(arg)
 			if err != nil {
-				return nil, errors.Wrap(err, fn.Name())
+				return nil, err
 			}
+
 			fargs[i] = farg
 		}
 
 		res, err := f(fargs...)
 		if err != nil {
-			return nil, errors.Wrap(err, fn.Name())
+			return nil, fmt.Errorf("%s: %w", fn.Name(), err)
 		}
 
 		v, err := goToStarlark(res)
 		if err != nil {
-			return nil, errors.Wrap(err, fn.Name())
+			return nil, err
 		}
+
 		return v, nil
 	}
 }
@@ -82,9 +104,9 @@ func makeFunc(f GoFunc) starlarkFunc {
 func noopPrint(*starlark.Thread, string) {}
 
 // run executes function with a given name with given arguments and returns result and fatal error.
-// threadName is used only for debugging.
-// print is a user-suplied function for Starlark 'print'.
-func (env *Env) run(funcName string, args starlark.Tuple, threadName string, printFunc PrintFunc) (starlark.Value, error) {
+// ThreadName is used only for debugging.
+// Print is a user-suplied function for Starlark 'print'.
+func (env *Env) run(funcName string, args starlark.Tuple, threadName string, printFunc PrintFunc) (starlark.Value, error) { //nolint:ireturn
 	thread := &starlark.Thread{
 		Name:  threadName,
 		Print: noopPrint,
@@ -105,13 +127,15 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 			eErr.Msg = fmt.Sprintf("thread %s: failed to init script: %s\n%s", threadName, eErr.Msg, eErr.CallStack)
 			return nil, eErr
 		}
-		return nil, errors.Wrapf(err, "thread %s: failed to init script", threadName)
+
+		return nil, err
 	}
+
 	globals.Freeze()
 
 	fn := globals[funcName]
 	if fn == nil {
-		return nil, errors.Errorf("thread %s: function %s is not defined", threadName, funcName)
+		return nil, fmt.Errorf("thread %s: function %s is not defined", threadName, funcName)
 	}
 
 	v, err := starlark.Call(thread, fn, args, nil)
@@ -119,34 +143,41 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 		var eErr *starlark.EvalError
 		if ok := errors.As(err, &eErr); ok {
 			// tweak message, but keep original type, callstack, and cause
-			eErr.Msg = fmt.Sprintf("thread %s: failed to execute function %s: %s\n%s", threadName, funcName, eErr.Msg, eErr.CallStack) //nolint:lll
+			eErr.Msg = fmt.Sprintf("thread %s: failed to execute function %s: %s\n%s", threadName, funcName, eErr.Msg, eErr.CallStack)
 			return nil, eErr
 		}
-		return nil, errors.Wrapf(err, "thread %s: failed to execute function %s", threadName, funcName)
+
+		return nil, err
 	}
 
 	v.Freeze()
+
 	return v, nil
 }
 
 // Run executes function 'check_context' with given query results and additional funcs known as 'context'.
 // Id is used to separate that execution from other and used only for debugging.
-// print is a user-suplied Starlark 'print' function implementation.
-func (env *Env) Run(id string, input interface{}, contextFuncs map[string]GoFunc, printFunc PrintFunc) ([]check.Result, error) {
+// Print is a user-suplied Starlark 'print' function implementation.
+func (env *Env) Run(id string, input any, contextFuncs map[string]GoFunc, printFunc PrintFunc) ([]check.Result, error) {
 	var err error
+
 	rows, err := prepareInput(input)
 	if err != nil {
-		return nil, errors.Wrapf(err, "thread %s", id)
+		return nil, err
 	}
+
 	context := starlark.NewDict(len(contextFuncs))
 	for n, f := range contextFuncs {
-		if err = context.SetKey(starlark.String(n), starlark.NewBuiltin(n, makeFunc(f))); err != nil {
-			return nil, errors.Wrapf(err, "thread %s", id)
+		err = context.SetKey(starlark.String(n), starlark.NewBuiltin(n, makeFunc(f)))
+		if err != nil {
+			return nil, err
 		}
 	}
+
 	context.Freeze()
 
 	var output starlark.Value
+
 	output, err = env.run("check_context", starlark.Tuple{rows, context}, id, printFunc)
 	if err != nil {
 		// thread id is already present
@@ -155,20 +186,21 @@ func (env *Env) Run(id string, input interface{}, contextFuncs map[string]GoFunc
 
 	res, err := parseOutput(output)
 	if err != nil {
-		return nil, errors.Wrapf(err, "thread %s", id)
+		return nil, err
 	}
 
 	return res, nil
 }
 
 // prepareInput converts go types to starlark types.
-func prepareInput(input interface{}) (starlark.Value, error) {
+func prepareInput(input any) (starlark.Value, error) { //nolint:ireturn
 	l, err := goToStarlark(input)
 	if err != nil {
 		return nil, err
 	}
 
 	l.Freeze()
+
 	return l, nil
 }
 
@@ -176,37 +208,38 @@ func prepareInput(input interface{}) (starlark.Value, error) {
 func parseOutput(v starlark.Value) ([]check.Result, error) {
 	gv, err := starlarkToGo(v)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse script output")
+		return nil, err
 	}
 
 	switch gv := gv.(type) {
-	case []interface{}:
+	case []any:
 		res := make([]check.Result, len(gv))
 		for i, el := range gv {
-			m, ok := el.(map[string]interface{})
+			m, ok := el.(map[string]any)
 			if !ok {
-				return nil, errors.Errorf("failed to parse script output: result %d has wrong type: %T", i, el)
+				return nil, fmt.Errorf("failed to parse script output: result %d has wrong type: %T", i, el)
 			}
 
 			r, err := convertResult(m)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to parse script output")
+				return nil, err
 			}
+
 			res[i] = *r
 		}
 
 		return res, nil
 
 	case string:
-		return nil, errors.Errorf("script returned error: %s", gv)
+		return nil, fmt.Errorf("script returned error: %s", gv)
 
 	default:
-		return nil, errors.Errorf("failed to parse script output: %[1]v (%[1]T)", gv)
+		return nil, fmt.Errorf("failed to parse script output: %[1]v (%[1]T)", gv)
 	}
 }
 
 // getField returns m[key] if it is present and a string, empty string if absent, or error otherwise.
-func getField(m map[string]interface{}, key string) (string, error) {
+func getField(m map[string]any, key string) (string, error) {
 	v, ok := m[key]
 	if !ok {
 		return "", nil
@@ -214,44 +247,49 @@ func getField(m map[string]interface{}, key string) (string, error) {
 
 	s, ok := v.(string)
 	if !ok {
-		return "", errors.Errorf("%[1]q has wrong type: %[2]T (%[2]v)", key, v)
+		return "", fmt.Errorf("%[1]q has wrong type: %[2]T (%[2]v)", key, v)
 	}
 
 	return s, nil
 }
 
-func convertResult(m map[string]interface{}) (*check.Result, error) {
+func convertResult(m map[string]any) (*check.Result, error) {
 	summary, err := getField(m, "summary")
 	if err != nil {
 		return nil, err
 	}
+
 	description, err := getField(m, "description")
 	if err != nil {
 		return nil, err
 	}
+
 	readMoreURL, err := getField(m, "read_more_url")
 	if err != nil {
 		return nil, err
 	}
+
 	severity, err := getField(m, "severity")
 	if err != nil {
 		return nil, err
 	}
 
 	var labels map[string]string
+
 	l, ok := m["labels"]
 	if ok {
-		lm, ok := l.(map[string]interface{})
+		lm, ok := l.(map[string]any)
 		if !ok {
-			return nil, errors.Errorf("labels field has wrong type: %[1]T (%[1]v)", l)
+			return nil, fmt.Errorf("labels field has wrong type: %[1]T (%[1]v)", l)
 		}
 
 		labels = make(map[string]string, len(lm))
 		for lk := range lm {
 			lv, err := getField(lm, lk)
 			if err != nil {
-				return nil, errors.Wrap(err, "labels")
+				return nil, err
 			}
+
 			labels[lk] = lv
 		}
 	}
@@ -263,7 +301,9 @@ func convertResult(m map[string]interface{}) (*check.Result, error) {
 		Severity:    common.ParseSeverity(severity),
 		Labels:      labels,
 	}
-	if err = res.Validate(); err != nil {
+
+	err = res.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -273,12 +313,15 @@ func convertResult(m map[string]interface{}) (*check.Result, error) {
 // CheckGlobals checks for the presence of `check` and `check_context` functions.
 func CheckGlobals(c *check.Check, predeclaredFuncs map[string]GoFunc) error {
 	predeclared := make(starlark.StringDict, len(predeclaredFuncs))
+
 	for n, f := range predeclaredFuncs {
 		predeclared[n] = starlark.NewBuiltin(n, makeFunc(f))
 	}
+
 	predeclared.Freeze()
 
 	var thread starlark.Thread
+
 	globals, err := starlark.ExecFile(&thread, "", c.Script, predeclared)
 	if err != nil {
 		return err
@@ -293,5 +336,6 @@ func CheckGlobals(c *check.Check, predeclaredFuncs map[string]GoFunc) error {
 	if _, ok := globals["check_context"].(*starlark.Function); !ok {
 		return fmt.Errorf("%s: no `check_context` function found", c.Name)
 	}
+
 	return nil
 }

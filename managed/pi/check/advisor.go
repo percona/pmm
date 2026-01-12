@@ -1,9 +1,25 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 package check
 
 import (
+	"errors"
+	"fmt"
 	"io"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -22,7 +38,7 @@ type Advisor struct {
 // that contains advisors from every parsed document.
 func ParseAdvisors(reader io.Reader, params *ParseParams) ([]Advisor, error) {
 	if params == nil {
-		params = new(ParseParams)
+		params = &ParseParams{}
 	}
 
 	d := yaml.NewDecoder(reader)
@@ -33,17 +49,22 @@ func ParseAdvisors(reader io.Reader, params *ParseParams) ([]Advisor, error) {
 	}
 
 	var res []Advisor
+
 	for {
 		var c advisors
-		if err := d.Decode(&c); err != nil { //nolint:musttag
+
+		err := d.Decode(&c) //nolint:musttag
+		if err != nil {
 			if errors.Is(err, io.EOF) {
 				return res, nil
 			}
-			return nil, errors.Wrap(err, "failed to parse advisors")
+
+			return nil, fmt.Errorf("failed to parse advisors: %w", err)
 		}
 
 		for _, advisor := range c.Advisors {
-			if err := advisor.Validate(); err != nil {
+			err := advisor.Validate()
+			if err != nil {
 				if params.DisallowInvalidChecks {
 					return nil, err
 				}
@@ -56,10 +77,10 @@ func ParseAdvisors(reader io.Reader, params *ParseParams) ([]Advisor, error) {
 	}
 }
 
-// Validate advisor.
-func (a *Advisor) Validate() error { //nolint:cyclop
+// Validate validates an advisor.
+func (a *Advisor) Validate() error {
 	if a.Version != 1 {
-		return errors.Errorf("unexpected version %d", a.Version)
+		return fmt.Errorf("unexpected version %d", a.Version)
 	}
 
 	if !nameRE.MatchString(a.Name) {
@@ -80,19 +101,20 @@ func (a *Advisor) Validate() error { //nolint:cyclop
 
 	checkNames := make(map[string]struct{}, len(a.Checks))
 	for _, check := range a.Checks {
-		if err := check.Validate(); err != nil {
+		err := check.Validate()
+		if err != nil {
 			return err
 		}
 
 		if check.Advisor != a.Name {
-			return errors.Errorf("advisor name '%s' doesn't match name '%s' specified in corresponding check '%s'",
-				a.Name, check.Advisor, check.Name,
-			)
+			return fmt.Errorf("advisor name '%s' doesn't match name '%s' specified in corresponding check '%s'",
+				a.Name, check.Advisor, check.Name)
 		}
 
 		if _, ok := checkNames[check.Name]; ok {
-			return errors.Errorf("check name collision `%s` detected in '%s' advisor", check.Name, a.Name)
+			return fmt.Errorf("check name collision `%s` detected in '%s' advisor", check.Name, a.Name)
 		}
+
 		checkNames[check.Name] = struct{}{}
 	}
 

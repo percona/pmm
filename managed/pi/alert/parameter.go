@@ -1,9 +1,24 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 package alert
 
 import (
+	"errors"
+	"fmt"
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
 // Parameter represents alerting template or rule parameter.
@@ -12,14 +27,14 @@ type Parameter struct {
 	Summary string        `yaml:"summary"`              // required
 	Unit    Unit          `yaml:"unit,omitempty"`       // optional
 	Type    Type          `yaml:"type"`                 // required
-	Range   []interface{} `yaml:"range,flow,omitempty"` // optional
-	Value   interface{}   `yaml:"value,omitempty"`      // optional
+	Range   []interface{} `yaml:"range,flow,omitempty"` //nolint:modernize
+	Value   interface{}   `yaml:"value,omitempty"`      //nolint:modernize
 }
 
 // GetValueForBool casts parameter value to the bool.
 func (p *Parameter) GetValueForBool() (bool, error) {
 	if p.Type != Bool {
-		return false, errors.Errorf("parameter type is %s, not bool", p.Type)
+		return false, fmt.Errorf("parameter type is %s, not bool", p.Type)
 	}
 
 	switch v := p.Value.(type) {
@@ -28,8 +43,9 @@ func (p *Parameter) GetValueForBool() (bool, error) {
 	case string:
 		b, err := strconv.ParseBool(v)
 		if err != nil {
-			return false, errors.WithStack(err)
+			return false, err
 		}
+
 		return b, nil
 	default:
 		// handle integers, etc
@@ -42,7 +58,7 @@ func (p *Parameter) GetValueForBool() (bool, error) {
 // value is present (not nil), as it's optional.
 func (p *Parameter) GetValueForFloat() (float64, error) {
 	if p.Type != Float {
-		return 0, errors.Errorf("parameter type is %s, not float", p.Type)
+		return 0, fmt.Errorf("parameter type is %s, not float", p.Type)
 	}
 
 	return castValueToFloat64(p.Value)
@@ -52,16 +68,21 @@ func (p *Parameter) GetValueForFloat() (float64, error) {
 // range is present (slice is not empty), as it's optional.
 func (p *Parameter) GetRangeForFloat() (float64, float64, error) {
 	if p.Type != Float {
-		return 0, 0, errors.Errorf("parameter type is %s, not float", p.Type)
+		return 0, 0, fmt.Errorf("parameter type is %s, not float", p.Type)
 	}
 
-	var lower, higher float64
-	var err error
+	var (
+		lower, higher float64
+		err           error
+	)
 
-	if lower, err = castValueToFloat64(p.Range[0]); err != nil {
+	lower, err = castValueToFloat64(p.Range[0])
+	if err != nil {
 		return 0, 0, err
 	}
-	if higher, err = castValueToFloat64(p.Range[1]); err != nil {
+
+	higher, err = castValueToFloat64(p.Range[1])
+	if err != nil {
 		return 0, 0, err
 	}
 
@@ -71,7 +92,7 @@ func (p *Parameter) GetRangeForFloat() (float64, float64, error) {
 // GetValueForString casts parameter value to the string.
 func (p *Parameter) GetValueForString() (string, error) {
 	if p.Type != String {
-		return "", errors.Errorf("parameter type is %s, not string", p.Type)
+		return "", fmt.Errorf("parameter type is %s, not string", p.Type)
 	}
 
 	switch v := p.Value.(type) {
@@ -80,13 +101,14 @@ func (p *Parameter) GetValueForString() (string, error) {
 	case string:
 		return v, nil
 	default:
-		return "", errors.Errorf("value has unhandled type %T", v)
+		return "", fmt.Errorf("value has unhandled type %T", v)
 	}
 }
 
 // Validate validates parameter.
 func (p *Parameter) Validate() error {
 	var err error
+
 	if p.Name == "" {
 		return errors.New("parameter name is empty")
 	}
@@ -95,15 +117,18 @@ func (p *Parameter) Validate() error {
 		return errors.New("parameter summary is empty")
 	}
 
-	if err = p.Unit.Validate(); err != nil {
+	err = p.Unit.Validate()
+	if err != nil {
 		return err
 	}
 
-	if err = p.Type.Validate(); err != nil {
+	err = p.Type.Validate()
+	if err != nil {
 		return err
 	}
 
-	if err = p.validateValue(); err != nil {
+	err = p.validateValue()
+	if err != nil {
 		return err
 	}
 
@@ -129,7 +154,7 @@ func (p *Parameter) validateValue() error {
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return errors.Errorf("unknown parameter type: %s", p.Type)
+	return fmt.Errorf("unknown parameter type: %s", p.Type)
 }
 
 func (p *Parameter) validateRange() error {
@@ -140,29 +165,35 @@ func (p *Parameter) validateRange() error {
 	switch p.Type {
 	case Bool, String:
 		if len(p.Range) != 0 {
-			return errors.Errorf("range should be empty, but it has %d elements", len(p.Range))
+			return fmt.Errorf("range should be empty, but it has %d elements", len(p.Range))
 		}
+
 		return nil
 
 	case Float:
 		if len(p.Range) != 2 { //nolint:mnd
-			return errors.Errorf("range should be empty or have two elements, but it has %d elements", len(p.Range))
+			return fmt.Errorf("range should be empty or have two elements, but it has %d elements", len(p.Range))
 		}
-		if _, err := castValueToFloat64(p.Range[0]); err != nil {
-			return errors.Wrapf(err, "invalid lower element of range")
+
+		_, err := castValueToFloat64(p.Range[0])
+		if err != nil {
+			return fmt.Errorf("invalid lower element of range: %w", err)
 		}
-		if _, err := castValueToFloat64(p.Range[1]); err != nil {
-			return errors.Errorf("invalid higher element of range")
+
+		_, err = castValueToFloat64(p.Range[1])
+		if err != nil {
+			return errors.New("invalid higher element of range")
 		}
+
 		return nil
 	}
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return errors.Errorf("unknown parameter type: %s", p.Type)
+	return fmt.Errorf("unknown parameter type: %s", p.Type)
 }
 
-func castValueToFloat64(v interface{}) (float64, error) { //nolint: cyclop
+func castValueToFloat64(v interface{}) (float64, error) { //nolint:modernize
 	switch v := v.(type) {
 	case nil:
 		return 0, errors.New("value is nil")
@@ -183,10 +214,11 @@ func castValueToFloat64(v interface{}) (float64, error) { //nolint: cyclop
 	case string:
 		f, err := strconv.ParseFloat(v, 64)
 		if err != nil {
-			return 0, errors.WithStack(err)
+			return 0, err
 		}
+
 		return f, nil
 	default:
-		return 0, errors.Errorf("value has unhandled type %T", v)
+		return 0, fmt.Errorf("value has unhandled type %T", v)
 	}
 }
