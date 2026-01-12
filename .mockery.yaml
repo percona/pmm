@@ -1,6 +1,7 @@
 # This is the top-level configuration file for mockery.
 disable-version-string: True
 with-expecter: False
+resolve-type-alias: False
 inpackage: True
 dir: "{{.InterfaceDir}}"
 filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
@@ -21,9 +22,6 @@ packages:
   github.com/percona/pmm/managed/services/checks:
     interfaces:
       agentsRegistry:
-  github.com/percona/pmm/managed/services/grafana:
-    interfaces:
-      awsInstanceChecker:
   github.com/percona/pmm/managed/services/inventory:
     interfaces:
       agentService:
@@ -69,10 +67,8 @@ packages:
     interfaces:
       agentsStateUpdater:
       checksService:
-      emailer:
       grafanaClient:
       prometheusService:
-      rulesService:
       supervisordService:
       telemetryService:
       templatesService:
@@ -83,6 +79,9 @@ packages:
       Versioner:
         config:
           mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"
+  github.com/percona/pmm/managed/services/victoriametrics:
+    interfaces:
+      haService:
   github.com/percona/pmm/managed/services/telemetry:
     interfaces:
       DataSource:
@@ -90,11 +89,6 @@ packages:
       distributionUtilService:
       sender:
   # admin
-  github.com/percona/pmm/admin/commands/pmm/server/docker:
-    interfaces:
-      Functions:
-        config:
-          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"
   # agent
   github.com/percona/pmm/agent/agentlocal:
     interfaces:

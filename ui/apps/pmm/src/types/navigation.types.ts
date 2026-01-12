@@ -6,13 +6,15 @@ export interface NavItem {
   id: string;
   text?: string;
   secondaryText?: string;
-  icon?: IconName | SvgIconComponent;
+  icon?: IconName | SvgIconComponent | React.ReactElement;
   url?: string;
   children?: NavItem[];
   isActive?: boolean;
   target?: HTMLAnchorElement['target'];
-  isDivider?: boolean;
   onClick?: () => void;
-  badge?: ChipProps;
+  hidden?: boolean;
+  badge?: ChipProps | React.ReactElement;
+  badgeAlwaysVisible?: boolean;
   matches?: string[];
+  type?: 'menu-item' | 'menu-text' | 'menu-divider';
 }

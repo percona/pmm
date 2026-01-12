@@ -828,6 +828,9 @@ type ListNodesOKBodyContainerItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if this node is a PMM Server node (HA mode).
+	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
 }
 
 // Validate validates this list nodes OK body container items0
@@ -889,6 +892,9 @@ type ListNodesOKBodyGenericItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if this node is a PMM Server node (HA mode).
+	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
 }
 
 // Validate validates this list nodes OK body generic items0

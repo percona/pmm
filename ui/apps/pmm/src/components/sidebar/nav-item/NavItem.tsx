@@ -18,7 +18,7 @@ import IconButton from '@mui/material/IconButton';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import NavItemDot from './nav-item-dot/NavItemDot';
-import Chip from '@mui/material/Chip';
+import NavItemBadge from './nav-item-badge/NavItemBadge';
 import Box from '@mui/material/Box';
 
 const NavItem: FC<NavItemProps> = ({
@@ -106,6 +106,9 @@ const NavItem: FC<NavItemProps> = ({
                 className="navitem-primary-text"
                 sx={styles.text}
               />
+              {item.badge && item.badgeAlwaysVisible && drawerOpen && (
+                <NavItemBadge badge={item.badge} />
+              )}
             </ListItemButton>
             {drawerOpen && (
               <IconButton
@@ -150,10 +153,35 @@ const NavItem: FC<NavItemProps> = ({
     );
   }
 
-  if (item.isDivider) {
+  if (item.type === 'menu-divider') {
     return (
-      <ListItem sx={styles.listItemDivider}>
+      <ListItem
+        data-testid={dataTestid + '-divider'}
+        sx={styles.listItemDivider}
+      >
         <Divider sx={styles.divider} />
+      </ListItem>
+    );
+  }
+
+  if (item.type === 'menu-text') {
+    return (
+      <ListItem
+        key={item.id}
+        data-testid={dataTestid + '-text-item'}
+        disableGutters
+        disablePadding
+      >
+        <ListItemText
+          primary={item.text}
+          secondary={item.secondaryText}
+          sx={[
+            styles.listItemButton,
+            styles.leafItem,
+            level === 0 && styles.navItemRoot,
+            styles.textOnly,
+          ]}
+        />
       </ListItem>
     );
   }
@@ -197,14 +225,7 @@ const NavItem: FC<NavItemProps> = ({
             className="navitem-primary-text"
             sx={styles.text}
           />
-          {item.badge && (
-            <Chip
-              size="small"
-              color="warning"
-              variant="outlined"
-              {...item.badge}
-            />
-          )}
+          {item.badge && <NavItemBadge badge={item.badge} />}
         </ListItemButton>
       </ListItem>
     </NavItemTooltip>
