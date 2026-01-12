@@ -9,11 +9,13 @@ import {
   getCurrentUser,
   getCurrentUserOrgs,
   getUserInfo,
+  getUserPreferences,
   updatePreferences,
   updateUserInfo,
 } from 'api/user';
 import { ApiError } from 'types/api.types';
 import {
+  GetPreferenceResponse,
   GetUserResponse,
   UpdatePreferencesBody,
   UpdateUserInfoPayload,
@@ -57,6 +59,15 @@ export const useCurrentUserOrgs = (
   useQuery({
     queryKey: ['user:orgs'],
     queryFn: () => getCurrentUserOrgs(),
+    ...options,
+  });
+
+export const useUserPreferences = (
+  options?: Partial<UseQueryOptions<GetPreferenceResponse>>
+) =>
+  useQuery({
+    queryKey: ['user:preferences'],
+    queryFn: () => getUserPreferences(),
     ...options,
   });
 
