@@ -48,6 +48,8 @@ export interface UpdatePreferencesBody {
   theme: ColorMode;
 }
 
+export type GetPreferenceResponse = UpdatePreferencesBody;
+
 export interface UserInfo {
   userId: number;
   alertingTourCompleted: boolean;

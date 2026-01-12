@@ -80,7 +80,7 @@ func TestNodeRegister(t *testing.T) {
 				Body:    body,
 			}
 			_, err := client.Default.ManagementService.RegisterNode(&params)
-			wantErr := fmt.Sprintf("Node with name %q already exists.", nodeName)
+			wantErr := fmt.Sprintf("Node with name %s already exists.", nodeName)
 			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, wantErr)
 		})
 

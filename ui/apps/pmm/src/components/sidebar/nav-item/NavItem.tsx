@@ -1,6 +1,5 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { getLinkProps, hasChildMatch, shouldShowBadge } from './NavItem.utils';
@@ -19,7 +18,7 @@ import IconButton from '@mui/material/IconButton';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import NavItemDot from './nav-item-dot/NavItemDot';
-import Chip from '@mui/material/Chip';
+import NavItemBadge from './nav-item-badge/NavItemBadge';
 import Box from '@mui/material/Box';
 
 const NavItem: FC<NavItemProps> = ({
@@ -33,13 +32,13 @@ const NavItem: FC<NavItemProps> = ({
     [activeItem, item]
   );
   const [open, setIsOpen] = useState(active);
-  const url = useLinkWithVariables(item.url);
+  const url = useLinkWithVariables(
+    item.children?.length ? item.children[0].url : item.url
+  );
   const linkProps = getLinkProps(item, url);
   const theme = useTheme();
   const styles = getStyles(theme, active, drawerOpen, level);
-  const children = item.children?.filter((i) => !i.hidden);
   const dataTestid = `navitem-${item.id}`;
-  const navigate = useNavigate();
   const showBadge = shouldShowBadge(item, open);
 
   useEffect(() => {
@@ -59,19 +58,13 @@ const NavItem: FC<NavItemProps> = ({
   }, [drawerOpen]);
 
   const handleOpenCollapsible = () => {
-    const firstChild = (item.children || [])[0];
-
     // prevent opening when sidebar collapsed
     if (drawerOpen) {
       setIsOpen(true);
     }
-
-    if (firstChild?.url) {
-      navigate(firstChild.url);
-    }
   };
 
-  if (children?.length) {
+  if (item.children?.length) {
     return (
       <>
         <NavItemTooltip
@@ -97,6 +90,7 @@ const NavItem: FC<NavItemProps> = ({
                 level === 0 && styles.navItemRootCollapsible,
               ]}
               onClick={handleOpenCollapsible}
+              {...linkProps}
               data-testid={dataTestid}
               data-navlevel={level}
             >
@@ -112,6 +106,9 @@ const NavItem: FC<NavItemProps> = ({
                 className="navitem-primary-text"
                 sx={styles.text}
               />
+              {item.badge && item.badgeAlwaysVisible && drawerOpen && (
+                <NavItemBadge badge={item.badge} />
+              )}
             </ListItemButton>
             {drawerOpen && (
               <IconButton
@@ -141,7 +138,7 @@ const NavItem: FC<NavItemProps> = ({
           data-testid={`${dataTestid}-collapse`}
         >
           <List component="div" disablePadding sx={styles.listCollapsible}>
-            {children.map((item) => (
+            {item.children.map((item) => (
               <NavItem
                 key={item.id}
                 item={item}
@@ -156,10 +153,35 @@ const NavItem: FC<NavItemProps> = ({
     );
   }
 
-  if (item.isDivider) {
+  if (item.type === 'menu-divider') {
     return (
-      <ListItem sx={styles.listItemDivider}>
+      <ListItem
+        data-testid={dataTestid + '-divider'}
+        sx={styles.listItemDivider}
+      >
         <Divider sx={styles.divider} />
+      </ListItem>
+    );
+  }
+
+  if (item.type === 'menu-text') {
+    return (
+      <ListItem
+        key={item.id}
+        data-testid={dataTestid + '-text-item'}
+        disableGutters
+        disablePadding
+      >
+        <ListItemText
+          primary={item.text}
+          secondary={item.secondaryText}
+          sx={[
+            styles.listItemButton,
+            styles.leafItem,
+            level === 0 && styles.navItemRoot,
+            styles.textOnly,
+          ]}
+        />
       </ListItem>
     );
   }
@@ -203,14 +225,7 @@ const NavItem: FC<NavItemProps> = ({
             className="navitem-primary-text"
             sx={styles.text}
           />
-          {item.badge && (
-            <Chip
-              size="small"
-              color="warning"
-              variant="outlined"
-              {...item.badge}
-            />
-          )}
+          {item.badge && <NavItemBadge badge={item.badge} />}
         </ListItemButton>
       </ListItem>
     </NavItemTooltip>
