@@ -17,9 +17,9 @@
 package starlark
 
 import (
+	"errors"
 	"fmt"
 
-	"github.com/go-faster/errors"
 	"go.starlark.net/starlark"
 
 	"github.com/percona/pmm/managed/pi/check"
@@ -222,7 +222,7 @@ func parseOutput(v starlark.Value) ([]check.Result, error) {
 
 			r, err := convertResult(m)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to parse script output")
+				return nil, err
 			}
 
 			res[i] = *r
