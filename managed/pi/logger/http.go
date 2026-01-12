@@ -73,8 +73,7 @@ func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	resp, err := rt.rt.RoundTrip(req)
-
-	if err != nil { //nolint: nestif
+	if err != nil {
 		rl.Error("Received error", zap.Error(err))
 	} else if resp != nil {
 		if rl.Core().Enabled(zap.DebugLevel) && rt.logFullRequest {
@@ -86,5 +85,6 @@ func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 			rl.Info("Received response: " + resp.Status)
 		}
 	}
+
 	return resp, err
 }

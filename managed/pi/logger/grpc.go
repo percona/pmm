@@ -42,22 +42,22 @@ func (g *GRPC) V(_ int) bool {
 }
 
 // Infoln prints log message with info level.
-func (g *GRPC) Infoln(args ...interface{}) { g.Info(args...) }
+func (g *GRPC) Infoln(args ...any) { g.Info(args...) }
 
 // Warning prints log message with warning level.
-func (g *GRPC) Warning(args ...interface{}) { g.Warn(args...) }
+func (g *GRPC) Warning(args ...any) { g.Warn(args...) }
 
 // Warningln similar to Warning.
-func (g *GRPC) Warningln(args ...interface{}) { g.Warn(args...) }
+func (g *GRPC) Warningln(args ...any) { g.Warn(args...) }
 
 // Warningf prints warning level log message wit given format.
-func (g *GRPC) Warningf(format string, args ...interface{}) { g.Warnf(format, args...) }
+func (g *GRPC) Warningf(format string, args ...any) { g.Warnf(format, args...) }
 
 // Errorln prints log message with error level.
-func (g *GRPC) Errorln(args ...interface{}) { g.Error(args...) }
+func (g *GRPC) Errorln(args ...any) { g.Error(args...) }
 
 // Fatalln prints log message and exit program.
-func (g *GRPC) Fatalln(args ...interface{}) { g.Fatal(args...) }
+func (g *GRPC) Fatalln(args ...any) { g.Fatal(args...) }
 
 // Check interfaces.
 var _ grpclog.LoggerV2 = (*GRPC)(nil)
@@ -71,14 +71,14 @@ var protoMarshalOpts = protojson.MarshalOptions{
 
 // GRPCMessageDumper helper struct for dumping gRPC message using zap logger.
 type GRPCMessageDumper struct {
-	msg       interface{}
+	msg       any
 	ctx       context.Context //nolint: containedctx
 	info      *grpc.UnaryServerInfo
 	isRequest bool
 }
 
 // NewGRPCMessageDumper creates gRPC message dumper for zap logger.
-func NewGRPCMessageDumper(ctx context.Context, msg interface{}, info *grpc.UnaryServerInfo, isRequest bool) *GRPCMessageDumper {
+func NewGRPCMessageDumper(ctx context.Context, msg any, info *grpc.UnaryServerInfo, isRequest bool) *GRPCMessageDumper {
 	return &GRPCMessageDumper{
 		ctx:       ctx,
 		msg:       msg,
@@ -93,6 +93,7 @@ func (d *GRPCMessageDumper) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 		if md, ok := metadata.FromIncomingContext(d.ctx); ok {
 			zap.Any("metadata", md).AddTo(enc)
 		}
+
 		enc.AddString("method", d.info.FullMethod)
 	}
 
@@ -108,6 +109,7 @@ func (d *GRPCMessageDumper) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 		if err != nil {
 			return err
 		}
+
 		enc.AddByteString("fields", buf)
 	}
 

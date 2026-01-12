@@ -16,9 +16,10 @@
 package check
 
 import (
+	"errors"
+	"fmt"
 	"io"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -48,17 +49,22 @@ func ParseAdvisors(reader io.Reader, params *ParseParams) ([]Advisor, error) {
 	}
 
 	var res []Advisor
+
 	for {
 		var c advisors
-		if err := d.Decode(&c); err != nil { //nolint:musttag
+
+		err := d.Decode(&c) //nolint:musttag
+		if err != nil {
 			if errors.Is(err, io.EOF) {
 				return res, nil
 			}
-			return nil, errors.Wrap(err, "failed to parse advisors")
+
+			return nil, fmt.Errorf("failed to parse advisors: %w", err)
 		}
 
 		for _, advisor := range c.Advisors {
-			if err := advisor.Validate(); err != nil {
+			err := advisor.Validate()
+			if err != nil {
 				if params.DisallowInvalidChecks {
 					return nil, err
 				}
@@ -71,10 +77,10 @@ func ParseAdvisors(reader io.Reader, params *ParseParams) ([]Advisor, error) {
 	}
 }
 
-// Validate advisor.
-func (a *Advisor) Validate() error { //nolint:cyclop
+// Validate validates an advisor.
+func (a *Advisor) Validate() error {
 	if a.Version != 1 {
-		return errors.Errorf("unexpected version %d", a.Version)
+		return fmt.Errorf("unexpected version %d", a.Version)
 	}
 
 	if !nameRE.MatchString(a.Name) {
@@ -95,19 +101,21 @@ func (a *Advisor) Validate() error { //nolint:cyclop
 
 	checkNames := make(map[string]struct{}, len(a.Checks))
 	for _, check := range a.Checks {
-		if err := check.Validate(); err != nil {
+		err := check.Validate()
+		if err != nil {
 			return err
 		}
 
 		if check.Advisor != a.Name {
-			return errors.Errorf("advisor name '%s' doesn't match name '%s' specified in corresponding check '%s'",
+			return fmt.Errorf("advisor name '%s' doesn't match name '%s' specified in corresponding check '%s'",
 				a.Name, check.Advisor, check.Name,
 			)
 		}
 
 		if _, ok := checkNames[check.Name]; ok {
-			return errors.Errorf("check name collision `%s` detected in '%s' advisor", check.Name, a.Name)
+			return fmt.Errorf("check name collision `%s` detected in '%s' advisor", check.Name, a.Name)
 		}
+
 		checkNames[check.Name] = struct{}{}
 	}
 

@@ -33,6 +33,7 @@ func GetLoggerFromContext(ctx context.Context) *zap.Logger {
 	if v == nil {
 		l := zap.L()
 		l.DPanic("context logger not set")
+
 		return l
 	}
 
@@ -42,5 +43,5 @@ func GetLoggerFromContext(ctx context.Context) *zap.Logger {
 // GetContextWithLogger returns derived context with given logger set.
 // If logger is already present, it will be shadowed.
 func GetContextWithLogger(ctx context.Context, l *zap.Logger) context.Context {
-	return context.WithValue(ctx, key, l)
+	return context.WithValue(ctx, key, l) //nolint:staticcheck
 }

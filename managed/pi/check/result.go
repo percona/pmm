@@ -16,9 +16,9 @@
 package check
 
 import (
+	"errors"
+	"fmt"
 	"net/url"
-
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/managed/pi/common"
 )
@@ -27,7 +27,7 @@ import (
 type Result struct {
 	Summary     string            `json:"summary"`       // required
 	Description string            `json:"description"`   // optional
-	ReadMoreURL string            `json:"read_more_url"` //nolint:tagliatelle // optional
+	ReadMoreURL string            `json:"read_more_url"` // optional
 	Severity    common.Severity   `json:"severity"`      // required
 	Labels      map[string]string `json:"labels"`        // optional
 }
@@ -41,11 +41,12 @@ func (r *Result) Validate() error {
 	if r.ReadMoreURL != "" {
 		_, err := url.ParseRequestURI(r.ReadMoreURL)
 		if err != nil {
-			return errors.Errorf("read_more_url: %s is invalid", r.ReadMoreURL)
+			return fmt.Errorf("read_more_url: %s is invalid", r.ReadMoreURL)
 		}
 	}
 
-	if err := r.Severity.Validate(); err != nil {
+	err := r.Severity.Validate()
+	if err != nil {
 		return err
 	}
 

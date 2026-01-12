@@ -15,7 +15,7 @@
 
 package alert
 
-import "github.com/pkg/errors"
+import "fmt"
 
 // Supported parameter units.
 const (
@@ -39,5 +39,5 @@ func (u Unit) Validate() error {
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return errors.Errorf("unhandled parameter unit '%s'", string(u))
+	return fmt.Errorf("unhandled parameter unit '%s'", string(u))
 }

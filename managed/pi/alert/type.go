@@ -15,7 +15,7 @@
 
 package alert
 
-import "github.com/pkg/errors"
+import "fmt"
 
 // Supported parameter types.
 const (
@@ -40,5 +40,5 @@ func (t Type) Validate() error {
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return errors.Errorf("unhandled parameter type '%s'", t)
+	return fmt.Errorf("unhandled parameter type '%s'", t)
 }

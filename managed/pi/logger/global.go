@@ -60,6 +60,7 @@ func SetupGlobal(opts *SetupGlobalOpts) {
 	if opts.LogDebug {
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
+
 	if opts.LogDevMode {
 		cfg.Development = true
 		cfg.Encoding = "console"
