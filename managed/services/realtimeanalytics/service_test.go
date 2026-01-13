@@ -40,7 +40,7 @@ func (m *mockAgentsRegistry) IsConnected(pmmAgentID string) bool {
 	return m.connectedAgents[pmmAgentID]
 }
 
-func TestGetRunningRealtimeAgents(t *testing.T) {
+func TestListRunningRealtimeAgents(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -73,13 +73,14 @@ func TestGetRunningRealtimeAgents(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	// Create service with mock registry
+	// Create service with mock registry and store
 	registry := &mockAgentsRegistry{
 		connectedAgents: map[string]bool{
 			pmmAgent.AgentID: true,
 		},
 	}
-	svc := NewService(db, registry)
+	store := NewStore()
+	svc := NewService(db, registry, store)
 
 	t.Run("list running agents", func(t *testing.T) {
 		resp, err := svc.ListRunningRealtimeAgents(context.Background(), &rtav1.ListRunningRealtimeAgentsRequest{})
@@ -169,7 +170,8 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 			pmmAgent.AgentID: true,
 		},
 	}
-	svc := NewService(db, registry)
+	store := NewStore()
+	svc := NewService(db, registry, store)
 
 	t.Run("enable RTA for single service", func(t *testing.T) {
 		resp, err := svc.ChangeRealtimeAnalytics(context.Background(), &rtav1.ChangeRealtimeAnalyticsRequest{
