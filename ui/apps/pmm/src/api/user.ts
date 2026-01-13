@@ -1,4 +1,5 @@
 import {
+  GetPreferenceResponse,
   GetUserResponse,
   UpdatePreferencesBody,
   UpdateUserInfoPayload,
@@ -14,6 +15,11 @@ export const getCurrentUser = async () => {
 
 export const getCurrentUserOrgs = async () => {
   const res = await grafanaApi.get<UserOrg[]>('/user/orgs');
+  return res.data;
+};
+
+export const getUserPreferences = async () => {
+  const res = await grafanaApi.get<GetPreferenceResponse>('/user/preferences');
   return res.data;
 };
 
