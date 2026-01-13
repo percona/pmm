@@ -23,7 +23,6 @@ import {
   NAV_HOME_PAGE,
   NAV_INVENTORY,
   NAV_QAN,
-  NAV_RTA,
   NAV_SIGN_IN,
 } from './navigation.constants';
 import { useFolders } from 'hooks/api/useFolders';
@@ -62,7 +61,6 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     if (user && settings) {
       items.push(NAV_QAN);
-      items.push(NAV_RTA);
 
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(addExplore(settings.frontend));

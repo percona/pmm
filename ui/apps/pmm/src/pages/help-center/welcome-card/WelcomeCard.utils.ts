@@ -8,6 +8,7 @@ export const shouldShowAddService = (
   }
 
   const minRequiredByService: Record<keyof ListServicesResponse, number> = {
+    services: 0,
     external: 1,
     haproxy: 1,
     mongodb: 1,
@@ -23,5 +24,5 @@ export const shouldShowAddService = (
       keyof ListServicesResponse,
       number,
     ][]
-  ).every(([key, min]) => services[key].length < min);
+  ).every(([key, min]) => (services[key]?.length ?? 0) < min);
 };

@@ -52,14 +52,37 @@ export interface ExternalService extends BaseService {
 
 export interface ValkeyService extends VersionedService {}
 
+// Universal service from /v1/management/services API
+export interface UniversalService {
+  serviceId: string;
+  serviceType: string;
+  serviceName: string;
+  databaseName: string;
+  nodeId: string;
+  nodeName: string;
+  environment: string;
+  cluster: string;
+  replicationSet: string;
+  customLabels: Record<string, string>;
+  externalGroup: string;
+  address: string;
+  port: number;
+  socket: string;
+  version: string;
+  status?: 'STATUS_UNSPECIFIED' | 'STATUS_UP' | 'STATUS_DOWN' | 'STATUS_UNKNOWN';
+}
+
 export interface ListServicesResponse {
-  mysql: MySqlService[];
-  mongodb: VersionedService[];
-  postgresql: PostgreSqlService[];
-  proxysql: ProxySqlService[];
-  haproxy: HaProxyService[];
-  external: ExternalService[];
-  valkey: ValkeyService[];
+  // New API returns flat services array
+  services?: UniversalService[];
+  // Legacy format (kept for backward compatibility)
+  mysql?: MySqlService[];
+  mongodb?: VersionedService[];
+  postgresql?: PostgreSqlService[];
+  proxysql?: ProxySqlService[];
+  haproxy?: HaProxyService[];
+  external?: ExternalService[];
+  valkey?: ValkeyService[];
 }
 
 export interface ListServicesParams {

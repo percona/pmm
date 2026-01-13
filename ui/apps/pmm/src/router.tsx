@@ -37,7 +37,7 @@ const router = createBrowserRouter(
               element: <HelpCenter />,
             },
             {
-              path: 'rta/selection',
+              path: 'rta',
               element: <RealTimeSelection />,
             },
             // Grafana routes are handled at the Main component level
@@ -68,7 +68,7 @@ const router = createBrowserRouter(
               element: <UpdateClients />,
             },
             {
-              path: 'rta/selection',
+              path: 'rta',
               element: <RealTimeSelection />,
             },
           ],
