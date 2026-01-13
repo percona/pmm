@@ -11,7 +11,8 @@ export type MessageType =
   | 'GRAFANA_THEME_CHANGED'
   | 'CHANGE_THEME'
   | 'SETTINGS_CHANGED'
-  | 'SERVICE_ADDED';
+  | 'SERVICE_ADDED'
+  | 'SERVICE_DELETED';
 
 export type LocationState = { fromGrafana?: boolean } | null;
 

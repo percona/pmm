@@ -20,7 +20,7 @@ import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin } from 'lib/utils/login';
-import { ServiceAddedEvent, SettingsUpdatedEvent } from 'lib/events';
+import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent } from 'lib/events';
 
 export const initialize = () => {
   // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
@@ -155,6 +155,12 @@ export const initialize = () => {
   getAppEvents().subscribe(ServiceAddedEvent, () => {
     messenger.sendMessage({
       type: 'SERVICE_ADDED',
+    });
+  });
+
+  getAppEvents().subscribe(ServiceDeletedEvent, () => {
+    messenger.sendMessage({
+      type: 'SERVICE_DELETED',
     });
   });
 };

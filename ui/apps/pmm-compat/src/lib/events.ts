@@ -12,3 +12,7 @@ export class SettingsUpdatedEvent extends BusEventBase {
 export class ServiceAddedEvent extends BusEventBase {
   static type = 'service-added-event';
 }
+
+export class ServiceDeletedEvent extends BusEventBase {
+  static type = 'service-deleted-event';
+}

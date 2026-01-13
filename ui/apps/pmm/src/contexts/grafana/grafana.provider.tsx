@@ -114,6 +114,11 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       onMessage: () => refetchServiceTypes(),
     });
 
+    messenger.addListener({
+      type: 'SERVICE_DELETED',
+      onMessage: () => refetchServiceTypes(),
+    });
+
     // Cleanup once provider unmounts
     return () => {
       messenger.unregister();
