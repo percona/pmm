@@ -18,17 +18,17 @@ Here's how:
 
 3. Add your comments in the text box.
 
-!!! important "Help us help you - be specific"
+### Make your feedback count
 
-    When you want us to fix or improve something, detailed comments make all the difference. Instead of "this is confusing," tell us:
+When you want us to fix or improve something, detailed comments make all the difference. Instead of "this is confusing," tell us:
     
-    * What specific issue you ran into or what improvement you'd like to see
-    * Which section or paragraph needs work
-    * Examples or use cases that would help clarify
-    * Your version and environment (if it matters)
-    * Steps to reproduce any problems you found
+* What specific issue you ran into or what improvement you'd like to see
+* Which section or paragraph needs work
+* Examples or use cases that would help clarify
+* Your version and environment (if it matters)
+* Steps to reproduce any problems you found
     
-    The more details you give us, the better we can address your needs and improve the docs for everyone.
+The more details you give us, the better we can address your needs and improve the docs for everyone.
 
 ## Join the conversation on our forum
 
@@ -73,9 +73,7 @@ The documentation is written in [Markdown](https://www.markdownguide.org/), a si
 
 Once you submit your pull request, our team will review it and provide feedback. When everything looks good, we'll merge your changes. Thanks for taking the time to improve our docs!
 
-!!! note
-
-    We may make minor edits to your contribution to maintain consistency with our style guide.
+We may make minor edits to your contribution to maintain consistency with our style guide.
 
 ### Edit online with GitHub
 
@@ -110,16 +108,12 @@ If you're comfortable with git and prefer working on your own machine, here's th
 
 1. Fork the repository on GitHub.
 
-2. Clone your fork:
+2. Clone your fork using the command below. If you have SSH keys set up, make sure to use `git@github.com:<your_github_name>/pmm.git` instead:
 
     ```shell
     git clone https://github.com/<your_github_name>/pmm.git
     cd pmm/documentation
-    ```
-
-    !!! note "Using SSH?"
-    
-        If you have SSH keys set up, use `git@github.com:<your_github_name>/pmm.git` instead.
+    ```        
 
 3. Add the upstream repository so you can sync with the latest changes:
 
@@ -127,16 +121,12 @@ If you're comfortable with git and prefer working on your own machine, here's th
     git remote add upstream https://github.com/percona/pmm.git
     ```
 
-4. Check out the right branch and pull the latest changes:
+4. Check out the right branch and pull the latest changes using the command below.  Use `v3` for PMM 3.x docs or `main` for PMM 2.x docs. Git will create a tracking branch automatically if it doesn't exist locally.
 
     ```shell
     git checkout v3
     git pull upstream v3
-    ```
-
-    !!! note "Which branch?"
-    
-        Use `v3` for PMM 3.x docs or `main` for PMM 2.x docs. Git will create a tracking branch automatically if it doesn't exist locally.
+    ```   
 
 5. Create a new branch for your work:
 
@@ -170,9 +160,7 @@ If you're comfortable with git and prefer working on your own machine, here's th
 
 Want to see how your changes will look on the live site? You can build and preview the docs locally using MkDocs.
 
-!!! note "What you'll need"
-    
-    Python 3.x and Docker. Don't have them? Grab [Python](https://www.python.org/downloads/) and [Docker](https://docs.docker.com/get-docker/) first.
+You'll need Python 3.x and Docker. Don't have them? Grab [Python](https://www.python.org/downloads/) and [Docker](https://docs.docker.com/get-docker/) first.
 
 #### With Docker
 
