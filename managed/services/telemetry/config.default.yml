@@ -955,7 +955,7 @@ telemetry:
     summary: "Use of HA feature"
     data:
       - metric_name: "pmm_server_ha_enable"
-        column: "PMM_TEST_HA_ENABLE"
+        column: "PMM_HA_ENABLE"
 
   - id: PMMServerBuiltinDatabaseDisabled
     source: ENV_VARS

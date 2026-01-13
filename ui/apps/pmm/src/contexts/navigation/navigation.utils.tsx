@@ -41,13 +41,18 @@ import {
   NAV_ALERTS_SILENCES,
   NAV_ALERTS_GROUPS,
   NAV_VALKEY,
+  NAV_HIGH_AVAILABILITY,
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
+  NAV_HIGH_AVAILABILITY_LEADER,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
 import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
+import { HighAvailabilityIcon } from 'components/ha-icon';
+import { HighAvailabilityBadge } from 'components/ha-badge';
+import { HAInfo } from 'types/ha.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -240,6 +245,25 @@ export const addConfiguration = (
   }
 
   return NAV_CONFIGURATION;
+};
+
+export const addHighAvailability = ({ health, leader }: HAInfo): NavItem => {
+  const item = { ...NAV_HIGH_AVAILABILITY };
+
+  item.badge = <HighAvailabilityBadge health={health} />;
+  item.icon = <HighAvailabilityIcon health={health} />;
+  item.badgeAlwaysVisible = true;
+
+  item.children = [
+    {
+      ...NAV_HIGH_AVAILABILITY_LEADER,
+      secondaryText: leader?.nodeName || 'Unknown',
+    },
+    // Remove Identify Nodes link for now
+    // NAV_HIGH_AVAILABILITY_NODES,
+  ];
+
+  return item;
 };
 
 export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
