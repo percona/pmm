@@ -11,12 +11,17 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
-import { useQuery } from '@tanstack/react-query';
+import StopIcon from '@mui/icons-material/Stop';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { enqueueSnackbar } from 'notistack';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { Messages } from './RealTimeSelection.messages';
-import { listRunningRealtimeAgents } from 'api/realtime';
+import { listRunningRealtimeAgents, changeRealtimeAnalytics } from 'api/realtime';
+import { listServices } from 'api/services';
+import { ServiceType } from 'types/services.types';
 import { RealTimeSelectionForm } from './RealTimeSelectionForm';
+import { RealTimeSelectionEmptyState } from './RealTimeSelectionEmptyState';
 
 // Set to true to use mock data for development/testing
 // Set to false to use real MongoDB services from PMM
@@ -27,17 +32,74 @@ export const RealTimeSelection: FC = () => {
   const canManageRTA = user?.isEditor || user?.isPMMAdmin;
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Fetch running agents for viewers to filter services
-  const { data: runningAgentsData, isLoading: isLoadingAgents } = useQuery({
+  // Fetch running agents
+  const { data: runningAgentsData, isLoading: isLoadingAgents, refetch: refetchAgents } = useQuery({
     queryKey: ['runningRealtimeAgents'],
     queryFn: () => listRunningRealtimeAgents(),
-    enabled: !canManageRTA, // Only fetch for viewers
   });
 
-  // Viewer with no running agents - show empty state
-  const showEmptyState = !canManageRTA && (!runningAgentsData?.agents || runningAgentsData.agents.length === 0) && !isLoadingAgents;
+  // Fetch services to check if all are running
+  const { data: servicesData, isLoading: isLoadingServices } = useQuery({
+    queryKey: ['services'],
+    queryFn: () =>
+      listServices({
+        serviceType: ServiceType.mongodb,
+      }),
+  });
 
-  if (showEmptyState) {
+  // Mutation to stop all RTA sessions
+  const stopAllMutation = useMutation({
+    mutationFn: async () => {
+      const agentsResponse = await listRunningRealtimeAgents();
+
+      if (!agentsResponse?.agents || agentsResponse.agents.length === 0) {
+        throw new Error('No running sessions to stop');
+      }
+
+      await Promise.all(
+        agentsResponse.agents.map((agent) =>
+          changeRealtimeAnalytics({
+            enable: false,
+            serviceId: agent.serviceId,
+          })
+        )
+      );
+    },
+    onSuccess: () => {
+      enqueueSnackbar('All sessions stopped successfully', { variant: 'success' });
+      refetchAgents();
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Failed to stop sessions';
+      enqueueSnackbar(message, { variant: 'error' });
+    },
+  });
+
+  // Check if all services are running (no available services to start)
+  const runningServiceIds = new Set(
+    runningAgentsData?.agents?.map((agent) => agent.serviceId) || []
+  );
+
+  const filteredServices =
+    servicesData?.services?.filter(
+      (service) => !runningServiceIds.has(service.serviceId)
+    ) || [];
+
+  const allServicesRunning =
+    !isLoadingServices &&
+    !isLoadingAgents &&
+    filteredServices.length === 0 &&
+    servicesData?.services &&
+    servicesData.services.length > 0;
+
+  // Viewer with no running agents - show viewer empty state
+  const showViewerEmptyState =
+    !canManageRTA &&
+    (!runningAgentsData?.agents || runningAgentsData.agents.length === 0) &&
+    !isLoadingAgents;
+
+  // Viewer with no running agents - show special empty state
+  if (showViewerEmptyState) {
     return (
       <Page footer={<></>}>
         <Stack
@@ -73,7 +135,8 @@ export const RealTimeSelection: FC = () => {
               maxWidth: 360,
             }}
           >
-            Real-Time Query Analytics requires an active real-time agent session to collect data. Please contact a system administrator to start a session for you and check again.
+            Real-Time Query Analytics requires an active real-time agent session to collect data.
+            Please contact a system administrator to start a session for you and check again.
           </Typography>
           <Link
             href="https://docs.percona.com/percona-monitoring-and-management/3/get-started/query-analytics.html"
@@ -100,7 +163,7 @@ export const RealTimeSelection: FC = () => {
   return (
     <Page footer={<></>}>
       <Stack
-        gap={2}
+        gap={4}
         sx={{
           maxWidth: 392,
           mx: 'auto',
@@ -110,106 +173,120 @@ export const RealTimeSelection: FC = () => {
           textAlign: 'center',
         }}
       >
-        {/* Intro section */}
-        <Stack gap={1} sx={{ width: '100%' }}>
-          <Typography
-            variant="h5"
-            sx={{
-              fontFamily: 'Poppins, sans-serif',
-              fontWeight: 600,
-              fontSize: '23px',
-              lineHeight: 1.125,
-              textAlign: 'center',
-            }}
-          >
-            {Messages.title}
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              fontFamily: 'Roboto, sans-serif',
-              fontWeight: 400,
-              fontSize: '16px',
-              lineHeight: 1.375,
-              textAlign: 'center',
-              fontVariationSettings: "'wdth' 100",
-            }}
-          >
-            {Messages.description}
-          </Typography>
-        </Stack>
+        {allServicesRunning ? (
+          /* All services running - show empty state */
+          <RealTimeSelectionEmptyState />
+        ) : (
+          <>
+            {/* Intro section */}
+            <Stack gap={1} sx={{ width: '100%' }}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontWeight: 600,
+                  fontSize: '23px',
+                  lineHeight: 1.125,
+                  textAlign: 'center',
+                }}
+              >
+                {Messages.title}
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: 'Roboto, sans-serif',
+                  fontWeight: 400,
+                  fontSize: '16px',
+                  lineHeight: 1.375,
+                  textAlign: 'center',
+                  fontVariationSettings: "'wdth' 100",
+                }}
+              >
+                {Messages.description}
+              </Typography>
+            </Stack>
 
-        {/* Form section - reusable component */}
-        <RealTimeSelectionForm useMockData={USE_MOCK_DATA} />
+            {/* Form section - reusable component */}
+            <RealTimeSelectionForm useMockData={USE_MOCK_DATA} />
 
-        {/* Footer section */}
-        <Stack gap={1} sx={{ width: '100%' }}>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              fontFamily: 'Roboto, sans-serif',
-              fontWeight: 400,
-              fontSize: '14px',
-              lineHeight: 1.5,
-              textAlign: 'center',
-              fontVariationSettings: "'wdth' 100",
-            }}
-          >
-            {Messages.mongoOnly}
-          </Typography>
-          <Stack direction="row" gap={2} justifyContent="center">
-            <Link
-              href="https://docs.percona.com/percona-monitoring-and-management/3/get-started/query-analytics.html"
-              target="_blank"
-              sx={(theme) => ({
-                fontFamily: 'Roboto, sans-serif',
-                fontSize: '14px',
-                fontWeight: 400,
-                lineHeight: 1.5,
-                color: theme.palette.info.light,
-                textAlign: 'center',
-                textDecoration: 'underline solid',
-                textDecorationSkipInk: 'none',
-                textUnderlinePosition: 'from-font',
-                fontVariationSettings: "'wdth' 100",
-                '&:hover': {
-                  color: theme.palette.info.main,
-                },
-              })}
-            >
-              {Messages.documentation}
-            </Link>
-            <Link
-              href="https://forums.percona.com/c/percona-monitoring-and-management-pmm/percona-monitoring-and-management-pmm-v3"
-              target="_blank"
-              sx={(theme) => ({
-                fontFamily: 'Roboto, sans-serif',
-                fontSize: '14px',
-                fontWeight: 400,
-                lineHeight: 1.5,
-                color: theme.palette.info.light,
-                textAlign: 'center',
-                textDecoration: 'underline solid',
-                textDecorationSkipInk: 'none',
-                textUnderlinePosition: 'from-font',
-                fontVariationSettings: "'wdth' 100",
-                '&:hover': {
-                  color: theme.palette.info.main,
-                },
-              })}
-            >
-              {Messages.feedback}
-            </Link>
-          </Stack>
+            {/* Footer section */}
+            <Stack gap={1} sx={{ width: '100%' }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  fontFamily: 'Roboto, sans-serif',
+                  fontWeight: 400,
+                  fontSize: '14px',
+                  lineHeight: 1.5,
+                  textAlign: 'center',
+                  fontVariationSettings: "'wdth' 100",
+                }}
+              >
+                {Messages.mongoOnly}
+              </Typography>
+              <Stack direction="row" gap={2} justifyContent="center">
+                <Link
+                  href="https://docs.percona.com/percona-monitoring-and-management/3/get-started/query-analytics.html"
+                  target="_blank"
+                  sx={(theme) => ({
+                    fontFamily: 'Roboto, sans-serif',
+                    fontSize: '14px',
+                    fontWeight: 400,
+                    lineHeight: 1.5,
+                    color: theme.palette.info.light,
+                    textAlign: 'center',
+                    textDecoration: 'underline solid',
+                    textDecorationSkipInk: 'none',
+                    textUnderlinePosition: 'from-font',
+                    fontVariationSettings: "'wdth' 100",
+                    '&:hover': {
+                      color: theme.palette.info.main,
+                    },
+                  })}
+                >
+                  {Messages.documentation}
+                </Link>
+                <Link
+                  href="https://forums.percona.com/c/percona-monitoring-and-management-pmm/percona-monitoring-and-management-pmm-v3"
+                  target="_blank"
+                  sx={(theme) => ({
+                    fontFamily: 'Roboto, sans-serif',
+                    fontSize: '14px',
+                    fontWeight: 400,
+                    lineHeight: 1.5,
+                    color: theme.palette.info.light,
+                    textAlign: 'center',
+                    textDecoration: 'underline solid',
+                    textDecorationSkipInk: 'none',
+                    textUnderlinePosition: 'from-font',
+                    fontVariationSettings: "'wdth' 100",
+                    '&:hover': {
+                      color: theme.palette.info.main,
+                    },
+                  })}
+                >
+                  {Messages.feedback}
+                </Link>
+              </Stack>
+            </Stack>
+          </>
+        )}
 
-          {/* Test button for modal */}
+        {/* ========================================
+            TEMPORARY TEST BUTTONS - REMOVE IN PRODUCTION
+            ========================================
+            These buttons are for testing purposes only.
+            To remove: Delete this entire Stack block (lines below)
+            To reuse elsewhere: Copy this Stack block to another component
+        */}
+        <Stack direction="row" gap={2} sx={{ mt: 4 }}>
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
             onClick={() => setModalOpen(true)}
             sx={{
-              mt: 4,
               borderRadius: '4px',
               textTransform: 'none',
               fontFamily: 'Roboto, sans-serif',
@@ -219,7 +296,24 @@ export const RealTimeSelection: FC = () => {
           >
             New session
           </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<StopIcon />}
+            onClick={() => stopAllMutation.mutate()}
+            disabled={stopAllMutation.isPending}
+            sx={{
+              borderRadius: '4px',
+              textTransform: 'none',
+              fontFamily: 'Roboto, sans-serif',
+              fontSize: '14px',
+              fontWeight: 500,
+            }}
+          >
+            {stopAllMutation.isPending ? 'Stopping...' : 'End All Sessions'}
+          </Button>
         </Stack>
+        {/* ======================================== */}
       </Stack>
 
       {/* Modal for testing reusable form component */}
@@ -230,9 +324,9 @@ export const RealTimeSelection: FC = () => {
         PaperProps={{
           sx: (theme) => ({
             borderRadius: '8px',
-            width: '422px',
-            maxWidth: '422px',
-            height: '403px',
+            width: '403px',
+            maxWidth: '403px',
+            height: '422px',
             backgroundColor: theme.palette.mode === 'dark'
               ? '#2C323E'  // surfaces/elevation1 - brand/stone/900
               : theme.palette.background.paper,
@@ -276,7 +370,7 @@ export const RealTimeSelection: FC = () => {
             pt: 0,
           }}
         >
-          <Stack gap="16px" alignItems="center" width="100%">
+          <Stack gap="32px" alignItems="center" width="100%">
             {/* Intro */}
             <Typography
               variant="body1"
@@ -303,7 +397,7 @@ export const RealTimeSelection: FC = () => {
             />
 
             {/* Footer */}
-            <Stack gap="8px" alignItems="center" width="100%" sx={{ mt: '16px' }}>
+            <Stack gap="8px" alignItems="center" width="100%">
               <Typography
                 variant="body2"
                 color="text.secondary"

@@ -9,7 +9,7 @@ import {
   TextField,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
 import { Messages } from './RealTimeSelection.messages';
@@ -36,6 +36,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   useMockData = false,
 }) => {
   const { user } = useUser();
+  const queryClient = useQueryClient();
 
   const [selectedServices, setSelectedServices] = useState<ServiceOption[]>([]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -61,11 +62,11 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         },
   });
 
-  // Fetch running agents for viewers to filter services
+  // Fetch running agents to filter out services with active RTA
   const { data: runningAgentsData, isLoading: isLoadingAgents } = useQuery({
     queryKey: ['runningRealtimeAgents'],
     queryFn: () => listRunningRealtimeAgents(),
-    enabled: !canManageRTA, // Only fetch for viewers
+    // Always fetch to filter out running services from dropdown
   });
 
   const serviceOptions = useMemo<ServiceOption[]>(() => {
@@ -82,40 +83,78 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
       return [];
     }
 
-    // Filter by permissions:
-    // - Admins (isEditor or isPMMAdmin) see all services
-    // - Viewers see only services with running RTA agents
-    const filteredServices = canManageRTA
-      ? services
-      : services.filter((service: UniversalService) =>
-          runningAgentsData?.agents?.some(agent => agent.serviceId === service.serviceId)
-        );
+    // Filter out services that already have running RTA agents
+    const runningServiceIds = new Set(
+      runningAgentsData?.agents?.map(agent => agent.serviceId) || []
+    );
 
-    const options = filteredServices.map((service: UniversalService) => ({
-      type: 'service' as const,
-      id: service.serviceId,
-      label: service.serviceName,
-      serviceId: service.serviceId,
-      cluster: service.cluster,
-    }));
+    const filteredServices = services.filter(
+      (service: UniversalService) => !runningServiceIds.has(service.serviceId)
+    );
 
-    // Sort: standalone services first (no cluster), then grouped by cluster
-    return options.sort((a, b) => {
-      // Standalone services first
-      if (!a.cluster && b.cluster) return -1;
-      if (a.cluster && !b.cluster) return 1;
-      // Then sort by cluster name
-      if (a.cluster !== b.cluster) {
-        return (a.cluster || '').localeCompare(b.cluster || '');
+    // Group services by cluster
+    const clusterMap = new Map<string, UniversalService[]>();
+    const standaloneServices: UniversalService[] = [];
+
+    filteredServices.forEach((service) => {
+      if (service.cluster) {
+        if (!clusterMap.has(service.cluster)) {
+          clusterMap.set(service.cluster, []);
+        }
+        clusterMap.get(service.cluster)!.push(service);
+      } else {
+        standaloneServices.push(service);
       }
-      // Within same cluster/standalone, sort by service name
-      return a.label.localeCompare(b.label);
     });
-  }, [servicesData, canManageRTA, runningAgentsData]);
+
+    // Build options: standalone first, then clusters with their services
+    const options: ServiceOption[] = [];
+
+    // Add standalone services
+    standaloneServices.forEach((service) => {
+      options.push({
+        type: 'service',
+        id: service.serviceId,
+        label: service.serviceName,
+        serviceId: service.serviceId,
+      });
+    });
+
+    // Add clusters and their services
+    Array.from(clusterMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .forEach(([clusterName, clusterServices]) => {
+        // Add cluster header as a selectable option
+        options.push({
+          type: 'cluster',
+          id: `cluster-${clusterName}`,
+          label: clusterName,
+          cluster: clusterName,
+        });
+
+        // Add cluster services sorted by name
+        clusterServices
+          .sort((a, b) => a.serviceName.localeCompare(b.serviceName))
+          .forEach((service) => {
+            options.push({
+              type: 'service',
+              id: service.serviceId,
+              label: service.serviceName,
+              serviceId: service.serviceId,
+              cluster: clusterName,
+            });
+          });
+      });
+
+    return options;
+  }, [servicesData, runningAgentsData]);
 
   const startMutation = useMutation({
     mutationFn: async () => {
-      if (selectedServices.length === 0) {
+      // Filter out cluster headers, keep only real services
+      const realServices = selectedServices.filter(s => s.type === 'service' && s.serviceId);
+
+      if (realServices.length === 0) {
         throw new Error('Please select at least one service');
       }
 
@@ -127,7 +166,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
 
       // Real API calls
       await Promise.all(
-        selectedServices.map((service) =>
+        realServices.map((service) =>
           changeRealtimeAnalytics({
             enable: true,
             serviceId: service.serviceId!,
@@ -138,6 +177,8 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
     onSuccess: () => {
       enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
       setSelectedServices([]);
+      // Invalidate running agents cache to update dropdown
+      queryClient.invalidateQueries({ queryKey: ['runningRealtimeAgents'] });
       onSuccess?.();
     },
     onError: (error) => {
@@ -148,7 +189,9 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   });
 
   const handleServiceChange = (_: unknown, value: ServiceOption[]) => {
-    setSelectedServices(value);
+    // Filter out cluster options - only keep real services
+    const servicesOnly = value.filter(option => option.type === 'service');
+    setSelectedServices(servicesOnly);
   };
 
   const handleStart = () => {
@@ -220,7 +263,6 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         isOptionEqualToValue={(option, value) => option.id === value.id}
         disableCloseOnSelect
         limitTags={2}
-        groupBy={(option) => option.cluster || 'Standalone Services'}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -284,67 +326,6 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
             })}
           />
         )}
-        renderGroup={(params) => {
-          const isCluster = params.group !== 'Standalone Services';
-          const isFullySelected = isCluster && isClusterFullySelected(params.group);
-          const isPartiallySelected = isCluster && isClusterPartiallySelected(params.group);
-
-          return (
-            <li key={params.key}>
-              <Box
-                component="div"
-                onClick={
-                  isCluster
-                    ? (e) => {
-                        e.stopPropagation();
-                        handleClusterToggle(params.group);
-                      }
-                    : undefined
-                }
-                sx={(theme) => ({
-                  position: 'sticky',
-                  top: '-8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  px: '16px',
-                  py: '8px',
-                  fontFamily: 'Roboto, sans-serif',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  lineHeight: 1.375,
-                  color: theme.palette.text.secondary,
-                  backgroundColor: 'transparent',
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                  zIndex: 1,
-                  cursor: isCluster ? 'pointer' : 'default',
-                  '&:hover': isCluster
-                    ? {
-                        backgroundColor:
-                          theme.palette.mode === 'dark'
-                            ? 'rgba(255, 255, 255, 0.03)'
-                            : 'rgba(0, 0, 0, 0.02)',
-                      }
-                    : {},
-                })}
-              >
-                {isCluster && (
-                  <Checkbox
-                    checked={isFullySelected}
-                    indeterminate={isPartiallySelected}
-                    size="small"
-                    sx={{ p: '4px', mr: 0.5 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleClusterToggle(params.group);
-                    }}
-                  />
-                )}
-                {params.group}
-              </Box>
-              <ul style={{ padding: 0 }}>{params.children}</ul>
-            </li>
-          );
-        }}
         renderTags={(value, getTagProps) =>
           value.slice(0, 2).map((option, index) => {
             const { key, ...tagProps } = getTagProps({ index });
@@ -404,25 +385,47 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         }
         renderOption={(props, option, { selected }) => {
           const { key, ...otherProps } = props;
-          const hasCluster = Boolean(option.cluster);
+          const isCluster = option.type === 'cluster';
+          const isServiceInCluster = option.type === 'service' && Boolean(option.cluster);
+
+          // For cluster options, check if all/some services are selected
+          const isFullySelected = isCluster && isClusterFullySelected(option.label);
+          const isPartiallySelected = isCluster && isClusterPartiallySelected(option.label);
 
           return (
             <li
               key={key}
               {...otherProps}
+              onClick={
+                isCluster
+                  ? (e) => {
+                      e.stopPropagation();
+                      handleClusterToggle(option.label);
+                    }
+                  : otherProps.onClick
+              }
               style={{
                 ...otherProps.style,
                 backgroundColor: 'transparent',
                 minHeight: '40px',
                 padding: '0 8px',
-                paddingLeft: hasCluster ? '32px' : '8px',
+                paddingLeft: isServiceInCluster ? '40px' : '8px',
                 position: 'relative',
               }}
             >
               <Checkbox
-                checked={selected}
+                checked={isCluster ? isFullySelected : selected}
+                indeterminate={isCluster ? isPartiallySelected : false}
                 size="small"
                 sx={{ p: '8px', mr: -0.5 }}
+                onClick={
+                  isCluster
+                    ? (e) => {
+                        e.stopPropagation();
+                        handleClusterToggle(option.label);
+                      }
+                    : undefined
+                }
               />
               <Box
                 sx={{
@@ -438,7 +441,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
               >
                 {option.label}
               </Box>
-              {hasCluster && (
+              {isServiceInCluster && (
                 <Box
                   sx={{
                     position: 'absolute',
@@ -462,7 +465,11 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         variant="contained"
         size="large"
         onClick={handleStart}
-        disabled={selectedServices.length === 0 || startMutation.isPending || !canManageRTA}
+        disabled={
+          selectedServices.filter(s => s.type === 'service' && s.serviceId).length === 0 ||
+          startMutation.isPending ||
+          !canManageRTA
+        }
         sx={{
           borderRadius: '999px',
           minHeight: '40px',
