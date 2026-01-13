@@ -5,7 +5,7 @@ export const Messages = {
     `New update available: PMM ${version}`,
   runningVersion: 'Running version:',
   newVersion: 'New version:',
-  lastChecked: 'Checked on:',
+  lastChecked: 'Last checked:',
   home: 'PMM home',
   checkNow: 'Check updates now',
   checking: 'Checking',
