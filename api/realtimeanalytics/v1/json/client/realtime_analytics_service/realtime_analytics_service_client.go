@@ -106,7 +106,7 @@ func (a *Client) ChangeRealtimeAnalytics(params *ChangeRealtimeAnalyticsParams, 
 }
 
 /*
-ListRealtimeAnalyticsAgents lists real time analytics agents
+ListRealtimeAnalyticsAgents lists running real time analytics agents
 
 Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information.
 */

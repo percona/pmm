@@ -325,9 +325,9 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\x06enable\x18\x01 \x01(\bR\x06enable\x12&\n" +
 	"\n" +
 	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"!\n" +
-	"\x1fChangeRealtimeAnalyticsResponse2\xb1\x05\n" +
-	"\x18RealtimeAnalyticsService\x12\xf3\x02\n" +
-	"\x1bListRealtimeAnalyticsAgents\x128.realtimeanalytics.v1.ListRealtimeAnalyticsAgentsRequest\x1a9.realtimeanalytics.v1.ListRealtimeAnalyticsAgentsResponse\"\xde\x01\x92A\xb6\x01\x12\x1fList Real-Time Analytics Agents\x1a\x92\x01Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information.\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/realtimeanalytics/agents\x12\x9e\x02\n" +
+	"\x1fChangeRealtimeAnalyticsResponse2\xb9\x05\n" +
+	"\x18RealtimeAnalyticsService\x12\xfb\x02\n" +
+	"\x1bListRealtimeAnalyticsAgents\x128.realtimeanalytics.v1.ListRealtimeAnalyticsAgentsRequest\x1a9.realtimeanalytics.v1.ListRealtimeAnalyticsAgentsResponse\"\xe6\x01\x92A\xbe\x01\x12'List Running Real-Time Analytics Agents\x1a\x92\x01Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information.\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/realtimeanalytics/agents\x12\x9e\x02\n" +
 	"\x17ChangeRealtimeAnalytics\x124.realtimeanalytics.v1.ChangeRealtimeAnalyticsRequest\x1a5.realtimeanalytics.v1.ChangeRealtimeAnalyticsResponse\"\x95\x01\x92Ak\x12(Change Real-Time Analytics Configuration\x1a?Enables or disables Real-Time Analytics for a specific service.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/realtimeanalytics/changeB\xe8\x01\n" +
 	"\x18com.realtimeanalytics.v1B\x16RealtimeanalyticsProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
 

@@ -21,7 +21,7 @@
         "tags": [
           "RealtimeAnalyticsService"
         ],
-        "summary": "List Real-Time Analytics Agents",
+        "summary": "List Running Real-Time Analytics Agents",
         "operationId": "ListRealtimeAnalyticsAgents",
         "parameters": [
           {

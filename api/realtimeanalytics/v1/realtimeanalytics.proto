@@ -55,7 +55,7 @@ service RealtimeAnalyticsService {
   rpc ListRealtimeAnalyticsAgents(ListRealtimeAnalyticsAgentsRequest) returns (ListRealtimeAnalyticsAgentsResponse) {
     option (google.api.http) = {get: "/v1/realtimeanalytics/agents"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Real-Time Analytics Agents"
+      summary: "List Running Real-Time Analytics Agents"
       description: "Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information."
     };
   }
