@@ -24,53 +24,53 @@ Role privileges depend on:
 
 ### Create monitoring role
 
-After connecting to your MongoDB instance, create custom role with the privileges required for metric collection, working with Query Analytics (QAN) and optionally creating/restoring backups:
+After connecting to your MongoDB instance, create a custom role with the privileges required for metric collection, working with Query Analytics (QAN) and optionally creating/restoring backups:
   
-!!! caution alert alert-warning "Important"
-    Values for username (`user`) and password (`pwd`) are examples. Replace them before using these code snippets.
+#### "Minimum privileges"
 
-=== "Minimum privileges"
-    This role grants the essential minimum privileges needed for monitoring and QAN:
-    ```javascript
-    db.getSiblingDB("admin").createRole({
-    "role": "pmmMonitor",
-    "privileges": [
-        {
-        "resource": { "db": "", "collection": "" },
-        "actions": [ "dbHash", "find", "listIndexes", "listCollections", "collStats", "dbStats", "indexStats" ]
-        },
-        {
-        "resource": { "db": "", "collection": "system.version" },
-        "actions": [ "find" ]
-        },
-        {
-        "resource": { "db": "", "collection": "system.profile" },
-        "actions": [ "dbStats", "collStats", "indexStats" ]
-        }         
-    ],
-    "roles": [ ]
-    })
-    ```
+This role grants the essential minimum privileges needed for monitoring and QAN:
+
+```javascript
+db.getSiblingDB("admin").createRole({
+"role": "pmmMonitor",
+"privileges": [
+    {
+    "resource": { "db": "", "collection": "" },
+    "actions": [ "dbHash", "find", "listIndexes", "listCollections", "collStats", "dbStats", "indexStats" ]
+    },
+    {
+    "resource": { "db": "", "collection": "system.version" },
+    "actions": [ "find" ]
+    },
+    {
+    "resource": { "db": "", "collection": "system.profile" },
+    "actions": [ "dbStats", "collStats", "indexStats" ]
+    }         
+],
+"roles": [ ]
+})
+```
         
-=== "Full backup management privileges"
-    If you plan to use PMM's backup features, create a role with full backup management privileges:
+#### "Full backup management privileges"
 
-    ```javascript
-    db.getSiblingDB("admin").createRole({
-        "role": "pbmAnyAction",
-        "privileges": [
-        {
-            "resource": { "anyResource": true  },
-            "actions": [ "anyAction" ]
-        }
-        ],
-        "roles": []
-    });
-    ```
+If you plan to use PMM's backup features, also create a role with full backup management privileges:
+
+```javascript
+db.getSiblingDB("admin").createRole({
+    "role": "pbmAnyAction",
+    "privileges": [
+    {
+        "resource": { "anyResource": true  },
+        "actions": [ "anyAction" ]
+    }
+    ],
+    "roles": []
+});
+```
 
 ### Create user and assign created role
 
-After creating the role, create the PMM user and assign role based on your MongoDB version and requirements:
+After creating the custom role(s), create the PMM user and assign the role(s) based on your MongoDB version and requirements:
 
 === "MongoDB 8.0+ (Standard)"
     MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the `directShardOperations` role to collect complete metrics from all cluster components:
