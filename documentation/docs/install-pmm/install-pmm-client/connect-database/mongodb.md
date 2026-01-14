@@ -349,7 +349,7 @@ After configuring your database server, add a MongoDB service using either the u
         --password=your_secure_password \
         --host=127.0.0.1 \
         --port=27017 \        
-        --cluster=my_cluster_name \
+        --cluster=my_cluster_or_rs_name \
         --enable-all-collectors        
         ```
 
@@ -360,7 +360,7 @@ After configuring your database server, add a MongoDB service using either the u
         --password=your_secure_password \
         --host=127.0.0.1 \
         --port=27017 \        
-        --cluster=my_cluster_name \
+        --cluster=my_cluster_or_rs_name \
         --enable-all-collectors \      
         --tls-skip-verify        
         ```     
@@ -372,7 +372,7 @@ After configuring your database server, add a MongoDB service using either the u
         --password=your_secure_password \
         --host=127.0.0.1 \
         --port=27017 \        
-        --cluster=my_cluster_name \
+        --cluster=my_cluster_or_rs_name \
         --enable-all-collectors \      
         --query-source=mongolog         
         ```        
@@ -390,14 +390,14 @@ After configuring your database server, add a MongoDB service using either the u
         --tls-ca-file=/path/to/ca.pem \
         --authentication-mechanism=MONGODB-X509 \
         --authentication-database=$external \
-        --cluster=my_cluster_name \
+        --cluster=my_cluster_or_rs_name \
         --enable-all-collectors        
         ```
     
     When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `--custom-labels` options to set tags for the service to help identify them.
 
     !!! hint alert alert-success "Tips"
-        - When adding nodes to a sharded cluster, ensure to add each node using the same `--cluster mycluster` option. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard to populate correctly. 
+        - When adding members of a replica set or sharded cluster, ensure to add each node using the same `--cluster my_cluster_or_rs_name`. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) and [MongoDB ReplSetSummary](dashboard-mongodb-replset-summary.md) dashboards to populate correctly. 
         - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin.md#advanced-options) section if you want to modify this behaviour. 
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
         
