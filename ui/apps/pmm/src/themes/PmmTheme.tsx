@@ -33,7 +33,7 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
             },
             warning: {
               main: peakTheme.warning.surface,
-              contrastText: '#333333',
+              contrastText: peakTheme.text.primary,
             },
             action: {
               hover: 'rgba(220, 63, 0, 0.04)',
