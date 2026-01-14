@@ -41,18 +41,18 @@ message RealtimeAnalyticsQueryData {
   // Database-specific payload.
   oneof payload {
     // MongoDB-specific query data.
-    RealtimeAnalyticsMongoDBQueryData mongoDB_payload = 9;
+    RealtimeAnalyticsMongoDBQueryData mongo_db_payload = 9;
   }
 }
 
-// RealtimeAnalyticsQueryRequest is sent from agent to server with a batch of queries.
-message RealtimeAnalyticsQueryRequest {
+// CollectRequest is sent from agent to server with a batch of queries.
+message CollectRequest {
   // List of real-time query data points.
   repeated RealtimeAnalyticsQueryData queries = 1;
 }
 
-// RealtimeAnalyticsQueryResponse is stub for server response.
-message RealtimeAnalyticsQueryResponse {
+// CollectResponse is stub for server response.
+message CollectResponse {
   // Empty response for now.
 }
 
@@ -60,5 +60,5 @@ message RealtimeAnalyticsQueryResponse {
 service CollectorService {
   option (google.api.api_visibility).restriction = "INTERNAL";
   // Unidirectional streaming for real-time query data.
-  rpc Collect(stream RealtimeAnalyticsQueryRequest) returns (RealtimeAnalyticsQueryResponse);
+  rpc Collect(stream CollectRequest) returns (CollectResponse);
 }

@@ -30,7 +30,7 @@ const (
 // CollectorService defines the gRPC service for collecting real-time analytics data.
 type CollectorServiceClient interface {
 	// Unidirectional streaming for real-time query data.
-	Collect(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[RealtimeAnalyticsQueryRequest, RealtimeAnalyticsQueryResponse], error)
+	Collect(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CollectRequest, CollectResponse], error)
 }
 
 type collectorServiceClient struct {
@@ -41,18 +41,18 @@ func NewCollectorServiceClient(cc grpc.ClientConnInterface) CollectorServiceClie
 	return &collectorServiceClient{cc}
 }
 
-func (c *collectorServiceClient) Collect(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[RealtimeAnalyticsQueryRequest, RealtimeAnalyticsQueryResponse], error) {
+func (c *collectorServiceClient) Collect(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CollectRequest, CollectResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &CollectorService_ServiceDesc.Streams[0], CollectorService_Collect_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[RealtimeAnalyticsQueryRequest, RealtimeAnalyticsQueryResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[CollectRequest, CollectResponse]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CollectorService_CollectClient = grpc.ClientStreamingClient[RealtimeAnalyticsQueryRequest, RealtimeAnalyticsQueryResponse]
+type CollectorService_CollectClient = grpc.ClientStreamingClient[CollectRequest, CollectResponse]
 
 // CollectorServiceServer is the server API for CollectorService service.
 // All implementations must embed UnimplementedCollectorServiceServer
@@ -61,7 +61,7 @@ type CollectorService_CollectClient = grpc.ClientStreamingClient[RealtimeAnalyti
 // CollectorService defines the gRPC service for collecting real-time analytics data.
 type CollectorServiceServer interface {
 	// Unidirectional streaming for real-time query data.
-	Collect(grpc.ClientStreamingServer[RealtimeAnalyticsQueryRequest, RealtimeAnalyticsQueryResponse]) error
+	Collect(grpc.ClientStreamingServer[CollectRequest, CollectResponse]) error
 	mustEmbedUnimplementedCollectorServiceServer()
 }
 
@@ -72,7 +72,7 @@ type CollectorServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCollectorServiceServer struct{}
 
-func (UnimplementedCollectorServiceServer) Collect(grpc.ClientStreamingServer[RealtimeAnalyticsQueryRequest, RealtimeAnalyticsQueryResponse]) error {
+func (UnimplementedCollectorServiceServer) Collect(grpc.ClientStreamingServer[CollectRequest, CollectResponse]) error {
 	return status.Error(codes.Unimplemented, "method Collect not implemented")
 }
 func (UnimplementedCollectorServiceServer) mustEmbedUnimplementedCollectorServiceServer() {}
@@ -97,11 +97,11 @@ func RegisterCollectorServiceServer(s grpc.ServiceRegistrar, srv CollectorServic
 }
 
 func _CollectorService_Collect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(CollectorServiceServer).Collect(&grpc.GenericServerStream[RealtimeAnalyticsQueryRequest, RealtimeAnalyticsQueryResponse]{ServerStream: stream})
+	return srv.(CollectorServiceServer).Collect(&grpc.GenericServerStream[CollectRequest, CollectResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CollectorService_CollectServer = grpc.ClientStreamingServer[RealtimeAnalyticsQueryRequest, RealtimeAnalyticsQueryResponse]
+type CollectorService_CollectServer = grpc.ClientStreamingServer[CollectRequest, CollectResponse]
 
 // CollectorService_ServiceDesc is the grpc.ServiceDesc for CollectorService service.
 // It's only intended for direct use with grpc.RegisterService,

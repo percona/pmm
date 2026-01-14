@@ -130,7 +130,7 @@ type RealtimeAnalyticsQueryData struct {
 	//
 	// Types that are valid to be assigned to Payload:
 	//
-	//	*RealtimeAnalyticsQueryData_MongoDBPayload
+	//	*RealtimeAnalyticsQueryData_MongoDbPayload
 	Payload       isRealtimeAnalyticsQueryData_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -229,10 +229,10 @@ func (x *RealtimeAnalyticsQueryData) GetPayload() isRealtimeAnalyticsQueryData_P
 	return nil
 }
 
-func (x *RealtimeAnalyticsQueryData) GetMongoDBPayload() *RealtimeAnalyticsMongoDBQueryData {
+func (x *RealtimeAnalyticsQueryData) GetMongoDbPayload() *RealtimeAnalyticsMongoDBQueryData {
 	if x != nil {
-		if x, ok := x.Payload.(*RealtimeAnalyticsQueryData_MongoDBPayload); ok {
-			return x.MongoDBPayload
+		if x, ok := x.Payload.(*RealtimeAnalyticsQueryData_MongoDbPayload); ok {
+			return x.MongoDbPayload
 		}
 	}
 	return nil
@@ -242,15 +242,15 @@ type isRealtimeAnalyticsQueryData_Payload interface {
 	isRealtimeAnalyticsQueryData_Payload()
 }
 
-type RealtimeAnalyticsQueryData_MongoDBPayload struct {
+type RealtimeAnalyticsQueryData_MongoDbPayload struct {
 	// MongoDB-specific query data.
-	MongoDBPayload *RealtimeAnalyticsMongoDBQueryData `protobuf:"bytes,9,opt,name=mongoDB_payload,json=mongoDBPayload,proto3,oneof"`
+	MongoDbPayload *RealtimeAnalyticsMongoDBQueryData `protobuf:"bytes,9,opt,name=mongo_db_payload,json=mongoDbPayload,proto3,oneof"`
 }
 
-func (*RealtimeAnalyticsQueryData_MongoDBPayload) isRealtimeAnalyticsQueryData_Payload() {}
+func (*RealtimeAnalyticsQueryData_MongoDbPayload) isRealtimeAnalyticsQueryData_Payload() {}
 
-// RealtimeAnalyticsQueryRequest is sent from agent to server with a batch of queries.
-type RealtimeAnalyticsQueryRequest struct {
+// CollectRequest is sent from agent to server with a batch of queries.
+type CollectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// List of real-time query data points.
 	Queries       []*RealtimeAnalyticsQueryData `protobuf:"bytes,1,rep,name=queries,proto3" json:"queries,omitempty"`
@@ -258,20 +258,20 @@ type RealtimeAnalyticsQueryRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RealtimeAnalyticsQueryRequest) Reset() {
-	*x = RealtimeAnalyticsQueryRequest{}
+func (x *CollectRequest) Reset() {
+	*x = CollectRequest{}
 	mi := &file_realtimeanalytics_v1_collector_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RealtimeAnalyticsQueryRequest) String() string {
+func (x *CollectRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RealtimeAnalyticsQueryRequest) ProtoMessage() {}
+func (*CollectRequest) ProtoMessage() {}
 
-func (x *RealtimeAnalyticsQueryRequest) ProtoReflect() protoreflect.Message {
+func (x *CollectRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_collector_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -283,39 +283,39 @@ func (x *RealtimeAnalyticsQueryRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RealtimeAnalyticsQueryRequest.ProtoReflect.Descriptor instead.
-func (*RealtimeAnalyticsQueryRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CollectRequest.ProtoReflect.Descriptor instead.
+func (*CollectRequest) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_collector_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *RealtimeAnalyticsQueryRequest) GetQueries() []*RealtimeAnalyticsQueryData {
+func (x *CollectRequest) GetQueries() []*RealtimeAnalyticsQueryData {
 	if x != nil {
 		return x.Queries
 	}
 	return nil
 }
 
-// RealtimeAnalyticsQueryResponse is stub for server response.
-type RealtimeAnalyticsQueryResponse struct {
+// CollectResponse is stub for server response.
+type CollectResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RealtimeAnalyticsQueryResponse) Reset() {
-	*x = RealtimeAnalyticsQueryResponse{}
+func (x *CollectResponse) Reset() {
+	*x = CollectResponse{}
 	mi := &file_realtimeanalytics_v1_collector_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RealtimeAnalyticsQueryResponse) String() string {
+func (x *CollectResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RealtimeAnalyticsQueryResponse) ProtoMessage() {}
+func (*CollectResponse) ProtoMessage() {}
 
-func (x *RealtimeAnalyticsQueryResponse) ProtoReflect() protoreflect.Message {
+func (x *CollectResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_collector_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -327,8 +327,8 @@ func (x *RealtimeAnalyticsQueryResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RealtimeAnalyticsQueryResponse.ProtoReflect.Descriptor instead.
-func (*RealtimeAnalyticsQueryResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CollectResponse.ProtoReflect.Descriptor instead.
+func (*CollectResponse) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_collector_proto_rawDescGZIP(), []int{3}
 }
 
@@ -342,7 +342,7 @@ const file_realtimeanalytics_v1_collector_proto_rawDesc = "" +
 	"\fsecs_running\x18\x02 \x01(\x03R\vsecsRunning\x12\x16\n" +
 	"\x06client\x18\x03 \x01(\tR\x06client\x12(\n" +
 	"\x10waiting_for_lock\x18\x04 \x01(\bR\x0ewaitingForLock\x12%\n" +
-	"\x0eindex_utilized\x18\x05 \x01(\bR\rindexUtilized\"\xb3\x03\n" +
+	"\x0eindex_utilized\x18\x05 \x01(\bR\rindexUtilized\"\xb4\x03\n" +
 	"\x1aRealtimeAnalyticsQueryData\x12\x19\n" +
 	"\bquery_id\x18\x01 \x01(\tR\aqueryId\x12\x1d\n" +
 	"\n" +
@@ -352,14 +352,14 @@ const file_realtimeanalytics_v1_collector_proto_rawDesc = "" +
 	"\rrows_examined\x18\x05 \x01(\x03R\frowsExamined\x12\x1b\n" +
 	"\trows_sent\x18\x06 \x01(\x03R\browsSent\x128\n" +
 	"\ttimestamp\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12$\n" +
-	"\x0eraw_query_json\x18\b \x01(\tR\frawQueryJson\x12b\n" +
-	"\x0fmongoDB_payload\x18\t \x01(\v27.realtimeanalytics.v1.RealtimeAnalyticsMongoDBQueryDataH\x00R\x0emongoDBPayloadB\t\n" +
-	"\apayload\"k\n" +
-	"\x1dRealtimeAnalyticsQueryRequest\x12J\n" +
-	"\aqueries\x18\x01 \x03(\v20.realtimeanalytics.v1.RealtimeAnalyticsQueryDataR\aqueries\" \n" +
-	"\x1eRealtimeAnalyticsQueryResponse2\x9c\x01\n" +
-	"\x10CollectorService\x12v\n" +
-	"\aCollect\x123.realtimeanalytics.v1.RealtimeAnalyticsQueryRequest\x1a4.realtimeanalytics.v1.RealtimeAnalyticsQueryResponse(\x01\x1a\x10\xfa\xd2\xe4\x93\x02\n" +
+	"\x0eraw_query_json\x18\b \x01(\tR\frawQueryJson\x12c\n" +
+	"\x10mongo_db_payload\x18\t \x01(\v27.realtimeanalytics.v1.RealtimeAnalyticsMongoDBQueryDataH\x00R\x0emongoDbPayloadB\t\n" +
+	"\apayload\"\\\n" +
+	"\x0eCollectRequest\x12J\n" +
+	"\aqueries\x18\x01 \x03(\v20.realtimeanalytics.v1.RealtimeAnalyticsQueryDataR\aqueries\"\x11\n" +
+	"\x0fCollectResponse2~\n" +
+	"\x10CollectorService\x12X\n" +
+	"\aCollect\x12$.realtimeanalytics.v1.CollectRequest\x1a%.realtimeanalytics.v1.CollectResponse(\x01\x1a\x10\xfa\xd2\xe4\x93\x02\n" +
 	"\x12\bINTERNALB\xe0\x01\n" +
 	"\x18com.realtimeanalytics.v1B\x0eCollectorProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
 
@@ -380,18 +380,18 @@ var (
 	file_realtimeanalytics_v1_collector_proto_goTypes  = []any{
 		(*RealtimeAnalyticsMongoDBQueryData)(nil), // 0: realtimeanalytics.v1.RealtimeAnalyticsMongoDBQueryData
 		(*RealtimeAnalyticsQueryData)(nil),        // 1: realtimeanalytics.v1.RealtimeAnalyticsQueryData
-		(*RealtimeAnalyticsQueryRequest)(nil),     // 2: realtimeanalytics.v1.RealtimeAnalyticsQueryRequest
-		(*RealtimeAnalyticsQueryResponse)(nil),    // 3: realtimeanalytics.v1.RealtimeAnalyticsQueryResponse
+		(*CollectRequest)(nil),                    // 2: realtimeanalytics.v1.CollectRequest
+		(*CollectResponse)(nil),                   // 3: realtimeanalytics.v1.CollectResponse
 		(*timestamppb.Timestamp)(nil),             // 4: google.protobuf.Timestamp
 	}
 )
 
 var file_realtimeanalytics_v1_collector_proto_depIdxs = []int32{
 	4, // 0: realtimeanalytics.v1.RealtimeAnalyticsQueryData.timestamp:type_name -> google.protobuf.Timestamp
-	0, // 1: realtimeanalytics.v1.RealtimeAnalyticsQueryData.mongoDB_payload:type_name -> realtimeanalytics.v1.RealtimeAnalyticsMongoDBQueryData
-	1, // 2: realtimeanalytics.v1.RealtimeAnalyticsQueryRequest.queries:type_name -> realtimeanalytics.v1.RealtimeAnalyticsQueryData
-	2, // 3: realtimeanalytics.v1.CollectorService.Collect:input_type -> realtimeanalytics.v1.RealtimeAnalyticsQueryRequest
-	3, // 4: realtimeanalytics.v1.CollectorService.Collect:output_type -> realtimeanalytics.v1.RealtimeAnalyticsQueryResponse
+	0, // 1: realtimeanalytics.v1.RealtimeAnalyticsQueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.RealtimeAnalyticsMongoDBQueryData
+	1, // 2: realtimeanalytics.v1.CollectRequest.queries:type_name -> realtimeanalytics.v1.RealtimeAnalyticsQueryData
+	2, // 3: realtimeanalytics.v1.CollectorService.Collect:input_type -> realtimeanalytics.v1.CollectRequest
+	3, // 4: realtimeanalytics.v1.CollectorService.Collect:output_type -> realtimeanalytics.v1.CollectResponse
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -405,7 +405,7 @@ func file_realtimeanalytics_v1_collector_proto_init() {
 		return
 	}
 	file_realtimeanalytics_v1_collector_proto_msgTypes[1].OneofWrappers = []any{
-		(*RealtimeAnalyticsQueryData_MongoDBPayload)(nil),
+		(*RealtimeAnalyticsQueryData_MongoDbPayload)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

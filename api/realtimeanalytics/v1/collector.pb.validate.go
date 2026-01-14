@@ -216,7 +216,7 @@ func (m *RealtimeAnalyticsQueryData) validate(all bool) error {
 	// no validation rules for RawQueryJson
 
 	switch v := m.Payload.(type) {
-	case *RealtimeAnalyticsQueryData_MongoDBPayload:
+	case *RealtimeAnalyticsQueryData_MongoDbPayload:
 		if v == nil {
 			err := RealtimeAnalyticsQueryDataValidationError{
 				field:  "Payload",
@@ -229,11 +229,11 @@ func (m *RealtimeAnalyticsQueryData) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongoDBPayload()).(type) {
+			switch v := interface{}(m.GetMongoDbPayload()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, RealtimeAnalyticsQueryDataValidationError{
-						field:  "MongoDBPayload",
+						field:  "MongoDbPayload",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -241,16 +241,16 @@ func (m *RealtimeAnalyticsQueryData) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, RealtimeAnalyticsQueryDataValidationError{
-						field:  "MongoDBPayload",
+						field:  "MongoDbPayload",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongoDBPayload()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetMongoDbPayload()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return RealtimeAnalyticsQueryDataValidationError{
-					field:  "MongoDBPayload",
+					field:  "MongoDbPayload",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -341,22 +341,22 @@ var _ interface {
 	ErrorName() string
 } = RealtimeAnalyticsQueryDataValidationError{}
 
-// Validate checks the field values on RealtimeAnalyticsQueryRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RealtimeAnalyticsQueryRequest) Validate() error {
+// Validate checks the field values on CollectRequest with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *CollectRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RealtimeAnalyticsQueryRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// RealtimeAnalyticsQueryRequestMultiError, or nil if none found.
-func (m *RealtimeAnalyticsQueryRequest) ValidateAll() error {
+// ValidateAll checks the field values on CollectRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in CollectRequestMultiError,
+// or nil if none found.
+func (m *CollectRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RealtimeAnalyticsQueryRequest) validate(all bool) error {
+func (m *CollectRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -370,7 +370,7 @@ func (m *RealtimeAnalyticsQueryRequest) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, RealtimeAnalyticsQueryRequestValidationError{
+					errors = append(errors, CollectRequestValidationError{
 						field:  fmt.Sprintf("Queries[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -378,7 +378,7 @@ func (m *RealtimeAnalyticsQueryRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, RealtimeAnalyticsQueryRequestValidationError{
+					errors = append(errors, CollectRequestValidationError{
 						field:  fmt.Sprintf("Queries[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -387,7 +387,7 @@ func (m *RealtimeAnalyticsQueryRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RealtimeAnalyticsQueryRequestValidationError{
+				return CollectRequestValidationError{
 					field:  fmt.Sprintf("Queries[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -398,19 +398,19 @@ func (m *RealtimeAnalyticsQueryRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return RealtimeAnalyticsQueryRequestMultiError(errors)
+		return CollectRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// RealtimeAnalyticsQueryRequestMultiError is an error wrapping multiple
-// validation errors returned by RealtimeAnalyticsQueryRequest.ValidateAll()
-// if the designated constraints aren't met.
-type RealtimeAnalyticsQueryRequestMultiError []error
+// CollectRequestMultiError is an error wrapping multiple validation errors
+// returned by CollectRequest.ValidateAll() if the designated constraints
+// aren't met.
+type CollectRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RealtimeAnalyticsQueryRequestMultiError) Error() string {
+func (m CollectRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -419,12 +419,11 @@ func (m RealtimeAnalyticsQueryRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RealtimeAnalyticsQueryRequestMultiError) AllErrors() []error { return m }
+func (m CollectRequestMultiError) AllErrors() []error { return m }
 
-// RealtimeAnalyticsQueryRequestValidationError is the validation error
-// returned by RealtimeAnalyticsQueryRequest.Validate if the designated
-// constraints aren't met.
-type RealtimeAnalyticsQueryRequestValidationError struct {
+// CollectRequestValidationError is the validation error returned by
+// CollectRequest.Validate if the designated constraints aren't met.
+type CollectRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -432,24 +431,22 @@ type RealtimeAnalyticsQueryRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e RealtimeAnalyticsQueryRequestValidationError) Field() string { return e.field }
+func (e CollectRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RealtimeAnalyticsQueryRequestValidationError) Reason() string { return e.reason }
+func (e CollectRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RealtimeAnalyticsQueryRequestValidationError) Cause() error { return e.cause }
+func (e CollectRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RealtimeAnalyticsQueryRequestValidationError) Key() bool { return e.key }
+func (e CollectRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RealtimeAnalyticsQueryRequestValidationError) ErrorName() string {
-	return "RealtimeAnalyticsQueryRequestValidationError"
-}
+func (e CollectRequestValidationError) ErrorName() string { return "CollectRequestValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RealtimeAnalyticsQueryRequestValidationError) Error() string {
+func (e CollectRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -461,14 +458,14 @@ func (e RealtimeAnalyticsQueryRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRealtimeAnalyticsQueryRequest.%s: %s%s",
+		"invalid %sCollectRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RealtimeAnalyticsQueryRequestValidationError{}
+var _ error = CollectRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -476,24 +473,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RealtimeAnalyticsQueryRequestValidationError{}
+} = CollectRequestValidationError{}
 
-// Validate checks the field values on RealtimeAnalyticsQueryResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RealtimeAnalyticsQueryResponse) Validate() error {
+// Validate checks the field values on CollectResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *CollectResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RealtimeAnalyticsQueryResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// RealtimeAnalyticsQueryResponseMultiError, or nil if none found.
-func (m *RealtimeAnalyticsQueryResponse) ValidateAll() error {
+// ValidateAll checks the field values on CollectResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CollectResponseMultiError, or nil if none found.
+func (m *CollectResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RealtimeAnalyticsQueryResponse) validate(all bool) error {
+func (m *CollectResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -501,19 +498,19 @@ func (m *RealtimeAnalyticsQueryResponse) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return RealtimeAnalyticsQueryResponseMultiError(errors)
+		return CollectResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// RealtimeAnalyticsQueryResponseMultiError is an error wrapping multiple
-// validation errors returned by RealtimeAnalyticsQueryResponse.ValidateAll()
-// if the designated constraints aren't met.
-type RealtimeAnalyticsQueryResponseMultiError []error
+// CollectResponseMultiError is an error wrapping multiple validation errors
+// returned by CollectResponse.ValidateAll() if the designated constraints
+// aren't met.
+type CollectResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RealtimeAnalyticsQueryResponseMultiError) Error() string {
+func (m CollectResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -522,12 +519,11 @@ func (m RealtimeAnalyticsQueryResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RealtimeAnalyticsQueryResponseMultiError) AllErrors() []error { return m }
+func (m CollectResponseMultiError) AllErrors() []error { return m }
 
-// RealtimeAnalyticsQueryResponseValidationError is the validation error
-// returned by RealtimeAnalyticsQueryResponse.Validate if the designated
-// constraints aren't met.
-type RealtimeAnalyticsQueryResponseValidationError struct {
+// CollectResponseValidationError is the validation error returned by
+// CollectResponse.Validate if the designated constraints aren't met.
+type CollectResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -535,24 +531,22 @@ type RealtimeAnalyticsQueryResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e RealtimeAnalyticsQueryResponseValidationError) Field() string { return e.field }
+func (e CollectResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RealtimeAnalyticsQueryResponseValidationError) Reason() string { return e.reason }
+func (e CollectResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RealtimeAnalyticsQueryResponseValidationError) Cause() error { return e.cause }
+func (e CollectResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RealtimeAnalyticsQueryResponseValidationError) Key() bool { return e.key }
+func (e CollectResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RealtimeAnalyticsQueryResponseValidationError) ErrorName() string {
-	return "RealtimeAnalyticsQueryResponseValidationError"
-}
+func (e CollectResponseValidationError) ErrorName() string { return "CollectResponseValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RealtimeAnalyticsQueryResponseValidationError) Error() string {
+func (e CollectResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -564,14 +558,14 @@ func (e RealtimeAnalyticsQueryResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRealtimeAnalyticsQueryResponse.%s: %s%s",
+		"invalid %sCollectResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RealtimeAnalyticsQueryResponseValidationError{}
+var _ error = CollectResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -579,4 +573,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RealtimeAnalyticsQueryResponseValidationError{}
+} = CollectResponseValidationError{}
