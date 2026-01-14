@@ -159,7 +159,7 @@ message Settings {
   repeated string aws_partitions = 6;
   // True if Advisor is enabled.
   bool advisor_enabled = 7;
-  string platform_email = 8;
+  string platform_email = 8 [deprecated = true];
   // True if Alerting is enabled.
   bool alerting_enabled = 10;
   // PMM Server public address.
@@ -171,7 +171,7 @@ message Settings {
   // True if Azure Discover is enabled.
   bool azurediscover_enabled = 14;
   // True if the PMM instance is connected to Platform
-  bool connected_to_platform = 15;
+  bool connected_to_platform = 15 [deprecated = true];
   // Includes list of collected telemetry
   repeated string telemetry_summaries = 16;
   // True if Access Control is enabled.

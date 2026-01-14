@@ -1073,8 +1073,9 @@ type Settings struct {
 	SshKey             string               `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3" json:"ssh_key,omitempty"`
 	AwsPartitions      []string             `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
 	// True if Advisor is enabled.
-	AdvisorEnabled bool   `protobuf:"varint,7,opt,name=advisor_enabled,json=advisorEnabled,proto3" json:"advisor_enabled,omitempty"`
-	PlatformEmail  string `protobuf:"bytes,8,opt,name=platform_email,json=platformEmail,proto3" json:"platform_email,omitempty"`
+	AdvisorEnabled bool `protobuf:"varint,7,opt,name=advisor_enabled,json=advisorEnabled,proto3" json:"advisor_enabled,omitempty"`
+	// Deprecated: Marked as deprecated in server/v1/server.proto.
+	PlatformEmail string `protobuf:"bytes,8,opt,name=platform_email,json=platformEmail,proto3" json:"platform_email,omitempty"`
 	// True if Alerting is enabled.
 	AlertingEnabled bool `protobuf:"varint,10,opt,name=alerting_enabled,json=alertingEnabled,proto3" json:"alerting_enabled,omitempty"`
 	// PMM Server public address.
@@ -1086,6 +1087,8 @@ type Settings struct {
 	// True if Azure Discover is enabled.
 	AzurediscoverEnabled bool `protobuf:"varint,14,opt,name=azurediscover_enabled,json=azurediscoverEnabled,proto3" json:"azurediscover_enabled,omitempty"`
 	// True if the PMM instance is connected to Platform
+	//
+	// Deprecated: Marked as deprecated in server/v1/server.proto.
 	ConnectedToPlatform bool `protobuf:"varint,15,opt,name=connected_to_platform,json=connectedToPlatform,proto3" json:"connected_to_platform,omitempty"`
 	// Includes list of collected telemetry
 	TelemetrySummaries []string `protobuf:"bytes,16,rep,name=telemetry_summaries,json=telemetrySummaries,proto3" json:"telemetry_summaries,omitempty"`
@@ -1180,6 +1183,7 @@ func (x *Settings) GetAdvisorEnabled() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in server/v1/server.proto.
 func (x *Settings) GetPlatformEmail() string {
 	if x != nil {
 		return x.PlatformEmail
@@ -1222,6 +1226,7 @@ func (x *Settings) GetAzurediscoverEnabled() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in server/v1/server.proto.
 func (x *Settings) GetConnectedToPlatform() bool {
 	if x != nil {
 		return x.ConnectedToPlatform
@@ -1808,7 +1813,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xe7\a\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xef\a\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1816,15 +1821,15 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x0edata_retention\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\rdataRetention\x12\x17\n" +
 	"\assh_key\x18\x05 \x01(\tR\x06sshKey\x12%\n" +
 	"\x0eaws_partitions\x18\x06 \x03(\tR\rawsPartitions\x12'\n" +
-	"\x0fadvisor_enabled\x18\a \x01(\bR\x0eadvisorEnabled\x12%\n" +
-	"\x0eplatform_email\x18\b \x01(\tR\rplatformEmail\x12)\n" +
+	"\x0fadvisor_enabled\x18\a \x01(\bR\x0eadvisorEnabled\x12)\n" +
+	"\x0eplatform_email\x18\b \x01(\tB\x02\x18\x01R\rplatformEmail\x12)\n" +
 	"\x10alerting_enabled\x18\n" +
 	" \x01(\bR\x0falertingEnabled\x12,\n" +
 	"\x12pmm_public_address\x18\v \x01(\tR\x10pmmPublicAddress\x12R\n" +
 	"\x15advisor_run_intervals\x18\f \x01(\v2\x1e.server.v1.AdvisorRunIntervalsR\x13advisorRunIntervals\x12:\n" +
 	"\x19backup_management_enabled\x18\r \x01(\bR\x17backupManagementEnabled\x123\n" +
-	"\x15azurediscover_enabled\x18\x0e \x01(\bR\x14azurediscoverEnabled\x122\n" +
-	"\x15connected_to_platform\x18\x0f \x01(\bR\x13connectedToPlatform\x12/\n" +
+	"\x15azurediscover_enabled\x18\x0e \x01(\bR\x14azurediscoverEnabled\x126\n" +
+	"\x15connected_to_platform\x18\x0f \x01(\bB\x02\x18\x01R\x13connectedToPlatform\x12/\n" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
