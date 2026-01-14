@@ -5156,7 +5156,7 @@
           "HAService"
         ],
         "summary": "List HA Nodes",
-        "operationId": "ListNodesMixin12",
+        "operationId": "ListNodesMixin13",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -29748,6 +29748,193 @@
         }
       }
     },
+    "/v1/realtimeanalytics/agents": {
+      "get": {
+        "description": "Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "List Running Real-Time Analytics Agents",
+        "operationId": "ListRunningRealtimeAgents",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional filter by cluster name.",
+            "name": "cluster",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListRunningRealtimeAgentsResponse returns the list of running RTA agents.",
+              "type": "object",
+              "properties": {
+                "agents": {
+                  "description": "List of running RTA agents.",
+                  "type": "array",
+                  "items": {
+                    "description": "RunningRealtimeAgent represents a currently running RTA agent.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique agent identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_id": {
+                        "description": "Service identifier that the agent is monitoring.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "cluster": {
+                        "description": "Cluster name the service belongs to.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "started_at": {
+                        "description": "Timestamp when the agent was started.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 4
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/change": {
+      "post": {
+        "description": "Enables or disables Real-Time Analytics for a specific service.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "Change Real-Time Analytics Configuration",
+        "operationId": "ChangeRealtimeAnalytics",
+        "parameters": [
+          {
+            "description": "ChangeRealtimeAnalyticsRequest contains parameters for enabling or disabling RTA.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ChangeRealtimeAnalyticsRequest contains parameters for enabling or disabling RTA.",
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "description": "Enable or disable RTA.",
+                  "type": "boolean",
+                  "x-order": 0
+                },
+                "service_id": {
+                  "description": "Service identifier.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ChangeRealtimeAnalyticsResponse is the response for changing RTA configuration.\n\nEmpty response for now.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/server/leaderHealthCheck": {
       "get": {
         "description": "Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader.",
@@ -31382,6 +31569,9 @@
     },
     {
       "name": "QANService"
+    },
+    {
+      "name": "RealtimeAnalyticsService"
     },
     {
       "name": "PlatformService"

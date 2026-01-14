@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package realtimeanalytics.v1;
+
+import "google/api/visibility.proto";
+import "google/protobuf/timestamp.proto";
+
+// RealtimeAnalyticsMongoDBQueryData holds MongoDB-specific real-time query information.
+message RealtimeAnalyticsMongoDBQueryData {
+  // Operation ID of the query.
+  string opid = 1;
+  // Seconds the query has been running.
+  int64 secs_running = 2;
+  // Client address.
+  string client = 3;
+  // Indicates if the query is waiting for a lock.
+  bool waiting_for_lock = 4;
+  // Indicates if an index was utilized in the query.
+  bool index_utilized = 5;
+}
+
+// RealtimeAnalyticsQueryData represents a single real-time query data point.
+// It includes general query information and a payload for database-specific details.
+message RealtimeAnalyticsQueryData {
+  // Unique identifier for the query.
+  string query_id = 1;
+  // The text of the query.
+  string query_text = 2;
+  // Current state of the query (e.g., running, completed).
+  string state = 3;
+  // Current execution time in seconds.
+  double current_execution_time = 4;
+  // Number of rows examined by the query.
+  int64 rows_examined = 5;
+  // Number of rows sent by the query.
+  int64 rows_sent = 6;
+  // Timestamp when the query data was recorded.
+  google.protobuf.Timestamp timestamp = 7;
+  // Raw JSON representation of the query.
+  string raw_query_json = 8;
+  // Database-specific payload.
+  oneof payload {
+    // MongoDB-specific query data.
+    RealtimeAnalyticsMongoDBQueryData mongoDB_payload = 9;
+  }
+}
+
+// RealtimeAnalyticsQueryRequest is sent from agent to server with a batch of queries.
+message RealtimeAnalyticsQueryRequest {
+  // List of real-time query data points.
+  repeated RealtimeAnalyticsQueryData queries = 1;
+}
+
+// RealtimeAnalyticsQueryResponse is stub for server response.
+message RealtimeAnalyticsQueryResponse {
+  // Empty response for now.
+}
+
+// CollectorService defines the gRPC service for collecting real-time analytics data.
+service CollectorService {
+  option (google.api.api_visibility).restriction = "INTERNAL";
+  // Unidirectional streaming for real-time query data.
+  rpc Collect(stream RealtimeAnalyticsQueryRequest) returns (RealtimeAnalyticsQueryResponse);
+}

@@ -109,7 +109,7 @@ func RegisterRealtimeAnalyticsServiceHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents", runtime.WithHTTPPathPattern("/v1/realtime/agents"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/agents"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -129,7 +129,7 @@ func RegisterRealtimeAnalyticsServiceHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics", runtime.WithHTTPPathPattern("/v1/realtime/change"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -187,7 +187,7 @@ func RegisterRealtimeAnalyticsServiceHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents", runtime.WithHTTPPathPattern("/v1/realtime/agents"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/agents"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -204,7 +204,7 @@ func RegisterRealtimeAnalyticsServiceHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics", runtime.WithHTTPPathPattern("/v1/realtime/change"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -221,8 +221,8 @@ func RegisterRealtimeAnalyticsServiceHandlerClient(ctx context.Context, mux *run
 }
 
 var (
-	pattern_RealtimeAnalyticsService_ListRunningRealtimeAgents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtime", "agents"}, ""))
-	pattern_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtime", "change"}, ""))
+	pattern_RealtimeAnalyticsService_ListRunningRealtimeAgents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtimeanalytics", "agents"}, ""))
+	pattern_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtimeanalytics", "change"}, ""))
 )
 
 var (

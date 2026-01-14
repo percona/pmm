@@ -20,6 +20,7 @@ import (
 	"context"
 	"time"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -42,6 +43,7 @@ type Service struct {
 	store    *Store
 
 	rtav1.UnimplementedRealtimeAnalyticsServiceServer
+	rtav1.UnimplementedCollectorServiceServer
 }
 
 // NewService creates a new Real-Time Analytics service.
@@ -161,4 +163,10 @@ func (s *Service) ChangeRealtimeAnalytics(_ context.Context, req *rtav1.ChangeRe
 	}
 
 	return &rtav1.ChangeRealtimeAnalyticsResponse{}, nil
+}
+
+// Collect handles incoming streaming RTA query data from agents (gRPC handler).
+func (s *Service) Collect(g grpc.ClientStreamingServer[rtav1.RealtimeAnalyticsQueryRequest, rtav1.RealtimeAnalyticsQueryResponse]) error {
+	// TODO implement me
+	panic("implement me")
 }

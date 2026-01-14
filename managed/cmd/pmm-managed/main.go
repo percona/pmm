@@ -306,6 +306,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	rtaStore := realtimeanalytics.NewStore()
 	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry, rtaStore)
 	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
+	rtav1.RegisterCollectorServiceServer(gRPCServer, rtaSvc)
 
 	// Start RTA store cleanup goroutine
 	go rtaStore.Run(ctx)

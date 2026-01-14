@@ -53,9 +53,9 @@ message ChangeRealtimeAnalyticsResponse {
 service RealtimeAnalyticsService {
   // ListRunningRealtimeAgents returns the list of currently running RTA agents.
   rpc ListRunningRealtimeAgents(ListRunningRealtimeAgentsRequest) returns (ListRunningRealtimeAgentsResponse) {
-    option (google.api.http) = {get: "/v1/realtime/agents"};
+    option (google.api.http) = {get: "/v1/realtimeanalytics/agents"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Running RTA Agents"
+      summary: "List Running Real-Time Analytics Agents"
       description: "Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information."
     };
   }
@@ -63,7 +63,7 @@ service RealtimeAnalyticsService {
   // ChangeRealtimeAnalytics enables or disables RTA for a service.
   rpc ChangeRealtimeAnalytics(ChangeRealtimeAnalyticsRequest) returns (ChangeRealtimeAnalyticsResponse) {
     option (google.api.http) = {
-      post: "/v1/realtime/change"
+      post: "/v1/realtimeanalytics/change"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
