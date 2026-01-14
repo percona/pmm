@@ -154,10 +154,10 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 		SELECT DISTINCT partition
 		FROM system.parts
 		WHERE database = ?
-		AND table = 'metrics'
-		AND visible = 1
-		AND match(partition, '^[0-9]{8}$')
-		AND toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?))
+			AND table = 'metrics'
+			AND visible = 1
+			AND match(partition, '^[0-9]{8}$')
+			AND toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?))
 		ORDER BY partition
 	`
 	err := db.Select(
