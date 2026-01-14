@@ -280,7 +280,7 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
 ## Step 3: Migrate PMM 2 Clients to PMM 3
 
 !!! caution alert alert-warning "Important"
-    PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only). This support will be removed in PMM 3.3.
+    PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only).
 
 Depending on your initial installation method, update PMM Clients using your operating system's package manager or using a tarball.
 For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upgrade_client.md).
@@ -295,7 +295,7 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
     Be sure to replace `admin:admin` with your credentials and update the server address to match your PMM Server address (the same URL you use to access the PMM web interface):
 
     ```sh
-    curl -X POST -k https://YOUR PMM SERVER ADDRESS/graph/api/serviceaccounts/migrate \
+    curl -X POST -k https://<pmm-server-address>/graph/api/serviceaccounts/migrate \
     -u admin:admin \
     -H "Content-Type: application/json"
     ```

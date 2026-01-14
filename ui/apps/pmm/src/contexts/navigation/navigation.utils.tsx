@@ -41,13 +41,19 @@ import {
   NAV_ALERTS_SILENCES,
   NAV_ALERTS_GROUPS,
   NAV_VALKEY,
+  NAV_HIGH_AVAILABILITY,
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
+  NAV_HIGH_AVAILABILITY_LEADER,
+  NAV_HIGH_AVAILABILITY_NODES,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
 import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
+import { HighAvailabilityIcon } from 'components/ha-icon';
+import { HighAvailabilityBadge } from 'components/ha-badge';
+import { HAInfo } from 'types/ha.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -168,7 +174,7 @@ export const addAdvisors = (advisors: Advisor[]): NavItem => {
   for (const category of Object.keys(categories)) {
     children.push({
       id: `advisors-${category}`,
-      text: `${capitalize(category)} Advisors`,
+      text: `${capitalize(category)} advisors`,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/${category}`,
     });
   }
@@ -184,7 +190,7 @@ export const addAccount = (
 ): NavItem => {
   const name = (user.name || '').split(' ')[0];
   const children = [...(NAV_ACCOUNT.children || [])];
-  const targetTheme = colorMode === 'light' ? 'Dark' : 'Light';
+  const targetMode = colorMode === 'light' ? 'dark' : 'light';
 
   if (
     !(
@@ -198,7 +204,7 @@ export const addAccount = (
   children.push({
     ...NAV_THEME_TOGGLE,
     icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
-    text: `Change to ${targetTheme} Theme`,
+    text: `Switch to ${targetMode} mode`,
     onClick: toggleMode,
   });
 
@@ -240,6 +246,24 @@ export const addConfiguration = (
   }
 
   return NAV_CONFIGURATION;
+};
+
+export const addHighAvailability = ({ health, leader }: HAInfo): NavItem => {
+  const item = { ...NAV_HIGH_AVAILABILITY };
+
+  item.badge = <HighAvailabilityBadge health={health} />;
+  item.icon = <HighAvailabilityIcon health={health} />;
+  item.badgeAlwaysVisible = true;
+
+  item.children = [
+    {
+      ...NAV_HIGH_AVAILABILITY_LEADER,
+      secondaryText: leader?.nodeName || 'Unknown',
+    },
+    NAV_HIGH_AVAILABILITY_NODES,
+  ];
+
+  return item;
 };
 
 export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
