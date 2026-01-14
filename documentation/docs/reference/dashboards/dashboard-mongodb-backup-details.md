@@ -1,135 +1,72 @@
 # MongoDB Backup Details dashboard
 
-The MongoDB Backup Details dashboard offers an integrated view of your Percona Backup for MongoDB (PBM) environment directly within Percona Monitoring and Management (PMM).
+This dashboard helps you monitor and manage your Percona Backup for MongoDB (PBM) environment directly within PMM. It consolidates backup configuration, agent health, and backup history into a single view, so you don't need to switch between tools.
 
-The dashboard consolidates key information—such as backup configuration, status, performance metrics, and agent health—into a single, easy-to-use interface.
-
-By accessing PBM insights directly from PMM, you can efficiently monitor and manage your MongoDB backups without switching between tools.
+The dashboard works with both replica sets and sharded clusters. Use the filters at the top to narrow down to specific environments, clusters, or replica sets.
 
 ![MongoDB Backup Details dashboard](../../images/BackupDetails_Dashboard.png)
 
 ## Backup Configured
 
-Shows whether backups are properly configured for your MongoDB environment. A green **YES** indicates that PBM is properly set up with remote backup storage, while a red **NO** signals that backups are not configured.
+Shows whether PBM is configured with remote backup storage for your MongoDB environment. A green **YES** indicates that backups are properly set up, while a red **NO** signals that backups are not configured.
+
+If you see **NO**, check your PBM configuration to ensure a remote storage location (S3, Azure Blob, or filesystem) is properly defined.
 
 ## PITR Status
 
-Displays whether Point-in-Time Recovery (PITR) oplog streaming is enabled for your MongoDB environment. A green **ON** confirms PITR is active, while a red **OFF** indicates this feature is not currently enabled.
+Shows whether Point-in-Time Recovery (PITR) oplog streaming is enabled. A green **ON** confirms PITR is active, while a red **OFF** indicates this feature is not currently enabled.
 
-PITR allows for more granular recovery options, enabling restoration to any point in time rather than just to specific backup points.
+PITR allows restoration to any point in time rather than just to specific backup snapshots. If your recovery requirements need granular restore points, ensure this is enabled in your PBM configuration.
 
 ## Backup Agents
 
-Shows the total number of PBM agents currently monitored by PMM. This count helps you verify that all expected agents across your MongoDB environment are registered and reporting.
+Shows the total number of PBM agents currently monitored by PMM.
+
+Use this to verify that all expected agents across your MongoDB environment are registered and reporting. If this count doesn't match your expected number of nodes, you may have agents that failed to register or are offline.
 
 ## Last Successful Backup
 
-Shows the name of the most recent successful backup operation. This gives you confidence in your recovery capabilities by confirming when your last good backup was taken, ensuring you know your current recovery point objective (RPO) status.
+Shows the name of the most recent successful backup.
+
+Use this to quickly confirm your current recovery point and verify that backups are running as expected. If this shows an old backup or **N/A**, investigate why recent backups may have failed.
 
 ## Backup Agent Summary
 
-Provides a donut chart showing the distribution of PBM agent statuses across your environment. Agents are grouped by status:
+Shows the distribution of PBM agent statuses across your environment using a donut chart. Green represents agents with **OK** status, while red indicates agents that need attention (**CHECK**).
 
-- **OK** (green): Agent is functioning correctly
-- **CHECK** (red): Agent requires attention
-
-This visualization lets you quickly assess the overall health of your backup infrastructure at a glance.
+Use this for a quick health check of your backup infrastructure. A predominantly green chart means your agents are healthy. Red segments indicate agents requiring investigation—drill down using the Backup Agent Status panel to identify specific hosts.
 
 ## Backup Agent Status
 
-Displays the current status of each individual PBM agent using a hexagon grid visualization. Each hexagon represents one agent (identified by host) with color-coded status:
+Shows the current status of each individual PBM agent, displayed as a hexagon grid with one hexagon per host. Green means **OK**, red means **CHECK**.
 
-- **OK** (green): Agent is functioning correctly
-- **CHECK** (red): Agent requires attention due to failure or connectivity issues
+Use this to pinpoint exactly which agents need investigation when the Backup Agent Summary shows problems. Hover over a hexagon to see the hostname and quickly identify which nodes require attention.
 
-This panel helps you quickly identify which specific agents need investigation.
+## Backup Agent Status Over Time
 
-## Backup agent status over time
+Shows how agent status has changed over the selected time range using a color-coded timeline. Green bars indicate **OK** status, red bars show **FAIL** or **DOWN** states.
 
-Monitors the operational status of each PBM agent over time using a color-coded timeline visualization. Each host is shown as a row with status changes displayed across the selected time range:
+Use this to identify patterns and troubleshoot intermittent issues. This historical view helps correlate backup failures with other events like network issues or maintenance windows, and verify that previously problematic agents have stabilized.
 
-- **OK** (green): Agent functioning correctly
-- **FAIL** (red): Agent experiencing issues
-- **DOWN** (red): Agent unreachable
+Arbiter nodes will appear with a **FAIL** status. This is expected because arbiters only participate in elections and do not store data, so they cannot run PBM agents.
 
-This historical view helps you identify patterns, such as intermittent failures or agents that went down at specific times.
+## Backup History
 
-Arbiter nodes, whether in replica sets or sharded clusters, will appear with a **FAIL** status. This is because arbiters are designed only to participate in elections and do not store data, so they do not and cannot run PBM agents.
+Shows a historical record of backup operations across your MongoDB infrastructure, including environment, cluster, backup name, size, and duration.
 
-## Backup history
+Use this to verify that scheduled backups are running successfully and to identify failed operations. The size and duration columns help spot anomalies—unusually small backups may indicate incomplete data capture, while long durations may signal performance issues.
 
-Provides a comprehensive table of all backup operations during the specified time range with the following columns:
-
-- **Environment**: The environment where the backup was taken
-- **Cluster/Replica Set**: The MongoDB cluster or replica set name
-- **Backup Name**: Timestamp identifier for the backup
-- **Size**: Size of the backup in bytes
-- **Duration**: Time taken to complete the backup
-
-This consolidated view helps you track backups across your entire MongoDB infrastructure, verify that scheduled backups are running successfully, and identify any failed operations that may require attention.
+The current status reporting may not capture the full range of error states available in PBM's native tools (including "stuck" or "incompatible" backups). This will be improved in an upcoming release.
 
 ## Backup Sizes
 
-Displays the size of your MongoDB backups in a bar chart format.
+Shows the size of each backup in a bar chart format.
 
-The panel shows the exact size of each backup (e.g., 10.7 MB), helping you track storage requirements and identify any unusual changes in backup size that might indicate problems with your data or backup process.
+Use this to track storage requirements and plan capacity. Monitor for unusual changes—unexpectedly small backups could indicate incomplete data capture, while sudden increases might signal data growth that requires storage planning.
 
 ## Backup Duration
 
-Shows how long each backup operation takes to complete, displayed in seconds.
+Shows how long each backup operation took to complete, displayed in seconds.
 
-By monitoring backup times, you can quickly pinpoint any backups that are taking an unusually long time to complete, which may signal underlying performance problems within your MongoDB setup.
+Use this to identify performance issues in your backup process. Backups taking unusually long may signal problems with your MongoDB setup, network bandwidth, or storage performance. Tracking duration trends also helps you plan maintenance windows more accurately.
 
----
-
-This dashboard works with both replica sets and sharded clusters, providing unified visibility into your MongoDB backup infrastructure.
-
-To use it effectively, select the appropriate environments, clusters, and replica sets using the filters at the top of the dashboard.
-
-
-# MongoDB MongoDB Backup Details dashboard
-The MongoDB PBM Details dashboard offers an integrated view of your Percona Backup for MongoDB (PBM) environment directly within Percona Monitoring and Management (PMM).
-
-The dashboard consolidates key information—such as backup configuration, status, performance metrics, and agent health—into a single, easy-to-use interface.
-
-By accessing PBM insights directly from PMM, you can efficiently monitor and manage your MongoDB backups without switching between tools.
-
-
-## Backup Configured
-Shows whether backups are properly configured for your MongoDB environment. A green "Yes" indicates that PBM is properly set up and functioning, while a **No** in red signals that backups are not configured. 
-
-## PITR Enabled
-Displays whether Point-in-Time Recovery (PITR) is enabled for your MongoDB environment. A green **Yes** confirms PITR is active, while a **No** in red indicates this feature is not currently enabled.
-
-PITR allows for more granular recovery options, enabling restoration to any point in time rather than just to specific backup points. 
-
-## Agent Status
-This panel monitors the operational status of each PBM agent connected to your MongoDB cluster nodes using a color-coded timeline visualization.
-
-Each replica set node (e.g., `rs101:27017`, `rs102:27017`, `rs103:27017`) is shown with an **OK** status in green when the PBM agent is functioning correctly. This allows you to quickly identify any agents that may be experiencing issues and potentially affecting backup operations.
-
-Arbiter nodes, whether in replica sets or sharded clusters, will appear with a **Fail** status. This is because arbiters are designed only to participate in elections and do not store data, so they do not and cannot run PBM agents. In future updates, this status will be clarified with a message such as "Arbiter node is not supported".
-
-## Size Bytes
-Displays the size of your MongoDB backups in a bar chart format. 
-
-The panel shows the exact size of each backup (e.g., 10.7 MB), helping you track storage requirements and identify any unusual changes in backup size that might indicate problems with your data or backup process.
-
-## Duration
-Shows how long each backup operation takes to complete, displayed in seconds.
-
-By monitoring backup times, you can quickly pinpoint any backups that are taking an unusually long time to complete, which may signal underlying performance problems within your MongoDB setup.
-
-## Backup History
-Provides a tabular view of recent backup operations with columns for **Name** (timestamp of the backup) and **Status** (Done, Error, etc.). 
-
-This historical record helps you verify that scheduled backups are running successfully and lets you quickly identify any failed backup operations that may require attention.
-
-The current status reporting in this panel may not yet capture the full range of error states available in PBM's native tools (including "stuck" or "incompatible" backups). This will be improved with an upcoming release to provide a more complete picture of your backup status.
-
-## Last Successful Backup
-Shows details of the most recent successful backup operation, including its timestamp. This gives you confidence in your recovery capabilities by confirming when your last good backup was taken, ensuring you know your current recovery point objective (RPO) status.
-
-This dashboard works with both replica sets and sharded clusters, providing unified visibility into your MongoDB backup infrastructure. 
-
-To use it effectively, select the appropriate environments, clusters, and replica sets using the filters at the top of the dashboard.
