@@ -1,5 +1,4 @@
 import { Typography } from '@mui/material';
-import { PEAK_DARK_THEME, PEAK_LIGHT_THEME } from '@pmm/shared';
 import { FC, PropsWithChildren } from 'react';
 
 export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
@@ -10,7 +9,7 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
     <Typography
       sx={[
         {
-          backgroundColor: PEAK_LIGHT_THEME.action.hover,
+          color: (theme) => theme.palette.action.hover,
           fontFamily: 'Roboto Mono, monospace',
           whiteSpace: 'pre',
         },
@@ -28,7 +27,7 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
               },
         (theme) =>
           theme.applyStyles('dark', {
-            backgroundColor: PEAK_DARK_THEME.action.hover,
+            color: theme.palette.action.hover,
           }),
       ]}
     >
