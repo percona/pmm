@@ -166,7 +166,7 @@ func (s *Service) ChangeRealtimeAnalytics(_ context.Context, req *rtav1.ChangeRe
 }
 
 // Collect handles incoming streaming RTA query data from agents (gRPC handler).
-func (s *Service) Collect(g grpc.ClientStreamingServer[rtav1.CollectRequest, rtav1.CollectResponse]) error {
+func (s *Service) Collect(_ grpc.ClientStreamingServer[rtav1.CollectRequest, rtav1.CollectResponse]) error {
 	// TODO implement me
 	panic("implement me")
 }
