@@ -173,7 +173,7 @@ export const addAdvisors = (advisors: Advisor[]): NavItem => {
   for (const category of Object.keys(categories)) {
     children.push({
       id: `advisors-${category}`,
-      text: `${capitalize(category)} Advisors`,
+      text: `${capitalize(category)} advisors`,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/${category}`,
     });
   }
@@ -189,7 +189,7 @@ export const addAccount = (
 ): NavItem => {
   const name = (user.name || '').split(' ')[0];
   const children = [...(NAV_ACCOUNT.children || [])];
-  const targetTheme = colorMode === 'light' ? 'Dark' : 'Light';
+  const targetMode = colorMode === 'light' ? 'dark' : 'light';
 
   if (
     !(
@@ -203,7 +203,7 @@ export const addAccount = (
   children.push({
     ...NAV_THEME_TOGGLE,
     icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
-    text: `Change to ${targetTheme} Theme`,
+    text: `Switch to ${targetMode} mode`,
     onClick: toggleMode,
   });
 
