@@ -26,7 +26,7 @@ Role privileges depend on:
 
 After connecting to your MongoDB instance, create a custom role with the privileges required for metric collection, working with Query Analytics (QAN) and optionally creating/restoring backups:
   
-#### "Minimum privileges"
+#### Minimum privileges
 
 This role grants the essential minimum privileges needed for monitoring and QAN:
 
@@ -51,7 +51,7 @@ db.getSiblingDB("admin").createRole({
 })
 ```
         
-#### "Full backup management privileges"
+#### Full backup management privileges
 
 If you plan to use PMM's backup features, also create a role with full backup management privileges:
 
