@@ -27,7 +27,7 @@ export const Messages = {
     readMore: 'Read more about our templates',
   },
   advisors: {
-    title: 'Percona Advisors',
+    title: 'Advisors',
     checks:
       'Advisor checks proactively monitor your databases for potential security threats, performance degradation, data integrity risks, compliance issues, and more.',
     readMore: 'Read more about Advisors',

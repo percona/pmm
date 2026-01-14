@@ -23,7 +23,7 @@ export const getCardData = ({
 }): HelpCard[] => [
   {
     id: CARD_IDS.pmmDocs,
-    title: 'PMM Documentation',
+    title: 'PMM documentation',
     description:
       'From setup to troubleshooting, you’ll find step-by-step instructions, tips, and best practices to get the most out of PMM.',
     buttons: [
@@ -38,12 +38,12 @@ export const getCardData = ({
   },
   {
     id: CARD_IDS.support,
-    title: 'Get Percona Support',
+    title: 'Percona support',
     description:
       'From 24/7 technical support to fully managed services, Percona’s trusted experts are ready to help you optimize, troubleshoot, and scale.',
     buttons: [
       {
-        text: 'Contact Support',
+        text: 'Contact support',
         target: '_blank',
         url: 'https://www.percona.com/about/contact?utm_campaign=7075599-Product%20Documentation%20Contact%20Us%20Clicks&utm_source=PMM-Support',
       },
@@ -53,7 +53,7 @@ export const getCardData = ({
   },
   {
     id: CARD_IDS.forum,
-    title: 'Percona Forum',
+    title: 'Percona forum',
     description:
       'A friendly space to connect with other users, share insights, and get answers from the community and from the Percona experts.',
     buttons: [
@@ -68,7 +68,7 @@ export const getCardData = ({
   },
   {
     id: CARD_IDS.pmmDump,
-    title: 'PMM Dump',
+    title: 'PMM dump',
     description:
       'Generate datasets to securely share your data with Percona Support. This helps our experts quickly diagnose and replicate issues.',
     buttons: [
@@ -82,7 +82,7 @@ export const getCardData = ({
   },
   {
     id: CARD_IDS.pmmLogs,
-    title: 'PMM Logs',
+    title: 'PMM logs',
     description:
       'Download your PMM logs as a ZIP file for easy sharing and faster issue diagnosis.',
     buttons: [
@@ -97,7 +97,7 @@ export const getCardData = ({
   },
   {
     id: CARD_IDS.tips,
-    title: 'Useful Tips',
+    title: 'Useful tips',
     description:
       'Need a refresher? Start the onboarding tour again for useful tips.',
     adminOnly: false,
@@ -112,7 +112,7 @@ export const getCardData = ({
   },
   {
     id: CARD_IDS.nextChapter,
-    title: 'Help Shape PMM’s Next Chapter',
+    title: "Help shape PMM's next chapter",
     description:
       "We'd love your thoughts on PMM 3 to guide its future development. This is a short survey with 4 questions (Google Form) that will help us drive the next wave of improvements.",
     adminOnly: false,
