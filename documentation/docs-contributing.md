@@ -1,4 +1,4 @@
-# Contributing to PMM Documentation
+# Contributing to PMM documentation
 
 We're glad you're here! Whether you're fixing a typo or adding new content, your contributions make our documentation better for everyone.
 
@@ -65,25 +65,22 @@ Want more details? Check out [GitHub's guide to editing files](https://docs.gith
 
 ## Build and preview
 
-Want to see your changes before submitting? Use these simple commands:
-
 ### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) or [Podman](https://podman.io/getting-started/installation)
 
-### Build commands
-
-We've simplified the build process with a Makefile:
+Before submitting your changes, you can build and preview the documentation locally to see how it will appear:
 
 ```shell
 # Build the documentation
 make docs-build
 
-# Preview with live reload (recommended)
+# Preview the documentation with live reload (recommended)
 make docs-serve
 
-# Build PDF (Percona staff only - update version in mkdocs-base.yml first)
+# Build the PDF (Percona staff only — update the version in mkdocs-base.yml first)
 make docs-pdf
+pdf
 ```
 
 That's it! The `make docs-serve` command will start a local server at `http://127.0.0.1:8000/` that automatically reloads when you save changes.
