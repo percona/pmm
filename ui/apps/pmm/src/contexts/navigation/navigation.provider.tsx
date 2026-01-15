@@ -34,6 +34,7 @@ import { useHaInfo } from 'hooks/api/useHA';
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
   const { data: serviceTypes } = useServiceTypes({
+    enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
   const { settings } = useSettings();
