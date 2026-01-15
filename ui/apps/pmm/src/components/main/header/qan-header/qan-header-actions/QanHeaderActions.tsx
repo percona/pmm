@@ -34,9 +34,10 @@ export const QanHeaderActions: FC = () => {
 
   return (
     <Stack gap={1} flex={1} flexDirection="row" justifyContent="flex-end">
+      {/* TODO: temporary - remove after selection page is implemented */}
       <IconButton
         data-testid="qan-header-actions-running-agents-button"
-        onClick={() => navigate('/next/rta/sessions')}
+        onClick={() => navigate('/rta/sessions')}
       >
         <Badge color="warning" badgeContent={3}>
           <ElectricBoltOutlinedIcon />

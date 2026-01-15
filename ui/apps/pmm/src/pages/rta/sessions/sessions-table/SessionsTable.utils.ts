@@ -14,13 +14,22 @@ export const getSessions = (
         sessions.push(agentToSession(agent));
       }
     } else {
+      const services = clusters[cluster].map(agentToSession);
+      const areAllRunning = services.every(
+        (service) => service.status === AgentStatus.RUNNING
+      );
+      const earliestStartedAt = services.reduce((acc, service) => {
+        return acc < service.startedAt ? acc : service.startedAt;
+      }, services[0].startedAt);
+
       sessions.push({
         sessionId: cluster,
         type: 'cluster',
         sessionName: cluster,
-        // todo: get status from cluster
-        status: AgentStatus.RUNNING,
-        serviceSessions: clusters[cluster].map(agentToSession),
+        status: areAllRunning ? AgentStatus.RUNNING : AgentStatus.UNKNOWN,
+        serviceSessions: services,
+        agents: clusters[cluster],
+        startedAt: earliestStartedAt,
       });
     }
   }
@@ -49,4 +58,6 @@ const agentToSession = (agent: RunningRealTimeAgent): RealTimeSession => ({
   sessionName: agent.serviceName,
   status: agent.status,
   serviceSessions: [],
+  agents: [agent],
+  startedAt: agent.startedAt,
 });

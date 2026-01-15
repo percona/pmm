@@ -5,7 +5,7 @@ export interface RunningRealTimeAgent {
   serviceId: string;
   serviceName: string;
   cluster: string;
-  startedAt: Date;
+  startedAt: string;
   status: AgentStatus;
 }
 
@@ -23,4 +23,13 @@ export interface RealTimeSession {
   sessionName: string;
   status: AgentStatus;
   serviceSessions: RealTimeSession[];
+  agents: RunningRealTimeAgent[];
+  startedAt: string;
 }
+
+export interface ChangeRealTimeAgentPayload {
+  serviceId: string;
+  enable: boolean;
+}
+
+export interface ChangeRealTimeAgentResponse {}

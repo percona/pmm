@@ -1,38 +1,155 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { Messages } from './SessionsTable.messages';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Table } from '@percona/ui-lib';
-import {
-  boxClasses,
-  paperClasses,
-  Skeleton,
-  toolbarClasses,
-} from '@mui/material';
+import { boxClasses, paperClasses, Skeleton } from '@mui/material';
 import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
-import { useRealTimeAgents } from 'hooks/api/useRealTime';
+import {
+  useChangeRealTimeAgent,
+  useRealTimeAgents,
+} from 'hooks/api/useRealTime';
 import { getSessions } from './SessionsTable.utils';
 import { RealTimeSession } from 'types/rta.types';
+import { StopSessionModal } from './modal-stop-session';
+import { NewSessionModal } from './modal-new-session';
+import StopMultipleSessionsModal from './modal-stop-multiple-sessions/StopMultipleSessionsModal';
+import { ModalType } from './SessionsTable.types';
+import { enqueueSnackbar } from 'notistack';
 
 const SessionsTable: FC = () => {
-  const { data: agents = [], isLoading } = useRealTimeAgents({
+  const {
+    data: agents = [],
+    isLoading,
+    refetch: refetchAgents,
+  } = useRealTimeAgents({
     refetchInterval: 5000,
   });
+  const [modal, setModal] = useState<ModalType>(null);
   const sessions = getSessions(agents);
-  const [openDetailPanels, setOpenDetailPanels] = useState<
-    Record<string, boolean>
-  >({});
+  const [sessionToBeStopped, setSessionToBeStopped] =
+    useState<RealTimeSession | null>(null);
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const selectedSessions = useMemo(
+    () => sessions.filter((session) => rowSelection[session.sessionId]),
+    [rowSelection, sessions]
+  );
+  const { mutateAsync: changeRealTimeAgent } = useChangeRealTimeAgent();
 
-  const handleStop = (session: RealTimeSession) => {
-    setOpenDetailPanels((prev) => ({
-      ...prev,
-      [session.sessionId]: !prev[session.sessionId],
-    }));
+  const closeModal = () => {
+    setModal(null);
   };
 
-  const handleStopAll = () => {};
+  const openStopModal = (session: RealTimeSession) => {
+    setSessionToBeStopped(session);
+    setModal('stop');
+  };
+
+  const handleStopSession = async () => {
+    if (sessionToBeStopped) {
+      await Promise.all(
+        sessionToBeStopped.agents.map((agent) =>
+          changeRealTimeAgent({
+            serviceId: agent.serviceId,
+            enable: false,
+          })
+        )
+      );
+
+      if (sessionToBeStopped.agents.length === 1) {
+        enqueueSnackbar(Messages.success.agentStopped, {
+          variant: 'success',
+        });
+      } else {
+        enqueueSnackbar(Messages.success.agentsStopped, {
+          variant: 'success',
+        });
+      }
+    }
+
+    await refetchAgents();
+    closeModal();
+  };
+
+  const openStopAllModal = () => {
+    setModal('stop-all');
+  };
+
+  const handleStopAllSessions = async () => {
+    await Promise.all(
+      sessions.map((session) =>
+        Promise.all(
+          session.agents.map((agent) =>
+            changeRealTimeAgent({
+              serviceId: agent.serviceId,
+              enable: false,
+            })
+          )
+        )
+      )
+    );
+
+    enqueueSnackbar(Messages.success.allAgentsStopped, {
+      variant: 'success',
+    });
+
+    await refetchAgents();
+
+    setRowSelection({});
+    closeModal();
+  };
+
+  const openNewSessionModal = () => {
+    setModal('new-session');
+  };
+
+  const handleCreateSessions = async (serviceIds: string[]) => {
+    await Promise.all(
+      serviceIds.map((serviceId) =>
+        changeRealTimeAgent({
+          serviceId,
+          enable: true,
+        })
+      )
+    );
+    await refetchAgents();
+    closeModal();
+  };
+
+  const openStopSelectedModal = () => {
+    setModal('stop-selected');
+  };
+
+  const handleStopSelectedSessions = async () => {
+    await Promise.all(
+      selectedSessions.map((session) =>
+        Promise.all(
+          session.agents.map((agent) =>
+            changeRealTimeAgent({
+              serviceId: agent.serviceId,
+              enable: false,
+            })
+          )
+        )
+      )
+    );
+
+    if (selectedSessions.length === 1) {
+      enqueueSnackbar(Messages.success.agentStopped, {
+        variant: 'success',
+      });
+    } else {
+      enqueueSnackbar(Messages.success.agentsStopped, {
+        variant: 'success',
+      });
+    }
+
+    await refetchAgents();
+    closeModal();
+    setRowSelection({});
+  };
 
   if (isLoading) {
     return <Skeleton variant="rounded" height="100%" />;
@@ -43,7 +160,6 @@ const SessionsTable: FC = () => {
       sx={{
         flex: 1,
         minHeight: 0,
-        overflow: 'hidden',
         [`& > .${paperClasses.root}`]: {
           flex: 1,
           display: 'flex',
@@ -51,21 +167,6 @@ const SessionsTable: FC = () => {
           minHeight: 0,
           overflow: 'hidden',
         },
-        [`& > .${paperClasses.root} > ${toolbarClasses.root}`]: {
-          backgroundColor: 'transparent',
-          flexShrink: 0,
-        },
-        [`& > .${paperClasses.root} > .MuiTableContainer-root`]: {
-          flex: 1,
-          flexShrink: 1,
-          minHeight: 0,
-          overflow: 'auto',
-        },
-        [`& > .${paperClasses.root} > .MuiTablePagination-root,
-          & > .${paperClasses.root} > .MuiToolbar-root:has(.MuiTablePagination-root)`]:
-          {
-            flexShrink: 0,
-          },
       }}
     >
       <Table
@@ -84,15 +185,18 @@ const SessionsTable: FC = () => {
             'mrt-row-actions',
           ],
         }}
+        state={{
+          rowSelection,
+        }}
         getRowId={(row) => row.sessionId}
-        // todo
-        noDataMessage={''}
+        noDataMessage={Messages.empty}
         tableName="rta-sessions"
         columns={SESSIONS_TABLE_COLUMNS}
         data={sessions}
         enableHiding={false}
         enableGlobalFilter={false}
         enableRowSelection
+        onRowSelectionChange={setRowSelection}
         enableStickyHeader
         enableSubRowSelection
         enableExpanding
@@ -102,36 +206,80 @@ const SessionsTable: FC = () => {
           <Button
             color="inherit"
             size="small"
-            onClick={() => handleStop(row.original)}
+            onClick={() => openStopModal(row.original)}
           >
             {Messages.stop}
           </Button>
         )}
         getSubRows={(row) => row.serviceSessions}
         muiTableContainerProps={{
+          sx: (theme) => ({
+            flex: 1,
+            backgroundColor: 'inherit',
+            borderTopLeftRadius: theme.shape.borderRadius,
+            borderTopRightRadius: theme.shape.borderRadius,
+            borderBottom: 0,
+          }),
+        }}
+        muiTableHeadProps={{
           sx: {
-            overflow: 'auto',
+            backgroundColor: 'inherit',
           },
         }}
         muiTopToolbarProps={{
           sx: {
+            // vertically center the buttons
             [`& > .${boxClasses.root}`]: {
-              backgroundColor: 'transparent',
               alignItems: 'center',
               flexDirection: 'row-reverse',
             },
           },
         }}
-        renderTopToolbarCustomActions={() => (
+        renderTopToolbarCustomActions={({ table }) => (
           <Stack direction="row" alignItems="center" gap={2}>
-            <Button startIcon={<StopCircleOutlinedIcon />}>
-              {Messages.stopAll}
-            </Button>
-            <Button startIcon={<AddOutlinedIcon />}>
+            {table.getIsSomeRowsSelected() && (
+              <Button
+                startIcon={<StopCircleOutlinedIcon />}
+                onClick={openStopSelectedModal}
+              >
+                {Messages.stopSelected}
+              </Button>
+            )}
+            {!!sessions.length && (
+              <Button
+                startIcon={<StopCircleOutlinedIcon />}
+                onClick={openStopAllModal}
+              >
+                {Messages.stopAll}
+              </Button>
+            )}
+            <Button
+              startIcon={<AddOutlinedIcon />}
+              onClick={openNewSessionModal}
+            >
               {Messages.newSession}
             </Button>
           </Stack>
         )}
+      />
+      <StopSessionModal
+        open={modal === 'stop'}
+        onClose={closeModal}
+        onStopSession={handleStopSession}
+      />
+      <StopMultipleSessionsModal
+        open={modal === 'stop-all' || modal === 'stop-selected'}
+        onClose={closeModal}
+        onStopSessions={
+          modal === 'stop-all'
+            ? handleStopAllSessions
+            : handleStopSelectedSessions
+        }
+      />
+      <NewSessionModal
+        open={modal === 'new-session'}
+        onClose={closeModal}
+        onCreateSession={handleCreateSessions}
       />
     </Stack>
   );

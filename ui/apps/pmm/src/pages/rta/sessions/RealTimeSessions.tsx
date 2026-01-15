@@ -4,11 +4,13 @@ import { FC } from 'react';
 import { Messages } from './RealTimeSessions.messages';
 import SessionsTable from './sessions-table/SessionsTable';
 import Button from '@mui/material/Button';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useParams } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 
 const RealTimeSessionsPage: FC = () => {
+  const { fromAnalysis } = useParams();
+
   return (
     <Stack
       direction="column"
@@ -22,17 +24,19 @@ const RealTimeSessionsPage: FC = () => {
       }}
     >
       <Stack direction="column" gap={1} sx={{ flexShrink: 0 }}>
-        <RouterLink to="/next/rta/live">
-          <Button
-            size="small"
-            startIcon={<ArrowBackOutlinedIcon />}
-            sx={{
-              color: 'text.primary',
-            }}
-          >
-            Back to analysis
-          </Button>
-        </RouterLink>
+        {fromAnalysis && (
+          <RouterLink to="/rta/live">
+            <Button
+              size="small"
+              startIcon={<ArrowBackOutlinedIcon />}
+              sx={{
+                color: 'text.primary',
+              }}
+            >
+              {Messages.backToAnalysis}
+            </Button>
+          </RouterLink>
+        )}
         <Typography variant="h6">{Messages.pageTitle}</Typography>
         <Typography variant="body2">{Messages.pageDescription}</Typography>
         <Stack direction="row" justifyContent="flex-start" gap={2}>

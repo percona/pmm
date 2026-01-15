@@ -258,6 +258,20 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
           },
         },
       },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            paddingBottom: 0,
+          },
+        },
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            paddingTop: 0,
+          },
+        },
+      },
     },
   };
 
