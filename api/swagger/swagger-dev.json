@@ -29754,13 +29754,13 @@
         "tags": [
           "RealtimeAnalyticsService"
         ],
-        "summary": "List Running Real-Time Analytics Agents",
-        "operationId": "ListRunningRealtimeAgents",
+        "summary": "List Real-Time Analytics Agents",
+        "operationId": "ListRealtimeAnalyticsAgents",
         "parameters": [
           {
             "type": "string",
             "description": "Optional filter by cluster name.",
-            "name": "cluster",
+            "name": "cluster_name",
             "in": "query"
           }
         ],
@@ -29768,14 +29768,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "ListRunningRealtimeAgentsResponse returns the list of running RTA agents.",
+              "description": "ListRealtimeAnalyticsAgentsResponse returns the list of RTA agents.",
               "type": "object",
               "properties": {
                 "agents": {
-                  "description": "List of running RTA agents.",
+                  "description": "List of RTA agents.",
                   "type": "array",
                   "items": {
-                    "description": "RunningRealtimeAgent represents a currently running RTA agent.",
+                    "description": "RealtimeAnalyticsAgent represents a RTA agent.",
                     "type": "object",
                     "properties": {
                       "agent_id": {

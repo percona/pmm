@@ -39,22 +39,22 @@ var (
 	_ = inventoryv1.AgentStatus(0)
 )
 
-// Validate checks the field values on RunningRealtimeAgent with the rules
+// Validate checks the field values on RealtimeAnalyticsAgent with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RunningRealtimeAgent) Validate() error {
+func (m *RealtimeAnalyticsAgent) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RunningRealtimeAgent with the rules
+// ValidateAll checks the field values on RealtimeAnalyticsAgent with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// RunningRealtimeAgentMultiError, or nil if none found.
-func (m *RunningRealtimeAgent) ValidateAll() error {
+// RealtimeAnalyticsAgentMultiError, or nil if none found.
+func (m *RealtimeAnalyticsAgent) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RunningRealtimeAgent) validate(all bool) error {
+func (m *RealtimeAnalyticsAgent) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -73,7 +73,7 @@ func (m *RunningRealtimeAgent) validate(all bool) error {
 		switch v := interface{}(m.GetStartedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, RunningRealtimeAgentValidationError{
+				errors = append(errors, RealtimeAnalyticsAgentValidationError{
 					field:  "StartedAt",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -81,7 +81,7 @@ func (m *RunningRealtimeAgent) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, RunningRealtimeAgentValidationError{
+				errors = append(errors, RealtimeAnalyticsAgentValidationError{
 					field:  "StartedAt",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -90,7 +90,7 @@ func (m *RunningRealtimeAgent) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetStartedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RunningRealtimeAgentValidationError{
+			return RealtimeAnalyticsAgentValidationError{
 				field:  "StartedAt",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -101,19 +101,19 @@ func (m *RunningRealtimeAgent) validate(all bool) error {
 	// no validation rules for Status
 
 	if len(errors) > 0 {
-		return RunningRealtimeAgentMultiError(errors)
+		return RealtimeAnalyticsAgentMultiError(errors)
 	}
 
 	return nil
 }
 
-// RunningRealtimeAgentMultiError is an error wrapping multiple validation
-// errors returned by RunningRealtimeAgent.ValidateAll() if the designated
+// RealtimeAnalyticsAgentMultiError is an error wrapping multiple validation
+// errors returned by RealtimeAnalyticsAgent.ValidateAll() if the designated
 // constraints aren't met.
-type RunningRealtimeAgentMultiError []error
+type RealtimeAnalyticsAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RunningRealtimeAgentMultiError) Error() string {
+func (m RealtimeAnalyticsAgentMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -122,11 +122,11 @@ func (m RunningRealtimeAgentMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RunningRealtimeAgentMultiError) AllErrors() []error { return m }
+func (m RealtimeAnalyticsAgentMultiError) AllErrors() []error { return m }
 
-// RunningRealtimeAgentValidationError is the validation error returned by
-// RunningRealtimeAgent.Validate if the designated constraints aren't met.
-type RunningRealtimeAgentValidationError struct {
+// RealtimeAnalyticsAgentValidationError is the validation error returned by
+// RealtimeAnalyticsAgent.Validate if the designated constraints aren't met.
+type RealtimeAnalyticsAgentValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -134,24 +134,24 @@ type RunningRealtimeAgentValidationError struct {
 }
 
 // Field function returns field value.
-func (e RunningRealtimeAgentValidationError) Field() string { return e.field }
+func (e RealtimeAnalyticsAgentValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RunningRealtimeAgentValidationError) Reason() string { return e.reason }
+func (e RealtimeAnalyticsAgentValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RunningRealtimeAgentValidationError) Cause() error { return e.cause }
+func (e RealtimeAnalyticsAgentValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RunningRealtimeAgentValidationError) Key() bool { return e.key }
+func (e RealtimeAnalyticsAgentValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RunningRealtimeAgentValidationError) ErrorName() string {
-	return "RunningRealtimeAgentValidationError"
+func (e RealtimeAnalyticsAgentValidationError) ErrorName() string {
+	return "RealtimeAnalyticsAgentValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e RunningRealtimeAgentValidationError) Error() string {
+func (e RealtimeAnalyticsAgentValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -163,14 +163,14 @@ func (e RunningRealtimeAgentValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRunningRealtimeAgent.%s: %s%s",
+		"invalid %sRealtimeAnalyticsAgent.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RunningRealtimeAgentValidationError{}
+var _ error = RealtimeAnalyticsAgentValidationError{}
 
 var _ interface {
 	Field() string
@@ -178,48 +178,48 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RunningRealtimeAgentValidationError{}
+} = RealtimeAnalyticsAgentValidationError{}
 
-// Validate checks the field values on ListRunningRealtimeAgentsRequest with
+// Validate checks the field values on ListRealtimeAnalyticsAgentsRequest with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
 // no violations.
-func (m *ListRunningRealtimeAgentsRequest) Validate() error {
+func (m *ListRealtimeAnalyticsAgentsRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListRunningRealtimeAgentsRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ListRunningRealtimeAgentsRequestMultiError, or nil if none found.
-func (m *ListRunningRealtimeAgentsRequest) ValidateAll() error {
+// ValidateAll checks the field values on ListRealtimeAnalyticsAgentsRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// ListRealtimeAnalyticsAgentsRequestMultiError, or nil if none found.
+func (m *ListRealtimeAnalyticsAgentsRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListRunningRealtimeAgentsRequest) validate(all bool) error {
+func (m *ListRealtimeAnalyticsAgentsRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Cluster
+	// no validation rules for ClusterName
 
 	if len(errors) > 0 {
-		return ListRunningRealtimeAgentsRequestMultiError(errors)
+		return ListRealtimeAnalyticsAgentsRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListRunningRealtimeAgentsRequestMultiError is an error wrapping multiple
+// ListRealtimeAnalyticsAgentsRequestMultiError is an error wrapping multiple
 // validation errors returned by
-// ListRunningRealtimeAgentsRequest.ValidateAll() if the designated
+// ListRealtimeAnalyticsAgentsRequest.ValidateAll() if the designated
 // constraints aren't met.
-type ListRunningRealtimeAgentsRequestMultiError []error
+type ListRealtimeAnalyticsAgentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListRunningRealtimeAgentsRequestMultiError) Error() string {
+func (m ListRealtimeAnalyticsAgentsRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -228,12 +228,12 @@ func (m ListRunningRealtimeAgentsRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListRunningRealtimeAgentsRequestMultiError) AllErrors() []error { return m }
+func (m ListRealtimeAnalyticsAgentsRequestMultiError) AllErrors() []error { return m }
 
-// ListRunningRealtimeAgentsRequestValidationError is the validation error
-// returned by ListRunningRealtimeAgentsRequest.Validate if the designated
+// ListRealtimeAnalyticsAgentsRequestValidationError is the validation error
+// returned by ListRealtimeAnalyticsAgentsRequest.Validate if the designated
 // constraints aren't met.
-type ListRunningRealtimeAgentsRequestValidationError struct {
+type ListRealtimeAnalyticsAgentsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -241,24 +241,24 @@ type ListRunningRealtimeAgentsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRunningRealtimeAgentsRequestValidationError) Field() string { return e.field }
+func (e ListRealtimeAnalyticsAgentsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRunningRealtimeAgentsRequestValidationError) Reason() string { return e.reason }
+func (e ListRealtimeAnalyticsAgentsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRunningRealtimeAgentsRequestValidationError) Cause() error { return e.cause }
+func (e ListRealtimeAnalyticsAgentsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRunningRealtimeAgentsRequestValidationError) Key() bool { return e.key }
+func (e ListRealtimeAnalyticsAgentsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRunningRealtimeAgentsRequestValidationError) ErrorName() string {
-	return "ListRunningRealtimeAgentsRequestValidationError"
+func (e ListRealtimeAnalyticsAgentsRequestValidationError) ErrorName() string {
+	return "ListRealtimeAnalyticsAgentsRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRunningRealtimeAgentsRequestValidationError) Error() string {
+func (e ListRealtimeAnalyticsAgentsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -270,14 +270,14 @@ func (e ListRunningRealtimeAgentsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRunningRealtimeAgentsRequest.%s: %s%s",
+		"invalid %sListRealtimeAnalyticsAgentsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRunningRealtimeAgentsRequestValidationError{}
+var _ error = ListRealtimeAnalyticsAgentsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -285,25 +285,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRunningRealtimeAgentsRequestValidationError{}
+} = ListRealtimeAnalyticsAgentsRequestValidationError{}
 
-// Validate checks the field values on ListRunningRealtimeAgentsResponse with
+// Validate checks the field values on ListRealtimeAnalyticsAgentsResponse with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
 // no violations.
-func (m *ListRunningRealtimeAgentsResponse) Validate() error {
+func (m *ListRealtimeAnalyticsAgentsResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListRunningRealtimeAgentsResponse
+// ValidateAll checks the field values on ListRealtimeAnalyticsAgentsResponse
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// ListRunningRealtimeAgentsResponseMultiError, or nil if none found.
-func (m *ListRunningRealtimeAgentsResponse) ValidateAll() error {
+// ListRealtimeAnalyticsAgentsResponseMultiError, or nil if none found.
+func (m *ListRealtimeAnalyticsAgentsResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListRunningRealtimeAgentsResponse) validate(all bool) error {
+func (m *ListRealtimeAnalyticsAgentsResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -317,7 +317,7 @@ func (m *ListRunningRealtimeAgentsResponse) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListRunningRealtimeAgentsResponseValidationError{
+					errors = append(errors, ListRealtimeAnalyticsAgentsResponseValidationError{
 						field:  fmt.Sprintf("Agents[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -325,7 +325,7 @@ func (m *ListRunningRealtimeAgentsResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, ListRunningRealtimeAgentsResponseValidationError{
+					errors = append(errors, ListRealtimeAnalyticsAgentsResponseValidationError{
 						field:  fmt.Sprintf("Agents[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -334,7 +334,7 @@ func (m *ListRunningRealtimeAgentsResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListRunningRealtimeAgentsResponseValidationError{
+				return ListRealtimeAnalyticsAgentsResponseValidationError{
 					field:  fmt.Sprintf("Agents[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -345,20 +345,20 @@ func (m *ListRunningRealtimeAgentsResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ListRunningRealtimeAgentsResponseMultiError(errors)
+		return ListRealtimeAnalyticsAgentsResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListRunningRealtimeAgentsResponseMultiError is an error wrapping multiple
+// ListRealtimeAnalyticsAgentsResponseMultiError is an error wrapping multiple
 // validation errors returned by
-// ListRunningRealtimeAgentsResponse.ValidateAll() if the designated
+// ListRealtimeAnalyticsAgentsResponse.ValidateAll() if the designated
 // constraints aren't met.
-type ListRunningRealtimeAgentsResponseMultiError []error
+type ListRealtimeAnalyticsAgentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListRunningRealtimeAgentsResponseMultiError) Error() string {
+func (m ListRealtimeAnalyticsAgentsResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -367,12 +367,12 @@ func (m ListRunningRealtimeAgentsResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListRunningRealtimeAgentsResponseMultiError) AllErrors() []error { return m }
+func (m ListRealtimeAnalyticsAgentsResponseMultiError) AllErrors() []error { return m }
 
-// ListRunningRealtimeAgentsResponseValidationError is the validation error
-// returned by ListRunningRealtimeAgentsResponse.Validate if the designated
+// ListRealtimeAnalyticsAgentsResponseValidationError is the validation error
+// returned by ListRealtimeAnalyticsAgentsResponse.Validate if the designated
 // constraints aren't met.
-type ListRunningRealtimeAgentsResponseValidationError struct {
+type ListRealtimeAnalyticsAgentsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -380,24 +380,24 @@ type ListRunningRealtimeAgentsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRunningRealtimeAgentsResponseValidationError) Field() string { return e.field }
+func (e ListRealtimeAnalyticsAgentsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRunningRealtimeAgentsResponseValidationError) Reason() string { return e.reason }
+func (e ListRealtimeAnalyticsAgentsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRunningRealtimeAgentsResponseValidationError) Cause() error { return e.cause }
+func (e ListRealtimeAnalyticsAgentsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRunningRealtimeAgentsResponseValidationError) Key() bool { return e.key }
+func (e ListRealtimeAnalyticsAgentsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRunningRealtimeAgentsResponseValidationError) ErrorName() string {
-	return "ListRunningRealtimeAgentsResponseValidationError"
+func (e ListRealtimeAnalyticsAgentsResponseValidationError) ErrorName() string {
+	return "ListRealtimeAnalyticsAgentsResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRunningRealtimeAgentsResponseValidationError) Error() string {
+func (e ListRealtimeAnalyticsAgentsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -409,14 +409,14 @@ func (e ListRunningRealtimeAgentsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRunningRealtimeAgentsResponse.%s: %s%s",
+		"invalid %sListRealtimeAnalyticsAgentsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRunningRealtimeAgentsResponseValidationError{}
+var _ error = ListRealtimeAnalyticsAgentsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -424,7 +424,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRunningRealtimeAgentsResponseValidationError{}
+} = ListRealtimeAnalyticsAgentsResponseValidationError{}
 
 // Validate checks the field values on ChangeRealtimeAnalyticsRequest with the
 // rules defined in the proto definition for this message. If any rules are

@@ -28,8 +28,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// RunningRealtimeAgent represents a currently running RTA agent.
-type RunningRealtimeAgent struct {
+// RealtimeAnalyticsAgent represents a RTA agent.
+type RealtimeAnalyticsAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique agent identifier.
 	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
@@ -47,20 +47,20 @@ type RunningRealtimeAgent struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RunningRealtimeAgent) Reset() {
-	*x = RunningRealtimeAgent{}
+func (x *RealtimeAnalyticsAgent) Reset() {
+	*x = RealtimeAnalyticsAgent{}
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RunningRealtimeAgent) String() string {
+func (x *RealtimeAnalyticsAgent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RunningRealtimeAgent) ProtoMessage() {}
+func (*RealtimeAnalyticsAgent) ProtoMessage() {}
 
-func (x *RunningRealtimeAgent) ProtoReflect() protoreflect.Message {
+func (x *RealtimeAnalyticsAgent) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -72,76 +72,76 @@ func (x *RunningRealtimeAgent) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RunningRealtimeAgent.ProtoReflect.Descriptor instead.
-func (*RunningRealtimeAgent) Descriptor() ([]byte, []int) {
+// Deprecated: Use RealtimeAnalyticsAgent.ProtoReflect.Descriptor instead.
+func (*RealtimeAnalyticsAgent) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RunningRealtimeAgent) GetAgentId() string {
+func (x *RealtimeAnalyticsAgent) GetAgentId() string {
 	if x != nil {
 		return x.AgentId
 	}
 	return ""
 }
 
-func (x *RunningRealtimeAgent) GetServiceId() string {
+func (x *RealtimeAnalyticsAgent) GetServiceId() string {
 	if x != nil {
 		return x.ServiceId
 	}
 	return ""
 }
 
-func (x *RunningRealtimeAgent) GetServiceName() string {
+func (x *RealtimeAnalyticsAgent) GetServiceName() string {
 	if x != nil {
 		return x.ServiceName
 	}
 	return ""
 }
 
-func (x *RunningRealtimeAgent) GetCluster() string {
+func (x *RealtimeAnalyticsAgent) GetCluster() string {
 	if x != nil {
 		return x.Cluster
 	}
 	return ""
 }
 
-func (x *RunningRealtimeAgent) GetStartedAt() *timestamppb.Timestamp {
+func (x *RealtimeAnalyticsAgent) GetStartedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.StartedAt
 	}
 	return nil
 }
 
-func (x *RunningRealtimeAgent) GetStatus() v1.AgentStatus {
+func (x *RealtimeAnalyticsAgent) GetStatus() v1.AgentStatus {
 	if x != nil {
 		return x.Status
 	}
 	return v1.AgentStatus(0)
 }
 
-// ListRunningRealtimeAgentsRequest contains optional filters for listing running RTA agents.
-type ListRunningRealtimeAgentsRequest struct {
+// ListRealtimeAnalyticsAgentsRequest contains optional filters for listing RTA agents.
+type ListRealtimeAnalyticsAgentsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional filter by cluster name.
-	Cluster       string `protobuf:"bytes,1,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	ClusterName   string `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRunningRealtimeAgentsRequest) Reset() {
-	*x = ListRunningRealtimeAgentsRequest{}
+func (x *ListRealtimeAnalyticsAgentsRequest) Reset() {
+	*x = ListRealtimeAnalyticsAgentsRequest{}
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRunningRealtimeAgentsRequest) String() string {
+func (x *ListRealtimeAnalyticsAgentsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRunningRealtimeAgentsRequest) ProtoMessage() {}
+func (*ListRealtimeAnalyticsAgentsRequest) ProtoMessage() {}
 
-func (x *ListRunningRealtimeAgentsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListRealtimeAnalyticsAgentsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -153,41 +153,41 @@ func (x *ListRunningRealtimeAgentsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRunningRealtimeAgentsRequest.ProtoReflect.Descriptor instead.
-func (*ListRunningRealtimeAgentsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListRealtimeAnalyticsAgentsRequest.ProtoReflect.Descriptor instead.
+func (*ListRealtimeAnalyticsAgentsRequest) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListRunningRealtimeAgentsRequest) GetCluster() string {
+func (x *ListRealtimeAnalyticsAgentsRequest) GetClusterName() string {
 	if x != nil {
-		return x.Cluster
+		return x.ClusterName
 	}
 	return ""
 }
 
-// ListRunningRealtimeAgentsResponse returns the list of running RTA agents.
-type ListRunningRealtimeAgentsResponse struct {
+// ListRealtimeAnalyticsAgentsResponse returns the list of RTA agents.
+type ListRealtimeAnalyticsAgentsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// List of running RTA agents.
-	Agents        []*RunningRealtimeAgent `protobuf:"bytes,1,rep,name=agents,proto3" json:"agents,omitempty"`
+	// List of RTA agents.
+	Agents        []*RealtimeAnalyticsAgent `protobuf:"bytes,1,rep,name=agents,proto3" json:"agents,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRunningRealtimeAgentsResponse) Reset() {
-	*x = ListRunningRealtimeAgentsResponse{}
+func (x *ListRealtimeAnalyticsAgentsResponse) Reset() {
+	*x = ListRealtimeAnalyticsAgentsResponse{}
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRunningRealtimeAgentsResponse) String() string {
+func (x *ListRealtimeAnalyticsAgentsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRunningRealtimeAgentsResponse) ProtoMessage() {}
+func (*ListRealtimeAnalyticsAgentsResponse) ProtoMessage() {}
 
-func (x *ListRunningRealtimeAgentsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListRealtimeAnalyticsAgentsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -199,12 +199,12 @@ func (x *ListRunningRealtimeAgentsResponse) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRunningRealtimeAgentsResponse.ProtoReflect.Descriptor instead.
-func (*ListRunningRealtimeAgentsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListRealtimeAnalyticsAgentsResponse.ProtoReflect.Descriptor instead.
+func (*ListRealtimeAnalyticsAgentsResponse) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListRunningRealtimeAgentsResponse) GetAgents() []*RunningRealtimeAgent {
+func (x *ListRealtimeAnalyticsAgentsResponse) GetAgents() []*RealtimeAnalyticsAgent {
 	if x != nil {
 		return x.Agents
 	}
@@ -307,8 +307,8 @@ var File_realtimeanalytics_v1_realtimeanalytics_proto protoreflect.FileDescripto
 
 const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\n" +
-	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1finventory/v1/agent_status.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xfb\x01\n" +
-	"\x14RunningRealtimeAgent\x12\x19\n" +
+	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1finventory/v1/agent_status.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xfd\x01\n" +
+	"\x16RealtimeAnalyticsAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x02 \x01(\tR\tserviceId\x12!\n" +
@@ -316,18 +316,18 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\acluster\x18\x04 \x01(\tR\acluster\x129\n" +
 	"\n" +
 	"started_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x121\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\"<\n" +
-	" ListRunningRealtimeAgentsRequest\x12\x18\n" +
-	"\acluster\x18\x01 \x01(\tR\acluster\"g\n" +
-	"!ListRunningRealtimeAgentsResponse\x12B\n" +
-	"\x06agents\x18\x01 \x03(\v2*.realtimeanalytics.v1.RunningRealtimeAgentR\x06agents\"`\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\"G\n" +
+	"\"ListRealtimeAnalyticsAgentsRequest\x12!\n" +
+	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\"k\n" +
+	"#ListRealtimeAnalyticsAgentsResponse\x12D\n" +
+	"\x06agents\x18\x01 \x03(\v2,.realtimeanalytics.v1.RealtimeAnalyticsAgentR\x06agents\"`\n" +
 	"\x1eChangeRealtimeAnalyticsRequest\x12\x16\n" +
 	"\x06enable\x18\x01 \x01(\bR\x06enable\x12&\n" +
 	"\n" +
 	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"!\n" +
-	"\x1fChangeRealtimeAnalyticsResponse2\xb3\x05\n" +
-	"\x18RealtimeAnalyticsService\x12\xf5\x02\n" +
-	"\x19ListRunningRealtimeAgents\x126.realtimeanalytics.v1.ListRunningRealtimeAgentsRequest\x1a7.realtimeanalytics.v1.ListRunningRealtimeAgentsResponse\"\xe6\x01\x92A\xbe\x01\x12'List Running Real-Time Analytics Agents\x1a\x92\x01Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information.\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/realtimeanalytics/agents\x12\x9e\x02\n" +
+	"\x1fChangeRealtimeAnalyticsResponse2\xb1\x05\n" +
+	"\x18RealtimeAnalyticsService\x12\xf3\x02\n" +
+	"\x1bListRealtimeAnalyticsAgents\x128.realtimeanalytics.v1.ListRealtimeAnalyticsAgentsRequest\x1a9.realtimeanalytics.v1.ListRealtimeAnalyticsAgentsResponse\"\xde\x01\x92A\xb6\x01\x12\x1fList Real-Time Analytics Agents\x1a\x92\x01Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information.\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/realtimeanalytics/agents\x12\x9e\x02\n" +
 	"\x17ChangeRealtimeAnalytics\x124.realtimeanalytics.v1.ChangeRealtimeAnalyticsRequest\x1a5.realtimeanalytics.v1.ChangeRealtimeAnalyticsResponse\"\x95\x01\x92Ak\x12(Change Real-Time Analytics Configuration\x1a?Enables or disables Real-Time Analytics for a specific service.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/realtimeanalytics/changeB\xe8\x01\n" +
 	"\x18com.realtimeanalytics.v1B\x16RealtimeanalyticsProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
 
@@ -346,23 +346,23 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP() []byte {
 var (
 	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 	file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes  = []any{
-		(*RunningRealtimeAgent)(nil),              // 0: realtimeanalytics.v1.RunningRealtimeAgent
-		(*ListRunningRealtimeAgentsRequest)(nil),  // 1: realtimeanalytics.v1.ListRunningRealtimeAgentsRequest
-		(*ListRunningRealtimeAgentsResponse)(nil), // 2: realtimeanalytics.v1.ListRunningRealtimeAgentsResponse
-		(*ChangeRealtimeAnalyticsRequest)(nil),    // 3: realtimeanalytics.v1.ChangeRealtimeAnalyticsRequest
-		(*ChangeRealtimeAnalyticsResponse)(nil),   // 4: realtimeanalytics.v1.ChangeRealtimeAnalyticsResponse
-		(*timestamppb.Timestamp)(nil),             // 5: google.protobuf.Timestamp
-		(v1.AgentStatus)(0),                       // 6: inventory.v1.AgentStatus
+		(*RealtimeAnalyticsAgent)(nil),              // 0: realtimeanalytics.v1.RealtimeAnalyticsAgent
+		(*ListRealtimeAnalyticsAgentsRequest)(nil),  // 1: realtimeanalytics.v1.ListRealtimeAnalyticsAgentsRequest
+		(*ListRealtimeAnalyticsAgentsResponse)(nil), // 2: realtimeanalytics.v1.ListRealtimeAnalyticsAgentsResponse
+		(*ChangeRealtimeAnalyticsRequest)(nil),      // 3: realtimeanalytics.v1.ChangeRealtimeAnalyticsRequest
+		(*ChangeRealtimeAnalyticsResponse)(nil),     // 4: realtimeanalytics.v1.ChangeRealtimeAnalyticsResponse
+		(*timestamppb.Timestamp)(nil),               // 5: google.protobuf.Timestamp
+		(v1.AgentStatus)(0),                         // 6: inventory.v1.AgentStatus
 	}
 )
 
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
-	5, // 0: realtimeanalytics.v1.RunningRealtimeAgent.started_at:type_name -> google.protobuf.Timestamp
-	6, // 1: realtimeanalytics.v1.RunningRealtimeAgent.status:type_name -> inventory.v1.AgentStatus
-	0, // 2: realtimeanalytics.v1.ListRunningRealtimeAgentsResponse.agents:type_name -> realtimeanalytics.v1.RunningRealtimeAgent
-	1, // 3: realtimeanalytics.v1.RealtimeAnalyticsService.ListRunningRealtimeAgents:input_type -> realtimeanalytics.v1.ListRunningRealtimeAgentsRequest
+	5, // 0: realtimeanalytics.v1.RealtimeAnalyticsAgent.started_at:type_name -> google.protobuf.Timestamp
+	6, // 1: realtimeanalytics.v1.RealtimeAnalyticsAgent.status:type_name -> inventory.v1.AgentStatus
+	0, // 2: realtimeanalytics.v1.ListRealtimeAnalyticsAgentsResponse.agents:type_name -> realtimeanalytics.v1.RealtimeAnalyticsAgent
+	1, // 3: realtimeanalytics.v1.RealtimeAnalyticsService.ListRealtimeAnalyticsAgents:input_type -> realtimeanalytics.v1.ListRealtimeAnalyticsAgentsRequest
 	3, // 4: realtimeanalytics.v1.RealtimeAnalyticsService.ChangeRealtimeAnalytics:input_type -> realtimeanalytics.v1.ChangeRealtimeAnalyticsRequest
-	2, // 5: realtimeanalytics.v1.RealtimeAnalyticsService.ListRunningRealtimeAgents:output_type -> realtimeanalytics.v1.ListRunningRealtimeAgentsResponse
+	2, // 5: realtimeanalytics.v1.RealtimeAnalyticsService.ListRealtimeAnalyticsAgents:output_type -> realtimeanalytics.v1.ListRealtimeAnalyticsAgentsResponse
 	4, // 6: realtimeanalytics.v1.RealtimeAnalyticsService.ChangeRealtimeAnalytics:output_type -> realtimeanalytics.v1.ChangeRealtimeAnalyticsResponse
 	5, // [5:7] is the sub-list for method output_type
 	3, // [3:5] is the sub-list for method input_type

@@ -35,8 +35,8 @@ type RealtimeAnalyticsMongoDBQueryData struct {
 	Client string `protobuf:"bytes,3,opt,name=client,proto3" json:"client,omitempty"`
 	// Indicates if the query is waiting for a lock.
 	WaitingForLock bool `protobuf:"varint,4,opt,name=waiting_for_lock,json=waitingForLock,proto3" json:"waiting_for_lock,omitempty"`
-	// Indicates if an index was utilized in the query.
-	IndexUtilized bool `protobuf:"varint,5,opt,name=index_utilized,json=indexUtilized,proto3" json:"index_utilized,omitempty"`
+	// Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
+	IndexUtilized string `protobuf:"bytes,5,opt,name=index_utilized,json=indexUtilized,proto3" json:"index_utilized,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -99,11 +99,11 @@ func (x *RealtimeAnalyticsMongoDBQueryData) GetWaitingForLock() bool {
 	return false
 }
 
-func (x *RealtimeAnalyticsMongoDBQueryData) GetIndexUtilized() bool {
+func (x *RealtimeAnalyticsMongoDBQueryData) GetIndexUtilized() string {
 	if x != nil {
 		return x.IndexUtilized
 	}
-	return false
+	return ""
 }
 
 // RealtimeAnalyticsQueryData represents a single real-time query data point.
@@ -342,7 +342,7 @@ const file_realtimeanalytics_v1_collector_proto_rawDesc = "" +
 	"\fsecs_running\x18\x02 \x01(\x03R\vsecsRunning\x12\x16\n" +
 	"\x06client\x18\x03 \x01(\tR\x06client\x12(\n" +
 	"\x10waiting_for_lock\x18\x04 \x01(\bR\x0ewaitingForLock\x12%\n" +
-	"\x0eindex_utilized\x18\x05 \x01(\bR\rindexUtilized\"\xb4\x03\n" +
+	"\x0eindex_utilized\x18\x05 \x01(\tR\rindexUtilized\"\xb4\x03\n" +
 	"\x1aRealtimeAnalyticsQueryData\x12\x19\n" +
 	"\bquery_id\x18\x01 \x01(\tR\aqueryId\x12\x1d\n" +
 	"\n" +

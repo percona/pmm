@@ -55,8 +55,8 @@ func NewService(db *reform.DB, registry agentsRegistry, store *Store) *Service {
 	}
 }
 
-// ListRunningRealtimeAgents returns the list of currently running RTA agents (gRPC handler).
-func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRunningRealtimeAgentsRequest) (*rtav1.ListRunningRealtimeAgentsResponse, error) {
+// ListRealtimeAnalyticsAgents returns the list of RTA agents (gRPC handler).
+func (s *Service) ListRealtimeAnalyticsAgents(_ context.Context, req *rtav1.ListRealtimeAnalyticsAgentsRequest) (*rtav1.ListRealtimeAnalyticsAgentsResponse, error) {
 	realtimeAgentType := models.RTAMongoDBAgentType
 	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{
 		AgentType: &realtimeAgentType,
@@ -65,8 +65,8 @@ func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRu
 		return nil, err
 	}
 
-	response := &rtav1.ListRunningRealtimeAgentsResponse{
-		Agents: []*rtav1.RunningRealtimeAgent{},
+	response := &rtav1.ListRealtimeAnalyticsAgentsResponse{
+		Agents: []*rtav1.RealtimeAnalyticsAgent{},
 	}
 
 	for _, agent := range agents {
@@ -85,7 +85,7 @@ func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRu
 		}
 
 		// Apply cluster filter if specified
-		if req.Cluster != "" && service.Cluster != req.Cluster {
+		if req.ClusterName != "" && service.Cluster != req.ClusterName {
 			continue
 		}
 
@@ -101,7 +101,7 @@ func (s *Service) ListRunningRealtimeAgents(_ context.Context, req *rtav1.ListRu
 			status = inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN
 		}
 
-		response.Agents = append(response.Agents, &rtav1.RunningRealtimeAgent{
+		response.Agents = append(response.Agents, &rtav1.RealtimeAnalyticsAgent{
 			AgentId:     agent.AgentID,
 			ServiceId:   service.ServiceID,
 			ServiceName: service.ServiceName,

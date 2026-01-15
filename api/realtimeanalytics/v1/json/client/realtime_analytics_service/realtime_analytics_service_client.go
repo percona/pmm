@@ -56,7 +56,7 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	ChangeRealtimeAnalytics(params *ChangeRealtimeAnalyticsParams, opts ...ClientOption) (*ChangeRealtimeAnalyticsOK, error)
 
-	ListRunningRealtimeAgents(params *ListRunningRealtimeAgentsParams, opts ...ClientOption) (*ListRunningRealtimeAgentsOK, error)
+	ListRealtimeAnalyticsAgents(params *ListRealtimeAnalyticsAgentsParams, opts ...ClientOption) (*ListRealtimeAnalyticsAgentsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -106,24 +106,24 @@ func (a *Client) ChangeRealtimeAnalytics(params *ChangeRealtimeAnalyticsParams, 
 }
 
 /*
-ListRunningRealtimeAgents lists running real time analytics agents
+ListRealtimeAnalyticsAgents lists real time analytics agents
 
 Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information.
 */
-func (a *Client) ListRunningRealtimeAgents(params *ListRunningRealtimeAgentsParams, opts ...ClientOption) (*ListRunningRealtimeAgentsOK, error) {
+func (a *Client) ListRealtimeAnalyticsAgents(params *ListRealtimeAnalyticsAgentsParams, opts ...ClientOption) (*ListRealtimeAnalyticsAgentsOK, error) {
 	// NOTE: parameters are not validated before sending
 	if params == nil {
-		params = NewListRunningRealtimeAgentsParams()
+		params = NewListRealtimeAnalyticsAgentsParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "ListRunningRealtimeAgents",
+		ID:                 "ListRealtimeAnalyticsAgents",
 		Method:             "GET",
 		PathPattern:        "/v1/realtimeanalytics/agents",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListRunningRealtimeAgentsReader{formats: a.formats},
+		Reader:             &ListRealtimeAnalyticsAgentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -136,7 +136,7 @@ func (a *Client) ListRunningRealtimeAgents(params *ListRunningRealtimeAgentsPara
 	}
 
 	// only one success response has to be checked
-	success, ok := result.(*ListRunningRealtimeAgentsOK)
+	success, ok := result.(*ListRealtimeAnalyticsAgentsOK)
 	if ok {
 		return success, nil
 	}
@@ -144,7 +144,7 @@ func (a *Client) ListRunningRealtimeAgents(params *ListRunningRealtimeAgentsPara
 	// unexpected success response.
 	//
 	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*ListRunningRealtimeAgentsDefault)
+	unexpectedSuccess := result.(*ListRealtimeAnalyticsAgentsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

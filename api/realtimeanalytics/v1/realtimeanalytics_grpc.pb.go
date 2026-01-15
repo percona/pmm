@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RealtimeAnalyticsService_ListRunningRealtimeAgents_FullMethodName = "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents"
-	RealtimeAnalyticsService_ChangeRealtimeAnalytics_FullMethodName   = "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics"
+	RealtimeAnalyticsService_ListRealtimeAnalyticsAgents_FullMethodName = "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRealtimeAnalyticsAgents"
+	RealtimeAnalyticsService_ChangeRealtimeAnalytics_FullMethodName     = "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics"
 )
 
 // RealtimeAnalyticsServiceClient is the client API for RealtimeAnalyticsService service.
@@ -31,7 +31,7 @@ const (
 // RealtimeAnalyticsService provides public API for managing Real-Time Analytics.
 type RealtimeAnalyticsServiceClient interface {
 	// ListRunningRealtimeAgents returns the list of currently running RTA agents.
-	ListRunningRealtimeAgents(ctx context.Context, in *ListRunningRealtimeAgentsRequest, opts ...grpc.CallOption) (*ListRunningRealtimeAgentsResponse, error)
+	ListRealtimeAnalyticsAgents(ctx context.Context, in *ListRealtimeAnalyticsAgentsRequest, opts ...grpc.CallOption) (*ListRealtimeAnalyticsAgentsResponse, error)
 	// ChangeRealtimeAnalytics enables or disables RTA for a service.
 	ChangeRealtimeAnalytics(ctx context.Context, in *ChangeRealtimeAnalyticsRequest, opts ...grpc.CallOption) (*ChangeRealtimeAnalyticsResponse, error)
 }
@@ -44,10 +44,10 @@ func NewRealtimeAnalyticsServiceClient(cc grpc.ClientConnInterface) RealtimeAnal
 	return &realtimeAnalyticsServiceClient{cc}
 }
 
-func (c *realtimeAnalyticsServiceClient) ListRunningRealtimeAgents(ctx context.Context, in *ListRunningRealtimeAgentsRequest, opts ...grpc.CallOption) (*ListRunningRealtimeAgentsResponse, error) {
+func (c *realtimeAnalyticsServiceClient) ListRealtimeAnalyticsAgents(ctx context.Context, in *ListRealtimeAnalyticsAgentsRequest, opts ...grpc.CallOption) (*ListRealtimeAnalyticsAgentsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRunningRealtimeAgentsResponse)
-	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_ListRunningRealtimeAgents_FullMethodName, in, out, cOpts...)
+	out := new(ListRealtimeAnalyticsAgentsResponse)
+	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_ListRealtimeAnalyticsAgents_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (c *realtimeAnalyticsServiceClient) ChangeRealtimeAnalytics(ctx context.Con
 // RealtimeAnalyticsService provides public API for managing Real-Time Analytics.
 type RealtimeAnalyticsServiceServer interface {
 	// ListRunningRealtimeAgents returns the list of currently running RTA agents.
-	ListRunningRealtimeAgents(context.Context, *ListRunningRealtimeAgentsRequest) (*ListRunningRealtimeAgentsResponse, error)
+	ListRealtimeAnalyticsAgents(context.Context, *ListRealtimeAnalyticsAgentsRequest) (*ListRealtimeAnalyticsAgentsResponse, error)
 	// ChangeRealtimeAnalytics enables or disables RTA for a service.
 	ChangeRealtimeAnalytics(context.Context, *ChangeRealtimeAnalyticsRequest) (*ChangeRealtimeAnalyticsResponse, error)
 	mustEmbedUnimplementedRealtimeAnalyticsServiceServer()
@@ -84,8 +84,8 @@ type RealtimeAnalyticsServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRealtimeAnalyticsServiceServer struct{}
 
-func (UnimplementedRealtimeAnalyticsServiceServer) ListRunningRealtimeAgents(context.Context, *ListRunningRealtimeAgentsRequest) (*ListRunningRealtimeAgentsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListRunningRealtimeAgents not implemented")
+func (UnimplementedRealtimeAnalyticsServiceServer) ListRealtimeAnalyticsAgents(context.Context, *ListRealtimeAnalyticsAgentsRequest) (*ListRealtimeAnalyticsAgentsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRealtimeAnalyticsAgents not implemented")
 }
 
 func (UnimplementedRealtimeAnalyticsServiceServer) ChangeRealtimeAnalytics(context.Context, *ChangeRealtimeAnalyticsRequest) (*ChangeRealtimeAnalyticsResponse, error) {
@@ -114,20 +114,20 @@ func RegisterRealtimeAnalyticsServiceServer(s grpc.ServiceRegistrar, srv Realtim
 	s.RegisterService(&RealtimeAnalyticsService_ServiceDesc, srv)
 }
 
-func _RealtimeAnalyticsService_ListRunningRealtimeAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRunningRealtimeAgentsRequest)
+func _RealtimeAnalyticsService_ListRealtimeAnalyticsAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRealtimeAnalyticsAgentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RealtimeAnalyticsServiceServer).ListRunningRealtimeAgents(ctx, in)
+		return srv.(RealtimeAnalyticsServiceServer).ListRealtimeAnalyticsAgents(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RealtimeAnalyticsService_ListRunningRealtimeAgents_FullMethodName,
+		FullMethod: RealtimeAnalyticsService_ListRealtimeAnalyticsAgents_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RealtimeAnalyticsServiceServer).ListRunningRealtimeAgents(ctx, req.(*ListRunningRealtimeAgentsRequest))
+		return srv.(RealtimeAnalyticsServiceServer).ListRealtimeAnalyticsAgents(ctx, req.(*ListRealtimeAnalyticsAgentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -158,8 +158,8 @@ var RealtimeAnalyticsService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RealtimeAnalyticsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListRunningRealtimeAgents",
-			Handler:    _RealtimeAnalyticsService_ListRunningRealtimeAgents_Handler,
+			MethodName: "ListRealtimeAnalyticsAgents",
+			Handler:    _RealtimeAnalyticsService_ListRealtimeAnalyticsAgents_Handler,
 		},
 		{
 			MethodName: "ChangeRealtimeAnalytics",
