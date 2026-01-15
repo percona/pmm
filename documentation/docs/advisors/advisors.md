@@ -46,8 +46,9 @@ To run checks manually:
 
 1. Click :material-magnify-expand: **Advisors** on the main menu.
 2. Select the **Advisor** tab that contains the checks which you want to run manually.
-3. Click **Run checks** to run all the available checks for this advisor group, or expand an advisor and click **Run** next to each check that you want to run individually.
-![!Actions options](../images/PMM_Checks_Actions.png)
+3. Click **Run checks** to run all available checks for this advisor group, or expand an advisor and click **Run** next to each check you want to run individually:
+
+    ![!Actions options](../images/PMM_Checks_Actions.png)
 
 ## Advisor results
 The results are sent to PMM Server where you can review any failed checks on the Home dashboard. The summary count of failed checks is classified as:

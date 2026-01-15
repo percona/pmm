@@ -26,7 +26,7 @@ services:
       - PMM_ENABLE_TELEMETRY=${PMM_ENABLE_TELEMETRY:-0}
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
       - PMM_RELEASE_VERSION=3.0.0
-      - GO_VERSION=1.24.x
+      - GO_VERSION=1.25.x
       # - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-1}
       # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
@@ -40,6 +40,8 @@ services:
       # - PMM_CLICKHOUSE_DATABASE=pmm
       # - PMM_CLICKHOUSE_USER=default
       # - PMM_CLICKHOUSE_PASSWORD=<password>
+      # - PMM_CLICKHOUSE_IS_CLUSTER=1
+      # - PMM_CLICKHOUSE_CLUSTER_NAME=pmmclickhouse
       # - PMM_DEBUG=1
       # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/local-checks.yml
       # - PMM_POSTGRES_ADDR=pg
@@ -95,23 +97,20 @@ services:
       - go-modules:/root/go/pkg/mod
       - go-cache:/root/.cache
       - srv:/srv
-      # temporarily mount advisor files until we package them.
+      # mount advisor files for easy development
       - ./managed/data/advisors/:/usr/local/percona/advisors/
       - ./managed/data/checks/:/usr/local/percona/checks/
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # grafana
-    #  - "../grafana:/workspace"
-    #  - "../grafana/public:/usr/share/grafana/public"
-    #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
-    # command: >
-    #   bash -c "
-    #     rm -rf /tmp/certs
-    #     mkdir /tmp/certs
-    #     cp -R /root/go/src/github.com/percona/pmm/managed/testdata/pg/certs/* /tmp/certs
-    #     chown grafana:grafana /tmp/certs/*
-    #     chmod 600 /tmp/certs/*
-    #     /opt/entrypoint.sh
-    #   "
+      #  - "../grafana:/workspace"
+      #  - "../grafana/public:/usr/share/grafana/public"
+      #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
+      # command: >
+      #   bash -c "
+      #     # script you want to run before entrypoint, e.g.
+      #     bash /tmp/wait-for-it.sh -t 30 some-service:some-port --
+      #     /opt/entrypoint.sh
+      #   "
 
   renderer:
     image: grafana/grafana-image-renderer:latest

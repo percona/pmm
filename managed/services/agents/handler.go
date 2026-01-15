@@ -35,6 +35,8 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+const defaultAgentPingInterval = 10 * time.Second
+
 // Handler handles agent requests.
 type Handler struct {
 	db          *reform.DB
@@ -80,7 +82,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 	h.state.RequestStateUpdate(ctx, agent.id)
 
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(defaultAgentPingInterval)
 	defer ticker.Stop()
 	for {
 		select {
@@ -102,7 +104,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 			if req == nil {
 				disconnectReason = "done"
 				err = agent.channel.Wait()
-				h.r.unregister(agent.id, disconnectReason)
+				h.r.unregister(ctx, agent.id, disconnectReason)
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}

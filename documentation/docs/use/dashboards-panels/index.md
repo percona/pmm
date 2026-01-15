@@ -11,65 +11,116 @@ Dashboards provide insightful and actionable data, enabling you to gain an overv
 
 Performance Monitoring and Management (PMM) offers a range of dashboards you can access. Some of these dashboards are as follows:
 
-| Category          | Dashboard                                                                                | Elements { data-sort-method='number'} |
-|-------------------|------------------------------------------------------------------------------------------|:-------------------------------------:|
-| Insight           | [Advanced Data Exploration]                                                              | 7
-| Insight           | [Home Dashboard]                                                                         | 26
-| Insight           | [Prometheus Exporter Status]                                                             | 57
-| Insight           | [Prometheus Exporters Overview]                                                          | 27
-| Insight           | [VictoriaMetrics]                                                                        | 52
-| Insight           | [VictoriaMetrics Agents Overview]                                                        | 58
-| PMM               | [PMM Inventory]                                                                          | 3
-| PMM               | [Environment Overview]                                                                   | 0
-| PMM               | [Environment Summary]                                                                    | 0
-| OS                | [CPU Utilization Details]                                                                | 21
-| OS                | [Disk Details]                                                                           | 34
-| OS                | [Network Details]                                                                        | 70
-| OS                | [Memory Details]                                                                         | 116
-| OS                | [Node Temperature Details]                                                               | 6
-| OS                | [Nodes Compare]                                                                          | 74
-| OS                | [Nodes Overview]                                                                         | 115
-| OS                | [Node Summary]                                                                           | 67
-| OS                | [NUMA Details]                                                                           | 72
-| OS                | [Processes Details]                                                                      | 35
-| Prometheus        | [Prometheus Exporter Status]                                                             | 57
-| Prometheus        | [Prometheus Exporters Overview]                                                          | 27
-| MySQL             | [MySQL Amazon Aurora Details]                                                            | 20
-| MySQL             | [MySQL Command/Handler Counters Compare]                                                 | 11
-| MySQL             | [MySQL InnoDB Compression Details]                                                       | 41
-| MySQL             | [MySQL InnoDB Details]                                                                   | 339
-| MySQL             | [MySQL MyISAM/Aria Details]                                                              | 55
-| MySQL             | [MySQL MyRocks Details]                                                                  | 101
-| MySQL             | [MySQL Instance Summary]                                                                 | 90
-| MySQL             | [MySQL Instances Compare]                                                                | 70
-| MySQL             | [MySQL Instances Overview]                                                               | 96
-| MySQL             | [MySQL Wait Event Analyses Details]                                                      | 42
-| MySQL             | [MySQL Performance Schema Details]                                                       | 48
-| MySQL             | [MySQL Query Response Time Details]                                                      | 49
-| MySQL             | [MySQL Replication Summary]                                                              | 50
-| MySQL             | [MySQL Group Replication Summary]                                                        | 18
-| MySQL             | [MySQL Table Details]                                                                    | 45
-| MySQL             | [MySQL User Details]                                                                     | 62
-| MongoDB           | [Experimental MongoDB Collection Overview]                                                             | 100
-| MongoDB           | [Experimental MongoDB Collection Details]                                                             | 100
-| MongoDB           | [Experimental MongoDB Oplog Details]                                                             | 100
-| MongoDB           | [MongoDB Cluster Summary]                                                                | 55
-| MongoDB           | [MongoDB Instance Summary]                                                               | 42
-| MongoDB           | [MongoDB Instances Compare]                                                              | 19
-| MongoDB           | [MongoDB ReplSet Summary]                                                                | 130
-| MongoDB           | [MongoDB InMemory Details]                                                               | 46
-| MongoDB           | [MongoDB MMAPv1 Details]                                                                 | 52
-| MongoDB           | [MongoDB WiredTiger Details]                                                             | 54
-| PostgreSQL        | [PostgreSQL Instances Overview]                                                          | 114
-| PostgreSQL        | [Experimental PostgreSQL Vacuum Monitoring]                                              | 114
-| PostgreSQL        | [PostgreSQL Instance Summary]                                                            | 67
-| PostgreSQL        | [PostgreSQL Instances Compare]                                                           | 89
-| ProxySQL          | [ProxySQL Instance Summary]                                                              | 55
-| High-availability | [PXC/Galera Node Summary]                                                                | 32
-| High-availability | [PXC/Galera Cluster Summary]                                                             | 19
-| High-availability | [Experimental PXC/Galera Cluster Summary]                                                 | 7
-| High-availability | [PXC/Galera Nodes Compare]                                                               | 55
-| High-availability | [HAProxy Instance Summary]                                                               | 113
+=== "Insight"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [Advanced Data Exploration]                                                              | Explore and analyze metrics with custom queries
+    | [Home Dashboard]                                                                         | Overview of monitored environments and quick access to key dashboards
+    | [Prometheus Exporter Status]                                                             | Monitor exporter health and availability
+    | [Prometheus Exporters Overview]                                                          | Resource usage (CPU, memory) across all exporters
+    | [VictoriaMetrics]                                                                        | VictoriaMetrics performance and storage metrics
+    | [VictoriaMetrics Agents Overview]                                                        | VictoriaMetrics agents status and data collection
+
+=== "PMM"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [PMM Inventory]                                                                          | Manage monitored services, nodes, and agents
+    | [Environment Overview]                                                                   | High-level view of all monitored environments
+    | [Environment Summary]                                                                    | Aggregated metrics across environments
+
+=== "OS"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [CPU Utilization Details]                                                                | CPU usage, load averages, and core utilization
+    | [Disk Details]                                                                           | Disk I/O, latency, and space utilization
+    | [Network Details]                                                                        | Network traffic, errors, and interface statistics
+    | [Memory Details]                                                                         | Memory usage, swap, and caching
+    | [Node Temperature Details]                                                               | Hardware temperature monitoring
+    | [Nodes Compare]                                                                          | Side-by-side comparison of multiple nodes
+    | [Nodes Overview]                                                                         | Summary view of all monitored nodes
+    | [Node Summary]                                                                           | System information and resource usage for a single node
+    | [NUMA Details]                                                                           | NUMA node memory allocation and performance
+    | [Processes Details]                                                                      | Process-level CPU, memory, and I/O metrics
+
+=== "MySQL"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [MySQL Amazon Aurora Details]                                                            | Aurora-specific metrics and replication
+    | [MySQL Command/Handler Counters Compare]                                                 | Compare command execution patterns across instances
+    | [MySQL InnoDB Compression Details]                                                       | InnoDB compression efficiency and performance
+    | [MySQL InnoDB Details]                                                                   | InnoDB storage engine metrics and buffer pool statistics
+    | [MySQL MyISAM/Aria Details]                                                              | MyISAM and Aria storage engine performance
+    | [MySQL MyRocks Details]                                                                  | MyRocks storage engine metrics
+    | [MySQL Instance Summary]                                                                 | MySQL instance health and performance overview
+    | [MySQL Instances Compare]                                                                | Compare metrics across multiple MySQL instances
+    | [MySQL Instances Overview]                                                               | Summary of all monitored MySQL instances
+    | [MySQL Wait Event Analyses Details]                                                      | Identify and analyze wait events and bottlenecks
+    | [MySQL Performance Schema Details]                                                       | Performance Schema instrumentation and metrics
+    | [MySQL Query Response Time Details]                                                      | Query response time distribution analysis
+    | [MySQL Replication Summary]                                                              | Replication status, lag, and topology
+    | [MySQL Group Replication Summary]                                                        | Group replication health and performance
+    | [MySQL Table Details]                                                                    | Table-level statistics and performance
+    | [MySQL User Details]                                                                     | User connection and activity monitoring
+
+=== "MongoDB"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [Experimental MongoDB Collection Overview]                                               | Collection-level statistics (experimental)
+    | [Experimental MongoDB Collection Details]                                                | Detailed collection metrics (experimental)
+    | [Experimental MongoDB Oplog Details]                                                     | Oplog operations and replication (experimental)
+    | [MongoDB Cluster Summary]                                                                | Sharded cluster health and performance overview
+    | [MongoDB Instance Summary]                                                               | MongoDB instance metrics and operations
+    | [MongoDB Instances Compare]                                                              | Compare metrics across MongoDB instances
+    | [MongoDB ReplSet Summary]                                                                | Replica set health, lag, and member status
+    | [MongoDB InMemory Details]                                                               | InMemory storage engine performance
+    | [MongoDB MMAPv1 Details]                                                                 | MMAPv1 storage engine metrics
+    | [MongoDB WiredTiger Details]                                                             | WiredTiger storage engine performance and caching
+
+=== "PostgreSQL"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [PostgreSQL Instances Overview]                                                          | High-level overview of all PostgreSQL instances
+    | [Experimental PostgreSQL Vacuum Monitoring]                                              | Vacuum operations and table bloat (experimental)
+    | [PostgreSQL Instance Summary]                                                            | PostgreSQL instance health and performance
+    | [PostgreSQL Instances Compare]                                                           | Compare metrics across PostgreSQL instances
+
+=== "Valkey/Redis"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [Valkey/Redis Overview]                                                                  | Deployment health and performance summary
+    | [Valkey/Redis Clients]                                                                   | Client connections and blocked clients
+    | [Valkey/Redis Cluster Details]                                                           | Cluster topology and replication offsets
+    | [Valkey/Redis Command Details]                                                           | Command throughput and latency patterns
+    | [Valkey/Redis Load]                                                                      | Workload distribution and I/O threading
+    | [Valkey/Redis Memory]                                                                    | Memory usage and eviction patterns
+    | [Valkey/Redis Network]                                                                   | Network bandwidth and traffic patterns
+    | [Valkey/Redis Persistence]                                                               | RDB and AOF operations
+    | [Valkey/Redis Replication]                                                               | Replication lag and synchronization status
+    | [Valkey/Redis Slowlog]                                                                   | Slow command identification and bottleneck detection
+
+=== "ProxySQL"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [ProxySQL Instance Summary]                                                              | ProxySQL performance, connection pooling, and query routing
+
+=== "HA"
+
+    | Dashboard                                                                                | Description |
+    |------------------------------------------------------------------------------------------|-------------|
+    | [PXC/Galera Node Summary]                                                                | Individual node health in PXC/Galera clusters
+    | [PXC/Galera Cluster Summary]                                                             | Cluster-wide health and replication flow
+    | [Experimental PXC/Galera Cluster Summary]                                                | Enhanced cluster monitoring (experimental)
+    | [PXC/Galera Nodes Compare]                                                               | Compare metrics across PXC/Galera nodes
+    | [HAProxy Instance Summary]                                                               | HAProxy load balancer performance and backend health
+
 
 [Advanced Data Exploration]: ../../reference/dashboards/dashboard-advanced-data-exploration.md
 [Home Dashboard]: ../../reference/dashboards/dashboard-home.md
@@ -125,6 +176,16 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [PostgreSQL Instance Summary]: ../../reference/dashboards/dashboard-postgresql-instance-summary.md
 [PostgreSQL Instances Compare]: ../../reference/dashboards/dashboard-postgresql-instances-compare.md
 [ProxySQL Instance Summary]: ../../reference/dashboards/dashboard-proxysql-instance-summary.md
+[Valkey/Redis Overview]: ../../reference/dashboards/dashboard-valkey-redis-overview.md
+[Valkey/Redis Clients]: ../../reference/dashboards/dashboard-valkey-redis-clients.md
+[Valkey/Redis Cluster Details]: ../../reference/dashboards/dashboard-valkey-redis-cluster-details.md
+[Valkey/Redis Command Details]: ../../reference/dashboards/dashboard-valkey-redis-command-detail.md
+[Valkey/Redis Load]: ../../reference/dashboards/dashboard-valkey-redis-load.md
+[Valkey/Redis Memory]: ../../reference/dashboards/dashboard-valkey-redis-memory.md
+[Valkey/Redis Network]: ../../reference/dashboards/dashboard-valkey-redis-network.md
+[Valkey/Redis Persistence]: ../../reference/dashboards/dashboard-valkey-redis-persistence-details.md
+[Valkey/Redis Replication]: ../../reference/dashboards/dashboard-valkey-redis-replication.md
+[Valkey/Redis Slowlog]: ../../reference/dashboards/dashboard-valkey-redis-slowlog.md
 [PXC/Galera Node Summary]: ../../reference/dashboards/dashboard-pxc-galera-node-summary.md
 [PXC/Galera Cluster Summary]: ../../reference/dashboards/dashboard-pxc-galera-cluster-summary.md
 [Experimental PXC/Galera Cluster Summary]: ../../reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md

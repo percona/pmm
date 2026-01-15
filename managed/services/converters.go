@@ -40,29 +40,31 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 	switch node.NodeType {
 	case models.GenericNodeType:
 		return &inventoryv1.GenericNode{
-			NodeId:       node.NodeID,
-			NodeName:     node.NodeName,
-			MachineId:    pointer.GetString(node.MachineID),
-			Distro:       node.Distro,
-			NodeModel:    node.NodeModel,
-			Region:       pointer.GetString(node.Region),
-			Az:           node.AZ,
-			CustomLabels: labels,
-			Address:      node.Address,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			MachineId:       pointer.GetString(node.MachineID),
+			Distro:          node.Distro,
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			Az:              node.AZ,
+			CustomLabels:    labels,
+			Address:         node.Address,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}, nil
 
 	case models.ContainerNodeType:
 		return &inventoryv1.ContainerNode{
-			NodeId:        node.NodeID,
-			NodeName:      node.NodeName,
-			MachineId:     pointer.GetString(node.MachineID),
-			ContainerId:   pointer.GetString(node.ContainerID),
-			ContainerName: pointer.GetString(node.ContainerName),
-			NodeModel:     node.NodeModel,
-			Region:        pointer.GetString(node.Region),
-			Az:            node.AZ,
-			CustomLabels:  labels,
-			Address:       node.Address,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			MachineId:       pointer.GetString(node.MachineID),
+			ContainerId:     pointer.GetString(node.ContainerID),
+			ContainerName:   pointer.GetString(node.ContainerName),
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			Az:              node.AZ,
+			CustomLabels:    labels,
+			Address:         node.Address,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}, nil
 
 	case models.RemoteNodeType:

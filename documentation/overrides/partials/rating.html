@@ -1,0 +1,191 @@
+<!-- Feedback Widget -->
+<div class="rating-widget" style="
+  background: var(--md-default-bg-color);
+  border: 0.05rem solid var(--md-default-fg-color--lightest);
+  padding: 10px 15px;
+  border-radius: 0.2rem;
+  margin-bottom: 16px;
+  font-family: 'Poppins','Roboto',Arial,Helvetica,sans-serif;
+  font-size: 16px;
+  text-align: center;
+  transition: all 0.2s ease-out;
+">
+
+  <div class="rating-title" style="
+    margin-bottom: 4px;
+    font-size: 15px;
+    font-weight: bold;
+    /* Removed inline color to use CSS */
+  ">
+    Rate this page
+  </div>
+
+  <div class="rating-stars" style="display: inline-block;">
+    {% for i in range(1,6) %}
+      <span class="star" data-rating="{{ i }}" style="
+        font-size: 24px;
+        cursor: pointer;
+        margin: 0 2px;
+        display: inline-block;
+      ">☆</span>
+    {% endfor %}
+  </div>
+
+  <div id="feedback-notification" style="
+    display: none;
+    margin-top: 10px;
+    color: var(--md-typeset-a-color);
+    font-weight: 500;
+    font-size: 14px;
+  ">Thanks for your feedback</div>
+
+<div id="feedback-submit-notification" style="
+display: none;
+margin-top: 10px;
+color: var(--md-typeset-a-color);
+font-weight: 500;
+font-size: 14px;
+">Thank you! The feedback has been submitted.</div>
+
+  <div id="feedback-form" style="
+    display: none;
+    margin-top: 12px;
+    text-align: left;
+    position: relative;
+    border: 0.05rem solid var(--md-default-fg-color--lightest);
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--md-default-bg-color);
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.2s ease-out;
+  ">
+<button id="close-feedback" title="Close" style="
+position: absolute;
+top: -10px;
+right: -10px;
+background: var(--md-default-bg-color);
+border: 0.05rem solid var(--md-default-fg-color--lightest);
+border-radius: 50%;
+width: 24px;
+height: 24px;
+font-size: 18px;
+font-weight: bold;
+cursor: pointer;
+color: var(--md-default-fg-color--light);
+line-height: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+">
+×
+</button>
+
+    <textarea id="feedback-text" rows="3" placeholder="Write your feedback here..." style="
+      width: 100%;
+      font-size: 14px;
+      padding: 6px;
+      margin-bottom: 12px;
+      resize: vertical;
+      font-family: 'Poppins','Roboto',Arial,Helvetica,sans-serif;
+      color: var(--md-default-fg-color);
+      background: var(--md-default-bg-color);
+      border: 0.05rem solid var(--md-default-fg-color--lightest);
+    "></textarea>
+
+    <label for="feedback-email" style="
+      display: block;
+      font-size: 15px;
+      margin-bottom: 4px;
+    ">
+      Email <span style="color: var(--md-default-fg-color--light);">(optional)</span>
+    </label>
+
+    <input type="email" id="feedback-email" placeholder="you@example.com" style="
+      width: 100%;
+      font-size: 14px;
+      padding: 6px;
+      margin-bottom: 12px;
+      font-family: 'Poppins','Roboto',Arial,Helvetica,sans-serif;
+      color: var(--md-default-fg-color);
+      background: var(--md-default-bg-color);
+      border: 0.05rem solid var(--md-default-fg-color--lightest);
+    " />
+
+<button id="submit-feedback" style="
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: var(--md-typeset-a-color);
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: 'Poppins','Roboto',Arial,Helvetica,sans-serif;
+">
+  Send
+</button>
+
+    <div id="feedback-status" style="
+      margin-top: 8px;
+      font-size: 13px;
+    "></div>
+  </div>
+</div>
+
+<style>
+  /* Hover shadow like data-banner */
+  .rating-widget:hover,
+  #feedback-form:hover {
+    box-shadow:
+      0px 1px 10px 0px rgba(0, 0, 0, 0.12),
+      0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+      0px 2px 4px -1px rgba(0, 0, 0, 0.20);
+  }
+
+  /* Default star colors */
+  .rating-stars .star {
+    color: var(--md-default-fg-color);
+    transition: color 0.2s ease-out;
+  }
+
+  /* Active/hovered stars */
+  .rating-stars .star.active,
+  .rating-stars .star.hovered {
+    color: var(--md-typeset-a-color, #0E5FB5);
+  }
+
+  /* Rate this page text color matches stars in light mode */
+  .rating-widget .rating-title {
+    color: var(--md-typeset-a-color, #0E5FB5);
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    /* Rate this page text */
+    .rating-widget .rating-title {
+      color: var(--md-typeset-a-color, #93C7FF);
+    }
+    /* Stars active and hovered fill color */
+    .rating-stars .star.active,
+    .rating-stars .star.hovered {
+      color: var(--md-typeset-a-color, #93C7FF);
+    }
+
+    /* Feedback form text */
+    #feedback-form,
+    #feedback-form textarea,
+    #feedback-form input,
+    #feedback-form label,
+    #feedback-form button,
+    #feedback-form div {
+      color: var(--md-typeset-a-color, #93C7FF);
+      border-color: #666;
+      background: var(--md-default-bg-color);
+    }
+
+    /* Close button color */
+    #close-feedback {
+      color: var(--md-typeset-a-color, #93C7FF);
+    }
+  }
+</style>

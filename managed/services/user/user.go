@@ -18,11 +18,14 @@ package user
 
 import (
 	"context"
+	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -72,7 +75,13 @@ func (s *Service) GetUser(ctx context.Context, _ *userv1.GetUserRequest) (*userv
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
+		SnoozeCount:           uint32(userInfo.SnoozeCount), //nolint:gosec
 	}
+
+	if userInfo.SnoozedAt != nil {
+		resp.SnoozedAt = timestamppb.New(*userInfo.SnoozedAt)
+	}
+
 	return resp, nil
 }
 
@@ -99,8 +108,16 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 			Tour:         req.ProductTourCompleted,
 			AlertingTour: req.AlertingTourCompleted,
 		}
+
 		if req.SnoozedPmmVersion != nil {
-			params.SnoozedPMMVersion = req.SnoozedPmmVersion
+			if *req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
+				params.SnoozedPMMVersion = req.SnoozedPmmVersion
+				params.SnoozeCount = pointer.ToInt(1)
+			} else {
+				params.SnoozeCount = pointer.ToInt(userInfo.SnoozeCount + 1)
+			}
+
+			params.SnoozedAt = pointer.ToTime(time.Now())
 		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)
@@ -119,7 +136,13 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
+		SnoozeCount:           uint32(userInfo.SnoozeCount),
 	}
+
+	if userInfo.SnoozedAt != nil {
+		resp.SnoozedAt = timestamppb.New(*userInfo.SnoozedAt)
+	}
+
 	return resp, nil
 }
 

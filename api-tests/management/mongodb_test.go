@@ -92,15 +92,16 @@ func TestAddMongoDB(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
-				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				DisabledCollectors: []string{"database"},
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				CustomLabels:       map[string]string{},
-				StatsCollections:   make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:                serviceID,
+				PMMAgentID:               pmmAgentID,
+				DisabledCollectors:       []string{"database"},
+				PushMetricsEnabled:       true,
+				Status:                   &AgentStatusUnknown,
+				CustomLabels:             map[string]string{},
+				StatsCollections:         make([]string, 0),
+				LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				EnvironmentVariableNames: make([]string, 0),
 			},
 		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -174,16 +175,17 @@ func TestAddMongoDB(t *testing.T) {
 		require.Len(t, listAgents.Payload.QANMongodbMongologAgent, 1)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
-				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				Username:           "username",
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				CustomLabels:       map[string]string{},
-				DisabledCollectors: make([]string, 0),
-				StatsCollections:   make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:                serviceID,
+				PMMAgentID:               pmmAgentID,
+				Username:                 "username",
+				PushMetricsEnabled:       true,
+				Status:                   &AgentStatusUnknown,
+				CustomLabels:             map[string]string{},
+				DisabledCollectors:       make([]string, 0),
+				StatsCollections:         make([]string, 0),
+				LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				EnvironmentVariableNames: make([]string, 0),
 			},
 		}, listAgents.Payload.MongodbExporter)
 		assert.Equal(t, []*agents.ListAgentsOKBodyQANMongodbProfilerAgentItems0{
@@ -426,15 +428,16 @@ func TestAddMongoDB(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
-				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				CustomLabels:       map[string]string{},
-				DisabledCollectors: make([]string, 0),
-				StatsCollections:   make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:                serviceID,
+				PMMAgentID:               pmmAgentID,
+				PushMetricsEnabled:       true,
+				Status:                   &AgentStatusUnknown,
+				CustomLabels:             map[string]string{},
+				DisabledCollectors:       make([]string, 0),
+				StatsCollections:         make([]string, 0),
+				LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				EnvironmentVariableNames: make([]string, 0),
 			},
 		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -597,9 +600,9 @@ func TestAddMongoDB(t *testing.T) {
 				},
 			},
 		}
-		addProxySQLOK, err := client.Default.ManagementService.AddService(params)
+		addMongoDBOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
-		assert.Nil(t, addProxySQLOK)
+		assert.Nil(t, addMongoDBOK)
 	})
 
 	t.Run("Socket", func(t *testing.T) {
@@ -658,15 +661,16 @@ func TestAddMongoDB(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
-				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				CustomLabels:       map[string]string{},
-				DisabledCollectors: make([]string, 0),
-				StatsCollections:   make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:                serviceID,
+				PMMAgentID:               pmmAgentID,
+				PushMetricsEnabled:       true,
+				Status:                   &AgentStatusUnknown,
+				CustomLabels:             map[string]string{},
+				DisabledCollectors:       make([]string, 0),
+				StatsCollections:         make([]string, 0),
+				LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				EnvironmentVariableNames: make([]string, 0),
 			},
 		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -731,15 +735,16 @@ func TestAddMongoDB(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
-				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				CustomLabels:       map[string]string{},
-				StatsCollections:   make([]string, 0),
-				DisabledCollectors: make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:                serviceID,
+				PMMAgentID:               pmmAgentID,
+				PushMetricsEnabled:       true,
+				Status:                   &AgentStatusUnknown,
+				CustomLabels:             map[string]string{},
+				StatsCollections:         make([]string, 0),
+				DisabledCollectors:       make([]string, 0),
+				LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				EnvironmentVariableNames: make([]string, 0),
 			},
 		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -804,14 +809,15 @@ func TestAddMongoDB(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
-				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				Status:             &AgentStatusUnknown,
-				CustomLabels:       map[string]string{},
-				DisabledCollectors: make([]string, 0),
-				StatsCollections:   make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:                serviceID,
+				PMMAgentID:               pmmAgentID,
+				Status:                   &AgentStatusUnknown,
+				CustomLabels:             map[string]string{},
+				DisabledCollectors:       make([]string, 0),
+				StatsCollections:         make([]string, 0),
+				LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				EnvironmentVariableNames: make([]string, 0),
 			},
 		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -876,15 +882,16 @@ func TestAddMongoDB(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
-				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-				ServiceID:          serviceID,
-				PMMAgentID:         pmmAgentID,
-				PushMetricsEnabled: true,
-				Status:             &AgentStatusUnknown,
-				CustomLabels:       map[string]string{},
-				DisabledCollectors: make([]string, 0),
-				StatsCollections:   make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:                serviceID,
+				PMMAgentID:               pmmAgentID,
+				PushMetricsEnabled:       true,
+				Status:                   &AgentStatusUnknown,
+				CustomLabels:             map[string]string{},
+				DisabledCollectors:       make([]string, 0),
+				StatsCollections:         make([]string, 0),
+				LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				EnvironmentVariableNames: make([]string, 0),
 			},
 		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)

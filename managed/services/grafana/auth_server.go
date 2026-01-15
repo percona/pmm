@@ -39,14 +39,15 @@ import (
 )
 
 const (
-	connectionEndpoint = "/agent.v1.AgentService/Connect"
+	connectionEndpointV2 = "/agent.Agent/Connect"
+	connectionEndpoint   = "/agent.v1.AgentService/Connect"
 )
 
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
-	"/agent.Agent/Connect": admin, // compatibility for v2 agents
-	connectionEndpoint:     admin,
+	connectionEndpointV2: admin, // compatibility for v2 agents
+	connectionEndpoint:   admin,
 
 	"/inventory.":                               admin,
 	"/management.":                              admin,
@@ -69,6 +70,7 @@ var rules = map[string]role{
 	"/v1/backups":                     admin,
 	"/v1/dumps":                       admin,
 	"/v1/accesscontrol":               admin,
+	"/v1/ha":                          viewer,
 	"/v1/inventory/":                  admin,
 	"/v1/inventory/services:getTypes": viewer,
 	"/v1/management/":                 admin,
@@ -118,7 +120,8 @@ var lbacPrefixes = []string{
 	// "/graph/api/v1/labels", // Note: this path appears not to be used in Grafana
 	"/prometheus/api/v1/",
 	"/v1/qan/",
-	"/graph/api/datasources/proxy/1/api/v1/", // https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
+	// https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
+	"/graph/api/datasources/proxy/1/api/v1/",
 }
 
 const lbacHeaderName = "X-Proxy-Filter"
@@ -129,8 +132,11 @@ const lbacHeaderName = "X-Proxy-Filter"
 // as this code is reserved for auth_request.
 const authenticationErrorCode = 401
 
-// cacheInvalidationPeriod is and period when cache for grafana response should be invalidated.
-const cacheInvalidationPeriod = 3 * time.Second
+const (
+	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
+	cacheInvalidationInterval = 3 * time.Second
+	authenticationTimeout     = 3 * time.Second
+)
 
 // clientError contains authentication error response details.
 type authError struct {
@@ -183,7 +189,8 @@ func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 
 // Run runs cache invalidator which removes expired cache items.
 func (s *AuthServer) Run(ctx context.Context) {
-	t := time.NewTicker(cacheInvalidationPeriod)
+	t := time.NewTicker(cacheInvalidationInterval)
+	defer t.Stop()
 
 	for {
 		select {
@@ -194,7 +201,7 @@ func (s *AuthServer) Run(ctx context.Context) {
 			now := time.Now()
 			s.rw.Lock()
 			for key, item := range s.cache {
-				if now.Add(-cacheInvalidationPeriod).After(item.created) {
+				if now.Add(-cacheInvalidationInterval).After(item.created) {
 					delete(s.cache, key)
 				}
 			}
@@ -223,8 +230,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 
-	// fail-safe
-	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
 	authUser, err := s.authenticate(ctx, req, l)
@@ -424,9 +430,9 @@ func nextPrefix(path string) string {
 
 func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
-	pmmAgent := req.Header.Get("Pmm-Agent-Id")
+	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
+	if ip == "127.0.0.1" && path == connectionEndpoint {
 		return true
 	}
 

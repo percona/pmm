@@ -232,6 +232,8 @@ message MongoDBExporter {
   bool expose_exporter = 27;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 28;
+  // Environment variable names passed to the exporter.
+  repeated string environment_variable_names = 29;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -1032,6 +1034,9 @@ message AddMongoDBExporterParams {
   LogLevel log_level = 19;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 20;
+  // Environment variable names to pass to the exporter.
+  // Values will be resolved from pmm-agent's environment when starting the exporter.
+  repeated string environment_variable_names = 21;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1271,7 +1276,7 @@ message AddQANMongoDBProfilerAgentParams {
   string authentication_mechanism = 13;
   // Authentication database.
   string authentication_database = 14;
-  // Log level for exporter.
+  // Log level for agent.
   LogLevel log_level = 15;
 }
 
@@ -1319,7 +1324,7 @@ message AddQANMongoDBMongologAgentParams {
   string authentication_mechanism = 13;
   // Authentication database.
   string authentication_database = 14;
-  // Log level for exporter.
+  // Log level for agent.
   LogLevel log_level = 15;
 }
 

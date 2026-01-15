@@ -5149,6 +5149,145 @@
         }
       }
     },
+    "/v1/ha/nodes": {
+      "get": {
+        "description": "Returns a list of all nodes in the High Availability cluster with their current status and roles.",
+        "tags": [
+          "HAService"
+        ],
+        "summary": "List HA Nodes",
+        "operationId": "ListNodesMixin12",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "description": "List of nodes in the HA cluster.",
+                  "type": "array",
+                  "items": {
+                    "description": "HANode represents a single node in the HA cluster.",
+                    "type": "object",
+                    "properties": {
+                      "node_name": {
+                        "description": "Human-readable name of the node.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "role": {
+                        "description": "NodeRole represents the role of a node in the HA cluster.",
+                        "type": "string",
+                        "default": "NODE_ROLE_UNSPECIFIED",
+                        "enum": [
+                          "NODE_ROLE_UNSPECIFIED",
+                          "NODE_ROLE_LEADER",
+                          "NODE_ROLE_FOLLOWER"
+                        ],
+                        "x-order": 1
+                      },
+                      "status": {
+                        "description": "Current status of the node from MemberList.",
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ha/status": {
+      "get": {
+        "description": "Returns whether High Availability mode is enabled or disabled.",
+        "tags": [
+          "HAService"
+        ],
+        "summary": "HA Status",
+        "operationId": "Status",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "Status of HA mode: \"Enabled\" or \"Disabled\".",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/agents": {
       "get": {
         "description": "Returns a list of all Agents.",
@@ -5735,6 +5874,14 @@
                           }
                         },
                         "x-order": 18
+                      },
+                      "environment_variable_names": {
+                        "description": "Environment variable names passed to the exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 19
                       }
                     }
                   },
@@ -7567,6 +7714,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 20
                     }
                   },
                   "x-order": 3
@@ -9130,6 +9285,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -11084,6 +11247,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 4
@@ -13851,6 +14022,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 2
@@ -15544,6 +15723,11 @@
                           "type": "string"
                         },
                         "x-order": 8
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
@@ -15607,6 +15791,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 10
                       }
                     }
                   },
@@ -16093,6 +16282,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -16153,6 +16347,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -16408,6 +16607,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -16468,6 +16672,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -20132,6 +20341,11 @@
                         "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                         "type": "string",
                         "x-order": 17
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 18
                       }
                     }
                   },
@@ -20355,6 +20569,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -20415,6 +20634,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -20674,6 +20898,11 @@
                       "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                       "type": "string",
                       "x-order": 17
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -21851,6 +22080,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 33
                     }
                   },
                   "x-order": 1
@@ -23804,6 +24041,14 @@
                             }
                           },
                           "x-order": 18
+                        },
+                        "environment_variable_names": {
+                          "description": "Environment variable names passed to the exporter.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 19
                         }
                       },
                       "x-order": 1
@@ -27193,6 +27438,56 @@
         }
       }
     },
+    "/v1/qan/health": {
+      "get": {
+        "description": "Returns readiness of QAN API2 service.",
+        "tags": [
+          "QANService"
+        ],
+        "summary": "Health Check",
+        "operationId": "HealthCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "HealthCheckResponse is empty, based on returned error qan-api2 is ready or not.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/qan/metrics:getFilters": {
       "post": {
         "description": "Provides a filtered map of metrics names.",
@@ -28038,11 +28333,29 @@
                               "format": "float",
                               "x-order": 74
                             },
+                            "m_wal_buffers_full_sum_per_sec": {
+                              "description": "Total number of times WAL buffers become full.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 75
+                            },
+                            "m_parallel_workers_to_launch_sum_per_sec": {
+                              "description": "Total number of parallel workers to launch.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 76
+                            },
+                            "m_parallel_workers_launched_sum_per_sec": {
+                              "description": "Total number of parallel workers launched.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 77
+                            },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 75
+                              "x-order": 78
                             }
                           }
                         },
@@ -29412,11 +29725,29 @@
                         "format": "float",
                         "x-order": 74
                       },
+                      "m_wal_buffers_full_sum_per_sec": {
+                        "description": "Total number of times WAL buffers become full.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 75
+                      },
+                      "m_parallel_workers_to_launch_sum_per_sec": {
+                        "description": "Total number of parallel workers to launch.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 76
+                      },
+                      "m_parallel_workers_launched_sum_per_sec": {
+                        "description": "Total number of parallel workers launched.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 77
+                      },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 75
+                        "x-order": 78
                       }
                     }
                   },
@@ -29865,6 +30196,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "update_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -30042,6 +30378,11 @@
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 13
+                },
+                "update_snooze_duration": {
+                  "description": "A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -30184,6 +30525,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "update_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -30969,6 +31315,18 @@
                   "type": "string",
                   "title": "Snoozed PMM version update",
                   "x-order": 3
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of last snooze",
+                  "x-order": 4
+                },
+                "snooze_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "Number of times the update was snoozed",
+                  "x-order": 5
                 }
               }
             }
@@ -31069,6 +31427,18 @@
                   "type": "string",
                   "title": "Snooze update alert for a PMM version",
                   "x-order": 3
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of last snooze",
+                  "x-order": 4
+                },
+                "snooze_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "Number of times the update was snoozed",
+                  "x-order": 5
                 }
               }
             }
@@ -31166,6 +31536,9 @@
     },
     {
       "name": "PlatformService"
+    },
+    {
+      "name": "HAService"
     }
   ],
   "x-readme": {
