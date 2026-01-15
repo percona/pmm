@@ -5,5 +5,11 @@ export const updateDocumentTitle = (title?: string) => {
     return;
   }
 
-  document.title = title ? `${title} - ${PMM_TITLE}` : PMM_TITLE;
+  if (!title) {
+    document.title = PMM_TITLE;
+  } else if (title.endsWith(PMM_TITLE)) {
+    document.title = title;
+  } else {
+    document.title = `${title} - ${PMM_TITLE}`;
+  }
 };
