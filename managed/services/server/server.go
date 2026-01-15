@@ -299,12 +299,14 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	res.LastCheck = timestamppb.New(lastCheck)
 
 	if v.Installed.BuildTime != nil {
-		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
+		// return only date
+		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour) //nolint:mnd
 		res.Installed.Timestamp = timestamppb.New(t)
 	}
 
 	if v.Latest.DockerImage != "" {
-		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
+		// return only date
+		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) //nolint:mnd
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
 
@@ -399,7 +401,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 	// wait up to 30 seconds for new log lines
 	var lines []string
 	var newOffset uint32
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second) //nolint:mnd
 	defer cancel()
 	for ctx.Err() == nil {
 		if !s.updater.IsRunning() {
@@ -416,7 +418,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 			break
 		}
 
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond) //nolint:mnd
 	}
 
 	return &serverv1.UpdateStatusResponse{
@@ -437,7 +439,7 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 	a := &pmmUpdateAuth{
 		AuthToken: token,
 	}
-	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive)
+	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive) //nolint:mnd
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -535,13 +537,19 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 	}
 
 	var disabledInternalPgQan bool
-	internalPgQanAgent, err := s.getInternalPgQANAgent(s.db.Querier)
-	if err != nil {
-		// if we can't get the agent, log the error and set it to disabled.
-		// this is better than completely failing the request.
-		s.l.Errorf("failed to get internal pgQAN agent: %v", err)
+
+	isHAEnabled := s.haService.Params().Enabled
+	if isHAEnabled {
+		// In HA mode, internal QAN is always disabled as PostgreSQL is external
+		disabledInternalPgQan = true
 	} else {
-		disabledInternalPgQan = internalPgQanAgent.Disabled
+		internalPgQanAgent, err := s.getInternalPgQANAgent(s.db.Querier)
+		if err != nil {
+			// if we can't get the agent, log the error and set it to disabled.
+			s.l.Errorf("failed to get internal pgQAN agent: %v", err)
+		} else {
+			disabledInternalPgQan = internalPgQanAgent.Disabled
+		}
 	}
 
 	_, err = models.GetPerconaSSODetails(ctx, s.db.Querier)
@@ -686,24 +694,34 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
-		if req.EnableInternalPgQan != nil {
-			internalQanAgent, err := s.getInternalPgQANAgent(tx.Querier)
-			if err != nil {
-				return fmt.Errorf("failed to get QAN agent: %w", err)
-			}
-			if internalQanAgent == nil {
-				return fmt.Errorf("internal QAN agent not found")
-			}
+		if req.EnableInternalPgQan != nil { //nolint:nestif
+			isHAEnabled := s.haService.Params().Enabled
+			if isHAEnabled {
+				if *req.EnableInternalPgQan {
+					return status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
+				}
 
-			newAgent, err := models.ChangeAgent(tx.Querier, internalQanAgent.AgentID, &models.ChangeCommonAgentParams{
-				Enabled: req.EnableInternalPgQan,
-			})
-			if err != nil {
-				return errors.Wrap(err, "failed to change QAN agent state")
-			}
+				// If trying to disable in HA mode, it's already disabled, so just skip
+				disableInternalPgQan = true
+			} else {
+				internalQanAgent, err := s.getInternalPgQANAgent(tx.Querier)
+				if err != nil {
+					return fmt.Errorf("failed to get QAN agent: %w", err)
+				}
+				if internalQanAgent == nil {
+					return fmt.Errorf("internal QAN agent not found")
+				}
 
-			disableInternalPgQan = newAgent.Disabled
-			s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
+				newAgent, err := models.ChangeAgent(tx.Querier, internalQanAgent.AgentID, &models.ChangeCommonAgentParams{
+					Enabled: req.EnableInternalPgQan,
+				})
+				if err != nil {
+					return fmt.Errorf("failed to change QAN agent state: %w", err)
+				}
+
+				disableInternalPgQan = newAgent.Disabled
+				s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
+			}
 		}
 
 		return nil
@@ -820,12 +838,12 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	if err = os.MkdirAll(sshDirPath, 0o700); err != nil {
+	if err = os.MkdirAll(sshDirPath, 0o700); err != nil { //nolint:mnd
 		return errors.WithStack(err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
+	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil { //nolint:mnd
 		return errors.WithStack(err)
 	}
 	return nil
