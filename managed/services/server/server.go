@@ -537,9 +537,7 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 	}
 
 	var disabledInternalPgQan bool
-
-	isHAEnabled := s.haService.Params().Enabled
-	if isHAEnabled {
+	if s.haService.Params().Enabled {
 		// In HA mode, internal QAN is always disabled as PostgreSQL is external
 		disabledInternalPgQan = true
 	} else {
@@ -695,8 +693,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 		// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
 		if req.EnableInternalPgQan != nil { //nolint:nestif
-			isHAEnabled := s.haService.Params().Enabled
-			if isHAEnabled {
+			if s.haService.Params().Enabled {
 				if *req.EnableInternalPgQan {
 					return status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
 				}
