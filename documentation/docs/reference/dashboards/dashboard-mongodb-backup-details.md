@@ -6,11 +6,14 @@ The dashboard works with both replica sets and sharded clusters. Use the filters
 
 ![MongoDB Backup Details dashboard](../../images/BackupDetails_Dashboard.png)
 
+
+This dashboard requires the MongoDB service to be added with the `--cluster` parameter. If panels show no data, see [Add MongoDB service to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.html#step-3-add-mongodb-service-to-pmm).
+
 ## Backup Configured
 
-Shows whether PBM is configured with remote backup storage for your MongoDB environment. A green **YES** indicates that backups are properly set up, while a red **NO** signals that backups are not configured.
+Shows whether PBM is configured with remote backup storage for your MongoDB environment. A green **YES** indicates backups are properly configured, while a red **NO** means backup storage is not set up.
 
-If you see **NO**, check your PBM configuration to ensure a remote storage location (S3, Azure Blob, or filesystem) is properly defined.
+If you see **NO**, verify that PBM has a remote storage location (S3, Azure Blob, or filesystem) defined. See [Configure backup storage](https://docs.percona.com/percona-backup-mongodb/install/backup-storage.html).
 
 ## PITR Status
 
@@ -23,6 +26,8 @@ PITR allows restoration to any point in time rather than just to specific backup
 Shows the total number of PBM agents currently monitored by PMM.
 
 Use this to verify that all expected agents across your MongoDB environment are registered and reporting. If this count doesn't match your expected number of nodes, you may have agents that failed to register or are offline.
+
+Backups will fail if agents are down or offline. If the count is lower than expected, check agent status immediately.
 
 ## Last Successful Backup
 
@@ -48,7 +53,7 @@ Shows how agent status has changed over the selected time range using a color-co
 
 Use this to identify patterns and troubleshoot intermittent issues. This historical view helps correlate backup failures with other events like network issues or maintenance windows, and verify that previously problematic agents have stabilized.
 
-Arbiter nodes will appear with a **FAIL** status. This is expected because arbiters only participate in elections and do not store data, so they cannot run PBM agents.
+Arbiter nodes will appear with a **FAIL** status. This is expected, as PBM agent is not required on arbiter nodes and cannot run on them.
 
 ## Backup History
 
