@@ -1,5 +1,4 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
-import { Main } from 'components/main/Main';
 import { Updates } from 'pages/updates';
 import { UpdateClients } from 'pages/update-clients/UpdateClients';
 import { MainWithNav } from 'components/main/MainWithNav';
@@ -8,6 +7,7 @@ import { HelpCenter } from 'pages/help-center';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import React from 'react';
+import { Redirect } from 'components/redirect';
 
 const router = createBrowserRouter(
   [
@@ -46,23 +46,10 @@ const router = createBrowserRouter(
             },
           ],
         },
+        // Provide fallback for /next/* paths to redirect to the root path
         {
-          path: '/',
-          element: <Main />,
-          children: [
-            {
-              path: '',
-              element: <Navigate to="updates" />,
-            },
-            {
-              path: 'updates',
-              element: <Updates />,
-            },
-            {
-              path: 'updates/clients',
-              element: <UpdateClients />,
-            },
-          ],
+          path: '/next/*',
+          element: <Redirect />,
         },
         {
           path: '*',
