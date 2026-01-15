@@ -7,7 +7,7 @@ The dashboard works with both replica sets and sharded clusters. Use the filters
 ![MongoDB Backup Details dashboard](../../images/BackupDetails_Dashboard.png)
 
 
-This dashboard requires the MongoDB service to be added with the `--cluster` parameter. If panels show no data, see [Add MongoDB service to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.html#step-3-add-mongodb-service-to-pmm).
+This dashboard requires the MongoDB service to be added with the `--cluster` parameter. If panels show no data, see [Add MongoDB service to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
 
 ## Backup Configured
 
