@@ -1,4 +1,4 @@
-# MySQL Instances Overview dashboard
+# MySQL Instances Overview
 
 This dashboard provides a high-level view of all your MySQL instances in one place. It helps you quickly identify which instances need attention by highlighting connection issues, query performance problems, and resource utilization across your fleet.
 
@@ -201,9 +201,9 @@ Shows the highest table lock rate (immediate and waited locks combined) across a
 ## Temporary Objects details
 
 ### Top 5 MySQL Temporary Objects
-Shows temporary object creation rates over time for the top five instances.
+Shows how often the top five instances create temporary objects over time.
 
-This includes temporary tables, disk-based temporary tables, and temporary files. Temporary objects that spill to disk are slower than memory-based ones. High rates may indicate queries that need optimization or `tmp_table_size`/`max_heap_table_size` adjustments.
+This includes temporary tables, disk-based temporary tables, and temporary files. When temporary objects spill to disk, they're slower than those kept in memory. High rates often point to queries you should optimize, or suggest you may need to increase `tmp_table_size` or `max_heap_table_size`.
 
 ### MySQL Temporary Objects
 Shows the temporary object creation rate for each instance. Green indicates normal activity (under 50/sec), orange shows moderate rates (50-100/sec), and red indicates high rates (over 100/sec) that may need query optimization or `tmp_table_size` adjustments.
