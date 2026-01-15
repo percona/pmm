@@ -8,8 +8,8 @@ import "inventory/v1/agent_status.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
-// RunningRealtimeAgent represents a currently running RTA agent.
-message RunningRealtimeAgent {
+// RealtimeAnalyticsAgent represents a RTA agent.
+message RealtimeAnalyticsAgent {
   // Unique agent identifier.
   string agent_id = 1;
   // Service identifier that the agent is monitoring.
@@ -24,16 +24,16 @@ message RunningRealtimeAgent {
   inventory.v1.AgentStatus status = 6;
 }
 
-// ListRunningRealtimeAgentsRequest contains optional filters for listing running RTA agents.
-message ListRunningRealtimeAgentsRequest {
+// ListRealtimeAnalyticsAgentsRequest contains optional filters for listing RTA agents.
+message ListRealtimeAnalyticsAgentsRequest {
   // Optional filter by cluster name.
-  string cluster = 1;
+  string cluster_name = 1;
 }
 
-// ListRunningRealtimeAgentsResponse returns the list of running RTA agents.
-message ListRunningRealtimeAgentsResponse {
-  // List of running RTA agents.
-  repeated RunningRealtimeAgent agents = 1;
+// ListRealtimeAnalyticsAgentsResponse returns the list of RTA agents.
+message ListRealtimeAnalyticsAgentsResponse {
+  // List of RTA agents.
+  repeated RealtimeAnalyticsAgent agents = 1;
 }
 
 // ChangeRealtimeAnalyticsRequest contains parameters for enabling or disabling RTA.
@@ -52,10 +52,10 @@ message ChangeRealtimeAnalyticsResponse {
 // RealtimeAnalyticsService provides public API for managing Real-Time Analytics.
 service RealtimeAnalyticsService {
   // ListRunningRealtimeAgents returns the list of currently running RTA agents.
-  rpc ListRunningRealtimeAgents(ListRunningRealtimeAgentsRequest) returns (ListRunningRealtimeAgentsResponse) {
+  rpc ListRealtimeAnalyticsAgents(ListRealtimeAnalyticsAgentsRequest) returns (ListRealtimeAnalyticsAgentsResponse) {
     option (google.api.http) = {get: "/v1/realtimeanalytics/agents"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Running Real-Time Analytics Agents"
+      summary: "List Real-Time Analytics Agents"
       description: "Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information."
     };
   }

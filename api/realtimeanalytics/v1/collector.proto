@@ -15,8 +15,8 @@ message RealtimeAnalyticsMongoDBQueryData {
   string client = 3;
   // Indicates if the query is waiting for a lock.
   bool waiting_for_lock = 4;
-  // Indicates if an index was utilized in the query.
-  bool index_utilized = 5;
+  // Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
+  string index_utilized = 5;
 }
 
 // RealtimeAnalyticsQueryData represents a single real-time query data point.
