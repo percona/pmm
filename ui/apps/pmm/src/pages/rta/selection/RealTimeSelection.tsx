@@ -22,6 +22,7 @@ import { listServices } from 'api/services';
 import { ServiceType } from 'types/services.types';
 import { RealTimeSelectionForm } from './RealTimeSelectionForm';
 import { RealTimeSelectionEmptyState } from './RealTimeSelectionEmptyState';
+import { DOCS_URL, FORUM_URL, linkStyles } from './RealTimeSelection.constants';
 
 // Set to true to use mock data for development/testing
 // Set to false to use real MongoDB services from PMM
@@ -138,21 +139,7 @@ export const RealTimeSelection: FC = () => {
             Real-Time Query Analytics requires an active real-time agent session to collect data.
             Please contact a system administrator to start a session for you and check again.
           </Typography>
-          <Link
-            href="https://docs.percona.com/percona-monitoring-and-management/3/get-started/query-analytics.html"
-            target="_blank"
-            sx={(theme) => ({
-              fontFamily: 'Roboto, sans-serif',
-              fontSize: '14px',
-              fontWeight: 400,
-              lineHeight: 1.5,
-              color: theme.palette.info.light,
-              textDecoration: 'underline solid',
-              '&:hover': {
-                color: theme.palette.info.main,
-              },
-            })}
-          >
+          <Link href={DOCS_URL} target="_blank" sx={linkStyles}>
             {Messages.documentation}
           </Link>
         </Stack>
@@ -227,46 +214,10 @@ export const RealTimeSelection: FC = () => {
                 {Messages.mongoOnly}
               </Typography>
               <Stack direction="row" gap={2} justifyContent="center">
-                <Link
-                  href="https://docs.percona.com/percona-monitoring-and-management/3/get-started/query-analytics.html"
-                  target="_blank"
-                  sx={(theme) => ({
-                    fontFamily: 'Roboto, sans-serif',
-                    fontSize: '14px',
-                    fontWeight: 400,
-                    lineHeight: 1.5,
-                    color: theme.palette.info.light,
-                    textAlign: 'center',
-                    textDecoration: 'underline solid',
-                    textDecorationSkipInk: 'none',
-                    textUnderlinePosition: 'from-font',
-                    fontVariationSettings: "'wdth' 100",
-                    '&:hover': {
-                      color: theme.palette.info.main,
-                    },
-                  })}
-                >
+                <Link href={DOCS_URL} target="_blank" sx={linkStyles}>
                   {Messages.documentation}
                 </Link>
-                <Link
-                  href="https://forums.percona.com/c/percona-monitoring-and-management-pmm/percona-monitoring-and-management-pmm-v3"
-                  target="_blank"
-                  sx={(theme) => ({
-                    fontFamily: 'Roboto, sans-serif',
-                    fontSize: '14px',
-                    fontWeight: 400,
-                    lineHeight: 1.5,
-                    color: theme.palette.info.light,
-                    textAlign: 'center',
-                    textDecoration: 'underline solid',
-                    textDecorationSkipInk: 'none',
-                    textUnderlinePosition: 'from-font',
-                    fontVariationSettings: "'wdth' 100",
-                    '&:hover': {
-                      color: theme.palette.info.main,
-                    },
-                  })}
-                >
+                <Link href={FORUM_URL} target="_blank" sx={linkStyles}>
                   {Messages.feedback}
                 </Link>
               </Stack>
@@ -275,44 +226,45 @@ export const RealTimeSelection: FC = () => {
         )}
 
         {/* ========================================
-            TEMPORARY TEST BUTTONS - REMOVE IN PRODUCTION
+            DEV-ONLY TEST BUTTONS
             ========================================
-            These buttons are for testing purposes only.
-            To remove: Delete this entire Stack block (lines below)
-            To reuse elsewhere: Copy this Stack block to another component
+            These buttons are only visible in development mode for testing.
+            They will not appear in production builds.
         */}
-        <Stack direction="row" gap={2} sx={{ mt: 4 }}>
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            onClick={() => setModalOpen(true)}
-            sx={{
-              borderRadius: '4px',
-              textTransform: 'none',
-              fontFamily: 'Roboto, sans-serif',
-              fontSize: '14px',
-              fontWeight: 500,
-            }}
-          >
-            New session
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<StopIcon />}
-            onClick={() => stopAllMutation.mutate()}
-            disabled={stopAllMutation.isPending}
-            sx={{
-              borderRadius: '4px',
-              textTransform: 'none',
-              fontFamily: 'Roboto, sans-serif',
-              fontSize: '14px',
-              fontWeight: 500,
-            }}
-          >
-            {stopAllMutation.isPending ? 'Stopping...' : 'End All Sessions'}
-          </Button>
-        </Stack>
+        {import.meta.env.DEV && (
+          <Stack direction="row" gap={2} sx={{ mt: 4 }}>
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={() => setModalOpen(true)}
+              sx={{
+                borderRadius: '4px',
+                textTransform: 'none',
+                fontFamily: 'Roboto, sans-serif',
+                fontSize: '14px',
+                fontWeight: 500,
+              }}
+            >
+              New session
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<StopIcon />}
+              onClick={() => stopAllMutation.mutate()}
+              disabled={stopAllMutation.isPending}
+              sx={{
+                borderRadius: '4px',
+                textTransform: 'none',
+                fontFamily: 'Roboto, sans-serif',
+                fontSize: '14px',
+                fontWeight: 500,
+              }}
+            >
+              {stopAllMutation.isPending ? 'Stopping...' : 'End All Sessions'}
+            </Button>
+          </Stack>
+        )}
         {/* ======================================== */}
       </Stack>
 
@@ -415,46 +367,10 @@ export const RealTimeSelection: FC = () => {
               </Typography>
 
               <Stack direction="row" gap="16px" justifyContent="center">
-                <Link
-                  href="https://docs.percona.com/percona-monitoring-and-management/3/get-started/query-analytics.html"
-                  target="_blank"
-                  sx={(theme) => ({
-                    fontFamily: 'Roboto, sans-serif',
-                    fontSize: '14px',
-                    fontWeight: 400,
-                    lineHeight: 1.5,
-                    color: theme.palette.info.light,
-                    textAlign: 'center',
-                    textDecoration: 'underline solid',
-                    textDecorationSkipInk: 'none',
-                    textUnderlinePosition: 'from-font',
-                    fontVariationSettings: "'wdth' 100",
-                    '&:hover': {
-                      color: theme.palette.info.main,
-                    },
-                  })}
-                >
+                <Link href={DOCS_URL} target="_blank" sx={linkStyles}>
                   Documentation
                 </Link>
-                <Link
-                  href="https://forums.percona.com/c/percona-monitoring-and-management-pmm/percona-monitoring-and-management-pmm-v3"
-                  target="_blank"
-                  sx={(theme) => ({
-                    fontFamily: 'Roboto, sans-serif',
-                    fontSize: '14px',
-                    fontWeight: 400,
-                    lineHeight: 1.5,
-                    color: theme.palette.info.light,
-                    textAlign: 'center',
-                    textDecoration: 'underline solid',
-                    textDecorationSkipInk: 'none',
-                    textUnderlinePosition: 'from-font',
-                    fontVariationSettings: "'wdth' 100",
-                    '&:hover': {
-                      color: theme.palette.info.main,
-                    },
-                  })}
-                >
+                <Link href={FORUM_URL} target="_blank" sx={linkStyles}>
                   Provide feedback
                 </Link>
               </Stack>

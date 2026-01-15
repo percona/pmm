@@ -70,16 +70,14 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   });
 
   const serviceOptions = useMemo<ServiceOption[]>(() => {
-    let services: UniversalService[] = [];
+    // Determine services from new or legacy API format
+    const services: UniversalService[] = servicesData?.services
+      ? servicesData.services
+      : servicesData?.mongodb
+        ? (servicesData.mongodb as UniversalService[])
+        : [];
 
-    // Handle new API format (services array)
-    if (servicesData?.services) {
-      services = servicesData.services;
-    }
-    // Handle legacy format (mongodb array) - for backward compatibility
-    else if (servicesData?.mongodb) {
-      services = servicesData.mongodb as UniversalService[];
-    } else {
+    if (services.length === 0) {
       return [];
     }
 
@@ -101,7 +99,10 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         if (!clusterMap.has(service.cluster)) {
           clusterMap.set(service.cluster, []);
         }
-        clusterMap.get(service.cluster)!.push(service);
+        const clusterServices = clusterMap.get(service.cluster);
+        if (clusterServices) {
+          clusterServices.push(service);
+        }
       } else {
         standaloneServices.push(service);
       }
@@ -188,9 +189,12 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
     },
   });
 
-  const handleServiceChange = (_: unknown, value: ServiceOption[]) => {
+  const handleServiceChange = (
+    _event: React.SyntheticEvent,
+    value: ServiceOption[]
+  ) => {
     // Filter out cluster options - only keep real services
-    const servicesOnly = value.filter(option => option.type === 'service');
+    const servicesOnly = value.filter((option) => option.type === 'service');
     setSelectedServices(servicesOnly);
   };
 
@@ -267,7 +271,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
           <TextField
             {...params}
             label={selectedServices.length > 0 || isOpen ? 'Cluster/Service' : undefined}
-            placeholder={Messages.searchPlaceholder}
+            placeholder={selectedServices.length === 0 ? Messages.searchPlaceholder : ''}
             variant="outlined"
             InputProps={{
               ...params.InputProps,
