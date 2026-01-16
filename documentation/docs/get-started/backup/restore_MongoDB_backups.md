@@ -105,7 +105,7 @@ This opens the **Restore from backup** dialog, with the **Same service** option 
 
           `pbm restore --time="2022-11-23T19:40:26`
         
-      For more information, see the [Point-in-time Recovery topic in the PBM documentation](https://docs.percona.com/percona-backup-mongodb/usage/point-in-time-recovery.html).
+      For more information, see the [Point-in-time Recovery topic in the PBM documentation](https://docs.percona.com/percona-backup-mongodb/features/point-in-time-recovery.html).
 
 6. Check the progress of the restore operation, using one of the commands below:
 

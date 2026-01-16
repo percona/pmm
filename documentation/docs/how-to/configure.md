@@ -156,9 +156,9 @@ To reset a custom resolution, make an API call with "mr": "0s" (or "hr": "0s", "
 
 For more information on configuring per-service metrics resolution, see the following sections in the API documentation:
 
-- [Change Postgres Exporter](https://percona-pmm.readme.io/reference/changepostgresexporter)
-- [Change mysqld Exporter](https://percona-pmm.readme.io/reference/changemysqldexporter)
-- [Change MongoDB Exporter](https://percona-pmm.readme.io/reference/changemongodbexporter)
+- [Change Postgres Exporter](https://docs.percona.com/percona-monitoring-and-management/3/api/index.html#/agents/post_v1_inventory_Agents_ChangePostgresExporter)
+- [Change mysqld Exporter](https://docs.percona.com/percona-monitoring-and-management/3/api/index.html#/agents/post_v1_inventory_Agents_ChangeMySQLdExporter)
+- [Change MongoDB Exporter](https://docs.percona.com/percona-monitoring-and-management/3/api/index.html#/agents/post_v1_inventory_Agents_ChangeMongoDBExporter)
 
 ## Advanced settings
 
