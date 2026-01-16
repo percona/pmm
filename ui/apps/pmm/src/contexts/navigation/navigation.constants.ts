@@ -21,8 +21,11 @@ export const NAV_HOME_PAGE: NavItem = {
   id: 'home-page',
   icon: 'home',
   text: 'Home page',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
-  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`],
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
+  ],
 };
 
 //
