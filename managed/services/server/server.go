@@ -692,33 +692,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
-		if req.EnableInternalPgQan != nil { //nolint:nestif
-			if s.haService.Params().Enabled {
-				if *req.EnableInternalPgQan {
-					return status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
-				}
-
-				// If trying to disable in HA mode, it's already disabled, so just skip
-				disableInternalPgQan = true
-			} else {
-				internalQanAgent, err := s.getInternalPgQANAgent(tx.Querier)
-				if err != nil {
-					return fmt.Errorf("failed to get QAN agent: %w", err)
-				}
-				if internalQanAgent == nil {
-					return fmt.Errorf("internal QAN agent not found")
-				}
-
-				newAgent, err := models.ChangeAgent(tx.Querier, internalQanAgent.AgentID, &models.ChangeCommonAgentParams{
-					Enabled: req.EnableInternalPgQan,
-				})
-				if err != nil {
-					return fmt.Errorf("failed to change QAN agent state: %w", err)
-				}
-
-				disableInternalPgQan = newAgent.Disabled
-				s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
+		if req.EnableInternalPgQan != nil {
+			disabled, err := s.handleInternalQANToggle(ctx, tx.Querier, req.EnableInternalPgQan)
+			if err != nil {
+				return err
 			}
+			disableInternalPgQan = disabled
 		}
 
 		return nil
@@ -781,6 +760,35 @@ func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error)
 		return nil, fmt.Errorf("internal pgQAN agent not found")
 	}
 	return agents[0], nil
+}
+
+func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier, enableInternalPgQan *bool) (bool, error) {
+	if s.haService.Params().Enabled {
+		if *enableInternalPgQan {
+			return false, status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
+		}
+
+		// If trying to disable in HA mode, it's already disabled, so just skip
+		return true, nil
+	}
+
+	internalQanAgent, err := s.getInternalPgQANAgent(q)
+	if err != nil {
+		return false, fmt.Errorf("failed to get QAN agent: %w", err)
+	}
+	if internalQanAgent == nil {
+		return false, fmt.Errorf("internal QAN agent not found")
+	}
+
+	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeCommonAgentParams{
+		Enabled: enableInternalPgQan,
+	})
+	if err != nil {
+		return false, fmt.Errorf("failed to change QAN agent state: %w", err)
+	}
+
+	s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
+	return newAgent.Disabled, nil
 }
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
