@@ -57,6 +57,7 @@ const (
 	defaultLeaderLeaseTimeout = 500 * time.Millisecond
 	defaultSnapshotInterval   = 120 * time.Second
 	defaultServerOpTimeout    = 10 * time.Second
+	defaultDNSLookupTimeout   = 3 * time.Second
 )
 
 // Service represents the high-availability service.
@@ -507,7 +508,10 @@ func (s *Service) lookupFQDN(ctx context.Context, address string) string {
 		return address
 	}
 
-	names, err := net.DefaultResolver.LookupAddr(ctx, address)
+	lookupCtx, cancel := context.WithTimeout(ctx, defaultDNSLookupTimeout)
+	defer cancel()
+
+	names, err := net.DefaultResolver.LookupAddr(lookupCtx, address)
 	if err != nil || len(names) == 0 {
 		s.l.Warnf("Failed to lookup FQDN for %s, using IP: %s", address, err)
 		return address
