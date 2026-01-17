@@ -53,7 +53,7 @@ Shows how agent status has changed over the selected time range using a color-co
 
 Use this to identify patterns and troubleshoot intermittent issues. This historical view helps correlate backup failures with other events like network issues or maintenance windows, and verify that previously problematic agents have stabilized.
 
-Arbiter nodes will appear with a **FAIL** status. This is expected, as PBM agent is not required on arbiter nodes and cannot run on them.
+Arbiter nodes will appear with a **FAIL** status. This is expected, as the PBM agent is not required on arbiter nodes and cannot run on them.
 
 ## Backup History
 
