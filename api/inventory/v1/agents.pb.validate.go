@@ -1849,6 +1849,283 @@ var _ interface {
 	ErrorName() string
 } = QANMongoDBMongologAgentValidationError{}
 
+// Validate checks the field values on RTAOptions with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *RTAOptions) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RTAOptions with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in RTAOptionsMultiError, or
+// nil if none found.
+func (m *RTAOptions) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RTAOptions) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetCollectInterval()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RTAOptionsValidationError{
+					field:  "CollectInterval",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RTAOptionsValidationError{
+					field:  "CollectInterval",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCollectInterval()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RTAOptionsValidationError{
+				field:  "CollectInterval",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return RTAOptionsMultiError(errors)
+	}
+
+	return nil
+}
+
+// RTAOptionsMultiError is an error wrapping multiple validation errors
+// returned by RTAOptions.ValidateAll() if the designated constraints aren't met.
+type RTAOptionsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RTAOptionsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RTAOptionsMultiError) AllErrors() []error { return m }
+
+// RTAOptionsValidationError is the validation error returned by
+// RTAOptions.Validate if the designated constraints aren't met.
+type RTAOptionsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RTAOptionsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RTAOptionsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RTAOptionsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RTAOptionsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RTAOptionsValidationError) ErrorName() string { return "RTAOptionsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RTAOptionsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRTAOptions.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RTAOptionsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RTAOptionsValidationError{}
+
+// Validate checks the field values on RTAMongoDBAgent with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *RTAMongoDBAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RTAMongoDBAgent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RTAMongoDBAgentMultiError, or nil if none found.
+func (m *RTAMongoDBAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RTAMongoDBAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Username
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RTAMongoDBAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RTAMongoDBAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RTAMongoDBAgentValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return RTAMongoDBAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// RTAMongoDBAgentMultiError is an error wrapping multiple validation errors
+// returned by RTAMongoDBAgent.ValidateAll() if the designated constraints
+// aren't met.
+type RTAMongoDBAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RTAMongoDBAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RTAMongoDBAgentMultiError) AllErrors() []error { return m }
+
+// RTAMongoDBAgentValidationError is the validation error returned by
+// RTAMongoDBAgent.Validate if the designated constraints aren't met.
+type RTAMongoDBAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RTAMongoDBAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RTAMongoDBAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RTAMongoDBAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RTAMongoDBAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RTAMongoDBAgentValidationError) ErrorName() string { return "RTAMongoDBAgentValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RTAMongoDBAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRTAMongoDBAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RTAMongoDBAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RTAMongoDBAgentValidationError{}
+
 // Validate checks the field values on QANPostgreSQLPgStatementsAgent with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3487,6 +3764,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetRtaMongodbAgent() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaMongodbAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaMongodbAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("RtaMongodbAgent[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListAgentsResponseMultiError(errors)
 	}
@@ -4433,6 +4744,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_RtaMongodbAgent:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "RtaMongodbAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -5419,6 +5771,47 @@ func (m *AddAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentRequest_RtaMongodbAgent:
+		if v == nil {
+			err := AddAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentRequestValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -6174,6 +6567,47 @@ func (m *AddAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return AddAgentResponseValidationError{
 					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddAgentResponse_RtaMongodbAgent:
+		if v == nil {
+			err := AddAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentResponseValidationError{
+					field:  "RtaMongodbAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -6952,6 +7386,47 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentRequest_RtaMongodbAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -7709,6 +8184,47 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeAgentResponseValidationError{
 					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_RtaMongodbAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "RtaMongodbAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -12910,6 +13426,350 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeValkeyExporterParamsValidationError{}
+
+// Validate checks the field values on AddRTAMongoDBAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddRTAMongoDBAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddRTAMongoDBAgentParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddRTAMongoDBAgentParamsMultiError, or nil if none found.
+func (m *AddRTAMongoDBAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddRTAMongoDBAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddRTAMongoDBAgentParamsValidationError{
+			field:  "PmmAgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := AddRTAMongoDBAgentParamsValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for LogLevel
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for TlsCertificateKey
+
+	// no validation rules for TlsCertificateKeyFilePassword
+
+	// no validation rules for TlsCa
+
+	// no validation rules for SkipConnectionCheck
+
+	// no validation rules for AuthenticationMechanism
+
+	// no validation rules for AuthenticationDatabase
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AddRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AddRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AddRTAMongoDBAgentParamsValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AddRTAMongoDBAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddRTAMongoDBAgentParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRTAMongoDBAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddRTAMongoDBAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddRTAMongoDBAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddRTAMongoDBAgentParamsMultiError) AllErrors() []error { return m }
+
+// AddRTAMongoDBAgentParamsValidationError is the validation error returned by
+// AddRTAMongoDBAgentParams.Validate if the designated constraints aren't met.
+type AddRTAMongoDBAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddRTAMongoDBAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddRTAMongoDBAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddRTAMongoDBAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddRTAMongoDBAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddRTAMongoDBAgentParamsValidationError) ErrorName() string {
+	return "AddRTAMongoDBAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddRTAMongoDBAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddRTAMongoDBAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddRTAMongoDBAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddRTAMongoDBAgentParamsValidationError{}
+
+// Validate checks the field values on ChangeRTAMongoDBAgentParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeRTAMongoDBAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeRTAMongoDBAgentParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeRTAMongoDBAgentParamsMultiError, or nil if none found.
+func (m *ChangeRTAMongoDBAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeRTAMongoDBAgentParamsValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMongoDBAgentParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ChangeRTAMongoDBAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeRTAMongoDBAgentParamsMultiError is an error wrapping multiple
+// validation errors returned by ChangeRTAMongoDBAgentParams.ValidateAll() if
+// the designated constraints aren't met.
+type ChangeRTAMongoDBAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeRTAMongoDBAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeRTAMongoDBAgentParamsMultiError) AllErrors() []error { return m }
+
+// ChangeRTAMongoDBAgentParamsValidationError is the validation error returned
+// by ChangeRTAMongoDBAgentParams.Validate if the designated constraints
+// aren't met.
+type ChangeRTAMongoDBAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeRTAMongoDBAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeRTAMongoDBAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeRTAMongoDBAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeRTAMongoDBAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeRTAMongoDBAgentParamsValidationError) ErrorName() string {
+	return "ChangeRTAMongoDBAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeRTAMongoDBAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeRTAMongoDBAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeRTAMongoDBAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeRTAMongoDBAgentParamsValidationError{}
 
 // Validate checks the field values on RemoveAgentRequest with the rules
 // defined in the proto definition for this message. If any rules are
