@@ -153,6 +153,28 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			mongodb.QanMongodbMongolog = agent.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
 		}
 
+		if req.RtaMongodbAgent {
+			row, err = models.CreateAgent(tx.Querier, models.RTAMongoDBAgentType, &models.CreateAgentParams{
+				PMMAgentID:               req.PmmAgentId,
+				ServiceID:                service.ServiceID,
+				Username:                 req.Username,
+				Password:                 req.Password,
+				EnvironmentVariableNames: req.EnvironmentVariableNames,
+				TLS:                      req.Tls,
+				TLSSkipVerify:            req.TlsSkipVerify,
+				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
+				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			})
+			if err != nil {
+				return err
+			}
+
+			agent, err = services.ToAPIAgent(tx.Querier, row)
+			if err != nil {
+				return err
+			}
+			mongodb.RtaMongodbAgent = agent.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
+		}
 		return nil
 	}); e != nil {
 		return nil, e

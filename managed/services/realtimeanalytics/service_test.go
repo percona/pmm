@@ -219,7 +219,7 @@ func TestChangeRealtimeAnalytics(t *testing.T) {
 			ServiceId: "non-existent",
 		})
 		require.Error(t, err)
-		// CreateMongoDBRealtimeAgent validates the service exists, so we get NotFound
+		// CreateRTAMongoDBAgent validates the service exists, so we get NotFound
 		assert.Contains(t, err.Error(), "not found")
 	})
 

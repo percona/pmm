@@ -3,6 +3,7 @@ syntax = "proto3";
 package management.v1;
 
 import "google/protobuf/timestamp.proto";
+import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 
 message UniversalAgent {
@@ -139,6 +140,8 @@ message UniversalAgent {
   bool expose_exporter = 40;
   // Options for connecting to Valkey.
   ValkeyOptions valkey_options = 41;
+  // Real-time analytics options.
+  inventory.v1.RTAOptions rta_options = 42;
 }
 
 message ListAgentsRequest {
