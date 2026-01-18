@@ -828,9 +828,9 @@ func TestAgents(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedPMMAgent := &inventoryv1.RTAMongoDBAgent{
-			AgentId:      "00000000-0000-4000-8000-000000000010",
+			AgentId:    "00000000-0000-4000-8000-000000000010",
 			PmmAgentId: models.PMMServerAgentID,
-			RtaOptions:   &inventoryv1.RTAOptions{CollectInterval: durationpb.New(time.Second)},
+			RtaOptions: &inventoryv1.RTAOptions{CollectInterval: durationpb.New(time.Second)},
 		}
 		assert.Equal(t, expectedPMMAgent, actualAgent.GetPmmAgent())
 	})
