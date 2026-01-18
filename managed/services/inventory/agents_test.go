@@ -817,6 +817,23 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedExternalExporter, actualAgent)
 	})
+
+	t.Run("AddRTAMongoDBAgent", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000010").Return(false)
+		actualAgent, err := as.AddRTAMongoDBAgent(ctx, &inventoryv1.AddRTAMongoDBAgentParams{
+			PmmAgentId: models.PMMServerAgentID,
+		})
+		require.NoError(t, err)
+		expectedPMMAgent := &inventoryv1.RTAMongoDBAgent{
+			AgentId:      "00000000-0000-4000-8000-000000000010",
+			PmmAgentId: models.PMMServerAgentID,
+			RtaOptions:   &inventoryv1.RTAOptions{CollectInterval: durationpb.New(time.Second)},
+		}
+		assert.Equal(t, expectedPMMAgent, actualAgent.GetPmmAgent())
+	})
 }
 
 func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
