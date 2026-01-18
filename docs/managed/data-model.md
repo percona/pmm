@@ -299,6 +299,19 @@ Property names are shared between API calls, database columns, and label values 
 - `custom_labels` key/value pairs of custom assigned labels
 - `listen_port` (required). Listen port for scraping metrics.
 
+**RTAMongoDBAgent** runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.
+
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
+- `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
+- `service_id` (required) Service identifier.
+- `disabled` Desired Agent status: enabled (false) or disabled (true).
+- `username` MongoDB authentication user
+- `tls` Use TLS for database connections.
+- `tls_skip_verify` Skip TLS certificate and hostname validation.
+- `custom_labels` key/value pairs of custom assigned labels
+- `rta_options` Options related to Real-time Query Analytics (collect_interval, etc).
+- `status` (read only on responses) Actual agent status. See statuses list below.
+ 
 ### Valid Agent Statuses
 
 | Agent Status | Value |
@@ -339,6 +352,7 @@ As part of thetransition to UNKNOWN and DONE state we set listen_port to 0. It g
 | QANPostgreSQLPgStatementsAgent | GenericNode, ContainerNode |                                              | PostgreSQLService                   |
 | RDSExporter                    | GenericNode, ContainerNode | RemoteAmazonRDSNode                          | AmazonRDSMySQLService               |
 | ExternalExporter               | Any                        | any                                          | any                                 |
+| RTAMongoDBAgent        | GenericNode, ContainerNode |                                              | MongoDBService                      |
 
 ## Mapping to Prometheus Metrics
 
