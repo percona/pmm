@@ -162,8 +162,8 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				EnvironmentVariableNames: req.EnvironmentVariableNames,
 				TLS:                      req.Tls,
 				TLSSkipVerify:            req.TlsSkipVerify,
-				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
-				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+				MongoDBOptions:           models.MongoDBOptionsFromRequest(req),
+				LogLevel:                 services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
