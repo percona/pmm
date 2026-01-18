@@ -1456,7 +1456,7 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 }
 
 // AddRTAMongoDBAgent adds MongoDB Real-time analytics Agent.
-func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.AddRTAMongoDBAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
+func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.AddRTAMongoDBAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.RTAMongoDBAgent
 
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
