@@ -52,6 +52,7 @@ var acceptableAgentTypes = map[string][]string{
 	types.AgentTypeQANPostgreSQLPgStatementsAgent:  {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatementsAgent), "qan-postgresql-pgstatements-agent"},
 	types.AgentTypeQANPostgreSQLPgStatMonitorAgent: {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatMonitorAgent), "qan-postgresql-pgstatmonitor-agent"},
 	types.AgentTypeRDSExporter:                     {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},
+	types.AgentTypeRTAMongoDBAgent:                 {types.AgentTypeName(types.AgentTypeRTAMongoDBAgent), "rta-mongodb-agent"},
 }
 
 type listResultAgent struct {

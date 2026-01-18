@@ -20,6 +20,8 @@ import (
 	"context"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -112,53 +114,53 @@ func (s *Service) ListRealtimeAnalyticsAgents(_ context.Context, req *rtav1.List
 
 // ChangeRealtimeAnalytics enables or disables RTA for a service (gRPC handler).
 func (s *Service) ChangeRealtimeAnalytics(_ context.Context, req *rtav1.ChangeRealtimeAnalyticsRequest) (*rtav1.ChangeRealtimeAnalyticsResponse, error) {
-	// err := s.db.InTransaction(func(tx *reform.TX) error {
-	// 	// Find existing RTA agents for this service
-	// 	agentType := models.RTAMongoDBAgentType
-	// 	existingAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{
-	// 		ServiceID: req.ServiceId,
-	// 		AgentType: &agentType,
-	// 	})
-	// 	if err != nil {
-	// 		return status.Errorf(codes.Internal, "Failed to find RTA agents for service %s: %v", req.ServiceId, err)
-	// 	}
-	//
-	// 	if len(existingAgents) != 0 {
-	// 		// Agent exists - update its state
-	// 		agent := existingAgents[0]
-	// 		agent.Disabled = !req.Enable
-	//
-	// 		// if req.Enable {
-	// 		// 	// Set EnabledAt when enabling
-	// 		// 	now := time.Now()
-	// 		// 	agent.RTAOptions.EnabledAt = &now
-	// 		// } else {
-	// 		// 	// Clear EnabledAt when disabling
-	// 		// 	// agent.RTAOptions.EnabledAt = nil
-	// 		//
-	// 		// 	// TODO: Remove RTA agent from pmm-agent when disabling
-	// 		// 	// Clear query data from store when disabling
-	// 		// 	s.store.Clear(req.ServiceId)
-	// 		// }
-	//
-	// 		if err := tx.Update(agent); err != nil {
-	// 			return status.Errorf(codes.Internal, "Failed to update RTA agent %s: %v", agent.AgentID, err)
-	// 		}
-	// 	} else if req.Enable {
-	// 		// Agent doesn't exist - create it with appropriate state
-	// 		// CreateRTAMongoDBAgent will validate service type and find pmm-agent
-	// 		_, err = models.CreateRTAMongoDBAgent(tx.Querier, req.ServiceId, nil, !req.Enable)
-	// 		if err != nil {
-	// 			return status.Errorf(codes.Internal, "Failed to create RTA agent for service %s: %v", req.ServiceId, err)
-	// 		}
-	// 	}
-	// 	// TODO: send set state request to pmm-agent
-	//
-	// 	return nil
-	// })
-	// if err != nil {
-	// 	return nil, err
-	// }
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		// Find existing RTA agents for this service
+		agentType := models.RTAMongoDBAgentType
+		existingAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{
+			ServiceID: req.ServiceId,
+			AgentType: &agentType,
+		})
+		if err != nil {
+			return status.Errorf(codes.Internal, "Failed to find RTA agents for service %s: %v", req.ServiceId, err)
+		}
+
+		if len(existingAgents) != 0 {
+			// Agent exists - update its state
+			agent := existingAgents[0]
+			agent.Disabled = !req.Enable
+
+			// if req.Enable {
+			// 	// Set EnabledAt when enabling
+			// 	now := time.Now()
+			// 	agent.RTAOptions.EnabledAt = &now
+			// } else {
+			// 	// Clear EnabledAt when disabling
+			// 	// agent.RTAOptions.EnabledAt = nil
+			//
+			// 	// TODO: Remove RTA agent from pmm-agent when disabling
+			// 	// Clear query data from store when disabling
+			// 	s.store.Clear(req.ServiceId)
+			// }
+
+			if err := tx.Update(agent); err != nil {
+				return status.Errorf(codes.Internal, "Failed to update RTA agent %s: %v", agent.AgentID, err)
+			}
+		} else if req.Enable {
+			// Agent doesn't exist - create it with appropriate state
+			// CreateRTAMongoDBAgent will validate service type and find pmm-agent
+			_, err = models.CreateRTAMongoDBAgent(tx.Querier, req.ServiceId, nil, !req.Enable)
+			if err != nil {
+				return status.Errorf(codes.Internal, "Failed to create RTA agent for service %s: %v", req.ServiceId, err)
+			}
+		}
+		// TODO: send set state request to pmm-agent
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &rtav1.ChangeRealtimeAnalyticsResponse{}, nil
 }
