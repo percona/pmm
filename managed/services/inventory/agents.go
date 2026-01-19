@@ -1490,6 +1490,10 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
+
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
 		}
 
 		aa, err := services.ToAPIAgent(tx.Querier, row)

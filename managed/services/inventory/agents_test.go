@@ -819,20 +819,68 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("AddRTAMongoDBAgent", func(t *testing.T) {
-		_, as, _, teardown, ctx, _ := setup(t)
+		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000010").Return(false)
-		actualAgent, err := as.AddRTAMongoDBAgent(ctx, &inventoryv1.AddRTAMongoDBAgentParams{
-			PmmAgentId: models.PMMServerAgentID,
+		as.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)
+		actualAgents, err := as.List(ctx, models.AgentFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualAgents, 4) // PMM Server's pmm-agent, node_exporter, postgres_exporter, PostgreSQL QAN
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
+		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+
+		// Add PMM Agent
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
-		expectedPMMAgent := &inventoryv1.RTAMongoDBAgent{
-			AgentId:    "00000000-0000-4000-8000-000000000010",
-			PmmAgentId: models.PMMServerAgentID,
-			RtaOptions: &inventoryv1.RTAOptions{CollectInterval: durationpb.New(time.Second)},
+		expectedPMMAgent := &inventoryv1.PMMAgent{
+			AgentId:      "00000000-0000-4000-8000-000000000005",
+			RunsOnNodeId: models.PMMServerNodeID,
+			Connected:    true,
 		}
-		assert.Equal(t, expectedPMMAgent, actualAgent.GetPmmAgent())
+		assert.Equal(t, expectedPMMAgent, pmmAgent.GetPmmAgent())
+
+		// Add MongoDB Service
+		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mongo-rta",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+		})
+		require.NoError(t, err)
+
+		// Add RTA MongoDB Agent
+		actualAgent, err := as.AddRTAMongoDBAgent(ctx, &inventoryv1.AddRTAMongoDBAgentParams{
+			PmmAgentId: pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:  ms.ServiceId,
+			Username:   "username",
+			RtaOptions: &inventoryv1.RTAOptions{
+				CollectInterval: durationpb.New(3 * time.Second),
+			},
+		})
+		require.NoError(t, err)
+
+		expectedRTAMongoDBAgent := &inventoryv1.RTAMongoDBAgent{
+			AgentId:    "00000000-0000-4000-8000-000000000007",
+			PmmAgentId: pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:  ms.ServiceId,
+			Username:   "username",
+			Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+			RtaOptions: &inventoryv1.RTAOptions{
+				CollectInterval: durationpb.New(3 * time.Second),
+			},
+		}
+		assert.Equal(t, expectedRTAMongoDBAgent, actualAgent.GetRtaMongodbAgent())
 	})
 }
 

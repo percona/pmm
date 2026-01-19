@@ -921,21 +921,18 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 
 	row := &Agent{
-		AgentID:         id,
-		AgentType:       agentType,
-		PMMAgentID:      &params.PMMAgentID,
-		ServiceID:       pointer.ToStringOrNil(params.ServiceID),
-		NodeID:          pointer.ToStringOrNil(params.NodeID),
-		Username:        pointer.ToStringOrNil(params.Username),
-		Password:        pointer.ToStringOrNil(params.Password),
-		AgentPassword:   pointer.ToStringOrNil(params.AgentPassword),
-		TLS:             params.TLS,
-		TLSSkipVerify:   params.TLSSkipVerify,
-		ExporterOptions: params.ExporterOptions,
-		QANOptions:      params.QANOptions,
-		RTAOptions: RTAOptions{
-			CollectInterval: pointer.To(1 * time.Second), // default value
-		},
+		AgentID:           id,
+		AgentType:         agentType,
+		PMMAgentID:        &params.PMMAgentID,
+		ServiceID:         pointer.ToStringOrNil(params.ServiceID),
+		NodeID:            pointer.ToStringOrNil(params.NodeID),
+		Username:          pointer.ToStringOrNil(params.Username),
+		Password:          pointer.ToStringOrNil(params.Password),
+		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
+		TLS:               params.TLS,
+		TLSSkipVerify:     params.TLSSkipVerify,
+		ExporterOptions:   params.ExporterOptions,
+		QANOptions:        params.QANOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
 		MongoDBOptions:    params.MongoDBOptions,
@@ -945,6 +942,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 		Disabled:          params.Disabled,
 	}
+
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
@@ -952,8 +950,17 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
-	// RTA options
-	row.RTAOptions.Merge(&params.RTAOptions)
+	switch agentType {
+	// For the time being only RTA MangoDB Agent has RTA options.
+	case RTAMongoDBAgentType:
+		row.RTAOptions = RTAOptions{
+			CollectInterval: pointer.To(1 * time.Second), // default value
+		}
+		// RTA options
+		row.RTAOptions.Merge(&params.RTAOptions)
+	default:
+		// do nothing
+	}
 
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
 	if err := q.Insert(&encryptedAgent); err != nil {
