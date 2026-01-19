@@ -77,14 +77,13 @@ export const RealTimeSelection: FC = () => {
   });
 
   // Check if all services are running (no available services to start)
-  const runningServiceIds = new Set(
-    runningAgentsData?.agents?.map((agent) => agent.serviceId) || []
-  );
+  const runningServiceIds =
+    runningAgentsData?.agents?.map((agent) => agent.serviceId) ?? [];
 
   const filteredServices =
     servicesData?.services?.filter(
-      (service) => !runningServiceIds.has(service.serviceId)
-    ) || [];
+      (service) => !runningServiceIds.includes(service.serviceId)
+    ) ?? [];
 
   const allServicesRunning =
     !isLoadingServices &&
@@ -102,7 +101,7 @@ export const RealTimeSelection: FC = () => {
   // Viewer with no running agents - show special empty state
   if (showViewerEmptyState) {
     return (
-      <Page footer={<></>}>
+      <Page footer={null}>
         <Stack
           gap={3}
           sx={{
@@ -148,7 +147,7 @@ export const RealTimeSelection: FC = () => {
   }
 
   return (
-    <Page footer={<></>}>
+    <Page footer={null}>
       <Stack
         gap={4}
         sx={{

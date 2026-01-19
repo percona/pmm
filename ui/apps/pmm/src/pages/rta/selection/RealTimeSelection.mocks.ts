@@ -1,14 +1,14 @@
-import { UniversalService } from 'types/services.types';
+import { ServiceType, UniversalService } from 'types/services.types';
 
 // Mock data matching Figma design for Real-Time Query Analytics selection page
 export const mockMongoDBServices: UniversalService[] = [
   // Standalone Services (no cluster)
   {
-    serviceId: '/service_id/accounting-prod-rs',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'accounting-prod-rs',
+    serviceType: ServiceType.mongodb,
     serviceName: 'accounting-prod-rs',
     databaseName: '',
-    nodeId: '/node_id/node1',
+    nodeId: 'node1',
     nodeName: 'node1',
     environment: 'production',
     cluster: '',
@@ -22,11 +22,11 @@ export const mockMongoDBServices: UniversalService[] = [
     status: 'STATUS_UP',
   },
   {
-    serviceId: '/service_id/billing-service',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'billing-service',
+    serviceType: ServiceType.mongodb,
     serviceName: 'billing-service',
     databaseName: '',
-    nodeId: '/node_id/node2',
+    nodeId: 'node2',
     nodeName: 'node2',
     environment: 'production',
     cluster: '',
@@ -42,11 +42,11 @@ export const mockMongoDBServices: UniversalService[] = [
 
   // Cluster: mc-ga (matching Figma design)
   {
-    serviceId: '/service_id/mc-ga-config-01',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'mc-ga-config-01',
+    serviceType: ServiceType.mongodb,
     serviceName: 'mc-ga-config-01',
     databaseName: '',
-    nodeId: '/node_id/node3',
+    nodeId: 'node3',
     nodeName: 'node3',
     environment: 'production',
     cluster: 'mc-ga',
@@ -60,11 +60,11 @@ export const mockMongoDBServices: UniversalService[] = [
     status: 'STATUS_UP',
   },
   {
-    serviceId: '/service_id/mc-ga-config-02',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'mc-ga-config-02',
+    serviceType: ServiceType.mongodb,
     serviceName: 'mc-ga-config-02',
     databaseName: '',
-    nodeId: '/node_id/node4',
+    nodeId: 'node4',
     nodeName: 'node4',
     environment: 'production',
     cluster: 'mc-ga',
@@ -78,11 +78,11 @@ export const mockMongoDBServices: UniversalService[] = [
     status: 'STATUS_UP',
   },
   {
-    serviceId: '/service_id/mc-ga-router-01',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'mc-ga-router-01',
+    serviceType: ServiceType.mongodb,
     serviceName: 'mc-ga-router-01',
     databaseName: '',
-    nodeId: '/node_id/node5',
+    nodeId: 'node5',
     nodeName: 'node5',
     environment: 'production',
     cluster: 'mc-ga',
@@ -96,11 +96,11 @@ export const mockMongoDBServices: UniversalService[] = [
     status: 'STATUS_UP',
   },
   {
-    serviceId: '/service_id/mc-ga-router-02',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'mc-ga-router-02',
+    serviceType: ServiceType.mongodb,
     serviceName: 'mc-ga-router-02',
     databaseName: '',
-    nodeId: '/node_id/node6',
+    nodeId: 'node6',
     nodeName: 'node6',
     environment: 'production',
     cluster: 'mc-ga',
@@ -116,11 +116,11 @@ export const mockMongoDBServices: UniversalService[] = [
 
   // Additional services for testing (mixed statuses)
   {
-    serviceId: '/service_id/analytics-cache',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'analytics-cache',
+    serviceType: ServiceType.mongodb,
     serviceName: 'analytics-cache',
     databaseName: '',
-    nodeId: '/node_id/node7',
+    nodeId: 'node7',
     nodeName: 'node7',
     environment: 'staging',
     cluster: '',
@@ -134,11 +134,11 @@ export const mockMongoDBServices: UniversalService[] = [
     status: 'STATUS_DOWN',
   },
   {
-    serviceId: '/service_id/dev-cluster-primary',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'dev-cluster-primary',
+    serviceType: ServiceType.mongodb,
     serviceName: 'dev-cluster-primary',
     databaseName: '',
-    nodeId: '/node_id/node8',
+    nodeId: 'node8',
     nodeName: 'node8',
     environment: 'development',
     cluster: 'dev-cluster',
@@ -152,11 +152,11 @@ export const mockMongoDBServices: UniversalService[] = [
     status: 'STATUS_UP',
   },
   {
-    serviceId: '/service_id/dev-cluster-secondary',
-    serviceType: 'SERVICE_TYPE_MONGODB_SERVICE',
+    serviceId: 'dev-cluster-secondary',
+    serviceType: ServiceType.mongodb,
     serviceName: 'dev-cluster-secondary',
     databaseName: '',
-    nodeId: '/node_id/node9',
+    nodeId: 'node9',
     nodeName: 'node9',
     environment: 'development',
     cluster: 'dev-cluster',
