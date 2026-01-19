@@ -428,8 +428,9 @@ func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 }
 
 // reconcileRaftWithMemberlist ensures Raft cluster configuration matches memberlist membership.
-// This is called when a node becomes leader to handle any missed NodeJoin/NodeLeave events
-// and to clean up stale nodes that may have been removed while no leader was available.
+// This method is invoked when a node becomes the Raft leader. It reconciles
+// any missed NodeJoin/NodeLeave events and removes stale Raft members that
+// may have accumulated while no leader was available.
 func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
