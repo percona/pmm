@@ -434,7 +434,7 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
-	// Get current Raft configuration
+	// Fetch the current Raft cluster configuration.
 	configFuture := s.raftNode.GetConfiguration()
 	if err := configFuture.Error(); err != nil {
 		s.l.Errorf("failed to get raft configuration for reconciliation: %v", err)
