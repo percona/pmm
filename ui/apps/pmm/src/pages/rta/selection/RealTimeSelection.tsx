@@ -1,14 +1,12 @@
 import { FC, useState } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Link,
-  Stack,
-  Typography,
-} from '@mui/material';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import StopIcon from '@mui/icons-material/Stop';
@@ -22,6 +20,7 @@ import { listServices } from 'api/services';
 import { ServiceType } from 'types/services.types';
 import { RealTimeSelectionForm } from './RealTimeSelectionForm';
 import { RealTimeSelectionEmptyState } from './RealTimeSelectionEmptyState';
+import { RealTimeSelectionViewerEmptyState } from './RealTimeSelectionViewerEmptyState';
 import { DOCS_URL, FORUM_URL, linkStyles } from './RealTimeSelection.constants';
 
 // Set to true to use mock data for development/testing
@@ -100,50 +99,7 @@ export const RealTimeSelection: FC = () => {
 
   // Viewer with no running agents - show special empty state
   if (showViewerEmptyState) {
-    return (
-      <Page footer={null}>
-        <Stack
-          gap={3}
-          sx={{
-            maxWidth: 392,
-            mx: 'auto',
-            py: 6,
-            px: 2,
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              fontFamily: 'Poppins, sans-serif',
-              fontWeight: 600,
-              fontSize: '18px',
-              lineHeight: 1.3,
-            }}
-          >
-            No active sessions now...
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{
-              fontFamily: 'Roboto, sans-serif',
-              fontWeight: 400,
-              fontSize: '16px',
-              lineHeight: 1.5,
-              maxWidth: 360,
-            }}
-          >
-            Real-Time Query Analytics requires an active real-time agent session to collect data.
-            Please contact a system administrator to start a session for you and check again.
-          </Typography>
-          <Link href={DOCS_URL} target="_blank" sx={linkStyles}>
-            {Messages.documentation}
-          </Link>
-        </Stack>
-      </Page>
-    );
+    return <RealTimeSelectionViewerEmptyState />;
   }
 
   return (
