@@ -701,6 +701,18 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for MWalBytesCnt
 
+	// no validation rules for MWalBuffersFullSum
+
+	// no validation rules for MWalBuffersFullCnt
+
+	// no validation rules for MParallelWorkersToLaunchSum
+
+	// no validation rules for MParallelWorkersToLaunchCnt
+
+	// no validation rules for MParallelWorkersLaunchedSum
+
+	// no validation rules for MParallelWorkersLaunchedCnt
+
 	// no validation rules for MPlanTimeSum
 
 	// no validation rules for MPlanTimeCnt

@@ -601,6 +601,14 @@
                           }
                         },
                         "x-order": 18
+                      },
+                      "environment_variable_names": {
+                        "description": "Environment variable names passed to the exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 19
                       }
                     }
                   },
@@ -2417,6 +2425,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 20
                     }
                   },
                   "x-order": 3
@@ -3980,6 +3996,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -5918,6 +5942,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 4
@@ -8669,6 +8701,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 2
@@ -10346,6 +10386,11 @@
                           "type": "string"
                         },
                         "x-order": 8
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
@@ -10409,6 +10454,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 10
                       }
                     }
                   },
@@ -10895,6 +10945,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -10955,6 +11010,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -11210,6 +11270,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -11270,6 +11335,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1

@@ -18,6 +18,7 @@ package models
 import (
 	"bytes"
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"maps"
 	"net"
@@ -82,7 +83,12 @@ const (
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
-const PMMServerAgentID = string("pmm-server") // a special ID, reserved for PMM Server
+// It takes the value of "pmm-server" in regular non-HA setups, while in Active/Active HA setups
+// it is set to the actual pmm-agent's Agent ID, which is a UUID.
+var PMMServerAgentID = string("pmm-server")
+
+// AgentConfigFilePath is the default path to pmm-agent config file; it changes to /srv in HA setups.
+var AgentConfigFilePath = "/usr/local/percona/pmm/config/pmm-agent.yaml"
 
 // ExporterOptions represents structure for special Exporter options.
 type ExporterOptions struct {
@@ -295,21 +301,23 @@ func (c ValkeyOptions) IsEmpty() bool {
 //
 //reform:agents
 type Agent struct {
-	AgentID      string    `reform:"agent_id,pk"`
-	AgentType    AgentType `reform:"agent_type"`
-	RunsOnNodeID *string   `reform:"runs_on_node_id"`
-	ServiceID    *string   `reform:"service_id"`
-	NodeID       *string   `reform:"node_id"`
-	PMMAgentID   *string   `reform:"pmm_agent_id"`
-	CustomLabels []byte    `reform:"custom_labels"`
-	CreatedAt    time.Time `reform:"created_at"`
-	UpdatedAt    time.Time `reform:"updated_at"`
+	AgentID              string    `reform:"agent_id,pk"`
+	AgentType            AgentType `reform:"agent_type"`
+	RunsOnNodeID         *string   `reform:"runs_on_node_id"`
+	ServiceID            *string   `reform:"service_id"`
+	NodeID               *string   `reform:"node_id"`
+	PMMAgentID           *string   `reform:"pmm_agent_id"`
+	CustomLabels         []byte    `reform:"custom_labels"`
+	EnvironmentVariables []byte    `reform:"environment_variables"`
+	CreatedAt            time.Time `reform:"created_at"`
+	UpdatedAt            time.Time `reform:"updated_at"`
 
 	Disabled        bool    `reform:"disabled"`
 	Status          string  `reform:"status"`
 	ListenPort      *uint16 `reform:"listen_port"`
 	Version         *string `reform:"version"`
 	ProcessExecPath *string `reform:"process_exec_path"`
+	IsConnected     bool    `reform:"is_connected"`
 
 	Username      *string `reform:"username"`
 	Password      *string `reform:"password"`
@@ -338,6 +346,9 @@ func (s *Agent) BeforeInsert() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
+	if len(s.EnvironmentVariables) == 0 {
+		s.EnvironmentVariables = nil
+	}
 	if s.Status == "" && s.AgentType != ExternalExporterType && s.AgentType != PMMAgentType {
 		s.Status = AgentStatusUnknown
 	}
@@ -353,6 +364,9 @@ func (s *Agent) BeforeUpdate() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
+	if len(s.EnvironmentVariables) == 0 {
+		s.EnvironmentVariables = nil
+	}
 	if s.Disabled {
 		s.Status = agentStatusDone
 	}
@@ -366,6 +380,9 @@ func (s *Agent) AfterFind() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
+	if len(s.EnvironmentVariables) == 0 {
+		s.EnvironmentVariables = nil
+	}
 	return nil
 }
 
@@ -377,6 +394,34 @@ func (s *Agent) GetCustomLabels() (map[string]string, error) {
 // SetCustomLabels encodes custom labels.
 func (s *Agent) SetCustomLabels(m map[string]string) error {
 	return setLabels(m, &s.CustomLabels)
+}
+
+// GetEnvironmentVariableNames decodes shared environment variable names.
+func (s *Agent) GetEnvironmentVariableNames() ([]string, error) {
+	if s.EnvironmentVariables == nil {
+		return nil, nil
+	}
+
+	var names []string
+	if err := json.Unmarshal(s.EnvironmentVariables, &names); err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
+	}
+	return names, nil
+}
+
+// SetEnvironmentVariableNames encodes shared environment variable names.
+func (s *Agent) SetEnvironmentVariableNames(names []string) error {
+	if len(names) == 0 {
+		s.EnvironmentVariables = nil
+		return nil
+	}
+
+	b, err := json.Marshal(names)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal shared environment variable names")
+	}
+	s.EnvironmentVariables = b
+	return nil
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.

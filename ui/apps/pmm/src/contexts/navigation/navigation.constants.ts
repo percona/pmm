@@ -2,18 +2,18 @@ import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { NavItem } from 'types/navigation.types';
 
-export const NAV_DIVIDERS = {
+export const NAV_DIVIDERS: Record<'home' | 'inventory' | 'backups', NavItem> = {
   home: {
     id: 'home-divider',
-    isDivider: true,
+    type: 'menu-divider',
   },
   inventory: {
     id: 'inventory-divider',
-    isDivider: true,
+    type: 'menu-divider',
   },
   backups: {
     id: 'backups-divider',
-    isDivider: true,
+    type: 'menu-divider',
   },
 };
 
@@ -22,13 +22,7 @@ export const NAV_HOME_PAGE: NavItem = {
   icon: 'home',
   text: 'Home page',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
-  children: [
-    {
-      id: 'home-page-dashboard',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
-      hidden: true,
-    },
-  ],
+  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`],
 };
 
 //
@@ -55,7 +49,7 @@ export const NAV_MYSQL: NavItem = {
     {
       id: 'mysql-high-availability',
       icon: 'high-availability',
-      text: 'High Availability',
+      text: 'High availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-group-replicaset-summary`,
       children: [
         {
@@ -208,7 +202,7 @@ export const NAV_POSTGRESQL: NavItem = {
     },
     {
       id: 'postgresql-ha',
-      text: 'High Availability',
+      text: 'High availability',
       icon: 'high-availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-replication-overview`,
       children: [
@@ -469,7 +463,7 @@ export const NAV_EXPLORE: NavItem = {
 //
 export const NAV_ALERTS_TEMPLATES: NavItem = {
   id: 'alerts-templates',
-  text: 'Percona Alert Templates',
+  text: 'Alert templates',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template/*`],
 };
@@ -533,13 +527,13 @@ export const NAV_ALERTS: NavItem = {
 export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
   icon: 'intelligence',
-  text: 'Percona Advisors',
+  text: 'Advisors',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
-  text: 'Advisor Insights',
+  text: 'Advisor insights',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
 };
 
@@ -555,15 +549,8 @@ export const NAV_INVENTORY: NavItem = {
     {
       id: 'add-instance',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
-      text: 'Add Service',
-      children: [
-        {
-          id: 'add-instance-form',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`,
-          text: 'Add Service',
-          hidden: true,
-        },
-      ],
+      text: 'Add service',
+      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`],
     },
     {
       id: 'inventory-services',
@@ -593,14 +580,7 @@ export const NAV_BACKUPS: NavItem = {
       id: 'backup-inventory',
       text: 'All backups',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-      children: [
-        {
-          id: 'backups-new',
-          text: 'Create backup',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`,
-          hidden: true,
-        },
-      ],
+      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`],
     },
     {
       id: 'scheduled-backups',
@@ -741,7 +721,7 @@ export const NAV_CHANGE_PASSWORD: NavItem = {
 
 export const NAV_THEME_TOGGLE: NavItem = {
   id: 'theme-toggle',
-  text: 'Change to Dark Theme',
+  text: 'Switch to dark mode',
 };
 
 export const NAV_SIGN_OUT: NavItem = {
@@ -783,4 +763,27 @@ export const NAV_FOLDER_MAP: Record<string, string> = {
 export const NAV_OTHER_DASHBOARDS_TEMPLATE: Partial<NavItem> = {
   icon: 'search',
   text: 'Other dashboards',
+};
+
+/*
+ * High Availability
+ */
+export const NAV_HIGH_AVAILABILITY: NavItem = {
+  id: 'high-availability',
+  icon: 'cluster',
+  text: 'PMM HA',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability`,
+};
+
+export const NAV_HIGH_AVAILABILITY_LEADER: NavItem = {
+  id: 'high-availability-leader',
+  text: 'Leader:',
+  type: 'menu-text',
+};
+
+export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
+  id: 'high-availability-nodes',
+  icon: 'arrow-link',
+  text: 'Identify Nodes',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
 };
