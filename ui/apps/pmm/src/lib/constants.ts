@@ -2,7 +2,8 @@ import { AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
 import { ServiceType } from 'types/services.types';
 
 export const PMM_TITLE = 'Percona Monitoring and Management';
-export const PMM_NEW_NAV_PATH = '/next';
+// todo: remove completely in a follow up to reduce current scope
+export const PMM_NEW_NAV_PATH = '';
 export const GRAFANA_SUB_PATH = '/graph';
 export const PMM_BASE_PATH = `/pmm-ui${PMM_NEW_NAV_PATH}`;
 export const PMM_NEW_NAV_GRAFANA_PATH = `${PMM_NEW_NAV_PATH}${GRAFANA_SUB_PATH}`;

@@ -49,7 +49,7 @@ export const NAV_MYSQL: NavItem = {
     {
       id: 'mysql-high-availability',
       icon: 'high-availability',
-      text: 'High Availability',
+      text: 'High availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-group-replicaset-summary`,
       children: [
         {
@@ -207,7 +207,7 @@ export const NAV_POSTGRESQL: NavItem = {
     },
     {
       id: 'postgresql-ha',
-      text: 'High Availability',
+      text: 'High availability',
       icon: 'high-availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-replication-overview`,
       children: [
@@ -468,7 +468,7 @@ export const NAV_EXPLORE: NavItem = {
 //
 export const NAV_ALERTS_TEMPLATES: NavItem = {
   id: 'alerts-templates',
-  text: 'Percona Alert Templates',
+  text: 'Alert templates',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template/*`],
 };
@@ -532,13 +532,13 @@ export const NAV_ALERTS: NavItem = {
 export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
   icon: 'intelligence',
-  text: 'Percona Advisors',
+  text: 'Advisors',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
-  text: 'Advisor Insights',
+  text: 'Advisor insights',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
 };
 
@@ -554,7 +554,7 @@ export const NAV_INVENTORY: NavItem = {
     {
       id: 'add-instance',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
-      text: 'Add Service',
+      text: 'Add service',
       matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`],
     },
     {
@@ -726,7 +726,7 @@ export const NAV_CHANGE_PASSWORD: NavItem = {
 
 export const NAV_THEME_TOGGLE: NavItem = {
   id: 'theme-toggle',
-  text: 'Change to Dark Theme',
+  text: 'Switch to dark mode',
 };
 
 export const NAV_SIGN_OUT: NavItem = {
