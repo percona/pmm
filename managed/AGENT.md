@@ -114,6 +114,7 @@ Multiple code generation tools are used:
 - Don't commit test binaries or test artifacts (add to `.gitignore` if needed)
 - Don't comment on every single line of code unnecessarily, only where clarity is needed
 - Don't inline comments (i.e. `code // comment`), always put comments on separate lines
+- Don't use named return values in functions
 
 ### Error Handling
 - Use `status.Error()` for gRPC errors with proper codes
