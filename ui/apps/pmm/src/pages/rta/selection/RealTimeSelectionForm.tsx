@@ -10,8 +10,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
+import { useRunningRealtimeAgents, REALTIME_AGENTS_QUERY_KEY } from 'hooks/api/useRealtime';
 import { Messages } from './RealTimeSelection.messages';
-import { changeRealtimeAnalytics, listRunningRealtimeAgents } from 'api/realtime';
+import { changeRealtimeAnalytics } from 'api/realtime';
 import { listServices } from 'api/services';
 import { ServiceType, UniversalService, ListServicesResponse } from 'types/services.types';
 import { mockMongoDBServices } from './RealTimeSelection.mocks';
@@ -61,11 +62,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   });
 
   // Fetch running agents to filter out services with active RTA
-  const { data: runningAgentsData, isLoading: isLoadingAgents } = useQuery({
-    queryKey: ['runningRealtimeAgents'],
-    queryFn: () => listRunningRealtimeAgents(),
-    // Always fetch to filter out running services from dropdown
-  });
+  const { data: runningAgentsData, isLoading: isLoadingAgents } = useRunningRealtimeAgents();
 
   const serviceOptions = useMemo<ServiceOption[]>(() => {
     // Determine services from new or legacy API format
@@ -177,7 +174,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
       enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
       setSelectedServices([]);
       // Invalidate running agents cache to update dropdown
-      queryClient.invalidateQueries({ queryKey: ['runningRealtimeAgents'] });
+      queryClient.invalidateQueries({ queryKey: [REALTIME_AGENTS_QUERY_KEY] });
       onSuccess?.();
     },
     onError: (error) => {

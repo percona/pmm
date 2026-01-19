@@ -10,13 +10,14 @@ import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import StopIcon from '@mui/icons-material/Stop';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
+import { useRunningRealtimeAgents } from 'hooks/api/useRealtime';
+import { useServices } from 'hooks/api/useServices';
 import { Messages } from './RealTimeSelection.messages';
 import { listRunningRealtimeAgents, changeRealtimeAnalytics } from 'api/realtime';
-import { listServices } from 'api/services';
 import { ServiceType } from 'types/services.types';
 import { RealTimeSelectionForm } from './RealTimeSelectionForm';
 import { RealTimeSelectionEmptyState } from './RealTimeSelectionEmptyState';
@@ -33,18 +34,11 @@ export const RealTimeSelection: FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   // Fetch running agents
-  const { data: runningAgentsData, isLoading: isLoadingAgents, refetch: refetchAgents } = useQuery({
-    queryKey: ['runningRealtimeAgents'],
-    queryFn: () => listRunningRealtimeAgents(),
-  });
+  const { data: runningAgentsData, isLoading: isLoadingAgents, refetch: refetchAgents } = useRunningRealtimeAgents();
 
   // Fetch services to check if all are running
-  const { data: servicesData, isLoading: isLoadingServices } = useQuery({
-    queryKey: ['services'],
-    queryFn: () =>
-      listServices({
-        serviceType: ServiceType.mongodb,
-      }),
+  const { data: servicesData, isLoading: isLoadingServices } = useServices({
+    serviceType: ServiceType.mongodb,
   });
 
   // Mutation to stop all RTA sessions
