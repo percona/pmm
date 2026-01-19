@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { getLinkWithVariables, shouldIncludeVars } from './variables';
+import { describe, it, expect, beforeEach } from '@jest/globals';
+import { cleanupVariables, getLinkWithVariables, shouldIncludeVars } from './variables';
 
 const prefixes = {
   grafana: '/graph',
@@ -72,5 +72,37 @@ describe('shouldIncludeVars', () => {
     mockLocation(dashboards.node);
     const result = shouldIncludeVars(dashboards.pg);
     expect(result).toBe(false);
+  });
+});
+
+describe('cleanupVariables', () => {
+  it("should return the same url if it doesn't have variables", () => {
+    const url = 'https://percona.com/d/postgresql-instance-overview/postgresql-instances-overview';
+    const result = cleanupVariables(url);
+    expect(result).toBe(url);
+  });
+
+  it('should return the url with the variables empty variables removed', () => {
+    const url =
+      'https://percona.com/d/postgresql-instance-overview/postgresql-instances-overview?var-empty=&var-empty-old=None&var-value=Value';
+    const expected = 'https://percona.com/d/postgresql-instance-overview/postgresql-instances-overview?var-value=Value';
+    const result = cleanupVariables(url);
+    expect(result).toBe(expected);
+  });
+
+  it('should return the url with the variables with the All value removed', () => {
+    const url =
+      'https://percona.com/d/postgresql-instance-overview/postgresql-instances-overview?var-all=$__all&val-all-old=All&var-value=Value';
+    const expected = 'https://percona.com/d/postgresql-instance-overview/postgresql-instances-overview?var-value=Value';
+    const result = cleanupVariables(url);
+    expect(result).toBe(expected);
+  });
+
+  it('should return the url with the variables with all and no value removed', () => {
+    const url =
+      'https://percona.com/d/postgresql-instance-overview/postgresql-instances-overview?var-all=$__all&val-all-old=All&var-empty=&var-empty-old=None&var-value=Value';
+    const expected = 'https://percona.com/d/postgresql-instance-overview/postgresql-instances-overview?var-value=Value';
+    const result = cleanupVariables(url);
+    expect(result).toBe(expected);
   });
 });
