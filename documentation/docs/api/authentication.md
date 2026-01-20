@@ -53,18 +53,14 @@ You can authenticate your request using the HTTPS header.
 !!! caution alert alert-warning "Important"
     Use the `-k` or `--insecure` parameter to force cURL to ignore invalid and self-signed SSL certificate errors. The option will skip the SSL verification process, and you can bypass any SSL errors while still having SSL-encrypted communication. However, using the `--insecure`  parameter is not recommended. Although the data transfer is encrypted, it is not entirely secure. For enhanced security of your PMM installation, you need valid SSL certificates. For information on validating SSL certificates, see [SSL certificates](../admin/security/ssl_encryption.md).
 
-```sh
-curl -H "Authorization: Bearer <service_token>" https://127.0.0.1/v1/version
-```
-
 ## Use a service token in basic authentication
 
-You can include the service token as a query parameter in a REST API call using the following format. Replace YOUR_SERVICE_TOKEN with the actual service token you obtained in step 9.
+You can include the service token as a query parameter in a REST API call using the following format. Replace SERVICE_TOKEN with the actual service token you obtained in step 9.
 
 
 **Example**
 ```sh
-curl -X GET https://service_token:SERVICE_TOKEN@localhost/v1/version
+curl -k -X GET https://service_token:SERVICE_TOKEN@127.0.0.1/v1/version
 ```
 
 ## Use a service token in Bearer authentication (HTTP header)
@@ -72,6 +68,5 @@ You can also include the service token in the header of an HTTP request for auth
 
 **Example**
 ```shell
-curl -X GET -H 'Authorization: Bearer SERVICE_TOKEN' \
-  -H 'Content-Type: application/json' https://127.0.0.1/v1/version
+curl -X GET -H "Authorization: Bearer SERVICE_TOKEN" https://127.0.0.1/v1/version
 ```
