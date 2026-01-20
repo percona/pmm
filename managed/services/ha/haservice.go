@@ -57,6 +57,7 @@ const (
 	defaultLeaderLeaseTimeout = 500 * time.Millisecond
 	defaultSnapshotInterval   = 120 * time.Second
 	defaultServerOpTimeout    = 10 * time.Second
+	defaultDNSLookupTimeout   = 3 * time.Second
 )
 
 // Service represents the high-availability service.
@@ -408,25 +409,9 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				continue
 			}
 
-			// Get Raft configuration with error handling
-			configFuture := s.raftNode.GetConfiguration()
-			if err := configFuture.Error(); err != nil {
-				s.l.Errorf("failed to get raft configuration: %v", err)
-				continue
-			}
-
-			servers := configFuture.Configuration().Servers
-			raftServers := make(map[string]struct{})
-			for _, server := range servers {
-				raftServers[string(server.ID)] = struct{}{}
-			}
-			members := s.memberlist.Members()
-			s.l.Debugf("HA memberlist: %v", members)
-			for _, node := range members {
-				if _, ok := raftServers[node.Name]; !ok {
-					s.addMemberlistNodeToRaft(ctx, node)
-				}
-			}
+			// Periodically reconcile Raft with memberlist to handle any missed events
+			s.l.Debug("Running periodic Raft-memberlist reconciliation")
+			s.reconcileRaftWithMemberlist(ctx)
 		case <-ctx.Done():
 			return
 		}
@@ -439,6 +424,67 @@ func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
 	err := s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, defaultServerOpTimeout).Error()
 	if err != nil {
 		s.l.Errorln(err)
+	}
+}
+
+// reconcileRaftWithMemberlist ensures Raft cluster configuration matches memberlist membership.
+// This method is invoked when a node becomes the Raft leader. It reconciles
+// any missed NodeJoin/NodeLeave events and removes stale Raft members that
+// may have accumulated while no leader was available.
+func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	// Fetch the current Raft cluster configuration.
+	configFuture := s.raftNode.GetConfiguration()
+	if err := configFuture.Error(); err != nil {
+		s.l.Errorf("failed to get raft configuration for reconciliation: %v", err)
+		return
+	}
+
+	raftServers := configFuture.Configuration().Servers
+	members := s.memberlist.Members()
+
+	// Build a map of current memberlist members for quick lookup
+	memberMap := make(map[string]*memberlist.Node)
+	for _, member := range members {
+		memberMap[member.Name] = member
+	}
+
+	// Build a map of current Raft servers
+	raftServerMap := make(map[string]struct{})
+	for _, server := range raftServers {
+		raftServerMap[string(server.ID)] = struct{}{}
+	}
+
+	// Remove nodes that are in Raft but NOT in memberlist (stale nodes)
+	for _, server := range raftServers {
+		serverID := string(server.ID)
+		if _, exists := memberMap[serverID]; !exists {
+			s.l.Warnf("Removing stale node %s from Raft (not in memberlist)", serverID)
+			if err := s.raftNode.RemoveServer(server.ID, 0, defaultServerOpTimeout).Error(); err != nil {
+				s.l.Errorf("Failed to remove stale server %s from Raft: %v", serverID, err)
+			} else {
+				s.l.Infof("Successfully removed stale node %s from Raft cluster", serverID)
+			}
+		}
+	}
+
+	// Add nodes that are in memberlist but NOT in Raft
+	for _, member := range members {
+		if member.Name == s.params.NodeID {
+			continue
+		}
+		if _, exists := raftServerMap[member.Name]; !exists {
+			hostname := s.lookupFQDN(ctx, member.Addr.String())
+			serverAddress := raft.ServerAddress(fmt.Sprintf("%s:%d", hostname, s.params.RaftPort))
+			s.l.Infof("Adding missing node %s to Raft (in memberlist but not in Raft)", member.Name)
+			if err := s.raftNode.AddVoter(raft.ServerID(member.Name), serverAddress, 0, defaultServerOpTimeout).Error(); err != nil {
+				s.l.Errorf("Failed to add server %s to Raft: %v", member.Name, err)
+			} else {
+				s.l.Infof("Successfully added node %s to Raft cluster with address: %s", member.Name, serverAddress)
+			}
+		}
 	}
 }
 
@@ -463,7 +509,10 @@ func (s *Service) lookupFQDN(ctx context.Context, address string) string {
 		return address
 	}
 
-	names, err := net.DefaultResolver.LookupAddr(ctx, address)
+	lookupCtx, cancel := context.WithTimeout(ctx, defaultDNSLookupTimeout)
+	defer cancel()
+
+	names, err := net.DefaultResolver.LookupAddr(lookupCtx, address)
 	if err != nil || len(names) == 0 {
 		s.l.Warnf("Failed to lookup FQDN for %s, using IP: %s", address, err)
 		return address
@@ -487,13 +536,9 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 			if isLeader {
 				s.services.StartAllServices(ctx)
 				s.l.Info("I am the leader!")
-				peers := s.memberlist.Members()
-				for _, peer := range peers {
-					if peer.Name == s.params.NodeID {
-						continue
-					}
-					s.addMemberlistNodeToRaft(ctx, peer)
-				}
+
+				// Reconcile Raft configuration with memberlist
+				s.reconcileRaftWithMemberlist(ctx)
 			} else {
 				s.l.Info("I am not a leader!")
 				s.services.StopAllServices()

@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.8.0
-	github.com/bufbuild/buf v1.62.1
+	github.com/bufbuild/buf v1.63.0
 	github.com/daixiang0/gci v0.13.0
 	github.com/envoyproxy/protoc-gen-validate v1.3.0
 	github.com/go-delve/delve v1.26.0
@@ -22,7 +22,7 @@ require (
 	github.com/vburenin/ifacemaker v1.3.0
 	github.com/vektra/mockery/v2 v2.53.2
 	golang.org/x/perf v0.0.0-20250807204132-c4b8702907f0
-	golang.org/x/tools v0.40.0
+	golang.org/x/tools v0.41.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0
 	google.golang.org/protobuf v1.36.11
 	gopkg.in/reform.v1 v1.5.1
@@ -62,7 +62,7 @@ require (
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/bmatcuk/doublestar/v2 v2.0.4 // indirect
-	github.com/bufbuild/protocompile v0.14.2-0.20251223142729-db46c1b9d34e // indirect
+	github.com/bufbuild/protocompile v0.14.2-0.20260105175043-4d8d90b1c6b8 // indirect
 	github.com/bufbuild/protoplugin v0.0.0-20250218205857-750e09ce93e1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chigopher/pathlib v0.19.1 // indirect
@@ -227,16 +227,16 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/build v0.0.0-20250902193327-e6a76329f415 // indirect
-	golang.org/x/crypto v0.46.0 // indirect
+	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
-	golang.org/x/mod v0.31.0 // indirect
-	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/mod v0.32.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/telemetry v0.0.0-20251203150158-8fff8a5912fc // indirect
-	golang.org/x/term v0.38.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/telemetry v0.0.0-20260109210033-bd525da824e2 // indirect
+	golang.org/x/term v0.39.0 // indirect
+	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect

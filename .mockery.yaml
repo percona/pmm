@@ -68,6 +68,7 @@ packages:
       agentsStateUpdater:
       checksService:
       grafanaClient:
+      haService:
       prometheusService:
       supervisordService:
       telemetryService:
