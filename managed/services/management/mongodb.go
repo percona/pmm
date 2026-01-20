@@ -27,7 +27,7 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
+// AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent", "QAN MongoDB Profiler" and "Real-Time Analytics Agent".
 func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) {
 	mongodb := &managementv1.MongoDBServiceResult{}
 
