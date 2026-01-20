@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Icon } from 'components/icon';
 import { Messages } from './RealTimeSelection.messages';
-import { DOCS_URL, linkStyles, titleStyles, descriptionStyles } from './RealTimeSelection.constants';
+import { DOCS_URL } from './RealTimeSelection.constants';
 
 export const RealTimeSelectionEmptyState: FC = () => {
   return (
@@ -29,15 +29,15 @@ export const RealTimeSelectionEmptyState: FC = () => {
         />
       </Box>
       <Stack gap={1} sx={{ width: '100%' }}>
-        <Typography variant="h6" sx={titleStyles}>
+        <Typography variant="h6">
           No active sessions now...
         </Typography>
-        <Typography variant="body1" sx={descriptionStyles}>
-          Real-Time Query Analytics requires an active real-time agent session to collect data.
-          Please contact a system administrator to start a session for you and check again.
+        <Typography variant="body1" color="text.secondary">
+          Real-Time Query Analytics requires real-time agent session to collect data.
+          Contact your system administrator to start a session, then try again.
         </Typography>
       </Stack>
-      <Link href={DOCS_URL} target="_blank" sx={linkStyles}>
+      <Link href={DOCS_URL} target="_blank">
         {Messages.documentation}
       </Link>
     </Stack>

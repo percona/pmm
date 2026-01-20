@@ -15,7 +15,6 @@ import { Messages } from './RealTimeSelection.messages';
 import { changeRealtimeAnalytics } from 'api/realtime';
 import { listServices } from 'api/services';
 import { ServiceType, UniversalService, ListServicesResponse } from 'types/services.types';
-import { mockMongoDBServices } from './RealTimeSelection.mocks';
 
 interface ServiceOption {
   type: 'cluster' | 'service';
@@ -27,38 +26,34 @@ interface ServiceOption {
 
 interface RealTimeSelectionFormProps {
   onSuccess?: () => void;
-  useMockData?: boolean;
 }
 
 export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   onSuccess,
-  useMockData = false,
 }) => {
   const { user } = useUser();
   const queryClient = useQueryClient();
 
   const [selectedServices, setSelectedServices] = useState<ServiceOption[]>([]);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const canManageRTA = user?.isEditor || user?.isPMMAdmin;
 
   const { data: servicesData, isLoading: isLoadingServices } = useQuery<ListServicesResponse>({
     queryKey: ['services', ServiceType.mongodb],
-    queryFn: useMockData
-      ? async (): Promise<ListServicesResponse> => ({ mongodb: mockMongoDBServices })
-      : async (): Promise<ListServicesResponse> => {
-          const response = await listServices({});
+    queryFn: async (): Promise<ListServicesResponse> => {
+      const response = await listServices({});
 
-          // Filter MongoDB services from the services array
-          // API returns serviceType as lowercase "mongodb", not "SERVICE_TYPE_MONGODB_SERVICE"
-          const mongodbServices = (response.services || []).filter(
-            (service: UniversalService) =>
-              service.serviceType === 'mongodb' ||
-              service.serviceType === 'SERVICE_TYPE_MONGODB_SERVICE'
-          );
+      // Filter MongoDB services from the services array
+      // API returns serviceType as lowercase "mongodb", not "SERVICE_TYPE_MONGODB_SERVICE"
+      const mongodbServices = (response.services || []).filter(
+        (service: UniversalService) =>
+          service.serviceType === 'mongodb' ||
+          service.serviceType === 'SERVICE_TYPE_MONGODB_SERVICE'
+      );
 
-          return { services: mongodbServices };
-        },
+      return { services: mongodbServices };
+    },
   });
 
   // Fetch running agents to filter out services with active RTA
@@ -154,13 +149,6 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         throw new Error('Please select at least one service');
       }
 
-      // Mock mode: simulate successful API call
-      if (useMockData) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return;
-      }
-
-      // Real API calls
       await Promise.all(
         realServices.map((service) =>
           changeRealtimeAnalytics({
@@ -200,7 +188,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   // Handle cluster checkbox click
   const handleClusterToggle = (clusterName: string) => {
     const servicesInCluster = serviceOptions.filter(
-      (option) => option.cluster === clusterName
+      (option) => option.type === 'service' && option.cluster === clusterName
     );
 
     const allSelected = servicesInCluster.every((service) =>
@@ -230,7 +218,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   // Check if all services in a cluster are selected
   const isClusterFullySelected = (clusterName: string): boolean => {
     const servicesInCluster = serviceOptions.filter(
-      (option) => option.cluster === clusterName
+      (option) => option.type === 'service' && option.cluster === clusterName
     );
     return servicesInCluster.every((service) =>
       selectedServices.some((selected) => selected.id === service.id)
@@ -240,7 +228,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   // Check if some (but not all) services in a cluster are selected
   const isClusterPartiallySelected = (clusterName: string): boolean => {
     const servicesInCluster = serviceOptions.filter(
-      (option) => option.cluster === clusterName
+      (option) => option.type === 'service' && option.cluster === clusterName
     );
     const selectedCount = servicesInCluster.filter((service) =>
       selectedServices.some((selected) => selected.id === service.id)
