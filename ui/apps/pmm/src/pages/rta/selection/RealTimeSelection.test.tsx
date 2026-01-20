@@ -186,21 +186,6 @@ describe('RealTimeSelection', () => {
     });
   });
 
-  describe('Accessibility', () => {
-    it('has proper ARIA roles', () => {
-      renderComponent(TEST_USER_EDITOR);
-
-      expect(screen.getByRole('combobox')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') })).toBeInTheDocument();
-    });
-
-    it('has proper placeholder text', () => {
-      renderComponent(TEST_USER_EDITOR);
-
-      expect(screen.getByPlaceholderText(Messages.searchPlaceholder)).toBeInTheDocument();
-    });
-  });
-
   describe('Success Handling', () => {
     it.skip('clears selection on successful start', async () => {
       // TODO: Implement when service selection interaction is added

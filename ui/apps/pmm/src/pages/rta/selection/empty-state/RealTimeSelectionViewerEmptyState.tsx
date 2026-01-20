@@ -3,8 +3,9 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
-import { Messages } from './RealTimeSelection.messages';
-import { DOCS_URL } from './RealTimeSelection.constants';
+import { Messages } from '../RealTimeSelection.messages';
+import { DOCS_URL } from '../RealTimeSelection.constants';
+import { EmptyStateMessages } from './EmptyState.messages';
 
 export const RealTimeSelectionViewerEmptyState: FC = () => (
   <Page footer={null}>
@@ -20,11 +21,10 @@ export const RealTimeSelectionViewerEmptyState: FC = () => (
       }}
     >
       <Typography variant="h6">
-        No active sessions now...
+        {EmptyStateMessages.title}
       </Typography>
       <Typography variant="body1" color="text.secondary">
-        Real-Time Query Analytics requires real-time agent session to collect data.
-        Contact your system administrator to start a session, then try again.
+        {EmptyStateMessages.description}
       </Typography>
       <Link href={DOCS_URL} target="_blank">
         {Messages.documentation}
