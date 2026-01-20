@@ -82,4 +82,22 @@ export const getStyles = (
       color: active ? 'inherit' : theme.palette.warning.contrastText,
     },
   },
+  textOnly: {
+    m: 0,
+    pl: 3,
+
+    [`.${listItemTextClasses.primary}`]: {
+      fontSize: 12,
+      fontWeight: 500,
+      color: theme.palette.text.secondary,
+      fontFamily: theme.typography.body1.fontFamily,
+    },
+
+    [`.${listItemTextClasses.secondary}`]: {
+      fontSize: 14,
+      fontWeight: 475,
+      color: theme.palette.text.secondary,
+      fontFamily: 'Roboto Mono, monospace',
+    },
+  },
 });

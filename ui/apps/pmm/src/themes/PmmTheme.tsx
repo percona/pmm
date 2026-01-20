@@ -31,6 +31,10 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
               light: peakTheme.primary.pmm.light,
               contrastText: peakTheme.primary.pmm.contrast,
             },
+            warning: {
+              main: peakTheme.warning.surface,
+              contrastText: peakTheme.text.primary,
+            },
             action: {
               hover: 'rgba(220, 63, 0, 0.04)',
               hoverOpacity: 0.04,
@@ -53,7 +57,7 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
             },
             warning: {
               main: peakTheme.warning.main,
-              contrastText: peakTheme.warning.dark,
+              contrastText: peakTheme.warning.contrast,
             },
             action: {
               hover: 'rgba(245, 106, 51, 0.08)',

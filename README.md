@@ -12,9 +12,9 @@
 
 ## Percona Monitoring and Management
 
-A **single pane of glass** to easily view and monitor the performance of your MySQL, MongoDB, PostgreSQL, and MariaDB databases.
+A **single pane of glass** to easily view and monitor the performance of your MySQL, MongoDB, PostgreSQL, Valkey, and Redis databases.
 
-[Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a best-of-breed open source database monitoring solution. It helps you reduce complexity, optimize performance, and improve the security of your business-critical database environments, no matter where they are located or deployed.
+[Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is the best-of-breed open source database monitoring solution. It helps you reduce complexity, optimize performance, and improve the security of your business-critical database environments, no matter where they are located or deployed.
 PMM helps users to:
 * Reduce Complexity
 * Optimize Database Performance

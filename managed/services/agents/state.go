@@ -82,7 +82,7 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 		return errors.Wrap(err, "cannot find pmmAgentsIDs for AgentsState update")
 	}
 	var wg sync.WaitGroup
-	limiter := make(chan struct{}, 10)
+	limiter := make(chan struct{}, 10) //nolint:mnd
 	for _, pmmAgentID := range pmmAgents {
 		wg.Add(1)
 		limiter <- struct{}{}
@@ -140,7 +140,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop,maintidx
 	l := logger.Get(ctx)
 	start := time.Now()
 	defer func() {
@@ -188,7 +188,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.PMMAgentType:
 			continue
 		case models.VMAgentType:
-			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.id)
+			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(ctx, agent.id)
 			if err != nil {
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
