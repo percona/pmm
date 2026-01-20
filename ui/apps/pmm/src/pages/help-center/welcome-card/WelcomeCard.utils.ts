@@ -1,14 +1,23 @@
-import { ListServicesResponse } from 'types/services.types';
+import { ManagedServicesResponse } from 'types/services.types';
 
 export const shouldShowAddService = (
-  services?: ListServicesResponse
+  data?: ManagedServicesResponse
 ): boolean => {
-  if (!services) {
+  if (!data?.services) {
     return false;
   }
 
-  const minRequiredByService: Record<keyof ListServicesResponse, number> = {
-    services: 0,
+  // Count services by type (API returns lowercase type names like "mysql", "mongodb")
+  const countByType = data.services.reduce(
+    (acc, service) => {
+      const type = service.serviceType.toLowerCase();
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const minRequiredByType: Record<string, number> = {
     external: 1,
     haproxy: 1,
     mongodb: 1,
@@ -19,10 +28,7 @@ export const shouldShowAddService = (
     valkey: 1,
   };
 
-  return (
-    Object.entries(minRequiredByService) as [
-      keyof ListServicesResponse,
-      number,
-    ][]
-  ).every(([key, min]) => (services[key]?.length ?? 0) < min);
+  return Object.entries(minRequiredByType).every(
+    ([type, min]) => (countByType[type] ?? 0) < min
+  );
 };

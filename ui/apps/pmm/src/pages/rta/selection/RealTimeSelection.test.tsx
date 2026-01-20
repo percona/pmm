@@ -1,18 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { User } from 'types/user.types';
 import { RealTimeSelection } from './RealTimeSelection';
 import { Messages } from './RealTimeSelection.messages';
-import { useUser } from 'contexts/user';
 import * as servicesApi from 'api/services';
 import * as realtimeApi from 'api/realtime';
 import {
   wrapWithQueryProvider,
   wrapWithRouter,
   wrapWithSnackbarProvider,
+  wrapWithUserProvider,
 } from 'utils/testUtils';
 import { TEST_USER_ADMIN, TEST_USER_EDITOR, TEST_USER_VIEWER } from 'utils/testStubs';
 
-vi.mock('contexts/user');
 vi.mock('api/services');
 vi.mock('api/realtime');
 
@@ -27,33 +27,32 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-const renderComponent = () =>
+const renderComponent = (user?: User) =>
   render(
     wrapWithQueryProvider(
-      wrapWithRouter(wrapWithSnackbarProvider(<RealTimeSelection />))
+      wrapWithRouter(
+        wrapWithSnackbarProvider(
+          wrapWithUserProvider(<RealTimeSelection />, { user })
+        )
+      )
     )
   );
 
 describe('RealTimeSelection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    vi.mocked(useUser).mockReturnValue({
-      user: TEST_USER_EDITOR,
-      isLoading: false,
-    });
   });
 
   describe('Rendering', () => {
     it('renders title and description', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       expect(screen.getByText(Messages.title)).toBeInTheDocument();
       expect(screen.getByText(Messages.description)).toBeInTheDocument();
     });
 
     it('renders search input', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       expect(
         screen.getByPlaceholderText(Messages.searchPlaceholder)
@@ -61,7 +60,7 @@ describe('RealTimeSelection', () => {
     });
 
     it('renders start button', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       expect(
         screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') })
@@ -69,14 +68,14 @@ describe('RealTimeSelection', () => {
     });
 
     it('renders footer links', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       expect(screen.getByText(Messages.documentation)).toBeInTheDocument();
       expect(screen.getByText(Messages.feedback)).toBeInTheDocument();
     });
 
     it('renders MongoDB only message', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       expect(screen.getByText(Messages.mongoOnly)).toBeInTheDocument();
     });
@@ -84,12 +83,7 @@ describe('RealTimeSelection', () => {
 
   describe('Permissions', () => {
     it('disables controls for viewer users', () => {
-      vi.mocked(useUser).mockReturnValue({
-        user: TEST_USER_VIEWER,
-        isLoading: false,
-      });
-
-      renderComponent();
+      renderComponent(TEST_USER_VIEWER);
 
       const autocomplete = screen.getByRole('combobox');
       const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
@@ -99,12 +93,7 @@ describe('RealTimeSelection', () => {
     });
 
     it('enables autocomplete for editor users but button stays disabled without selection', () => {
-      vi.mocked(useUser).mockReturnValue({
-        user: TEST_USER_EDITOR,
-        isLoading: false,
-      });
-
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
 
@@ -112,12 +101,7 @@ describe('RealTimeSelection', () => {
     });
 
     it('enables autocomplete for admin users but button stays disabled without selection', () => {
-      vi.mocked(useUser).mockReturnValue({
-        user: TEST_USER_ADMIN,
-        isLoading: false,
-      });
-
-      renderComponent();
+      renderComponent(TEST_USER_ADMIN);
 
       const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
 
@@ -127,7 +111,7 @@ describe('RealTimeSelection', () => {
 
   describe('Service Selection', () => {
     it('disables start button when no services selected', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
 
@@ -135,7 +119,7 @@ describe('RealTimeSelection', () => {
     });
 
     it('has autocomplete dropdown button', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       const openButton = screen.getByRole('button', { name: /open/i });
 
@@ -143,7 +127,7 @@ describe('RealTimeSelection', () => {
     });
 
     it('autocomplete starts closed', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       const autocomplete = screen.getByRole('combobox');
 
@@ -153,7 +137,7 @@ describe('RealTimeSelection', () => {
 
   describe('Form Submission', () => {
     it('keeps button disabled when no services selected', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
 
@@ -164,7 +148,7 @@ describe('RealTimeSelection', () => {
       // TODO: Implement when service selection interaction is added
       vi.mocked(realtimeApi.changeRealtimeAnalytics).mockResolvedValue({});
 
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
         expect(mockNavigate).not.toHaveBeenCalled();
@@ -178,7 +162,7 @@ describe('RealTimeSelection', () => {
         () => new Promise(() => {})
       );
 
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       const autocomplete = screen.getByRole('combobox');
 
@@ -192,7 +176,7 @@ describe('RealTimeSelection', () => {
         new Error('Failed to fetch services')
       );
 
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
         const autocomplete = screen.getByRole('combobox');
@@ -204,14 +188,14 @@ describe('RealTimeSelection', () => {
 
   describe('Accessibility', () => {
     it('has proper ARIA roles', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       expect(screen.getByRole('combobox')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') })).toBeInTheDocument();
     });
 
     it('has proper placeholder text', () => {
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       expect(screen.getByPlaceholderText(Messages.searchPlaceholder)).toBeInTheDocument();
     });
@@ -222,7 +206,7 @@ describe('RealTimeSelection', () => {
       // TODO: Implement when service selection interaction is added
       vi.mocked(realtimeApi.changeRealtimeAnalytics).mockResolvedValue({});
 
-      renderComponent();
+      renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
         expect(mockNavigate).not.toHaveBeenCalled();

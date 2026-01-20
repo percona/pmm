@@ -14,7 +14,7 @@ import { useRunningRealtimeAgents, REALTIME_AGENTS_QUERY_KEY } from 'hooks/api/u
 import { Messages } from './RealTimeSelection.messages';
 import { changeRealtimeAnalytics } from 'api/realtime';
 import { listServices } from 'api/services';
-import { ServiceType, UniversalService, ListServicesResponse } from 'types/services.types';
+import { ServiceType, ManagedService, ManagedServicesResponse } from 'types/services.types';
 
 interface ServiceOption {
   type: 'cluster' | 'service';
@@ -39,15 +39,15 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
 
   const canManageRTA = user?.isEditor || user?.isPMMAdmin;
 
-  const { data: servicesData, isLoading: isLoadingServices } = useQuery<ListServicesResponse>({
+  const { data: servicesData, isLoading: isLoadingServices } = useQuery<ManagedServicesResponse>({
     queryKey: ['services', ServiceType.mongodb],
-    queryFn: async (): Promise<ListServicesResponse> => {
+    queryFn: async (): Promise<ManagedServicesResponse> => {
       const response = await listServices({});
 
       // Filter MongoDB services from the services array
       // API returns serviceType as lowercase "mongodb", not "SERVICE_TYPE_MONGODB_SERVICE"
       const mongodbServices = (response.services || []).filter(
-        (service: UniversalService) =>
+        (service: ManagedService) =>
           service.serviceType === 'mongodb' ||
           service.serviceType === 'SERVICE_TYPE_MONGODB_SERVICE'
       );
@@ -60,12 +60,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
   const { data: runningAgentsData, isLoading: isLoadingAgents } = useRunningRealtimeAgents();
 
   const serviceOptions = useMemo<ServiceOption[]>(() => {
-    // Determine services from new or legacy API format
-    const services: UniversalService[] = servicesData?.services
-      ? servicesData.services
-      : servicesData?.mongodb
-        ? (servicesData.mongodb as UniversalService[])
-        : [];
+    const services: ManagedService[] = servicesData?.services ?? [];
 
     if (services.length === 0) {
       return [];
@@ -77,12 +72,12 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
     );
 
     const filteredServices = services.filter(
-      (service: UniversalService) => !runningServiceIds.has(service.serviceId)
+      (service: ManagedService) => !runningServiceIds.has(service.serviceId)
     );
 
     // Group services by cluster
-    const clusterMap = new Map<string, UniversalService[]>();
-    const standaloneServices: UniversalService[] = [];
+    const clusterMap = new Map<string, ManagedService[]>();
+    const standaloneServices: ManagedService[] = [];
 
     filteredServices.forEach((service) => {
       if (service.cluster) {

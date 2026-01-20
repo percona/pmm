@@ -2,8 +2,8 @@ import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { getServiceTypes, listServices } from 'api/services';
 import {
   ListServicesParams,
-  ListServicesResponse,
   ListTypesResponse,
+  ManagedServicesResponse,
 } from 'types/services.types';
 
 export const useServiceTypes = (
@@ -17,7 +17,7 @@ export const useServiceTypes = (
 
 export const useServices = (
   params: ListServicesParams = {},
-  options?: Partial<UseQueryOptions<ListServicesResponse>>
+  options?: Partial<UseQueryOptions<ManagedServicesResponse>>
 ) =>
   useQuery({
     queryKey: ['services:list', params],

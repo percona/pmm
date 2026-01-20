@@ -9,6 +9,13 @@ export enum ServiceType {
   external = 'SERVICE_TYPE_EXTERNAL_SERVICE',
 }
 
+export enum ServiceStatus {
+  unspecified = 'STATUS_UNSPECIFIED',
+  up = 'STATUS_UP',
+  down = 'STATUS_DOWN',
+  unknown = 'STATUS_UNKNOWN',
+}
+
 export interface ListTypesResponse {
   serviceTypes: ServiceType[];
 }
@@ -52,8 +59,8 @@ export interface ExternalService extends BaseService {
 
 export interface ValkeyService extends VersionedService {}
 
-// Universal service from /v1/management/services API
-export interface UniversalService {
+// Service from /v1/management/services API
+export interface ManagedService {
   serviceId: string;
   serviceType: string;
   serviceName: string;
@@ -69,13 +76,16 @@ export interface UniversalService {
   port: number;
   socket: string;
   version: string;
-  status?: 'STATUS_UNSPECIFIED' | 'STATUS_UP' | 'STATUS_DOWN' | 'STATUS_UNKNOWN';
+  status?: ServiceStatus;
 }
 
+// Response from /v1/management/services API
+export interface ManagedServicesResponse {
+  services: ManagedService[];
+}
+
+// Response from /v1/inventory/services API
 export interface ListServicesResponse {
-  // New API returns flat services array
-  services?: UniversalService[];
-  // Legacy format (kept for backward compatibility)
   mysql?: MySqlService[];
   mongodb?: VersionedService[];
   postgresql?: PostgreSqlService[];
