@@ -1,11 +1,14 @@
+import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 import { listRunningRealtimeAgents, changeRealtimeAnalytics } from 'api/realtime';
+import { useManagedServices } from 'hooks/api/useServices';
 import {
   ListRunningRealtimeAgentsRequest,
   ListRunningRealtimeAgentsResponse,
   ChangeRealtimeAnalyticsRequest,
   ChangeRealtimeAnalyticsResponse,
 } from 'types/realtime.types';
+import { ManagedService, ManagedServiceType } from 'types/services.types';
 
 export const REALTIME_AGENTS_QUERY_KEY = 'realtime:agents';
 
@@ -31,4 +34,37 @@ export const useChangeRealtimeAnalytics = (
     },
     ...options,
   });
+};
+
+/**
+ * Hook to get MongoDB services that don't have running RTA agents
+ */
+export const useAvailableServices = () => {
+  const { data: runningAgentsData, isLoading: isLoadingAgents } = useRunningRealtimeAgents();
+  const { data: servicesData, isLoading: isLoadingServices } = useManagedServices();
+
+  const availableServices = useMemo<ManagedService[]>(() => {
+    if (!servicesData?.services) {
+      return [];
+    }
+
+    const runningServiceIds = runningAgentsData?.agents?.map(
+      (agent) => agent.serviceId
+    ) ?? [];
+
+    // Filter MongoDB services that don't have running RTA agents
+    return servicesData.services.filter(
+      (service) =>
+        (service.serviceType === ManagedServiceType.mongodb ||
+          service.serviceType === 'SERVICE_TYPE_MONGODB_SERVICE') &&
+        !runningServiceIds.includes(service.serviceId)
+    );
+  }, [servicesData, runningAgentsData]);
+
+  return {
+    availableServices,
+    isLoading: isLoadingAgents || isLoadingServices,
+    servicesData,
+    runningAgentsData,
+  };
 };

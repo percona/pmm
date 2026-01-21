@@ -1,5 +1,6 @@
 import {
   ListServicesParams,
+  ListServicesResponse,
   ListTypesResponse,
   ManagedServicesResponse,
 } from 'types/services.types';
@@ -11,6 +12,13 @@ export const getServiceTypes = async (): Promise<ListTypesResponse> => {
 };
 
 export const listServices = async (
+  params: ListServicesParams
+): Promise<ListServicesResponse> => {
+  const res = await api.get('/inventory/services', { params });
+  return res.data;
+};
+
+export const listManagedServices = async (
   params: ListServicesParams
 ): Promise<ManagedServicesResponse> => {
   const res = await api.get('/management/services', { params });

@@ -9,6 +9,17 @@ export enum ServiceType {
   external = 'SERVICE_TYPE_EXTERNAL_SERVICE',
 }
 
+// Service types returned by /v1/management/services API (lowercase format)
+export enum ManagedServiceType {
+  mysql = 'mysql',
+  mongodb = 'mongodb',
+  postgresql = 'postgresql',
+  proxysql = 'proxysql',
+  haproxy = 'haproxy',
+  valkey = 'valkey',
+  external = 'external',
+}
+
 export enum ServiceStatus {
   unspecified = 'STATUS_UNSPECIFIED',
   up = 'STATUS_UP',

@@ -4,6 +4,7 @@ export const Messages = {
     'Select a service to monitor queries and performance metrics in real time.',
   mongoOnly: 'Currently available for MongoDB only. More databases coming soon.',
   searchPlaceholder: 'Search cluster/service...',
+  selectLabel: 'Cluster/Service',
   startButton: 'Start session',
   documentation: 'Documentation',
   feedback: 'Provide feedback',

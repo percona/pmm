@@ -1,13 +1,12 @@
 import { FC } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
-import { useRunningRealtimeAgents } from 'hooks/api/useRealtime';
-import { useServices } from 'hooks/api/useServices';
+import { useAvailableServices } from 'hooks/api/useRealtime';
 import { Messages } from './RealTimeSelection.messages';
-import { ServiceType } from 'types/services.types';
 import { RealTimeSelectionForm } from './RealTimeSelectionForm';
 import {
   RealTimeSelectionEmptyState,
@@ -19,23 +18,15 @@ export const RealTimeSelection: FC = () => {
   const { user } = useUser();
   const canManageRTA = user?.isEditor || user?.isPMMAdmin;
 
-  const { data: runningAgentsData, isLoading: isLoadingAgents } = useRunningRealtimeAgents();
-
-  const { data: servicesData, isLoading: isLoadingServices } = useServices({
-    serviceType: ServiceType.mongodb,
-  });
-
-  const runningServiceIds =
-    runningAgentsData?.agents?.map((agent) => agent.serviceId) ?? [];
-
-  const availableServices =
-    servicesData?.services?.filter(
-      (service) => !runningServiceIds.includes(service.serviceId)
-    ) ?? [];
+  const {
+    availableServices,
+    isLoading,
+    servicesData,
+    runningAgentsData,
+  } = useAvailableServices();
 
   const allServicesRunning =
-    !isLoadingServices &&
-    !isLoadingAgents &&
+    !isLoading &&
     availableServices.length === 0 &&
     servicesData?.services &&
     servicesData.services.length > 0;
@@ -43,10 +34,30 @@ export const RealTimeSelection: FC = () => {
   const showViewerEmptyState =
     !canManageRTA &&
     (!runningAgentsData?.agents || runningAgentsData.agents.length === 0) &&
-    !isLoadingAgents;
+    !isLoading;
 
   if (showViewerEmptyState) {
     return <RealTimeSelectionViewerEmptyState />;
+  }
+
+  if (isLoading) {
+    return (
+      <Page footer={null}>
+        <Stack
+          sx={{
+            maxWidth: 392,
+            mx: 'auto',
+            py: 6,
+            px: 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 300,
+          }}
+        >
+          <CircularProgress />
+        </Stack>
+      </Page>
+    );
   }
 
   return (
@@ -67,12 +78,8 @@ export const RealTimeSelection: FC = () => {
         ) : (
           <>
             <Stack gap={1} sx={{ width: '100%' }}>
-              <Typography variant="h5">
-                {Messages.title}
-              </Typography>
-              <Typography variant="body1">
-                {Messages.description}
-              </Typography>
+              <Typography variant="h5">{Messages.title}</Typography>
+              <Typography variant="body1">{Messages.description}</Typography>
             </Stack>
 
             <RealTimeSelectionForm />

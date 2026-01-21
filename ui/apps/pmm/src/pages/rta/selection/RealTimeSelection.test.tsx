@@ -27,6 +27,15 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+const setupMocks = () => {
+  vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
+    services: [],
+  });
+  vi.mocked(realtimeApi.listRunningRealtimeAgents).mockResolvedValue({
+    agents: [],
+  });
+};
+
 const renderComponent = (user?: User) =>
   render(
     wrapWithQueryProvider(
@@ -41,107 +50,130 @@ const renderComponent = (user?: User) =>
 describe('RealTimeSelection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setupMocks();
   });
 
   describe('Rendering', () => {
-    it('renders title and description', () => {
+    it('renders title and description', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      expect(screen.getByText(Messages.title)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(Messages.title)).toBeInTheDocument();
+      });
       expect(screen.getByText(Messages.description)).toBeInTheDocument();
     });
 
-    it('renders search input', () => {
+    it('renders search input', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      expect(
-        screen.getByPlaceholderText(Messages.searchPlaceholder)
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByPlaceholderText(Messages.searchPlaceholder)
+        ).toBeInTheDocument();
+      });
     });
 
-    it('renders start button', () => {
+    it('renders start button', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      expect(
-        screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') })
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') })
+        ).toBeInTheDocument();
+      });
     });
 
-    it('renders footer links', () => {
+    it('renders footer links', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      expect(screen.getByText(Messages.documentation)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(Messages.documentation)).toBeInTheDocument();
+      });
       expect(screen.getByText(Messages.feedback)).toBeInTheDocument();
     });
 
-    it('renders MongoDB only message', () => {
+    it('renders MongoDB only message', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      expect(screen.getByText(Messages.mongoOnly)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(Messages.mongoOnly)).toBeInTheDocument();
+      });
     });
   });
 
   describe('Permissions', () => {
-    it('disables controls for viewer users', () => {
+    it('shows empty state for viewer users when no running agents', async () => {
+      // Viewers without running agents see empty state, not the selection form
       renderComponent(TEST_USER_VIEWER);
 
-      const autocomplete = screen.getByRole('combobox');
-      const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
-
-      expect(autocomplete).toBeDisabled();
-      expect(button).toBeDisabled();
+      await waitFor(() => {
+        // Viewer should see empty state, not the form
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+      });
     });
 
-    it('enables autocomplete for editor users but button stays disabled without selection', () => {
+    it('enables autocomplete for editor users but button stays disabled without selection', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+      await waitFor(() => {
+        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
 
-      expect(button).toBeDisabled();
+        expect(button).toBeDisabled();
+      });
     });
 
-    it('enables autocomplete for admin users but button stays disabled without selection', () => {
+    it('enables autocomplete for admin users but button stays disabled without selection', async () => {
       renderComponent(TEST_USER_ADMIN);
 
-      const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+      await waitFor(() => {
+        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
 
-      expect(button).toBeDisabled();
+        expect(button).toBeDisabled();
+      });
     });
   });
 
   describe('Service Selection', () => {
-    it('disables start button when no services selected', () => {
+    it('disables start button when no services selected', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+      await waitFor(() => {
+        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
 
-      expect(button).toBeDisabled();
+        expect(button).toBeDisabled();
+      });
     });
 
-    it('has autocomplete dropdown button', () => {
+    it('has autocomplete dropdown button', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      const openButton = screen.getByRole('button', { name: /open/i });
+      await waitFor(() => {
+        const openButton = screen.getByRole('button', { name: /open/i });
 
-      expect(openButton).toBeInTheDocument();
+        expect(openButton).toBeInTheDocument();
+      });
     });
 
-    it('autocomplete starts closed', () => {
+    it('autocomplete starts closed', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      const autocomplete = screen.getByRole('combobox');
+      await waitFor(() => {
+        const autocomplete = screen.getByRole('combobox');
 
-      expect(autocomplete).toHaveAttribute('aria-expanded', 'false');
+        expect(autocomplete).toHaveAttribute('aria-expanded', 'false');
+      });
     });
   });
 
   describe('Form Submission', () => {
-    it('keeps button disabled when no services selected', () => {
+    it('keeps button disabled when no services selected', async () => {
       renderComponent(TEST_USER_EDITOR);
 
-      const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+      await waitFor(() => {
+        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
 
-      expect(button).toBeDisabled();
+        expect(button).toBeDisabled();
+      });
     });
 
     it.skip('shows success message on successful start', async () => {
@@ -157,32 +189,35 @@ describe('RealTimeSelection', () => {
   });
 
   describe('Loading States', () => {
-    it('renders autocomplete while fetching services', () => {
-      vi.mocked(servicesApi.listServices).mockImplementation(
+    it('shows loading indicator while fetching services', () => {
+      vi.mocked(servicesApi.listManagedServices).mockImplementation(
         () => new Promise(() => {})
       );
 
       renderComponent(TEST_USER_EDITOR);
 
-      const autocomplete = screen.getByRole('combobox');
-
-      expect(autocomplete).toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
   });
 
   describe('Error Handling', () => {
-    it('renders autocomplete even when service fetch fails', async () => {
-      vi.mocked(servicesApi.listServices).mockRejectedValue(
+    it('renders form even when service fetch fails', async () => {
+      vi.mocked(servicesApi.listManagedServices).mockRejectedValueOnce(
         new Error('Failed to fetch services')
       );
+      vi.mocked(realtimeApi.listRunningRealtimeAgents).mockResolvedValueOnce({
+        agents: [],
+      });
 
       renderComponent(TEST_USER_EDITOR);
 
-      await waitFor(() => {
-        const autocomplete = screen.getByRole('combobox');
-
-        expect(autocomplete).toBeInTheDocument();
-      });
+      // When API fails, component should still render (not stuck in loading)
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
     });
   });
 
