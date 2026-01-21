@@ -33,7 +33,7 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 
 ## Architecture
 
-![Overall Architecture](./documentation/docs/images//arch/C_S_Architecture.jpg "Client Server Architecture")
+![Overall Architecture](./documentation/docs/images/arch/C_S_Architecture.jpg "Client Server Architecture")
 
 ![PMM Server](./documentation/docs/images/arch/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
 
