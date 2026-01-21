@@ -3,7 +3,7 @@ import CopyToClipboardButton from './CopyToClipboardButton';
 import { CopyToClipboardButtonProps } from './CopyToClipboardButton.types';
 
 const meta = {
-  title: 'CopyToClipboardButton',
+  title: 'Inputs/Buttons/CopyToClipboardButton',
   component: CopyToClipboardButton,
   parameters: {
     layout: 'centered',

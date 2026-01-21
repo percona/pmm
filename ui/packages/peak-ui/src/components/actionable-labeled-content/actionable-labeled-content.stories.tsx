@@ -6,7 +6,7 @@ import ActionableLabeledContent, {
 import { TextField } from '@mui/material';
 
 const meta = {
-  title: 'ActionableLabeledContent',
+  title: 'Inputs/ActionableLabeledContent',
   component: ActionableLabeledContent,
   tags: ['autodocs'],
   parameters: {

@@ -31,7 +31,7 @@ import { Stack, Typography } from '@mui/material';
 import * as DocBlock from '@storybook/blocks';
 
 const meta = {
-  title: 'Icons',
+  title: 'Foundations/Icons',
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',

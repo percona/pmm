@@ -13,7 +13,7 @@ type CustomArgs = {
 };
 
 const meta = {
-  title: 'Checkbox',
+  title: 'Inputs/Checkbox',
   tags: ['autodocs'],
   argTypes: {
     label: {

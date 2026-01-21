@@ -11,7 +11,7 @@ type CustomArgs = ToggleButtonGroupInputProps & {
 };
 
 const meta = {
-  title: 'ToggleButtonGroupInput',
+  title: 'Inputs/ToggleButtonGroupInput',
   component: ToggleButtonGroupInput,
   parameters: {
     layout: 'centered',

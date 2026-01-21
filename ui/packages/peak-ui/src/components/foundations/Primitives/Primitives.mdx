@@ -1,0 +1,89 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/blocks';
+import { primitives } from '../../../design/themes/base';
+
+<Meta title="Foundations/Colors/Primitives" />
+
+# Primitives
+
+These are the foundational color scales used to build semantic tokens. Primitives are not affected by light/dark mode. They remain constant across all themes.
+
+Use primitives to construct semantic tokens in your theme (e.g., `error.main` might use `red[600]`).
+
+## Brand colors
+
+These swatches represent the Percona brand. Use them to feed your work as the foundation to build new UI palettes.
+
+<ColorPalette>
+  <ColorItem
+    title="Sunset"
+    subtitle="primitives.brand.sunset"
+    colors={primitives.brand.sunset}
+  />
+  <ColorItem
+    title="Fire"
+    subtitle="primitives.brand.fire"
+    colors={primitives.brand.fire}
+  />
+  <ColorItem
+    title="Night"
+    subtitle="primitives.brand.night"
+    colors={primitives.brand.night}
+  />
+  <ColorItem
+    title="Sky"
+    subtitle="primitives.brand.sky"
+    colors={primitives.brand.sky}
+  />
+  <ColorItem
+    title="Sunrise"
+    subtitle="primitives.brand.sunrise"
+    colors={primitives.brand.sunrise}
+  />
+  <ColorItem
+    title="Aqua"
+    subtitle="primitives.brand.aqua"
+    colors={primitives.brand.aqua}
+  />
+  <ColorItem
+    title="Lavender"
+    subtitle="primitives.brand.lavender"
+    colors={primitives.brand.lavender}
+  />
+  <ColorItem
+    title="Stone"
+    subtitle="primitives.brand.stone"
+    colors={primitives.brand.stone}
+  />
+</ColorPalette>
+
+## Extra colors
+
+For messaging we will need these extra swatches, so we can have "true red" and "true green", for example, for messaging error or success in the typical GUI paradigm. These palettes match the same structure as the brand swatches, so they act as a natural extension but more focused on the messaging intent.
+
+<ColorPalette>
+  <ColorItem
+    title="Red"
+    subtitle="primitives.extra.red"
+    colors={primitives.extra.red}
+  />
+  <ColorItem
+    title="Green"
+    subtitle="primitives.extra.green"
+    colors={primitives.extra.green}
+  />
+  <ColorItem
+    title="Yellow"
+    subtitle="primitives.extra.yellow"
+    colors={primitives.extra.yellow}
+  />
+</ColorPalette>
+
+## Base colors
+
+<ColorPalette>
+  <ColorItem
+    title="Base"
+    subtitle="primitives.base"
+    colors={primitives.base}
+  />
+</ColorPalette>
