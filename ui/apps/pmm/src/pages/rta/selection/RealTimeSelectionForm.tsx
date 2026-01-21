@@ -2,7 +2,6 @@ import { FC, useState, useMemo } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import { enqueueSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
 import {
@@ -16,7 +15,11 @@ import {
   getClusterSelectionState,
   toggleClusterServices,
 } from './RealTimeSelectionForm.utils';
-import { ServiceOption as ServiceOptionComponent, ServiceOptionTag } from './components';
+import {
+  ServiceInput,
+  ServiceOption as ServiceOptionComponent,
+  ServiceOptionTag,
+} from './components';
 
 interface RealTimeSelectionFormProps {
   onSuccess?: () => void;
@@ -112,17 +115,10 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         disableCloseOnSelect
         limitTags={2}
         renderInput={(params) => (
-          <TextField
-            {...params}
-            label={
-              selectedServices.length > 0 || isOpen
-                ? Messages.selectLabel
-                : undefined
-            }
-            placeholder={
-              selectedServices.length === 0 ? Messages.searchPlaceholder : ''
-            }
-            variant="outlined"
+          <ServiceInput
+            params={params}
+            hasSelectedServices={selectedServices.length > 0}
+            isOpen={isOpen}
           />
         )}
         renderTags={(value, getTagProps) =>
