@@ -5,8 +5,8 @@ import {
   wrapWithUserProvider,
 } from 'utils/testUtils';
 import {
-  TEST_MANAGED_SERVICES,
-  TEST_MANAGED_SERVICES_WITH_ONE_MYSQL,
+  TEST_SERVICES,
+  TEST_SERVICES_WITH_ONE_MYSQL,
   TEST_USER_ADMIN,
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
@@ -17,7 +17,7 @@ import WelcomeCard from './WelcomeCard';
 const mocks = vi.hoisted(() => ({
   startTourMock: vi.fn(),
   updateUserInfo: vi.fn(),
-  listServices: vi.fn(() => Promise.resolve(TEST_MANAGED_SERVICES)),
+  listServices: vi.fn(() => Promise.resolve(TEST_SERVICES)),
 }));
 
 vi.mock('contexts/tour', () => ({
@@ -70,7 +70,7 @@ describe('WelcomeCard', () => {
 
   it('hides add service button when services exist', async () => {
     mocks.listServices.mockReturnValueOnce(
-      Promise.resolve(TEST_MANAGED_SERVICES_WITH_ONE_MYSQL)
+      Promise.resolve(TEST_SERVICES_WITH_ONE_MYSQL)
     );
 
     renderWelcomeCard();
