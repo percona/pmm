@@ -1,6 +1,6 @@
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
-import { User } from 'types/user.types';
+import { User, UserPreferences } from 'types/user.types';
 import { FrontendSettings } from 'types/settings.types';
 import { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
@@ -46,6 +46,7 @@ import {
   NAV_ACCESS_CONTROL,
   NAV_HIGH_AVAILABILITY_LEADER,
   NAV_HIGH_AVAILABILITY_NODES,
+  NAV_HOME_PAGE,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -274,4 +275,19 @@ export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
   }
 
   return { ...NAV_USERS_AND_ACCESS, children };
+};
+
+export const addHomePage = (preferences?: UserPreferences): NavItem => {
+  if (preferences?.homeDashboardUID) {
+    return {
+      ...NAV_HOME_PAGE,
+      // highlight also the custom home dashboard
+      matches: [
+        ...(NAV_HOME_PAGE.matches || []),
+        `${PMM_NEW_NAV_GRAFANA_PATH}/d/${preferences.homeDashboardUID}`,
+      ],
+    };
+  }
+
+  return NAV_HOME_PAGE;
 };
