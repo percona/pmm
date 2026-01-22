@@ -46,3 +46,7 @@ env-root:								## Run `make TARGET` in devcontainer (`make env-root TARGET=hel
 
 rotate-encryption: 							## Rotate encryption key
 	go run ./encryption-rotation/main.go
+
+restore-backup:  ## Copy ClickHouse backup into pmm-server container
+# 	docker cp dev/clickhouse-backups/pmm_backup_20260120 pmm-server:/srv/clickhouse/
+	docker exec pmm-server clickhouse-client --password=clickhouse --query="RESTORE DATABASE pmm FROM 'file' '/srv/clickhouse/pmm_backup_20260120/'"
