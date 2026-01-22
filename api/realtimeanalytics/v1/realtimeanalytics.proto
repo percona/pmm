@@ -80,7 +80,7 @@ message SearchQueriesRequest {
   }];
 
   // Optional limit the number of queries in response.
-  int32 limit = 2;
+  int64 limit = 2;
 }
 
 // SearchQueriesResponse returns the list of currently active Real-Time Analytics session Queries.

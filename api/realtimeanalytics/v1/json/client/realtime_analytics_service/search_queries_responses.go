@@ -197,7 +197,7 @@ type SearchQueriesBody struct {
 	ServiceIds []string `json:"service_ids"`
 
 	// Optional limit the number of queries in response.
-	Limit int32 `json:"limit,omitempty"`
+	Limit string `json:"limit,omitempty"`
 }
 
 // Validate validates this search queries body

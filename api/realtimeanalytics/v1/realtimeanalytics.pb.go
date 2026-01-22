@@ -436,7 +436,7 @@ type SearchQueriesRequest struct {
 	// Optional filter by Service identifiers.
 	ServiceIds []string `protobuf:"bytes,1,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
 	// Optional limit the number of queries in response.
-	Limit         int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit         int64 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -478,7 +478,7 @@ func (x *SearchQueriesRequest) GetServiceIds() []string {
 	return nil
 }
 
-func (x *SearchQueriesRequest) GetLimit() int32 {
+func (x *SearchQueriesRequest) GetLimit() int64 {
 	if x != nil {
 		return x.Limit
 	}
@@ -561,7 +561,7 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\vservice_ids\x18\x01 \x03(\tB\n" +
 	"\xfaB\a\x92\x01\x04\b\x01\x18\x01R\n" +
 	"serviceIds\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\x05R\x05limit\"R\n" +
+	"\x05limit\x18\x02 \x01(\x03R\x05limit\"R\n" +
 	"\x15SearchQueriesResponse\x129\n" +
 	"\aqueries\x18\x01 \x03(\v2\x1f.realtimeanalytics.v1.QueryDataR\aqueries*~\n" +
 	"\rSessionStatus\x12\x1e\n" +

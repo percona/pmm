@@ -30414,8 +30414,8 @@
                 },
                 "limit": {
                   "description": "Optional limit the number of queries in response.",
-                  "type": "integer",
-                  "format": "int32",
+                  "type": "string",
+                  "format": "int64",
                   "x-order": 1
                 }
               }

@@ -98,7 +98,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 	var err error
 	var session *rtav1.Session
 	// Contains pmm-agent ID to be updated after the change with RTA agent.
-	var pmmAgentIdToUpdate string
+	var pmmAgentIDToUpdate string
 	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// Validate that the service exists and is of a supported type for RTA
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
@@ -109,7 +109,9 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		var rtaAgentType models.AgentType
 		// Check that service type supports RTA
 		if rtaAgentType, err = getRTAAgentTypeForServiceType(service.ServiceType); err != nil {
-			return status.Errorf(codes.InvalidArgument, "Service %s of type %s does not support Real-Time Analytics", req.ServiceId, service.ServiceType)
+			return status.Errorf(codes.InvalidArgument,
+				"Service %s of type %s does not support Real-Time Analytics",
+				req.ServiceId, service.ServiceType)
 		}
 
 		// Find existing RTA agents for this service
@@ -136,7 +138,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			}
 
 			// Request state update to pmm-agent
-			pmmAgentIdToUpdate = *rtaAgent.PMMAgentID
+			pmmAgentIDToUpdate = *rtaAgent.PMMAgentID
 			session = s.convertAgentToSession(rtaAgent, service)
 			return nil
 		}
@@ -157,7 +159,9 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			}
 			// Add other service types once RTA is supported for them
 		default:
-			return status.Errorf(codes.InvalidArgument, "Service %s of type %s does not support Real-Time Analytics", req.ServiceId, service.ServiceType)
+			return status.Errorf(codes.InvalidArgument,
+				"Service %s of type %s does not support Real-Time Analytics",
+				req.ServiceId, service.ServiceType)
 		}
 
 		var existingAgent *models.Agent
@@ -176,11 +180,15 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		}
 
 		if existingAgent == nil {
-			return status.Errorf(codes.FailedPrecondition, "No existing %s agent found for service %s to retrieve credentials and pmm-agent ID", service.ServiceType, service.ServiceID)
+			return status.Errorf(codes.FailedPrecondition,
+				"No existing %s agent found for service %s to retrieve credentials and pmm-agent ID",
+				service.ServiceType, service.ServiceID)
 		}
 
 		if existingAgent.PMMAgentID == nil {
-			return status.Errorf(codes.FailedPrecondition, "Existing %s agent for service %s has no pmm-agent ID", service.ServiceType, service.ServiceID)
+			return status.Errorf(codes.FailedPrecondition,
+				"Existing %s agent for service %s has no pmm-agent ID",
+				service.ServiceType, service.ServiceID)
 		}
 
 		// Create the RTA agent with credentials and pmm-agent ID from existing agent for the requested service.
@@ -201,7 +209,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to create Real-Time Analytics agent for service %s: %v", req.ServiceId, err)
 		}
-		pmmAgentIdToUpdate = *rtaAgent.PMMAgentID
+		pmmAgentIDToUpdate = *rtaAgent.PMMAgentID
 		session = s.convertAgentToSession(rtaAgent, service)
 
 		return nil
@@ -210,9 +218,9 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		return nil, err
 	}
 
-	if pmmAgentIdToUpdate != "" {
+	if pmmAgentIDToUpdate != "" {
 		// Request state update to pmm-agent
-		s.stateUpdater.RequestStateUpdate(ctx, pmmAgentIdToUpdate)
+		s.stateUpdater.RequestStateUpdate(ctx, pmmAgentIDToUpdate)
 	}
 	return &rtav1.StartSessionResponse{Session: session}, nil
 }
@@ -220,7 +228,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 // StopSession stops Real-Time Analytics Session for a specified service (gRPC handler).
 func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest) (*rtav1.StopSessionResponse, error) {
 	// Contains pmm-agent ID to be updated after the change with RTA agent.
-	var pmmAgentIdToUpdate string
+	var pmmAgentIDToUpdate string
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// Validate that the service exists and is of a supported type for RTA
 		service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
@@ -231,7 +239,9 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		var agentType models.AgentType
 		// Check that service type supports RTA
 		if agentType, err = getRTAAgentTypeForServiceType(service.ServiceType); err != nil {
-			return status.Errorf(codes.InvalidArgument, "Service %s of type %s does not support Real-Time Analytics", req.ServiceId, service.ServiceType)
+			return status.Errorf(codes.InvalidArgument,
+				"Service %s of type %s does not support Real-Time Analytics",
+				req.ServiceId, service.ServiceType)
 		}
 
 		// Find existing RTA agents for this service
@@ -255,16 +265,16 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		if err = tx.Update(rtaAgent); err != nil {
 			return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 		}
-		pmmAgentIdToUpdate = *rtaAgent.PMMAgentID
+		pmmAgentIDToUpdate = *rtaAgent.PMMAgentID
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	if pmmAgentIdToUpdate != "" {
+	if pmmAgentIDToUpdate != "" {
 		// Request state update to pmm-agent
-		s.stateUpdater.RequestStateUpdate(ctx, pmmAgentIdToUpdate)
+		s.stateUpdater.RequestStateUpdate(ctx, pmmAgentIDToUpdate)
 		// Clear query data from store
 		s.store.Clear(req.ServiceId)
 	}
@@ -290,7 +300,7 @@ func (s *Service) SearchQueries(_ context.Context, req *rtav1.SearchQueriesReque
 		resp.Queries = append(resp.Queries, s.store.Get(serviceID)...)
 
 		// Apply limit if specified
-		if req.Limit > 0 && int32(len(resp.Queries)) > req.Limit {
+		if req.Limit > 0 && int64(len(resp.Queries)) > req.Limit {
 			resp.Queries = resp.Queries[:req.Limit]
 			break
 		}

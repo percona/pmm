@@ -400,6 +400,8 @@ func TestStopSession(t *testing.T) {
 }
 
 func TestSearchQueries(t *testing.T) {
+	t.Parallel()
+
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -447,7 +449,7 @@ func TestSearchQueries(t *testing.T) {
 			CollectTime:       timestamppb.Now(),
 			RawQueryJson:      `{ find: "mycollection", filter: { status: "active" } }`,
 			Payload: &rtav1.QueryData_MongoDbPayload{
-				&rtav1.QueryMongoDBData{
+				MongoDbPayload: &rtav1.QueryMongoDBData{
 					Opid:           "1",
 					Client:         "127.0.0.1:5060",
 					WaitingForLock: false,
@@ -467,7 +469,7 @@ func TestSearchQueries(t *testing.T) {
 			CollectTime:       timestamppb.Now(),
 			RawQueryJson:      `{ find: "mycollection", filter: { status: "active" } }`,
 			Payload: &rtav1.QueryData_MongoDbPayload{
-				&rtav1.QueryMongoDBData{
+				MongoDbPayload: &rtav1.QueryMongoDBData{
 					Opid:           "2",
 					Client:         "127.0.0.1:5061",
 					WaitingForLock: true,
@@ -491,7 +493,7 @@ func TestSearchQueries(t *testing.T) {
 			CollectTime:       timestamppb.Now(),
 			RawQueryJson:      `{ find: "mycollection", filter: { status: "active" } }`,
 			Payload: &rtav1.QueryData_MongoDbPayload{
-				&rtav1.QueryMongoDBData{
+				MongoDbPayload: &rtav1.QueryMongoDBData{
 					Opid:           "1",
 					Client:         "127.0.0.1:5062",
 					WaitingForLock: true,
