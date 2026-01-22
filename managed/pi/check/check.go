@@ -202,11 +202,7 @@ type Family string
 // Validate validates check family.
 func (f Family) Validate() error {
 	switch f {
-	case MySQL:
-		fallthrough
-	case PostgreSQL:
-		fallthrough
-	case MongoDB:
+	case MySQL, PostgreSQL, MongoDB:
 		return nil
 	case "":
 		return errors.New("check family is empty")
@@ -228,13 +224,7 @@ type Interval string
 // Validate validates check interval.
 func (i Interval) Validate() error {
 	switch i {
-	case Standard:
-		fallthrough
-	case Frequent:
-		fallthrough
-	case Rare:
-		fallthrough
-	case "":
+	case Standard, Frequent, Rare, "":
 		return nil
 	default:
 		return fmt.Errorf("unknown check interval: %s", i)
