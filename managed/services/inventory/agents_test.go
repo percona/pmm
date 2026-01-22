@@ -933,3 +933,57 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		assert.False(t, agent.GetQanPostgresqlPgstatementsAgent().Disabled)
 	})
 }
+
+func TestChangeRTAMongoDBAgent(t *testing.T) {
+	t.Run("update RTA options ", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)
+		actualAgents, err := as.List(ctx, models.AgentFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualAgents, 4) // PMM Server's pmm-agent, node_exporter, postgres_exporter, PostgreSQL QAN
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
+
+		// Add PMM Agent
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+		expectedPMMAgent := &inventoryv1.PMMAgent{
+			AgentId:      "00000000-0000-4000-8000-000000000005",
+			RunsOnNodeId: models.PMMServerNodeID,
+			Connected:    true,
+		}
+		assert.Equal(t, expectedPMMAgent, pmmAgent.GetPmmAgent())
+
+		// Add MongoDB Service
+		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mongo-rta",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+		})
+		require.NoError(t, err)
+
+		// Add RTA MongoDB Agent with default RTA options
+		rtaAgent, err := as.AddRTAMongoDBAgent(ctx, &inventoryv1.AddRTAMongoDBAgentParams{
+			PmmAgentId:          pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:           ms.ServiceId,
+			Username:            "username",
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, durationpb.New(time.Second), rtaAgent.GetRtaMongodbAgent().RtaOptions.CollectInterval)
+
+		resp, err := as.ChangeRTAMongoDBAgent(ctx, rtaAgent.GetRtaMongodbAgent().AgentId, &inventoryv1.ChangeRTAMongoDBAgentParams{
+			RtaOptions: &inventoryv1.RTAOptions{
+				CollectInterval: durationpb.New(5 * time.Second),
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, durationpb.New(5*time.Second), resp.GetRtaMongodbAgent().RtaOptions.CollectInterval)
+	})
+}
