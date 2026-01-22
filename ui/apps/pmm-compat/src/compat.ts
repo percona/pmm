@@ -8,6 +8,7 @@ import {
   ColorMode,
 } from '@pmm/shared';
 import {
+  GRAFANA_DOCKED_LOCAL_STORAGE_KEY,
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
   GRAFANA_LOGIN_PATH,
   GRAFANA_SUB_PATH,
@@ -59,6 +60,7 @@ export const initialize = () => {
 
   // Ensure docked menu is closed in the iframe
   localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
+  localStorage.setItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY, 'false');
 
   applyCustomStyles();
   adjustToolbar();
