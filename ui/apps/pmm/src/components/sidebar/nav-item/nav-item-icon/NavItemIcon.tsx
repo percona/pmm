@@ -1,6 +1,6 @@
 import { Icon } from 'components/icon';
 import { NavItem } from 'types/navigation.types';
-import { ComponentType, FC } from 'react';
+import { ComponentType, FC, isValidElement } from 'react';
 
 interface Props {
   icon: NonNullable<NavItem['icon']>;
@@ -11,7 +11,12 @@ const NavItemIcon: FC<Props> = ({ icon }) => {
     return <Icon name={icon} />;
   }
 
-  // support also memoized components
+  // elements (such as <NavItemIcon icon={<TestIcon />} />)
+  if (isValidElement(icon)) {
+    return icon;
+  }
+
+  // support also memoized components  (such as <NavItemIcon icon={TestIcon} />)
   if (typeof icon === 'function' || typeof icon === 'object') {
     const NavIcon = icon as ComponentType;
     return <NavIcon />;
