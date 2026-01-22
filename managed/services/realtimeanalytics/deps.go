@@ -15,9 +15,7 @@
 
 package realtimeanalytics
 
-import (
-	"context"
-)
+import "context"
 
 // agentsRegistry provides information about running agents.
 type agentsRegistry interface {
