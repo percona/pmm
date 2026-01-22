@@ -4,6 +4,7 @@ import {
   useCurrentUser,
   useCurrentUserOrgs,
   useUserInfo,
+  useUserPreferences,
 } from 'hooks/api/useUser';
 import { getPerconaUser, isAuthorized } from './user.utils';
 import { useAuth } from 'contexts/auth';
@@ -19,8 +20,16 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
   const orgsQuery = useCurrentUserOrgs({
     enabled: auth.isLoggedIn,
   });
+  const preferencesQuery = useUserPreferences({
+    enabled: auth.isLoggedIn,
+  });
   const user = useMemo(() => {
-    if (!userQuery.data || !orgsQuery.data || !userInfoQuery.data) {
+    if (
+      !userQuery.data ||
+      !orgsQuery.data ||
+      !userInfoQuery.data ||
+      !preferencesQuery.data
+    ) {
       return;
     }
 
@@ -28,9 +37,10 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
       userQuery.data,
       orgsQuery.data,
       userInfoQuery.data,
+      preferencesQuery.data,
       isAuthorized(userQuery.error)
     );
-  }, [userQuery, orgsQuery, userInfoQuery]);
+  }, [userQuery, orgsQuery, userInfoQuery, preferencesQuery]);
 
   return (
     <UserContext.Provider
