@@ -26,10 +26,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	agentv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -289,6 +291,65 @@ func TestAgentService(t *testing.T) {
 					ServiceId:    "00000000-0000-4000-8000-000000000006",
 					Status:       "AGENT_STATUS_UNKNOWN",
 					AzureOptions: &agentv1.UniversalAgent_AzureOptions{},
+				},
+			}
+			assert.Equal(t, expected, response.Agents)
+		})
+
+		t.Run("should output a list of agents provisioned for MongoDB service", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			node, err := models.CreateNode(s.db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName: "test",
+				Address:  "test-address",
+				Region:   pointer.ToString("test-region"),
+			})
+			require.NoError(t, err)
+
+			service, err := models.AddNewService(s.db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mongodb",
+				NodeID:      node.NodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(27017),
+				Cluster:     "test-cluster",
+			})
+			require.NoError(t, err)
+
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			require.NoError(t, err)
+
+			rtaAgent, err := models.CreateAgent(s.db.Querier, models.RTAMongoDBAgentType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+				Username:   "test-user",
+				Password:   "test-pass",
+			})
+			require.NoError(t, err)
+
+			s.r.(*mockAgentsRegistry).On("IsConnected", rtaAgent.AgentID).Return(false).Once()
+
+			response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{
+				ServiceId: service.ServiceID,
+			})
+			require.NoError(t, err)
+
+			expected := []*agentv1.UniversalAgent{
+				{
+					AgentId:       rtaAgent.AgentID,
+					AgentType:     "rta-mongodb-agent",
+					PmmAgentId:    "00000000-0000-4000-8000-000000000007",
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					ServiceId:     "00000000-0000-4000-8000-000000000006",
+					Status:        "AGENT_STATUS_UNKNOWN",
+					Username:      "test-user",
+					IsPasswordSet: true,
+					RtaOptions: &inventoryv1.RTAOptions{
+						CollectInterval: durationpb.New(1 * time.Second),
+					},
+					MongoDbOptions: &agentv1.UniversalAgent_MongoDBOptions{},
 				},
 			}
 			assert.Equal(t, expected, response.Agents)
