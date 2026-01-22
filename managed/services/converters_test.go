@@ -1,0 +1,97 @@
+package services
+
+import (
+	"testing"
+	"time"
+
+	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
+)
+
+func TestToAPIAgent(t *testing.T) {
+	t.Parallel()
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "test-node",
+	})
+	require.NoError(t, err)
+
+	service, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "test-mongodb",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(27017),
+		Cluster:     "test-cluster",
+	})
+	require.NoError(t, err)
+
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+
+	type args struct {
+		q     *reform.Querier
+		agent *models.Agent
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    inventoryv1.Agent
+		wantErr error
+	}{
+		{
+			name: "valid RTA MongoDB agent",
+			args: args{
+				q: db.Querier,
+				agent: &models.Agent{
+					AgentID:    "agent-123",
+					PMMAgentID: &pmmAgent.AgentID,
+					ServiceID:  &service.ServiceID,
+					AgentType:  models.RTAMongoDBAgentType,
+					Disabled:   false,
+					Username:   pointer.To("test-user"),
+					Password:   pointer.To("test-pass"),
+					TLS: true,
+					TLSSkipVerify: true,
+					RTAOptions: models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+					Status: inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)],
+				},
+			},
+			want: &inventoryv1.RTAMongoDBAgent{
+				AgentId:    "agent-123",
+				PmmAgentId: pmmAgent.AgentID,
+				ServiceId:  service.ServiceID,
+				Disabled:   false,
+				Username:   "test-user",
+				Tls:        true,
+				TlsSkipVerify: true,
+				Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+				RtaOptions: &inventoryv1.RTAOptions{CollectInterval: durationpb.New(2 * time.Second)},
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := ToAPIAgent(tt.args.q, tt.args.agent)
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+			} else {
+				assert.Equalf(t, tt.want, got, "ToAPIAgent(%v, %v)", tt.args.q, tt.args.agent)
+			}
+		})
+	}
+}
