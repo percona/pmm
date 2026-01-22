@@ -20,20 +20,26 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RealtimeAnalyticsService_ListRunningRealtimeAgents_FullMethodName = "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents"
-	RealtimeAnalyticsService_ChangeRealtimeAnalytics_FullMethodName   = "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics"
+	RealtimeAnalyticsService_ListSessions_FullMethodName  = "/realtimeanalytics.v1.RealtimeAnalyticsService/ListSessions"
+	RealtimeAnalyticsService_StartSession_FullMethodName  = "/realtimeanalytics.v1.RealtimeAnalyticsService/StartSession"
+	RealtimeAnalyticsService_StopSession_FullMethodName   = "/realtimeanalytics.v1.RealtimeAnalyticsService/StopSession"
+	RealtimeAnalyticsService_SearchQueries_FullMethodName = "/realtimeanalytics.v1.RealtimeAnalyticsService/SearchQueries"
 )
 
 // RealtimeAnalyticsServiceClient is the client API for RealtimeAnalyticsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// RealtimeAnalyticsService provides public API for managing Real-Time Analytics.
+// RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.
 type RealtimeAnalyticsServiceClient interface {
-	// ListRunningRealtimeAgents returns the list of currently running RTA agents.
-	ListRunningRealtimeAgents(ctx context.Context, in *ListRunningRealtimeAgentsRequest, opts ...grpc.CallOption) (*ListRunningRealtimeAgentsResponse, error)
-	// ChangeRealtimeAnalytics enables or disables RTA for a service.
-	ChangeRealtimeAnalytics(ctx context.Context, in *ChangeRealtimeAnalyticsRequest, opts ...grpc.CallOption) (*ChangeRealtimeAnalyticsResponse, error)
+	// ListSessions returns the list of currently running Real-Time Analytics Sessions.
+	ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error)
+	// StartSession starts Real-Time Analytics session for a specified service.
+	StartSession(ctx context.Context, in *StartSessionRequest, opts ...grpc.CallOption) (*Session, error)
+	// StopSession stops Real-Time Analytics session for a specified service.
+	StopSession(ctx context.Context, in *StopSessionRequest, opts ...grpc.CallOption) (*StopSessionResponse, error)
+	// SearchQueries returns the list of currently running Database Queries that match criteria(s).
+	SearchQueries(ctx context.Context, in *SearchQueriesRequest, opts ...grpc.CallOption) (*SearchQueriesResponse, error)
 }
 
 type realtimeAnalyticsServiceClient struct {
@@ -44,20 +50,40 @@ func NewRealtimeAnalyticsServiceClient(cc grpc.ClientConnInterface) RealtimeAnal
 	return &realtimeAnalyticsServiceClient{cc}
 }
 
-func (c *realtimeAnalyticsServiceClient) ListRunningRealtimeAgents(ctx context.Context, in *ListRunningRealtimeAgentsRequest, opts ...grpc.CallOption) (*ListRunningRealtimeAgentsResponse, error) {
+func (c *realtimeAnalyticsServiceClient) ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRunningRealtimeAgentsResponse)
-	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_ListRunningRealtimeAgents_FullMethodName, in, out, cOpts...)
+	out := new(ListSessionsResponse)
+	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_ListSessions_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *realtimeAnalyticsServiceClient) ChangeRealtimeAnalytics(ctx context.Context, in *ChangeRealtimeAnalyticsRequest, opts ...grpc.CallOption) (*ChangeRealtimeAnalyticsResponse, error) {
+func (c *realtimeAnalyticsServiceClient) StartSession(ctx context.Context, in *StartSessionRequest, opts ...grpc.CallOption) (*Session, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ChangeRealtimeAnalyticsResponse)
-	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_ChangeRealtimeAnalytics_FullMethodName, in, out, cOpts...)
+	out := new(Session)
+	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_StartSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *realtimeAnalyticsServiceClient) StopSession(ctx context.Context, in *StopSessionRequest, opts ...grpc.CallOption) (*StopSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StopSessionResponse)
+	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_StopSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *realtimeAnalyticsServiceClient) SearchQueries(ctx context.Context, in *SearchQueriesRequest, opts ...grpc.CallOption) (*SearchQueriesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchQueriesResponse)
+	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_SearchQueries_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,12 +94,16 @@ func (c *realtimeAnalyticsServiceClient) ChangeRealtimeAnalytics(ctx context.Con
 // All implementations must embed UnimplementedRealtimeAnalyticsServiceServer
 // for forward compatibility.
 //
-// RealtimeAnalyticsService provides public API for managing Real-Time Analytics.
+// RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.
 type RealtimeAnalyticsServiceServer interface {
-	// ListRunningRealtimeAgents returns the list of currently running RTA agents.
-	ListRunningRealtimeAgents(context.Context, *ListRunningRealtimeAgentsRequest) (*ListRunningRealtimeAgentsResponse, error)
-	// ChangeRealtimeAnalytics enables or disables RTA for a service.
-	ChangeRealtimeAnalytics(context.Context, *ChangeRealtimeAnalyticsRequest) (*ChangeRealtimeAnalyticsResponse, error)
+	// ListSessions returns the list of currently running Real-Time Analytics Sessions.
+	ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error)
+	// StartSession starts Real-Time Analytics session for a specified service.
+	StartSession(context.Context, *StartSessionRequest) (*Session, error)
+	// StopSession stops Real-Time Analytics session for a specified service.
+	StopSession(context.Context, *StopSessionRequest) (*StopSessionResponse, error)
+	// SearchQueries returns the list of currently running Database Queries that match criteria(s).
+	SearchQueries(context.Context, *SearchQueriesRequest) (*SearchQueriesResponse, error)
 	mustEmbedUnimplementedRealtimeAnalyticsServiceServer()
 }
 
@@ -84,12 +114,20 @@ type RealtimeAnalyticsServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRealtimeAnalyticsServiceServer struct{}
 
-func (UnimplementedRealtimeAnalyticsServiceServer) ListRunningRealtimeAgents(context.Context, *ListRunningRealtimeAgentsRequest) (*ListRunningRealtimeAgentsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListRunningRealtimeAgents not implemented")
+func (UnimplementedRealtimeAnalyticsServiceServer) ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSessions not implemented")
 }
 
-func (UnimplementedRealtimeAnalyticsServiceServer) ChangeRealtimeAnalytics(context.Context, *ChangeRealtimeAnalyticsRequest) (*ChangeRealtimeAnalyticsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ChangeRealtimeAnalytics not implemented")
+func (UnimplementedRealtimeAnalyticsServiceServer) StartSession(context.Context, *StartSessionRequest) (*Session, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartSession not implemented")
+}
+
+func (UnimplementedRealtimeAnalyticsServiceServer) StopSession(context.Context, *StopSessionRequest) (*StopSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StopSession not implemented")
+}
+
+func (UnimplementedRealtimeAnalyticsServiceServer) SearchQueries(context.Context, *SearchQueriesRequest) (*SearchQueriesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchQueries not implemented")
 }
 
 func (UnimplementedRealtimeAnalyticsServiceServer) mustEmbedUnimplementedRealtimeAnalyticsServiceServer() {
@@ -114,38 +152,74 @@ func RegisterRealtimeAnalyticsServiceServer(s grpc.ServiceRegistrar, srv Realtim
 	s.RegisterService(&RealtimeAnalyticsService_ServiceDesc, srv)
 }
 
-func _RealtimeAnalyticsService_ListRunningRealtimeAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRunningRealtimeAgentsRequest)
+func _RealtimeAnalyticsService_ListSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSessionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RealtimeAnalyticsServiceServer).ListRunningRealtimeAgents(ctx, in)
+		return srv.(RealtimeAnalyticsServiceServer).ListSessions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RealtimeAnalyticsService_ListRunningRealtimeAgents_FullMethodName,
+		FullMethod: RealtimeAnalyticsService_ListSessions_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RealtimeAnalyticsServiceServer).ListRunningRealtimeAgents(ctx, req.(*ListRunningRealtimeAgentsRequest))
+		return srv.(RealtimeAnalyticsServiceServer).ListSessions(ctx, req.(*ListSessionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RealtimeAnalyticsService_ChangeRealtimeAnalytics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeRealtimeAnalyticsRequest)
+func _RealtimeAnalyticsService_StartSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartSessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RealtimeAnalyticsServiceServer).ChangeRealtimeAnalytics(ctx, in)
+		return srv.(RealtimeAnalyticsServiceServer).StartSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RealtimeAnalyticsService_ChangeRealtimeAnalytics_FullMethodName,
+		FullMethod: RealtimeAnalyticsService_StartSession_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RealtimeAnalyticsServiceServer).ChangeRealtimeAnalytics(ctx, req.(*ChangeRealtimeAnalyticsRequest))
+		return srv.(RealtimeAnalyticsServiceServer).StartSession(ctx, req.(*StartSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RealtimeAnalyticsService_StopSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RealtimeAnalyticsServiceServer).StopSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RealtimeAnalyticsService_StopSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RealtimeAnalyticsServiceServer).StopSession(ctx, req.(*StopSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RealtimeAnalyticsService_SearchQueries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchQueriesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RealtimeAnalyticsServiceServer).SearchQueries(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RealtimeAnalyticsService_SearchQueries_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RealtimeAnalyticsServiceServer).SearchQueries(ctx, req.(*SearchQueriesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -158,12 +232,20 @@ var RealtimeAnalyticsService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RealtimeAnalyticsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListRunningRealtimeAgents",
-			Handler:    _RealtimeAnalyticsService_ListRunningRealtimeAgents_Handler,
+			MethodName: "ListSessions",
+			Handler:    _RealtimeAnalyticsService_ListSessions_Handler,
 		},
 		{
-			MethodName: "ChangeRealtimeAnalytics",
-			Handler:    _RealtimeAnalyticsService_ChangeRealtimeAnalytics_Handler,
+			MethodName: "StartSession",
+			Handler:    _RealtimeAnalyticsService_StartSession_Handler,
+		},
+		{
+			MethodName: "StopSession",
+			Handler:    _RealtimeAnalyticsService_StopSession_Handler,
+		},
+		{
+			MethodName: "SearchQueries",
+			Handler:    _RealtimeAnalyticsService_SearchQueries_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

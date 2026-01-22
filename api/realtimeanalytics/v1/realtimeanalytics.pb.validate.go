@@ -17,8 +17,6 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
-
-	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // ensure the imports are used
@@ -35,63 +33,58 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 	_ = sort.Sort
-
-	_ = inventoryv1.AgentStatus(0)
 )
 
-// Validate checks the field values on RunningRealtimeAgent with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RunningRealtimeAgent) Validate() error {
+// Validate checks the field values on Session with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Session) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RunningRealtimeAgent with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// RunningRealtimeAgentMultiError, or nil if none found.
-func (m *RunningRealtimeAgent) ValidateAll() error {
+// ValidateAll checks the field values on Session with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in SessionMultiError, or nil if none found.
+func (m *Session) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RunningRealtimeAgent) validate(all bool) error {
+func (m *Session) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for AgentId
-
 	// no validation rules for ServiceId
 
 	// no validation rules for ServiceName
 
-	// no validation rules for Cluster
+	// no validation rules for ClusterName
 
 	if all {
-		switch v := interface{}(m.GetStartedAt()).(type) {
+		switch v := interface{}(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, RunningRealtimeAgentValidationError{
-					field:  "StartedAt",
+				errors = append(errors, SessionValidationError{
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, RunningRealtimeAgentValidationError{
-					field:  "StartedAt",
+				errors = append(errors, SessionValidationError{
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RunningRealtimeAgentValidationError{
-				field:  "StartedAt",
+			return SessionValidationError{
+				field:  "StartTime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -101,19 +94,18 @@ func (m *RunningRealtimeAgent) validate(all bool) error {
 	// no validation rules for Status
 
 	if len(errors) > 0 {
-		return RunningRealtimeAgentMultiError(errors)
+		return SessionMultiError(errors)
 	}
 
 	return nil
 }
 
-// RunningRealtimeAgentMultiError is an error wrapping multiple validation
-// errors returned by RunningRealtimeAgent.ValidateAll() if the designated
-// constraints aren't met.
-type RunningRealtimeAgentMultiError []error
+// SessionMultiError is an error wrapping multiple validation errors returned
+// by Session.ValidateAll() if the designated constraints aren't met.
+type SessionMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RunningRealtimeAgentMultiError) Error() string {
+func (m SessionMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -122,11 +114,11 @@ func (m RunningRealtimeAgentMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RunningRealtimeAgentMultiError) AllErrors() []error { return m }
+func (m SessionMultiError) AllErrors() []error { return m }
 
-// RunningRealtimeAgentValidationError is the validation error returned by
-// RunningRealtimeAgent.Validate if the designated constraints aren't met.
-type RunningRealtimeAgentValidationError struct {
+// SessionValidationError is the validation error returned by Session.Validate
+// if the designated constraints aren't met.
+type SessionValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -134,24 +126,22 @@ type RunningRealtimeAgentValidationError struct {
 }
 
 // Field function returns field value.
-func (e RunningRealtimeAgentValidationError) Field() string { return e.field }
+func (e SessionValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RunningRealtimeAgentValidationError) Reason() string { return e.reason }
+func (e SessionValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RunningRealtimeAgentValidationError) Cause() error { return e.cause }
+func (e SessionValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RunningRealtimeAgentValidationError) Key() bool { return e.key }
+func (e SessionValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RunningRealtimeAgentValidationError) ErrorName() string {
-	return "RunningRealtimeAgentValidationError"
-}
+func (e SessionValidationError) ErrorName() string { return "SessionValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RunningRealtimeAgentValidationError) Error() string {
+func (e SessionValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -163,14 +153,14 @@ func (e RunningRealtimeAgentValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRunningRealtimeAgent.%s: %s%s",
+		"invalid %sSession.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RunningRealtimeAgentValidationError{}
+var _ error = SessionValidationError{}
 
 var _ interface {
 	Field() string
@@ -178,48 +168,46 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RunningRealtimeAgentValidationError{}
+} = SessionValidationError{}
 
-// Validate checks the field values on ListRunningRealtimeAgentsRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *ListRunningRealtimeAgentsRequest) Validate() error {
+// Validate checks the field values on ListSessionsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListSessionsRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListRunningRealtimeAgentsRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ListRunningRealtimeAgentsRequestMultiError, or nil if none found.
-func (m *ListRunningRealtimeAgentsRequest) ValidateAll() error {
+// ValidateAll checks the field values on ListSessionsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListSessionsRequestMultiError, or nil if none found.
+func (m *ListSessionsRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListRunningRealtimeAgentsRequest) validate(all bool) error {
+func (m *ListSessionsRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Cluster
+	// no validation rules for ClusterName
 
 	if len(errors) > 0 {
-		return ListRunningRealtimeAgentsRequestMultiError(errors)
+		return ListSessionsRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListRunningRealtimeAgentsRequestMultiError is an error wrapping multiple
-// validation errors returned by
-// ListRunningRealtimeAgentsRequest.ValidateAll() if the designated
+// ListSessionsRequestMultiError is an error wrapping multiple validation
+// errors returned by ListSessionsRequest.ValidateAll() if the designated
 // constraints aren't met.
-type ListRunningRealtimeAgentsRequestMultiError []error
+type ListSessionsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListRunningRealtimeAgentsRequestMultiError) Error() string {
+func (m ListSessionsRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -228,12 +216,11 @@ func (m ListRunningRealtimeAgentsRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListRunningRealtimeAgentsRequestMultiError) AllErrors() []error { return m }
+func (m ListSessionsRequestMultiError) AllErrors() []error { return m }
 
-// ListRunningRealtimeAgentsRequestValidationError is the validation error
-// returned by ListRunningRealtimeAgentsRequest.Validate if the designated
-// constraints aren't met.
-type ListRunningRealtimeAgentsRequestValidationError struct {
+// ListSessionsRequestValidationError is the validation error returned by
+// ListSessionsRequest.Validate if the designated constraints aren't met.
+type ListSessionsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -241,24 +228,24 @@ type ListRunningRealtimeAgentsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRunningRealtimeAgentsRequestValidationError) Field() string { return e.field }
+func (e ListSessionsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRunningRealtimeAgentsRequestValidationError) Reason() string { return e.reason }
+func (e ListSessionsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRunningRealtimeAgentsRequestValidationError) Cause() error { return e.cause }
+func (e ListSessionsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRunningRealtimeAgentsRequestValidationError) Key() bool { return e.key }
+func (e ListSessionsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRunningRealtimeAgentsRequestValidationError) ErrorName() string {
-	return "ListRunningRealtimeAgentsRequestValidationError"
+func (e ListSessionsRequestValidationError) ErrorName() string {
+	return "ListSessionsRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRunningRealtimeAgentsRequestValidationError) Error() string {
+func (e ListSessionsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -270,14 +257,14 @@ func (e ListRunningRealtimeAgentsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRunningRealtimeAgentsRequest.%s: %s%s",
+		"invalid %sListSessionsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRunningRealtimeAgentsRequestValidationError{}
+var _ error = ListSessionsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -285,48 +272,47 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRunningRealtimeAgentsRequestValidationError{}
+} = ListSessionsRequestValidationError{}
 
-// Validate checks the field values on ListRunningRealtimeAgentsResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *ListRunningRealtimeAgentsResponse) Validate() error {
+// Validate checks the field values on ListSessionsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListSessionsResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListRunningRealtimeAgentsResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ListRunningRealtimeAgentsResponseMultiError, or nil if none found.
-func (m *ListRunningRealtimeAgentsResponse) ValidateAll() error {
+// ValidateAll checks the field values on ListSessionsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListSessionsResponseMultiError, or nil if none found.
+func (m *ListSessionsResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListRunningRealtimeAgentsResponse) validate(all bool) error {
+func (m *ListSessionsResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	for idx, item := range m.GetAgents() {
+	for idx, item := range m.GetSessions() {
 		_, _ = idx, item
 
 		if all {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListRunningRealtimeAgentsResponseValidationError{
-						field:  fmt.Sprintf("Agents[%v]", idx),
+					errors = append(errors, ListSessionsResponseValidationError{
+						field:  fmt.Sprintf("Sessions[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, ListRunningRealtimeAgentsResponseValidationError{
-						field:  fmt.Sprintf("Agents[%v]", idx),
+					errors = append(errors, ListSessionsResponseValidationError{
+						field:  fmt.Sprintf("Sessions[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -334,8 +320,8 @@ func (m *ListRunningRealtimeAgentsResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListRunningRealtimeAgentsResponseValidationError{
-					field:  fmt.Sprintf("Agents[%v]", idx),
+				return ListSessionsResponseValidationError{
+					field:  fmt.Sprintf("Sessions[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -345,20 +331,19 @@ func (m *ListRunningRealtimeAgentsResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ListRunningRealtimeAgentsResponseMultiError(errors)
+		return ListSessionsResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListRunningRealtimeAgentsResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// ListRunningRealtimeAgentsResponse.ValidateAll() if the designated
+// ListSessionsResponseMultiError is an error wrapping multiple validation
+// errors returned by ListSessionsResponse.ValidateAll() if the designated
 // constraints aren't met.
-type ListRunningRealtimeAgentsResponseMultiError []error
+type ListSessionsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListRunningRealtimeAgentsResponseMultiError) Error() string {
+func (m ListSessionsResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -367,12 +352,11 @@ func (m ListRunningRealtimeAgentsResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListRunningRealtimeAgentsResponseMultiError) AllErrors() []error { return m }
+func (m ListSessionsResponseMultiError) AllErrors() []error { return m }
 
-// ListRunningRealtimeAgentsResponseValidationError is the validation error
-// returned by ListRunningRealtimeAgentsResponse.Validate if the designated
-// constraints aren't met.
-type ListRunningRealtimeAgentsResponseValidationError struct {
+// ListSessionsResponseValidationError is the validation error returned by
+// ListSessionsResponse.Validate if the designated constraints aren't met.
+type ListSessionsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -380,24 +364,24 @@ type ListRunningRealtimeAgentsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRunningRealtimeAgentsResponseValidationError) Field() string { return e.field }
+func (e ListSessionsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRunningRealtimeAgentsResponseValidationError) Reason() string { return e.reason }
+func (e ListSessionsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRunningRealtimeAgentsResponseValidationError) Cause() error { return e.cause }
+func (e ListSessionsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRunningRealtimeAgentsResponseValidationError) Key() bool { return e.key }
+func (e ListSessionsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRunningRealtimeAgentsResponseValidationError) ErrorName() string {
-	return "ListRunningRealtimeAgentsResponseValidationError"
+func (e ListSessionsResponseValidationError) ErrorName() string {
+	return "ListSessionsResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRunningRealtimeAgentsResponseValidationError) Error() string {
+func (e ListSessionsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -409,14 +393,14 @@ func (e ListRunningRealtimeAgentsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRunningRealtimeAgentsResponse.%s: %s%s",
+		"invalid %sListSessionsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRunningRealtimeAgentsResponseValidationError{}
+var _ error = ListSessionsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -424,34 +408,32 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRunningRealtimeAgentsResponseValidationError{}
+} = ListSessionsResponseValidationError{}
 
-// Validate checks the field values on ChangeRealtimeAnalyticsRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on StartSessionRequest with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeRealtimeAnalyticsRequest) Validate() error {
+func (m *StartSessionRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeRealtimeAnalyticsRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangeRealtimeAnalyticsRequestMultiError, or nil if none found.
-func (m *ChangeRealtimeAnalyticsRequest) ValidateAll() error {
+// ValidateAll checks the field values on StartSessionRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartSessionRequestMultiError, or nil if none found.
+func (m *StartSessionRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeRealtimeAnalyticsRequest) validate(all bool) error {
+func (m *StartSessionRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Enable
-
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := ChangeRealtimeAnalyticsRequestValidationError{
+		err := StartSessionRequestValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -462,19 +444,19 @@ func (m *ChangeRealtimeAnalyticsRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeRealtimeAnalyticsRequestMultiError(errors)
+		return StartSessionRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeRealtimeAnalyticsRequestMultiError is an error wrapping multiple
-// validation errors returned by ChangeRealtimeAnalyticsRequest.ValidateAll()
-// if the designated constraints aren't met.
-type ChangeRealtimeAnalyticsRequestMultiError []error
+// StartSessionRequestMultiError is an error wrapping multiple validation
+// errors returned by StartSessionRequest.ValidateAll() if the designated
+// constraints aren't met.
+type StartSessionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeRealtimeAnalyticsRequestMultiError) Error() string {
+func (m StartSessionRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -483,12 +465,11 @@ func (m ChangeRealtimeAnalyticsRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeRealtimeAnalyticsRequestMultiError) AllErrors() []error { return m }
+func (m StartSessionRequestMultiError) AllErrors() []error { return m }
 
-// ChangeRealtimeAnalyticsRequestValidationError is the validation error
-// returned by ChangeRealtimeAnalyticsRequest.Validate if the designated
-// constraints aren't met.
-type ChangeRealtimeAnalyticsRequestValidationError struct {
+// StartSessionRequestValidationError is the validation error returned by
+// StartSessionRequest.Validate if the designated constraints aren't met.
+type StartSessionRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -496,24 +477,24 @@ type ChangeRealtimeAnalyticsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeRealtimeAnalyticsRequestValidationError) Field() string { return e.field }
+func (e StartSessionRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeRealtimeAnalyticsRequestValidationError) Reason() string { return e.reason }
+func (e StartSessionRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeRealtimeAnalyticsRequestValidationError) Cause() error { return e.cause }
+func (e StartSessionRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeRealtimeAnalyticsRequestValidationError) Key() bool { return e.key }
+func (e StartSessionRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeRealtimeAnalyticsRequestValidationError) ErrorName() string {
-	return "ChangeRealtimeAnalyticsRequestValidationError"
+func (e StartSessionRequestValidationError) ErrorName() string {
+	return "StartSessionRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeRealtimeAnalyticsRequestValidationError) Error() string {
+func (e StartSessionRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -525,14 +506,14 @@ func (e ChangeRealtimeAnalyticsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeRealtimeAnalyticsRequest.%s: %s%s",
+		"invalid %sStartSessionRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeRealtimeAnalyticsRequestValidationError{}
+var _ error = StartSessionRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -540,24 +521,137 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeRealtimeAnalyticsRequestValidationError{}
+} = StartSessionRequestValidationError{}
 
-// Validate checks the field values on ChangeRealtimeAnalyticsResponse with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on StopSessionRequest with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ChangeRealtimeAnalyticsResponse) Validate() error {
+func (m *StopSessionRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeRealtimeAnalyticsResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ChangeRealtimeAnalyticsResponseMultiError, or nil if none found.
-func (m *ChangeRealtimeAnalyticsResponse) ValidateAll() error {
+// ValidateAll checks the field values on StopSessionRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StopSessionRequestMultiError, or nil if none found.
+func (m *StopSessionRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeRealtimeAnalyticsResponse) validate(all bool) error {
+func (m *StopSessionRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := StopSessionRequestValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return StopSessionRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// StopSessionRequestMultiError is an error wrapping multiple validation errors
+// returned by StopSessionRequest.ValidateAll() if the designated constraints
+// aren't met.
+type StopSessionRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StopSessionRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StopSessionRequestMultiError) AllErrors() []error { return m }
+
+// StopSessionRequestValidationError is the validation error returned by
+// StopSessionRequest.Validate if the designated constraints aren't met.
+type StopSessionRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StopSessionRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StopSessionRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StopSessionRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StopSessionRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StopSessionRequestValidationError) ErrorName() string {
+	return "StopSessionRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StopSessionRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStopSessionRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StopSessionRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StopSessionRequestValidationError{}
+
+// Validate checks the field values on StopSessionResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StopSessionResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StopSessionResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StopSessionResponseMultiError, or nil if none found.
+func (m *StopSessionResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StopSessionResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -565,19 +659,19 @@ func (m *ChangeRealtimeAnalyticsResponse) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return ChangeRealtimeAnalyticsResponseMultiError(errors)
+		return StopSessionResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeRealtimeAnalyticsResponseMultiError is an error wrapping multiple
-// validation errors returned by ChangeRealtimeAnalyticsResponse.ValidateAll()
-// if the designated constraints aren't met.
-type ChangeRealtimeAnalyticsResponseMultiError []error
+// StopSessionResponseMultiError is an error wrapping multiple validation
+// errors returned by StopSessionResponse.ValidateAll() if the designated
+// constraints aren't met.
+type StopSessionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeRealtimeAnalyticsResponseMultiError) Error() string {
+func (m StopSessionResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -586,12 +680,11 @@ func (m ChangeRealtimeAnalyticsResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeRealtimeAnalyticsResponseMultiError) AllErrors() []error { return m }
+func (m StopSessionResponseMultiError) AllErrors() []error { return m }
 
-// ChangeRealtimeAnalyticsResponseValidationError is the validation error
-// returned by ChangeRealtimeAnalyticsResponse.Validate if the designated
-// constraints aren't met.
-type ChangeRealtimeAnalyticsResponseValidationError struct {
+// StopSessionResponseValidationError is the validation error returned by
+// StopSessionResponse.Validate if the designated constraints aren't met.
+type StopSessionResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -599,24 +692,24 @@ type ChangeRealtimeAnalyticsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeRealtimeAnalyticsResponseValidationError) Field() string { return e.field }
+func (e StopSessionResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeRealtimeAnalyticsResponseValidationError) Reason() string { return e.reason }
+func (e StopSessionResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeRealtimeAnalyticsResponseValidationError) Cause() error { return e.cause }
+func (e StopSessionResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeRealtimeAnalyticsResponseValidationError) Key() bool { return e.key }
+func (e StopSessionResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeRealtimeAnalyticsResponseValidationError) ErrorName() string {
-	return "ChangeRealtimeAnalyticsResponseValidationError"
+func (e StopSessionResponseValidationError) ErrorName() string {
+	return "StopSessionResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeRealtimeAnalyticsResponseValidationError) Error() string {
+func (e StopSessionResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -628,14 +721,14 @@ func (e ChangeRealtimeAnalyticsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeRealtimeAnalyticsResponse.%s: %s%s",
+		"invalid %sStopSessionResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeRealtimeAnalyticsResponseValidationError{}
+var _ error = StopSessionResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -643,4 +736,276 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeRealtimeAnalyticsResponseValidationError{}
+} = StopSessionResponseValidationError{}
+
+// Validate checks the field values on SearchQueriesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SearchQueriesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SearchQueriesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SearchQueriesRequestMultiError, or nil if none found.
+func (m *SearchQueriesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SearchQueriesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(m.GetServiceIds()) < 1 {
+		err := SearchQueriesRequestValidationError{
+			field:  "ServiceIds",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	_SearchQueriesRequest_ServiceIds_Unique := make(map[string]struct{}, len(m.GetServiceIds()))
+
+	for idx, item := range m.GetServiceIds() {
+		_, _ = idx, item
+
+		if _, exists := _SearchQueriesRequest_ServiceIds_Unique[item]; exists {
+			err := SearchQueriesRequestValidationError{
+				field:  fmt.Sprintf("ServiceIds[%v]", idx),
+				reason: "repeated value must contain unique items",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+			_SearchQueriesRequest_ServiceIds_Unique[item] = struct{}{}
+		}
+
+		// no validation rules for ServiceIds[idx]
+	}
+
+	// no validation rules for Limit
+
+	if len(errors) > 0 {
+		return SearchQueriesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// SearchQueriesRequestMultiError is an error wrapping multiple validation
+// errors returned by SearchQueriesRequest.ValidateAll() if the designated
+// constraints aren't met.
+type SearchQueriesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SearchQueriesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SearchQueriesRequestMultiError) AllErrors() []error { return m }
+
+// SearchQueriesRequestValidationError is the validation error returned by
+// SearchQueriesRequest.Validate if the designated constraints aren't met.
+type SearchQueriesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SearchQueriesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SearchQueriesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SearchQueriesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SearchQueriesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SearchQueriesRequestValidationError) ErrorName() string {
+	return "SearchQueriesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SearchQueriesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSearchQueriesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SearchQueriesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SearchQueriesRequestValidationError{}
+
+// Validate checks the field values on SearchQueriesResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SearchQueriesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SearchQueriesResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SearchQueriesResponseMultiError, or nil if none found.
+func (m *SearchQueriesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SearchQueriesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetQueries() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, SearchQueriesResponseValidationError{
+						field:  fmt.Sprintf("Queries[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, SearchQueriesResponseValidationError{
+						field:  fmt.Sprintf("Queries[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SearchQueriesResponseValidationError{
+					field:  fmt.Sprintf("Queries[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return SearchQueriesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// SearchQueriesResponseMultiError is an error wrapping multiple validation
+// errors returned by SearchQueriesResponse.ValidateAll() if the designated
+// constraints aren't met.
+type SearchQueriesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SearchQueriesResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SearchQueriesResponseMultiError) AllErrors() []error { return m }
+
+// SearchQueriesResponseValidationError is the validation error returned by
+// SearchQueriesResponse.Validate if the designated constraints aren't met.
+type SearchQueriesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SearchQueriesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SearchQueriesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SearchQueriesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SearchQueriesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SearchQueriesResponseValidationError) ErrorName() string {
+	return "SearchQueriesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SearchQueriesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSearchQueriesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SearchQueriesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SearchQueriesResponseValidationError{}

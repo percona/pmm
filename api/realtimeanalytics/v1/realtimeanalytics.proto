@@ -4,71 +4,130 @@ package realtimeanalytics.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "inventory/v1/agent_status.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "realtimeanalytics/v1/query.proto";
 import "validate/validate.proto";
 
-// RunningRealtimeAgent represents a currently running RTA agent.
-message RunningRealtimeAgent {
-  // Unique agent identifier.
-  string agent_id = 1;
-  // Service identifier that the agent is monitoring.
-  string service_id = 2;
+// Session related messages
+
+// Status represents actual Real-Time Analytics session status.
+enum SessionStatus {
+  SESSION_STATUS_UNSPECIFIED = 0;
+  // Session encountered an error.
+  SESSION_STATUS_ERROR = 1;
+  // Session is running.
+  SESSION_STATUS_RUNNING = 2;
+  // Session has been stopped or disabled.
+  SESSION_STATUS_DOWN = 3;
+}
+
+// Session represents an active Real-Time Analytics session.
+message Session {
+  // Service identifier that has enabled Real-Time Analytics session.
+  string service_id = 1;
   // Service name.
-  string service_name = 3;
+  string service_name = 2;
   // Cluster name the service belongs to.
-  string cluster = 4;
-  // Timestamp when the agent was started.
-  google.protobuf.Timestamp started_at = 5;
-  // Current status of the agent.
-  inventory.v1.AgentStatus status = 6;
+  string cluster_name = 3;
+  // Timestamp when the Real-Time Analytics session started.
+  google.protobuf.Timestamp start_time = 4;
+  // Current status of the Real-Time Analytics session.
+  SessionStatus status = 5;
 }
 
-// ListRunningRealtimeAgentsRequest contains optional filters for listing running RTA agents.
-message ListRunningRealtimeAgentsRequest {
+// ListSessionsRequest contains optional filters for listing active Real-Time Analytics Sessions for a particular cluster.
+message ListSessionsRequest {
   // Optional filter by cluster name.
-  string cluster = 1;
+  string cluster_name = 1;
 }
 
-// ListRunningRealtimeAgentsResponse returns the list of running RTA agents.
-message ListRunningRealtimeAgentsResponse {
-  // List of running RTA agents.
-  repeated RunningRealtimeAgent agents = 1;
+// ListSessionsResponse returns the list of currently active Real-Time Analytics Sessions.
+message ListSessionsResponse {
+  // List of active Real-Time Analytics Sessions.
+  repeated Session sessions = 1;
 }
 
-// ChangeRealtimeAnalyticsRequest contains parameters for enabling or disabling RTA.
-message ChangeRealtimeAnalyticsRequest {
-  // Enable or disable RTA.
-  bool enable = 1;
-  // Service identifier.
-  string service_id = 2 [(validate.rules).string = {min_len: 1}];
+// StartSessionRequest contains parameters for starting Real-Time Analytics session.
+message StartSessionRequest {
+  // Required service identifier the Real-Time Analytics session shall be started for.
+  string service_id = 1 [(validate.rules).string = {min_len: 1}];
 }
 
-// ChangeRealtimeAnalyticsResponse is the response for changing RTA configuration.
-message ChangeRealtimeAnalyticsResponse {
+// StopSessionRequest contains parameters for stopping Real-Time Analytics session.
+message StopSessionRequest {
+  // Required service identifier the Real-Time Analytics session shall be stopped for.
+  string service_id = 1 [(validate.rules).string = {min_len: 1}];
+}
+
+// StopSessionResponse is the response for stopping Real-Time Analytics session.
+message StopSessionResponse {
   // Empty response for now.
 }
 
-// RealtimeAnalyticsService provides public API for managing Real-Time Analytics.
+// Query related messages
+
+// SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.
+message SearchQueriesRequest {
+  // Optional filter by Service identifiers.
+  repeated string service_ids = 1 [(validate.rules).repeated = {
+    min_items: 1
+    unique: true
+  }];
+
+  // Optional limit the number of queries in response.
+  int32 limit = 2;
+}
+
+// SearchQueriesResponse returns the list of currently active Real-Time Analytics session Queries.
+message SearchQueriesResponse {
+  // List of active Real-Time Analytics session Queries.
+  repeated QueryData queries = 1;
+}
+
+// RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.
 service RealtimeAnalyticsService {
-  // ListRunningRealtimeAgents returns the list of currently running RTA agents.
-  rpc ListRunningRealtimeAgents(ListRunningRealtimeAgentsRequest) returns (ListRunningRealtimeAgentsResponse) {
-    option (google.api.http) = {get: "/v1/realtime/agents"};
+  // ListSessions returns the list of currently running Real-Time Analytics Sessions.
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
+    option (google.api.http) = {get: "/v1/realtimeanalytics/sessions"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Running RTA Agents"
-      description: "Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information."
+      summary: "List Running Real-Time Analytics Sessions"
+      description: "Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information."
     };
   }
 
-  // ChangeRealtimeAnalytics enables or disables RTA for a service.
-  rpc ChangeRealtimeAnalytics(ChangeRealtimeAnalyticsRequest) returns (ChangeRealtimeAnalyticsResponse) {
+  // StartSession starts Real-Time Analytics session for a specified service.
+  rpc StartSession(StartSessionRequest) returns (Session) {
     option (google.api.http) = {
-      post: "/v1/realtime/change"
+      post: "/v1/realtimeanalytics/sessions:start"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Change Real-Time Analytics Configuration"
-      description: "Enables or disables Real-Time Analytics for a specific service."
+      summary: "Start Real-Time Analytics session"
+      description: "Start Real-Time Analytics session for a specified service."
+    };
+  }
+
+  // StopSession stops Real-Time Analytics session for a specified service.
+  rpc StopSession(StopSessionRequest) returns (StopSessionResponse) {
+    option (google.api.http) = {
+      post: "/v1/realtimeanalytics/sessions:stop"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Stop Real-Time Analytics session"
+      description: "Stop Real-Time Analytics session for a specified service."
+    };
+  }
+
+  // SearchQueries returns the list of currently running Database Queries that match criteria(s).
+  rpc SearchQueries(SearchQueriesRequest) returns (SearchQueriesResponse) {
+    option (google.api.http) = {
+      post: "/v1/realtimeanalytics/queries:search"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Running Database Queries in a particular services"
+      description: "Returns list of currently running Database queries in a particular services"
     };
   }
 }

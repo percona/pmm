@@ -35,11 +35,11 @@ var (
 	_ = metadata.Join
 )
 
-var filter_RealtimeAnalyticsService_ListRunningRealtimeAgents_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_RealtimeAnalyticsService_ListSessions_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_RealtimeAnalyticsService_ListRunningRealtimeAgents_0(ctx context.Context, marshaler runtime.Marshaler, client RealtimeAnalyticsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_RealtimeAnalyticsService_ListSessions_0(ctx context.Context, marshaler runtime.Marshaler, client RealtimeAnalyticsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListRunningRealtimeAgentsRequest
+		protoReq ListSessionsRequest
 		metadata runtime.ServerMetadata
 	)
 	if req.Body != nil {
@@ -48,31 +48,31 @@ func request_RealtimeAnalyticsService_ListRunningRealtimeAgents_0(ctx context.Co
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RealtimeAnalyticsService_ListRunningRealtimeAgents_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RealtimeAnalyticsService_ListSessions_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := client.ListRunningRealtimeAgents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListSessions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_RealtimeAnalyticsService_ListRunningRealtimeAgents_0(ctx context.Context, marshaler runtime.Marshaler, server RealtimeAnalyticsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_RealtimeAnalyticsService_ListSessions_0(ctx context.Context, marshaler runtime.Marshaler, server RealtimeAnalyticsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListRunningRealtimeAgentsRequest
+		protoReq ListSessionsRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RealtimeAnalyticsService_ListRunningRealtimeAgents_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RealtimeAnalyticsService_ListSessions_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.ListRunningRealtimeAgents(ctx, &protoReq)
+	msg, err := server.ListSessions(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0(ctx context.Context, marshaler runtime.Marshaler, client RealtimeAnalyticsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_RealtimeAnalyticsService_StartSession_0(ctx context.Context, marshaler runtime.Marshaler, client RealtimeAnalyticsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ChangeRealtimeAnalyticsRequest
+		protoReq StartSessionRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -81,19 +81,73 @@ func request_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0(ctx context.Cont
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	msg, err := client.ChangeRealtimeAnalytics(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.StartSession(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0(ctx context.Context, marshaler runtime.Marshaler, server RealtimeAnalyticsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_RealtimeAnalyticsService_StartSession_0(ctx context.Context, marshaler runtime.Marshaler, server RealtimeAnalyticsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ChangeRealtimeAnalyticsRequest
+		protoReq StartSessionRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.ChangeRealtimeAnalytics(ctx, &protoReq)
+	msg, err := server.StartSession(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_RealtimeAnalyticsService_StopSession_0(ctx context.Context, marshaler runtime.Marshaler, client RealtimeAnalyticsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq StopSessionRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.StopSession(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_RealtimeAnalyticsService_StopSession_0(ctx context.Context, marshaler runtime.Marshaler, server RealtimeAnalyticsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq StopSessionRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.StopSession(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_RealtimeAnalyticsService_SearchQueries_0(ctx context.Context, marshaler runtime.Marshaler, client RealtimeAnalyticsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SearchQueriesRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.SearchQueries(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_RealtimeAnalyticsService_SearchQueries_0(ctx context.Context, marshaler runtime.Marshaler, server RealtimeAnalyticsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SearchQueriesRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.SearchQueries(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -103,45 +157,85 @@ func local_request_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0(ctx contex
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRealtimeAnalyticsServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterRealtimeAnalyticsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RealtimeAnalyticsServiceServer) error {
-	mux.Handle(http.MethodGet, pattern_RealtimeAnalyticsService_ListRunningRealtimeAgents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_RealtimeAnalyticsService_ListSessions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents", runtime.WithHTTPPathPattern("/v1/realtime/agents"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ListSessions", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/sessions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_RealtimeAnalyticsService_ListRunningRealtimeAgents_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_RealtimeAnalyticsService_ListSessions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_RealtimeAnalyticsService_ListRunningRealtimeAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_RealtimeAnalyticsService_ListSessions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_RealtimeAnalyticsService_StartSession_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics", runtime.WithHTTPPathPattern("/v1/realtime/change"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/StartSession", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/sessions:start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_RealtimeAnalyticsService_StartSession_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_RealtimeAnalyticsService_StartSession_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_RealtimeAnalyticsService_StopSession_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/StopSession", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/sessions:stop"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_RealtimeAnalyticsService_StopSession_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_RealtimeAnalyticsService_StopSession_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_RealtimeAnalyticsService_SearchQueries_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/SearchQueries", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/queries:search"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_RealtimeAnalyticsService_SearchQueries_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_RealtimeAnalyticsService_SearchQueries_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -183,49 +277,87 @@ func RegisterRealtimeAnalyticsServiceHandler(ctx context.Context, mux *runtime.S
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "RealtimeAnalyticsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterRealtimeAnalyticsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RealtimeAnalyticsServiceClient) error {
-	mux.Handle(http.MethodGet, pattern_RealtimeAnalyticsService_ListRunningRealtimeAgents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_RealtimeAnalyticsService_ListSessions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ListRunningRealtimeAgents", runtime.WithHTTPPathPattern("/v1/realtime/agents"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ListSessions", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/sessions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_RealtimeAnalyticsService_ListRunningRealtimeAgents_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_RealtimeAnalyticsService_ListSessions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_RealtimeAnalyticsService_ListRunningRealtimeAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_RealtimeAnalyticsService_ListSessions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_RealtimeAnalyticsService_StartSession_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/ChangeRealtimeAnalytics", runtime.WithHTTPPathPattern("/v1/realtime/change"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/StartSession", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/sessions:start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_RealtimeAnalyticsService_StartSession_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_RealtimeAnalyticsService_StartSession_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_RealtimeAnalyticsService_StopSession_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/StopSession", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/sessions:stop"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_RealtimeAnalyticsService_StopSession_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_RealtimeAnalyticsService_StopSession_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_RealtimeAnalyticsService_SearchQueries_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/realtimeanalytics.v1.RealtimeAnalyticsService/SearchQueries", runtime.WithHTTPPathPattern("/v1/realtimeanalytics/queries:search"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_RealtimeAnalyticsService_SearchQueries_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_RealtimeAnalyticsService_SearchQueries_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
-	pattern_RealtimeAnalyticsService_ListRunningRealtimeAgents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtime", "agents"}, ""))
-	pattern_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtime", "change"}, ""))
+	pattern_RealtimeAnalyticsService_ListSessions_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtimeanalytics", "sessions"}, ""))
+	pattern_RealtimeAnalyticsService_StartSession_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtimeanalytics", "sessions"}, "start"))
+	pattern_RealtimeAnalyticsService_StopSession_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtimeanalytics", "sessions"}, "stop"))
+	pattern_RealtimeAnalyticsService_SearchQueries_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "realtimeanalytics", "queries"}, "search"))
 )
 
 var (
-	forward_RealtimeAnalyticsService_ListRunningRealtimeAgents_0 = runtime.ForwardResponseMessage
-	forward_RealtimeAnalyticsService_ChangeRealtimeAnalytics_0   = runtime.ForwardResponseMessage
+	forward_RealtimeAnalyticsService_ListSessions_0  = runtime.ForwardResponseMessage
+	forward_RealtimeAnalyticsService_StartSession_0  = runtime.ForwardResponseMessage
+	forward_RealtimeAnalyticsService_StopSession_0   = runtime.ForwardResponseMessage
+	forward_RealtimeAnalyticsService_SearchQueries_0 = runtime.ForwardResponseMessage
 )

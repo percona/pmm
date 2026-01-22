@@ -224,6 +224,8 @@ type AgentFilters struct {
 	AWSAccessKey string
 	// IgnoreNomad is used to ignore Nomad agents.
 	IgnoreNomad bool
+	// Disabled indicates whether to filter by disabled status.
+	Disabled *bool
 }
 
 // FindAgents returns Agents by filters.
@@ -268,6 +270,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.IgnoreNomad {
 		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
 		args = append(args, NomadAgentType)
+		idx++
+	}
+	if filters.Disabled != nil {
+		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
+		args = append(args, pointer.Get(filters.Disabled))
 	}
 
 	var whereClause string

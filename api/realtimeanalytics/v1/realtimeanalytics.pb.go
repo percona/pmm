@@ -17,8 +17,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -28,39 +26,93 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// RunningRealtimeAgent represents a currently running RTA agent.
-type RunningRealtimeAgent struct {
+// Status represents actual Real-Time Analytics session status.
+type SessionStatus int32
+
+const (
+	SessionStatus_SESSION_STATUS_UNSPECIFIED SessionStatus = 0
+	// Session encountered an error.
+	SessionStatus_SESSION_STATUS_ERROR SessionStatus = 1
+	// Session is running.
+	SessionStatus_SESSION_STATUS_RUNNING SessionStatus = 2
+	// Session has been stopped or disabled.
+	SessionStatus_SESSION_STATUS_DOWN SessionStatus = 3
+)
+
+// Enum value maps for SessionStatus.
+var (
+	SessionStatus_name = map[int32]string{
+		0: "SESSION_STATUS_UNSPECIFIED",
+		1: "SESSION_STATUS_ERROR",
+		2: "SESSION_STATUS_RUNNING",
+		3: "SESSION_STATUS_DOWN",
+	}
+	SessionStatus_value = map[string]int32{
+		"SESSION_STATUS_UNSPECIFIED": 0,
+		"SESSION_STATUS_ERROR":       1,
+		"SESSION_STATUS_RUNNING":     2,
+		"SESSION_STATUS_DOWN":        3,
+	}
+)
+
+func (x SessionStatus) Enum() *SessionStatus {
+	p := new(SessionStatus)
+	*p = x
+	return p
+}
+
+func (x SessionStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SessionStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes[0].Descriptor()
+}
+
+func (SessionStatus) Type() protoreflect.EnumType {
+	return &file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes[0]
+}
+
+func (x SessionStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SessionStatus.Descriptor instead.
+func (SessionStatus) EnumDescriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{0}
+}
+
+// Session represents an active Real-Time Analytics session.
+type Session struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Unique agent identifier.
-	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	// Service identifier that the agent is monitoring.
-	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Service identifier that has enabled Real-Time Analytics session.
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// Service name.
-	ServiceName string `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// Cluster name the service belongs to.
-	Cluster string `protobuf:"bytes,4,opt,name=cluster,proto3" json:"cluster,omitempty"`
-	// Timestamp when the agent was started.
-	StartedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
-	// Current status of the agent.
-	Status        v1.AgentStatus `protobuf:"varint,6,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`
+	ClusterName string `protobuf:"bytes,3,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
+	// Timestamp when the Real-Time Analytics session started.
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// Current status of the Real-Time Analytics session.
+	Status        SessionStatus `protobuf:"varint,5,opt,name=status,proto3,enum=realtimeanalytics.v1.SessionStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RunningRealtimeAgent) Reset() {
-	*x = RunningRealtimeAgent{}
+func (x *Session) Reset() {
+	*x = Session{}
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RunningRealtimeAgent) String() string {
+func (x *Session) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RunningRealtimeAgent) ProtoMessage() {}
+func (*Session) ProtoMessage() {}
 
-func (x *RunningRealtimeAgent) ProtoReflect() protoreflect.Message {
+func (x *Session) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -72,76 +124,69 @@ func (x *RunningRealtimeAgent) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RunningRealtimeAgent.ProtoReflect.Descriptor instead.
-func (*RunningRealtimeAgent) Descriptor() ([]byte, []int) {
+// Deprecated: Use Session.ProtoReflect.Descriptor instead.
+func (*Session) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RunningRealtimeAgent) GetAgentId() string {
-	if x != nil {
-		return x.AgentId
-	}
-	return ""
-}
-
-func (x *RunningRealtimeAgent) GetServiceId() string {
+func (x *Session) GetServiceId() string {
 	if x != nil {
 		return x.ServiceId
 	}
 	return ""
 }
 
-func (x *RunningRealtimeAgent) GetServiceName() string {
+func (x *Session) GetServiceName() string {
 	if x != nil {
 		return x.ServiceName
 	}
 	return ""
 }
 
-func (x *RunningRealtimeAgent) GetCluster() string {
+func (x *Session) GetClusterName() string {
 	if x != nil {
-		return x.Cluster
+		return x.ClusterName
 	}
 	return ""
 }
 
-func (x *RunningRealtimeAgent) GetStartedAt() *timestamppb.Timestamp {
+func (x *Session) GetStartTime() *timestamppb.Timestamp {
 	if x != nil {
-		return x.StartedAt
+		return x.StartTime
 	}
 	return nil
 }
 
-func (x *RunningRealtimeAgent) GetStatus() v1.AgentStatus {
+func (x *Session) GetStatus() SessionStatus {
 	if x != nil {
 		return x.Status
 	}
-	return v1.AgentStatus(0)
+	return SessionStatus_SESSION_STATUS_UNSPECIFIED
 }
 
-// ListRunningRealtimeAgentsRequest contains optional filters for listing running RTA agents.
-type ListRunningRealtimeAgentsRequest struct {
+// ListSessionsRequest contains optional filters for listing active Real-Time Analytics Sessions for a particular cluster.
+type ListSessionsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional filter by cluster name.
-	Cluster       string `protobuf:"bytes,1,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	ClusterName   string `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRunningRealtimeAgentsRequest) Reset() {
-	*x = ListRunningRealtimeAgentsRequest{}
+func (x *ListSessionsRequest) Reset() {
+	*x = ListSessionsRequest{}
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRunningRealtimeAgentsRequest) String() string {
+func (x *ListSessionsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRunningRealtimeAgentsRequest) ProtoMessage() {}
+func (*ListSessionsRequest) ProtoMessage() {}
 
-func (x *ListRunningRealtimeAgentsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -153,41 +198,41 @@ func (x *ListRunningRealtimeAgentsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRunningRealtimeAgentsRequest.ProtoReflect.Descriptor instead.
-func (*ListRunningRealtimeAgentsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
+func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListRunningRealtimeAgentsRequest) GetCluster() string {
+func (x *ListSessionsRequest) GetClusterName() string {
 	if x != nil {
-		return x.Cluster
+		return x.ClusterName
 	}
 	return ""
 }
 
-// ListRunningRealtimeAgentsResponse returns the list of running RTA agents.
-type ListRunningRealtimeAgentsResponse struct {
+// ListSessionsResponse returns the list of currently active Real-Time Analytics Sessions.
+type ListSessionsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// List of running RTA agents.
-	Agents        []*RunningRealtimeAgent `protobuf:"bytes,1,rep,name=agents,proto3" json:"agents,omitempty"`
+	// List of active Real-Time Analytics Sessions.
+	Sessions      []*Session `protobuf:"bytes,1,rep,name=sessions,proto3" json:"sessions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRunningRealtimeAgentsResponse) Reset() {
-	*x = ListRunningRealtimeAgentsResponse{}
+func (x *ListSessionsResponse) Reset() {
+	*x = ListSessionsResponse{}
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRunningRealtimeAgentsResponse) String() string {
+func (x *ListSessionsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRunningRealtimeAgentsResponse) ProtoMessage() {}
+func (*ListSessionsResponse) ProtoMessage() {}
 
-func (x *ListRunningRealtimeAgentsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -199,43 +244,41 @@ func (x *ListRunningRealtimeAgentsResponse) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRunningRealtimeAgentsResponse.ProtoReflect.Descriptor instead.
-func (*ListRunningRealtimeAgentsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
+func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListRunningRealtimeAgentsResponse) GetAgents() []*RunningRealtimeAgent {
+func (x *ListSessionsResponse) GetSessions() []*Session {
 	if x != nil {
-		return x.Agents
+		return x.Sessions
 	}
 	return nil
 }
 
-// ChangeRealtimeAnalyticsRequest contains parameters for enabling or disabling RTA.
-type ChangeRealtimeAnalyticsRequest struct {
+// StartSessionRequest contains parameters for starting Real-Time Analytics session.
+type StartSessionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Enable or disable RTA.
-	Enable bool `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
-	// Service identifier.
-	ServiceId     string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Required service identifier the Real-Time Analytics session shall be started for.
+	ServiceId     string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ChangeRealtimeAnalyticsRequest) Reset() {
-	*x = ChangeRealtimeAnalyticsRequest{}
+func (x *StartSessionRequest) Reset() {
+	*x = StartSessionRequest{}
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ChangeRealtimeAnalyticsRequest) String() string {
+func (x *StartSessionRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ChangeRealtimeAnalyticsRequest) ProtoMessage() {}
+func (*StartSessionRequest) ProtoMessage() {}
 
-func (x *ChangeRealtimeAnalyticsRequest) ProtoReflect() protoreflect.Message {
+func (x *StartSessionRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -247,46 +290,41 @@ func (x *ChangeRealtimeAnalyticsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ChangeRealtimeAnalyticsRequest.ProtoReflect.Descriptor instead.
-func (*ChangeRealtimeAnalyticsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use StartSessionRequest.ProtoReflect.Descriptor instead.
+func (*StartSessionRequest) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ChangeRealtimeAnalyticsRequest) GetEnable() bool {
-	if x != nil {
-		return x.Enable
-	}
-	return false
-}
-
-func (x *ChangeRealtimeAnalyticsRequest) GetServiceId() string {
+func (x *StartSessionRequest) GetServiceId() string {
 	if x != nil {
 		return x.ServiceId
 	}
 	return ""
 }
 
-// ChangeRealtimeAnalyticsResponse is the response for changing RTA configuration.
-type ChangeRealtimeAnalyticsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+// StopSessionRequest contains parameters for stopping Real-Time Analytics session.
+type StopSessionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required service identifier the Real-Time Analytics session shall be stopped for.
+	ServiceId     string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ChangeRealtimeAnalyticsResponse) Reset() {
-	*x = ChangeRealtimeAnalyticsResponse{}
+func (x *StopSessionRequest) Reset() {
+	*x = StopSessionRequest{}
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ChangeRealtimeAnalyticsResponse) String() string {
+func (x *StopSessionRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ChangeRealtimeAnalyticsResponse) ProtoMessage() {}
+func (*StopSessionRequest) ProtoMessage() {}
 
-func (x *ChangeRealtimeAnalyticsResponse) ProtoReflect() protoreflect.Message {
+func (x *StopSessionRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -298,37 +336,197 @@ func (x *ChangeRealtimeAnalyticsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ChangeRealtimeAnalyticsResponse.ProtoReflect.Descriptor instead.
-func (*ChangeRealtimeAnalyticsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use StopSessionRequest.ProtoReflect.Descriptor instead.
+func (*StopSessionRequest) Descriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StopSessionRequest) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+// StopSessionResponse is the response for stopping Real-Time Analytics session.
+type StopSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopSessionResponse) Reset() {
+	*x = StopSessionResponse{}
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopSessionResponse) ProtoMessage() {}
+
+func (x *StopSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopSessionResponse.ProtoReflect.Descriptor instead.
+func (*StopSessionResponse) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{5}
+}
+
+// SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.
+type SearchQueriesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional filter by Service identifiers.
+	ServiceIds []string `protobuf:"bytes,1,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
+	// Optional limit the number of queries in response.
+	Limit         int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchQueriesRequest) Reset() {
+	*x = SearchQueriesRequest{}
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchQueriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchQueriesRequest) ProtoMessage() {}
+
+func (x *SearchQueriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchQueriesRequest.ProtoReflect.Descriptor instead.
+func (*SearchQueriesRequest) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SearchQueriesRequest) GetServiceIds() []string {
+	if x != nil {
+		return x.ServiceIds
+	}
+	return nil
+}
+
+func (x *SearchQueriesRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// SearchQueriesResponse returns the list of currently active Real-Time Analytics session Queries.
+type SearchQueriesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// List of active Real-Time Analytics session Queries.
+	Queries       []*QueryData `protobuf:"bytes,1,rep,name=queries,proto3" json:"queries,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchQueriesResponse) Reset() {
+	*x = SearchQueriesResponse{}
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchQueriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchQueriesResponse) ProtoMessage() {}
+
+func (x *SearchQueriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchQueriesResponse.ProtoReflect.Descriptor instead.
+func (*SearchQueriesResponse) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SearchQueriesResponse) GetQueries() []*QueryData {
+	if x != nil {
+		return x.Queries
+	}
+	return nil
 }
 
 var File_realtimeanalytics_v1_realtimeanalytics_proto protoreflect.FileDescriptor
 
 const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\n" +
-	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1finventory/v1/agent_status.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xfb\x01\n" +
-	"\x14RunningRealtimeAgent\x12\x19\n" +
-	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x1d\n" +
+	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a realtimeanalytics/v1/query.proto\x1a\x17validate/validate.proto\"\xe6\x01\n" +
+	"\aSession\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tR\tserviceId\x12!\n" +
-	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x12\x18\n" +
-	"\acluster\x18\x04 \x01(\tR\acluster\x129\n" +
+	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
+	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x12!\n" +
+	"\fcluster_name\x18\x03 \x01(\tR\vclusterName\x129\n" +
 	"\n" +
-	"started_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x121\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\"<\n" +
-	" ListRunningRealtimeAgentsRequest\x12\x18\n" +
-	"\acluster\x18\x01 \x01(\tR\acluster\"g\n" +
-	"!ListRunningRealtimeAgentsResponse\x12B\n" +
-	"\x06agents\x18\x01 \x03(\v2*.realtimeanalytics.v1.RunningRealtimeAgentR\x06agents\"`\n" +
-	"\x1eChangeRealtimeAnalyticsRequest\x12\x16\n" +
-	"\x06enable\x18\x01 \x01(\bR\x06enable\x12&\n" +
+	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12;\n" +
+	"\x06status\x18\x05 \x01(\x0e2#.realtimeanalytics.v1.SessionStatusR\x06status\"8\n" +
+	"\x13ListSessionsRequest\x12!\n" +
+	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\"Q\n" +
+	"\x14ListSessionsResponse\x129\n" +
+	"\bsessions\x18\x01 \x03(\v2\x1d.realtimeanalytics.v1.SessionR\bsessions\"=\n" +
+	"\x13StartSessionRequest\x12&\n" +
 	"\n" +
-	"service_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"!\n" +
-	"\x1fChangeRealtimeAnalyticsResponse2\x91\x05\n" +
-	"\x18RealtimeAnalyticsService\x12\xdc\x02\n" +
-	"\x19ListRunningRealtimeAgents\x126.realtimeanalytics.v1.ListRunningRealtimeAgentsRequest\x1a7.realtimeanalytics.v1.ListRunningRealtimeAgentsResponse\"\xcd\x01\x92A\xae\x01\x12\x17List Running RTA Agents\x1a\x92\x01Returns the list of all currently running Real-Time Analytics agents with their details including service, cluster, agent, and status information.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/realtime/agents\x12\x95\x02\n" +
-	"\x17ChangeRealtimeAnalytics\x124.realtimeanalytics.v1.ChangeRealtimeAnalyticsRequest\x1a5.realtimeanalytics.v1.ChangeRealtimeAnalyticsResponse\"\x8c\x01\x92Ak\x12(Change Real-Time Analytics Configuration\x1a?Enables or disables Real-Time Analytics for a specific service.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/realtime/changeB\xe8\x01\n" +
+	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"<\n" +
+	"\x12StopSessionRequest\x12&\n" +
+	"\n" +
+	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"\x15\n" +
+	"\x13StopSessionResponse\"Y\n" +
+	"\x14SearchQueriesRequest\x12+\n" +
+	"\vservice_ids\x18\x01 \x03(\tB\n" +
+	"\xfaB\a\x92\x01\x04\b\x01\x18\x01R\n" +
+	"serviceIds\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\"R\n" +
+	"\x15SearchQueriesResponse\x129\n" +
+	"\aqueries\x18\x01 \x03(\v2\x1f.realtimeanalytics.v1.QueryDataR\aqueries*~\n" +
+	"\rSessionStatus\x12\x1e\n" +
+	"\x1aSESSION_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14SESSION_STATUS_ERROR\x10\x01\x12\x1a\n" +
+	"\x16SESSION_STATUS_RUNNING\x10\x02\x12\x17\n" +
+	"\x13SESSION_STATUS_DOWN\x10\x032\xf4\b\n" +
+	"\x18RealtimeAnalyticsService\x12\xcc\x02\n" +
+	"\fListSessions\x12).realtimeanalytics.v1.ListSessionsRequest\x1a*.realtimeanalytics.v1.ListSessionsResponse\"\xe4\x01\x92A\xba\x01\x12)List Running Real-Time Analytics Sessions\x1a\x8c\x01Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information.\x82\xd3\xe4\x93\x02 \x12\x1e/v1/realtimeanalytics/sessions\x12\xec\x01\n" +
+	"\fStartSession\x12).realtimeanalytics.v1.StartSessionRequest\x1a\x1d.realtimeanalytics.v1.Session\"\x91\x01\x92A_\x12!Start Real-Time Analytics session\x1a:Start Real-Time Analytics session for a specified service.\x82\xd3\xe4\x93\x02):\x01*\"$/v1/realtimeanalytics/sessions:start\x12\xf3\x01\n" +
+	"\vStopSession\x12(.realtimeanalytics.v1.StopSessionRequest\x1a).realtimeanalytics.v1.StopSessionResponse\"\x8e\x01\x92A]\x12 Stop Real-Time Analytics session\x1a9Stop Real-Time Analytics session for a specified service.\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/realtimeanalytics/sessions:stop\x12\xa3\x02\n" +
+	"\rSearchQueries\x12*.realtimeanalytics.v1.SearchQueriesRequest\x1a+.realtimeanalytics.v1.SearchQueriesResponse\"\xb8\x01\x92A\x85\x01\x126List Running Database Queries in a particular services\x1aKReturns list of currently running Database queries in a particular services\x82\xd3\xe4\x93\x02):\x01*\"$/v1/realtimeanalytics/queries:searchB\xe8\x01\n" +
 	"\x18com.realtimeanalytics.v1B\x16RealtimeanalyticsProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
 
 var (
@@ -344,31 +542,41 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-	file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes  = []any{
-		(*RunningRealtimeAgent)(nil),              // 0: realtimeanalytics.v1.RunningRealtimeAgent
-		(*ListRunningRealtimeAgentsRequest)(nil),  // 1: realtimeanalytics.v1.ListRunningRealtimeAgentsRequest
-		(*ListRunningRealtimeAgentsResponse)(nil), // 2: realtimeanalytics.v1.ListRunningRealtimeAgentsResponse
-		(*ChangeRealtimeAnalyticsRequest)(nil),    // 3: realtimeanalytics.v1.ChangeRealtimeAnalyticsRequest
-		(*ChangeRealtimeAnalyticsResponse)(nil),   // 4: realtimeanalytics.v1.ChangeRealtimeAnalyticsResponse
-		(*timestamppb.Timestamp)(nil),             // 5: google.protobuf.Timestamp
-		(v1.AgentStatus)(0),                       // 6: inventory.v1.AgentStatus
+	file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
+	file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes   = []any{
+		(SessionStatus)(0),            // 0: realtimeanalytics.v1.SessionStatus
+		(*Session)(nil),               // 1: realtimeanalytics.v1.Session
+		(*ListSessionsRequest)(nil),   // 2: realtimeanalytics.v1.ListSessionsRequest
+		(*ListSessionsResponse)(nil),  // 3: realtimeanalytics.v1.ListSessionsResponse
+		(*StartSessionRequest)(nil),   // 4: realtimeanalytics.v1.StartSessionRequest
+		(*StopSessionRequest)(nil),    // 5: realtimeanalytics.v1.StopSessionRequest
+		(*StopSessionResponse)(nil),   // 6: realtimeanalytics.v1.StopSessionResponse
+		(*SearchQueriesRequest)(nil),  // 7: realtimeanalytics.v1.SearchQueriesRequest
+		(*SearchQueriesResponse)(nil), // 8: realtimeanalytics.v1.SearchQueriesResponse
+		(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+		(*QueryData)(nil),             // 10: realtimeanalytics.v1.QueryData
 	}
 )
 
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
-	5, // 0: realtimeanalytics.v1.RunningRealtimeAgent.started_at:type_name -> google.protobuf.Timestamp
-	6, // 1: realtimeanalytics.v1.RunningRealtimeAgent.status:type_name -> inventory.v1.AgentStatus
-	0, // 2: realtimeanalytics.v1.ListRunningRealtimeAgentsResponse.agents:type_name -> realtimeanalytics.v1.RunningRealtimeAgent
-	1, // 3: realtimeanalytics.v1.RealtimeAnalyticsService.ListRunningRealtimeAgents:input_type -> realtimeanalytics.v1.ListRunningRealtimeAgentsRequest
-	3, // 4: realtimeanalytics.v1.RealtimeAnalyticsService.ChangeRealtimeAnalytics:input_type -> realtimeanalytics.v1.ChangeRealtimeAnalyticsRequest
-	2, // 5: realtimeanalytics.v1.RealtimeAnalyticsService.ListRunningRealtimeAgents:output_type -> realtimeanalytics.v1.ListRunningRealtimeAgentsResponse
-	4, // 6: realtimeanalytics.v1.RealtimeAnalyticsService.ChangeRealtimeAnalytics:output_type -> realtimeanalytics.v1.ChangeRealtimeAnalyticsResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	9,  // 0: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
+	0,  // 1: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
+	1,  // 2: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
+	10, // 3: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
+	2,  // 4: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
+	4,  // 5: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
+	5,  // 6: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
+	7,  // 7: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
+	3,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
+	1,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.Session
+	6,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
+	8,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
+	8,  // [8:12] is the sub-list for method output_type
+	4,  // [4:8] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_realtimeanalytics_proto_init() }
@@ -376,18 +584,20 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_init() {
 	if File_realtimeanalytics_v1_realtimeanalytics_proto != nil {
 		return
 	}
+	file_realtimeanalytics_v1_query_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc), len(file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   5,
+			NumEnums:      1,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes,
 		DependencyIndexes: file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs,
+		EnumInfos:         file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes,
 		MessageInfos:      file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes,
 	}.Build()
 	File_realtimeanalytics_v1_realtimeanalytics_proto = out.File
