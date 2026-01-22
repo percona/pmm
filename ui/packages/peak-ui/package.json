@@ -15,7 +15,7 @@
     "dist"
   ],
  "publishConfig": {
-  "registry": "https://npm.pkg.github.com/@percona"
+  "registry": "https://npm.pkg.github.com"
  },
   "devDependencies": {
     "@emotion/react": "^11.11.4",
