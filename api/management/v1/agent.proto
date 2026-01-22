@@ -140,7 +140,7 @@ message UniversalAgent {
   bool expose_exporter = 40;
   // Options for connecting to Valkey.
   ValkeyOptions valkey_options = 41;
-  // Real-time analytics options.
+  // Real-Time Analytics options.
   inventory.v1.RTAOptions rta_options = 42;
 }
 

@@ -7342,7 +7342,7 @@
                 "rta_mongodb_agent": {
                   "type": "array",
                   "items": {
-                    "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.",
+                    "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -7389,11 +7389,11 @@
                         "x-order": 7
                       },
                       "rta_options": {
-                        "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                        "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                         "type": "object",
                         "properties": {
                           "collect_interval": {
-                            "description": "Queries collection interval (default 1s is set by server).",
+                            "description": "Query collect interval (default 1s is set by server).",
                             "type": "string",
                             "x-order": 0
                           }
@@ -8977,11 +8977,11 @@
                       "x-order": 13
                     },
                     "rta_options": {
-                      "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Queries collection interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 1s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -10844,7 +10844,7 @@
                   "x-order": 15
                 },
                 "rta_mongodb_agent": {
-                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.",
+                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -10891,11 +10891,11 @@
                       "x-order": 7
                     },
                     "rta_options": {
-                      "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Queries collection interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 1s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -12931,7 +12931,7 @@
                   "x-order": 17
                 },
                 "rta_mongodb_agent": {
-                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.",
+                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -12978,11 +12978,11 @@
                       "x-order": 7
                     },
                     "rta_options": {
-                      "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Queries collection interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 1s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -13942,11 +13942,11 @@
                       "x-order": 1
                     },
                     "rta_options": {
-                      "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Queries collection interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 1s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -15822,7 +15822,7 @@
                   "x-order": 15
                 },
                 "rta_mongodb_agent": {
-                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.",
+                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -15869,11 +15869,11 @@
                       "x-order": 7
                     },
                     "rta_options": {
-                      "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Queries collection interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 1s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -20348,11 +20348,11 @@
                         "x-order": 40
                       },
                       "rta_options": {
-                        "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                        "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                         "type": "object",
                         "properties": {
                           "collect_interval": {
-                            "description": "Queries collection interval (default 1s is set by server).",
+                            "description": "Query collect interval (default 1s is set by server).",
                             "type": "string",
                             "x-order": 0
                           }
@@ -21902,11 +21902,11 @@
                               "x-order": 40
                             },
                             "rta_options": {
-                              "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                              "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                               "type": "object",
                               "properties": {
                                 "collect_interval": {
-                                  "description": "Queries collection interval (default 1s is set by server).",
+                                  "description": "Query collect interval (default 1s is set by server).",
                                   "type": "string",
                                   "x-order": 0
                                 }
@@ -22522,7 +22522,7 @@
                       "x-order": 33
                     },
                     "rta_mongodb_agent": {
-                      "description": "If true, adds Real-time analytics agent for the provided service.",
+                      "description": "If true, adds Real-Time Analytics agent for the provided service.",
                       "type": "boolean",
                       "x-order": 34
                     }
@@ -24675,7 +24675,7 @@
                       "x-order": 3
                     },
                     "rta_mongodb_agent": {
-                      "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.",
+                      "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
                       "type": "object",
                       "properties": {
                         "agent_id": {
@@ -24722,11 +24722,11 @@
                           "x-order": 7
                         },
                         "rta_options": {
-                          "description": "RTAOptions holds Real-time Query Analytics agent options.",
+                          "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                           "type": "object",
                           "properties": {
                             "collect_interval": {
-                              "description": "Queries collection interval (default 1s is set by server).",
+                              "description": "Query collect interval (default 1s is set by server).",
                               "type": "string",
                               "x-order": 0
                             }

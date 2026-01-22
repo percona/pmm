@@ -170,7 +170,7 @@ type UniversalAgent struct {
 	ExposeExporter bool `protobuf:"varint,40,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Options for connecting to Valkey.
 	ValkeyOptions *UniversalAgent_ValkeyOptions `protobuf:"bytes,41,opt,name=valkey_options,json=valkeyOptions,proto3" json:"valkey_options,omitempty"`
-	// Real-time analytics options.
+	// Real-Time Analytics options.
 	RtaOptions    *v1.RTAOptions `protobuf:"bytes,42,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

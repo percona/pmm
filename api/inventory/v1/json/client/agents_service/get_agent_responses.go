@@ -5511,7 +5511,7 @@ func (o *GetAgentOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) 
 }
 
 /*
-GetAgentOKBodyRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.
+GetAgentOKBodyRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyRtaMongodbAgent
 */
 type GetAgentOKBodyRtaMongodbAgent struct {
@@ -5777,11 +5777,11 @@ func (o *GetAgentOKBodyRtaMongodbAgent) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetAgentOKBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-time Query Analytics agent options.
+GetAgentOKBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
 swagger:model GetAgentOKBodyRtaMongodbAgentRtaOptions
 */
 type GetAgentOKBodyRtaMongodbAgentRtaOptions struct {
-	// Queries collection interval (default 1s is set by server).
+	// Query collect interval (default 1s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
 

@@ -529,13 +529,13 @@ message QANMongoDBMongologAgent {
   LogLevel log_level = 22;
 }
 
-// RTAOptions holds Real-time Query Analytics agent options.
+// RTAOptions holds Real-Time Query Analytics agent options.
 message RTAOptions {
-  // Queries collection interval (default 1s is set by server).
+  // Query collect interval (default 1s is set by server).
   google.protobuf.Duration collect_interval = 1;
 }
 
-// RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.
+// RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.
 message RTAMongoDBAgent {
   // Unique agent identifier.
   string agent_id = 1;
@@ -553,7 +553,7 @@ message RTAMongoDBAgent {
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
-  // Real-time analytics options.
+  // Real-Time Analytics options.
   RTAOptions rta_options = 9;
   // Actual Agent status.
   AgentStatus status = 10;
@@ -1669,7 +1669,7 @@ message AddRTAMongoDBAgentParams {
   // Authentication database.
   string authentication_database = 14;
 
-  // Real-time analytics options.
+  // Real-Time Analytics options.
   RTAOptions rta_options = 15;
 }
 
@@ -1678,7 +1678,7 @@ message ChangeRTAMongoDBAgentParams {
   optional bool enable = 1;
   // Replace all custom user-assigned labels.
   optional common.StringMap custom_labels = 2;
-  // Real-time analytics options.
+  // Real-Time Analytics options.
   RTAOptions rta_options = 3;
 }
 

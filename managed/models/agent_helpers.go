@@ -178,7 +178,7 @@ func AzureOptionsFromRequest(params AzureOptionsParams) AzureOptions {
 	return AzureOptions{}
 }
 
-// RTAOptionsParams contains parameters for Real-time analytics Agent.
+// RTAOptionsParams contains parameters for Real-Time Analytics Agent.
 type RTAOptionsParams interface {
 	GetCollectInterval() *durationpb.Duration
 }
@@ -1140,7 +1140,7 @@ func IsPushMetricsSupported(pmmAgentVersion *string) bool {
 	return true
 }
 
-// CreateRTAMongoDBAgent creates a MongoDB Real-time analytics agent.
+// CreateRTAMongoDBAgent creates a MongoDB Real-Time Analytics agent.
 // It retrieves credentials and pmm-agent ID from existing MongoDB agents for the service.
 // If a MongoDB Realtime Agent already exists for the service, it returns the existing agent.
 func CreateRTAMongoDBAgent(q *reform.Querier, serviceID string, customLabels map[string]string, disabled bool) (*Agent, error) {

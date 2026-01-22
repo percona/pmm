@@ -3317,7 +3317,7 @@ func (o *AddServiceOKBodyMongodbQANMongodbProfiler) UnmarshalBinary(b []byte) er
 }
 
 /*
-AddServiceOKBodyMongodbRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.
+AddServiceOKBodyMongodbRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.
 swagger:model AddServiceOKBodyMongodbRtaMongodbAgent
 */
 type AddServiceOKBodyMongodbRtaMongodbAgent struct {
@@ -3583,11 +3583,11 @@ func (o *AddServiceOKBodyMongodbRtaMongodbAgent) UnmarshalBinary(b []byte) error
 }
 
 /*
-AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions RTAOptions holds Real-time Query Analytics agent options.
+AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
 swagger:model AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions
 */
 type AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions struct {
-	// Queries collection interval (default 1s is set by server).
+	// Query collect interval (default 1s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
 
@@ -9949,7 +9949,7 @@ type AddServiceParamsBodyMongodb struct {
 	// Values will be resolved from pmm-agent's environment when starting the exporter.
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
-	// If true, adds Real-time analytics agent for the provided service.
+	// If true, adds Real-Time Analytics agent for the provided service.
 	RtaMongodbAgent bool `json:"rta_mongodb_agent,omitempty"`
 
 	// add node

@@ -62,7 +62,7 @@ type commonAgentParams struct {
 	EnablePushMetrics  *bool
 	CustomLabels       *common.StringMap
 	MetricsResolutions *common.MetricsResolutions
-	// Real-time analytics options.
+	// Real-Time Analytics options.
 	RTAOptions *models.RTAOptions
 }
 
@@ -1455,7 +1455,7 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 	return res, nil
 }
 
-// AddRTAMongoDBAgent adds MongoDB Real-time analytics Agent.
+// AddRTAMongoDBAgent adds MongoDB Real-Time Analytics Agent.
 func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.AddRTAMongoDBAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.RTAMongoDBAgent
 
@@ -1517,7 +1517,7 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 	return res, e
 }
 
-// ChangeRTAMongoDBAgent updates MongoDB Real-time analytics Agent with given parameters.
+// ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.
 func (as *AgentsService) ChangeRTAMongoDBAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeRTAMongoDBAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
 	params := &commonAgentParams{
 		Enable:       p.Enable,

@@ -2243,10 +2243,10 @@ func (x *QANMongoDBMongologAgent) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
-// RTAOptions holds Real-time Query Analytics agent options.
+// RTAOptions holds Real-Time Query Analytics agent options.
 type RTAOptions struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Queries collection interval (default 1s is set by server).
+	// Query collect interval (default 1s is set by server).
 	CollectInterval *durationpb.Duration `protobuf:"bytes,1,opt,name=collect_interval,json=collectInterval,proto3" json:"collect_interval,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -2289,7 +2289,7 @@ func (x *RTAOptions) GetCollectInterval() *durationpb.Duration {
 	return nil
 }
 
-// RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.
+// RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.
 type RTAMongoDBAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique agent identifier.
@@ -2308,7 +2308,7 @@ type RTAMongoDBAgent struct {
 	TlsSkipVerify bool `protobuf:"varint,7,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// Real-time analytics options.
+	// Real-Time Analytics options.
 	RtaOptions *RTAOptions `protobuf:"bytes,9,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,10,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`
@@ -9057,7 +9057,7 @@ type AddRTAMongoDBAgentParams struct {
 	AuthenticationMechanism string `protobuf:"bytes,13,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
-	// Real-time analytics options.
+	// Real-Time Analytics options.
 	RtaOptions    *RTAOptions `protobuf:"bytes,15,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -9204,7 +9204,7 @@ type ChangeRTAMongoDBAgentParams struct {
 	Enable *bool `protobuf:"varint,1,opt,name=enable,proto3,oneof" json:"enable,omitempty"`
 	// Replace all custom user-assigned labels.
 	CustomLabels *common.StringMap `protobuf:"bytes,2,opt,name=custom_labels,json=customLabels,proto3,oneof" json:"custom_labels,omitempty"`
-	// Real-time analytics options.
+	// Real-Time Analytics options.
 	RtaOptions    *RTAOptions `protobuf:"bytes,3,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
