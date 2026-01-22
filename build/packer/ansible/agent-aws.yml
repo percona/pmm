@@ -4,12 +4,12 @@
   become: true
   vars:
     docker_compose_version: "2.26.1"
-    kubectl_version: "1.33.5"
-    doctl_version: "1.145.0"
+    kubectl_version: "1.35.0"
+    doctl_version: "1.148.0"
     node_version: "22.x"
-    goreleaser_version: "2.12.5" # https://github.com/goreleaser/goreleaser/releases
-    eksctl_version: "0.215.0"
-    helm_version: "3.19.0"
+    goreleaser_version: "2.13.3" # https://github.com/goreleaser/goreleaser/releases
+    eksctl_version: "0.221.0"
+    helm_version: "3.20.0"
 
   tasks:
     - name: Detect vm architecture
