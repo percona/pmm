@@ -43,6 +43,7 @@ func (v *agentTableType) Columns() []string {
 		"listen_port",
 		"version",
 		"process_exec_path",
+		"is_connected",
 		"username",
 		"password",
 		"agent_password",
@@ -96,6 +97,7 @@ var AgentTable = &agentTableType{
 			{Name: "ListenPort", Type: "*uint16", Column: "listen_port"},
 			{Name: "Version", Type: "*string", Column: "version"},
 			{Name: "ProcessExecPath", Type: "*string", Column: "process_exec_path"},
+			{Name: "IsConnected", Type: "bool", Column: "is_connected"},
 			{Name: "Username", Type: "*string", Column: "username"},
 			{Name: "Password", Type: "*string", Column: "password"},
 			{Name: "AgentPassword", Type: "*string", Column: "agent_password"},
@@ -118,7 +120,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 29)
+	res := make([]string, 30)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -134,20 +136,21 @@ func (s Agent) String() string {
 	res[12] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
 	res[13] = "Version: " + reform.Inspect(s.Version, true)
 	res[14] = "ProcessExecPath: " + reform.Inspect(s.ProcessExecPath, true)
-	res[15] = "Username: " + reform.Inspect(s.Username, true)
-	res[16] = "Password: " + reform.Inspect(s.Password, true)
-	res[17] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
-	res[18] = "TLS: " + reform.Inspect(s.TLS, true)
-	res[19] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
-	res[20] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
-	res[21] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
-	res[22] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
-	res[23] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
-	res[24] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
-	res[25] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[26] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[27] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
-	res[28] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
+	res[15] = "IsConnected: " + reform.Inspect(s.IsConnected, true)
+	res[16] = "Username: " + reform.Inspect(s.Username, true)
+	res[17] = "Password: " + reform.Inspect(s.Password, true)
+	res[18] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
+	res[19] = "TLS: " + reform.Inspect(s.TLS, true)
+	res[20] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
+	res[21] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[22] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
+	res[23] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
+	res[24] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
+	res[25] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
+	res[26] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[27] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[28] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[29] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -170,6 +173,7 @@ func (s *Agent) Values() []interface{} {
 		s.ListenPort,
 		s.Version,
 		s.ProcessExecPath,
+		s.IsConnected,
 		s.Username,
 		s.Password,
 		s.AgentPassword,
@@ -206,6 +210,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.ListenPort,
 		&s.Version,
 		&s.ProcessExecPath,
+		&s.IsConnected,
 		&s.Username,
 		&s.Password,
 		&s.AgentPassword,

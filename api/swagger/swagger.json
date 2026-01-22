@@ -4191,6 +4191,145 @@
         }
       }
     },
+    "/v1/ha/nodes": {
+      "get": {
+        "description": "Returns a list of all nodes in the High Availability cluster with their current status and roles.",
+        "tags": [
+          "HAService"
+        ],
+        "summary": "List HA Nodes",
+        "operationId": "ListNodesMixin10",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "description": "List of nodes in the HA cluster.",
+                  "type": "array",
+                  "items": {
+                    "description": "HANode represents a single node in the HA cluster.",
+                    "type": "object",
+                    "properties": {
+                      "node_name": {
+                        "description": "Human-readable name of the node.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "role": {
+                        "description": "NodeRole represents the role of a node in the HA cluster.",
+                        "type": "string",
+                        "default": "NODE_ROLE_UNSPECIFIED",
+                        "enum": [
+                          "NODE_ROLE_UNSPECIFIED",
+                          "NODE_ROLE_LEADER",
+                          "NODE_ROLE_FOLLOWER"
+                        ],
+                        "x-order": 1
+                      },
+                      "status": {
+                        "description": "Current status of the node from MemberList.",
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ha/status": {
+      "get": {
+        "description": "Returns whether High Availability mode is enabled or disabled.",
+        "tags": [
+          "HAService"
+        ],
+        "summary": "HA Status",
+        "operationId": "Status",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "Status of HA mode: \"Enabled\" or \"Disabled\".",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/agents": {
       "get": {
         "description": "Returns a list of all Agents.",
@@ -14562,6 +14701,11 @@
                           "type": "string"
                         },
                         "x-order": 8
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
@@ -14625,6 +14769,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 10
                       }
                     }
                   },
@@ -15111,6 +15260,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -15171,6 +15325,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -15426,6 +15585,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -15486,6 +15650,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -19106,6 +19275,11 @@
                         "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                         "type": "string",
                         "x-order": 17
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 18
                       }
                     }
                   },
@@ -19329,6 +19503,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -19389,6 +19568,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -19648,6 +19832,11 @@
                       "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                       "type": "string",
                       "x-order": 17
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -27035,11 +27224,29 @@
                               "format": "float",
                               "x-order": 74
                             },
+                            "m_wal_buffers_full_sum_per_sec": {
+                              "description": "Total number of times WAL buffers become full.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 75
+                            },
+                            "m_parallel_workers_to_launch_sum_per_sec": {
+                              "description": "Total number of parallel workers to launch.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 76
+                            },
+                            "m_parallel_workers_launched_sum_per_sec": {
+                              "description": "Total number of parallel workers launched.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 77
+                            },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 75
+                              "x-order": 78
                             }
                           }
                         },
@@ -28409,11 +28616,29 @@
                         "format": "float",
                         "x-order": 74
                       },
+                      "m_wal_buffers_full_sum_per_sec": {
+                        "description": "Total number of times WAL buffers become full.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 75
+                      },
+                      "m_parallel_workers_to_launch_sum_per_sec": {
+                        "description": "Total number of parallel workers to launch.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 76
+                      },
+                      "m_parallel_workers_launched_sum_per_sec": {
+                        "description": "Total number of parallel workers launched.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 77
+                      },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 75
+                        "x-order": 78
                       }
                     }
                   },
@@ -30196,6 +30421,9 @@
     },
     {
       "name": "PlatformService"
+    },
+    {
+      "name": "HAService"
     }
   ],
   "x-readme": {

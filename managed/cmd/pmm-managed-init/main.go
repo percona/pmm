@@ -55,6 +55,13 @@ func main() {
 	pmmConfigParams := make(map[string]any)
 	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
 	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
+	pmmConfigParams["AgentConfigFilePath"] = models.AgentConfigFilePath
+
+	isHAEnabled, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
+	if isHAEnabled {
+		pmmConfigParams["AgentConfigFilePath"] = "/srv/pmm-agent/config/pmm-agent.yaml"
+	}
+
 	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
