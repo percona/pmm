@@ -107,7 +107,7 @@ type AddMongoDBServiceParams struct {
 	// Environment variable names to pass to the exporter.
 	// Values will be resolved from pmm-agent's environment when starting the exporter.
 	EnvironmentVariableNames []string `protobuf:"bytes,36,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
-	// If true, adds Real-time analytics agent for the provided service.
+	// If true, adds Real-Time Analytics agent for the provided service.
 	RtaMongodbAgent bool `protobuf:"varint,37,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3" json:"rta_mongodb_agent,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache

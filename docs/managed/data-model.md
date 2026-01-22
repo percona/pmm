@@ -299,7 +299,7 @@ Property names are shared between API calls, database columns, and label values 
 - `custom_labels` key/value pairs of custom assigned labels
 - `listen_port` (required). Listen port for scraping metrics.
 
-**RTAMongoDBAgent** runs within pmm-agent and sends MongoDB Real-time Query Analytics data to the PMM Server.
+**RTAMongoDBAgent** runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.
 
 - `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
@@ -309,7 +309,7 @@ Property names are shared between API calls, database columns, and label values 
 - `tls` Use TLS for database connections.
 - `tls_skip_verify` Skip TLS certificate and hostname validation.
 - `custom_labels` key/value pairs of custom assigned labels
-- `rta_options` Options related to Real-time Query Analytics (collect_interval, etc).
+- `rta_options` Options related to Real-Time Query Analytics (collect_interval, etc).
 - `status` (read only on responses) Actual agent status. See statuses list below.
  
 ### Valid Agent Statuses

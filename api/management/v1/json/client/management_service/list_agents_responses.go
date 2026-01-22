@@ -1257,11 +1257,11 @@ func (o *ListAgentsOKBodyAgentsItems0PostgresqlOptions) UnmarshalBinary(b []byte
 }
 
 /*
-ListAgentsOKBodyAgentsItems0RtaOptions RTAOptions holds Real-time Query Analytics agent options.
+ListAgentsOKBodyAgentsItems0RtaOptions RTAOptions holds Real-Time Query Analytics agent options.
 swagger:model ListAgentsOKBodyAgentsItems0RtaOptions
 */
 type ListAgentsOKBodyAgentsItems0RtaOptions struct {
-	// Queries collection interval (default 1s is set by server).
+	// Query collect interval (default 1s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
 

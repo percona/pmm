@@ -95,7 +95,7 @@ message AddMongoDBServiceParams {
   // Environment variable names to pass to the exporter.
   // Values will be resolved from pmm-agent's environment when starting the exporter.
   repeated string environment_variable_names = 36;
-  // If true, adds Real-time analytics agent for the provided service.
+  // If true, adds Real-Time Analytics agent for the provided service.
   bool rta_mongodb_agent = 37;
 }
 

@@ -1517,11 +1517,11 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions) Unmarsha
 }
 
 /*
-ListServicesOKBodyServicesItems0AgentsItems0RtaOptions RTAOptions holds Real-time Query Analytics agent options.
+ListServicesOKBodyServicesItems0AgentsItems0RtaOptions RTAOptions holds Real-Time Query Analytics agent options.
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0RtaOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0RtaOptions struct {
-	// Queries collection interval (default 1s is set by server).
+	// Query collect interval (default 1s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
 
