@@ -454,10 +454,112 @@ func (o *StartSessionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-StartSessionOKBody Session represents an active Real-Time Analytics session.
+StartSessionOKBody StartSessionResponse is the response for starting Real-Time Analytics session.
 swagger:model StartSessionOKBody
 */
 type StartSessionOKBody struct {
+	// session
+	Session *StartSessionOKBodySession `json:"session,omitempty"`
+}
+
+// Validate validates this start session OK body
+func (o *StartSessionOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateSession(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartSessionOKBody) validateSession(formats strfmt.Registry) error {
+	if swag.IsZero(o.Session) { // not required
+		return nil
+	}
+
+	if o.Session != nil {
+		if err := o.Session.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("startSessionOk" + "." + "session")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("startSessionOk" + "." + "session")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start session OK body based on the context it is used
+func (o *StartSessionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateSession(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartSessionOKBody) contextValidateSession(ctx context.Context, formats strfmt.Registry) error {
+	if o.Session != nil {
+
+		if swag.IsZero(o.Session) { // not required
+			return nil
+		}
+
+		if err := o.Session.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("startSessionOk" + "." + "session")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("startSessionOk" + "." + "session")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartSessionOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartSessionOKBody) UnmarshalBinary(b []byte) error {
+	var res StartSessionOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+StartSessionOKBodySession Session represents an active Real-Time Analytics session.
+swagger:model StartSessionOKBodySession
+*/
+type StartSessionOKBodySession struct {
 	// Service identifier that has enabled Real-Time Analytics session.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -480,8 +582,8 @@ type StartSessionOKBody struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this start session OK body
-func (o *StartSessionOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this start session OK body session
+func (o *StartSessionOKBodySession) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStartTime(formats); err != nil {
@@ -498,19 +600,19 @@ func (o *StartSessionOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *StartSessionOKBody) validateStartTime(formats strfmt.Registry) error {
+func (o *StartSessionOKBodySession) validateStartTime(formats strfmt.Registry) error {
 	if swag.IsZero(o.StartTime) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("startSessionOk"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
+	if err := validate.FormatOf("startSessionOk"+"."+"session"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var startSessionOkBodyTypeStatusPropEnum []any
+var startSessionOkBodySessionTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -518,53 +620,53 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		startSessionOkBodyTypeStatusPropEnum = append(startSessionOkBodyTypeStatusPropEnum, v)
+		startSessionOkBodySessionTypeStatusPropEnum = append(startSessionOkBodySessionTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// StartSessionOKBodyStatusSESSIONSTATUSUNSPECIFIED captures enum value "SESSION_STATUS_UNSPECIFIED"
-	StartSessionOKBodyStatusSESSIONSTATUSUNSPECIFIED string = "SESSION_STATUS_UNSPECIFIED"
+	// StartSessionOKBodySessionStatusSESSIONSTATUSUNSPECIFIED captures enum value "SESSION_STATUS_UNSPECIFIED"
+	StartSessionOKBodySessionStatusSESSIONSTATUSUNSPECIFIED string = "SESSION_STATUS_UNSPECIFIED"
 
-	// StartSessionOKBodyStatusSESSIONSTATUSERROR captures enum value "SESSION_STATUS_ERROR"
-	StartSessionOKBodyStatusSESSIONSTATUSERROR string = "SESSION_STATUS_ERROR"
+	// StartSessionOKBodySessionStatusSESSIONSTATUSERROR captures enum value "SESSION_STATUS_ERROR"
+	StartSessionOKBodySessionStatusSESSIONSTATUSERROR string = "SESSION_STATUS_ERROR"
 
-	// StartSessionOKBodyStatusSESSIONSTATUSRUNNING captures enum value "SESSION_STATUS_RUNNING"
-	StartSessionOKBodyStatusSESSIONSTATUSRUNNING string = "SESSION_STATUS_RUNNING"
+	// StartSessionOKBodySessionStatusSESSIONSTATUSRUNNING captures enum value "SESSION_STATUS_RUNNING"
+	StartSessionOKBodySessionStatusSESSIONSTATUSRUNNING string = "SESSION_STATUS_RUNNING"
 
-	// StartSessionOKBodyStatusSESSIONSTATUSDOWN captures enum value "SESSION_STATUS_DOWN"
-	StartSessionOKBodyStatusSESSIONSTATUSDOWN string = "SESSION_STATUS_DOWN"
+	// StartSessionOKBodySessionStatusSESSIONSTATUSDOWN captures enum value "SESSION_STATUS_DOWN"
+	StartSessionOKBodySessionStatusSESSIONSTATUSDOWN string = "SESSION_STATUS_DOWN"
 )
 
 // prop value enum
-func (o *StartSessionOKBody) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, startSessionOkBodyTypeStatusPropEnum, true); err != nil {
+func (o *StartSessionOKBodySession) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, startSessionOkBodySessionTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *StartSessionOKBody) validateStatus(formats strfmt.Registry) error {
+func (o *StartSessionOKBodySession) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("startSessionOk"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("startSessionOk"+"."+"session"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this start session OK body based on context it is used
-func (o *StartSessionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this start session OK body session based on context it is used
+func (o *StartSessionOKBodySession) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *StartSessionOKBody) MarshalBinary() ([]byte, error) {
+func (o *StartSessionOKBodySession) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -572,8 +674,8 @@ func (o *StartSessionOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *StartSessionOKBody) UnmarshalBinary(b []byte) error {
-	var res StartSessionOKBody
+func (o *StartSessionOKBodySession) UnmarshalBinary(b []byte) error {
+	var res StartSessionOKBodySession
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

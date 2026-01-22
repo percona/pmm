@@ -18,11 +18,13 @@ package realtimeanalytics
 
 import (
 	"context"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -88,11 +90,14 @@ func (s *Service) ListSessions(_ context.Context, req *rtav1.ListSessionsRequest
 		}
 	}
 
+	// TODO: REMOVE IT
+	s.store.Set("683fda11-a9e1-44b4-9da5-d2918e19f8f9", staticQueries_1)
+	//
 	return response, nil
 }
 
 // StartSession starts Real-Time Analytics Session for a specified service (gRPC handler).
-func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionRequest) (*rtav1.Session, error) {
+func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionRequest) (*rtav1.StartSessionResponse, error) {
 	var err error
 	var session *rtav1.Session
 	// Contains pmm-agent ID to be updated after the change with RTA agent.
@@ -128,6 +133,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			}
 
 			rtaAgent.Disabled = false
+			rtaAgent.CreatedAt = time.Now()
 			if err := tx.Update(rtaAgent); err != nil {
 				return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 			}
@@ -211,7 +217,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		// Request state update to pmm-agent
 		s.stateUpdater.RequestStateUpdate(ctx, pmmAgentIdToUpdate)
 	}
-	return session, nil
+	return &rtav1.StartSessionResponse{Session: session}, nil
 }
 
 // StopSession stops Real-Time Analytics Session for a specified service (gRPC handler).
@@ -331,8 +337,8 @@ func (s *Service) convertAgentToSession(agent *models.Agent, service *models.Ser
 		ServiceId:   service.ServiceID,
 		ServiceName: service.ServiceName,
 		ClusterName: service.Cluster,
-		// StartedAt:   timestamppb.New(startedAt),
-		Status: status,
+		StartTime:   timestamppb.New(agent.CreatedAt),
+		Status:      status,
 	}
 }
 

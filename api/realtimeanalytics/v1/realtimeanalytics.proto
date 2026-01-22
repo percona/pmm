@@ -53,6 +53,11 @@ message StartSessionRequest {
   string service_id = 1 [(validate.rules).string = {min_len: 1}];
 }
 
+// StartSessionResponse is the response for starting Real-Time Analytics session.
+message StartSessionResponse {
+  Session session = 1;
+}
+
 // StopSessionRequest contains parameters for stopping Real-Time Analytics session.
 message StopSessionRequest {
   // Required service identifier the Real-Time Analytics session shall be stopped for.
@@ -96,7 +101,7 @@ service RealtimeAnalyticsService {
   }
 
   // StartSession starts Real-Time Analytics session for a specified service.
-  rpc StartSession(StartSessionRequest) returns (Session) {
+  rpc StartSession(StartSessionRequest) returns (StartSessionResponse) {
     option (google.api.http) = {
       post: "/v1/realtimeanalytics/sessions:start"
       body: "*"

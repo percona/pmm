@@ -302,6 +302,51 @@ func (x *StartSessionRequest) GetServiceId() string {
 	return ""
 }
 
+// StartSessionResponse is the response for starting Real-Time Analytics session.
+type StartSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Session       *Session               `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartSessionResponse) Reset() {
+	*x = StartSessionResponse{}
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartSessionResponse) ProtoMessage() {}
+
+func (x *StartSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartSessionResponse.ProtoReflect.Descriptor instead.
+func (*StartSessionResponse) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StartSessionResponse) GetSession() *Session {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
 // StopSessionRequest contains parameters for stopping Real-Time Analytics session.
 type StopSessionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -313,7 +358,7 @@ type StopSessionRequest struct {
 
 func (x *StopSessionRequest) Reset() {
 	*x = StopSessionRequest{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -325,7 +370,7 @@ func (x *StopSessionRequest) String() string {
 func (*StopSessionRequest) ProtoMessage() {}
 
 func (x *StopSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -338,7 +383,7 @@ func (x *StopSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopSessionRequest.ProtoReflect.Descriptor instead.
 func (*StopSessionRequest) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{4}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *StopSessionRequest) GetServiceId() string {
@@ -357,7 +402,7 @@ type StopSessionResponse struct {
 
 func (x *StopSessionResponse) Reset() {
 	*x = StopSessionResponse{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -369,7 +414,7 @@ func (x *StopSessionResponse) String() string {
 func (*StopSessionResponse) ProtoMessage() {}
 
 func (x *StopSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -382,7 +427,7 @@ func (x *StopSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopSessionResponse.ProtoReflect.Descriptor instead.
 func (*StopSessionResponse) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{5}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{6}
 }
 
 // SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.
@@ -398,7 +443,7 @@ type SearchQueriesRequest struct {
 
 func (x *SearchQueriesRequest) Reset() {
 	*x = SearchQueriesRequest{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -410,7 +455,7 @@ func (x *SearchQueriesRequest) String() string {
 func (*SearchQueriesRequest) ProtoMessage() {}
 
 func (x *SearchQueriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,7 +468,7 @@ func (x *SearchQueriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchQueriesRequest.ProtoReflect.Descriptor instead.
 func (*SearchQueriesRequest) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{6}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SearchQueriesRequest) GetServiceIds() []string {
@@ -451,7 +496,7 @@ type SearchQueriesResponse struct {
 
 func (x *SearchQueriesResponse) Reset() {
 	*x = SearchQueriesResponse{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -463,7 +508,7 @@ func (x *SearchQueriesResponse) String() string {
 func (*SearchQueriesResponse) ProtoMessage() {}
 
 func (x *SearchQueriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -476,7 +521,7 @@ func (x *SearchQueriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchQueriesResponse.ProtoReflect.Descriptor instead.
 func (*SearchQueriesResponse) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{7}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SearchQueriesResponse) GetQueries() []*QueryData {
@@ -505,7 +550,9 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\bsessions\x18\x01 \x03(\v2\x1d.realtimeanalytics.v1.SessionR\bsessions\"=\n" +
 	"\x13StartSessionRequest\x12&\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"<\n" +
+	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"O\n" +
+	"\x14StartSessionResponse\x127\n" +
+	"\asession\x18\x01 \x01(\v2\x1d.realtimeanalytics.v1.SessionR\asession\"<\n" +
 	"\x12StopSessionRequest\x12&\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tserviceId\"\x15\n" +
@@ -521,10 +568,10 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\x1aSESSION_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14SESSION_STATUS_ERROR\x10\x01\x12\x1a\n" +
 	"\x16SESSION_STATUS_RUNNING\x10\x02\x12\x17\n" +
-	"\x13SESSION_STATUS_DOWN\x10\x032\xf4\b\n" +
+	"\x13SESSION_STATUS_DOWN\x10\x032\x81\t\n" +
 	"\x18RealtimeAnalyticsService\x12\xcc\x02\n" +
-	"\fListSessions\x12).realtimeanalytics.v1.ListSessionsRequest\x1a*.realtimeanalytics.v1.ListSessionsResponse\"\xe4\x01\x92A\xba\x01\x12)List Running Real-Time Analytics Sessions\x1a\x8c\x01Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information.\x82\xd3\xe4\x93\x02 \x12\x1e/v1/realtimeanalytics/sessions\x12\xec\x01\n" +
-	"\fStartSession\x12).realtimeanalytics.v1.StartSessionRequest\x1a\x1d.realtimeanalytics.v1.Session\"\x91\x01\x92A_\x12!Start Real-Time Analytics session\x1a:Start Real-Time Analytics session for a specified service.\x82\xd3\xe4\x93\x02):\x01*\"$/v1/realtimeanalytics/sessions:start\x12\xf3\x01\n" +
+	"\fListSessions\x12).realtimeanalytics.v1.ListSessionsRequest\x1a*.realtimeanalytics.v1.ListSessionsResponse\"\xe4\x01\x92A\xba\x01\x12)List Running Real-Time Analytics Sessions\x1a\x8c\x01Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information.\x82\xd3\xe4\x93\x02 \x12\x1e/v1/realtimeanalytics/sessions\x12\xf9\x01\n" +
+	"\fStartSession\x12).realtimeanalytics.v1.StartSessionRequest\x1a*.realtimeanalytics.v1.StartSessionResponse\"\x91\x01\x92A_\x12!Start Real-Time Analytics session\x1a:Start Real-Time Analytics session for a specified service.\x82\xd3\xe4\x93\x02):\x01*\"$/v1/realtimeanalytics/sessions:start\x12\xf3\x01\n" +
 	"\vStopSession\x12(.realtimeanalytics.v1.StopSessionRequest\x1a).realtimeanalytics.v1.StopSessionResponse\"\x8e\x01\x92A]\x12 Stop Real-Time Analytics session\x1a9Stop Real-Time Analytics session for a specified service.\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/realtimeanalytics/sessions:stop\x12\xa3\x02\n" +
 	"\rSearchQueries\x12*.realtimeanalytics.v1.SearchQueriesRequest\x1a+.realtimeanalytics.v1.SearchQueriesResponse\"\xb8\x01\x92A\x85\x01\x126List Running Database Queries in a particular services\x1aKReturns list of currently running Database queries in a particular services\x82\xd3\xe4\x93\x02):\x01*\"$/v1/realtimeanalytics/queries:searchB\xe8\x01\n" +
 	"\x18com.realtimeanalytics.v1B\x16RealtimeanalyticsProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
@@ -543,40 +590,42 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP() []byte {
 
 var (
 	file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
+	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes  = make([]protoimpl.MessageInfo, 9)
 	file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes   = []any{
 		(SessionStatus)(0),            // 0: realtimeanalytics.v1.SessionStatus
 		(*Session)(nil),               // 1: realtimeanalytics.v1.Session
 		(*ListSessionsRequest)(nil),   // 2: realtimeanalytics.v1.ListSessionsRequest
 		(*ListSessionsResponse)(nil),  // 3: realtimeanalytics.v1.ListSessionsResponse
 		(*StartSessionRequest)(nil),   // 4: realtimeanalytics.v1.StartSessionRequest
-		(*StopSessionRequest)(nil),    // 5: realtimeanalytics.v1.StopSessionRequest
-		(*StopSessionResponse)(nil),   // 6: realtimeanalytics.v1.StopSessionResponse
-		(*SearchQueriesRequest)(nil),  // 7: realtimeanalytics.v1.SearchQueriesRequest
-		(*SearchQueriesResponse)(nil), // 8: realtimeanalytics.v1.SearchQueriesResponse
-		(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
-		(*QueryData)(nil),             // 10: realtimeanalytics.v1.QueryData
+		(*StartSessionResponse)(nil),  // 5: realtimeanalytics.v1.StartSessionResponse
+		(*StopSessionRequest)(nil),    // 6: realtimeanalytics.v1.StopSessionRequest
+		(*StopSessionResponse)(nil),   // 7: realtimeanalytics.v1.StopSessionResponse
+		(*SearchQueriesRequest)(nil),  // 8: realtimeanalytics.v1.SearchQueriesRequest
+		(*SearchQueriesResponse)(nil), // 9: realtimeanalytics.v1.SearchQueriesResponse
+		(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+		(*QueryData)(nil),             // 11: realtimeanalytics.v1.QueryData
 	}
 )
 
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
-	9,  // 0: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
+	10, // 0: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
 	0,  // 1: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
 	1,  // 2: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
-	10, // 3: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
-	2,  // 4: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
-	4,  // 5: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
-	5,  // 6: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
-	7,  // 7: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
-	3,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
-	1,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.Session
-	6,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
-	8,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
-	8,  // [8:12] is the sub-list for method output_type
-	4,  // [4:8] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	1,  // 3: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
+	11, // 4: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
+	2,  // 5: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
+	4,  // 6: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
+	6,  // 7: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
+	8,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
+	3,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
+	5,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
+	7,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
+	9,  // 12: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
+	9,  // [9:13] is the sub-list for method output_type
+	5,  // [5:9] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_realtimeanalytics_proto_init() }
@@ -591,7 +640,7 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc), len(file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

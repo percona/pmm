@@ -29734,41 +29734,48 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "Session represents an active Real-Time Analytics session.",
+              "description": "StartSessionResponse is the response for starting Real-Time Analytics session.",
               "type": "object",
               "properties": {
-                "service_id": {
-                  "description": "Service identifier that has enabled Real-Time Analytics session.",
-                  "type": "string",
+                "session": {
+                  "description": "Session represents an active Real-Time Analytics session.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Service identifier that has enabled Real-Time Analytics session.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Service name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "cluster_name": {
+                      "description": "Cluster name the service belongs to.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "start_time": {
+                      "description": "Timestamp when the Real-Time Analytics session started.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 3
+                    },
+                    "status": {
+                      "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled.",
+                      "type": "string",
+                      "default": "SESSION_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "SESSION_STATUS_UNSPECIFIED",
+                        "SESSION_STATUS_ERROR",
+                        "SESSION_STATUS_RUNNING",
+                        "SESSION_STATUS_DOWN"
+                      ],
+                      "x-order": 4
+                    }
+                  },
                   "x-order": 0
-                },
-                "service_name": {
-                  "description": "Service name.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "cluster_name": {
-                  "description": "Cluster name the service belongs to.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "start_time": {
-                  "description": "Timestamp when the Real-Time Analytics session started.",
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 3
-                },
-                "status": {
-                  "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled.",
-                  "type": "string",
-                  "default": "SESSION_STATUS_UNSPECIFIED",
-                  "enum": [
-                    "SESSION_STATUS_UNSPECIFIED",
-                    "SESSION_STATUS_ERROR",
-                    "SESSION_STATUS_RUNNING",
-                    "SESSION_STATUS_DOWN"
-                  ],
-                  "x-order": 4
                 }
               }
             }

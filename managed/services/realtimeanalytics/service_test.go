@@ -87,6 +87,7 @@ func TestListSessions(t *testing.T) {
 		assert.Equal(t, service.ServiceName, resp.Sessions[0].ServiceName)
 		assert.Equal(t, "test-cluster", resp.Sessions[0].ClusterName)
 		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_RUNNING, resp.Sessions[0].Status)
+		assert.NotNil(t, resp.Sessions[0].StartTime)
 	})
 
 	t.Run("filter sessions by cluster", func(t *testing.T) {
@@ -162,6 +163,7 @@ func TestStartSession(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
+		assert.NotNil(t, resp.Session.StartTime)
 
 		// Verify RTA agent was created
 		agentType := models.RTAMongoDBAgentType
@@ -176,17 +178,20 @@ func TestStartSession(t *testing.T) {
 
 	t.Run("idempotent start session", func(t *testing.T) {
 		// Enable twice
-		resp, err := svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		resp1, err := svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
 			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
-		assert.NotNil(t, resp)
+		assert.NotNil(t, resp1)
+		assert.NotNil(t, resp1.Session.StartTime)
 
-		resp, err = svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		resp2, err := svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
 			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
-		assert.NotNil(t, resp)
+		assert.NotNil(t, resp2)
+		assert.NotNil(t, resp2.Session.StartTime)
+		assert.Equal(t, resp1.Session.StartTime, resp2.Session.StartTime)
 
 		// Should still have only one agent
 		agentType := models.RTAMongoDBAgentType
@@ -225,6 +230,7 @@ func TestStartSession(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
+		assert.NotNil(t, resp.Session.StartTime)
 
 		// Verify RTA agent was created
 		agentType := models.RTAMongoDBAgentType

@@ -35,7 +35,7 @@ type RealtimeAnalyticsServiceClient interface {
 	// ListSessions returns the list of currently running Real-Time Analytics Sessions.
 	ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error)
 	// StartSession starts Real-Time Analytics session for a specified service.
-	StartSession(ctx context.Context, in *StartSessionRequest, opts ...grpc.CallOption) (*Session, error)
+	StartSession(ctx context.Context, in *StartSessionRequest, opts ...grpc.CallOption) (*StartSessionResponse, error)
 	// StopSession stops Real-Time Analytics session for a specified service.
 	StopSession(ctx context.Context, in *StopSessionRequest, opts ...grpc.CallOption) (*StopSessionResponse, error)
 	// SearchQueries returns the list of currently running Database Queries that match criteria(s).
@@ -60,9 +60,9 @@ func (c *realtimeAnalyticsServiceClient) ListSessions(ctx context.Context, in *L
 	return out, nil
 }
 
-func (c *realtimeAnalyticsServiceClient) StartSession(ctx context.Context, in *StartSessionRequest, opts ...grpc.CallOption) (*Session, error) {
+func (c *realtimeAnalyticsServiceClient) StartSession(ctx context.Context, in *StartSessionRequest, opts ...grpc.CallOption) (*StartSessionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Session)
+	out := new(StartSessionResponse)
 	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_StartSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ type RealtimeAnalyticsServiceServer interface {
 	// ListSessions returns the list of currently running Real-Time Analytics Sessions.
 	ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error)
 	// StartSession starts Real-Time Analytics session for a specified service.
-	StartSession(context.Context, *StartSessionRequest) (*Session, error)
+	StartSession(context.Context, *StartSessionRequest) (*StartSessionResponse, error)
 	// StopSession stops Real-Time Analytics session for a specified service.
 	StopSession(context.Context, *StopSessionRequest) (*StopSessionResponse, error)
 	// SearchQueries returns the list of currently running Database Queries that match criteria(s).
@@ -118,7 +118,7 @@ func (UnimplementedRealtimeAnalyticsServiceServer) ListSessions(context.Context,
 	return nil, status.Error(codes.Unimplemented, "method ListSessions not implemented")
 }
 
-func (UnimplementedRealtimeAnalyticsServiceServer) StartSession(context.Context, *StartSessionRequest) (*Session, error) {
+func (UnimplementedRealtimeAnalyticsServiceServer) StartSession(context.Context, *StartSessionRequest) (*StartSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method StartSession not implemented")
 }
 

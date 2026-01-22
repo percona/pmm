@@ -14,7 +14,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/visibility"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -111,7 +110,7 @@ var File_realtimeanalytics_v1_collector_proto protoreflect.FileDescriptor
 
 const file_realtimeanalytics_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"$realtimeanalytics/v1/collector.proto\x12\x14realtimeanalytics.v1\x1a\x1bgoogle/api/visibility.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a realtimeanalytics/v1/query.proto\"K\n" +
+	"$realtimeanalytics/v1/collector.proto\x12\x14realtimeanalytics.v1\x1a\x1bgoogle/api/visibility.proto\x1a realtimeanalytics/v1/query.proto\"K\n" +
 	"\x0eCollectRequest\x129\n" +
 	"\aqueries\x18\x01 \x03(\v2\x1f.realtimeanalytics.v1.QueryDataR\aqueries\"\x11\n" +
 	"\x0fCollectResponse2~\n" +

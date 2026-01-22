@@ -3,7 +3,6 @@ syntax = "proto3";
 package realtimeanalytics.v1;
 
 import "google/api/visibility.proto";
-import "google/protobuf/timestamp.proto";
 import "realtimeanalytics/v1/query.proto";
 
 // CollectRequest is sent from agent to server with a batch of queries.
