@@ -90,9 +90,6 @@ func (s *Service) ListSessions(_ context.Context, req *rtav1.ListSessionsRequest
 		}
 	}
 
-	// TODO: REMOVE IT
-	s.store.Set("683fda11-a9e1-44b4-9da5-d2918e19f8f9", staticQueries_1)
-	//
 	return response, nil
 }
 
