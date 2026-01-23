@@ -26,7 +26,7 @@ const (
 var eFS embed.FS
 
 func IsClickhouseClusterReady(dsn string, clusterName string) (bool, error) {
-	var args []interface{}
+	var args []any
 	sql := "SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters"
 	if clusterName != "" {
 		sql = fmt.Sprintf("%s WHERE cluster = ?", sql)

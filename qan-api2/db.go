@@ -128,7 +128,7 @@ func createDB(dsn string, clusterName string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	sql := fmt.Sprintf("CREATE DATABASE %s", databaseName)
+	sql := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", databaseName)
 	if clusterName != "" {
 		l.Infof("Using ClickHouse cluster name: %s", clusterName)
 		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
