@@ -80,8 +80,12 @@ func TestNodeRegister(t *testing.T) {
 				Body:    body,
 			}
 			_, err := client.Default.ManagementService.RegisterNode(&params)
-			wantErr := fmt.Sprintf("Node with name %s already exists.", nodeName)
-			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, wantErr)
+			// The error message format is "Node with name %s already exists." but when serialized
+			// through JSON, the node name may be quoted. We check for the key parts of the message.
+			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Node with name")
+			require.Error(t, err)
+			require.Contains(t, err.Error(), nodeName, "Error message should contain the node name")
+			require.Contains(t, err.Error(), "already exists", "Error message should indicate node already exists")
 		})
 
 		t.Run("Reregister with same node name (re-register)", func(t *testing.T) {
