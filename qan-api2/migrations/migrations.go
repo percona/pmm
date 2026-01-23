@@ -114,10 +114,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 	if err != nil {
 		return err
 	}
-	instance, err := bindata.WithInstance(
-		bindata.Resource(
-			names,
-			tfs.ReadFile))
+	instance, err := bindata.WithInstance(bindata.Resource(names, tfs.ReadFile))
 	if err != nil {
 		return err
 	}
@@ -139,7 +136,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 
 		ver := errDirty.Version - 1
 		if ver == 0 {
-			// Note: since 0th migration does not exist, we set it to -1, which means "start from scratch"
+			// since 0th migration does not exist, we set it to -1, which means "start from scratch"
 			ver = -1
 		}
 		err = m.Force(ver)
