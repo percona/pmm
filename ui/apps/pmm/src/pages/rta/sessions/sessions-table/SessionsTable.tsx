@@ -7,69 +7,57 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Table } from '@percona/ui-lib';
 import { boxClasses, paperClasses, Skeleton } from '@mui/material';
 import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
-import {
-  useChangeRealTimeAgent,
-  useRealTimeAgents,
-} from 'hooks/api/useRealTime';
-import { getSessions } from './SessionsTable.utils';
-import { RealTimeSession } from 'types/rta.types';
+import { useRealTimeSessions, useStartSessions, useStopSessions } from 'hooks/api/useRealTime';
+import { getAllSessions, getServiceIds, getSessionRows } from './SessionsTable.utils';
 import { StopSessionModal } from './modal-stop-session';
 import { NewSessionModal } from './modal-new-session';
 import StopMultipleSessionsModal from './modal-stop-multiple-sessions/StopMultipleSessionsModal';
-import { ModalType } from './SessionsTable.types';
+import { ModalType, SessionRow } from './SessionsTable.types';
 import { enqueueSnackbar } from 'notistack';
 
 const SessionsTable: FC = () => {
-  const {
-    data: agents = [],
-    isLoading,
-    refetch: refetchAgents,
-  } = useRealTimeAgents({
+  const { data: sessions = [], isLoading, refetch: refetchSessions } = useRealTimeSessions({
     refetchInterval: 5000,
   });
+  const rows = getSessionRows(sessions);
   const [modal, setModal] = useState<ModalType>(null);
-  const sessions = getSessions(agents);
   const [sessionToBeStopped, setSessionToBeStopped] =
-    useState<RealTimeSession | null>(null);
+    useState<SessionRow | null>(null);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const selectedSessions = useMemo(
-    () => sessions.filter((session) => rowSelection[session.sessionId]),
-    [rowSelection, sessions]
+    () => getAllSessions(rows).filter((session) => rowSelection[session.sessionId]),
+    [rowSelection, rows]
   );
-  const { mutateAsync: changeRealTimeAgent } = useChangeRealTimeAgent();
+  const { mutateAsync: stopSessions } = useStopSessions();
+  const { mutateAsync: startSessions } = useStartSessions();
 
   const closeModal = () => {
     setModal(null);
   };
 
-  const openStopModal = (session: RealTimeSession) => {
+  const openStopModal = (session: SessionRow) => {
     setSessionToBeStopped(session);
     setModal('stop');
   };
 
   const handleStopSession = async () => {
-    if (sessionToBeStopped) {
-      await Promise.all(
-        sessionToBeStopped.agents.map((agent) =>
-          changeRealTimeAgent({
-            serviceId: agent.serviceId,
-            enable: false,
-          })
-        )
-      );
+    if (!sessionToBeStopped) return;
 
-      if (sessionToBeStopped.agents.length === 1) {
-        enqueueSnackbar(Messages.success.agentStopped, {
-          variant: 'success',
-        });
-      } else {
-        enqueueSnackbar(Messages.success.agentsStopped, {
-          variant: 'success',
-        });
-      }
+    const serviceIds = getServiceIds(sessionToBeStopped);
+    await stopSessions(serviceIds);
+
+    if (serviceIds.length === 1) {
+      enqueueSnackbar(Messages.success.agentStopped, {
+        variant: 'success',
+      });
+    } else {
+      enqueueSnackbar(Messages.success.agentsStopped, {
+        variant: 'success',
+      });
     }
 
-    await refetchAgents();
+    setSessionToBeStopped(null);
+
     closeModal();
   };
 
@@ -78,24 +66,13 @@ const SessionsTable: FC = () => {
   };
 
   const handleStopAllSessions = async () => {
-    await Promise.all(
-      sessions.map((session) =>
-        Promise.all(
-          session.agents.map((agent) =>
-            changeRealTimeAgent({
-              serviceId: agent.serviceId,
-              enable: false,
-            })
-          )
-        )
-      )
-    );
+    const serviceIds = getServiceIds(rows);
+
+    await stopSessions(serviceIds);
 
     enqueueSnackbar(Messages.success.allAgentsStopped, {
       variant: 'success',
     });
-
-    await refetchAgents();
 
     setRowSelection({});
     closeModal();
@@ -106,15 +83,8 @@ const SessionsTable: FC = () => {
   };
 
   const handleCreateSessions = async (serviceIds: string[]) => {
-    await Promise.all(
-      serviceIds.map((serviceId) =>
-        changeRealTimeAgent({
-          serviceId,
-          enable: true,
-        })
-      )
-    );
-    await refetchAgents();
+    await startSessions(serviceIds);
+
     closeModal();
   };
 
@@ -123,18 +93,13 @@ const SessionsTable: FC = () => {
   };
 
   const handleStopSelectedSessions = async () => {
-    await Promise.all(
-      selectedSessions.map((session) =>
-        Promise.all(
-          session.agents.map((agent) =>
-            changeRealTimeAgent({
-              serviceId: agent.serviceId,
-              enable: false,
-            })
-          )
-        )
-      )
-    );
+
+    console.log('selectedSessions', selectedSessions);
+
+    if (!selectedSessions.length) return;
+
+    const serviceIds = getServiceIds(selectedSessions);
+    await stopSessions(serviceIds);
 
     if (selectedSessions.length === 1) {
       enqueueSnackbar(Messages.success.agentStopped, {
@@ -146,7 +111,7 @@ const SessionsTable: FC = () => {
       });
     }
 
-    await refetchAgents();
+    await refetchSessions();
     closeModal();
     setRowSelection({});
   };
@@ -176,7 +141,7 @@ const SessionsTable: FC = () => {
             pageIndex: 0,
           },
           columnVisibility: {
-            sessionId: false,
+            sessionId: true,
           },
           columnOrder: [
             'mrt-row-expand',
@@ -192,7 +157,7 @@ const SessionsTable: FC = () => {
         noDataMessage={Messages.empty}
         tableName="rta-sessions"
         columns={SESSIONS_TABLE_COLUMNS}
-        data={sessions}
+        data={rows}
         enableHiding={false}
         enableGlobalFilter={false}
         enableRowSelection

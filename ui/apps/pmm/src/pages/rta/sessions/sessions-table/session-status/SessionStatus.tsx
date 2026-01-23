@@ -4,29 +4,29 @@ import Typography from '@mui/material/Typography';
 import { getStyles } from 'components/ha-icon/HighAvailabilityIcon.styles';
 import { Icon } from 'components/icon';
 import { FC } from 'react';
-import { AgentStatus } from 'types/agent.types';
-import { RealTimeSession } from 'types/rta.types';
-import { getStatusText } from 'utils/agents.utils';
+import { RealTimeSessionStatus } from 'types/rta.types';
 import { diffFromNow, formatDuration } from 'utils/datetime.utils';
 import { Messages } from './SessionStatus.messages';
+import { getSessionStatusText } from 'utils/status.utils';
+import { SessionRow } from '../SessionsTable.types';
 
 interface Props {
-  session: RealTimeSession;
+  session: SessionRow;
 }
 
 const SessionStatus: FC<Props> = ({ session }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  if (session.status === AgentStatus.RUNNING) {
-    return Messages.runningFor(formatDuration(diffFromNow(session.startedAt)));
+  if (session.status === RealTimeSessionStatus.running) {
+    return Messages.runningFor(formatDuration(diffFromNow(session.startTime)));
   }
 
   return (
     <Stack direction="row" alignItems="center" gap={0.5}>
       <Icon name="status-at-risk" sx={styles.icon} />
       <Typography variant="body2" color="text.secondary">
-        {getStatusText(session.status)}
+        {getSessionStatusText(session.status)}
       </Typography>
     </Stack>
   );

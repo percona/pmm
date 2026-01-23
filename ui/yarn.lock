@@ -835,6 +835,11 @@
   resolved "https://registry.yarnpkg.com/@fontsource/roboto-mono/-/roboto-mono-5.1.0.tgz#ce210c3d9a6d045ac73d4cd1f5a4110ee15bafed"
   integrity sha512-7lIxTeanF2XrwAIukUrOUvO9veGkQiG7L7vizMxVjl+lrTwS4GAYyOvziyGZ6/3kU80K3lGd/FnWrmoTud0V6A==
 
+"@fontsource/roboto-mono@^5.1.0":
+  version "5.2.8"
+  resolved "https://registry.yarnpkg.com/@fontsource/roboto-mono/-/roboto-mono-5.2.8.tgz#b77a6e3f6c0329ed2d762f0aa9c9ea4740bc4ff5"
+  integrity sha512-M0XPRcvkOKiTPooXwX7yJSNpuad3CPcQwsADBfnopz3apBs+VKI47pc42mlvAxJjNTRauu5rndSxHc8F52bR7Q==
+
 "@fontsource/roboto@^5.0.14", "@fontsource/roboto@^5.0.8":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@fontsource/roboto/-/roboto-5.1.0.tgz#00230737ec09c60ae877a5e33d067c0607fdd5ba"
@@ -1719,13 +1724,14 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.36.0.tgz#149449bd4df4d0464220915ad4164121e0d75d4d"
   integrity sha512-TtxJSRD8Ohxp6bKkhrm27JRHAxPczQA7idtcTOMYI+wQRRrfgqxHv1cFbCApcSnNjtXkmzFozn6jQtFrOmbjPQ==
 
-"@percona/design@1.0.0", "@percona/design@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@percona/design/-/design-1.0.0.tgz#bbbbe42a91092eeb28478a596b2a5494750a406e"
-  integrity sha512-LNVdwOLoQGSgRA3bmppjsCzIxvNoatrPqYGi21g5qla8WHXkmMBWYKZKt+36BEgl+jEQZv42r2iQ6RBPgNCJ3A==
+"@percona/design@1.1.0", "@percona/design@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/design/-/design-1.1.0.tgz#4a027630578d9906eab68fda3d4cbab941fbbaa2"
+  integrity sha512-Z2PzVILEndU3HwEa45QFyX7fX4MdniMQIphRaiacuiv6go+BYRz2vilw+T4xY4jTLPrraLsRT9LIeLIUlHIKhg==
   dependencies:
     "@fontsource/poppins" "^5.0.8"
     "@fontsource/roboto" "^5.0.8"
+    "@fontsource/roboto-mono" "^5.1.0"
     "@mui/utils" "^5.14.15"
 
 "@percona/eslint-config-react@^1.0.0":
@@ -1733,38 +1739,53 @@
   resolved "https://registry.yarnpkg.com/@percona/eslint-config-react/-/eslint-config-react-1.0.0.tgz#5469cf967ba280c0c3ca37ec961333890413438d"
   integrity sha512-SPOgMcTZ48WysDk0F95oy9ywaQoeu+JnoTgOLhT+X4ta96ZBU55TbjbyCWz1bieuAFjFGzL/GUxHshhLadXl4g==
 
+"@percona/eslint-config-react@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/eslint-config-react/-/eslint-config-react-1.1.0.tgz#db69fcf5d6bb43e6c842f462e2c1c84d5f3eb281"
+  integrity sha512-Tk9mNYslXrxW/gdS/rzxHbLuEXoNCw8r2t/pB8CXZjBl46VLMGspljbyI6525uNNfyO5H0iJQKCJu0Ckf+5erA==
+
 "@percona/prettier-config@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@percona/prettier-config/-/prettier-config-1.0.0.tgz#4f22cec1b39b6522f640c41ce1cf83199d79800f"
   integrity sha512-SzN+mWmMKOK46dQsBye1E2CqqpVYVErSprmNIAmSlSB0vJ+AbOWdqc9stccAYYuz0AzMvvyQyh13D9n0wROxNQ==
+
+"@percona/prettier-config@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/prettier-config/-/prettier-config-1.1.0.tgz#31cc8000187c73e397def8e10f8b44629c45c958"
+  integrity sha512-DEQ1m7mf1S2nSK6MjIrzRir3aOLLIyAqrynfIpsPOUiPmMqHLa8DF/Ao/MEa+EdOLcrrhyoWYicpNpyB+FgWkA==
 
 "@percona/tsconfig@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@percona/tsconfig/-/tsconfig-1.0.0.tgz#8f94e9da56a40dee6db60c843f58c4254e54d02e"
   integrity sha512-/KZtra6YrRCODzdyLa6PHE0cTZrMMCd19yAhC4HNk2OWdbSzCEnxWtOtnzTUJ0JQSfN67OdG/ytCzuwivYooiw==
 
-"@percona/types@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@percona/types/-/types-1.0.0.tgz#41834112a86056c0c4184fb00e1564e58253c78e"
-  integrity sha512-2Kmv9bLbG/M2UvCL0DxEocsWq8XX7FAznmK0ZTQZZVH2r3tHJx7Rg+guTEiE4tmgP9OMGK+INrRIsmciOB0Rrw==
+"@percona/tsconfig@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/tsconfig/-/tsconfig-1.1.0.tgz#035573bc77f3f04233d8246d4e6d800373d766da"
+  integrity sha512-/5INuhYoxqJ7dtIH/DPy9dcX1LVTJ0yl0HhM4EEtFfPKCla8oKMnRBMyBKuk5OJ5ayo+PJUWwXuMbtpsf6kSDQ==
 
-"@percona/ui-lib@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@percona/ui-lib/-/ui-lib-1.0.0.tgz#9cf3462b9edb19df0409154ce576006f2871cfc3"
-  integrity sha512-3Lom91/x5hL0b+dZEQq6sj/vMzO7Ig7+fTQiKu6Y4biVBWhjMcv+gsyllIGGUcasiN1izxG8odhlQkgga26qFg==
+"@percona/types@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/types/-/types-1.1.0.tgz#6d2681be2681a3b5d7686a6f3c95d0346ac9bed9"
+  integrity sha512-v0A0Glbd7Sioa1N77q5AjzH85Mc9hWaWOnmvzHgGaaGyScqJrAWKBjGETum/ZrK3nN/uIOH6sqxPjzDiaUi6ZQ==
+
+"@percona/ui-lib@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/ui-lib/-/ui-lib-1.1.0.tgz#5008cf7813cb70950fe458996abf371d9c62139d"
+  integrity sha512-6nRx1DyVBsy7YmZozZbboDF8revorTly/TldCcSlQe4ATMYfrL2WgT54epid4TwDEH4bXK2UJ2TuxRG9fOD7ew==
   dependencies:
-    "@percona/design" "1.0.0"
-    "@percona/types" "1.0.0"
-    "@percona/utils" "1.0.0"
+    "@percona/design" "1.1.0"
+    "@percona/types" "1.1.0"
+    "@percona/utils" "1.1.0"
     "@types/react" "^18.2.15"
     material-react-table "^1.15.1"
     notistack "^3.0.1"
     react-hook-form "^7.47.0"
 
-"@percona/utils@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@percona/utils/-/utils-1.0.0.tgz#5ed8d5777ffd0378588b7b0883408e379144efae"
-  integrity sha512-dJicwFS8QhnafKSTFIW+FAPw6/5F0IXiksGQxvMS81jxNUgPxc1qLDgkVQ12qCuKNlgJYWIOM7hHLQ/1rUCOOA==
+"@percona/utils@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@percona/utils/-/utils-1.1.0.tgz#6201e27a42ad0784c450dfcd76daa205b4658cc9"
+  integrity sha512-bfSHj5z5FncgbSan1OtKFwxE5zfdulTV5DgPkA4sWkB/tKhpvIZHLQ8EscnU3OtTKYkOUT7mi6iKw/8KMNcocA==
 
 "@petamoriken/float16@^3.4.7":
   version "3.9.2"
@@ -10537,6 +10558,7 @@ string-template@~0.2.1:
   integrity sha512-Yptehjogou2xm4UJbxJ4CxgZx12HBfeystp0y3x7s4Dj32ltVVG1Gg8YhKjHZkHicuKpZX/ffilA8505VbUbpw==
 
 "string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+  name string-width-cjs
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -11734,6 +11756,7 @@ wordwrap@^1.0.0:
   integrity sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
