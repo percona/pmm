@@ -138,3 +138,20 @@ If you want to learn about creating Grafana alerts instead, check out [Grafana's
     - **Label** must be an exact match. You can find a complete list of labels using the <i class="uil uil-compass"></i> **Explore** menu in PMM.
 
 5. Click **Save and Exit** to close the page and go to the **Alert Rules** tab where you can review, edit and silence your new alert.
+
+## Edit alert rules
+
+Modify existing alert rules to update thresholds, filters, datasources, or other configurations.
+
+To edit an alert rule:
+{.power-number}
+
+1. Go to **Alerts> Alert rules**.
+2. Locate the alert rule you want to modify.
+3. Click the alert rule name to open it, then click **Edit**.
+4. Update the rule settings as needed and click **Save**.
+
+Changes take effect on the next evaluation cycle.
+
+!!! note alert alert-primary "Datasource updates after upgrade"
+    If alert rules show `data source not found` errors after a PMM upgrade, edit each affected rule and update the datasource to restore functionality.
