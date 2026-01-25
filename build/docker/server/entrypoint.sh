@@ -104,7 +104,7 @@ if [ ! -f "$DIST_FILE" ]; then
 fi
 
 echo "Generating self-signed certificates for nginx..."
-bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
+bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
 
 # Ensure /srv/postgres14 has the correct permissions
 chmod 750 /srv/postgres14 || true
