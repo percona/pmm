@@ -75,7 +75,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 			if err != nil {
 				l.Fatalf("Database wasn't created: %v", err)
 			}
-			l.Infof("Database created, connecting again %s", dsnutils.RedactDSN(dsn))
+			l.Infof("Connecting again to %s", dsnutils.RedactDSN(dsn))
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
 				l.Fatalf("Connection: %v", err)
@@ -102,7 +102,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	}
 	if clusterName != "" {
 		l.Infof("Using ClickHouse cluster name: %s", clusterName)
-		data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
+		// data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
 	}
 	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
 		l.Fatalf("migrations: %v", err)
@@ -132,15 +132,17 @@ func createDB(dsn string, clusterName string) error {
 	if clusterName != "" {
 		l.Infof("Using ClickHouse cluster name: %s", clusterName)
 		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
+		sql = fmt.Sprintf("%s ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')", sql)
+	} else {
+		sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 	}
-	sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 
 	result, err := defaultDB.Exec(sql)
 	if err != nil {
 		l.Infof("Result: %v", result)
 		return err
 	}
-	l.Info("Database was created")
+	l.Infof("Database %s created using sql: %s", databaseName, sql)
 
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
 	return nil
