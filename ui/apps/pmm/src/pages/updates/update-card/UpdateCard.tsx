@@ -98,7 +98,7 @@ export const UpdateCard: FC = () => {
           </Alert>
         )}
         <Stack spacing={1}>
-          {data.updateAvailable && data?.latest.version && (
+          {data.updateAvailable && data?.latest?.version && (
             <Typography variant="h4">
               {Messages.newUpdateAvailable(data.latest.version)}
             </Typography>

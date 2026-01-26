@@ -18,8 +18,8 @@ export interface LatestInfo {
 }
 
 export interface GetUpdatesResponse {
-  lastCheck: string;
-  latest: LatestInfo;
+  lastCheck: string | null;
+  latest: LatestInfo | null;
   installed: CurrentInfo;
   latestNewsUrl: string;
   updateAvailable: boolean;
