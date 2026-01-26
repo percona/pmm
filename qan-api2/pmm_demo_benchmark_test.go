@@ -42,7 +42,7 @@ func getPeriodFromEnv(b *testing.B) (string, string) {
 
 func benchmarkRequest(b *testing.B, url string, payload []byte) time.Duration {
 	b.Helper()
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	req, err := http.NewRequestWithContext(b.Context(), "POST", url, bytes.NewBuffer(payload))
 	if err != nil {
 		b.Fatalf("Failed to create request: %v", err)
 	}
@@ -71,36 +71,29 @@ func benchmarkWithStats(b *testing.B, url string, payload []byte) {
 	for i := 0; i < b.N; i++ {
 		duration := benchmarkRequest(b, url, payload)
 		durations[i] = duration
-		fmt.Printf("iteration %d took %v\n", i, duration)
+		b.Logf("iteration %d took %v", i, duration)
 	}
 
 	if b.N > 0 {
 		var sum time.Duration
-		min := durations[0]
-		max := durations[0]
-		for _, d := range durations {
-			sum += d
-			if d < min {
-				min = d
-			}
-			if d > max {
-				max = d
-			}
-		}
-		avg := sum / time.Duration(b.N)
-		fmt.Printf("avg=%v min=%v max=%v\n", avg, min, max)
+		minDuration := min(durations[0])
+		maxDuration := max(durations[0])
+		avgDuration := sum / time.Duration(b.N)
+		b.Logf("avg=%v min=%v max=%v\n", avgDuration, minDuration, maxDuration)
 	}
 }
 
 func BenchmarkGetFilters(b *testing.B) {
 	url := baseURL + "qan/metrics:getFilters"
 	from, to := getPeriodFromEnv(b)
-	payload := []byte(fmt.Sprintf(`{
+	var payloadBuf []byte
+	payloadBuf = fmt.Appendf(payloadBuf, `{
 		   "labels": [],
 		   "main_metric_name": "load",
 		   "period_start_from": "%s",
 		   "period_start_to": "%s"
-	   }`, from, to))
+	   }`, from, to)
+	payload := payloadBuf
 
 	benchmarkWithStats(b, url, payload)
 }
@@ -108,7 +101,8 @@ func BenchmarkGetFilters(b *testing.B) {
 func BenchmarkGetReport(b *testing.B) {
 	url := baseURL + "qan/metrics:getReport"
 	from, to := getPeriodFromEnv(b)
-	payload := []byte(fmt.Sprintf(`{
+	var payloadBuf []byte
+	payloadBuf = fmt.Appendf(payloadBuf, `{
 		   "group_by": "queryid",
 		   "include_only_fields": [],
 		   "keyword": "",
@@ -120,7 +114,8 @@ func BenchmarkGetReport(b *testing.B) {
 		   "period_start_from": "%s",
 		   "period_start_to": "%s",
 		   "search": ""
-	   }`, from, to))
+	   }`, from, to)
+	payload := payloadBuf
 
 	benchmarkWithStats(b, url, payload)
 }
@@ -128,7 +123,8 @@ func BenchmarkGetReport(b *testing.B) {
 func BenchmarkGetMetrics(b *testing.B) {
 	url := baseURL + "qan:getMetrics"
 	from, to := getPeriodFromEnv(b)
-	payload := []byte(fmt.Sprintf(`{
+	var payloadBuf []byte
+	payloadBuf = fmt.Appendf(payloadBuf, `{
 				 "filter_by": "0D1A4A519E3B08C0EADA79DF0F2034C7",
 				 "group_by": "queryid",
 				 "labels": [],
@@ -136,7 +132,8 @@ func BenchmarkGetMetrics(b *testing.B) {
 				 "period_start_to": "%s",
 				 "tables": [],
 				 "totals": false
-			}`, from, to))
+			}`, from, to)
+	payload := payloadBuf
 
 	benchmarkWithStats(b, url, payload)
 }
@@ -144,14 +141,16 @@ func BenchmarkGetMetrics(b *testing.B) {
 func BenchmarkGetExample(b *testing.B) {
 	url := baseURL + "qan/query:getExample"
 	from, to := getPeriodFromEnv(b)
-	payload := []byte(fmt.Sprintf(`{
+	var payloadBuf []byte
+	payloadBuf = fmt.Appendf(payloadBuf, `{
 		   "filter_by": "9AD8CA7F8CAC1812CC0F42D4205D5441",
 		   "group_by": "queryid",
 		   "labels": [],
 		   "period_start_from": "%s",
 		   "period_start_to": "%s",
 		   "tables": []
-	   }`, from, to))
+	   }`, from, to)
+	payload := payloadBuf
 
 	benchmarkWithStats(b, url, payload)
 }
