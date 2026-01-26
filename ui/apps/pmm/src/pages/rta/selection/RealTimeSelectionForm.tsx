@@ -80,7 +80,8 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
               serviceId: service.serviceId!,
             },
             {
-              onSuccess: undefined, // Prevent individual success callbacks
+              // Prevent running agents query invalidation on each individual mutation
+              onSuccess: undefined,
             }
           )
         )

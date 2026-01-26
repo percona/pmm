@@ -8,7 +8,7 @@ import {
   ChangeRealtimeAnalyticsRequest,
   ChangeRealtimeAnalyticsResponse,
 } from 'types/realtime.types';
-import { ManagedService, ManagedServiceType } from 'types/services.types';
+import { ManagedService, ServiceType } from 'types/services.types';
 
 export const REALTIME_AGENTS_QUERY_KEY = 'realtime:agents';
 
@@ -41,7 +41,9 @@ export const useChangeRealtimeAnalytics = (
  */
 export const useAvailableServices = () => {
   const { data: runningAgentsData, isLoading: isLoadingAgents } = useRunningRealtimeAgents();
-  const { data: servicesData, isLoading: isLoadingServices } = useManagedServices();
+  const { data: servicesData, isLoading: isLoadingServices } = useManagedServices({
+    serviceType: ServiceType.mongodb,
+  });
 
   const availableServices = useMemo<ManagedService[]>(() => {
     if (!servicesData?.services) {
@@ -52,12 +54,9 @@ export const useAvailableServices = () => {
       (agent) => agent.serviceId
     ) ?? [];
 
-    // Filter MongoDB services that don't have running RTA agents
+    // Filter out services that already have running RTA agents
     return servicesData.services.filter(
-      (service) =>
-        (service.serviceType === ManagedServiceType.mongodb ||
-          service.serviceType === 'SERVICE_TYPE_MONGODB_SERVICE') &&
-        !runningServiceIds.includes(service.serviceId)
+      (service) => !runningServiceIds.includes(service.serviceId)
     );
   }, [servicesData, runningAgentsData]);
 

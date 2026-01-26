@@ -1,19 +1,13 @@
 import { FC } from 'react';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
+import Chip, { chipClasses } from '@mui/material/Chip';
+import { AutocompleteRenderGetTagProps } from '@mui/material/Autocomplete';
 import CloseIcon from '@mui/icons-material/Close';
-import { ServiceOption } from '../RealTimeSelectionForm.utils';
+import { ServiceOption } from '../RealTimeSelectionForm.types';
 
 interface ServiceOptionTagProps {
   option: ServiceOption;
-  tagProps: {
-    key: number;
-    className: string;
-    disabled: boolean;
-    'data-tag-index': number;
-    tabIndex: -1;
-    onDelete: (event: React.MouseEvent<HTMLElement>) => void;
-  };
+  tagProps: ReturnType<AutocompleteRenderGetTagProps>;
 }
 
 export const ServiceOptionTag: FC<ServiceOptionTagProps> = ({
@@ -35,19 +29,13 @@ export const ServiceOptionTag: FC<ServiceOptionTagProps> = ({
             width: 16,
             height: 16,
             borderRadius: '50%',
-            backgroundColor:
-              theme.palette.mode === 'dark'
-                ? 'rgba(255, 255, 255, 0.2)'
-                : 'rgba(0, 0, 0, 0.15)',
+            backgroundColor: theme.palette.action.hover,
           })}
         >
           <CloseIcon
             sx={(theme) => ({
               fontSize: 12,
-              color:
-                theme.palette.mode === 'dark'
-                  ? 'rgba(255, 255, 255, 0.9)'
-                  : 'rgba(0, 0, 0, 0.6)',
+              color: theme.palette.text.secondary,
             })}
           />
         </Box>
@@ -56,17 +44,14 @@ export const ServiceOptionTag: FC<ServiceOptionTagProps> = ({
       sx={(theme) => ({
         height: 24,
         borderRadius: 12,
-        backgroundColor:
-          theme.palette.mode === 'dark'
-            ? 'rgba(255, 255, 255, 0.16)'
-            : 'rgba(0, 0, 0, 0.08)',
+        backgroundColor: theme.palette.action.selected,
         px: 1,
         gap: 0.5,
-        '& .MuiChip-label': {
+        [`& .${chipClasses.label}`]: {
           px: 0,
           py: 0,
         },
-        '& .MuiChip-deleteIcon': {
+        [`& .${chipClasses.deleteIcon}`]: {
           m: 0,
           p: 0,
         },

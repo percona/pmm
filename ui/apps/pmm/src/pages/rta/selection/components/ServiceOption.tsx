@@ -1,7 +1,7 @@
 import { FC, HTMLAttributes } from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
-import { ServiceOption as ServiceOptionType, ClusterSelectionState } from '../RealTimeSelectionForm.utils';
+import { ServiceOption as ServiceOptionType, ClusterSelectionState } from '../RealTimeSelectionForm.types';
 
 interface ServiceOptionProps {
   option: ServiceOptionType;
@@ -33,17 +33,19 @@ export const ServiceOption: FC<ServiceOptionProps> = ({
     : otherProps.onClick;
 
   return (
-    <li
+    <Box
+      component="li"
       key={key}
       {...otherProps}
       onClick={handleClick}
-      style={{
-        ...otherProps.style,
+      sx={{
         backgroundColor: 'transparent',
         minHeight: 40,
         padding: '0 8px',
-        paddingLeft: isServiceInCluster ? 40 : 8,
+        paddingLeft: isServiceInCluster ? '40px' : '8px',
         position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
       }}
     >
       <Checkbox
@@ -82,6 +84,6 @@ export const ServiceOption: FC<ServiceOptionProps> = ({
           }}
         />
       )}
-    </li>
+    </Box>
   );
 };
