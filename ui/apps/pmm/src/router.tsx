@@ -5,7 +5,7 @@ import { UpdateClients } from 'pages/update-clients/UpdateClients';
 import { MainWithNav } from 'components/main/MainWithNav';
 import { NotFoundPage } from 'pages/not-found';
 import { HelpCenter } from 'pages/help-center';
-import { RealTimeSelectionPage } from 'pages/rta/selection';
+import { RealTimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { RealTimeSessionsPage } from 'pages/rta/sessions';
@@ -39,7 +39,7 @@ const router = createBrowserRouter(
             },
             {
               path: 'rta',
-              element: <RealTimeSelectionPage />,
+              element: <RealTimeSelection />,
             },
             {
               path: 'rta/sessions',

@@ -1,12 +1,14 @@
 export const Messages = {
-  title: 'Real-Time Query Analysis',
+  title: 'Real-Time Query Analytics',
   description:
-    'Select a service to start a new real-time session, showing all executing queries and performance metrics.',
-  selectCluster: 'Select a cluster',
-  selectService: 'Select a service',
-  start: 'Start',
-  featureAvailable:
-    'Feature available for MongoDB database technology only, more to come soon.',
+    'Select a service to monitor queries and performance metrics in real time.',
+  mongoOnly: 'Currently available for MongoDB only. More databases coming soon.',
+  searchPlaceholder: 'Search cluster/service...',
+  selectLabel: 'Cluster/Service',
+  startButton: 'Start session',
   documentation: 'Documentation',
-  provideFeedback: 'Provide feedback',
+  feedback: 'Provide feedback',
+  noMongoServices: 'No MongoDB services found',
+  startSuccess: 'Real-Time Query Analysis started successfully',
+  startError: 'Failed to start Real-Time Query Analysis',
 };

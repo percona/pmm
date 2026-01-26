@@ -1,6 +1,8 @@
 import {
   BaseService,
   ListServicesResponse,
+  ManagedService,
+  ManagedServicesResponse,
   MySqlService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
@@ -16,6 +18,7 @@ export const TEST_USER_ADMIN: User = {
   orgId: 1,
   orgRole: OrgRole.Admin,
   orgs: [],
+  preferences: {},
   info: {
     userId: 0,
     productTourCompleted: false,
@@ -64,10 +67,38 @@ export const TEST_SERVICE: BaseService = {
   customLabels: {},
 };
 
+// Managed services response format (from /v1/management/services API)
+export const TEST_MANAGED_SERVICES: ManagedServicesResponse = {
+  services: [],
+};
+
+export const TEST_MANAGED_SERVICE: ManagedService = {
+  serviceId: 'service-1',
+  serviceType: 'mysql',
+  serviceName: 'Service 1',
+  databaseName: '',
+  nodeId: 'node-1',
+  nodeName: 'Node 1',
+  environment: 'production',
+  cluster: 'cluster-1',
+  replicationSet: 'replication-set-1',
+  customLabels: {},
+  externalGroup: '',
+  address: '127.0.0.1',
+  port: 3306,
+  socket: '',
+  version: '8.0.0',
+};
+
+export const TEST_MANAGED_SERVICES_WITH_ONE_MYSQL: ManagedServicesResponse = {
+  services: [TEST_MANAGED_SERVICE],
+};
+
+// Inventory services response format (from /v1/inventory/services API)
 export const TEST_SERVICES: ListServicesResponse = {
   mysql: [],
-  postgresql: [],
   mongodb: [],
+  postgresql: [],
   proxysql: [],
   haproxy: [],
   external: [],

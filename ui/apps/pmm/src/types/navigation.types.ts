@@ -6,7 +6,7 @@ export interface NavItem {
   id: string;
   text?: string;
   secondaryText?: string;
-  icon?: IconName | SvgIconComponent | React.ReactElement;
+  icon?: IconName | SvgIconComponent | React.ReactElement | React.ComponentType;
   url?: string;
   children?: NavItem[];
   isActive?: boolean;
