@@ -146,7 +146,7 @@ Modify existing alert rules to update thresholds, filters, datasources, or other
 To edit an alert rule:
 {.power-number}
 
-1. Go to **Alerts> Alert rules**.
+1. Go to **Alerting > Alert rules**.
 2. Locate the alert rule you want to modify.
 3. Click the alert rule name to open it, then click **Edit**.
 4. Update the rule settings as needed and click **Save**.
@@ -154,4 +154,4 @@ To edit an alert rule:
 Changes take effect on the next evaluation cycle.
 
 !!! note alert alert-primary "Datasource updates after upgrade"
-    If alert rules show `data source not found` errors after a PMM upgrade, edit each affected rule and update the datasource to restore functionality.
+    If some alert rules show `data source not found` errors after a PMM upgrade, edit the affected rules and update the datasource to restore functionality.
