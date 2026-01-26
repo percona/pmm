@@ -1,7 +1,7 @@
 # Welcome
 
 !!! warning "Upgrade required" 
-    PMM 2 is no longer actively developed and reaches end-of-life on October 31, 2025. For continued access to security updates, new features and ongoing support, [migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html).
+    PMM 2 reached end-of-life on October 31, 2025. [Migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html) for new features, security updates, and ongoing support.
 
 <i info>:material-information: </i> This is the documentation for the last PMM 2 release. For details, see the [PMM {{release}} release notes](release-notes/{{release}}.md).
 
