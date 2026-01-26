@@ -37,6 +37,7 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'my-organization': () => import('icons/my-organization.svg?react'),
   memory: () => import('icons/memory.svg?react'),
   network: () => import('icons/network.svg?react'),
+  'real-time-database-off': () => import('icons/real-time-database-off.svg?react'),
   cluster: () => import('icons/cluster.svg?react'),
   'status-at-risk': () => import('icons/status-at-risk.svg?react'),
   'status-down': () => import('icons/status-down.svg?react'),
@@ -51,4 +52,5 @@ export const VIEWBOX_MAP: Partial<
   'knowledge-base': '0 0 28 28',
   'pmm-rounded': '0 0 160 160',
   'pmm-titled': '0 0 363 128',
+  'real-time-database-off': '0 0 192 192',
 };
