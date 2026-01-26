@@ -46,21 +46,3 @@ env-root:								## Run `make TARGET` in devcontainer (`make env-root TARGET=hel
 
 rotate-encryption: 							## Rotate encryption key
 	go run ./encryption-rotation/main.go
-
-# Since a backup can come from a different migration state (e.g., created when the latest migration was 21),
-# and the current latest migration is 22, we need to ensure that the remaining migrations are applied
-# to make the system fully functional after restore.
-#
-# We also drop the database because, in the case of mismatched migrations, it would not be possible
-# to apply them correctly. Therefore, we need to provide the backup name and the last migration
-# applied to the backup.
-#
-# Default backup name and backup last migration.
-BACKUP_NAME ?= 20260120
-BACKUP_LAST_MIGRATION ?= 21
-#
-# Copy the ClickHouse backup into the pmm-server container and apply differential migrations if needed.
-restore-backup: 
-	docker exec pmm-server clickhouse-client --password=clickhouse --query="DROP DATABASE IF EXISTS pmm";
-	docker exec pmm-server clickhouse-client --password=clickhouse --query="RESTORE DATABASE pmm FROM Disk('backup', '$(BACKUP_NAME)')";
-	./run_clickhouse_migrations.sh $(BACKUP_LAST_MIGRATION)
