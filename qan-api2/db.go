@@ -100,10 +100,6 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	data := map[string]any{
 		"engine": migrations.GetEngine(isCluster),
 	}
-	if clusterName != "" {
-		l.Infof("Using ClickHouse cluster name: %s", clusterName)
-		// data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
-	}
 	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
 		l.Fatalf("migrations: %v", err)
 	}
