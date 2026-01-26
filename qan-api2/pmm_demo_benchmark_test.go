@@ -86,14 +86,13 @@ func benchmarkWithStats(b *testing.B, url string, payload []byte) {
 func BenchmarkGetFilters(b *testing.B) {
 	url := baseURL + "qan/metrics:getFilters"
 	from, to := getPeriodFromEnv(b)
-	var payloadBuf []byte
-	payloadBuf = fmt.Appendf(payloadBuf, `{
+	var payload []byte
+	payload = fmt.Appendf(payload, `{
 		   "labels": [],
 		   "main_metric_name": "load",
 		   "period_start_from": "%s",
 		   "period_start_to": "%s"
 	   }`, from, to)
-	payload := payloadBuf
 
 	benchmarkWithStats(b, url, payload)
 }
@@ -101,8 +100,8 @@ func BenchmarkGetFilters(b *testing.B) {
 func BenchmarkGetReport(b *testing.B) {
 	url := baseURL + "qan/metrics:getReport"
 	from, to := getPeriodFromEnv(b)
-	var payloadBuf []byte
-	payloadBuf = fmt.Appendf(payloadBuf, `{
+	var payload []byte
+	payload = fmt.Appendf(payload, `{
 		   "group_by": "queryid",
 		   "include_only_fields": [],
 		   "keyword": "",
@@ -115,7 +114,6 @@ func BenchmarkGetReport(b *testing.B) {
 		   "period_start_to": "%s",
 		   "search": ""
 	   }`, from, to)
-	payload := payloadBuf
 
 	benchmarkWithStats(b, url, payload)
 }
@@ -123,8 +121,8 @@ func BenchmarkGetReport(b *testing.B) {
 func BenchmarkGetMetrics(b *testing.B) {
 	url := baseURL + "qan:getMetrics"
 	from, to := getPeriodFromEnv(b)
-	var payloadBuf []byte
-	payloadBuf = fmt.Appendf(payloadBuf, `{
+	var payload []byte
+	payload = fmt.Appendf(payload, `{
 				 "filter_by": "0D1A4A519E3B08C0EADA79DF0F2034C7",
 				 "group_by": "queryid",
 				 "labels": [],
@@ -133,7 +131,6 @@ func BenchmarkGetMetrics(b *testing.B) {
 				 "tables": [],
 				 "totals": false
 			}`, from, to)
-	payload := payloadBuf
 
 	benchmarkWithStats(b, url, payload)
 }
@@ -141,8 +138,8 @@ func BenchmarkGetMetrics(b *testing.B) {
 func BenchmarkGetExample(b *testing.B) {
 	url := baseURL + "qan/query:getExample"
 	from, to := getPeriodFromEnv(b)
-	var payloadBuf []byte
-	payloadBuf = fmt.Appendf(payloadBuf, `{
+	var payload []byte
+	payload = fmt.Appendf(payload, `{
 		   "filter_by": "9AD8CA7F8CAC1812CC0F42D4205D5441",
 		   "group_by": "queryid",
 		   "labels": [],
@@ -150,7 +147,6 @@ func BenchmarkGetExample(b *testing.B) {
 		   "period_start_to": "%s",
 		   "tables": []
 	   }`, from, to)
-	payload := payloadBuf
 
 	benchmarkWithStats(b, url, payload)
 }
