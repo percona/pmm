@@ -39,13 +39,13 @@ export const ServiceOption: FC<ServiceOptionProps> = ({
       {...otherProps}
       onClick={handleClick}
       sx={{
-        backgroundColor: 'transparent',
-        minHeight: 40,
-        padding: '0 8px',
-        paddingLeft: isServiceInCluster ? '40px' : '8px',
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
+        '&.MuiAutocomplete-option': {
+          backgroundColor: 'transparent',
+          minHeight: 40,
+          padding: '0 8px',
+          paddingLeft: isServiceInCluster ? '40px' : '8px',
+          position: 'relative',
+        },
       }}
     >
       <Checkbox
