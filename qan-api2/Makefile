@@ -124,6 +124,10 @@ restore-clickhouse-backup:
 	docker exec pmm-server clickhouse-client --password=clickhouse --query="RESTORE DATABASE pmm FROM Disk('backup', '$(BACKUP_NAME)')";
 	./run_clickhouse_migrations.sh $(BACKUP_LAST_MIGRATION)
 
+
+PMM_DEMO_BENCH_PERIOD_FROM ?= 2025-12-27T00:00:00+01:00
+PMM_DEMO_BENCH_PERIOD_TO ?= 2026-01-21T23:59:59+01:00
+
 bench:
 	make bench-filters
 	@echo
@@ -134,13 +138,20 @@ bench:
 	make bench-example
 
 bench-filters:
-	exec go test -bench ^BenchmarkGetFilters$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
+	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
+	go test -bench ^BenchmarkGetFilters$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
+
 
 bench-report:
-	exec go test -bench ^BenchmarkGetReport$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
+	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
+	go test -bench ^BenchmarkGetReport$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
+
 
 bench-metrics:
-	exec go test -bench ^BenchmarkGetMetrics$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
+	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
+	go test -bench ^BenchmarkGetMetrics$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
+
 
 bench-example:
-	exec go test -bench ^BenchmarkGetExample$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
+	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
+	go test -bench ^BenchmarkGetExample$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
