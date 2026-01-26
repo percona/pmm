@@ -18,6 +18,7 @@ export const TEST_USER_ADMIN: User = {
   orgId: 1,
   orgRole: OrgRole.Admin,
   orgs: [],
+  preferences: {},
   info: {
     userId: 0,
     productTourCompleted: false,
