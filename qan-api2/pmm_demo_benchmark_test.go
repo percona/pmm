@@ -42,7 +42,7 @@ func getPeriodFromEnv(b *testing.B) (string, string) {
 
 func benchmarkRequest(b *testing.B, url string, payload []byte) time.Duration {
 	b.Helper()
-	req, err := http.NewRequestWithContext(b.Context(), "POST", url, bytes.NewBuffer(payload))
+	req, err := http.NewRequestWithContext(b.Context(), http.MethodPost, url, bytes.NewBuffer(payload))
 	if err != nil {
 		b.Fatalf("Failed to create request: %v", err)
 	}
