@@ -37,7 +37,8 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'my-organization': () => import('icons/my-organization.svg?react'),
   memory: () => import('icons/memory.svg?react'),
   network: () => import('icons/network.svg?react'),
-  'real-time-database-off': () => import('icons/real-time-database-off.svg?react'),
+  'real-time-database-off': () =>
+    import('icons/real-time-database-off.svg?react'),
   cluster: () => import('icons/cluster.svg?react'),
   'status-at-risk': () => import('icons/status-at-risk.svg?react'),
   'status-down': () => import('icons/status-down.svg?react'),

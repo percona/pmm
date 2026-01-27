@@ -10,10 +10,11 @@ import {
 import { api } from './api';
 import { changeRealTimeAgent, getRunningRealTimeAgents } from './rta.fallback';
 
-
 export const getRunningSessions = async (): Promise<RealTimeSession[]> => {
   try {
-    const res = await api.get<ListRunningSessionsResponse>('/realtimeanalytics/sessions');
+    const res = await api.get<ListRunningSessionsResponse>(
+      '/realtimeanalytics/sessions'
+    );
     return res.data.sessions;
   } catch (error) {
     // todo: temporary fallback till https://github.com/percona/pmm/pull/4956 gets merged
@@ -28,7 +29,9 @@ export const getRunningSessions = async (): Promise<RealTimeSession[]> => {
   }
 };
 
-export const startSession = async (payload: StartSessionPayload): Promise<StartSessionResponse> => {
+export const startSession = async (
+  payload: StartSessionPayload
+): Promise<StartSessionResponse> => {
   try {
     const res = await api.post<StartSessionResponse>(
       '/realtimeanalytics/sessions:start',
@@ -40,7 +43,7 @@ export const startSession = async (payload: StartSessionPayload): Promise<StartS
     await changeRealTimeAgent({
       serviceId: payload.serviceId,
       enable: true,
-    })
+    });
     return {
       session: {
         serviceId: payload.serviceId,
@@ -53,19 +56,18 @@ export const startSession = async (payload: StartSessionPayload): Promise<StartS
   }
 };
 
-export const stopSession = async (payload: StopSessionPayload): Promise<StopSessionResponse> => {
+export const stopSession = async (
+  payload: StopSessionPayload
+): Promise<StopSessionResponse> => {
   try {
-    const res = await api.post<{}>(
-      '/realtimeanalytics/sessions:stop',
-      payload
-    );
+    const res = await api.post<{}>('/realtimeanalytics/sessions:stop', payload);
     return res.data;
   } catch (error) {
     // todo: temporary fallback till https://github.com/percona/pmm/pull/4956 gets merged
     await changeRealTimeAgent({
       serviceId: payload.serviceId,
       enable: false,
-    })
+    });
     return {
       session: {
         serviceId: payload.serviceId,

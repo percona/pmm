@@ -53,7 +53,7 @@ const router = createBrowserRouter(
                   path: 'overview',
                   element: <RealTimeOverviewPage />,
                 },
-              ]
+              ],
             },
             // Grafana routes are handled at the Main component level
             {

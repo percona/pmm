@@ -1,7 +1,10 @@
 import { FC, HTMLAttributes } from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
-import { ServiceOption as ServiceOptionType, ClusterSelectionState } from '../form/RealTimeSelectionForm.types';
+import {
+  ServiceOption as ServiceOptionType,
+  ClusterSelectionState,
+} from '../form/RealTimeSelectionForm.types';
 
 interface ServiceOptionProps {
   option: ServiceOptionType;
@@ -18,9 +21,12 @@ export const ServiceOption: FC<ServiceOptionProps> = ({
   clusterSelectionState,
   onClusterToggle,
 }) => {
-  const { key, ...otherProps } = props as HTMLAttributes<HTMLLIElement> & { key?: string };
+  const { key, ...otherProps } = props as HTMLAttributes<HTMLLIElement> & {
+    key?: string;
+  };
   const isCluster = option.type === 'cluster';
-  const isServiceInCluster = option.type === 'service' && Boolean(option.cluster);
+  const isServiceInCluster =
+    option.type === 'service' && Boolean(option.cluster);
 
   const isFullySelected = isCluster && clusterSelectionState === 'all';
   const isPartiallySelected = isCluster && clusterSelectionState === 'partial';

@@ -1,5 +1,8 @@
 import { ManagedService } from 'types/services.types';
-import { ServiceOption, ClusterSelectionState } from './RealTimeSelectionForm.types';
+import {
+  ServiceOption,
+  ClusterSelectionState,
+} from './RealTimeSelectionForm.types';
 
 export type { ServiceOption, ClusterSelectionState };
 
@@ -116,7 +119,11 @@ export const toggleClusterServices = (
     (option) => option.type === 'service' && option.cluster === clusterName
   );
 
-  const state = getClusterSelectionState(clusterName, serviceOptions, selectedServices);
+  const state = getClusterSelectionState(
+    clusterName,
+    serviceOptions,
+    selectedServices
+  );
 
   if (state === 'all') {
     // Deselect all services in this cluster

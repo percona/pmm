@@ -9,7 +9,11 @@ import { DOCS_URL } from '../RealTimeSelection.constants';
 import { EmptyStateMessages } from './EmptyState.messages';
 
 export const RealTimeSelectionEmptyState: FC = () => (
-  <Stack gap={2} alignItems="center" sx={{ width: '100%', textAlign: 'center' }}>
+  <Stack
+    gap={2}
+    alignItems="center"
+    sx={{ width: '100%', textAlign: 'center' }}
+  >
     <Box
       sx={{
         width: 128,
@@ -29,9 +33,7 @@ export const RealTimeSelectionEmptyState: FC = () => (
       />
     </Box>
     <Stack gap={1} sx={{ width: '100%' }}>
-      <Typography variant="h6">
-        {EmptyStateMessages.title}
-      </Typography>
+      <Typography variant="h6">{EmptyStateMessages.title}</Typography>
       <Typography variant="body1" color="text.secondary">
         {EmptyStateMessages.description}
       </Typography>

@@ -11,7 +11,12 @@ import {
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
-import { TEST_REAL_TIME_SESSION, TEST_USER_ADMIN, TEST_USER_EDITOR, TEST_USER_VIEWER } from 'utils/testStubs';
+import {
+  TEST_REAL_TIME_SESSION,
+  TEST_USER_ADMIN,
+  TEST_USER_EDITOR,
+  TEST_USER_VIEWER,
+} from 'utils/testStubs';
 
 vi.mock('api/services');
 vi.mock('api/realtime');
@@ -76,7 +81,9 @@ describe('RealTimeSelection', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') })
+          screen.getByRole('button', {
+            name: new RegExp(Messages.startButton, 'i'),
+          })
         ).toBeInTheDocument();
       });
     });
@@ -114,7 +121,9 @@ describe('RealTimeSelection', () => {
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+        const button = screen.getByRole('button', {
+          name: new RegExp(Messages.startButton, 'i'),
+        });
 
         expect(button).toBeDisabled();
       });
@@ -124,7 +133,9 @@ describe('RealTimeSelection', () => {
       renderComponent(TEST_USER_ADMIN);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+        const button = screen.getByRole('button', {
+          name: new RegExp(Messages.startButton, 'i'),
+        });
 
         expect(button).toBeDisabled();
       });
@@ -136,7 +147,9 @@ describe('RealTimeSelection', () => {
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+        const button = screen.getByRole('button', {
+          name: new RegExp(Messages.startButton, 'i'),
+        });
 
         expect(button).toBeDisabled();
       });
@@ -168,7 +181,9 @@ describe('RealTimeSelection', () => {
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+        const button = screen.getByRole('button', {
+          name: new RegExp(Messages.startButton, 'i'),
+        });
 
         expect(button).toBeDisabled();
       });
@@ -176,7 +191,9 @@ describe('RealTimeSelection', () => {
 
     it.skip('shows success message on successful start', async () => {
       // TODO: Implement when service selection interaction is added
-      vi.mocked(realtimeApi.startSession).mockResolvedValue({ session: TEST_REAL_TIME_SESSION });
+      vi.mocked(realtimeApi.startSession).mockResolvedValue({
+        session: TEST_REAL_TIME_SESSION,
+      });
 
       renderComponent(TEST_USER_EDITOR);
 
@@ -189,7 +206,7 @@ describe('RealTimeSelection', () => {
   describe('Loading States', () => {
     it('shows loading indicator while fetching services', () => {
       vi.mocked(servicesApi.listManagedServices).mockImplementation(
-        () => new Promise(() => { })
+        () => new Promise(() => {})
       );
 
       renderComponent(TEST_USER_EDITOR);
@@ -220,7 +237,9 @@ describe('RealTimeSelection', () => {
   describe('Success Handling', () => {
     it.skip('clears selection on successful start', async () => {
       // TODO: Implement when service selection interaction is added
-      vi.mocked(realtimeApi.startSession).mockResolvedValue({ session: TEST_REAL_TIME_SESSION });
+      vi.mocked(realtimeApi.startSession).mockResolvedValue({
+        session: TEST_REAL_TIME_SESSION,
+      });
 
       renderComponent(TEST_USER_EDITOR);
 

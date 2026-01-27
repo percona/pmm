@@ -20,9 +20,7 @@ export const RealTimeSelectionViewerEmptyState: FC = () => (
         textAlign: 'center',
       }}
     >
-      <Typography variant="h6">
-        {EmptyStateMessages.title}
-      </Typography>
+      <Typography variant="h6">{EmptyStateMessages.title}</Typography>
       <Typography variant="body1" color="text.secondary">
         {EmptyStateMessages.description}
       </Typography>

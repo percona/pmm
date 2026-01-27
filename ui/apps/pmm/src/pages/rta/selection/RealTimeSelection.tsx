@@ -18,12 +18,8 @@ import { DOCS_URLS } from 'lib/constants';
 export const RealTimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const {
-    availableServices,
-    isLoading,
-    servicesData,
-    sessionsData
-  } = useAvailableServices();
+  const { availableServices, isLoading, servicesData, sessionsData } =
+    useAvailableServices();
 
   const allServicesRunning =
     !isLoading &&
@@ -33,7 +29,7 @@ export const RealTimeSelection: FC = () => {
 
   const handleSuccess = () => {
     navigate('/rta/sessions');
-  }
+  };
 
   if (isLoading) {
     return (
@@ -57,7 +53,7 @@ export const RealTimeSelection: FC = () => {
 
   if (sessionsData?.length) {
     // todo: navigate to session analysis page
-    return <Navigate to="/rta/sessions" />
+    return <Navigate to="/rta/sessions" />;
   }
 
   if (user?.isViewer) {
@@ -94,12 +90,15 @@ export const RealTimeSelection: FC = () => {
                 <Link
                   href={DOCS_URLS.qan}
                   rel="noopener noreferrer"
-                  target="_blank">
+                  target="_blank"
+                >
                   {Messages.documentation}
                 </Link>
-                <Link href={DOCS_URLS.forums}
+                <Link
+                  href={DOCS_URLS.forums}
                   rel="noopener noreferrer"
-                  target="_blank">
+                  target="_blank"
+                >
                   {Messages.feedback}
                 </Link>
               </Stack>

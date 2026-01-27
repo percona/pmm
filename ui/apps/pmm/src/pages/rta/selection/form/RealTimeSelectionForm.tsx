@@ -79,7 +79,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         const message =
           error instanceof Error ? error.message : Messages.startError;
         enqueueSnackbar(message, { variant: 'error' });
-      }
+      },
     });
   };
 
@@ -109,13 +109,15 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
           />
         )}
         renderTags={(value, getTagProps) =>
-          value.slice(0, 2).map((option, index) => (
-            <ServiceOptionTag
-              key={option.id}
-              option={option}
-              tagProps={getTagProps({ index })}
-            />
-          ))
+          value
+            .slice(0, 2)
+            .map((option, index) => (
+              <ServiceOptionTag
+                key={option.id}
+                option={option}
+                tagProps={getTagProps({ index })}
+              />
+            ))
         }
         renderOption={(props, option, { selected }) => (
           <ServiceOptionComponent
@@ -126,10 +128,10 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
             clusterSelectionState={
               option.type === 'cluster'
                 ? getClusterSelectionState(
-                  option.label,
-                  serviceOptions,
-                  selectedServices
-                )
+                    option.label,
+                    serviceOptions,
+                    selectedServices
+                  )
                 : undefined
             }
             onClusterToggle={handleClusterToggle}
@@ -144,9 +146,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         size="large"
         onClick={handleStart}
         disabled={
-          realServicesCount === 0 ||
-          startSessions.isPending ||
-          !canManageRTA
+          realServicesCount === 0 || startSessions.isPending || !canManageRTA
         }
         sx={{
           borderRadius: 999,

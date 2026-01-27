@@ -8,7 +8,11 @@ import { Table } from '@percona/ui-lib';
 import { boxClasses, paperClasses, Skeleton, Typography } from '@mui/material';
 import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
 import { useRealTimeSessions, useStopSessions } from 'hooks/api/useRealTime';
-import { getAllSessions, getServiceIds, getSessionRows } from './SessionsTable.utils';
+import {
+  getAllSessions,
+  getServiceIds,
+  getSessionRows,
+} from './SessionsTable.utils';
 import { StopSessionModal } from './modal-stop-session';
 import { NewSessionModal } from './modal-new-session';
 import StopMultipleSessionsModal from './modal-stop-multiple-sessions/StopMultipleSessionsModal';
@@ -16,7 +20,11 @@ import { ModalType, SessionRow } from './SessionsTable.types';
 import { enqueueSnackbar } from 'notistack';
 
 const SessionsTable: FC = () => {
-  const { data: sessions = [], isLoading, refetch: refetchSessions } = useRealTimeSessions({
+  const {
+    data: sessions = [],
+    isLoading,
+    refetch: refetchSessions,
+  } = useRealTimeSessions({
     refetchInterval: 5000,
   });
   const rows = getSessionRows(sessions);
@@ -25,7 +33,8 @@ const SessionsTable: FC = () => {
     useState<SessionRow | null>(null);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const selectedSessions = useMemo(
-    () => getAllSessions(rows).filter((session) => rowSelection[session.sessionId]),
+    () =>
+      getAllSessions(rows).filter((session) => rowSelection[session.sessionId]),
     [rowSelection, rows]
   );
   const { mutateAsync: stopSessions } = useStopSessions();
@@ -81,13 +90,11 @@ const SessionsTable: FC = () => {
     setModal('new-session');
   };
 
-
   const openStopSelectedModal = () => {
     setModal('stop-selected');
   };
 
   const handleStopSelectedSessions = async () => {
-
     console.log('selectedSessions', selectedSessions);
 
     if (!selectedSessions.length) return;
@@ -147,7 +154,7 @@ const SessionsTable: FC = () => {
         state={{
           rowSelection,
         }}
-        positionToolbarAlertBanner='none'
+        positionToolbarAlertBanner="none"
         getRowId={(row) => row.sessionId}
         noDataMessage={Messages.empty}
         tableName="rta-sessions"

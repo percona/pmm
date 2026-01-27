@@ -1,9 +1,7 @@
 import { RealTimeSession, RealTimeSessionStatus } from 'types/rta.types';
 import { SessionRow } from './SessionsTable.types';
 
-export const getSessionRows = (
-  sessions: RealTimeSession[]
-): SessionRow[] => {
+export const getSessionRows = (sessions: RealTimeSession[]): SessionRow[] => {
   const clusters = getClusters(sessions);
   const rows: SessionRow[] = [];
 
@@ -26,7 +24,9 @@ export const getSessionRows = (
         sessionId: cluster,
         type: 'cluster',
         sessionName: cluster,
-        status: areAllRunning ? RealTimeSessionStatus.running : RealTimeSessionStatus.unspecified,
+        status: areAllRunning
+          ? RealTimeSessionStatus.running
+          : RealTimeSessionStatus.unspecified,
         startTime: earliestStartedAt,
         serviceSessions: services,
       });
@@ -60,15 +60,17 @@ const serviceToSessionRow = (serviceSession: RealTimeSession): SessionRow => ({
   serviceSessions: [],
 });
 
-
 export const getServiceIds = (session: SessionRow | SessionRow[]): string[] => {
   if (Array.isArray(session)) {
     return session.flatMap((session) => getServiceIds(session));
   }
 
-  return session.type === 'service' ? [session.sessionId] : session.serviceSessions.map((session) => session.sessionId);
+  return session.type === 'service'
+    ? [session.sessionId]
+    : session.serviceSessions.map((session) => session.sessionId);
 };
 
-export const getAllSessions = (rows: SessionRow[]): SessionRow[] => rows.flatMap((session) =>
-  session.type === 'service' ? [session] : session.serviceSessions
-);
+export const getAllSessions = (rows: SessionRow[]): SessionRow[] =>
+  rows.flatMap((session) =>
+    session.type === 'service' ? [session] : session.serviceSessions
+  );

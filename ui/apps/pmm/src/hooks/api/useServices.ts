@@ -1,5 +1,9 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { getServiceTypes, listServices, listManagedServices } from 'api/services';
+import {
+  getServiceTypes,
+  listServices,
+  listManagedServices,
+} from 'api/services';
 import {
   ListServicesParams,
   ListServicesResponse,
