@@ -5,7 +5,7 @@
 set -euo pipefail
 
 start=${1:-0}
-dir="qan-api2/migrations/sql"
+dir="migrations/sql"
 
 for file in $(ls $dir | grep -E '^[0-9]+_.*\.up\.sql$' | sort); do
     num=$(echo $file | cut -d'_' -f1)
