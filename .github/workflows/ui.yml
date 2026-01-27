@@ -24,6 +24,10 @@ on:
       - "vmproxy/**"
       - "update/**"
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   ci:
     name: CI
@@ -43,6 +47,7 @@ jobs:
           node-version-file: ui/.nvmrc
           cache: yarn
           cache-dependency-path: ui/yarn.lock
+          registry-url: https://npm.pkg.github.com
 
       - name: Run lint
         run: make lint
