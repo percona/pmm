@@ -1,9 +1,12 @@
 #!/bin/bash
-# Usage: ./run_clickhouse_migrations.sh <start_number>
-# Runs all ClickHouse .up.sql migrations with a number greater than <start_number>
-
 set -euo pipefail
 
+if [ -z "$1" ]; then
+	echo "Usage: $0 <start_number> (e.g., 21)"
+	exit 1
+fi
+
+# Runs all ClickHouse .up.sql migrations with a number greater than <start_number>
 start=${1:-0}
 dir="migrations/sql"
 

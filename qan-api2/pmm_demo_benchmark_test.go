@@ -38,11 +38,33 @@ func getPeriodFromEnv(b *testing.B) (string, string) {
 	if to == "" {
 		b.Fatalf("PMM_DEMO_BENCH_PERIOD_TO is not set")
 	}
+
 	return from, to
 }
 
-func benchmarkRequest(b *testing.B, url string, payload []byte) time.Duration {
+// buildPayload builds a JSON payload with custom fields and always appends period_start_from and period_start_to.
+func buildPayload(b *testing.B, customFields string) []byte {
 	b.Helper()
+	from, to := getPeriodFromEnv(b)
+	// Minimize JSON: remove all whitespace, newlines, and tabs
+	trimmed := ""
+	for _, c := range customFields {
+		if c != ' ' && c != '\n' && c != '\t' {
+			trimmed += string(c)
+		}
+	}
+	if len(trimmed) > 0 && trimmed[len(trimmed)-1] == '}' {
+		trimmed = trimmed[:len(trimmed)-1]
+	}
+	payload := fmt.Appendf(nil, trimmed+",\"period_start_from\":\"%s\",\"period_start_to\":\"%s\"}", from, to)
+
+	return payload
+}
+
+func benchmarkRequest(b *testing.B, url string, params string) time.Duration {
+	b.Helper()
+	payload := buildPayload(b, params)
+	fmt.Println(string(payload))
 	req, err := http.NewRequestWithContext(b.Context(), http.MethodPost, url, bytes.NewBuffer(payload))
 	if err != nil {
 		b.Fatalf("Failed to create request: %v", err)
@@ -66,7 +88,7 @@ func benchmarkRequest(b *testing.B, url string, payload []byte) time.Duration {
 	return duration
 }
 
-func benchmarkWithStats(b *testing.B, url string, payload []byte) {
+func benchmarkWithStats(b *testing.B, url string, payload string) {
 	b.Helper()
 	durations := make([]time.Duration, b.N)
 	for i := 0; i < b.N; i++ {
@@ -90,68 +112,44 @@ func benchmarkWithStats(b *testing.B, url string, payload []byte) {
 
 func BenchmarkGetFilters(b *testing.B) {
 	url := baseURL + "qan/metrics:getFilters"
-	from, to := getPeriodFromEnv(b)
-	var payload []byte
-	payload = fmt.Appendf(payload, `{
-		   "labels": [],
-		   "main_metric_name": "load",
-		   "period_start_from": "%s",
-		   "period_start_to": "%s"
-	   }`, from, to)
-
+	payload := `{
+		"labels": [],
+		"main_metric_name": "load"}`
 	benchmarkWithStats(b, url, payload)
 }
 
 func BenchmarkGetReport(b *testing.B) {
 	url := baseURL + "qan/metrics:getReport"
-	from, to := getPeriodFromEnv(b)
-	var payload []byte
-	payload = fmt.Appendf(payload, `{
-		   "group_by": "queryid",
-		   "include_only_fields": [],
-		   "keyword": "",
-		   "labels": [],
-		   "limit": "25",
-		   "main_metric": "load",
-		   "offset": 0,
-		   "order_by": "-load",
-		   "period_start_from": "%s",
-		   "period_start_to": "%s",
-		   "search": ""
-	   }`, from, to)
-
+	payload := `{
+		"group_by": "queryid",
+		"include_only_fields": [],
+		"keyword": "",
+		"labels": [],
+		"limit": "25",
+		"main_metric": "load",
+		"offset": 0,
+		"order_by": "-load",
+		"search": ""}`
 	benchmarkWithStats(b, url, payload)
 }
 
 func BenchmarkGetMetrics(b *testing.B) {
 	url := baseURL + "qan:getMetrics"
-	from, to := getPeriodFromEnv(b)
-	var payload []byte
-	payload = fmt.Appendf(payload, `{
-				 "filter_by": "0D1A4A519E3B08C0EADA79DF0F2034C7",
-				 "group_by": "queryid",
-				 "labels": [],
-				 "period_start_from": "%s",
-				 "period_start_to": "%s",
-				 "tables": [],
-				 "totals": false
-			}`, from, to)
-
+	payload := `{
+		"filter_by": "0D1A4A519E3B08C0EADA79DF0F2034C7",
+		"group_by": "queryid",
+		"labels": [],
+		"tables": [],
+		"totals": false}`
 	benchmarkWithStats(b, url, payload)
 }
 
 func BenchmarkGetExample(b *testing.B) {
 	url := baseURL + "qan/query:getExample"
-	from, to := getPeriodFromEnv(b)
-	var payload []byte
-	payload = fmt.Appendf(payload, `{
-		   "filter_by": "9AD8CA7F8CAC1812CC0F42D4205D5441",
-		   "group_by": "queryid",
-		   "labels": [],
-		   "period_start_from": "%s",
-		   "period_start_to": "%s",
-		   "tables": []
-	   }`, from, to)
-
+	payload := `{
+		"filter_by": "9AD8CA7F8CAC1812CC0F42D4205D5441",
+		"group_by": "queryid",
+		"labels": [],
+		"tables": []}`
 	benchmarkWithStats(b, url, payload)
 }

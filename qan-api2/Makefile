@@ -1,4 +1,3 @@
-SHELL := /bin/bash
 default: help
 
 help:                           ## Display this help message
