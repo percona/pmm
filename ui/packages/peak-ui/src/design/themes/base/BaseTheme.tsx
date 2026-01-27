@@ -31,17 +31,29 @@ declare module "@mui/material/styles" {
   interface Palette extends PaletteOptions {}
   interface SimplePaletteColorOptions {
     surface?: string;
+    hover?: string;
+    selected?: string;
+    focus?: string;
+    focusVisible?: string;
+    outlinedBorder?: string;
   }
 
   interface PaletteColor {
     surface?: string;
+    hover?: string;
+    selected?: string;
+    focus?: string;
+    focusVisible?: string;
+    outlinedBorder?: string;
   }
+
   interface TypeAction {
     focusVisible: string;
     focusVisibleOpacity: number;
     outlinedBorder: string;
     outlinedBorderOpacity: number;
   }
+
   interface TypographyVariants {
     sectionHeading: React.CSSProperties;
     subHead1: React.CSSProperties;
@@ -76,6 +88,7 @@ declare module "@mui/material/styles" {
     };
   }
 }
+
 declare module "@mui/material/Typography" {
   interface TypographyPropsVariantOverrides {
     sectionHeading: true;
@@ -94,150 +107,409 @@ declare module "@mui/material/Paper" {
   }
 }
 
+// Primitives color tokens
+export const primitives = {
+  brand: {
+    sunset: {
+      900: "#6B350B",
+      800: "#8C450E",
+      700: "#B55912",
+      600: "#E87318",
+      500: "#FF7E1A",
+      400: "#FF9848",
+      300: "#FFA966",
+      200: "#FFC496",
+      100: "#FFD7B8",
+      50: "#FFF2E8",
+    },
+    fire: {
+      900: "#661D00",
+      800: "#852600",
+      700: "#AC3100",
+      600: "#DC3F00",
+      500: "#F24500",
+      400: "#F56A33",
+      300: "#F68254",
+      200: "#F9A98A",
+      100: "#FBC5B0",
+      50: "#FEECE6",
+    },
+    night: {
+      900: "#060B23",
+      800: "#080E2E",
+      700: "#0A123B",
+      600: "#0D184C",
+      500: "#0E1A53",
+      400: "#3E4875",
+      300: "#5E668C",
+      200: "#9096B0",
+      100: "#B4B8CA",
+      50: "#E7E8EE",
+    },
+    sky: {
+      900: "#08386B",
+      800: "#0B4A8C",
+      700: "#0E5FB5",
+      600: "#127AE8",
+      500: "#1486FF",
+      400: "#439EFF",
+      300: "#62AEFF",
+      200: "#93C7FF",
+      100: "#B6D9FF",
+      50: "#E8F3FF",
+    },
+    sunrise: {
+      900: "#654B17",
+      800: "#84621E",
+      700: "#AA7F26",
+      600: "#DAA331",
+      500: "#F0B336",
+      400: "#F3C25E",
+      300: "#F5CC78",
+      200: "#F8DCA3",
+      100: "#FAE7C1",
+      50: "#FEF7EB",
+    },
+    aqua: {
+      900: "#14584B",
+      800: "#1A7362",
+      700: "#22947E",
+      600: "#2CBEA2",
+      500: "#30D1B2",
+      400: "#59DAC1",
+      300: "#74E0CB",
+      200: "#A0EADC",
+      100: "#BFF1E7",
+      50: "#EAFAF7",
+    },
+    lavender: {
+      900: "#472F64",
+      800: "#5C3D83",
+      700: "#774FAA",
+      600: "#9965D9",
+      500: "#A86FEF",
+      400: "#B98CF2",
+      300: "#C59FF4",
+      200: "#D7BDF8",
+      100: "#E4D2FA",
+      50: "#F6F1FD",
+    },
+    stone: {
+      900: "#2C323E",
+      800: "#3A4151",
+      700: "#4B5468",
+      600: "#606C86",
+      500: "#697793",
+      400: "#8792A9",
+      300: "#9BA4B7",
+      200: "#BAC0CD",
+      100: "#D1D5DE",
+      50: "#F0F1F4",
+    }
+  },
+  extra: {
+    yellow: {
+      900: "#70510A",
+      800: "#9C7407",
+      700: "#C89A04",
+      600: "#F2C202",
+      500: "#FED520",
+      400: "#FFE047",
+      300: "#FFE770",
+      200: "#FFEE99",
+      100: "#FFF5C2",
+      50: "#FFFCEB",
+    },
+    red: {
+      900: "#4D0000",
+      800: "#700000",
+      700: "#920000",
+      600: "#B10810",
+      500: "#CC352E",
+      400: "#E2584D",
+      300: "#F37C6F",
+      200: "#FEA195",
+      100: "#FFC6BE",
+      50: "#FFECE9",
+    },
+    green: {
+      900: "#002C1D",
+      800: "#004430",
+      700: "#005C45",
+      600: "#00745B",
+      500: "#008C71",
+      400: "#00A489",
+      300: "#51BAA2",
+      200: "#85CFBC",
+      100: "#B6E3D6",
+      50: "#E7F6F1",
+    }
+  },
+  base: {
+    white: "#FFFFFF",
+    black: "#000000",
+  }
+} as const;
+
+export type Primitives = typeof primitives;
+
+// Semantic color tokens - Light mode
+export const semanticTokensLight = {
+  surfaces: {
+    elevation0: primitives.brand.stone[50],
+    elevation1: primitives.base.white,
+    backdrop: "rgba(0, 0, 0, 0.7)",
+  },
+  text: {
+    primary: "#2C323E",
+    secondary: "rgba(44, 50, 62, 0.7)",
+    disabled: "rgba(44, 50, 62, 0.4)",
+    sky: primitives.brand.sky[600],
+    lavender: primitives.brand.lavender[600],
+    aqua: primitives.brand.aqua[700],
+  },
+  lines: {
+    divider: "rgba(44, 50, 62, 0.25)",
+    dividerStrong: "rgba(44, 50, 62, 0.5)",
+    contour: "rgba(0, 0, 0, 0.06)",
+    dividerStronger: "#2C323E",
+  },
+  action: {
+    hover: "rgba(44, 50, 62, 0.04)",
+    disabled: "rgba(44, 50, 62, 0.12)",
+    focus: "rgba(44, 50, 62, 0.12)",
+  },
+  error: {
+    main: primitives.extra.red[600],
+    light: primitives.extra.red[500],
+    dark: primitives.extra.red[700],
+    contrastText: primitives.extra.red[700],
+    surface: primitives.extra.red[50],
+  },
+  success: {
+    main: primitives.extra.green[600],
+    light: primitives.extra.green[500],
+    dark: primitives.extra.green[700],
+    contrastText: primitives.extra.green[700],
+    surface: primitives.extra.green[50],
+  },
+  informative: {
+    main: primitives.brand.sky[700],
+    light: primitives.brand.sky[600],
+    dark: primitives.brand.sky[800],
+    contrastText: primitives.brand.sky[800],
+    surface: primitives.brand.sky[50],
+  },
+  warning: {
+    main: primitives.extra.yellow[800],
+    light: primitives.brand.sunrise[700],
+    dark: primitives.brand.sunrise[900],
+    contrastText: primitives.brand.sunrise[900],
+    surface: primitives.extra.yellow[100],
+  },
+  neutral: {
+    main: primitives.brand.stone[800],
+    light: primitives.brand.stone[700],
+    dark: primitives.brand.stone[900],
+    contrastText: primitives.brand.stone[800],
+    surface: "rgba(44, 50, 62, 0.12)", // Same as action.focus
+  },
+  charts: {
+    stone: primitives.brand.stone[400],
+    lavender: primitives.brand.lavender[500],
+    sky: primitives.brand.sky[500],
+    aqua: primitives.brand.aqua[600],
+    sunrise: primitives.brand.sunrise[500],
+    sunset: primitives.brand.sunset[400],
+    red: primitives.extra.red[400],
+  }
+};
+
+// Semantic color tokens — Dark mode
+export const semanticTokensDark = {
+  surfaces: {
+    elevation0: primitives.brand.stone[800],
+    elevation1: primitives.brand.stone[900],
+    backdrop: "rgba(0, 0, 0, 0.7)",
+  },
+  text: {
+    primary: "#FBFBFB",
+    secondary: "rgba(251, 251, 251, 0.7)",
+    disabled: "rgba(251, 251, 251, 0.4)",
+    sky: primitives.brand.sky[200],
+    lavender: primitives.brand.lavender[200],
+    aqua: primitives.brand.aqua[300],
+  },
+  lines: {
+    divider: "rgba(255, 255, 255, 0.25)",
+    dividerStrong: "rgba(255, 255, 255, 0.5)",
+    contour: "rgba(255, 255, 255, 0.08)",
+    dividerStronger: "#FFFFFF",
+  },
+  action: {
+    hover: "rgba(240, 241, 244, 0.08)",
+    disabled: "rgba(240, 241, 244, 0.15)",
+    focus: "rgba(240, 241, 244, 0.15)",
+  },
+  error: {
+    main: primitives.extra.red[300],
+    light: primitives.extra.red[200],
+    dark: primitives.extra.red[400],
+    contrastText: primitives.base.white,
+    surface: primitives.extra.red[400],
+  },
+  success: {
+    main: primitives.extra.green[400],
+    light: primitives.extra.green[300],
+    dark: primitives.extra.green[500],
+    contrastText: primitives.base.white,
+    surface: primitives.extra.green[500],
+  },
+  informative: {
+    main: primitives.brand.sky[500],
+    light: primitives.brand.sky[400],
+    dark: primitives.brand.sky[600],
+    contrastText: primitives.base.white,
+    surface: primitives.brand.sky[600],
+  },
+  warning: {
+    main: primitives.extra.yellow[200],
+    light: primitives.extra.yellow[100],
+    dark: primitives.extra.yellow[300],
+    contrastText: primitives.brand.sunrise[900],
+    surface: primitives.extra.yellow[300],
+  },
+  neutral: {
+    main: primitives.brand.stone[50],
+    light: primitives.base.white,
+    dark: primitives.brand.stone[100],
+    contrastText: primitives.brand.stone[50],
+    surface: "rgba(240, 241, 244, 0.15)",  // Same as action.focus
+  },
+  charts: {
+    stone: primitives.brand.stone[200],
+    lavender: primitives.brand.lavender[200],
+    sky: primitives.brand.sky[200],
+    aqua: primitives.brand.aqua[300],
+    sunrise: primitives.brand.sunrise[300],
+    sunset: primitives.brand.sunset[200],
+    red: primitives.extra.red[200],
+  }
+};
+
+// Primary color tokens
+export const defaultPrimaryLight = {
+  main: primitives.brand.stone[900],
+  dark: primitives.base.black,
+  light: primitives.brand.stone[800],
+  contrastText: primitives.base.white,
+  hover: "rgba(32, 68, 147, 0.04)",
+  selected: "rgba(32, 68, 147, 0.08)",
+  focus: "rgba(32, 68, 147, 0.12)",
+  focusVisible: "rgba(47, 74, 132, 0.3)",
+  outlinedBorder: "rgba(61, 79, 118, 0.5)",
+};
+export const defaultPrimaryDark = {
+  main: primitives.brand.stone[50],
+  dark: primitives.brand.stone[100],
+  light: primitives.base.white,
+  contrastText: primitives.base.black,
+  hover: "rgba(209, 213, 222, 0.08)",
+  selected: "rgba(209, 213, 222, 0.12)",
+  focus: "rgba(209, 213, 222, 0.15)",
+  focusVisible: "rgba(209, 213, 222, 0.3)",
+  outlinedBorder: "rgba(209, 213, 222, 0.5)",
+};
+
+export type SemanticTokens = typeof semanticTokensLight;
+export type PrimaryTokens = typeof defaultPrimaryLight;
+
 const BaseTheme = createTheme();
 
-const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
+const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
+  const tokens = mode === "light" ? semanticTokensLight : semanticTokensDark;
+  const primary = mode === "light" ? defaultPrimaryLight : defaultPrimaryDark;
+
+  return {
   palette: {
     mode,
-    ...(mode === "light"
-      ? {
-          default: {
-            light: "#4B5468",
-            main: "#3A4151",
-            dark: "#2C323E",
-            contrastText: "#3A4151",
-            surface: "rgba(44, 50, 62, 0.122)",
-          },
-          error: {
-            light: "#CC352E",
-            main: "#B10810",
-            dark: "#920000",
-            contrastText: "#920000",
-            surface: "#FFECE9",
-          },
-          warning: {
-            light: "#AA7F26",
-            main: "#9C7407",
-            dark: "#654B17",
-            contrastText: "#654B17",
-            surface: "#FFF5C2",
-          },
-          info: {
-            light: "#127AE8",
-            main: "#0E5FB5",
-            dark: "#0B4A8C",
-            contrastText: "#0B4A8C",
-            surface: "#E8F3FF",
-          },
-          success: {
-            light: "#008C71",
-            main: "#00745B",
-            dark: "#005C45",
-            contrastText: "#005C45",
-            surface: "#E7F6F1",
-          },
-          text: {
-            primary: "rgba(44, 50, 62, 1)",
-            secondary: "rgba(44, 50, 62, 0.72)",
-            disabled: "rgba(44, 50, 62, 0.4)",
-          },
-          action: {
-            hover: "rgba(44, 50, 62, 0.04)",
-            hoverOpacity: 0.04,
-            disabled: "rgba(44, 50, 62, 0.12)",
-            disabledOpacity: 0.12,
-            focus: "rgba(44, 50, 62, 0.12)",
-            focusOpacity: 0.12,
-          },
-          background: {
-            default: "#FFFFFF",
-            paper: "#FFFFFF",
-          },
-          surfaces: {
-            backdrop: "rgba(44, 50, 62, 0.72)",
-            low: "rgba(240, 241, 244, 1)",
-            high: "rgba(255, 255, 255, 1)",
-          },
-          dividers: {
-            divider: "rgba(44, 50, 62, 0.25)",
-            dividerStrong: "rgba(44, 50, 62, 0.5)",
-            dividerStronger: "#2C323E",
-            contour: "rgba(0, 0, 0, 0.06)",
-          },
-          tooltips: {
-            background: "#3A4151",
-            color: "#FFFFFF",
-          },
-        }
-      : {
-          default: {
-            light: "#FFFFFF",
-            main: "#F0F1F4",
-            dark: "#D1D5DE",
-            contrastText: "#F0F1F4",
-            surface: "rgba(240, 241, 244, 0.149)",
-          },
-          error: {
-            light: "#FEA195",
-            main: "#F37C6F",
-            dark: "#E2584D",
-            contrastText: "#FFFFFF",
-            surface: "#E2584D",
-          },
-          warning: {
-            light: "#FFF5C2",
-            main: "#FFEE99",
-            dark: "#FFE770",
-            contrastText: "#654B17",
-            surface: "#FFE770",
-          },
-          info: {
-            light: "#439EFF",
-            main: "#1486FF",
-            dark: "#127AE8",
-            contrastText: "#FFFFFF",
-            surface: "#127AE8",
-          },
-          success: {
-            light: "#51BAA2",
-            main: "#00A489",
-            dark: "#008C71",
-            contrastText: "#FFFFFF",
-            surface: "#008C71",
-          },
-          text: {
-            primary: "#FBFBFB",
-            secondary: "rgba(251, 251, 251, 0.72)",
-            disabled: "rgba(251, 251, 251, 0.4)",
-          },
-          action: {
-            hover: "rgba(240, 241, 244, 0.06)",
-            hoverOpacity: 0.06,
-            disabled: "rgba(240, 241, 244, 0.14)",
-            disabledOpacity: 0.14,
-            focus: "rgba(240, 241, 244, 0.14)",
-            focusOpacity: 0.14,
-          },
-          background: {
-            default: "#3A4151",
-            paper: "#3A4151",
-          },
-          surfaces: {
-            backdrop: "rgba(44, 50, 62, 0.72)",
-            low: "rgba(44, 50, 62, 1)",
-            high: "rgba(58, 65, 81, 1)",
-          },
-          dividers: {
-            divider: "rgba(209, 213, 222, 0.25)",
-            dividerStrong: "rgba(209, 213, 222, 0.5)",
-            dividerStronger: "#FFFFFF",
-            contour: "rgba(255, 255, 255, 0.08)",
-          },
-          tooltips: {
-            background: "#F0F1F4",
-            color: "#2C323E",
-          },
-        }),
+    // Primary colors tokens (Default for Base - other themes can override this)
+    primary: {
+      main: primary.main,
+      dark: primary.dark,
+      light: primary.light,
+      contrastText: primary.contrastText,
+      hover: primary.hover,
+      selected: primary.selected,
+      focus: primary.focus,
+      focusVisible: primary.focusVisible,
+      outlinedBorder: primary.outlinedBorder,
+    },
+    // Text colors
+    text: {
+      primary: tokens.text.primary,
+      secondary: tokens.text.secondary,
+      disabled: tokens.text.disabled,
+    },
+    // Messaging colors tokens
+    error: {
+      main: tokens.error.main,
+      light: tokens.error.light,
+      dark: tokens.error.dark,
+      contrastText: tokens.error.contrastText,
+      surface: tokens.error.surface,
+    },
+    warning: {
+      main: tokens.warning.main,
+      light: tokens.warning.light,
+      dark: tokens.warning.dark,
+      contrastText: tokens.warning.contrastText,
+      surface: tokens.warning.surface,
+    },
+    info: {
+      main: tokens.informative.main,
+      light: tokens.informative.light,
+      dark: tokens.informative.dark,
+      contrastText: tokens.informative.contrastText,
+      surface: tokens.informative.surface,
+    },
+    success: {
+      main: tokens.success.main,
+      light: tokens.success.light,
+      dark: tokens.success.dark,
+      contrastText: tokens.success.contrastText,
+      surface: tokens.success.surface,
+    },
+    // Action colors
+    action: {
+      hover: tokens.action.hover,
+      hoverOpacity: 0.04,
+      disabled: tokens.action.disabled,
+      disabledOpacity: 0.12,
+      focus: tokens.action.focus,
+      focusOpacity: 0.12,
+    },
+    // Background/Surfaces
+    background: {
+      default: tokens.surfaces.elevation0,
+      paper: tokens.surfaces.elevation1,
+    },
+    surfaces: {
+      backdrop: tokens.surfaces.backdrop,
+      low: tokens.surfaces.elevation0,
+      high: tokens.surfaces.elevation1,
+    },
+    // Other color tokens
+    dividers: {
+      divider: tokens.lines.divider,
+      dividerStrong: tokens.lines.dividerStrong,
+      dividerStronger: tokens.lines.dividerStronger,
+      contour: tokens.lines.contour,
+    },
+    tooltips: {
+      background: tokens.neutral.main,
+      color: tokens.neutral.contrastText,
+    },
   },
   typography: {
     h1: {
@@ -813,6 +1085,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => ({
       },
     },
   },
-});
+};
+};
 
 export default baseThemeOptions;

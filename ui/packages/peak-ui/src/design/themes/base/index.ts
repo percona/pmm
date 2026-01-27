@@ -13,3 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 export { default } from './BaseTheme';
+export { 
+  primitives,
+  semanticTokensLight,
+  semanticTokensDark,
+  defaultPrimaryLight,
+  defaultPrimaryDark,
+} from './BaseTheme';
+export type { Primitives, SemanticTokens, PrimaryTokens } from './BaseTheme';
