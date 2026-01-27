@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"testing"
 	"time"
 )
@@ -76,9 +77,13 @@ func benchmarkWithStats(b *testing.B, url string, payload []byte) {
 
 	if b.N > 0 {
 		var sum time.Duration
-		minDuration := min(durations[0])
-		maxDuration := max(durations[0])
+		for _, d := range durations {
+			sum += d
+		}
 		avgDuration := sum / time.Duration(b.N)
+		minDuration := slices.Min(durations)
+		maxDuration := slices.Max(durations)
+
 		b.Logf("avg=%v min=%v max=%v\n", avgDuration, minDuration, maxDuration)
 	}
 }
