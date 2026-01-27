@@ -1,17 +1,13 @@
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
-import ElectricBoltOutlinedIcon from '@mui/icons-material/ElectricBoltOutlined';
-import Badge from '@mui/material/Badge';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import { FC } from 'react';
 import { useCreateShortUrl } from 'hooks/api/useShortUrls';
 import { constructUrl } from 'utils/link.utils';
 import { enqueueSnackbar } from 'notistack';
-import { useNavigate } from 'react-router';
 
 export const QanHeaderActions: FC = () => {
   const { mutateAsync: createShortUrl } = useCreateShortUrl();
-  const navigate = useNavigate();
 
   const handleCopy = async () => {
     try {
@@ -34,15 +30,6 @@ export const QanHeaderActions: FC = () => {
 
   return (
     <Stack gap={1} flex={1} flexDirection="row" justifyContent="flex-end">
-      {/* TODO: temporary - remove after selection page is implemented */}
-      <IconButton
-        data-testid="qan-header-actions-running-agents-button"
-        onClick={() => navigate('/rta/sessions')}
-      >
-        <Badge color="warning" badgeContent={3}>
-          <ElectricBoltOutlinedIcon />
-        </Badge>
-      </IconButton>
       <IconButton
         data-testid="qan-header-actions-copy-button"
         onClick={handleCopy}
