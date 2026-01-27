@@ -40,9 +40,7 @@
     "vite-plugin-svgr": "^4.3.0"
   },
   "devDependencies": {
-    "@percona/eslint-config-react": "^1.0.0",
     "@percona/prettier-config": "^1.0.0",
-    "@percona/tsconfig": "^1.0.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^15.0.7",
     "@types/react": "^18.3.2",

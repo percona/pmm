@@ -37,7 +37,6 @@
     "@jest/globals": "^29.7.0",
     "@percona/eslint-config-react": "^1.0.0",
     "@percona/prettier-config": "^1.0.0",
-    "@percona/tsconfig": "^1.0.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
