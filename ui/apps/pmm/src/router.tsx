@@ -10,6 +10,7 @@ import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { RealTimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect } from 'components/redirect';
+import RealTimeOverviewPage from 'pages/rta/overview/RealTimeOverview';
 
 const router = createBrowserRouter(
   [
@@ -39,11 +40,20 @@ const router = createBrowserRouter(
             },
             {
               path: 'rta',
-              element: <RealTimeSelection />,
-            },
-            {
-              path: 'rta/sessions',
-              element: <RealTimeSessionsPage />,
+              children: [
+                {
+                  path: '',
+                  element: <RealTimeSelection />,
+                },
+                {
+                  path: 'sessions',
+                  element: <RealTimeSessionsPage />,
+                },
+                {
+                  path: 'overview',
+                  element: <RealTimeOverviewPage />,
+                },
+              ]
             },
             // Grafana routes are handled at the Main component level
             {

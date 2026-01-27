@@ -4,29 +4,20 @@ import { FC } from 'react';
 import { Messages } from './RealTimeSessions.messages';
 import SessionsTable from './sessions-table/SessionsTable';
 import Button from '@mui/material/Button';
-import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import { DOCS_URLS } from 'lib/constants';
+import { RealTimePage } from '../components/rta-page';
 
 const RealTimeSessionsPage: FC = () => {
-  const { fromAnalysis } = useParams();
+  const [searchParams] = useSearchParams();
 
   return (
-    <Stack
-      direction="column"
-      gap={2}
-      p={2}
-      sx={{
-        height: '100%',
-        maxHeight: 'calc(100vh - 64px)', // Account for header height
-        overflow: 'hidden',
-        display: 'flex',
-      }}
-    >
+    <RealTimePage>
       <Stack direction="column" gap={1} sx={{ flexShrink: 0 }}>
-        {fromAnalysis && (
-          <RouterLink to="/rta/live">
+        {searchParams.get('fromOverview') && (
+          <RouterLink to="/rta/overview">
             <Button
               size="small"
               startIcon={<ArrowBackOutlinedIcon />}
@@ -69,7 +60,7 @@ const RealTimeSessionsPage: FC = () => {
       >
         <SessionsTable />
       </Stack>
-    </Stack>
+    </RealTimePage>
   );
 };
 

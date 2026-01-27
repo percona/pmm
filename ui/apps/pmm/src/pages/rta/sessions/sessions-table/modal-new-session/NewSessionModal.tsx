@@ -16,7 +16,7 @@ interface Props {
 
 const NewSessionModal: FC<Props> = ({ open, onClose, onSuccess }) => <Dialog open={open} onClose={onClose} >
   <DialogTitle onClose={onClose}>{Messages.title}</DialogTitle>
-  <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 4, p: 4, width: 426 }}>
+  <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 4, p: 4, mt: 2, width: 426 }}>
     <Typography textAlign="center">{Messages.content}</Typography>
     <RealTimeSelectionForm onSuccess={onSuccess} />
     <Stack direction="column" gap={1}>
