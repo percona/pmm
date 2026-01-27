@@ -64,7 +64,6 @@ func buildPayload(b *testing.B, customFields string) []byte {
 func benchmarkRequest(b *testing.B, url string, params string) time.Duration {
 	b.Helper()
 	payload := buildPayload(b, params)
-	fmt.Println(string(payload))
 	req, err := http.NewRequestWithContext(b.Context(), http.MethodPost, url, bytes.NewBuffer(payload))
 	if err != nil {
 		b.Fatalf("Failed to create request: %v", err)
