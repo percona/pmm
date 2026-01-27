@@ -5,9 +5,9 @@ import { Messages } from './SessionsTable.messages';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Table } from '@percona/ui-lib';
-import { boxClasses, paperClasses, Skeleton } from '@mui/material';
+import { boxClasses, paperClasses, Skeleton, Typography } from '@mui/material';
 import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
-import { useRealTimeSessions, useStartSessions, useStopSessions } from 'hooks/api/useRealTime';
+import { useRealTimeSessions, useStopSessions } from 'hooks/api/useRealTime';
 import { getAllSessions, getServiceIds, getSessionRows } from './SessionsTable.utils';
 import { StopSessionModal } from './modal-stop-session';
 import { NewSessionModal } from './modal-new-session';
@@ -29,7 +29,6 @@ const SessionsTable: FC = () => {
     [rowSelection, rows]
   );
   const { mutateAsync: stopSessions } = useStopSessions();
-  const { mutateAsync: startSessions } = useStartSessions();
 
   const closeModal = () => {
     setModal(null);
@@ -82,11 +81,6 @@ const SessionsTable: FC = () => {
     setModal('new-session');
   };
 
-  const handleCreateSessions = async (serviceIds: string[]) => {
-    await startSessions(serviceIds);
-
-    closeModal();
-  };
 
   const openStopSelectedModal = () => {
     setModal('stop-selected');
@@ -153,6 +147,7 @@ const SessionsTable: FC = () => {
         state={{
           rowSelection,
         }}
+        positionToolbarAlertBanner='none'
         getRowId={(row) => row.sessionId}
         noDataMessage={Messages.empty}
         tableName="rta-sessions"
@@ -200,15 +195,20 @@ const SessionsTable: FC = () => {
             },
           },
         }}
-        renderTopToolbarCustomActions={({ table }) => (
+        renderTopToolbarCustomActions={() => (
           <Stack direction="row" alignItems="center" gap={2}>
-            {table.getIsSomeRowsSelected() && (
-              <Button
-                startIcon={<StopCircleOutlinedIcon />}
-                onClick={openStopSelectedModal}
-              >
-                {Messages.stopSelected}
-              </Button>
+            {selectedSessions.length > 0 && (
+              <Stack direction="row" alignItems="center" gap={2}>
+                <Typography variant="body2">
+                  {Messages.selected(selectedSessions.length)}
+                </Typography>
+                <Button
+                  startIcon={<StopCircleOutlinedIcon />}
+                  onClick={openStopSelectedModal}
+                >
+                  {Messages.stopSelected}
+                </Button>
+              </Stack>
             )}
             {!!sessions.length && (
               <Button
@@ -244,7 +244,7 @@ const SessionsTable: FC = () => {
       <NewSessionModal
         open={modal === 'new-session'}
         onClose={closeModal}
-        onCreateSession={handleCreateSessions}
+        onSuccess={closeModal}
       />
     </Stack>
   );

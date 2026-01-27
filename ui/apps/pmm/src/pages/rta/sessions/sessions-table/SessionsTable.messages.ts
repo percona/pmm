@@ -4,6 +4,7 @@ export const Messages = {
   newSession: 'New session',
   stop: 'Stop',
   empty: 'No sessions found',
+  selected: (count: number) => count > 1 ? `${count} rows selected:` : `1 row selected:`,
   table: {
     columns: {
       sessionName: 'Session',

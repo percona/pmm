@@ -5,24 +5,24 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
-import { useAvailableServices } from 'hooks/api/useRealtime';
 import { Messages } from './RealTimeSelection.messages';
-import { RealTimeSelectionForm } from './RealTimeSelectionForm';
+import { RealTimeSelectionForm } from './form/RealTimeSelectionForm';
 import {
   RealTimeSelectionEmptyState,
   RealTimeSelectionViewerEmptyState,
 } from './empty-state';
-import { DOCS_URL, FORUM_URL } from './RealTimeSelection.constants';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useAvailableServices } from 'hooks/api/useRealTime';
+import { DOCS_URLS } from 'lib/constants';
 
 export const RealTimeSelection: FC = () => {
   const { user } = useUser();
-  const canManageRTA = user?.isEditor || user?.isPMMAdmin;
-
+  const navigate = useNavigate();
   const {
     availableServices,
     isLoading,
     servicesData,
-    runningAgentsData,
+    sessionsData
   } = useAvailableServices();
 
   const allServicesRunning =
@@ -31,13 +31,8 @@ export const RealTimeSelection: FC = () => {
     servicesData?.services &&
     servicesData.services.length > 0;
 
-  const showViewerEmptyState =
-    !canManageRTA &&
-    (!runningAgentsData?.agents || runningAgentsData.agents.length === 0) &&
-    !isLoading;
-
-  if (showViewerEmptyState) {
-    return <RealTimeSelectionViewerEmptyState />;
+  const handleSuccess = () => {
+    navigate('/rta/sessions');
   }
 
   if (isLoading) {
@@ -58,6 +53,15 @@ export const RealTimeSelection: FC = () => {
         </Stack>
       </Page>
     );
+  }
+
+  if (sessionsData?.length) {
+    // todo: navigate to session analysis page
+    return <Navigate to="/rta/sessions" />
+  }
+
+  if (user?.isViewer) {
+    return <RealTimeSelectionViewerEmptyState />;
   }
 
   return (
@@ -81,18 +85,21 @@ export const RealTimeSelection: FC = () => {
               <Typography variant="h5">{Messages.title}</Typography>
               <Typography variant="body1">{Messages.description}</Typography>
             </Stack>
-
-            <RealTimeSelectionForm />
-
+            <RealTimeSelectionForm onSuccess={handleSuccess} />
             <Stack gap={1} sx={{ width: '100%' }}>
               <Typography variant="body2" color="text.secondary">
                 {Messages.mongoOnly}
               </Typography>
               <Stack direction="row" gap={2} justifyContent="center">
-                <Link href={DOCS_URL} target="_blank">
+                <Link
+                  href={DOCS_URLS.qan}
+                  rel="noopener noreferrer"
+                  target="_blank">
                   {Messages.documentation}
                 </Link>
-                <Link href={FORUM_URL} target="_blank">
+                <Link href={DOCS_URLS.forums}
+                  rel="noopener noreferrer"
+                  target="_blank">
                   {Messages.feedback}
                 </Link>
               </Stack>

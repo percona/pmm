@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import { DOCS_URLS } from 'lib/constants';
 
 const RealTimeSessionsPage: FC = () => {
   const { fromAnalysis } = useParams();
@@ -42,7 +43,7 @@ const RealTimeSessionsPage: FC = () => {
         <Stack direction="row" justifyContent="flex-start" gap={2}>
           <Link
             variant="body2"
-            href="#"
+            href={DOCS_URLS.qan}
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -50,7 +51,7 @@ const RealTimeSessionsPage: FC = () => {
           </Link>
           <Link
             variant="body2"
-            href="#"
+            href={DOCS_URLS.forums}
             rel="noopener noreferrer"
             target="_blank"
           >

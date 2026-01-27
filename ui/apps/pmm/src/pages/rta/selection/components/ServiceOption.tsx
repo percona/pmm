@@ -1,7 +1,7 @@
 import { FC, HTMLAttributes } from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
-import { ServiceOption as ServiceOptionType, ClusterSelectionState } from '../RealTimeSelectionForm.types';
+import { ServiceOption as ServiceOptionType, ClusterSelectionState } from '../form/RealTimeSelectionForm.types';
 
 interface ServiceOptionProps {
   option: ServiceOptionType;

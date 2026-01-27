@@ -4,11 +4,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { enqueueSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
-import {
-  useAvailableServices,
-  useChangeRealtimeAnalytics,
-} from 'hooks/api/useRealtime';
-import { Messages } from './RealTimeSelection.messages';
+import { Messages } from '../RealTimeSelection.messages';
 import {
   ServiceOption,
   getServiceOptions,
@@ -19,7 +15,8 @@ import {
   ServiceInput,
   ServiceOption as ServiceOptionComponent,
   ServiceOptionTag,
-} from './components';
+} from '../components';
+import { useAvailableServices, useStartSessions } from 'hooks/api/useRealTime';
 
 interface RealTimeSelectionFormProps {
   onSuccess?: () => void;
@@ -41,7 +38,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
     [availableServices]
   );
 
-  const changeRealtimeAnalytics = useChangeRealtimeAnalytics();
+  const startSessions = useStartSessions();
 
   const handleServiceChange = (
     _event: React.SyntheticEvent,
@@ -71,30 +68,19 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
       return;
     }
 
-    try {
-      await Promise.all(
-        realServices.map((service) =>
-          changeRealtimeAnalytics.mutateAsync(
-            {
-              enable: true,
-              serviceId: service.serviceId!,
-            },
-            {
-              // Prevent running agents query invalidation on each individual mutation
-              onSuccess: undefined,
-            }
-          )
-        )
-      );
-
-      enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
-      setSelectedServices([]);
-      onSuccess?.();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : Messages.startError;
-      enqueueSnackbar(message, { variant: 'error' });
-    }
+    const serviceIds = realServices.map((service) => service.serviceId!);
+    await startSessions.mutateAsync(serviceIds, {
+      onSuccess: () => {
+        enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
+        setSelectedServices([]);
+        onSuccess?.();
+      },
+      onError: (error) => {
+        const message =
+          error instanceof Error ? error.message : Messages.startError;
+        enqueueSnackbar(message, { variant: 'error' });
+      }
+    });
   };
 
   const realServicesCount = selectedServices.filter(
@@ -140,10 +126,10 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
             clusterSelectionState={
               option.type === 'cluster'
                 ? getClusterSelectionState(
-                    option.label,
-                    serviceOptions,
-                    selectedServices
-                  )
+                  option.label,
+                  serviceOptions,
+                  selectedServices
+                )
                 : undefined
             }
             onClusterToggle={handleClusterToggle}
@@ -159,7 +145,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
         onClick={handleStart}
         disabled={
           realServicesCount === 0 ||
-          changeRealtimeAnalytics.isPending ||
+          startSessions.isPending ||
           !canManageRTA
         }
         sx={{
