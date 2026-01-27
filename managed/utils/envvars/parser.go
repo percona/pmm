@@ -225,7 +225,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
-		case "PMM_ENCRYPTION_KEY_PATH":
+		// skip various HA-related variables
+		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ADMIN_PASSWORD":
 			continue
 
 		case pkgenv.EnableAccessControl:
@@ -286,7 +287,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 
 			// skip kubernetes environment variables
-			if strings.HasPrefix(k, "KUBERNETES_") {
+			if strings.HasPrefix(k, "KUBERNETES_") || strings.HasPrefix(k, "PMM_OPERATORS_") {
 				continue
 			}
 
