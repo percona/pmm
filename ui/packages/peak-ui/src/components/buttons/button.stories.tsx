@@ -4,7 +4,7 @@ import * as DocBlock from '@storybook/blocks';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 
 const meta = {
-  title: 'Button',
+  title: 'Inputs/Buttons/Button',
   component: Button,
   tags: ['autodocs'],
   parameters: {

@@ -4,7 +4,7 @@ import * as DocBlock from '@storybook/blocks';
 import { CachedOutlined } from '@mui/icons-material';
 
 const meta = {
-  title: 'Button (Icon Button)',
+  title: 'Inputs/Buttons/Button (Icon Button)',
   component: IconButton,
   tags: ['autodocs'],
   parameters: {

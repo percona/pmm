@@ -3,7 +3,7 @@ import { TYPOGRAPHY } from './Typography.data';
 import { Typography, TypographyProps } from '@mui/material';
 
 const meta = {
-  title: 'Typography',
+  title: 'Foundations/Typography',
   parameters: {
     layout: 'centered',
   },

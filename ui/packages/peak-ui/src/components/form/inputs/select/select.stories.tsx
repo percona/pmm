@@ -14,7 +14,7 @@ type CustomArgs = React.ComponentProps<typeof SelectInput> & {
 };
 
 const meta = {
-  title: 'Select',
+  title: 'Inputs/Select',
   component: SelectInput,
   tags: ['autodocs'],
   parameters: {
