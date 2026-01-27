@@ -7,12 +7,16 @@ import List from '@mui/material/List';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import { useLocation } from 'react-router-dom';
 import { NavItem as NavItemType } from 'types/navigation.types';
+import { useTheme } from '@mui/material';
 
 export const Sidebar: FC = () => {
   const { navTree, navOpen, setNavOpen } = useNavigation();
   const [activeItem, setActiveItem] = useState<NavItemType>(navTree[0]);
   const [animating, setAnimating] = useState(false);
   const location = useLocation();
+  const theme = useTheme();
+
+  console.log('theme', theme);
 
   const toggleSidebar = useCallback(() => {
     setNavOpen(!navOpen);

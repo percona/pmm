@@ -1,4 +1,6 @@
-export type ColorMode = 'light' | 'dark';
+import { PaletteMode } from '@mui/material';
+
+export type ColorMode = PaletteMode;
 
 export type HistoryAction = 'PUSH' | 'POP' | 'REPLACE';
 

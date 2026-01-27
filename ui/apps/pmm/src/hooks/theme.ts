@@ -1,8 +1,8 @@
-import { ColorModeContext } from '@percona/design';
 import { useContext, useRef } from 'react';
 import { useUpdatePreferences } from './api/useUser';
 import messenger from 'lib/messenger';
 import { ColorMode, MessageType } from '@pmm/shared';
+import { ColorModeContext } from '@percona/percona-ui';
 
 function normalizeMode(v: unknown): ColorMode {
   if (typeof v === 'string' && v.toLowerCase() === 'dark') return 'dark';
