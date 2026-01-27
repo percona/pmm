@@ -1,41 +1,15 @@
 import {
-  ChangeRealTimeAgentPayload,
-  ChangeRealTimeAgentResponse,
-  ListRunningRealTimeAgentsResponse,
   ListRunningSessionsResponse,
   RealTimeSession,
   RealTimeSessionStatus,
-  RunningRealTimeAgent,
   StartSessionPayload,
   StartSessionResponse,
   StopSessionPayload,
   StopSessionResponse,
 } from 'types/rta.types';
 import { api } from './api';
+import { changeRealTimeAgent, getRunningRealTimeAgents } from './rta.fallback';
 
-/**
- * @deprecated use getRunningSessions instead
- */
-const getRunningRealTimeAgents = async (): Promise<
-  RunningRealTimeAgent[]
-> => {
-  const res =
-    await api.get<ListRunningRealTimeAgentsResponse>('/realtime/agents');
-  return res.data.agents;
-};
-
-/**
- * @deprecated use startSession/stopSession instead
- */
-const changeRealTimeAgent = async (
-  payload: ChangeRealTimeAgentPayload
-): Promise<ChangeRealTimeAgentResponse> => {
-  const res = await api.post<ChangeRealTimeAgentResponse>(
-    '/realtime/change',
-    payload
-  );
-  return res.data;
-};
 
 export const getRunningSessions = async (): Promise<RealTimeSession[]> => {
   try {
@@ -62,7 +36,6 @@ export const startSession = async (payload: StartSessionPayload): Promise<StartS
     );
     return res.data;
   } catch (error) {
-    console.log('error', error);
     // todo: temporary fallback till https://github.com/percona/pmm/pull/4956 gets merged
     await changeRealTimeAgent({
       serviceId: payload.serviceId,

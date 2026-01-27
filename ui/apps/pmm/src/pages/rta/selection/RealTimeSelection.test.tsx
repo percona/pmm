@@ -4,14 +4,14 @@ import { User } from 'types/user.types';
 import { RealTimeSelection } from './RealTimeSelection';
 import { Messages } from './RealTimeSelection.messages';
 import * as servicesApi from 'api/services';
-import * as realtimeApi from 'api/realtime';
+import * as realtimeApi from 'api/rta';
 import {
   wrapWithQueryProvider,
   wrapWithRouter,
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
-import { TEST_USER_ADMIN, TEST_USER_EDITOR, TEST_USER_VIEWER } from 'utils/testStubs';
+import { TEST_REAL_TIME_SESSION, TEST_USER_ADMIN, TEST_USER_EDITOR, TEST_USER_VIEWER } from 'utils/testStubs';
 
 vi.mock('api/services');
 vi.mock('api/realtime');
@@ -31,9 +31,7 @@ const setupMocks = () => {
   vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
     services: [],
   });
-  vi.mocked(realtimeApi.listRunningRealtimeAgents).mockResolvedValue({
-    agents: [],
-  });
+  vi.mocked(realtimeApi.getRunningSessions).mockResolvedValue([]);
 };
 
 const renderComponent = (user?: User) =>
@@ -178,7 +176,7 @@ describe('RealTimeSelection', () => {
 
     it.skip('shows success message on successful start', async () => {
       // TODO: Implement when service selection interaction is added
-      vi.mocked(realtimeApi.changeRealtimeAnalytics).mockResolvedValue({});
+      vi.mocked(realtimeApi.startSession).mockResolvedValue({ session: TEST_REAL_TIME_SESSION });
 
       renderComponent(TEST_USER_EDITOR);
 
@@ -191,7 +189,7 @@ describe('RealTimeSelection', () => {
   describe('Loading States', () => {
     it('shows loading indicator while fetching services', () => {
       vi.mocked(servicesApi.listManagedServices).mockImplementation(
-        () => new Promise(() => {})
+        () => new Promise(() => { })
       );
 
       renderComponent(TEST_USER_EDITOR);
@@ -205,9 +203,7 @@ describe('RealTimeSelection', () => {
       vi.mocked(servicesApi.listManagedServices).mockRejectedValueOnce(
         new Error('Failed to fetch services')
       );
-      vi.mocked(realtimeApi.listRunningRealtimeAgents).mockResolvedValueOnce({
-        agents: [],
-      });
+      vi.mocked(realtimeApi.getRunningSessions).mockResolvedValueOnce([]);
 
       renderComponent(TEST_USER_EDITOR);
 
@@ -224,7 +220,7 @@ describe('RealTimeSelection', () => {
   describe('Success Handling', () => {
     it.skip('clears selection on successful start', async () => {
       // TODO: Implement when service selection interaction is added
-      vi.mocked(realtimeApi.changeRealtimeAnalytics).mockResolvedValue({});
+      vi.mocked(realtimeApi.startSession).mockResolvedValue({ session: TEST_REAL_TIME_SESSION });
 
       renderComponent(TEST_USER_EDITOR);
 

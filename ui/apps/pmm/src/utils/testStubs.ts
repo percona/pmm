@@ -1,3 +1,4 @@
+import { RealTimeSession, RealTimeSessionStatus } from 'types/rta.types';
 import {
   BaseService,
   ListServicesResponse,
@@ -108,4 +109,12 @@ export const TEST_SERVICES: ListServicesResponse = {
 export const TEST_SERVICES_WITH_ONE_MYSQL: ListServicesResponse = {
   ...TEST_SERVICES,
   mysql: [TEST_SERVICE as MySqlService],
+};
+
+export const TEST_REAL_TIME_SESSION: RealTimeSession = {
+  serviceId: 'service-1',
+  serviceName: 'Service 1',
+  clusterName: 'cluster-1',
+  startTime: '2021-01-01T00:00:00Z',
+  status: RealTimeSessionStatus.unspecified,
 };
