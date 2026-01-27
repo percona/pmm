@@ -1,4 +1,4 @@
-import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon';
+import { SvgIcon, SvgIconProps } from '@mui/material';
 
 export const DatabaseIcon = (props: SvgIconProps) => (
   <SvgIcon viewBox="0 0 18 18" {...props} id="database-icon">

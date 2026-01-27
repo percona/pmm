@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material';
-import SvgIcon from '@mui/material/SvgIcon';
+import { SvgIcon } from '@mui/material';
 import {
   IconsProps,
   StatusIconProps,
