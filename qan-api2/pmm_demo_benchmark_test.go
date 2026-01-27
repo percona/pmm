@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 )
@@ -46,13 +47,14 @@ func getPeriodFromEnv(b *testing.B) (string, string) {
 func buildPayload(b *testing.B, customFields string) []byte {
 	b.Helper()
 	from, to := getPeriodFromEnv(b)
-	// Minimize JSON: remove all whitespace, newlines, and tabs
-	trimmed := ""
+	// Minimize JSON: remove all whitespace, newlines, and tabs using strings.Builder
+	var sb strings.Builder
 	for _, c := range customFields {
 		if c != ' ' && c != '\n' && c != '\t' {
-			trimmed += string(c)
+			sb.WriteByte(byte(c))
 		}
 	}
+	trimmed := sb.String()
 	if len(trimmed) > 0 && trimmed[len(trimmed)-1] == '}' {
 		trimmed = trimmed[:len(trimmed)-1]
 	}

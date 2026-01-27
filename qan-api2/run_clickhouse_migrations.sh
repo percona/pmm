@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+# Usage: ./run_clickhouse_migrations.sh 21
 if [ -z "$1" ]; then
 	echo "Usage: $0 <start_number> (e.g., 21)"
 	exit 1
