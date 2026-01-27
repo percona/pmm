@@ -7,14 +7,6 @@ import {
   PostgreSqlElephantIcon,
   PostgreSqlIcon,
 } from './db';
-import {
-  EverestAppCircleIcon,
-  EverestAppRoundIcon,
-  EverestAppSquareIcon,
-  EverestHorizontalAlternateIcon,
-  EverestHorizontalIcon,
-  EverestMainIcon,
-} from './everest';
 import { DatabaseIcon, NetworkNode } from './other';
 import { GenericErrorIcon } from './generic-error';
 import { NoMatchIcon } from './no-match';
@@ -61,15 +53,6 @@ const icons = {
     MySqlDolphinIcon,
     PostgreSqlElephantIcon,
     MongoLeafIcon,
-  ],
-
-  everest: [
-    EverestMainIcon,
-    EverestHorizontalIcon,
-    EverestHorizontalAlternateIcon,
-    EverestAppSquareIcon,
-    EverestAppRoundIcon,
-    EverestAppCircleIcon,
   ],
 
   genericError: [GenericErrorIcon],
@@ -121,40 +104,6 @@ export const Database: StoryObj<typeof MySqlIcon> = {
           ))}
         </Stack>
       </>
-    );
-  },
-};
-
-export const Everest: StoryObj<typeof EverestMainIcon> = {
-  parameters: {
-    docs: {
-      description: {
-        story: `\`\`\`ts
-        <EverestMainIcon fontSize='medium' />
-        \`\`\``,
-      },
-    },
-  },
-  args: {
-    fontSize: 'medium',
-  },
-  argTypes: {
-    fontSize: {
-      options: ['small', 'medium', 'large'],
-      control: { type: 'inline-radio' },
-    },
-  },
-
-  render: function Render({ fontSize }) {
-    return (
-      <Stack direction={'column'} rowGap={'2rem'}>
-        {icons.everest.map((Icon) => (
-          <Stack direction={'row'} alignItems={'center'} columnGap={'2rem'}>
-            <Icon fontSize={fontSize} />
-            <Typography variant="body1">{Icon.name}</Typography>
-          </Stack>
-        ))}
-      </Stack>
     );
   },
 };

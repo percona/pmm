@@ -16,14 +16,14 @@ type Story = StoryObj<CodeCopyBlockProps>;
 export const WithCopyButtonCommand: Story = {
   args: {
     message:
-      'helm install everest percona/everest-db-namespace --create-namespace --namespace <NAMESPACE>',
+      'helm install percona/percona-db-namespace --create-namespace --namespace <NAMESPACE>',
     showCopyButtonText: true,
   },
 };
 export const WithoutCopyButtonCommand: Story = {
   args: {
     message:
-      'helm install everest percona/everest-db-namespace --create-namespace --namespace <NAMESPACE>',
+      'helm install percona/percona-db-namespace --create-namespace --namespace <NAMESPACE>',
     showCopyButtonText: false,
   },
 };

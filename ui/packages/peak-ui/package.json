@@ -14,9 +14,9 @@
   "files": [
     "dist"
   ],
- "publishConfig": {
-  "registry": "https://npm.pkg.github.com"
- },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "devDependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -33,6 +33,7 @@
     "@storybook/blocks": "^8.6.15",
     "@storybook/react": "^8.6.15",
     "@storybook/react-vite": "^8.6.15",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^18.2.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
