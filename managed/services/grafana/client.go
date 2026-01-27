@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package grafana provides facilities for working with Grafana.
 package grafana
 
 import (
@@ -156,7 +155,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		return errors.WithStack(cErr)
 	}
 
-	if len(b) > 0 && target != nil {
+	if len(b) != 0 && target != nil {
 		if err = json.Unmarshal(b, target); err != nil {
 			return errors.WithStack(err)
 		}
@@ -531,6 +530,20 @@ func validateDurations(intervalD, forD string) error {
 	}
 
 	return nil
+}
+
+// GetDatasourceUIDByID returns grafana datasource UID.
+func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create grafana client")
+	}
+
+	ds, err := grafanaClient.DataSource(id)
+	if err != nil {
+		return "", err
+	}
+	return ds.UID, nil
 }
 
 // CreateFolder creates grafana folder.

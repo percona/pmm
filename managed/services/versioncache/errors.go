@@ -16,7 +16,7 @@
 // Package versioncache provides service software version cache functionality.
 package versioncache
 
-import "github.com/pkg/errors"
+import "errors"
 
 // ErrInvalidArgument is returned when provided argument is invalid.
 var ErrInvalidArgument = errors.New("invalid argument")

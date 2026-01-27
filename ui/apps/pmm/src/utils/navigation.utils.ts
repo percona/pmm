@@ -31,7 +31,7 @@ export const findActiveNavItem = (
 };
 
 export const isActive = (item: NavItem, pathname: string): boolean => {
-  if (item.isDivider || !item.url) {
+  if (item.type === 'menu-divider' || item.type === 'menu-text' || !item.url) {
     return false;
   }
 
