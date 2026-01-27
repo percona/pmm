@@ -1,6 +1,6 @@
 # Makefile for building PMM components using Docker
 
-.PHONY: help build build-all build-dynamic build-arm64 clean volumes builder-image package-tarball build-client-docker push-client-docker
+.PHONY: help build build-all build-dynamic build-arm64 clean builder-image package-tarball build-client-docker push-client-docker
 
 # Build script location
 BUILD_SCRIPT := ./scripts/build-component
@@ -18,7 +18,6 @@ help:
 	@echo "  make build-dynamic COMPONENT=<name> - Build with dynamic linking (GSSAPI)"
 	@echo "  make build-arm64 COMPONENT=<name>   - Build for ARM64"
 	@echo "  make builder-image            - Build the pmm-builder Docker image"
-	@echo "  make volumes                  - Create Docker volumes for caching"
 	@echo "  make package-tarball          - Generate pmm-client tarball from built components"
 	@echo "  make build-client-docker      - Build PMM Client Docker image"
 	@echo "  make push-client-docker       - Build and push PMM Client Docker image"
