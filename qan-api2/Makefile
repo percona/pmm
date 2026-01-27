@@ -1,3 +1,6 @@
+#PMM Demo benchmark
+include Makefile.pmmdemo
+
 default: help
 
 help:                           ## Display this help message
@@ -104,56 +107,3 @@ deploy:
 	docker exec $(PMM_CONTAINER) supervisorctl start qan-api2
 	docker exec $(PMM_CONTAINER) supervisorctl status
 	docker exec $(PMM_CONTAINER) supervisorctl tail -f qan-api2
-
-# Since the ClickHouse backup can come from a different migration state (e.g., created when the latest migration was 21),
-# and the current latest migration is 22, we need to ensure that the remaining migrations are applied
-# to make the system fully functional after restore.
-#
-# We also drop the database because, in the case of mismatched migrations, it would not be possible
-# to apply them correctly. Therefore, we need to provide the backup name and the last migration
-# applied to the backup.
-#
-# Default backup name and backup last migration.
-BACKUP_NAME ?= 20260120
-BACKUP_LAST_MIGRATION ?= 21
-#
-# Download the ClickHouse backup, unzip it and prepare the directory to restore.
-download-clickhouse-backup: 
-	./download_clickhouse_backup.sh $(BACKUP_NAME)
-# Copy the ClickHouse backup into the pmm-server container and apply differential migrations if needed.
-restore-clickhouse-backup: 
-	docker exec pmm-server clickhouse-client --password=clickhouse --query="DROP DATABASE IF EXISTS pmm";
-	docker exec pmm-server clickhouse-client --password=clickhouse --query="RESTORE DATABASE pmm FROM Disk('backup', '$(BACKUP_NAME)')";
-	./run_clickhouse_migrations.sh $(BACKUP_LAST_MIGRATION)
-
-
-PMM_DEMO_BENCH_PERIOD_FROM ?= 2025-12-27T00:00:00+01:00
-PMM_DEMO_BENCH_PERIOD_TO ?= 2026-01-21T23:59:59+01:00
-
-bench:
-	make bench-filters
-	@echo
-	make bench-report
-	echo
-	make bench-metrics
-	@echo
-	make bench-example
-
-bench-filters:
-	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
-	go test -bench ^BenchmarkGetFilters$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
-
-
-bench-report:
-	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
-	go test -bench ^BenchmarkGetReport$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
-
-
-bench-metrics:
-	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
-	go test -bench ^BenchmarkGetMetrics$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
-
-
-bench-example:
-	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
-	go test -bench ^BenchmarkGetExample$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
