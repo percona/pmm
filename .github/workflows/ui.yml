@@ -43,6 +43,8 @@ jobs:
 
       - name: Setup nodejs
         uses: actions/setup-node@v6
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           node-version-file: ui/.nvmrc
           cache: yarn
