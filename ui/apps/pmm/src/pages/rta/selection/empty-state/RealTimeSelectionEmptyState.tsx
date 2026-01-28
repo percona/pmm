@@ -8,7 +8,7 @@ import { Messages } from '../RealtimeSelection.messages';
 import { DOCS_URL } from '../RealtimeSelection.constants';
 import { EmptyStateMessages } from './EmptyState.messages';
 
-export const RealtimeSelectionEmptyState: FC = () => (
+const RealtimeSelectionEmptyState: FC = () => (
   <Stack
     gap={2}
     alignItems="center"
@@ -43,3 +43,5 @@ export const RealtimeSelectionEmptyState: FC = () => (
     </Link>
   </Stack>
 );
+
+export default RealtimeSelectionEmptyState;

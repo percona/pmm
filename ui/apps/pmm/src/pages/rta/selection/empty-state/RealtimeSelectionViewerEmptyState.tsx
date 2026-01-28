@@ -7,7 +7,7 @@ import { Messages } from '../RealtimeSelection.messages';
 import { DOCS_URL } from '../RealtimeSelection.constants';
 import { EmptyStateMessages } from './EmptyState.messages';
 
-export const RealtimeSelectionViewerEmptyState: FC = () => (
+const RealtimeSelectionViewerEmptyState: FC = () => (
   <Page footer={null}>
     <Stack
       gap={3}
@@ -30,3 +30,5 @@ export const RealtimeSelectionViewerEmptyState: FC = () => (
     </Stack>
   </Page>
 );
+
+export default RealtimeSelectionViewerEmptyState;
