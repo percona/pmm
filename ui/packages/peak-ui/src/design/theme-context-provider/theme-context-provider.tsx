@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { ThemeProvider } from '@emotion/react';
+import { ThemeProvider } from '@mui/material';
 import { PaletteMode, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeContextProviderProps } from './theme-context-provider.types';
@@ -22,6 +22,7 @@ const ThemeContextProvider = ({
   themeOptions,
   saveColorModeOnLocalStorage,
 }: ThemeContextProviderProps) => {
+
   const [colorMode, setColorMode] = useState<PaletteMode>(
     saveColorModeOnLocalStorage ? getColorModeFromLocalStorage() : 'light'
   );

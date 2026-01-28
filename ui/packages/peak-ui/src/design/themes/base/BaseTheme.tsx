@@ -8,7 +8,7 @@ import { DatePickerToolbarClassKey } from "@mui/x-date-pickers/DatePicker";
 import { MultiSectionDigitalClockClassKey } from "@mui/x-date-pickers";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 
-declare module "@mui/material" {
+declare module "@mui/material/styles" {
   interface PaletteOptions {
     surfaces?: {
       default?: string;
