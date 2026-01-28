@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Menu } from '@mui/material';
-import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
+import { ArrowDropDownOutlined as ArrowDropDownOutlinedIcon } from '@mui/icons-material';
 import { MenuButtonProps } from './menu-button.types';
 
 const MenuButton = ({

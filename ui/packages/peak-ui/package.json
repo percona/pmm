@@ -7,7 +7,8 @@
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
     "storybook:dev": "storybook dev -p 6006 --no-open",
-    "storybook:build": "storybook build"
+    "storybook:build": "storybook build",
+    "prepack": "pnpm build"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

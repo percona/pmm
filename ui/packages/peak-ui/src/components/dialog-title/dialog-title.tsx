@@ -1,4 +1,4 @@
-import CloseIcon from '@mui/icons-material/Close';
+import { Close as CloseIcon } from '@mui/icons-material';
 import { DialogTitle as MuiDialogTitle, IconButton } from '@mui/material';
 import { DialogTitleProps } from './dialog-title.types';
 

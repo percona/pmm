@@ -16,7 +16,7 @@
 import { useEffect, useState } from 'react';
 import { FieldError, useFieldArray, useFormContext } from 'react-hook-form';
 import { IconButton, InputAdornment } from '@mui/material';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { DeleteOutlineOutlined as DeleteOutlineOutlinedIcon } from '@mui/icons-material';
 
 import { TextArrayProps } from './text-array.types';
 import TextInput from '../text';

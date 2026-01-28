@@ -1,5 +1,5 @@
 import { Button, ButtonProps, Chip } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import { Add as AddIcon } from '@mui/icons-material';
 import LabeledContent, { LabeledContentProps } from '../labeled-content';
 
 export type ActionableLabeledContentProps = LabeledContentProps & {

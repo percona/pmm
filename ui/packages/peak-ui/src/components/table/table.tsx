@@ -1,8 +1,4 @@
-import FilterListIcon from '@mui/icons-material/FilterList';
-import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import SearchIcon from '@mui/icons-material/Search';
-import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import { FilterList as FilterListIcon, KeyboardDoubleArrowDown as KeyboardDoubleArrowDownIcon, MoreVert as MoreVertIcon, Search as SearchIcon, ViewColumn as ViewColumnIcon } from '@mui/icons-material';
 import { Alert, AlertProps, Box } from '@mui/material';
 import {
   MaterialReactTable,

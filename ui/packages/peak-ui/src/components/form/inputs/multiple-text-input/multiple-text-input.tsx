@@ -1,6 +1,6 @@
 import { Box, Button, IconButton } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { Add as AddIcon } from '@mui/icons-material';
+import { DeleteOutlineOutlined as DeleteOutlineOutlinedIcon } from '@mui/icons-material';
 import { FieldError, useFieldArray, useFormContext } from 'react-hook-form';
 import TextInput from '../text';
 

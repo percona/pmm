@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, IconButton } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
-import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import { ContentCopyOutlined as ContentCopyOutlinedIcon } from '@mui/icons-material';
 import { CopyToClipboardButtonProps } from './CopyToClipboardButton.types';
 import { Messages } from './clipboard.messages';
 

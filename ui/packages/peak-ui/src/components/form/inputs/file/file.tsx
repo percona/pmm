@@ -1,6 +1,6 @@
 import { IconButton } from '@mui/material';
 import { TextField } from '@mui/material';
-import UpgradeIcon from '@mui/icons-material/Upgrade';
+import { Upgrade as UpgradeIcon } from '@mui/icons-material';
 import { TextFieldProps } from '@mui/material';
 import { Controller, useFormContext } from 'react-hook-form';
 
