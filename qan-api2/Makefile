@@ -1,4 +1,4 @@
-#PMM Demo benchmark
+# PMM Demo benchmark
 include Makefile.pmmdemo
 
 default: help
