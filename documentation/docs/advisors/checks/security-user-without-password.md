@@ -1,4 +1,4 @@
-# s: There are users without passwords
+# There are users without passwords
 
 ## Description
 

@@ -36,6 +36,7 @@ Here's the complete list of database advisors and available checks:
 | **Replication security** | Helps safeguard data replication by assessing security risks and providing recommendations for improving protection. | MySQL |
 | **Connection security** | Helps identify security issues on network connections and provides recommendations for enhancing security. | MySQL, MongoDB |
 
+
 ### Query advisors
 
 | Advisor name | Description | Database technology |
@@ -122,7 +123,7 @@ Every advisor consists of one or more advisor checks. Here is the full list of c
 | Index Query| mysql\_performance\_temp\_ondisk\_table_high | Warns if there are too many on-disk temporary tables being created due to unoptimized query execution. | Too Many on Disk Temporary Tables |
 | Index query| mysql\_tables\_without_pk | Checks tables without primary keys. | MySQL check for a table without Primary Key |
 | Schema design query | mysql\_indexes\_larger | Check all the tables to see if any have indexes larger than data. This indicates a sub-optimal schema and should be reviewed. |Tables with index sizes larger than data |
-| Authentication aecurity| mysql\_automatic\_expired_password | Warns if the MySQL parameter for automatic password expiry is not active. | MySQL Automatic User Expired Password |
+| Authentication security| mysql\_automatic\_expired_password | Warns if the MySQL parameter for automatic password expiry is not active. | MySQL Automatic User Expired Password |
 | Authentication security| mysql\_security\_anonymous_user | Verifies if anonymous users are present, as this would contradict security best practices.| Anonymous User (You must remove any anonymous user) |
 | Authentication security| mysql\_security\_open\_to\_world_host | Checks whether host definitions are set as '%' since this is overly permissive and could pose security risks. | UserS Have Host Definition '%' Which is Too Open |
 | Authentication security| mysql\_security\_root\_not\_local | Checks whether the root user has a host definition that is not set to 127.0.0.1 or localhost.| Root User can connect from non-local location |
