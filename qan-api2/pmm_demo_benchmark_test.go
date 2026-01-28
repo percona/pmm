@@ -17,6 +17,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -66,7 +67,9 @@ func buildPayload(b *testing.B, customFields string) []byte {
 func benchmarkRequest(b *testing.B, url string, params string) time.Duration {
 	b.Helper()
 	payload := buildPayload(b, params)
-	req, err := http.NewRequestWithContext(b.Context(), http.MethodPost, url, bytes.NewBuffer(payload))
+	ctx, cancel := context.WithTimeout(b.Context(), 20*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(payload))
 	if err != nil {
 		b.Fatalf("Failed to create request: %v", err)
 	}
