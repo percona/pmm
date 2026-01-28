@@ -27,7 +27,7 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
               },
         (theme) =>
           theme.applyStyles('dark', {
-            color: theme.palette.action.hover,
+            backgroundColor: theme.palette.action.hover,
           }),
       ]}
     >
