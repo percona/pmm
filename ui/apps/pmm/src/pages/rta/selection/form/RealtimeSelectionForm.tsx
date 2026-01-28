@@ -141,6 +141,7 @@ export const RealtimeSelectionForm: FC<RealtimeSelectionFormProps> = ({
       />
 
       <Button
+        data-testid="start-realtime-session"
         variant="contained"
         size="large"
         onClick={handleStart}

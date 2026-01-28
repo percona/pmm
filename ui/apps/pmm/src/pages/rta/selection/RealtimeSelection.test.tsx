@@ -1,4 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { User } from 'types/user.types';
 import { RealtimeSelection } from './RealtimeSelection';
@@ -12,6 +18,7 @@ import {
   wrapWithUserProvider,
 } from 'utils/testUtils';
 import {
+  TEST_MANAGED_SERVICE_MONGO,
   TEST_REAL_TIME_SESSION,
   TEST_USER_ADMIN,
   TEST_USER_EDITOR,
@@ -189,16 +196,33 @@ describe('RealtimeSelection', () => {
       });
     });
 
-    it.skip('shows success message on successful start', async () => {
-      // TODO: Implement when service selection interaction is added
+    it('navigates to overview on success', async () => {
       vi.mocked(realtimeApi.startSession).mockResolvedValue({
         session: TEST_REAL_TIME_SESSION,
+      });
+      vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
+        services: [TEST_MANAGED_SERVICE_MONGO],
       });
 
       renderComponent(TEST_USER_EDITOR);
 
+      // Select a service from the dropdown
+      const serviceInput = await screen.findByTitle('Open');
+      fireEvent.click(serviceInput);
+
+      const listbox = await screen.findByRole('listbox');
+      const option = within(listbox).getByText(
+        TEST_MANAGED_SERVICE_MONGO.serviceName
+      );
+      fireEvent.click(option);
+
+      const startButton = screen.getByTestId('start-realtime-session');
+      fireEvent.click(startButton);
+
+      await waitFor(() => expect(realtimeApi.startSession).toHaveBeenCalled());
+
       await waitFor(() => {
-        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalled();
       });
     });
   });
@@ -231,21 +255,6 @@ describe('RealtimeSelection', () => {
         },
         { timeout: 3000 }
       );
-    });
-  });
-
-  describe('Success Handling', () => {
-    it.skip('clears selection on successful start', async () => {
-      // TODO: Implement when service selection interaction is added
-      vi.mocked(realtimeApi.startSession).mockResolvedValue({
-        session: TEST_REAL_TIME_SESSION,
-      });
-
-      renderComponent(TEST_USER_EDITOR);
-
-      await waitFor(() => {
-        expect(mockNavigate).not.toHaveBeenCalled();
-      });
     });
   });
 });

@@ -4,6 +4,7 @@ import {
   ListServicesResponse,
   ManagedService,
   ManagedServicesResponse,
+  ManagedServiceType,
   MySqlService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
@@ -89,6 +90,11 @@ export const TEST_MANAGED_SERVICE: ManagedService = {
   port: 3306,
   socket: '',
   version: '8.0.0',
+};
+
+export const TEST_MANAGED_SERVICE_MONGO: ManagedService = {
+  ...TEST_MANAGED_SERVICE,
+  serviceType: ManagedServiceType.mongodb,
 };
 
 export const TEST_MANAGED_SERVICES_WITH_ONE_MYSQL: ManagedServicesResponse = {

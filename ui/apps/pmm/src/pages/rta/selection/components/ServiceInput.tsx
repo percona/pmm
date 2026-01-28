@@ -16,6 +16,8 @@ export const ServiceInput: FC<ServiceInputProps> = ({
 }) => (
   <TextField
     {...params}
+    name="service"
+    data-testid="realtime-service-input"
     label={hasSelectedServices || isOpen ? Messages.selectLabel : undefined}
     placeholder={!hasSelectedServices ? Messages.searchPlaceholder : ''}
     variant="outlined"
