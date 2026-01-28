@@ -77,7 +77,7 @@ bench:
 	make bench-filters
 	@echo
 	make bench-report
-	echo
+	@echo
 	make bench-metrics
 	@echo
 	make bench-example
