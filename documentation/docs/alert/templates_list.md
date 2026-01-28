@@ -45,6 +45,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 | MongoDB | **MongoDB member is in unusual state** | Identifies and alerts when replica set members enter unusual states such as Recovering, Startup, or Rollback. Helps maintain cluster health and performance by enabling quick intervention.  | MongoDB |
 | MongoDB | **MongoDB write tickets** | Monitors write ticket availability in the WiredTiger storage engine and alerts when it falls below set thresholds. Aids in optimizing write performance and identifying potential bottlenecks.  | MongoDB |
 | MongoDB | **MongoDB too many chunk migrations** | Monitors amount of chunk migrations in a MongoDB sharded cluster and alerts if they are more than set thresholds.  | MongoDB |
+| MongoDB | **MongoDB CVE-2025-14847 Vulnerable Version with Active Zlib Compression** | Alerts when a monitored MongoDB instance is using a version vulnerable to [CVE-2025-14847](https://nvd.nist.gov/vuln/detail/CVE-2025-14847) and has zlib network compression enabled. Recommends upgrading MongoDB to a secure, fixed version.| MongoDB |
 
 <a id="pbm_alerts"></a>
 ### PBM (Percona Backup for MongoDB) templates
