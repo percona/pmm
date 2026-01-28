@@ -116,7 +116,7 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
             maskArea: (props) => ({
               ...props,
               width: tourName === 'alerting' ? DRAWER_WIDTH - 22 : DRAWER_WIDTH,
-              rx: parseInt(theme.shape.borderRadius.toString()),
+              rx: Number(theme.shape.borderRadius),
             }),
             popover: (props) => ({
               ...props,
