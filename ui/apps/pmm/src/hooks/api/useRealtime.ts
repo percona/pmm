@@ -43,7 +43,6 @@ export const useStartSession = (
     mutationKey: [KEYS.START_SESSION],
     mutationFn: startSession,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] }),
-
     ...options,
   });
 }
@@ -58,8 +57,11 @@ export const useStartSessions = (
     mutationFn: (serviceIds: string[]) => Promise.all(
       serviceIds.map((serviceId) => startSession({ serviceId }))
     ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] }),
     ...options,
+    onSuccess: async (data, variables, context) => {
+      await options?.onSuccess?.(data, variables, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] })
+    },
   });
 }
 

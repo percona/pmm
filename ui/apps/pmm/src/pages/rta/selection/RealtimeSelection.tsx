@@ -11,23 +11,25 @@ import {
   RealtimeSelectionEmptyState,
   RealtimeSelectionViewerEmptyState,
 } from './empty-state';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAvailableServices } from 'hooks/api/useRealtime';
 import { DOCS_URLS } from 'lib/constants';
+import { RealtimeSession } from 'types/rta.types';
 
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const { availableServices, isLoading, services, sessions } =
-    useAvailableServices();
+  const { availableServices, isLoading, services } = useAvailableServices();
 
   const allServicesRunning =
-    !isLoading &&
-    availableServices.length === 0 &&
-    services.length > 0;
+    !isLoading && availableServices.length === 0 && services.length > 0;
 
-  const handleSuccess = () => {
-    navigate('/rta/sessions');
+  const handleSuccess = (sessions: RealtimeSession[]) => {
+    const serviceIds = sessions.map((s) => s.serviceId);
+    const params = new URLSearchParams();
+    serviceIds.forEach((serviceId) => params.append('serviceIds', serviceId));
+
+    navigate(`/rta/overview?${params.toString()}`);
   };
 
   if (isLoading) {
@@ -48,10 +50,6 @@ export const RealtimeSelection: FC = () => {
         </Stack>
       </Page>
     );
-  }
-
-  if (sessions.length) {
-    return <Navigate to="/rta/sessions" />;
   }
 
   if (!user?.isEditor) {

@@ -11,6 +11,7 @@ import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
+import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 
 const router = createBrowserRouter(
   [
@@ -43,6 +44,10 @@ const router = createBrowserRouter(
               children: [
                 {
                   path: '',
+                  element: <RealtimeTab />,
+                },
+                {
+                  path: 'selection',
                   element: <RealtimeSelection />,
                 },
                 {

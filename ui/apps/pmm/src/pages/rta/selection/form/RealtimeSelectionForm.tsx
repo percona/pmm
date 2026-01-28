@@ -66,10 +66,10 @@ export const RealtimeSelectionForm: FC<RealtimeSelectionFormProps> = ({
 
     const serviceIds = realServices.map((service) => service.serviceId!);
     await startSessions.mutateAsync(serviceIds, {
-      onSuccess: () => {
+      onSuccess: (responses) => {
         enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
         setSelectedServices([]);
-        onSuccess?.();
+        onSuccess?.(responses.map(r => r.session));
       },
       onError: (error) => {
         const message =

@@ -14,7 +14,7 @@ const RealtimeOverviewPage: FC = () => {
   return (
     <RealtimePage>
       <Link component={RouterLink} to="/rta/sessions?fromOverview=true">
-        Back to sessions
+        To sessions page
       </Link>
       <Typography>Service IDs: [{serviceIds.join(', ') || 'N/A'}]</Typography>
     </RealtimePage>

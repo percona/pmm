@@ -1,5 +1,7 @@
+import { RealtimeSession } from "types/rta.types";
+
 export interface RealtimeSelectionFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (sessions: RealtimeSession[]) => void;
 }
 
 export interface ServiceOption {
