@@ -15,6 +15,18 @@
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
@@ -64,7 +76,8 @@
     "@fontsource/roboto": "^5.2.9",
     "@fontsource/roboto-mono": "^5.2.8",
     "material-react-table": "^1.15.1",
-    "react-hook-form": "^7.68.0"
+    "react-hook-form": "^7.68.0",
+    "react-is": "18.3.1"
   },
   "description": "Percona UI lib",
   "repository": {
@@ -75,6 +88,9 @@
   "license": "AGPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/percona/percona-ui/issues"
+  },
+  "overrides": {
+    "react-is": "^18.3.1"
   },
   "homepage": "https://github.com/percona/percona-ui#readme"
 }
