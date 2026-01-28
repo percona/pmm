@@ -14,7 +14,7 @@ ZIP_FILE="pmm_backup_${POSTFIX}.zip"
 URL="https://github.com/Percona-Lab/pmm-demo-dump/releases/download/pmm-demo/pmm_backup_${POSTFIX}.zip"
 
 # Download
-curl -L -o "$ZIP_FILE" "$URL"
+curl -fSsL -o "$ZIP_FILE" "$URL"
 
 # Ensure parent directory exists and is accessible
 mkdir -p "$BACKUP_PARENT"
