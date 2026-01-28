@@ -20,7 +20,6 @@ const KEYS = {
   START_SESSIONS: 'rta:start-sessions',
   STOP_SESSION: 'rta:stop-session',
   STOP_SESSIONS: 'rta:stop-sessions',
-
 }
 
 export const useRealTimeSessions = (
