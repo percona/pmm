@@ -1,7 +1,7 @@
 {
   "name": "@percona/percona-ui",
   "type": "module",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": false,
   "scripts": {
     "build": "rollup -c",
