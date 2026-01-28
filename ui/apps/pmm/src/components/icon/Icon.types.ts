@@ -1,4 +1,4 @@
-import { SvgIconProps } from '@mui/material/SvgIcon';
+import { SvgIconProps } from '@mui/material';
 import { DYNAMIC_ICON_IMPORT_MAP } from './Icon.constants';
 
 export type IconName = keyof typeof DYNAMIC_ICON_IMPORT_MAP;

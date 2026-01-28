@@ -4,7 +4,7 @@ import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { getLinkProps, hasChildMatch, shouldShowBadge } from './NavItem.utils';
 import { getStyles } from './NavItem.styles';
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';

@@ -1,4 +1,4 @@
-import SvgIcon from '@mui/material/SvgIcon';
+import { SvgIcon } from '@mui/material';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];

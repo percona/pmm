@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material';
 import { ThemeClass } from './ThemeClass';
 import { LIGHT_THEME_CLASS, DARK_THEME_CLASS } from './ThemeClass.constants';
 

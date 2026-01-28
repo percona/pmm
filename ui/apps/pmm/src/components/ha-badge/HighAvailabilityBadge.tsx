@@ -1,7 +1,7 @@
 import Chip from '@mui/material/Chip';
 import { FC } from 'react';
 import { HIGH_AVAILABILITY_BADGE_HEALTH } from './HighAvailabilityBadge.constants';
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material';
 import { getStyles } from './HighAvailabilityBadge.styles';
 import Stack from '@mui/material/Stack';
 import { HighAvailabilityBadgeProps } from './HighAvailabilityBadge.types';

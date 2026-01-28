@@ -1,7 +1,7 @@
 import { FC, memo, Suspense } from 'react';
 import { IconProps } from './Icon.types';
 import { DYNAMIC_ICON_IMPORT_MAP, VIEWBOX_MAP } from './Icon.constants';
-import SvgIcon from '@mui/material/SvgIcon';
+import { SvgIcon } from '@mui/material';
 import Box from '@mui/material/Box';
 import { loadIcon } from './Icon.utils';
 

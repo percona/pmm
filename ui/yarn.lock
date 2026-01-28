@@ -1739,10 +1739,10 @@
   resolved "https://registry.yarnpkg.com/@percona/eslint-config-react/-/eslint-config-react-1.0.0.tgz#5469cf967ba280c0c3ca37ec961333890413438d"
   integrity sha512-SPOgMcTZ48WysDk0F95oy9ywaQoeu+JnoTgOLhT+X4ta96ZBU55TbjbyCWz1bieuAFjFGzL/GUxHshhLadXl4g==
 
-"@percona/percona-ui@1.0.2":
-  version "1.0.2"
-  resolved "https://npm.pkg.github.com/download/@percona/percona-ui/1.0.2/d19b7656a927dd07c9f85541706642904b95f240#d19b7656a927dd07c9f85541706642904b95f240"
-  integrity sha512-o4QYOvWJ/3i2dBvEHQO2dxD9n58+rE/ysWmhwBLkVlyE13P4lDnNx3oYOWU+q25MaHxp8Z1e+PyKwNeYmGhJKw==
+"@percona/percona-ui@1.0.9":
+  version "1.0.9"
+  resolved "https://npm.pkg.github.com/download/@percona/percona-ui/1.0.9/8a21c4211cf3e21a966c9e4d8e81d779136f9504#8a21c4211cf3e21a966c9e4d8e81d779136f9504"
+  integrity sha512-FPofxtZdMNUw5dwNOeuxnybs9/L7rJIVa2+XNR0lP72ZVNialHtb6DAJoyTILHfKBAF5zJn3wx3xvJFTc1a2Vg==
   dependencies:
     "@fontsource/poppins" "^5.2.7"
     "@fontsource/roboto" "^5.2.9"
@@ -4793,15 +4793,10 @@ debug@^3.1.0:
   dependencies:
     ms "^2.1.1"
 
-decimal.js@^10.4.2:
-  version "10.6.0"
-  resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.6.0.tgz#e649a43e3ab953a72192ff5983865e509f37ed9a"
-  integrity sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==
-
-decimal.js@^10.4.3:
-  version "10.4.3"
-  resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.4.3.tgz#1044092884d245d1b7f65725fa4ad4c6f781cc23"
-  integrity sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==
+decimal.js@^10.4.2, decimal.js@^10.4.3, decimal.js@^9.1.2:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-9.0.1.tgz#1cc8b228177da7ab6498c1cc06eb130a290e6e1e"
+  integrity sha512-2h0iKbJwnImBk4TGk7CG1xadoA0g3LDPlQhQzbZ221zvG0p2YVUedbKIPsOZXKZGx6YmZMJKYOalpCMxSdDqTQ==
 
 decode-named-character-reference@^1.0.0:
   version "1.0.2"
@@ -5079,15 +5074,10 @@ entities@^2.0.0:
   resolved "https://registry.yarnpkg.com/entities/-/entities-2.2.0.tgz#098dc90ebb83d8dffa089d55256b351d34c4da55"
   integrity sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==
 
-entities@^4.4.0, entities@^4.5.0:
+entities@^4.4.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/entities/-/entities-4.5.0.tgz#5d268ea5e7113ec74c4d033b79ea5a35a488fb48"
   integrity sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==
-
-entities@^6.0.0:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/entities/-/entities-6.0.1.tgz#c28c34a43379ca7f61d074130b2f5f7020a30694"
-  integrity sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==
 
 envinfo@^7.7.3:
   version "7.14.0"
@@ -8693,19 +8683,10 @@ parse-json@^5.0.0, parse-json@^5.2.0:
     json-parse-even-better-errors "^2.3.0"
     lines-and-columns "^1.1.6"
 
-parse5@^7.0.0, parse5@^7.1.2:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/parse5/-/parse5-7.2.0.tgz#8a0591ce9b7c5e2027173ab737d4d3fc3d826fab"
-  integrity sha512-ZkDsAOcxsUMZ4Lz5fVciOehNcJ+Gb8gTzcA4yl3wnc273BAybYWrQ+Ks/OjCjSEpjvQkDSeZbybK9qj2VHHdGA==
-  dependencies:
-    entities "^4.5.0"
-
-parse5@^7.1.1:
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/parse5/-/parse5-7.3.0.tgz#d7e224fa72399c7a175099f45fc2ad024b05ec05"
-  integrity sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==
-  dependencies:
-    entities "^6.0.0"
+parse5@^6.0.1, parse5@^7.0.0, parse5@^7.1.1, parse5@^7.1.2:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/parse5/-/parse5-6.0.1.tgz#e1a1c085c569b3dc08321184f19a39cc27f7c30b"
+  integrity sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==
 
 pascal-case@^3.1.2:
   version "3.1.2"
