@@ -21,8 +21,8 @@
     "@fontsource/poppins": "^5.0.15",
     "@fontsource/roboto": "^5.0.14",
     "@fontsource/roboto-mono": "^5.0.18",
-    "@mui/icons-material": "^5.15.18",
-    "@mui/material": "^5.15.18",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
     "@mui/x-date-pickers": "^7.5.0",
     "@percona/percona-ui": "1.0.9",
     "@pmm/shared": "*",
@@ -34,6 +34,7 @@
     "notistack": "^3.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-is": "18.3.1",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.30.2",
     "rehype-raw": "^7.0.0",
@@ -59,6 +60,10 @@
     "vite": "^5.4.21",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.1.9"
+  },
+  "resolutions": {
+    "react-is": "^18.3.1",
+    "react-router-dom": "^6.30.2"
   },
   "prettier": "@percona/prettier-config"
 }
