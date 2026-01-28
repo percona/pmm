@@ -1,6 +1,6 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { FC, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { Messages } from './SessionsTable.messages';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -20,11 +20,7 @@ import { ModalType, SessionRow } from './SessionsTable.types';
 import { enqueueSnackbar } from 'notistack';
 
 const SessionsTable: FC = () => {
-  const {
-    data: sessions = [],
-    isLoading,
-    refetch: refetchSessions,
-  } = useRealtimeSessions({
+  const { data: sessions = [], isLoading } = useRealtimeSessions({
     refetchInterval: 5000,
   });
   const rows = getSessionRows(sessions);
@@ -52,21 +48,26 @@ const SessionsTable: FC = () => {
     if (!sessionToBeStopped) return;
 
     const serviceIds = getServiceIds(sessionToBeStopped);
-    await stopSessions(serviceIds);
+    await stopSessions(serviceIds, {
+      onSuccess: () => {
+        const msg =
+          serviceIds.length === 1
+            ? Messages.success.agentStopped
+            : Messages.success.agentsStopped;
 
-    if (serviceIds.length === 1) {
-      enqueueSnackbar(Messages.success.agentStopped, {
-        variant: 'success',
-      });
-    } else {
-      enqueueSnackbar(Messages.success.agentsStopped, {
-        variant: 'success',
-      });
-    }
+        enqueueSnackbar(msg, {
+          variant: 'success',
+        });
 
-    setSessionToBeStopped(null);
-
-    closeModal();
+        // remove selection from removed item
+        setRowSelection((selection) => {
+          delete selection[sessionToBeStopped.sessionId];
+          return { ...selection };
+        });
+        setSessionToBeStopped(null);
+        closeModal();
+      },
+    });
   };
 
   const openStopAllModal = () => {
@@ -76,14 +77,16 @@ const SessionsTable: FC = () => {
   const handleStopAllSessions = async () => {
     const serviceIds = getServiceIds(rows);
 
-    await stopSessions(serviceIds);
+    await stopSessions(serviceIds, {
+      onSuccess: () => {
+        enqueueSnackbar(Messages.success.allAgentsStopped, {
+          variant: 'success',
+        });
 
-    enqueueSnackbar(Messages.success.allAgentsStopped, {
-      variant: 'success',
+        setRowSelection({});
+        closeModal();
+      },
     });
-
-    setRowSelection({});
-    closeModal();
   };
 
   const openNewSessionModal = () => {
@@ -98,22 +101,26 @@ const SessionsTable: FC = () => {
     if (!selectedSessions.length) return;
 
     const serviceIds = getServiceIds(selectedSessions);
-    await stopSessions(serviceIds);
+    await stopSessions(serviceIds, {
+      onSuccess: () => {
+        const msg =
+          serviceIds.length === 1
+            ? Messages.success.agentStopped
+            : Messages.success.agentsStopped;
 
-    if (selectedSessions.length === 1) {
-      enqueueSnackbar(Messages.success.agentStopped, {
-        variant: 'success',
-      });
-    } else {
-      enqueueSnackbar(Messages.success.agentsStopped, {
-        variant: 'success',
-      });
-    }
+        enqueueSnackbar(msg, {
+          variant: 'success',
+        });
 
-    await refetchSessions();
-    closeModal();
-    setRowSelection({});
+        setRowSelection({});
+        closeModal();
+      },
+    });
   };
+
+  useEffect(() => {
+    console.log('row-selection', rowSelection);
+  }, [rowSelection]);
 
   if (isLoading) {
     return <Skeleton variant="rounded" height="100%" />;

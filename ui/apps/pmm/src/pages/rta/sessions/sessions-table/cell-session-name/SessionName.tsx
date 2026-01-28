@@ -3,6 +3,7 @@ import { FC } from 'react';
 import { SessionRow } from '../SessionsTable.types';
 import { Link as RouterLink } from 'react-router-dom';
 import { getServiceIds } from '../SessionsTable.utils';
+import { createRealtimeOverviewUrl } from 'utils/link.utils';
 
 interface Props {
   session: SessionRow;
@@ -10,11 +11,9 @@ interface Props {
 
 export const SessionName: FC<Props> = ({ session }) => {
   const serviceIds = getServiceIds(session);
-  const params = new URLSearchParams();
-  serviceIds.forEach((serviceId) => params.append('serviceIds', serviceId));
 
   return (
-    <Link component={RouterLink} to={`/rta/overview?${params.toString()}`}>
+    <Link component={RouterLink} to={createRealtimeOverviewUrl(serviceIds)}>
       {session.sessionName}
     </Link>
   );

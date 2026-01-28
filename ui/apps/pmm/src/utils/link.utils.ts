@@ -3,3 +3,9 @@ export const constructUrl = (location: {
   search: string;
   hash: string;
 }) => location.pathname + location.search + location.hash;
+
+export const createRealtimeOverviewUrl = (serviceIds: string[]) => {
+  const params = new URLSearchParams();
+  serviceIds.forEach((serviceId) => params.append('serviceIds', serviceId));
+  return `/rta/overview?${params.toString()}`;
+};

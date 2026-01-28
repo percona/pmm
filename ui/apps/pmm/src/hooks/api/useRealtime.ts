@@ -44,9 +44,11 @@ export const useStartSession = (
   return useMutation({
     mutationKey: [KEYS.START_SESSION],
     mutationFn: startSession,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] }),
     ...options,
+    onSuccess: async (data, variables, context) => {
+      await options?.onSuccess?.(data, variables, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
+    },
   });
 };
 
@@ -77,9 +79,11 @@ export const useStopSession = (
   return useMutation({
     mutationKey: [KEYS.STOP_SESSION],
     mutationFn: stopSession,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] }),
     ...options,
+    onSuccess: async (data, variables, context) => {
+      await options?.onSuccess?.(data, variables, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
+    },
   });
 };
 
@@ -92,9 +96,11 @@ export const useStopSessions = (
     mutationKey: [KEYS.STOP_SESSIONS],
     mutationFn: async (serviceIds: string[]) =>
       Promise.all(serviceIds.map((serviceId) => stopSession({ serviceId }))),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] }),
     ...options,
+    onSuccess: async (data, variables, context) => {
+      await options?.onSuccess?.(data, variables, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
+    },
   });
 };
 

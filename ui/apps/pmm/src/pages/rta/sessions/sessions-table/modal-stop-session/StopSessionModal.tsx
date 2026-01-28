@@ -36,10 +36,16 @@ const StopSessionModal: FC<Props> = ({ open, onClose, onStopSession }) => {
         {Messages.content}
       </DialogContent>
       <DialogActions>
-        <Button variant="text" color="primary" onClick={onClose}>
+        <Button
+          data-testid="stop-session-modal-cancel"
+          variant="text"
+          color="primary"
+          onClick={onClose}
+        >
           {Messages.actions.cancel}
         </Button>
         <Button
+          data-testid="stop-session-modal-stop"
           variant="contained"
           color="primary"
           onClick={handleStopSession}

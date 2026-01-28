@@ -1,8 +1,8 @@
 import { type MRT_ColumnDef } from 'material-react-table';
 import { Messages } from './SessionsTable.messages';
-import { SessionStatus } from './session-status';
+import { SessionStatus } from './cell-session-status';
 import { SessionRow } from './SessionsTable.types';
-import SessionName from './session-name/SessionName';
+import { SessionName } from './cell-session-name';
 
 export const SESSIONS_TABLE_COLUMNS: MRT_ColumnDef<SessionRow>[] = [
   {

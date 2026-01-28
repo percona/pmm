@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAvailableServices } from 'hooks/api/useRealtime';
 import { DOCS_URLS } from 'lib/constants';
 import { RealtimeSession } from 'types/rta.types';
+import { createRealtimeOverviewUrl } from 'utils/link.utils';
 
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
@@ -26,10 +27,8 @@ export const RealtimeSelection: FC = () => {
 
   const handleSuccess = (sessions: RealtimeSession[]) => {
     const serviceIds = sessions.map((s) => s.serviceId);
-    const params = new URLSearchParams();
-    serviceIds.forEach((serviceId) => params.append('serviceIds', serviceId));
 
-    navigate(`/rta/overview?${params.toString()}`);
+    navigate(createRealtimeOverviewUrl(serviceIds));
   };
 
   if (isLoading) {

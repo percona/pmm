@@ -15,16 +15,25 @@ interface Props {
 }
 
 const NewSessionModal: FC<Props> = ({ open, onClose, onSuccess }) => (
-  <Dialog open={open} onClose={onClose}>
-    <DialogTitle onClose={onClose}>{Messages.title}</DialogTitle>
+  <Dialog
+    data-testid="new-session-modal"
+    aria-labelledby="new-session-modal-title"
+    aria-describedby="new-session-modal-content"
+    open={open}
+    onClose={onClose}
+    maxWidth="xs"
+  >
+    <DialogTitle id="new-session-modal-title" onClose={onClose}>
+      {Messages.title}
+    </DialogTitle>
     <DialogContent
+      id="new-session-modal-content"
       sx={{
         display: 'flex',
         flexDirection: 'column',
         gap: 4,
         p: 4,
         mt: 2,
-        width: 426,
       }}
     >
       <Typography textAlign="center">{Messages.content}</Typography>

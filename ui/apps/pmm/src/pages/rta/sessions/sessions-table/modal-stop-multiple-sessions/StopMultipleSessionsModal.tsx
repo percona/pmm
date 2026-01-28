@@ -29,6 +29,7 @@ const StopMultipleSessionsModal: FC<Props> = ({
 
   return (
     <Dialog
+      data-testid="stop-multiple-sessions-modal"
       aria-labelledby="stop-multiple-sessions-modal-title"
       aria-describedby="stop-multiple-sessions-modal-content"
       open={open}
@@ -43,10 +44,16 @@ const StopMultipleSessionsModal: FC<Props> = ({
         {Messages.content}
       </DialogContent>
       <DialogActions>
-        <Button variant="text" color="primary" onClick={onClose}>
+        <Button
+          data-testid="stop-multiple-sessions-modal-cancel"
+          variant="text"
+          color="primary"
+          onClick={onClose}
+        >
           {Messages.actions.cancel}
         </Button>
         <Button
+          data-testid="stop-multiple-sessions-modal-stop"
           variant="contained"
           color="primary"
           onClick={handleStopSession}
