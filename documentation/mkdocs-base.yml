@@ -343,7 +343,7 @@ nav:
               - Security advisors:
                   - CVE security checks:
                       - advisors/checks/postgresql-cve-check.md
-                      - advisors/checks/mysql-cve-2022-25646.md
+                      - advisors/checks/mongodb_zlib_vulnerability.md
                   - Configuration security checks:
                       - advisors/checks/mongodb-scram-sha-256.md
                       - advisors/checks/local-option-of-load-data-enabled.md
