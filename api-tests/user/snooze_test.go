@@ -29,9 +29,6 @@ import (
 )
 
 func TestUpdateSnoozing(t *testing.T) {
-	// do not run this test in parallel with other tests
-	// as it modifies shared user snooze state
-
 	t.Run("provides default snooze information in user info", func(t *testing.T) {
 		// Get current state - this test verifies default state, but when running
 		// in parallel with other tests, the state may already be modified.
