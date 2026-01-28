@@ -5,7 +5,6 @@
  * It is used to fallback to the old API until the new API is merged (https://github.com/percona/pmm/pull/4956).
  */
 
-import { AgentStatus } from 'types/agent.types';
 import { api } from './api';
 
 interface ListRunningRealtimeAgentsResponse {
@@ -18,7 +17,7 @@ interface RunningRealtimeAgent {
   serviceName: string;
   cluster: string;
   startedAt: string;
-  status: AgentStatus;
+  status: string;
 }
 
 interface ChangeRealtimeAgentPayload {

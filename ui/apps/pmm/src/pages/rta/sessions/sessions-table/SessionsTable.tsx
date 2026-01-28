@@ -1,6 +1,6 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { Messages } from './SessionsTable.messages';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -118,10 +118,6 @@ const SessionsTable: FC = () => {
     });
   };
 
-  useEffect(() => {
-    console.log('row-selection', rowSelection);
-  }, [rowSelection]);
-
   if (isLoading) {
     return <Skeleton variant="rounded" height="100%" />;
   }
@@ -178,6 +174,7 @@ const SessionsTable: FC = () => {
           <Button
             color="inherit"
             size="small"
+            data-testid="open-stop-modal"
             onClick={() => openStopModal(row.original)}
           >
             {Messages.stop}
@@ -217,6 +214,7 @@ const SessionsTable: FC = () => {
                 <Button
                   startIcon={<StopCircleOutlinedIcon />}
                   onClick={openStopSelectedModal}
+                  data-testid="open-stop-selected-modal"
                 >
                   {Messages.stopSelected}
                 </Button>
@@ -224,6 +222,7 @@ const SessionsTable: FC = () => {
             )}
             {!!sessions.length && (
               <Button
+                data-testid="open-stop-all-modal"
                 startIcon={<StopCircleOutlinedIcon />}
                 onClick={openStopAllModal}
               >
@@ -231,6 +230,7 @@ const SessionsTable: FC = () => {
               </Button>
             )}
             <Button
+              data-testid="open-new-modal"
               startIcon={<AddOutlinedIcon />}
               onClick={openNewSessionModal}
             >
