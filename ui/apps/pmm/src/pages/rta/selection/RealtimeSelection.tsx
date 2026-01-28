@@ -24,7 +24,6 @@ export const RealtimeSelection: FC = () => {
   const allServicesRunning =
     !isLoading &&
     availableServices.length === 0 &&
-    services &&
     services.length > 0;
 
   const handleSuccess = () => {
@@ -51,12 +50,11 @@ export const RealtimeSelection: FC = () => {
     );
   }
 
-  if (sessions?.length) {
-    // todo: navigate to session analysis page
+  if (sessions.length) {
     return <Navigate to="/rta/sessions" />;
   }
 
-  if (user?.isViewer) {
+  if (!user?.isEditor) {
     return <RealtimeSelectionViewerEmptyState />;
   }
 

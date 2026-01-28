@@ -19,7 +19,7 @@ import {
 } from 'utils/testStubs';
 
 vi.mock('api/services');
-vi.mock('api/realtime');
+vi.mock('api/rta');
 
 const mockNavigate = vi.fn();
 
