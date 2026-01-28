@@ -60,7 +60,7 @@ export const stopSession = async (
   payload: StopSessionPayload
 ): Promise<StopSessionResponse> => {
   try {
-    const res = await api.post<{}>('/realtimeanalytics/sessions:stop', payload);
+    const res = await api.post<Record<string, never>>('/realtimeanalytics/sessions:stop', payload);
     return res.data;
   } catch (error) {
     // todo: temporary fallback till https://github.com/percona/pmm/pull/4956 gets merged

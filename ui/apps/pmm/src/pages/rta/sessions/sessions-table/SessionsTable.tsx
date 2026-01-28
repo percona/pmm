@@ -95,8 +95,6 @@ const SessionsTable: FC = () => {
   };
 
   const handleStopSelectedSessions = async () => {
-    console.log('selectedSessions', selectedSessions);
-
     if (!selectedSessions.length) return;
 
     const serviceIds = getServiceIds(selectedSessions);
