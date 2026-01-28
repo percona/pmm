@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # Usage: ./download_clickhouse_backup.sh 20260120
 if [ -z "$1" ]; then
