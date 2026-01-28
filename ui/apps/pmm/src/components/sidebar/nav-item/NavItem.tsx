@@ -5,21 +5,12 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { getLinkProps, hasChildMatch, shouldShowBadge } from './NavItem.utils';
 import { getStyles } from './NavItem.styles';
 import { useTheme } from '@mui/material';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Stack from '@mui/material/Stack';
-import ListItem from '@mui/material/ListItem';
-import List from '@mui/material/List';
-import Collapse from '@mui/material/Collapse';
-import Divider from '@mui/material/Divider';
+import { ListItemButton, ListItemIcon, ListItemText, Stack, ListItem, List, Collapse, Divider, IconButton, Box } from '@mui/material';
 import NavItemIcon from './nav-item-icon/NavItemIcon';
-import IconButton from '@mui/material/IconButton';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import NavItemDot from './nav-item-dot/NavItemDot';
 import NavItemBadge from './nav-item-badge/NavItemBadge';
-import Box from '@mui/material/Box';
 
 const NavItem: FC<NavItemProps> = ({
   activeItem,

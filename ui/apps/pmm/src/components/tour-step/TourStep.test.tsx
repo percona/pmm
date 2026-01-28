@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import TourStep from './TourStep';
-import Typography from '@mui/material/Typography';
+import { Typography } from '@mui/material';
 
 describe('TourStep', () => {
   it('renders the title', () => {

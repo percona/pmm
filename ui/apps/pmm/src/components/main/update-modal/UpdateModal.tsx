@@ -2,16 +2,10 @@ import { Modal } from 'components/modal';
 import { useUpdates } from 'contexts/updates';
 import { FC, useEffect, useState } from 'react';
 import { Messages } from './UpdateModal.messages';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import Link from '@mui/material/Link';
+import { Typography, Stack, Link, Button, Card, IconButton, Snackbar } from '@mui/material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import Button from '@mui/material/Button';
 import { PMM_NEW_NAV_UPDATES_PATH } from 'lib/constants';
-import Snackbar from '@mui/material/Snackbar';
 import CloseIcon from '@mui/icons-material/Close';
-import Card from '@mui/material/Card';
-import IconButton from '@mui/material/IconButton';
 import { useSnooze } from 'hooks/updates';
 
 const UpdateModal: FC = () => {

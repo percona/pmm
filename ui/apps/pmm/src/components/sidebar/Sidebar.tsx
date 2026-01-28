@@ -3,7 +3,7 @@ import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { NavItem } from './nav-item';
-import List from '@mui/material/List';
+import { List } from '@mui/material';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import { useLocation } from 'react-router-dom';
 import { NavItem as NavItemType } from 'types/navigation.types';

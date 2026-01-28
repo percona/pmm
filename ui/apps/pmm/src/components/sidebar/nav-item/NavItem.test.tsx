@@ -3,7 +3,7 @@ import { wrapWithRouter } from 'utils/testUtils';
 import NavItem from './NavItem';
 import { NavItemProps } from './NavItem.types';
 import { NavItem as NavTreeItem } from 'types/navigation.types';
-import { collapseClasses } from '@mui/material/Collapse';
+import { collapseClasses } from '@mui/material';
 import { MemoryRouterProps } from 'react-router-dom';
 
 const TEST_NAV_TREE: NavTreeItem = {

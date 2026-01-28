@@ -1,4 +1,4 @@
-import { LinkProps } from '@mui/material/Link';
+import { LinkProps } from '@mui/material';
 
 export interface ClientsModalProps {
   homeLinkProps?: LinkProps;

@@ -1,4 +1,4 @@
-import Box from '@mui/material/Box';
+
 import { Page } from 'components/page';
 import { FC, useMemo } from 'react';
 import { Messages } from './HelpCenter.messages';
@@ -6,7 +6,7 @@ import { getCardData } from './HelpCenter.constants';
 import { useUser } from 'contexts/user';
 import { HelpCenterCard } from './help-center-card/HelpCenterCard';
 import WelcomeCard from './welcome-card/WelcomeCard';
-import { cardClasses } from '@mui/material/Card';
+import { cardClasses, Box } from '@mui/material';
 import { useTour } from 'contexts/tour';
 
 export const HelpCenter: FC = () => {

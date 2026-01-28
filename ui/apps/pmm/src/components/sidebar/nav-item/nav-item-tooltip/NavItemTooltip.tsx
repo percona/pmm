@@ -1,4 +1,4 @@
-import Tooltip from '@mui/material/Tooltip';
+import { Tooltip } from '@mui/material';
 import {
   DRAWER_CLOSED_WIDTH,
   DRAWER_WIDTH,

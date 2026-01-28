@@ -1,4 +1,4 @@
-import MuiDrawer from '@mui/material/Drawer';
+import { Drawer as MuiDrawer } from '@mui/material';
 import { closedMixin, openedMixin } from './Drawer.styles';
 import { styled } from '@mui/material';
 import { DRAWER_WIDTH } from './Drawer.constants';

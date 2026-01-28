@@ -1,6 +1,4 @@
-import { listItemIconClasses } from '@mui/material/ListItemIcon';
-import { listItemTextClasses } from '@mui/material/ListItemText';
-import { typographyClasses } from '@mui/material/Typography';
+import { listItemIconClasses, listItemTextClasses, typographyClasses } from '@mui/material';
 import { Theme } from '@mui/material';
 
 export const getStyles = (
@@ -39,7 +37,7 @@ export const getStyles = (
   },
   listItemButtonCollapsible: {
     backgroundColor: active
-      ? theme.components?.MuiListItem?.styleOverrides?.selected
+      ? theme.components?.MuiListItemButton?.styleOverrides?.selected
       : 'initial',
   },
   listCollapsible:
