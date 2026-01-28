@@ -23,7 +23,7 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
                 px: 1.5,
                 border: 2,
                 borderColor: theme.palette.divider,
-                borderRadius: parseInt(theme.shape.borderRadius.toString()) / 4,
+                borderRadius: Number(theme.shape.borderRadius) / 4,
               },
         (theme) =>
           theme.applyStyles('dark', {
