@@ -11,11 +11,11 @@ fi
 start=${1:-0}
 dir="migrations/sql"
 
-for file in $(ls $dir | grep -E '^[0-9]+_.*\.up\.sql$' | sort); do
-    num=$(echo $file | cut -d'_' -f1)
+while IFS= read -r file; do
+    num=$(printf '%s\n' "$file" | cut -d'_' -f1)
     if [ "$num" -gt "$start" ]; then
         echo "Running migration: $file"
         sql=$(sed 's/ALTER TABLE metrics/ALTER TABLE pmm.metrics/g' "$dir/$file")
         docker exec pmm-server clickhouse-client --password=clickhouse --query="$sql"
     fi
-done
+done < <(find "$dir" -maxdepth 1 -type f -regextype posix-extended -regex '.*/[0-9]+_.*\.up\.sql$' -printf '%f\n' | sort)
