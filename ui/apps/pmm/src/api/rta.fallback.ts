@@ -26,7 +26,7 @@ interface ChangeRealtimeAgentPayload {
   enable: boolean;
 }
 
-interface ChangeRealtimeAgentResponse { }
+interface ChangeRealtimeAgentResponse {}
 
 /**
  * @deprecated use getRunningSessions instead

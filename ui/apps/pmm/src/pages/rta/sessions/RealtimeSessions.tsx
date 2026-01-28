@@ -30,17 +30,19 @@ const RealtimeSessionsPage: FC = () => {
           </RouterLink>
         )}
         <Typography variant="h6">{Messages.pageTitle}</Typography>
-        <Stack sx={{
-          display: 'flex',
-          flexDirection: {
-            xs: 'column',
-            md: 'row',
-          },
-          gap: {
-            xs: 1,
-            md: 2,
-          },
-        }}>
+        <Stack
+          sx={{
+            display: 'flex',
+            flexDirection: {
+              xs: 'column',
+              md: 'row',
+            },
+            gap: {
+              xs: 1,
+              md: 2,
+            },
+          }}
+        >
           <Typography variant="body2">{Messages.pageDescription}</Typography>
           <Stack direction="row" justifyContent="flex-start" gap={2}>
             <Link

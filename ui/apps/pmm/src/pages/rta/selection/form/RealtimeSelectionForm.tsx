@@ -16,7 +16,10 @@ import {
   ServiceOptionTag,
 } from '../components';
 import { useAvailableServices, useStartSessions } from 'hooks/api/useRealtime';
-import { RealtimeSelectionFormProps, ServiceOption } from './RealtimeSelectionForm.types';
+import {
+  RealtimeSelectionFormProps,
+  ServiceOption,
+} from './RealtimeSelectionForm.types';
 
 export const RealtimeSelectionForm: FC<RealtimeSelectionFormProps> = ({
   onSuccess,
@@ -69,7 +72,7 @@ export const RealtimeSelectionForm: FC<RealtimeSelectionFormProps> = ({
       onSuccess: (responses) => {
         enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
         setSelectedServices([]);
-        onSuccess?.(responses.map(r => r.session));
+        onSuccess?.(responses.map((r) => r.session));
       },
       onError: (error) => {
         const message =
@@ -124,10 +127,10 @@ export const RealtimeSelectionForm: FC<RealtimeSelectionFormProps> = ({
             clusterSelectionState={
               option.type === 'cluster'
                 ? getClusterSelectionState(
-                  option.label,
-                  serviceOptions,
-                  selectedServices
-                )
+                    option.label,
+                    serviceOptions,
+                    selectedServices
+                  )
                 : undefined
             }
             onClusterToggle={handleClusterToggle}
