@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import { getStyles } from 'components/ha-icon/HighAvailabilityIcon.styles';
 import { Icon } from 'components/icon';
 import { FC } from 'react';
-import { RealTimeSessionStatus } from 'types/rta.types';
+import { RealtimeSessionStatus } from 'types/rta.types';
 import { diffFromNow, formatDuration } from 'utils/datetime.utils';
 import { Messages } from './SessionStatus.messages';
 import { getSessionStatusText } from 'utils/status.utils';
@@ -18,7 +18,7 @@ const SessionStatus: FC<Props> = ({ session }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  if (session.status === RealTimeSessionStatus.running) {
+  if (session.status === RealtimeSessionStatus.running) {
     return Messages.runningFor(formatDuration(diffFromNow(session.startTime)));
   }
 

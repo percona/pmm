@@ -5,7 +5,7 @@ import { FC } from 'react';
 import { Messages } from './NewSessionModal.messages';
 import Stack from '@mui/material/Stack';
 import Link from '@mui/material/Link';
-import { RealTimeSelectionForm } from 'pages/rta/selection/form/RealTimeSelectionForm';
+import { RealtimeSelectionForm } from 'pages/rta/selection/form/RealtimeSelectionForm';
 import { DOCS_URLS } from 'lib/constants';
 
 interface Props {
@@ -28,7 +28,7 @@ const NewSessionModal: FC<Props> = ({ open, onClose, onSuccess }) => (
       }}
     >
       <Typography textAlign="center">{Messages.content}</Typography>
-      <RealTimeSelectionForm onSuccess={onSuccess} />
+      <RealtimeSelectionForm onSuccess={onSuccess} />
       <Stack direction="column" gap={1}>
         <Typography variant="body2" color="text.secondary" textAlign="center">
           {Messages.disclaimer}

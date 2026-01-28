@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { User } from 'types/user.types';
-import { RealTimeSelection } from './RealTimeSelection';
-import { Messages } from './RealTimeSelection.messages';
+import { RealtimeSelection } from './RealtimeSelection';
+import { Messages } from './RealtimeSelection.messages';
 import * as servicesApi from 'api/services';
 import * as realtimeApi from 'api/rta';
 import {
@@ -44,13 +44,13 @@ const renderComponent = (user?: User) =>
     wrapWithQueryProvider(
       wrapWithRouter(
         wrapWithSnackbarProvider(
-          wrapWithUserProvider(<RealTimeSelection />, { user })
+          wrapWithUserProvider(<RealtimeSelection />, { user })
         )
       )
     )
   );
 
-describe('RealTimeSelection', () => {
+describe('RealtimeSelection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupMocks();

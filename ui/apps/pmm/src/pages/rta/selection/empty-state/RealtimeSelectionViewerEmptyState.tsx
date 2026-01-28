@@ -3,11 +3,11 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
-import { Messages } from '../RealTimeSelection.messages';
-import { DOCS_URL } from '../RealTimeSelection.constants';
+import { Messages } from '../RealtimeSelection.messages';
+import { DOCS_URL } from '../RealtimeSelection.constants';
 import { EmptyStateMessages } from './EmptyState.messages';
 
-export const RealTimeSelectionViewerEmptyState: FC = () => (
+export const RealtimeSelectionViewerEmptyState: FC = () => (
   <Page footer={null}>
     <Stack
       gap={3}

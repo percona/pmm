@@ -1,7 +1,7 @@
-import { RealTimeSession, RealTimeSessionStatus } from 'types/rta.types';
+import { RealtimeSession, RealtimeSessionStatus } from 'types/rta.types';
 import { SessionRow } from './SessionsTable.types';
 
-export const getSessionRows = (sessions: RealTimeSession[]): SessionRow[] => {
+export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {
   const clusters = getClusters(sessions);
   const rows: SessionRow[] = [];
 
@@ -14,7 +14,7 @@ export const getSessionRows = (sessions: RealTimeSession[]): SessionRow[] => {
     } else {
       const services = clusters[cluster].map(serviceToSessionRow);
       const areAllRunning = services.every(
-        (service) => service.status === RealTimeSessionStatus.running
+        (service) => service.status === RealtimeSessionStatus.running
       );
       const earliestStartedAt = services.reduce((acc, service) => {
         return acc < service.startTime ? acc : service.startTime;
@@ -25,8 +25,8 @@ export const getSessionRows = (sessions: RealTimeSession[]): SessionRow[] => {
         type: 'cluster',
         sessionName: cluster,
         status: areAllRunning
-          ? RealTimeSessionStatus.running
-          : RealTimeSessionStatus.unspecified,
+          ? RealtimeSessionStatus.running
+          : RealtimeSessionStatus.unspecified,
         startTime: earliestStartedAt,
         serviceSessions: services,
       });
@@ -37,9 +37,9 @@ export const getSessionRows = (sessions: RealTimeSession[]): SessionRow[] => {
 };
 
 const getClusters = (
-  sessions: RealTimeSession[]
-): Record<string, RealTimeSession[]> =>
-  sessions.reduce<Record<string, RealTimeSession[]>>((acc, session) => {
+  sessions: RealtimeSession[]
+): Record<string, RealtimeSession[]> =>
+  sessions.reduce<Record<string, RealtimeSession[]>>((acc, session) => {
     const key = session.clusterName || '';
 
     if (!acc[key]) {
@@ -51,7 +51,7 @@ const getClusters = (
     return acc;
   }, {});
 
-const serviceToSessionRow = (serviceSession: RealTimeSession): SessionRow => ({
+const serviceToSessionRow = (serviceSession: RealtimeSession): SessionRow => ({
   sessionId: serviceSession.serviceId,
   type: 'service',
   sessionName: serviceSession.serviceName,

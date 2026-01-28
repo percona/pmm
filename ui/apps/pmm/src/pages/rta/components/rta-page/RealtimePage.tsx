@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack';
 import { FC, PropsWithChildren } from 'react';
 
-const RealTimePage: FC<PropsWithChildren> = ({ children }) => (
+const RealtimePage: FC<PropsWithChildren> = ({ children }) => (
   <Stack
     direction="column"
     gap={2}
@@ -17,4 +17,4 @@ const RealTimePage: FC<PropsWithChildren> = ({ children }) => (
   </Stack>
 );
 
-export default RealTimePage;
+export default RealtimePage;

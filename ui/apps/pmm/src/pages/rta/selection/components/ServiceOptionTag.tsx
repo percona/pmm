@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Chip, { chipClasses } from '@mui/material/Chip';
 import { AutocompleteRenderGetTagProps } from '@mui/material/Autocomplete';
 import CloseIcon from '@mui/icons-material/Close';
-import { ServiceOption } from '../form/RealTimeSelectionForm.types';
+import { ServiceOption } from '../form/RealtimeSelectionForm.types';
 
 interface ServiceOptionTagProps {
   option: ServiceOption;

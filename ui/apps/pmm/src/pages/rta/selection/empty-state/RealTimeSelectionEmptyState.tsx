@@ -4,11 +4,11 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Icon } from 'components/icon';
-import { Messages } from '../RealTimeSelection.messages';
-import { DOCS_URL } from '../RealTimeSelection.constants';
+import { Messages } from '../RealtimeSelection.messages';
+import { DOCS_URL } from '../RealtimeSelection.constants';
 import { EmptyStateMessages } from './EmptyState.messages';
 
-export const RealTimeSelectionEmptyState: FC = () => (
+export const RealtimeSelectionEmptyState: FC = () => (
   <Stack
     gap={2}
     alignItems="center"

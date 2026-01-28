@@ -4,7 +4,7 @@ import Checkbox from '@mui/material/Checkbox';
 import {
   ServiceOption as ServiceOptionType,
   ClusterSelectionState,
-} from '../form/RealTimeSelectionForm.types';
+} from '../form/RealtimeSelectionForm.types';
 
 interface ServiceOptionProps {
   option: ServiceOptionType;

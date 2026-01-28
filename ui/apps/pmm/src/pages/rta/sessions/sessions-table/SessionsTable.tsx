@@ -7,7 +7,7 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Table } from '@percona/ui-lib';
 import { boxClasses, paperClasses, Skeleton, Typography } from '@mui/material';
 import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
-import { useRealTimeSessions, useStopSessions } from 'hooks/api/useRealTime';
+import { useRealtimeSessions, useStopSessions } from 'hooks/api/useRealtime';
 import {
   getAllSessions,
   getServiceIds,
@@ -24,7 +24,7 @@ const SessionsTable: FC = () => {
     data: sessions = [],
     isLoading,
     refetch: refetchSessions,
-  } = useRealTimeSessions({
+  } = useRealtimeSessions({
     refetchInterval: 5000,
   });
   const rows = getSessionRows(sessions);

@@ -1,2 +1,2 @@
-export { RealTimeSelectionEmptyState } from './RealTimeSelectionEmptyState';
-export { RealTimeSelectionViewerEmptyState } from './RealTimeSelectionViewerEmptyState';
+export { RealtimeSelectionEmptyState } from './RealtimeSelectionEmptyState';
+export { RealtimeSelectionViewerEmptyState } from './RealtimeSelectionViewerEmptyState';

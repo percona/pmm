@@ -2,9 +2,7 @@ import { ManagedService } from 'types/services.types';
 import {
   ServiceOption,
   ClusterSelectionState,
-} from './RealTimeSelectionForm.types';
-
-export type { ServiceOption, ClusterSelectionState };
+} from './RealtimeSelectionForm.types';
 
 /**
  * Get the selection state of a cluster

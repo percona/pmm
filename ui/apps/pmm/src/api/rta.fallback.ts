@@ -8,11 +8,11 @@
 import { AgentStatus } from 'types/agent.types';
 import { api } from './api';
 
-interface ListRunningRealTimeAgentsResponse {
-  agents: RunningRealTimeAgent[];
+interface ListRunningRealtimeAgentsResponse {
+  agents: RunningRealtimeAgent[];
 }
 
-interface RunningRealTimeAgent {
+interface RunningRealtimeAgent {
   agentId: string;
   serviceId: string;
   serviceName: string;
@@ -21,31 +21,31 @@ interface RunningRealTimeAgent {
   status: AgentStatus;
 }
 
-interface ChangeRealTimeAgentPayload {
+interface ChangeRealtimeAgentPayload {
   serviceId: string;
   enable: boolean;
 }
 
-interface ChangeRealTimeAgentResponse {}
+interface ChangeRealtimeAgentResponse { }
 
 /**
  * @deprecated use getRunningSessions instead
  */
-export const getRunningRealTimeAgents = async (): Promise<
-  RunningRealTimeAgent[]
+export const getRunningRealtimeAgents = async (): Promise<
+  RunningRealtimeAgent[]
 > => {
   const res =
-    await api.get<ListRunningRealTimeAgentsResponse>('/realtime/agents');
+    await api.get<ListRunningRealtimeAgentsResponse>('/realtime/agents');
   return res.data.agents;
 };
 
 /**
  * @deprecated use startSession/stopSession instead
  */
-export const changeRealTimeAgent = async (
-  payload: ChangeRealTimeAgentPayload
-): Promise<ChangeRealTimeAgentResponse> => {
-  const res = await api.post<ChangeRealTimeAgentResponse>(
+export const changeRealtimeAgent = async (
+  payload: ChangeRealtimeAgentPayload
+): Promise<ChangeRealtimeAgentResponse> => {
+  const res = await api.post<ChangeRealtimeAgentResponse>(
     '/realtime/change',
     payload
   );

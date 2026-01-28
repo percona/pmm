@@ -4,25 +4,21 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { enqueueSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
-import { Messages } from '../RealTimeSelection.messages';
+import { Messages } from '../RealtimeSelection.messages';
 import {
-  ServiceOption,
   getServiceOptions,
   getClusterSelectionState,
   toggleClusterServices,
-} from './RealTimeSelectionForm.utils';
+} from './RealtimeSelectionForm.utils';
 import {
   ServiceInput,
   ServiceOption as ServiceOptionComponent,
   ServiceOptionTag,
 } from '../components';
-import { useAvailableServices, useStartSessions } from 'hooks/api/useRealTime';
+import { useAvailableServices, useStartSessions } from 'hooks/api/useRealtime';
+import { RealtimeSelectionFormProps, ServiceOption } from './RealtimeSelectionForm.types';
 
-interface RealTimeSelectionFormProps {
-  onSuccess?: () => void;
-}
-
-export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
+export const RealtimeSelectionForm: FC<RealtimeSelectionFormProps> = ({
   onSuccess,
 }) => {
   const { user } = useUser();
@@ -128,10 +124,10 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
             clusterSelectionState={
               option.type === 'cluster'
                 ? getClusterSelectionState(
-                    option.label,
-                    serviceOptions,
-                    selectedServices
-                  )
+                  option.label,
+                  serviceOptions,
+                  selectedServices
+                )
                 : undefined
             }
             onClusterToggle={handleClusterToggle}

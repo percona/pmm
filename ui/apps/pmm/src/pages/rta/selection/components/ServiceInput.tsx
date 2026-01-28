@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import TextField from '@mui/material/TextField';
 import { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
-import { Messages } from '../RealTimeSelection.messages';
+import { Messages } from '../RealtimeSelection.messages';
 
 interface ServiceInputProps {
   params: AutocompleteRenderInputParams;

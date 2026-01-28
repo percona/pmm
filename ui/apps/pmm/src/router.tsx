@@ -5,12 +5,12 @@ import { UpdateClients } from 'pages/update-clients/UpdateClients';
 import { MainWithNav } from 'components/main/MainWithNav';
 import { NotFoundPage } from 'pages/not-found';
 import { HelpCenter } from 'pages/help-center';
-import { RealTimeSelection } from 'pages/rta/selection';
+import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
-import { RealTimeSessionsPage } from 'pages/rta/sessions';
+import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect } from 'components/redirect';
-import RealTimeOverviewPage from 'pages/rta/overview/RealTimeOverview';
+import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 
 const router = createBrowserRouter(
   [
@@ -43,15 +43,15 @@ const router = createBrowserRouter(
               children: [
                 {
                   path: '',
-                  element: <RealTimeSelection />,
+                  element: <RealtimeSelection />,
                 },
                 {
                   path: 'sessions',
-                  element: <RealTimeSessionsPage />,
+                  element: <RealtimeSessionsPage />,
                 },
                 {
                   path: 'overview',
-                  element: <RealTimeOverviewPage />,
+                  element: <RealtimeOverviewPage />,
                 },
               ],
             },

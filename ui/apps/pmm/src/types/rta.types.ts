@@ -1,20 +1,20 @@
-export enum RealTimeSessionStatus {
+export enum RealtimeSessionStatus {
   unspecified = 'SESSION_STATUS_UNSPECIFIED',
   running = 'SESSION_STATUS_RUNNING',
   error = 'SESSION_STATUS_ERROR',
   down = 'SESSION_STATUS_DOWN',
 }
 
-export interface RealTimeSession {
+export interface RealtimeSession {
   serviceId: string;
   serviceName: string;
   clusterName: string;
   startTime: string;
-  status: RealTimeSessionStatus;
+  status: RealtimeSessionStatus;
 }
 
 export interface ListRunningSessionsResponse {
-  sessions: RealTimeSession[];
+  sessions: RealtimeSession[];
 }
 
 export interface StartSessionPayload {
@@ -22,7 +22,7 @@ export interface StartSessionPayload {
 }
 
 export interface StartSessionResponse {
-  session: RealTimeSession;
+  session: RealtimeSession;
 }
 
 export interface StopSessionPayload {

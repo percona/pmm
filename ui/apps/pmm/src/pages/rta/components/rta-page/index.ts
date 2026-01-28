@@ -1,1 +1,1 @@
-export { default as RealTimePage } from './RealTimePage';
+export { default as RealtimePage } from './RealtimePage';

@@ -1,3 +1,7 @@
+export interface RealtimeSelectionFormProps {
+  onSuccess?: () => void;
+}
+
 export interface ServiceOption {
   type: 'cluster' | 'service';
   id: string;

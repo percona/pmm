@@ -1,15 +1,15 @@
 import { AgentStatus } from 'types/agent.types';
-import { RealTimeSessionStatus } from 'types/rta.types';
+import { RealtimeSessionStatus } from 'types/rta.types';
 
-export const getSessionStatusText = (status: RealTimeSessionStatus) => {
+export const getSessionStatusText = (status: RealtimeSessionStatus) => {
   switch (status) {
-    case RealTimeSessionStatus.running:
+    case RealtimeSessionStatus.running:
       return 'Running';
-    case RealTimeSessionStatus.error:
+    case RealtimeSessionStatus.error:
       return 'Error';
-    case RealTimeSessionStatus.down:
+    case RealtimeSessionStatus.down:
       return 'Down';
-    case RealTimeSessionStatus.unspecified:
+    case RealtimeSessionStatus.unspecified:
       return 'Unspecified';
   }
 };

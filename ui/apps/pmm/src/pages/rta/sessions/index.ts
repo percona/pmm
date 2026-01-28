@@ -1,1 +1,1 @@
-export { default as RealTimeSessionsPage } from './RealTimeSessions';
+export { default as RealtimeSessionsPage } from './RealtimeSessions';

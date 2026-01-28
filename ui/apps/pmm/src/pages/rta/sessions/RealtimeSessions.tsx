@@ -1,20 +1,20 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { FC } from 'react';
-import { Messages } from './RealTimeSessions.messages';
+import { Messages } from './RealtimeSessions.messages';
 import SessionsTable from './sessions-table/SessionsTable';
 import Button from '@mui/material/Button';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import { DOCS_URLS } from 'lib/constants';
-import { RealTimePage } from '../components/rta-page';
+import { RealtimePage } from '../components/rta-page';
 
-const RealTimeSessionsPage: FC = () => {
+const RealtimeSessionsPage: FC = () => {
   const [searchParams] = useSearchParams();
 
   return (
-    <RealTimePage>
+    <RealtimePage>
       <Stack direction="column" gap={1} sx={{ flexShrink: 0 }}>
         {searchParams.get('fromOverview') && (
           <RouterLink to="/rta/overview">
@@ -60,8 +60,8 @@ const RealTimeSessionsPage: FC = () => {
       >
         <SessionsTable />
       </Stack>
-    </RealTimePage>
+    </RealtimePage>
   );
 };
 
-export default RealTimeSessionsPage;
+export default RealtimeSessionsPage;

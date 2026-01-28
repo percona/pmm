@@ -5,27 +5,27 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
-import { Messages } from './RealTimeSelection.messages';
-import { RealTimeSelectionForm } from './form/RealTimeSelectionForm';
+import { Messages } from './RealtimeSelection.messages';
+import { RealtimeSelectionForm } from './form/RealtimeSelectionForm';
 import {
-  RealTimeSelectionEmptyState,
-  RealTimeSelectionViewerEmptyState,
+  RealtimeSelectionEmptyState,
+  RealtimeSelectionViewerEmptyState,
 } from './empty-state';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useAvailableServices } from 'hooks/api/useRealTime';
+import { useAvailableServices } from 'hooks/api/useRealtime';
 import { DOCS_URLS } from 'lib/constants';
 
-export const RealTimeSelection: FC = () => {
+export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const { availableServices, isLoading, servicesData, sessionsData } =
+  const { availableServices, isLoading, services, sessions } =
     useAvailableServices();
 
   const allServicesRunning =
     !isLoading &&
     availableServices.length === 0 &&
-    servicesData?.services &&
-    servicesData.services.length > 0;
+    services &&
+    services.length > 0;
 
   const handleSuccess = () => {
     navigate('/rta/sessions');
@@ -51,13 +51,13 @@ export const RealTimeSelection: FC = () => {
     );
   }
 
-  if (sessionsData?.length) {
+  if (sessions?.length) {
     // todo: navigate to session analysis page
     return <Navigate to="/rta/sessions" />;
   }
 
   if (user?.isViewer) {
-    return <RealTimeSelectionViewerEmptyState />;
+    return <RealtimeSelectionViewerEmptyState />;
   }
 
   return (
@@ -74,14 +74,14 @@ export const RealTimeSelection: FC = () => {
         }}
       >
         {allServicesRunning ? (
-          <RealTimeSelectionEmptyState />
+          <RealtimeSelectionEmptyState />
         ) : (
           <>
             <Stack gap={1} sx={{ width: '100%' }}>
               <Typography variant="h5">{Messages.title}</Typography>
               <Typography variant="body1">{Messages.description}</Typography>
             </Stack>
-            <RealTimeSelectionForm onSuccess={handleSuccess} />
+            <RealtimeSelectionForm onSuccess={handleSuccess} />
             <Stack gap={1} sx={{ width: '100%' }}>
               <Typography variant="body2" color="text.secondary">
                 {Messages.mongoOnly}
