@@ -8,7 +8,7 @@ if [ -z "$1" ]; then
 fi
 
 # Runs all ClickHouse .up.sql migrations with a number greater than <start_number>
-start=${1:-0}
+start="$1"
 dir="migrations/sql"
 
 while IFS= read -r file; do
