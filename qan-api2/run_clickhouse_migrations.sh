@@ -18,4 +18,4 @@ while IFS= read -r file; do
         sql=$(sed 's/ALTER TABLE metrics/ALTER TABLE pmm.metrics/g' "$dir/$file")
         docker exec pmm-server clickhouse-client --password=clickhouse --query="$sql"
     fi
-done < <(find "$dir" -maxdepth 1 -type f -regextype posix-extended -regex '.*/[0-9]+_.*\.up\.sql$' -printf '%f\n' | sort)
+done < <(find "$dir" -maxdepth 1 -type f -name "*.up.sql" | xargs -n1 basename | sort)
