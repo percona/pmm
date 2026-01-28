@@ -258,8 +258,8 @@
         mode: 0440
 
     - name: Set SELinux context for ssm-user
-      seuser:
-        name: ssm-user
+      selogin:
+        login: ssm-user
         seuser: unconfined_u
         serange: s0-s0:c0.c1023
         state: present

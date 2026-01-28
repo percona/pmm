@@ -87,7 +87,7 @@
 
     - name: Install kubectl
       get_url:
-        url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubectl_version }}/bin/linux/{{ ansible_architecture_alt }}/kubectl
+        url: https://dl.k8s.io/release/v{{ kubectl_version }}/bin/linux/{{ ansible_architecture_alt }}/kubectl
         dest: /usr/local/bin/kubectl
         mode: "u+x,g+x,o+x"
 
