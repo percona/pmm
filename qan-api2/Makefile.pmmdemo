@@ -70,6 +70,11 @@ restore-clickhouse-backup:
 	./run_clickhouse_migrations.sh $(BACKUP_LAST_MIGRATION)
 #
 # Default time periods for benchmarking.
+# NOTE: These defaults are aligned with the default demo backup (BACKUP_NAME=20260120).
+# PMM_DEMO_BENCH_PERIOD_TO may be in the future relative to the current date and is
+# intended for benchmarking with demo data that includes timestamps up to 2026-01-21.
+# When using a different backup or real data, override these values so they match
+# the actual time range of your data to avoid empty benchmark results.
 PMM_DEMO_BENCH_PERIOD_FROM ?= 2025-12-27T00:00:00+01:00
 PMM_DEMO_BENCH_PERIOD_TO ?= 2026-01-21T23:59:59+01:00
 # Run bench for all main endpoints.
