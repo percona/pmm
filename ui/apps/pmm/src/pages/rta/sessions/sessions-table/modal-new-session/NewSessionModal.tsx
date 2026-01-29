@@ -53,7 +53,7 @@ const NewSessionModal: FC<Props> = ({ open, onClose, onSuccess }) => (
           </Link>
           <Link
             variant="body2"
-            href={DOCS_URLS.qan}
+            href={DOCS_URLS.forums}
             rel="noopener noreferrer"
             target="_blank"
           >

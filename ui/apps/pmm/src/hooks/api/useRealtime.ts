@@ -11,11 +11,11 @@ import {
   StartSessionResponse,
   StartSessionPayload,
   StopSessionPayload,
-  StopSessionResponse,
 } from 'types/rta.types';
 import { ManagedService, ServiceType } from 'types/services.types';
 import { useManagedServices } from './useServices';
 import { useMemo } from 'react';
+import { EmptyResponse } from 'types/util.types';
 
 const KEYS = {
   LIST_SESSIONS: 'rta:list-sessions',
@@ -71,7 +71,7 @@ export const useStartSessions = (
 
 export const useStopSession = (
   options?: Partial<
-    UseMutationOptions<StopSessionResponse, Error, StopSessionPayload>
+    UseMutationOptions<EmptyResponse, Error, StopSessionPayload>
   >
 ) => {
   const queryClient = useQueryClient();
@@ -88,7 +88,7 @@ export const useStopSession = (
 };
 
 export const useStopSessions = (
-  options?: Partial<UseMutationOptions<StopSessionResponse[], Error, string[]>>
+  options?: Partial<UseMutationOptions<EmptyResponse[], Error, string[]>>
 ) => {
   const queryClient = useQueryClient();
 
@@ -108,7 +108,7 @@ export const useStopSessions = (
  * Hook to get MongoDB services that don't have running RTA agents
  */
 export const useAvailableServices = () => {
-  const { data: sessions, isLoading: isLoadingSesssions } =
+  const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
   const { data: services, isLoading: isLoadingServices } = useManagedServices({
     serviceType: ServiceType.mongodb,
@@ -131,7 +131,7 @@ export const useAvailableServices = () => {
 
   return {
     availableServices,
-    isLoading: isLoadingSesssions || isLoadingServices,
+    isLoading: isLoadingSessions || isLoadingServices,
     services: services?.services || [],
     sessions: sessions || [],
   };

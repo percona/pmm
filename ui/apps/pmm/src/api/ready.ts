@@ -1,6 +1,7 @@
+import { EmptyResponse } from 'types/util.types';
 import { api } from './api';
 
 export const getReadiness = async () => {
-  const res = await api.get<Record<string, never>>('/server/readyz');
+  const res = await api.get<EmptyResponse>('/server/readyz');
   return res.data;
 };

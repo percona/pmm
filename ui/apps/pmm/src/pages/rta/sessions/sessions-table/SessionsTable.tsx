@@ -39,19 +39,13 @@ const SessionsTable: FC = () => {
     setModal(null);
   };
 
-  const openStopModal = (session: SessionRow) => {
-    setSessionToBeStopped(session);
-    setModal('stop');
-  };
-
-  const handleStopSession = async () => {
-    if (!sessionToBeStopped) return;
-
-    const serviceIds = getServiceIds(sessionToBeStopped);
+  const handleStop = async (sessions: SessionRow[], stoppingAll?: boolean) => {
+    const serviceIds = getServiceIds(sessions);
     await stopSessions(serviceIds, {
       onSuccess: () => {
-        const msg =
-          serviceIds.length === 1
+        const msg = stoppingAll
+          ? Messages.success.allAgentsStopped
+          : serviceIds.length === 1
             ? Messages.success.agentStopped
             : Messages.success.agentsStopped;
 
@@ -59,9 +53,11 @@ const SessionsTable: FC = () => {
           variant: 'success',
         });
 
-        // remove selection from removed item
+        // remove selection from removed item/items
         setRowSelection((selection) => {
-          delete selection[sessionToBeStopped.sessionId];
+          for (const session of getAllSessions(sessions)) {
+            delete selection[session.sessionId];
+          }
           return { ...selection };
         });
         setSessionToBeStopped(null);
@@ -70,52 +66,37 @@ const SessionsTable: FC = () => {
     });
   };
 
-  const openStopAllModal = () => {
-    setModal('stop-all');
+  const handleStopSession = async () => {
+    if (!sessionToBeStopped) return;
+
+    await handleStop([sessionToBeStopped]);
+  };
+
+  const handleStopSelectedSessions = async () => {
+    if (!selectedSessions.length) return;
+
+    await handleStop(selectedSessions);
   };
 
   const handleStopAllSessions = async () => {
-    const serviceIds = getServiceIds(rows);
-
-    await stopSessions(serviceIds, {
-      onSuccess: () => {
-        enqueueSnackbar(Messages.success.allAgentsStopped, {
-          variant: 'success',
-        });
-
-        setRowSelection({});
-        closeModal();
-      },
-    });
+    await handleStop(rows, true);
   };
 
-  const openNewSessionModal = () => {
-    setModal('new-session');
+  const openStopModal = (session: SessionRow) => {
+    setSessionToBeStopped(session);
+    setModal('stop');
   };
 
   const openStopSelectedModal = () => {
     setModal('stop-selected');
   };
 
-  const handleStopSelectedSessions = async () => {
-    if (!selectedSessions.length) return;
+  const openStopAllModal = () => {
+    setModal('stop-all');
+  };
 
-    const serviceIds = getServiceIds(selectedSessions);
-    await stopSessions(serviceIds, {
-      onSuccess: () => {
-        const msg =
-          serviceIds.length === 1
-            ? Messages.success.agentStopped
-            : Messages.success.agentsStopped;
-
-        enqueueSnackbar(msg, {
-          variant: 'success',
-        });
-
-        setRowSelection({});
-        closeModal();
-      },
-    });
+  const openNewSessionModal = () => {
+    setModal('new-session');
   };
 
   if (isLoading) {

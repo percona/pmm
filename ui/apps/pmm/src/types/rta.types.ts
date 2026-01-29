@@ -28,7 +28,3 @@ export interface StartSessionResponse {
 export interface StopSessionPayload {
   serviceId: string;
 }
-
-export interface StopSessionResponse {
-  // empty response
-}

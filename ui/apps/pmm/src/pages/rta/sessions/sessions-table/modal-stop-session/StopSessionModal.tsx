@@ -16,12 +16,16 @@ const StopSessionModal: FC<Props> = ({ open, onClose, onStopSession }) => {
 
   const handleStopSession = async () => {
     setSubmitting(true);
-    await onStopSession();
-    setSubmitting(false);
+    try {
+      await onStopSession();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <Dialog
+      data-testid="stop-session-modal"
       aria-labelledby="stop-session-modal-title"
       aria-describedby="stop-session-modal-content"
       open={open}

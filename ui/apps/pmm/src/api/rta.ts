@@ -5,10 +5,10 @@ import {
   StartSessionPayload,
   StartSessionResponse,
   StopSessionPayload,
-  StopSessionResponse,
 } from 'types/rta.types';
 import { api } from './api';
 import { changeRealtimeAgent, getRunningRealtimeAgents } from './rta.fallback';
+import { EmptyResponse } from 'types/util.types';
 
 export const getRunningSessions = async (): Promise<RealtimeSession[]> => {
   try {
@@ -58,9 +58,9 @@ export const startSession = async (
 
 export const stopSession = async (
   payload: StopSessionPayload
-): Promise<StopSessionResponse> => {
+): Promise<EmptyResponse> => {
   try {
-    const res = await api.post<Record<string, never>>(
+    const res = await api.post<EmptyResponse>(
       '/realtimeanalytics/sessions:stop',
       payload
     );
@@ -71,14 +71,6 @@ export const stopSession = async (
       serviceId: payload.serviceId,
       enable: false,
     });
-    return {
-      session: {
-        serviceId: payload.serviceId,
-        serviceName: '',
-        clusterName: '',
-        startTime: new Date().toISOString(),
-        status: RealtimeSessionStatus.unspecified,
-      },
-    };
+    return {};
   }
 };

@@ -1,4 +1,5 @@
 import Stack from '@mui/material/Stack';
+import { HEADER_HEIGHT } from 'components/main/header/Header.constants';
 import { FC, PropsWithChildren } from 'react';
 
 const RealtimePage: FC<PropsWithChildren> = ({ children }) => (
@@ -8,7 +9,7 @@ const RealtimePage: FC<PropsWithChildren> = ({ children }) => (
     p={2}
     sx={{
       height: '100%',
-      maxHeight: 'calc(100vh - 64px)', // Account for header height
+      maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`, // Account for header height
       overflow: 'hidden',
       display: 'flex',
     }}
