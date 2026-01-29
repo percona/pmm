@@ -1,4 +1,4 @@
-import { Chip } from '@mui/material';
+import Chip from '@mui/material/Chip';
 import { FC, isValidElement } from 'react';
 import { NavItem } from 'types/navigation.types';
 

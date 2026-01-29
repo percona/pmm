@@ -1,7 +1,7 @@
 import { StepType } from '@reactour/tour';
 import { Messages } from './alerting.messages';
 import { TourStep } from 'components/tour-step';
-import { Typography } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import { User } from 'types/user.types';
 
 export const getAlertingTourSteps = (user?: User): StepType[] => {

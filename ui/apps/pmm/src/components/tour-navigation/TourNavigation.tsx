@@ -1,6 +1,8 @@
 import { FC } from 'react';
 import { Messages } from './TourNavigation.messages';
-import { Stack, Button, Box } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 

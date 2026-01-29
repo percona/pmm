@@ -1,4 +1,4 @@
-import { Badge } from '@mui/material';
+import Badge from '@mui/material/Badge';
 import { FC, memo, PropsWithChildren } from 'react';
 
 interface Props extends PropsWithChildren {

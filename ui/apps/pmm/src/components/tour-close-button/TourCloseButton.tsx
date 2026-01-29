@@ -1,5 +1,6 @@
 import Close from '@mui/icons-material/Close';
-import { Box, IconButton } from '@mui/material';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import { FC } from 'react';
 
 interface Props {

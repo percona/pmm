@@ -1,4 +1,15 @@
-import { Card, CardMedia, CardContent, Stack, Typography, List, ListItem, ListItemText, ListItemIcon, CardActions, Button } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import CardActions from '@mui/material/CardActions';
+import Button from '@mui/material/Button';
+
 import { FC, useCallback } from 'react';
 import WelcomeImage from 'assets/welcome-4x.jpg';
 import { Icon } from 'components/icon';
