@@ -1,1 +1,1 @@
-export { default as RealTimeSelectionPage } from './RealTimeSelection';
+export { RealtimeSelection } from './RealtimeSelection';

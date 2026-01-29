@@ -1,6 +1,10 @@
+import { RealtimeSession, RealtimeSessionStatus } from 'types/rta.types';
 import {
   BaseService,
   ListServicesResponse,
+  ManagedService,
+  ManagedServicesResponse,
+  ManagedServiceType,
   MySqlService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
@@ -65,10 +69,43 @@ export const TEST_SERVICE: BaseService = {
   customLabels: {},
 };
 
+// Managed services response format (from /v1/management/services API)
+export const TEST_MANAGED_SERVICES: ManagedServicesResponse = {
+  services: [],
+};
+
+export const TEST_MANAGED_SERVICE: ManagedService = {
+  serviceId: 'service-1',
+  serviceType: 'mysql',
+  serviceName: 'Service 1',
+  databaseName: '',
+  nodeId: 'node-1',
+  nodeName: 'Node 1',
+  environment: 'production',
+  cluster: 'cluster-1',
+  replicationSet: 'replication-set-1',
+  customLabels: {},
+  externalGroup: '',
+  address: '127.0.0.1',
+  port: 3306,
+  socket: '',
+  version: '8.0.0',
+};
+
+export const TEST_MANAGED_SERVICE_MONGO: ManagedService = {
+  ...TEST_MANAGED_SERVICE,
+  serviceType: ManagedServiceType.mongodb,
+};
+
+export const TEST_MANAGED_SERVICES_WITH_ONE_MYSQL: ManagedServicesResponse = {
+  services: [TEST_MANAGED_SERVICE],
+};
+
+// Inventory services response format (from /v1/inventory/services API)
 export const TEST_SERVICES: ListServicesResponse = {
   mysql: [],
-  postgresql: [],
   mongodb: [],
+  postgresql: [],
   proxysql: [],
   haproxy: [],
   external: [],
@@ -78,4 +115,12 @@ export const TEST_SERVICES: ListServicesResponse = {
 export const TEST_SERVICES_WITH_ONE_MYSQL: ListServicesResponse = {
   ...TEST_SERVICES,
   mysql: [TEST_SERVICE as MySqlService],
+};
+
+export const TEST_REAL_TIME_SESSION: RealtimeSession = {
+  serviceId: 'service-1',
+  serviceName: 'Service 1',
+  clusterName: 'cluster-1',
+  startTime: '2021-01-01T00:00:00Z',
+  status: RealtimeSessionStatus.unspecified,
 };

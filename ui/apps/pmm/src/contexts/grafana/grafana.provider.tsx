@@ -76,6 +76,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
         // No normalization here — setFromGrafana already normalizes inside the hook.
         if (!message.payload?.theme) return;
         setFromGrafana(message.payload.theme).catch((err: unknown) => {
+          // eslint-disable-next-line no-console
           console.warn('[GrafanaProvider] setFromGrafana failed:', err);
         });
       },

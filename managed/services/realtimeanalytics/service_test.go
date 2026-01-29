@@ -174,6 +174,7 @@ func TestStartSession(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, agents, 1)
 		assert.False(t, agents[0].Disabled)
+		// assert.NotNil(t, agents[0].RTAOptions.EnabledAt)
 	})
 
 	t.Run("idempotent start session", func(t *testing.T) {

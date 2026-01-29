@@ -24,8 +24,8 @@
     "@mui/icons-material": "^5.15.18",
     "@mui/material": "^5.15.18",
     "@mui/x-date-pickers": "^7.5.0",
-    "@percona/design": "^1.0.0",
-    "@percona/ui-lib": "^1.0.0",
+    "@percona/design": "^1.1.0",
+    "@percona/ui-lib": "^1.1.0",
     "@pmm/shared": "*",
     "@reactour/tour": "^3.8.0",
     "@tanstack/react-query": "^5.45.1",
@@ -41,9 +41,9 @@
     "vite-plugin-svgr": "^4.3.0"
   },
   "devDependencies": {
-    "@percona/eslint-config-react": "^1.0.0",
-    "@percona/prettier-config": "^1.0.0",
-    "@percona/tsconfig": "^1.0.0",
+    "@percona/eslint-config-react": "^1.1.0",
+    "@percona/prettier-config": "^1.1.0",
+    "@percona/tsconfig": "^1.1.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^15.0.7",
     "@types/react": "^18.3.2",

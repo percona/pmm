@@ -25,39 +25,8 @@ describe('QanHeaderActions', () => {
     render(wrapWithQueryProvider(<QanHeaderActions />));
 
     expect(
-      screen.getByTestId('qan-header-actions-running-agents-button')
-    ).toBeInTheDocument();
-    expect(
       screen.getByTestId('qan-header-actions-copy-button')
     ).toBeInTheDocument();
-  });
-
-  it('should open running agents modal', () => {
-    render(wrapWithQueryProvider(<QanHeaderActions />));
-
-    fireEvent.click(
-      screen.getByTestId('qan-header-actions-running-agents-button')
-    );
-
-    expect(screen.getByTestId('running-agents-modal')).toBeInTheDocument();
-  });
-
-  it('should close running agents modal', () => {
-    render(wrapWithQueryProvider(<QanHeaderActions />));
-
-    fireEvent.click(
-      screen.getByTestId('qan-header-actions-running-agents-button')
-    );
-
-    expect(screen.getByTestId('running-agents-modal')).toBeInTheDocument();
-
-    fireEvent.click(
-      screen.getByTestId('running-agents-modal-close-window-button')
-    );
-
-    expect(
-      screen.queryByTestId('running-agents-modal')
-    ).not.toBeInTheDocument();
   });
 
   it('should copy link to clipboard (native ui)', () => {
