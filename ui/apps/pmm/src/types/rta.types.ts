@@ -28,3 +28,33 @@ export interface StartSessionResponse {
 export interface StopSessionPayload {
   serviceId: string;
 }
+
+export interface SearchQueriesPayload {
+  serviceIds: string[];
+  limit?: number;
+}
+
+export interface SearchQueriesResponse {
+  queries: QueryData[];
+}
+
+export interface QueryData {
+  serviceId: string;
+  serviceName: string;
+  queryId: string;
+  queryText: string;
+  state: string;
+  executionDuration: string;
+  rowsExamined: number;
+  rowsSent: number;
+  collectTime: string;
+  rawQueryJson: string;
+  mongoDbPayload?: QueryMongoDBData;
+}
+
+export interface QueryMongoDBData {
+  opid: string;
+  client: string;
+  waitingForLock: boolean;
+  indexUtilized: string;
+}

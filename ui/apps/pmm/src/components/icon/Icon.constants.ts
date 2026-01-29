@@ -10,6 +10,7 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   haproxy: () => import('icons/haproxy.svg?react'),
   help: () => import('icons/help.svg?react'),
   'help-fill': () => import('icons/help-fill.svg?react'),
+
   'high-availability': () => import('icons/high-availability.svg?react'),
   home: () => import('icons/home.svg?react'),
   intelligence: () => import('icons/percona-intelligence.svg?react'),
@@ -47,6 +48,7 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'bottom-panel-close': () => import('icons/bottom-panel-close.svg?react'),
   'collapse-content': () => import('icons/collapse-content.svg?react'),
   'expand-content': () => import('icons/expand-content.svg?react'),
+  'dynamic-feed': () => import('icons/dynamic-feed.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<

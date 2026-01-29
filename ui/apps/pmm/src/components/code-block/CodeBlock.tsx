@@ -3,15 +3,21 @@ import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { FC } from 'react';
 import { CodeBlockProps } from './CodeBlock.types';
 
-const CodeBlock: FC<CodeBlockProps> = ({ code, language }) => (
+const CodeBlock: FC<CodeBlockProps> = ({ code, language, containerProps }) => (
   <Stack
-    sx={{
-      flex: 1,
+    {...containerProps}
+    sx={[
+      {
+        flex: 1,
 
-      '*': {
-        textOverflow: 'ellipsis',
+        '*': {
+          textOverflow: 'ellipsis',
+        },
       },
-    }}
+      ...(Array.isArray(containerProps?.sx)
+        ? containerProps?.sx
+        : [containerProps?.sx]),
+    ]}
   >
     <SyntaxHighlighter language={language}>{code}</SyntaxHighlighter>
   </Stack>

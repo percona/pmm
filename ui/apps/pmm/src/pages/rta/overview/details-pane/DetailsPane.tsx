@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import { DetailsPaneProps } from './DetailsPane.types';
 import Stack from '@mui/material/Stack';
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
@@ -10,70 +9,64 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import { Icon } from 'components/icon';
 import Paper from '@mui/material/Paper';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
+import Slide from '@mui/material/Slide';
+import Divider from '@mui/material/Divider';
+import { QueryData } from 'types/rta.types';
 
-const DetailsPane: FC<DetailsPaneProps> = ({
+interface Props {
+  query?: QueryData;
+  isFirstQuery: boolean;
+  isLastQuery: boolean;
+  onClose: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
+}
+
+const DetailsPane: FC<Props> = ({
   query,
+  isFirstQuery,
+  isLastQuery,
   onClose,
-  onExpand,
-  onCollapse,
   onNext,
   onPrevious,
-  expanded,
-}) => {
-  return (
+}) => (
+  <Slide in={!!query} direction="up">
     <Paper
       variant="outlined"
       sx={(theme) => ({
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        borderTopLeftRadius: theme.shape.borderRadius * 2,
-        borderTopRightRadius: theme.shape.borderRadius * 2,
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
-        justifySelf: 'flex-end',
-        overflow: 'hidden',
+        p: 1,
+        px: 2,
+        top: 0,
+        bottom: theme.spacing(-2),
+        width: '100%',
+        position: 'absolute',
+        zIndex: theme.zIndex.modal,
       })}
     >
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        sx={(theme) => ({
-          mx: 2,
-          pt: 1,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          flexShrink: 0,
-        })}
-      >
+      <Stack direction="row" justifyContent="space-between" sx={{}}>
         <Tabs value={0}>
           <Tab value={0} label="Details" />
           <Tab value={1} label="Explain" />
           <Tab value={2} label="Raw data" />
         </Tabs>
         <Stack gap={1} direction="row" alignItems="center">
-          <IconButton onClick={onPrevious}>
+          <IconButton onClick={onPrevious} disabled={isFirstQuery}>
             <KeyboardArrowUpOutlinedIcon />
           </IconButton>
-          <IconButton onClick={onNext}>
+          <IconButton onClick={onNext} disabled={isLastQuery}>
             <KeyboardArrowDownOutlinedIcon />
           </IconButton>
-          {expanded ? (
-            <IconButton onClick={onCollapse}>
-              <Icon name="collapse-content" />
-            </IconButton>
-          ) : (
-            <IconButton onClick={onExpand}>
-              <Icon name="expand-content" />
-            </IconButton>
-          )}
           <IconButton onClick={onClose}>
             <Icon name="bottom-panel-close" />
           </IconButton>
         </Stack>
       </Stack>
+      <Divider sx={{}} />
       {query ? (
         <CardContent
           sx={{
+            p: 0,
+            pt: 3,
             flexGrow: 1,
             minHeight: 300,
             overflowY: 'auto',
@@ -81,12 +74,12 @@ const DetailsPane: FC<DetailsPaneProps> = ({
           }}
         >
           <SyntaxHighlighter language="mongodb" showLineNumbers={true}>
-            {query.query}
+            {query.queryText}
           </SyntaxHighlighter>
         </CardContent>
       ) : null}
     </Paper>
-  );
-};
+  </Slide>
+);
 
 export default DetailsPane;

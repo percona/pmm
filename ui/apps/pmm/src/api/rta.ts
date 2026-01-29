@@ -2,6 +2,8 @@ import {
   ListRunningSessionsResponse,
   RealtimeSession,
   RealtimeSessionStatus,
+  SearchQueriesPayload,
+  SearchQueriesResponse,
   StartSessionPayload,
   StartSessionResponse,
   StopSessionPayload,
@@ -73,4 +75,14 @@ export const stopSession = async (
     });
     return {};
   }
+};
+
+export const searchQueries = async (
+  payload: SearchQueriesPayload
+): Promise<SearchQueriesResponse> => {
+  const res = await api.post<SearchQueriesResponse>(
+    '/realtimeanalytics/queries:search',
+    payload
+  );
+  return res.data;
 };

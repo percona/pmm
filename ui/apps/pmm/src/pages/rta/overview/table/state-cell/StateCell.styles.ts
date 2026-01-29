@@ -1,12 +1,8 @@
 import { Theme } from '@mui/material/styles';
 import { PEAK_DARK_THEME } from '@pmm/shared';
 import { CSSProperties } from 'react';
-import { RealTimeQueryState } from 'types/real-time.types';
 
-export const getStyles = (
-  theme: Theme,
-  state: RealTimeQueryState
-): CSSProperties => {
+export const getStyles = (theme: Theme, state: string): CSSProperties => {
   if (state === 'Blocked') {
     return theme.palette.mode === 'dark'
       ? {
