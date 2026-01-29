@@ -26,6 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/version"
@@ -175,6 +176,21 @@ func AzureOptionsFromRequest(params AzureOptionsParams) AzureOptions {
 		}
 	}
 	return AzureOptions{}
+}
+
+// RTAOptionsParams contains parameters for Real-Time Analytics Agent.
+type RTAOptionsParams interface {
+	GetCollectInterval() *durationpb.Duration
+}
+
+// RTAOptionsFromRequest creates RTAOptions object from request.
+func RTAOptionsFromRequest(params RTAOptionsParams) *RTAOptions {
+	rtaOptions := &RTAOptions{}
+
+	if params.GetCollectInterval() != nil {
+		rtaOptions.CollectInterval = pointer.To(params.GetCollectInterval().AsDuration())
+	}
+	return rtaOptions
 }
 
 func checkUniqueAgentID(q *reform.Querier, id string) error {
@@ -917,7 +933,6 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		TLSSkipVerify:     params.TLSSkipVerify,
 		ExporterOptions:   params.ExporterOptions,
 		QANOptions:        params.QANOptions,
-		RTAOptions:        params.RTAOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
 		MongoDBOptions:    params.MongoDBOptions,
@@ -927,11 +942,24 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 		Disabled:          params.Disabled,
 	}
+
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 	if err := row.SetEnvironmentVariableNames(params.EnvironmentVariableNames); err != nil {
 		return nil, err
+	}
+
+	switch agentType {
+	// For the time being only RTA MangoDB Agent has RTA options.
+	case RTAMongoDBAgentType:
+		row.RTAOptions = RTAOptions{
+			CollectInterval: pointer.To(1 * time.Second), // default value
+		}
+		// RTA options
+		row.RTAOptions.Merge(&params.RTAOptions)
+	default:
+		// do nothing
 	}
 
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
@@ -967,6 +995,7 @@ type ChangeCommonAgentParams struct {
 	CustomLabels       *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
 	EnablePushMetrics  *bool
 	MetricsResolutions ChangeMetricsResolutionsParams
+	RTAOptions         *RTAOptions
 }
 
 // ChangeMetricsResolutionsParams contains metrics resolutions for change.
@@ -1025,6 +1054,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	if row.ExporterOptions.MetricsResolutions.HR == 0 && row.ExporterOptions.MetricsResolutions.MR == 0 && row.ExporterOptions.MetricsResolutions.LR == 0 {
 		row.ExporterOptions.MetricsResolutions = nil
 	}
+
+	// RTA options
+	row.RTAOptions.Merge(params.RTAOptions)
 
 	if err = q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
@@ -1108,10 +1140,10 @@ func IsPushMetricsSupported(pmmAgentVersion *string) bool {
 	return true
 }
 
-// CreateMongoDBRealtimeAgent creates a MongoDB Realtime Analytics agent.
+// CreateRTAMongoDBAgent creates a MongoDB Real-Time Analytics agent.
 // It retrieves credentials and pmm-agent ID from existing MongoDB agents for the service.
 // If a MongoDB Realtime Agent already exists for the service, it returns the existing agent.
-func CreateMongoDBRealtimeAgent(q *reform.Querier, serviceID string, customLabels map[string]string, disabled bool) (*Agent, error) {
+func CreateRTAMongoDBAgent(q *reform.Querier, serviceID string, customLabels map[string]string, disabled bool) (*Agent, error) {
 	// Verify service exists and is MongoDB type first
 	service, err := FindServiceByID(q, serviceID)
 	if err != nil {
@@ -1122,10 +1154,10 @@ func CreateMongoDBRealtimeAgent(q *reform.Querier, serviceID string, customLabel
 	}
 
 	// Check if MongoDB Realtime Agent already exists for this service
-	realtimeAgentType := RTAMongoDBAgentType
+	// realtimeAgentType := RTAMongoDBAgentType
 	existingRealtimeAgents, err := FindAgents(q, AgentFilters{
 		ServiceID: serviceID,
-		AgentType: &realtimeAgentType,
+		AgentType: pointer.To(RTAMongoDBAgentType),
 	})
 	if err != nil {
 		return nil, err
@@ -1167,12 +1199,11 @@ func CreateMongoDBRealtimeAgent(q *reform.Querier, serviceID string, customLabel
 	}
 
 	// Create the MongoDB realtime agent with credentials and pmm-agent ID from existing agent
-	rtaOptions := RTAOptions{}
-	if !disabled {
-		// Only set EnabledAt when the agent is actually enabled
-		now := time.Now()
-		rtaOptions.EnabledAt = &now
-	}
+	// if !disabled {
+	// 	// Only set EnabledAt when the agent is actually enabled
+	// 	now := time.Now()
+	// 	rtaOptions.EnabledAt = &now
+	// }
 
 	params := &CreateAgentParams{
 		PMMAgentID:     *existingAgent.PMMAgentID,
@@ -1183,7 +1214,6 @@ func CreateMongoDBRealtimeAgent(q *reform.Querier, serviceID string, customLabel
 		TLS:            existingAgent.TLS,
 		TLSSkipVerify:  existingAgent.TLSSkipVerify,
 		MongoDBOptions: existingAgent.MongoDBOptions,
-		RTAOptions:     rtaOptions,
 		Disabled:       disabled,
 	}
 

@@ -661,6 +661,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 
 	// postgresql options
 	PostgresqlOptions *ListAgentsOKBodyAgentsItems0PostgresqlOptions `json:"postgresql_options,omitempty"`
+
+	// rta options
+	RtaOptions *ListAgentsOKBodyAgentsItems0RtaOptions `json:"rta_options,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0
@@ -692,6 +695,10 @@ func (o *ListAgentsOKBodyAgentsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePostgresqlOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -871,6 +878,29 @@ func (o *ListAgentsOKBodyAgentsItems0) validatePostgresqlOptions(formats strfmt.
 	return nil
 }
 
+func (o *ListAgentsOKBodyAgentsItems0) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list agents OK body agents items0 based on the context it is used
 func (o *ListAgentsOKBodyAgentsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -888,6 +918,10 @@ func (o *ListAgentsOKBodyAgentsItems0) ContextValidate(ctx context.Context, form
 	}
 
 	if err := o.contextValidatePostgresqlOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -984,6 +1018,30 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidatePostgresqlOptions(ctx cont
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("postgresql_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("rta_options")
 			}
 
 			return err
@@ -1191,6 +1249,43 @@ func (o *ListAgentsOKBodyAgentsItems0PostgresqlOptions) MarshalBinary() ([]byte,
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyAgentsItems0PostgresqlOptions) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyAgentsItems0PostgresqlOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyAgentsItems0RtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model ListAgentsOKBodyAgentsItems0RtaOptions
+*/
+type ListAgentsOKBodyAgentsItems0RtaOptions struct {
+	// Query collect interval (default 1s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this list agents OK body agents items0 rta options
+func (o *ListAgentsOKBodyAgentsItems0RtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body agents items0 rta options based on context it is used
+func (o *ListAgentsOKBodyAgentsItems0RtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0RtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0RtaOptions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyAgentsItems0RtaOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
