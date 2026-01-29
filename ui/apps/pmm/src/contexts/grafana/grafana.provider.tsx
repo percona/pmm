@@ -17,6 +17,8 @@ import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
 import { getLocationUrl } from './grafana.utils';
 import messenger from 'lib/messenger';
+import { useSettings } from 'hooks/api/useSettings';
+import { useServiceTypes } from 'hooks/api/useServices';
 
 /** Guard DOM usage. */
 const isBrowser = () =>
@@ -33,6 +35,13 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { refetch: refetchSettings } = useSettings({
+    enabled: false,
+  });
+  const { refetch: refetchServiceTypes } = useServiceTypes({
+    enabled: false,
+  });
 
   const src = location.pathname.replace(PMM_NEW_NAV_PATH, '');
   const isGrafanaPage = src.startsWith(GRAFANA_SUB_PATH);
@@ -95,10 +104,27 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       },
     });
 
+    messenger.addListener({
+      type: 'SETTINGS_CHANGED',
+      onMessage: () => refetchSettings(),
+    });
+
+    messenger.addListener({
+      type: 'SERVICE_ADDED',
+      onMessage: () => refetchServiceTypes(),
+    });
+
+    messenger.addListener({
+      type: 'SERVICE_DELETED',
+      onMessage: () => refetchServiceTypes(),
+    });
+
     // Cleanup once provider unmounts
     return () => {
       messenger.unregister();
     };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, setFromGrafana, navigate]);
 
   // -------- OUTGOING TO GRAFANA --------

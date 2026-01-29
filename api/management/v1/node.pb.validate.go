@@ -899,6 +899,8 @@ func (m *UniversalNode) validate(all bool) error {
 
 	// no validation rules for InstanceId
 
+	// no validation rules for IsPmmServerNode
+
 	if len(errors) > 0 {
 		return UniversalNodeMultiError(errors)
 	}
