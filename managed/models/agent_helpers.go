@@ -1065,7 +1065,8 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
 
-	if err = q.Update(row); err != nil {
+	encryptedAgent := EncryptAgent(*row)
+	if err = q.Update(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
