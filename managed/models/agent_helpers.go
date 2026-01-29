@@ -1065,8 +1065,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
 
-	encryptedAgent := EncryptAgent(*row)
-	if err = q.Update(&encryptedAgent); err != nil {
+	// need to encrypt Agent's sensitive data before update
+	row = pointer.To(EncryptAgent(*row))
+	if err = q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
