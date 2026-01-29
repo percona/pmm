@@ -18,6 +18,7 @@ package realtimeanalytics
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -183,8 +184,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 		if existingAgent == nil {
 			return status.Errorf(codes.FailedPrecondition,
-				"No existing %s agent found for service %s to retrieve credentials and pmm-agent ID",
-				service.ServiceType, service.ServiceID)
+				"Service %s of type %s doesn't have agents to retrieve credentials and pmm-agent ID",
+				service.ServiceID, service.ServiceType)
 		}
 
 		if existingAgent.PMMAgentID == nil {
@@ -358,6 +359,6 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	case models.MongoDBServiceType:
 		return models.RTAMongoDBAgentType, nil
 	default:
-		return "", status.Errorf(codes.InvalidArgument, "Service type %s does not support Real-Time Analytics", serviceType)
+		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}
 }

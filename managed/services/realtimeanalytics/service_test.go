@@ -17,12 +17,15 @@ package realtimeanalytics
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
@@ -251,6 +254,40 @@ func TestStartSession(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")
 	})
+
+	t.Run("error on non-supported service type", func(t *testing.T) {
+		service2, err := models.AddNewService(db.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "external-1",
+			NodeID:      node.NodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+		})
+		require.NoError(t, err)
+		_, err = svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+			ServiceId: service2.ServiceID,
+		})
+		require.Error(t, err)
+		assert.Equal(t, status.Convert(err).Code(), codes.InvalidArgument)
+		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s does not support Real-Time Analytics",
+			service2.ServiceID, service2.ServiceType))
+	})
+
+	t.Run("no other agents available for RTA service", func(t *testing.T) {
+		service3, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "external-psmdb-1",
+			NodeID:      node.NodeID,
+			Address:     pointer.ToString("127.0.0.2"),
+			Port:        pointer.ToUint16(27017),
+		})
+		require.NoError(t, err)
+		_, err = svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+			ServiceId: service3.ServiceID,
+		})
+		require.Error(t, err)
+		assert.Equal(t, status.Convert(err).Code(), codes.FailedPrecondition)
+		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s doesn't have agents to retrieve credentials and pmm-agent ID",
+			service3.ServiceID, service3.ServiceType))
+	})
 }
 
 func TestStopSession(t *testing.T) {
@@ -397,6 +434,23 @@ func TestStopSession(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.Empty(t, agents, "No agent should be created when disabling non-existent agent")
+	})
+
+	t.Run("error on non-supported service type", func(t *testing.T) {
+		service2, err := models.AddNewService(db.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "external-1",
+			NodeID:      node.NodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+		})
+		require.NoError(t, err)
+		_, err = svc.StopSession(context.Background(), &rtav1.StopSessionRequest{
+			ServiceId: service2.ServiceID,
+		})
+		require.Error(t, err)
+		assert.Equal(t, status.Convert(err).Code(), codes.InvalidArgument)
+		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s does not support Real-Time Analytics",
+			service2.ServiceID, service2.ServiceType))
 	})
 }
 
