@@ -1071,7 +1071,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		return nil, errors.WithStack(err)
 	}
 
-	return row, nil
+	return pointer.To(DecryptAgent(*row)), nil
 }
 
 // RemoveAgent removes Agent by ID.
