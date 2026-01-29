@@ -549,7 +549,7 @@ func TestSearchQueries(t *testing.T) {
 		t.Parallel()
 
 		_, err := svc.SearchQueries(context.Background(), &rtav1.SearchQueriesRequest{
-			ServiceIds: []string{"absent-serivice"},
+			ServiceIds: []string{"absent-service"},
 		})
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")
@@ -559,7 +559,7 @@ func TestSearchQueries(t *testing.T) {
 		t.Parallel()
 
 		_, err := svc.SearchQueries(context.Background(), &rtav1.SearchQueriesRequest{
-			ServiceIds: []string{service1.ServiceID, "absent-serivice"},
+			ServiceIds: []string{service1.ServiceID, "absent-service"},
 		})
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")

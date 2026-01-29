@@ -22,7 +22,7 @@ type agentsRegistry interface {
 	IsConnected(pmmAgentID string) bool
 }
 
-// agentsRegistry is a subset of methods of agents.StateUpdater used by this package.
+// agentsStateUpdater is a subset of methods of agents.StateUpdater used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type agentsStateUpdater interface {
 	RequestStateUpdate(ctx context.Context, pmmAgentID string)
