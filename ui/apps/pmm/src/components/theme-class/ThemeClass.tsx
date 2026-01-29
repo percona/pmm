@@ -1,4 +1,4 @@
-import { useTheme } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useEffect } from 'react';
 import { DARK_THEME_CLASS, LIGHT_THEME_CLASS } from './ThemeClass.constants';
 

@@ -6,7 +6,8 @@ import { getCardData } from './HelpCenter.constants';
 import { useUser } from 'contexts/user';
 import { HelpCenterCard } from './help-center-card/HelpCenterCard';
 import WelcomeCard from './welcome-card/WelcomeCard';
-import { cardClasses, Box } from '@mui/material';
+import { cardClasses } from '@mui/material/Card';
+import Box from '@mui/material/Box';
 import { useTour } from 'contexts/tour';
 
 export const HelpCenter: FC = () => {

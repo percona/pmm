@@ -6,12 +6,11 @@ import { TextSelectOption, TextSelectProps } from './TextSelect.types';
 import { Messages } from './TextSelect.messages';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
+import Menu, { menuClasses } from '@mui/material/Menu';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MenuItem from '@mui/material/MenuItem';
-import { menuClasses } from '@mui/material';
 
 export const TextSelect = <T,>({
   value,

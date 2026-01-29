@@ -19,7 +19,7 @@ import { getAlertingTourSteps } from './steps/alerting.steps';
 import { TourCloseButton } from 'components/tour-close-button';
 import { useNavigation } from 'contexts/navigation';
 import { useLocation } from 'react-router-dom';
-import { useTheme } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   const theme = useTheme();

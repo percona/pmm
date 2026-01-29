@@ -1,5 +1,5 @@
 import { Messages } from './WelcomeCard.messages';
-import { SvgIcon } from '@mui/material';
+import SvgIcon from '@mui/material/SvgIcon';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import SecurityIcon from '@mui/icons-material/Security';
 import SpeedIcon from '@mui/icons-material/Speed';

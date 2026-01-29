@@ -1,6 +1,6 @@
 import { IconName } from 'components/icon/Icon.types';
 import { SvgIconComponent } from './util.types';
-import { ChipProps } from '@mui/material';
+import { ChipProps } from '@mui/material/Chip';
 
 export interface NavItem {
   id: string;
