@@ -1,20 +1,32 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { User } from 'types/user.types';
-import { RealTimeSelection } from './RealTimeSelection';
-import { Messages } from './RealTimeSelection.messages';
+import { RealtimeSelection } from './RealtimeSelection';
+import { Messages } from './RealtimeSelection.messages';
 import * as servicesApi from 'api/services';
-import * as realtimeApi from 'api/realtime';
+import * as realtimeApi from 'api/rta';
 import {
   wrapWithQueryProvider,
   wrapWithRouter,
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
-import { TEST_USER_ADMIN, TEST_USER_EDITOR, TEST_USER_VIEWER } from 'utils/testStubs';
+import {
+  TEST_MANAGED_SERVICE_MONGO,
+  TEST_REAL_TIME_SESSION,
+  TEST_USER_ADMIN,
+  TEST_USER_EDITOR,
+  TEST_USER_VIEWER,
+} from 'utils/testStubs';
 
 vi.mock('api/services');
-vi.mock('api/realtime');
+vi.mock('api/rta');
 
 const mockNavigate = vi.fn();
 
@@ -31,9 +43,7 @@ const setupMocks = () => {
   vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
     services: [],
   });
-  vi.mocked(realtimeApi.listRunningRealtimeAgents).mockResolvedValue({
-    agents: [],
-  });
+  vi.mocked(realtimeApi.getRunningSessions).mockResolvedValue([]);
 };
 
 const renderComponent = (user?: User) =>
@@ -41,13 +51,13 @@ const renderComponent = (user?: User) =>
     wrapWithQueryProvider(
       wrapWithRouter(
         wrapWithSnackbarProvider(
-          wrapWithUserProvider(<RealTimeSelection />, { user })
+          wrapWithUserProvider(<RealtimeSelection />, { user })
         )
       )
     )
   );
 
-describe('RealTimeSelection', () => {
+describe('RealtimeSelection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupMocks();
@@ -78,7 +88,9 @@ describe('RealTimeSelection', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') })
+          screen.getByRole('button', {
+            name: new RegExp(Messages.startButton, 'i'),
+          })
         ).toBeInTheDocument();
       });
     });
@@ -116,7 +128,9 @@ describe('RealTimeSelection', () => {
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+        const button = screen.getByRole('button', {
+          name: new RegExp(Messages.startButton, 'i'),
+        });
 
         expect(button).toBeDisabled();
       });
@@ -126,7 +140,9 @@ describe('RealTimeSelection', () => {
       renderComponent(TEST_USER_ADMIN);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+        const button = screen.getByRole('button', {
+          name: new RegExp(Messages.startButton, 'i'),
+        });
 
         expect(button).toBeDisabled();
       });
@@ -138,7 +154,9 @@ describe('RealTimeSelection', () => {
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+        const button = screen.getByRole('button', {
+          name: new RegExp(Messages.startButton, 'i'),
+        });
 
         expect(button).toBeDisabled();
       });
@@ -170,20 +188,41 @@ describe('RealTimeSelection', () => {
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', { name: new RegExp(Messages.startButton, 'i') });
+        const button = screen.getByRole('button', {
+          name: new RegExp(Messages.startButton, 'i'),
+        });
 
         expect(button).toBeDisabled();
       });
     });
 
-    it.skip('shows success message on successful start', async () => {
-      // TODO: Implement when service selection interaction is added
-      vi.mocked(realtimeApi.changeRealtimeAnalytics).mockResolvedValue({});
+    it('navigates to overview on success', async () => {
+      vi.mocked(realtimeApi.startSession).mockResolvedValue({
+        session: TEST_REAL_TIME_SESSION,
+      });
+      vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
+        services: [TEST_MANAGED_SERVICE_MONGO],
+      });
 
       renderComponent(TEST_USER_EDITOR);
 
+      // Select a service from the dropdown
+      const serviceInput = await screen.findByTitle('Open');
+      fireEvent.click(serviceInput);
+
+      const listbox = await screen.findByRole('listbox');
+      const option = within(listbox).getByText(
+        TEST_MANAGED_SERVICE_MONGO.serviceName
+      );
+      fireEvent.click(option);
+
+      const startButton = screen.getByTestId('start-realtime-session');
+      fireEvent.click(startButton);
+
+      await waitFor(() => expect(realtimeApi.startSession).toHaveBeenCalled());
+
       await waitFor(() => {
-        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalled();
       });
     });
   });
@@ -205,9 +244,7 @@ describe('RealTimeSelection', () => {
       vi.mocked(servicesApi.listManagedServices).mockRejectedValueOnce(
         new Error('Failed to fetch services')
       );
-      vi.mocked(realtimeApi.listRunningRealtimeAgents).mockResolvedValueOnce({
-        agents: [],
-      });
+      vi.mocked(realtimeApi.getRunningSessions).mockResolvedValueOnce([]);
 
       renderComponent(TEST_USER_EDITOR);
 
@@ -218,19 +255,6 @@ describe('RealTimeSelection', () => {
         },
         { timeout: 3000 }
       );
-    });
-  });
-
-  describe('Success Handling', () => {
-    it.skip('clears selection on successful start', async () => {
-      // TODO: Implement when service selection interaction is added
-      vi.mocked(realtimeApi.changeRealtimeAnalytics).mockResolvedValue({});
-
-      renderComponent(TEST_USER_EDITOR);
-
-      await waitFor(() => {
-        expect(mockNavigate).not.toHaveBeenCalled();
-      });
     });
   });
 });

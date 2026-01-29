@@ -5,40 +5,31 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
-import { useAvailableServices } from 'hooks/api/useRealtime';
-import { Messages } from './RealTimeSelection.messages';
-import { RealTimeSelectionForm } from './RealTimeSelectionForm';
+import { Messages } from './RealtimeSelection.messages';
+import { RealtimeSelectionForm } from './form/RealtimeSelectionForm';
 import {
-  RealTimeSelectionEmptyState,
-  RealTimeSelectionViewerEmptyState,
+  RealtimeSelectionEmptyState,
+  RealtimeSelectionViewerEmptyState,
 } from './empty-state';
-import { DOCS_URL, FORUM_URL } from './RealTimeSelection.constants';
+import { useNavigate } from 'react-router-dom';
+import { useAvailableServices } from 'hooks/api/useRealtime';
+import { DOCS_URLS } from 'lib/constants';
+import { RealtimeSession } from 'types/rta.types';
+import { createRealtimeOverviewUrl } from 'utils/link.utils';
 
-export const RealTimeSelection: FC = () => {
+export const RealtimeSelection: FC = () => {
   const { user } = useUser();
-  const canManageRTA = user?.isEditor || user?.isPMMAdmin;
-
-  const {
-    availableServices,
-    isLoading,
-    servicesData,
-    runningAgentsData,
-  } = useAvailableServices();
+  const navigate = useNavigate();
+  const { availableServices, isLoading, services } = useAvailableServices();
 
   const allServicesRunning =
-    !isLoading &&
-    availableServices.length === 0 &&
-    servicesData?.services &&
-    servicesData.services.length > 0;
+    !isLoading && availableServices.length === 0 && services.length > 0;
 
-  const showViewerEmptyState =
-    !canManageRTA &&
-    (!runningAgentsData?.agents || runningAgentsData.agents.length === 0) &&
-    !isLoading;
+  const handleSuccess = (sessions: RealtimeSession[]) => {
+    const serviceIds = sessions.map((s) => s.serviceId);
 
-  if (showViewerEmptyState) {
-    return <RealTimeSelectionViewerEmptyState />;
-  }
+    navigate(createRealtimeOverviewUrl(serviceIds));
+  };
 
   if (isLoading) {
     return (
@@ -60,6 +51,11 @@ export const RealTimeSelection: FC = () => {
     );
   }
 
+  // Admin and Editors are both editors
+  if (!user?.isEditor) {
+    return <RealtimeSelectionViewerEmptyState />;
+  }
+
   return (
     <Page footer={null}>
       <Stack
@@ -74,25 +70,31 @@ export const RealTimeSelection: FC = () => {
         }}
       >
         {allServicesRunning ? (
-          <RealTimeSelectionEmptyState />
+          <RealtimeSelectionEmptyState />
         ) : (
           <>
             <Stack gap={1} sx={{ width: '100%' }}>
               <Typography variant="h5">{Messages.title}</Typography>
               <Typography variant="body1">{Messages.description}</Typography>
             </Stack>
-
-            <RealTimeSelectionForm />
-
+            <RealtimeSelectionForm onSuccess={handleSuccess} />
             <Stack gap={1} sx={{ width: '100%' }}>
               <Typography variant="body2" color="text.secondary">
                 {Messages.mongoOnly}
               </Typography>
               <Stack direction="row" gap={2} justifyContent="center">
-                <Link href={DOCS_URL} target="_blank">
+                <Link
+                  href={DOCS_URLS.qan}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
                   {Messages.documentation}
                 </Link>
-                <Link href={FORUM_URL} target="_blank">
+                <Link
+                  href={DOCS_URLS.forums}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
                   {Messages.feedback}
                 </Link>
               </Stack>

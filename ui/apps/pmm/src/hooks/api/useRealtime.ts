@@ -1,38 +1,106 @@
-import { useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
-import { listRunningRealtimeAgents, changeRealtimeAnalytics } from 'api/realtime';
-import { useManagedServices } from 'hooks/api/useServices';
 import {
-  ListRunningRealtimeAgentsRequest,
-  ListRunningRealtimeAgentsResponse,
-  ChangeRealtimeAnalyticsRequest,
-  ChangeRealtimeAnalyticsResponse,
-} from 'types/realtime.types';
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from '@tanstack/react-query';
+import { getRunningSessions, startSession, stopSession } from 'api/rta';
+import {
+  RealtimeSession,
+  StartSessionResponse,
+  StartSessionPayload,
+  StopSessionPayload,
+} from 'types/rta.types';
 import { ManagedService, ServiceType } from 'types/services.types';
+import { useManagedServices } from './useServices';
+import { useMemo } from 'react';
+import { EmptyResponse } from 'types/util.types';
 
-export const REALTIME_AGENTS_QUERY_KEY = 'realtime:agents';
+const KEYS = {
+  LIST_SESSIONS: 'rta:list-sessions',
+  START_SESSION: 'rta:start-session',
+  START_SESSIONS: 'rta:start-sessions',
+  STOP_SESSION: 'rta:stop-session',
+  STOP_SESSIONS: 'rta:stop-sessions',
+};
 
-export const useRunningRealtimeAgents = (
-  params?: ListRunningRealtimeAgentsRequest,
-  options?: Partial<UseQueryOptions<ListRunningRealtimeAgentsResponse>>
+export const useRealtimeSessions = (
+  options?: Partial<UseQueryOptions<RealtimeSession[]>>
 ) =>
   useQuery({
-    queryKey: [REALTIME_AGENTS_QUERY_KEY, params],
-    queryFn: () => listRunningRealtimeAgents(params),
+    queryKey: [KEYS.LIST_SESSIONS],
+    queryFn: () => getRunningSessions(),
     ...options,
   });
 
-export const useChangeRealtimeAnalytics = (
-  options?: Partial<UseMutationOptions<ChangeRealtimeAnalyticsResponse, Error, ChangeRealtimeAnalyticsRequest>>
+export const useStartSession = (
+  options?: Partial<
+    UseMutationOptions<StartSessionResponse, Error, StartSessionPayload>
+  >
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: changeRealtimeAnalytics,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [REALTIME_AGENTS_QUERY_KEY] });
-    },
+    mutationKey: [KEYS.START_SESSION],
+    mutationFn: startSession,
     ...options,
+    onSuccess: async (data, variables, context) => {
+      await options?.onSuccess?.(data, variables, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
+    },
+  });
+};
+
+export const useStartSessions = (
+  options?: Partial<UseMutationOptions<StartSessionResponse[], Error, string[]>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [KEYS.START_SESSIONS],
+    mutationFn: (serviceIds: string[]) =>
+      Promise.all(serviceIds.map((serviceId) => startSession({ serviceId }))),
+    ...options,
+    onSuccess: async (data, variables, context) => {
+      await options?.onSuccess?.(data, variables, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
+    },
+  });
+};
+
+export const useStopSession = (
+  options?: Partial<
+    UseMutationOptions<EmptyResponse, Error, StopSessionPayload>
+  >
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [KEYS.STOP_SESSION],
+    mutationFn: stopSession,
+    ...options,
+    onSuccess: async (data, variables, context) => {
+      await options?.onSuccess?.(data, variables, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
+    },
+  });
+};
+
+export const useStopSessions = (
+  options?: Partial<UseMutationOptions<EmptyResponse[], Error, string[]>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [KEYS.STOP_SESSIONS],
+    mutationFn: async (serviceIds: string[]) =>
+      Promise.all(serviceIds.map((serviceId) => stopSession({ serviceId }))),
+    ...options,
+    onSuccess: async (data, variables, context) => {
+      await options?.onSuccess?.(data, variables, context);
+      await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
+    },
   });
 };
 
@@ -40,30 +108,31 @@ export const useChangeRealtimeAnalytics = (
  * Hook to get MongoDB services that don't have running RTA agents
  */
 export const useAvailableServices = () => {
-  const { data: runningAgentsData, isLoading: isLoadingAgents } = useRunningRealtimeAgents();
-  const { data: servicesData, isLoading: isLoadingServices } = useManagedServices({
+  const { data: sessions, isLoading: isLoadingSessions } =
+    useRealtimeSessions();
+  const { data: services, isLoading: isLoadingServices } = useManagedServices({
     serviceType: ServiceType.mongodb,
   });
 
   const availableServices = useMemo<ManagedService[]>(() => {
-    if (!servicesData?.services) {
+    if (!services?.services) {
       return [];
     }
 
-    const runningServiceIds = runningAgentsData?.agents?.map(
-      (agent) => agent.serviceId
-    ) ?? [];
+    const runningServiceIds = (sessions || []).map(
+      (session) => session.serviceId
+    );
 
     // Filter out services that already have running RTA agents
-    return servicesData.services.filter(
+    return services.services.filter(
       (service) => !runningServiceIds.includes(service.serviceId)
     );
-  }, [servicesData, runningAgentsData]);
+  }, [services, sessions]);
 
   return {
     availableServices,
-    isLoading: isLoadingAgents || isLoadingServices,
-    servicesData,
-    runningAgentsData,
+    isLoading: isLoadingSessions || isLoadingServices,
+    services: services?.services || [],
+    sessions: sessions || [],
   };
 };

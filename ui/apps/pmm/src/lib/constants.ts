@@ -48,3 +48,8 @@ export const ALL_SERVICE_TYPES = [
 export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
 // 1 hour
 export const SHOW_UPDATE_MODAL_AFTER_MS = 60 * 60 * 1000;
+
+export const DOCS_URLS = {
+  qan: 'https://per.co.na/QAN',
+  forums: 'https://per.co.na/PMM3_forums',
+};

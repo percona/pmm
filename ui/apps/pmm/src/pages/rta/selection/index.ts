@@ -1,1 +1,1 @@
-export { RealTimeSelection } from './RealTimeSelection';
+export { RealtimeSelection } from './RealtimeSelection';

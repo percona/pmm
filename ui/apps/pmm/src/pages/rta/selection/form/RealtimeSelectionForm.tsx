@@ -4,28 +4,24 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { enqueueSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
+import { Messages } from '../RealtimeSelection.messages';
 import {
-  useAvailableServices,
-  useChangeRealtimeAnalytics,
-} from 'hooks/api/useRealtime';
-import { Messages } from './RealTimeSelection.messages';
-import {
-  ServiceOption,
   getServiceOptions,
   getClusterSelectionState,
   toggleClusterServices,
-} from './RealTimeSelectionForm.utils';
+} from './RealtimeSelectionForm.utils';
 import {
   ServiceInput,
   ServiceOption as ServiceOptionComponent,
   ServiceOptionTag,
-} from './components';
+} from '../components';
+import { useAvailableServices, useStartSessions } from 'hooks/api/useRealtime';
+import {
+  RealtimeSelectionFormProps,
+  ServiceOption,
+} from './RealtimeSelectionForm.types';
 
-interface RealTimeSelectionFormProps {
-  onSuccess?: () => void;
-}
-
-export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
+export const RealtimeSelectionForm: FC<RealtimeSelectionFormProps> = ({
   onSuccess,
 }) => {
   const { user } = useUser();
@@ -41,7 +37,7 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
     [availableServices]
   );
 
-  const changeRealtimeAnalytics = useChangeRealtimeAnalytics();
+  const startSessions = useStartSessions();
 
   const handleServiceChange = (
     _event: React.SyntheticEvent,
@@ -71,30 +67,19 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
       return;
     }
 
-    try {
-      await Promise.all(
-        realServices.map((service) =>
-          changeRealtimeAnalytics.mutateAsync(
-            {
-              enable: true,
-              serviceId: service.serviceId!,
-            },
-            {
-              // Prevent running agents query invalidation on each individual mutation
-              onSuccess: undefined,
-            }
-          )
-        )
-      );
-
-      enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
-      setSelectedServices([]);
-      onSuccess?.();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : Messages.startError;
-      enqueueSnackbar(message, { variant: 'error' });
-    }
+    const serviceIds = realServices.map((service) => service.serviceId!);
+    await startSessions.mutateAsync(serviceIds, {
+      onSuccess: (responses) => {
+        enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
+        setSelectedServices([]);
+        onSuccess?.(responses.map((r) => r.session));
+      },
+      onError: (error) => {
+        const message =
+          error instanceof Error ? error.message : Messages.startError;
+        enqueueSnackbar(message, { variant: 'error' });
+      },
+    });
   };
 
   const realServicesCount = selectedServices.filter(
@@ -123,13 +108,15 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
           />
         )}
         renderTags={(value, getTagProps) =>
-          value.slice(0, 2).map((option, index) => (
-            <ServiceOptionTag
-              key={option.id}
-              option={option}
-              tagProps={getTagProps({ index })}
-            />
-          ))
+          value
+            .slice(0, 2)
+            .map((option, index) => (
+              <ServiceOptionTag
+                key={option.id}
+                option={option}
+                tagProps={getTagProps({ index })}
+              />
+            ))
         }
         renderOption={(props, option, { selected }) => (
           <ServiceOptionComponent
@@ -154,13 +141,12 @@ export const RealTimeSelectionForm: FC<RealTimeSelectionFormProps> = ({
       />
 
       <Button
+        data-testid="start-realtime-session"
         variant="contained"
         size="large"
         onClick={handleStart}
         disabled={
-          realServicesCount === 0 ||
-          changeRealtimeAnalytics.isPending ||
-          !canManageRTA
+          realServicesCount === 0 || startSessions.isPending || !canManageRTA
         }
         sx={{
           borderRadius: 999,

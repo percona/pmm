@@ -3,11 +3,11 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
-import { Messages } from '../RealTimeSelection.messages';
-import { DOCS_URL } from '../RealTimeSelection.constants';
+import { Messages } from '../RealtimeSelection.messages';
+import { DOCS_URL } from '../RealtimeSelection.constants';
 import { EmptyStateMessages } from './EmptyState.messages';
 
-export const RealTimeSelectionViewerEmptyState: FC = () => (
+const RealtimeSelectionViewerEmptyState: FC = () => (
   <Page footer={null}>
     <Stack
       gap={3}
@@ -20,9 +20,7 @@ export const RealTimeSelectionViewerEmptyState: FC = () => (
         textAlign: 'center',
       }}
     >
-      <Typography variant="h6">
-        {EmptyStateMessages.title}
-      </Typography>
+      <Typography variant="h6">{EmptyStateMessages.title}</Typography>
       <Typography variant="body1" color="text.secondary">
         {EmptyStateMessages.description}
       </Typography>
@@ -32,3 +30,5 @@ export const RealTimeSelectionViewerEmptyState: FC = () => (
     </Stack>
   </Page>
 );
+
+export default RealtimeSelectionViewerEmptyState;

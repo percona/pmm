@@ -5,10 +5,10 @@ import { Messages } from './QanHeader.messages';
 import QanHeaderTabs from './qan-header-tabs/QanHeaderTabs';
 import QanHeaderActions from './qan-header-actions/QanHeaderActions';
 import Divider from '@mui/material/Divider';
-import { useIsRealTimeQan } from 'hooks/utils/useLocation';
+import { useIsRealtimeQan } from 'hooks/utils/useLocation';
 
 const QanHeader: FC = () => {
-  const isRealTime = useIsRealTimeQan();
+  const isRealtime = useIsRealtimeQan();
 
   return (
     <>
@@ -26,7 +26,7 @@ const QanHeader: FC = () => {
         <QanHeaderTabs />
         <QanHeaderActions />
       </Stack>
-      {isRealTime && <Divider sx={{ mx: 2 }} />}
+      {isRealtime && <Divider sx={{ mx: 2 }} />}
     </>
   );
 };

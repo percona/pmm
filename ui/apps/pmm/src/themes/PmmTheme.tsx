@@ -141,7 +141,7 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
             borderStyle: 'solid',
             borderRadius: 5,
             borderColor: theme.palette.divider,
-            backgroundColor: theme.palette.surfaces?.low,
+            backgroundColor: theme.palette.surfaces?.elevation0,
           }),
           bar: {
             borderRadius: 5,
@@ -255,6 +255,20 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
           root: {
             color: peakTheme.text.sky,
             textDecorationColor: peakTheme.text.sky,
+          },
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            paddingBottom: 0,
+          },
+        },
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            paddingTop: 0,
           },
         },
       },
