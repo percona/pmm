@@ -38,6 +38,8 @@ const DetailsPane: FC<Props> = ({
   return (
     <Slide in={!!query} direction="up">
       <Paper
+        data-testid="query-details-pane"
+        aria-hidden={query ? 'false' : 'true'}
         variant="outlined"
         sx={(theme) => ({
           p: 1,
@@ -90,7 +92,7 @@ const DetailsPane: FC<Props> = ({
             </IconButton>
           </Stack>
         </Stack>
-        <Divider sx={{}} />
+        <Divider />
         {query ? (
           <CardContent
             sx={{

@@ -31,6 +31,7 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
         backgroundColor: theme.palette.surfaces?.elevation1 || 'transparent',
       }}
     >
+      {/* @ts-expect-error - react-syntax-highlighter types are incompatible with React 18 */}
       <ReactSyntaxHighlighter
         language={language}
         style={highlighterStyle}

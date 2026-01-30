@@ -67,7 +67,7 @@ const RealtimeOverviewPage: FC = () => {
             <Stack>{/* Leaving space for the filters/pause/etc. */}</Stack>
             <Button
               color="inherit"
-              data-testid="open-new-modal"
+              data-testid="overview-table-all-sessions-button"
               startIcon={<Icon name="dynamic-feed" />}
               component={RouterLink}
               to={createRealtimeSessionsUrl(serviceIds)}

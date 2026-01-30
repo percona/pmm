@@ -24,9 +24,9 @@ import { PMM_DOCS_UPDATE_CLIENT_URL } from 'lib/constants';
 import { Messages } from './UpdateClients.messages';
 import { TextSelect } from 'components/text-select';
 import { FILTER_OPTIONS } from './UpdateClients.constants';
-import { Table } from 'components/table';
 import { type MRT_ColumnDef } from 'material-react-table';
 import { HomeLink } from 'components/home-link';
+import { Table } from '@percona/ui-lib';
 
 export const UpdateClients: FC = () => {
   const {
