@@ -62,6 +62,8 @@ type commonAgentParams struct {
 	EnablePushMetrics  *bool
 	CustomLabels       *common.StringMap
 	MetricsResolutions *common.MetricsResolutions
+	// Real-Time Analytics options.
+	RTAOptions *models.RTAOptions
 }
 
 func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventoryv1.Agent, error) { //nolint:ireturn
@@ -83,6 +85,7 @@ func (as *AgentsService) changeAgent(ctx context.Context, agentID string, common
 		params := &models.ChangeCommonAgentParams{
 			Enabled:           common.Enable,
 			EnablePushMetrics: common.EnablePushMetrics,
+			RTAOptions:        common.RTAOptions,
 		}
 		if common.CustomLabels != nil {
 			params.CustomLabels = &common.CustomLabels.Values
@@ -1447,6 +1450,96 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_NomadAgent{
 			NomadAgent: agent,
+		},
+	}
+	return res, nil
+}
+
+// AddRTAMongoDBAgent adds MongoDB Real-Time Analytics Agent.
+func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.AddRTAMongoDBAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.RTAMongoDBAgent
+
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:     p.PmmAgentId,
+			ServiceID:      p.ServiceId,
+			Username:       p.Username,
+			Password:       p.Password,
+			CustomLabels:   p.CustomLabels,
+			TLS:            p.Tls,
+			TLSSkipVerify:  p.TlsSkipVerify,
+			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
+			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		}
+
+		// Set RTA options if provided
+		if p.RtaOptions != nil {
+			params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
+		}
+
+		row, err := models.CreateAgent(tx.Querier, models.RTAMongoDBAgentType, params)
+		if err != nil {
+			return err
+		}
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+		}
+
+		aa, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		agent = aa.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_RtaMongodbAgent{
+			RtaMongodbAgent: agent,
+		},
+	}
+
+	return res, e
+}
+
+// ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.
+func (as *AgentsService) ChangeRTAMongoDBAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeRTAMongoDBAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+	params := &commonAgentParams{
+		Enable:       p.Enable,
+		CustomLabels: p.CustomLabels,
+	}
+
+	// Set RTA options if provided
+	if p.RtaOptions != nil {
+		params.RTAOptions = models.RTAOptionsFromRequest(p.RtaOptions)
+	}
+
+	ag, err := as.changeAgent(ctx, agentID, params)
+	if err != nil {
+		return nil, err
+	}
+
+	agent := ag.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_RtaMongodbAgent{
+			RtaMongodbAgent: agent,
 		},
 	}
 	return res, nil

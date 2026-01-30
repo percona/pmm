@@ -26,6 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/version"
@@ -177,6 +178,21 @@ func AzureOptionsFromRequest(params AzureOptionsParams) AzureOptions {
 	return AzureOptions{}
 }
 
+// RTAOptionsParams contains parameters for Real-Time Analytics Agent.
+type RTAOptionsParams interface {
+	GetCollectInterval() *durationpb.Duration
+}
+
+// RTAOptionsFromRequest creates RTAOptions object from request.
+func RTAOptionsFromRequest(params RTAOptionsParams) *RTAOptions {
+	rtaOptions := &RTAOptions{}
+
+	if params.GetCollectInterval() != nil {
+		rtaOptions.CollectInterval = pointer.To(params.GetCollectInterval().AsDuration())
+	}
+	return rtaOptions
+}
+
 func checkUniqueAgentID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Agent ID")
@@ -208,6 +224,8 @@ type AgentFilters struct {
 	AWSAccessKey string
 	// IgnoreNomad is used to ignore Nomad agents.
 	IgnoreNomad bool
+	// Disabled indicates whether to filter by disabled status.
+	Disabled *bool
 }
 
 // FindAgents returns Agents by filters.
@@ -252,6 +270,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.IgnoreNomad {
 		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
 		args = append(args, NomadAgentType)
+		idx++
+	}
+	if filters.Disabled != nil {
+		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
+		args = append(args, pointer.Get(filters.Disabled))
 	}
 
 	var whereClause string
@@ -917,7 +940,6 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		TLSSkipVerify:     params.TLSSkipVerify,
 		ExporterOptions:   params.ExporterOptions,
 		QANOptions:        params.QANOptions,
-		RTAOptions:        params.RTAOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
 		MongoDBOptions:    params.MongoDBOptions,
@@ -927,11 +949,24 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 		Disabled:          params.Disabled,
 	}
+
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 	if err := row.SetEnvironmentVariableNames(params.EnvironmentVariableNames); err != nil {
 		return nil, err
+	}
+
+	switch agentType {
+	// For the time being only RTA MangoDB Agent has RTA options.
+	case RTAMongoDBAgentType:
+		row.RTAOptions = RTAOptions{
+			CollectInterval: pointer.To(1 * time.Second), // default value
+		}
+		// RTA options
+		row.RTAOptions.Merge(&params.RTAOptions)
+	default:
+		// do nothing
 	}
 
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
@@ -967,6 +1002,7 @@ type ChangeCommonAgentParams struct {
 	CustomLabels       *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
 	EnablePushMetrics  *bool
 	MetricsResolutions ChangeMetricsResolutionsParams
+	RTAOptions         *RTAOptions
 }
 
 // ChangeMetricsResolutionsParams contains metrics resolutions for change.
@@ -1026,11 +1062,16 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		row.ExporterOptions.MetricsResolutions = nil
 	}
 
+	// RTA options
+	row.RTAOptions.Merge(params.RTAOptions)
+
+	// need to encrypt Agent's sensitive data before update
+	row = pointer.To(EncryptAgent(*row))
 	if err = q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return row, nil
+	return pointer.To(DecryptAgent(*row)), nil
 }
 
 // RemoveAgent removes Agent by ID.
@@ -1106,86 +1147,4 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 // IsPushMetricsSupported return if PUSH mode is supported for pmm agent version.
 func IsPushMetricsSupported(pmmAgentVersion *string) bool {
 	return true
-}
-
-// CreateMongoDBRealtimeAgent creates a MongoDB Realtime Analytics agent.
-// It retrieves credentials and pmm-agent ID from existing MongoDB agents for the service.
-// If a MongoDB Realtime Agent already exists for the service, it returns the existing agent.
-func CreateMongoDBRealtimeAgent(q *reform.Querier, serviceID string, customLabels map[string]string, disabled bool) (*Agent, error) {
-	// Verify service exists and is MongoDB type first
-	service, err := FindServiceByID(q, serviceID)
-	if err != nil {
-		return nil, err
-	}
-	if service.ServiceType != MongoDBServiceType {
-		return nil, status.Errorf(codes.InvalidArgument, "Service must be MongoDB type, got %s", service.ServiceType)
-	}
-
-	// Check if MongoDB Realtime Agent already exists for this service
-	realtimeAgentType := RTAMongoDBAgentType
-	existingRealtimeAgents, err := FindAgents(q, AgentFilters{
-		ServiceID: serviceID,
-		AgentType: &realtimeAgentType,
-	})
-	if err != nil {
-		return nil, err
-	}
-	if len(existingRealtimeAgents) != 0 {
-		// Return existing agent instead of creating a duplicate
-		return existingRealtimeAgents[0], nil
-	}
-
-	// Retrieve credentials and pmm-agent ID from existing MongoDB agents for this service
-	// Try to find from QAN or exporter agents
-	agentTypes := []AgentType{
-		QANMongoDBProfilerAgentType,
-		QANMongoDBMongologAgentType,
-		MongoDBExporterType,
-	}
-
-	var existingAgent *Agent
-	for _, agentType := range agentTypes {
-		agents, err := FindAgents(q, AgentFilters{
-			ServiceID: serviceID,
-			AgentType: &agentType,
-		})
-		if err != nil {
-			return nil, err
-		}
-		if len(agents) != 0 {
-			existingAgent = agents[0]
-			break
-		}
-	}
-
-	if existingAgent == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "No existing MongoDB agent found for service %s to retrieve credentials and pmm-agent ID", serviceID)
-	}
-
-	if existingAgent.PMMAgentID == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "Existing MongoDB agent for service %s has no pmm-agent ID", serviceID)
-	}
-
-	// Create the MongoDB realtime agent with credentials and pmm-agent ID from existing agent
-	rtaOptions := RTAOptions{}
-	if !disabled {
-		// Only set EnabledAt when the agent is actually enabled
-		now := time.Now()
-		rtaOptions.EnabledAt = &now
-	}
-
-	params := &CreateAgentParams{
-		PMMAgentID:     *existingAgent.PMMAgentID,
-		ServiceID:      serviceID,
-		Username:       pointer.GetString(existingAgent.Username),
-		Password:       pointer.GetString(existingAgent.Password),
-		CustomLabels:   customLabels,
-		TLS:            existingAgent.TLS,
-		TLSSkipVerify:  existingAgent.TLSSkipVerify,
-		MongoDBOptions: existingAgent.MongoDBOptions,
-		RTAOptions:     rtaOptions,
-		Disabled:       disabled,
-	}
-
-	return CreateAgent(q, RTAMongoDBAgentType, params)
 }

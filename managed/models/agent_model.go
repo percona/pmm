@@ -81,6 +81,14 @@ const (
 	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
 )
 
+// GetRTAAgentTypes returns all Real-Time Analytics Agent types.
+func GetRTAAgentTypes() []AgentType {
+	return []AgentType{
+		RTAMongoDBAgentType,
+		// Add more types here once they are implemented.
+	}
+}
+
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
@@ -300,8 +308,8 @@ func (c ValkeyOptions) IsEmpty() bool {
 
 // RTAOptions represents structure for Real-Time Analytics options.
 type RTAOptions struct {
-	// EnabledAt is the timestamp when RTA was enabled for this agent.
-	EnabledAt *time.Time `json:"enabled_at,omitempty"`
+	// Queries collection interval for this agent.
+	CollectInterval *time.Duration `json:"collect_interval,omitempty"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -312,7 +320,19 @@ func (c *RTAOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all RTAOptions fields are unset or have zero values, otherwise returns false.
 func (c RTAOptions) IsEmpty() bool {
-	return c.EnabledAt == nil
+	return c.CollectInterval == nil
+}
+
+// Merge merges non-zero values from opts into c.
+func (c *RTAOptions) Merge(opts *RTAOptions) {
+	if pointer.Get(opts).IsEmpty() {
+		return
+	}
+
+	if opts.CollectInterval != nil {
+		c.CollectInterval = opts.CollectInterval
+	}
+	// Add new fields here.
 }
 
 // Agent represents Agent as stored in database.

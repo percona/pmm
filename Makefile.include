@@ -2,10 +2,10 @@
 .PHONY: default init release gen test clean all
 default: help
 
-help:                 ## Display this help message
-	@echo "Please use \`make <target>\` where <target> is one of:"
-	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+.PHONY: help
+help: ## Display this help message.
+	@echo "Please use \`make <target>\` where <target> is one of:\n"
+	@awk 'BEGIN {FS = ":.*##"; } /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-17s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 	@echo
 	@echo Check the docker-compose.yml file to see which environment variables are available.
 

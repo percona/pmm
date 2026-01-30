@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
 //nolint:godot
@@ -48,24 +50,11 @@ const (
 	numShards = 256
 )
 
-// QueryData represents a single real-time query captured from MongoDB.
-type QueryData struct {
-	QueryID     string
-	ServiceID   string
-	ServiceName string
-	Cluster     string
-	Namespace   string
-	Query       string // Raw query JSON
-	Fingerprint string
-	Duration    float64 // milliseconds
-	Timestamp   time.Time
-}
-
 // queryBucket represents a collection of queries for a service with metadata.
 // The bucket's timestamp indicates when it was last updated, which is used for TTL.
 type queryBucket struct {
-	timestamp time.Time    // When this bucket was last updated (Set was called)
-	queries   []*QueryData // The actual query data
+	timestamp time.Time          // When this bucket was last updated (Set was called)
+	queries   []*rtav1.QueryData // The actual query data
 }
 
 // shard represents a single shard of the store with its own lock.
@@ -155,7 +144,7 @@ func (s *Store) Run(ctx context.Context) {
 // and they're distributed across 256 shards, only ~4 operations will compete for each
 // shard's lock at any given time. This is much better than 1000 operations competing
 // for a single global lock.
-func (s *Store) Set(serviceID string, queries []*QueryData) {
+func (s *Store) Set(serviceID string, queries []*rtav1.QueryData) {
 	shard := s.getShard(serviceID)
 	shard.mu.Lock() // Lock ONLY this shard, not the entire store
 	defer shard.mu.Unlock()
@@ -169,7 +158,7 @@ func (s *Store) Set(serviceID string, queries []*QueryData) {
 // Get retrieves queries for a specific service.
 // ServiceID must be specified - this ensures we only read from a single shard for optimal performance.
 // Returns an empty slice if the service has no data or if the bucket is expired (never panics).
-func (s *Store) Get(serviceID string) []*QueryData {
+func (s *Store) Get(serviceID string) []*rtav1.QueryData {
 	now := time.Now()
 	cutoff := now.Add(-s.ttl)
 
@@ -181,12 +170,12 @@ func (s *Store) Get(serviceID string) []*QueryData {
 
 	// If service has no data, return empty slice (safe - no panic)
 	if !exists {
-		return []*QueryData{}
+		return []*rtav1.QueryData{}
 	}
 
 	// Check if the bucket is expired
 	if bucket.timestamp.Before(cutoff) {
-		return []*QueryData{}
+		return []*rtav1.QueryData{}
 	}
 
 	return bucket.queries
