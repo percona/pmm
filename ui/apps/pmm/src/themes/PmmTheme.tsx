@@ -47,10 +47,6 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
               outlinedBorder: 'rgba(220, 33, 0, 0.5)',
               outlinedBorderOpacity: 0.5,
             },
-            surfaces: {
-              elevation0: peakTheme.surfaces.elevation1,
-              elevation1: peakTheme.surfaces.elevation0,
-            },
           }
         : {
             primary: {
@@ -75,10 +71,6 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
               outlinedBorder: 'rgba(245, 106, 51, 0.5)',
               outlinedBorderOpacity: 0.5,
             },
-            surfaces: {
-              elevation0: peakTheme.surfaces.elevation0,
-              elevation1: peakTheme.surfaces.elevation1,
-            },
           }),
     },
     components: {
@@ -89,10 +81,7 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
             scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
           },
           body: {
-            backgroundColor:
-              theme.palette.mode === 'light'
-                ? peakTheme.surfaces.elevation0
-                : peakTheme.surfaces.elevation1,
+            backgroundColor: peakTheme.surfaces.elevation0,
             scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
           },
         }),

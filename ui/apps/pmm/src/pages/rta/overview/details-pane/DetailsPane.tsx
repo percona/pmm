@@ -51,10 +51,18 @@ const DetailsPane: FC<Props> = ({
           zIndex: theme.zIndex.modal,
         })}
       >
-        <Stack direction="row" justifyContent="space-between" sx={{}}>
+        <Stack direction="row" justifyContent="space-between">
           <Tabs value={0}>
-            <Tab value={0} label={Messages.tabs.details} />
-            <Tab value={1} label={Messages.tabs.rawData} />
+            <Tab
+              data-testid="details-pane-details-tab"
+              value={0}
+              label={Messages.tabs.details}
+            />
+            <Tab
+              data-testid="details-pane-raw-data-tab"
+              value={1}
+              label={Messages.tabs.rawData}
+            />
           </Tabs>
           <Stack gap={1} direction="row" alignItems="center">
             <IconButton

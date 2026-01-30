@@ -1,4 +1,3 @@
-import Typography from '@mui/material/Typography';
 import { FC, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { RealtimePage } from '../components/rta-page';

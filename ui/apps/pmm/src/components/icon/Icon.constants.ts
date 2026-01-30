@@ -10,7 +10,6 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   haproxy: () => import('icons/haproxy.svg?react'),
   help: () => import('icons/help.svg?react'),
   'help-fill': () => import('icons/help-fill.svg?react'),
-
   'high-availability': () => import('icons/high-availability.svg?react'),
   home: () => import('icons/home.svg?react'),
   intelligence: () => import('icons/percona-intelligence.svg?react'),
