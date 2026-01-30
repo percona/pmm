@@ -44,28 +44,57 @@
     group: root
     mode: 0750
 
-- name: Initialize Postgres database
-  command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
+- name: Generate random password for postgres superuser
+  shell: openssl rand -hex 12
+  register: postgres_password
+  changed_when: false
+
+- name: Store postgres password securely
+  copy:
+    content: "{{ postgres_password.stdout }}"
+    dest: /srv/.postgres_password
+    owner: pmm
+    group: root
+    mode: 0600
+
+- name: Initialize Postgres database with password authentication
+  command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=scram-sha-256 --username=postgres --pwfile=/srv/.postgres_password
   become: true
   become_user: pmm
   become_method: su
+
+- name: Configure pg_hba.conf for proper authentication
+  copy:
+    dest: /srv/postgres14/pg_hba.conf
+    owner: pmm
+    group: root
+    mode: 0640
+    content: |
+      # TYPE  DATABASE        USER            ADDRESS                 METHOD
+      
+      # Local connections with password
+      local   all             all                                     scram-sha-256
+      
+      # IPv4 local connections with password
+      host    all             all             127.0.0.1/32            scram-sha-256
+      
+      # IPv6 local connections with password
+      host    all             all             ::1/128                 scram-sha-256
 
 - name: Start Postgres database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
   become: true
   become_user: pmm
   become_method: su
-
-- name: Create postgres user
-  shell: /usr/pgsql-14/bin/createuser --echo --superuser --no-password postgres
-  become: true
-  become_user: pmm
-  become_method: su
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create pmm-managed database
   postgresql_db:
     name: pmm-managed
     state: present
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create pmm-managed user
   postgresql_user:
@@ -75,17 +104,23 @@
     priv: "ALL"
     expires: infinity
     state: present
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create pg_stat_statements extension
   postgresql_ext:
     db: postgres
     name: pg_stat_statements
     schema: public
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create grafana database in postgres
   postgresql_db:
     name: grafana
     state: present
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create grafana user in postgres
   postgresql_user:
@@ -96,6 +131,8 @@
     expires: infinity
     state: present
   when: not ansible_check_mode
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Upgrade grafana database to the latest schema
   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords

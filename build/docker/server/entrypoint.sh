@@ -95,12 +95,40 @@ if [ ! -f "$DIST_FILE" ]; then
 
     echo "Initializing Postgres..."
     install -d -m 750 /srv/postgres14
-    /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
+    
+    # Generate a random password for postgres superuser
+    declare POSTGRES_PASSWORD
+    POSTGRES_PASSWORD=$(openssl rand -hex 12)
+    
+    # Store the password securely with restricted permissions
+    declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
+    echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
+    chmod 600 "$POSTGRES_PASSWORD_FILE"
+    
+    # Initialize database with password authentication
+    /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=scram-sha-256 --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
+    
+    # Configure pg_hba.conf for proper authentication
+    cat > /srv/postgres14/pg_hba.conf << 'EOF'
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# Local connections with password
+local   all             all                                     scram-sha-256
+
+# IPv4 local connections with password
+host    all             all             127.0.0.1/32            scram-sha-256
+
+# IPv6 local connections with password
+host    all             all             ::1/128                 scram-sha-256
+EOF
 
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
-    /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
+    PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
     /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+    
+    # Clean up password from environment
+    unset POSTGRES_PASSWORD
 fi
 
 echo "Generating self-signed certificates for nginx..."

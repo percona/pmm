@@ -55,8 +55,11 @@ The following sections describe the migration steps for individual components. T
 
 2. Backup the databases
 ```
+  # Read the postgres password from the secure file
+  export PGPASSWORD=$(cat /srv/.postgres_password)
   /usr/pgsql-14/bin/pg_dump --host=/run/postgresql --username=postgres --file=/srv/backup/grafana.sql --dbname grafana
   /usr/pgsql-14/bin/pg_dump --host=/run/postgresql --username=postgres --file=/srv/backup/pmm-managed.sql --dbname pmm-managed
+  unset PGPASSWORD
 ```
 
 3. Move the database directory to /srv/backup/posgres14
@@ -80,8 +83,11 @@ Remember to pass the data volume to the instance so it can bootstrap the databas
 
 7. Restore the databases from the backup
 ```
+  # Read the postgres password from the secure file
+  export PGPASSWORD=$(cat /srv/.postgres_password)
   /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/postgres.sql -S postgres
   /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/grafana.sql -S postgres
+  unset PGPASSWORD
 ```
 
 8. Start the following processes:

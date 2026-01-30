@@ -1258,7 +1258,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
 	errCV := checkVersion(ctx, db)
 	if pErr, ok := errCV.(*pq.Error); ok && pErr.Code == "28000" { //nolint:errorlint
-		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+		// invalid_authorization_specification, see https://www.postgresql.org/docs/current/errcodes-appendix.html
 		if err := initWithRoot(params); err != nil {
 			return nil, errors.Wrapf(err, "couldn't connect to database with provided credentials. Tried to create user and database. Error: %s", errCV)
 		}
@@ -1365,8 +1365,21 @@ func initWithRoot(params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
-	// we use empty password/db and postgres user for creating database
-	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres"})
+
+	// Read postgres password from the secure file
+	passwordFile := "/srv/.postgres_password"
+	passwordBytes, err := os.ReadFile(passwordFile)
+	if err != nil {
+		return errors.Wrapf(err, "failed to read postgres password from %s", passwordFile)
+	}
+	postgresPassword := string(passwordBytes)
+
+	// we use postgres user for creating database
+	db, err := OpenDB(SetupDBParams{
+		Address:  params.Address,
+		Username: "postgres",
+		Password: postgresPassword,
+	})
 	if err != nil {
 		return errors.WithStack(err)
 	}
