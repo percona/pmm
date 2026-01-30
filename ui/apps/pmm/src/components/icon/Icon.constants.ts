@@ -49,6 +49,7 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'collapse-content': () => import('icons/collapse-content.svg?react'),
   'expand-content': () => import('icons/expand-content.svg?react'),
   'dynamic-feed': () => import('icons/dynamic-feed.svg?react'),
+  'bottom-panel-open': () => import('icons/bottom-panel-open.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<

@@ -1,26 +1,22 @@
+import { MaterialReactTableProps } from 'material-react-table';
 import { Table } from '@percona/ui-lib';
-import { FC, ReactElement } from 'react';
+import { FC } from 'react';
 import { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import { Icon } from 'components/icon';
+import Stack from '@mui/material/Stack';
 import { Messages } from './OverviewTable.messages';
-import { Link as RouterLink } from 'react-router-dom';
 
 interface Props {
   queries: QueryData[];
   onQuerySelected: (query: QueryData, idx: number) => void;
-  controls?: ReactElement;
+  actions?: MaterialReactTableProps<QueryData>['renderTopToolbarCustomActions'];
 }
 
-const OverviewTable: FC<Props> = ({
-  queries,
-  onQuerySelected,
-  controls: Controls,
-}) => (
+const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
   <RealtimeTableWrapper>
     <Table
       tableName="realtime-overview-table"
@@ -45,27 +41,45 @@ const OverviewTable: FC<Props> = ({
       enableHiding={false}
       enableRowHoverAction
       rowHoverAction={(row) => onQuerySelected(row.original, row.index)}
-      renderTopToolbarCustomActions={() => (
+      renderTopToolbarCustomActions={actions}
+      enableRowActions
+      renderRowActions={({ row }) => (
         <Stack
-          direction="row"
+          className="row-actions"
+          justifyContent="center"
           alignItems="center"
-          justifyContent="space-between"
           sx={{
             flex: 1,
+            height: '100%',
+            display: 'none',
           }}
         >
-          <Stack>{Controls}</Stack>
-          <Button
+          <IconButton
             color="inherit"
-            data-testid="open-new-modal"
-            startIcon={<Icon name="dynamic-feed" />}
-            component={RouterLink}
-            to="/rta/sessions?fromOverview=true"
+            data-testid="open-query-details"
+            aria-label={Messages.actions.openDetails}
+            onClick={() => onQuerySelected(row.original, row.index)}
           >
-            {Messages.allSessions}
-          </Button>
+            <Icon name="bottom-panel-open" />
+          </IconButton>
         </Stack>
       )}
+      // Show the row actions only on hover
+      muiTableBodyRowProps={{
+        sx: {
+          '&:hover .row-actions': {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        },
+      }}
+      displayColumnDefOptions={{
+        'mrt-row-actions': {
+          header: '',
+          size: 56,
+        },
+      }}
     />
   </RealtimeTableWrapper>
 );

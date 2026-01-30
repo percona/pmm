@@ -12,6 +12,9 @@ import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import Slide from '@mui/material/Slide';
 import Divider from '@mui/material/Divider';
 import { QueryData } from 'types/rta.types';
+import Typography from '@mui/material/Typography';
+import { useEscapeKey } from 'utils/keys.utils';
+import { Messages } from './DetailsPane.messages';
 
 interface Props {
   query?: QueryData;
@@ -29,57 +32,81 @@ const DetailsPane: FC<Props> = ({
   onClose,
   onNext,
   onPrevious,
-}) => (
-  <Slide in={!!query} direction="up">
-    <Paper
-      variant="outlined"
-      sx={(theme) => ({
-        p: 1,
-        px: 2,
-        top: 0,
-        bottom: theme.spacing(-2),
-        width: '100%',
-        position: 'absolute',
-        zIndex: theme.zIndex.modal,
-      })}
-    >
-      <Stack direction="row" justifyContent="space-between" sx={{}}>
-        <Tabs value={0}>
-          <Tab value={0} label="Details" />
-          <Tab value={1} label="Explain" />
-          <Tab value={2} label="Raw data" />
-        </Tabs>
-        <Stack gap={1} direction="row" alignItems="center">
-          <IconButton onClick={onPrevious} disabled={isFirstQuery}>
-            <KeyboardArrowUpOutlinedIcon />
-          </IconButton>
-          <IconButton onClick={onNext} disabled={isLastQuery}>
-            <KeyboardArrowDownOutlinedIcon />
-          </IconButton>
-          <IconButton onClick={onClose}>
-            <Icon name="bottom-panel-close" />
-          </IconButton>
+}) => {
+  useEscapeKey(onClose);
+
+  return (
+    <Slide in={!!query} direction="up">
+      <Paper
+        variant="outlined"
+        sx={(theme) => ({
+          p: 1,
+          px: 2,
+          top: 0,
+          left: 0,
+          right: 0,
+          m: 2,
+          bottom: theme.spacing(-2),
+          position: 'absolute',
+          zIndex: theme.zIndex.modal,
+        })}
+      >
+        <Stack direction="row" justifyContent="space-between" sx={{}}>
+          <Tabs value={0}>
+            <Tab value={0} label={Messages.tabs.details} />
+            <Tab value={1} label={Messages.tabs.rawData} />
+          </Tabs>
+          <Stack gap={1} direction="row" alignItems="center">
+            <IconButton
+              data-testid="details-pane-prev-button"
+              aria-label={Messages.actions.previous}
+              onClick={onPrevious}
+              disabled={isFirstQuery}
+            >
+              <KeyboardArrowUpOutlinedIcon />
+            </IconButton>
+            <IconButton
+              data-testid="details-pane-next-button"
+              aria-label={Messages.actions.next}
+              onClick={onNext}
+              disabled={isLastQuery}
+            >
+              <KeyboardArrowDownOutlinedIcon />
+            </IconButton>
+            <IconButton
+              data-testid="details-pane-close-button"
+              aria-label={Messages.actions.close}
+              onClick={onClose}
+            >
+              <Icon name="bottom-panel-close" />
+            </IconButton>
+          </Stack>
         </Stack>
-      </Stack>
-      <Divider sx={{}} />
-      {query ? (
-        <CardContent
-          sx={{
-            p: 0,
-            pt: 3,
-            flexGrow: 1,
-            minHeight: 300,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-          }}
-        >
-          <SyntaxHighlighter language="mongodb" showLineNumbers={true}>
-            {query.queryText}
-          </SyntaxHighlighter>
-        </CardContent>
-      ) : null}
-    </Paper>
-  </Slide>
-);
+        <Divider sx={{}} />
+        {query ? (
+          <CardContent
+            sx={{
+              p: 0,
+              pt: 3,
+              flexGrow: 1,
+              minHeight: 300,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+            }}
+          >
+            <Stack gap={1} mb={1}>
+              <Typography variant="h6">{query.serviceName}</Typography>
+              <Typography variant="body2">{query.queryId}</Typography>
+              <Typography variant="body2">{query.state}</Typography>
+            </Stack>
+            <SyntaxHighlighter language="mongodb" showLineNumbers={true}>
+              {query.queryText}
+            </SyntaxHighlighter>
+          </CardContent>
+        ) : null}
+      </Paper>
+    </Slide>
+  );
+};
 
 export default DetailsPane;

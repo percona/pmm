@@ -1,17 +1,31 @@
 import Chip from '@mui/material/Chip';
-import { FC } from 'react';
-import { getStyles } from './StateCell.styles';
-import { useTheme } from '@mui/material/styles';
+import { FC, useMemo } from 'react';
 
 export interface Props {
   state: string;
 }
 
+// TODO: WIP since the states are not defined yet
 const StateCell: FC<Props> = ({ state }) => {
-  const theme = useTheme();
-  const styles = getStyles(theme, state);
+  const color = useMemo(() => {
+    const normalizedState = state.toLowerCase();
 
-  return <Chip color="default" label={state} variant="outlined" sx={styles} />;
+    if (normalizedState === 'blocked') {
+      return 'error';
+    }
+
+    if (normalizedState === 'running') {
+      return 'info';
+    }
+
+    if (normalizedState === 'processing') {
+      return 'warning';
+    }
+
+    return 'default';
+  }, [state]);
+
+  return <Chip color={color} label={state} variant="outlined" />;
 };
 
 export default StateCell;
