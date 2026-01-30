@@ -81,6 +81,14 @@ const (
 	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
 )
 
+// GetRTAAgentTypes returns all Real-Time Analytics Agent types.
+func GetRTAAgentTypes() []AgentType {
+	return []AgentType{
+		RTAMongoDBAgentType,
+		// Add more types here once they are implemented.
+	}
+}
+
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.

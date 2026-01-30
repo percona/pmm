@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package realtimeanalytics.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+// QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.
+message QueryMongoDBData {
+  // Operation ID of the query.
+  string opid = 1;
+  // Client address.
+  string client = 2;
+  // Indicates if the query is waiting for a lock.
+  bool waiting_for_lock = 3;
+  // Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
+  string index_utilized = 4;
+}
+
+// QueryData represents a single Real-Time Analytics query data point.
+// It includes general query information and a payload for database-specific details.
+message QueryData {
+  // Service identifier that reported the query.
+  string service_id = 1;
+  // Service name that reported the query.
+  string service_name = 2;
+  // Unique identifier for the query.
+  string query_id = 3;
+  // The text of the query.
+  string query_text = 4;
+  // Current state of the query (e.g., running, completed).
+  string state = 5;
+  // Current execution time in seconds.
+  google.protobuf.Duration execution_duration = 6;
+  // Number of rows examined by the query.
+  int64 rows_examined = 7;
+  // Number of rows sent by the query.
+  int64 rows_sent = 8;
+  // Timestamp when the query data was collected by Real-Time Analytics agent.
+  google.protobuf.Timestamp collect_time = 9;
+  // Raw JSON representation of the query.
+  string raw_query_json = 10;
+  // Database-specific payload.
+  oneof payload {
+    // MongoDB-specific query data.
+    QueryMongoDBData mongo_db_payload = 11;
+  }
+}

@@ -23,23 +23,24 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
 func TestStore(t *testing.T) {
 	t.Run("Set", func(t *testing.T) {
 		store := NewStore()
 
-		queries := []*QueryData{
+		queries := []*rtav1.QueryData{
 			{
-				QueryID:     "q1",
-				ServiceID:   "service1",
-				ServiceName: "test-mongodb",
-				Cluster:     "cluster1",
-				Namespace:   "db.collection",
-				Query:       `{"find": "users"}`,
-				Fingerprint: "find-users",
-				Duration:    10.5,
-				Timestamp:   time.Now(),
+				ServiceId:         "service1",
+				ServiceName:       "test-mongodb",
+				QueryId:           "q1",
+				QueryText:         `{"find": "users"}`,
+				ExecutionDuration: durationpb.New(10 * time.Second),
+				CollectTime:       timestamppb.Now(),
 			},
 		}
 
@@ -47,8 +48,8 @@ func TestStore(t *testing.T) {
 
 		results := store.Get("service1")
 		require.Len(t, results, 1)
-		assert.Equal(t, "q1", results[0].QueryID)
-		assert.Equal(t, "service1", results[0].ServiceID)
+		assert.Equal(t, "q1", results[0].QueryId)
+		assert.Equal(t, "service1", results[0].ServiceId)
 	})
 
 	t.Run("Sharding", func(t *testing.T) {
@@ -63,11 +64,11 @@ func TestStore(t *testing.T) {
 			go func(idx int) {
 				defer wg.Done()
 				serviceID := fmt.Sprintf("service%d", idx)
-				queries := []*QueryData{
+				queries := []*rtav1.QueryData{
 					{
-						QueryID:   fmt.Sprintf("q%d", idx),
-						ServiceID: serviceID,
-						Timestamp: time.Now(),
+						QueryId:     fmt.Sprintf("q%d", idx),
+						ServiceId:   serviceID,
+						CollectTime: timestamppb.Now(),
 					},
 				}
 				store.Set(serviceID, queries)
@@ -94,28 +95,28 @@ func TestStore(t *testing.T) {
 		store := NewStore()
 
 		// Set queries for different services and clusters
-		store.Set("s1", []*QueryData{
-			{QueryID: "q1", ServiceID: "s1", Cluster: "c1", Timestamp: time.Now()},
-			{QueryID: "q2", ServiceID: "s1", Cluster: "c1", Timestamp: time.Now()},
+		store.Set("s1", []*rtav1.QueryData{
+			{QueryId: "q1", ServiceId: "s1", CollectTime: timestamppb.Now()},
+			{QueryId: "q2", ServiceId: "s1", CollectTime: timestamppb.Now()},
 		})
-		store.Set("s2", []*QueryData{
-			{QueryID: "q3", ServiceID: "s2", Cluster: "c1", Timestamp: time.Now()},
+		store.Set("s2", []*rtav1.QueryData{
+			{QueryId: "q3", ServiceId: "s2", CollectTime: timestamppb.Now()},
 		})
-		store.Set("s3", []*QueryData{
-			{QueryID: "q4", ServiceID: "s3", Cluster: "c2", Timestamp: time.Now()},
+		store.Set("s3", []*rtav1.QueryData{
+			{QueryId: "q4", ServiceId: "s3", CollectTime: timestamppb.Now()},
 		})
 
 		t.Run("get by service", func(t *testing.T) {
 			results := store.Get("s1")
 			require.Len(t, results, 2)
-			assert.Equal(t, "q1", results[0].QueryID)
-			assert.Equal(t, "q2", results[1].QueryID)
+			assert.Equal(t, "q1", results[0].QueryId)
+			assert.Equal(t, "q2", results[1].QueryId)
 		})
 
 		t.Run("different service", func(t *testing.T) {
 			results := store.Get("s2")
 			require.Len(t, results, 1)
-			assert.Equal(t, "q3", results[0].QueryID)
+			assert.Equal(t, "q3", results[0].QueryId)
 		})
 
 		t.Run("non-existent service returns empty", func(t *testing.T) {
@@ -129,9 +130,9 @@ func TestStore(t *testing.T) {
 		store.ttl = 100 * time.Millisecond // Short TTL for testing
 
 		// Set some queries
-		queries := []*QueryData{
-			{QueryID: "q1", ServiceID: "service1", Timestamp: time.Now()},
-			{QueryID: "q2", ServiceID: "service1", Timestamp: time.Now()},
+		queries := []*rtav1.QueryData{
+			{QueryId: "q1", ServiceId: "service1", CollectTime: timestamppb.Now()},
+			{QueryId: "q2", ServiceId: "service1", CollectTime: timestamppb.Now()},
 		}
 		store.Set("service1", queries)
 
@@ -148,16 +149,16 @@ func TestStore(t *testing.T) {
 		store.ttl = 50 * time.Millisecond
 
 		// Set queries that will expire
-		store.Set("service1", []*QueryData{
-			{QueryID: "q1", ServiceID: "service1", Timestamp: time.Now()},
+		store.Set("service1", []*rtav1.QueryData{
+			{QueryId: "q1", ServiceId: "service1", CollectTime: timestamppb.Now()},
 		})
 
 		// Wait for service1 bucket to expire
 		time.Sleep(60 * time.Millisecond)
 
 		// Set fresh queries for service2
-		store.Set("service2", []*QueryData{
-			{QueryID: "q2", ServiceID: "service2", Timestamp: time.Now()},
+		store.Set("service2", []*rtav1.QueryData{
+			{QueryId: "q2", ServiceId: "service2", CollectTime: timestamppb.Now()},
 		})
 
 		// Run cleanup
@@ -175,8 +176,8 @@ func TestStore(t *testing.T) {
 	t.Run("Clear", func(t *testing.T) {
 		store := NewStore()
 
-		store.Set("service1", []*QueryData{{QueryID: "q1", ServiceID: "service1", Timestamp: time.Now()}})
-		store.Set("service2", []*QueryData{{QueryID: "q2", ServiceID: "service2", Timestamp: time.Now()}})
+		store.Set("service1", []*rtav1.QueryData{{QueryId: "q1", ServiceId: "service1", CollectTime: timestamppb.Now()}})
+		store.Set("service2", []*rtav1.QueryData{{QueryId: "q2", ServiceId: "service2", CollectTime: timestamppb.Now()}})
 
 		store.Clear("service1")
 
@@ -195,12 +196,12 @@ func TestStore(t *testing.T) {
 	t.Run("Stats", func(t *testing.T) {
 		store := NewStore()
 
-		store.Set("s1", []*QueryData{
-			{QueryID: "q1", ServiceID: "s1", Timestamp: time.Now()},
-			{QueryID: "q2", ServiceID: "s1", Timestamp: time.Now()},
+		store.Set("s1", []*rtav1.QueryData{
+			{QueryId: "q1", ServiceId: "s1", CollectTime: timestamppb.Now()},
+			{QueryId: "q2", ServiceId: "s1", CollectTime: timestamppb.Now()},
 		})
-		store.Set("s2", []*QueryData{
-			{QueryID: "q3", ServiceID: "s2", Timestamp: time.Now()},
+		store.Set("s2", []*rtav1.QueryData{
+			{QueryId: "q3", ServiceId: "s2", CollectTime: timestamppb.Now()},
 		})
 
 		stats := store.Stats()
@@ -217,8 +218,8 @@ func TestStore(t *testing.T) {
 		go store.Run(ctx)
 
 		// Set queries that will expire
-		store.Set("service1", []*QueryData{
-			{QueryID: "q1", ServiceID: "service1", Timestamp: time.Now()},
+		store.Set("service1", []*rtav1.QueryData{
+			{QueryId: "q1", ServiceId: "service1", CollectTime: timestamppb.Now()},
 		})
 
 		// Wait for bucket to expire
@@ -240,11 +241,11 @@ func TestStore(t *testing.T) {
 		for i := range 100 {
 			idx := i
 			wg.Go(func() {
-				queries := []*QueryData{
+				queries := []*rtav1.QueryData{
 					{
-						QueryID:   string(rune('a' + idx%26)),
-						ServiceID: fmt.Sprintf("service%d", idx%10),
-						Timestamp: time.Now(),
+						QueryId:     string(rune('a' + idx%26)),
+						ServiceId:   fmt.Sprintf("service%d", idx%10),
+						CollectTime: timestamppb.Now(),
 					},
 				}
 				store.Set(fmt.Sprintf("service%d", idx%10), queries)

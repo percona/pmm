@@ -224,6 +224,8 @@ type AgentFilters struct {
 	AWSAccessKey string
 	// IgnoreNomad is used to ignore Nomad agents.
 	IgnoreNomad bool
+	// Disabled indicates whether to filter by disabled status.
+	Disabled *bool
 }
 
 // FindAgents returns Agents by filters.
@@ -268,6 +270,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.IgnoreNomad {
 		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
 		args = append(args, NomadAgentType)
+		idx++
+	}
+	if filters.Disabled != nil {
+		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
+		args = append(args, pointer.Get(filters.Disabled))
 	}
 
 	var whereClause string
@@ -1058,11 +1065,13 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
 
+	// need to encrypt Agent's sensitive data before update
+	row = pointer.To(EncryptAgent(*row))
 	if err = q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return row, nil
+	return pointer.To(DecryptAgent(*row)), nil
 }
 
 // RemoveAgent removes Agent by ID.
@@ -1138,84 +1147,4 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 // IsPushMetricsSupported return if PUSH mode is supported for pmm agent version.
 func IsPushMetricsSupported(pmmAgentVersion *string) bool {
 	return true
-}
-
-// CreateRTAMongoDBAgent creates a MongoDB Real-Time Analytics agent.
-// It retrieves credentials and pmm-agent ID from existing MongoDB agents for the service.
-// If a MongoDB Realtime Agent already exists for the service, it returns the existing agent.
-func CreateRTAMongoDBAgent(q *reform.Querier, serviceID string, customLabels map[string]string, disabled bool) (*Agent, error) {
-	// Verify service exists and is MongoDB type first
-	service, err := FindServiceByID(q, serviceID)
-	if err != nil {
-		return nil, err
-	}
-	if service.ServiceType != MongoDBServiceType {
-		return nil, status.Errorf(codes.InvalidArgument, "Service must be MongoDB type, got %s", service.ServiceType)
-	}
-
-	// Check if MongoDB Realtime Agent already exists for this service
-	// realtimeAgentType := RTAMongoDBAgentType
-	existingRealtimeAgents, err := FindAgents(q, AgentFilters{
-		ServiceID: serviceID,
-		AgentType: pointer.To(RTAMongoDBAgentType),
-	})
-	if err != nil {
-		return nil, err
-	}
-	if len(existingRealtimeAgents) != 0 {
-		// Return existing agent instead of creating a duplicate
-		return existingRealtimeAgents[0], nil
-	}
-
-	// Retrieve credentials and pmm-agent ID from existing MongoDB agents for this service
-	// Try to find from QAN or exporter agents
-	agentTypes := []AgentType{
-		QANMongoDBProfilerAgentType,
-		QANMongoDBMongologAgentType,
-		MongoDBExporterType,
-	}
-
-	var existingAgent *Agent
-	for _, agentType := range agentTypes {
-		agents, err := FindAgents(q, AgentFilters{
-			ServiceID: serviceID,
-			AgentType: &agentType,
-		})
-		if err != nil {
-			return nil, err
-		}
-		if len(agents) != 0 {
-			existingAgent = agents[0]
-			break
-		}
-	}
-
-	if existingAgent == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "No existing MongoDB agent found for service %s to retrieve credentials and pmm-agent ID", serviceID)
-	}
-
-	if existingAgent.PMMAgentID == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "Existing MongoDB agent for service %s has no pmm-agent ID", serviceID)
-	}
-
-	// Create the MongoDB realtime agent with credentials and pmm-agent ID from existing agent
-	// if !disabled {
-	// 	// Only set EnabledAt when the agent is actually enabled
-	// 	now := time.Now()
-	// 	rtaOptions.EnabledAt = &now
-	// }
-
-	params := &CreateAgentParams{
-		PMMAgentID:     *existingAgent.PMMAgentID,
-		ServiceID:      serviceID,
-		Username:       pointer.GetString(existingAgent.Username),
-		Password:       pointer.GetString(existingAgent.Password),
-		CustomLabels:   customLabels,
-		TLS:            existingAgent.TLS,
-		TLSSkipVerify:  existingAgent.TLSSkipVerify,
-		MongoDBOptions: existingAgent.MongoDBOptions,
-		Disabled:       disabled,
-	}
-
-	return CreateAgent(q, RTAMongoDBAgentType, params)
 }
