@@ -28,6 +28,7 @@ const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
       }}
       columns={OVERVIEW_TABLE_COLUMNS}
       data={queries}
+      noDataMessage={Messages.noData}
       muiTopToolbarProps={{
         sx: {
           // vertically center the buttons

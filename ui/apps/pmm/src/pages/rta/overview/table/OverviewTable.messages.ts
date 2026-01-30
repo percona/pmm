@@ -8,4 +8,5 @@ export const Messages = {
   actions: {
     openDetails: 'Open query details',
   },
+  noData: 'No queries available',
 };
