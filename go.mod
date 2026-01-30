@@ -47,7 +47,7 @@ require (
 	github.com/hashicorp/raft-boltdb/v2 v2.3.1
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/jotaen/kong-completion v0.0.5
-	github.com/lib/pq v1.10.9
+	github.com/lib/pq v1.11.1
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20251202083530-b3e1c16efc74
