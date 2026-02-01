@@ -112,13 +112,16 @@ if [ ! -f "$DIST_FILE" ]; then
     cat > /srv/postgres14/pg_hba.conf << 'EOF'
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 
-# Local connections with password
+# Local connections with password (support both md5 for backward compatibility and scram-sha-256)
+local   all             all                                     md5
 local   all             all                                     scram-sha-256
 
 # IPv4 local connections with password
+host    all             all             127.0.0.1/32            md5
 host    all             all             127.0.0.1/32            scram-sha-256
 
 # IPv6 local connections with password
+host    all             all             ::1/128                 md5
 host    all             all             ::1/128                 scram-sha-256
 EOF
 
