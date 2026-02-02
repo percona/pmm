@@ -415,7 +415,6 @@ nav:
       - Percona Platform:
           - configure-pmm/percona_platform/integrate_with_percona_platform.md
           - configure-pmm/percona_platform/check_percona_platform.md
-          - configure-pmm/percona_platform/account-info.md
   - Administer:
       - admin/index.md
       - Manage users:
@@ -499,7 +498,6 @@ nav:
               - reference/dashboards/dashboard-victoriametrics-agents-overview.md
           - Environments:
               - reference/dashboards/dashboard-env-overview.md
-              - reference/dashboards/dashboard-environment-summary.md
           - Kubernetes:
               - reference/dashboards/kubernetes_cluster_summary.md
               - reference/dashboards/kubernetes_monitor_operators.md
@@ -535,10 +533,8 @@ nav:
               - reference/dashboards/dashboard-mysql-group-replication-summary.md
               - reference/dashboards/dashboard-mysql-table-details.md
               - reference/dashboards/dashboard-mysql-user-details.md
-              - reference/dashboards/dashboard-mysql-tokudb-details.md
           - MongoDB dashboards:
               - reference/dashboards/dashboard-mongodb-experimental_collection_overview.md
-              - reference/dashboards/dashboard-mongodb-experimental_collection_details.md
               - reference/dashboards/dashboard-mongodb-experimental_oplog.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md
@@ -574,7 +570,6 @@ nav:
               - Slowlog: reference/dashboards/dashboard-valkey-redis-slowlog.md
           - HA dashboards:
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
-              - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
               - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
               - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
               - reference/dashboards/dashboard-haproxy-instance-summary.md

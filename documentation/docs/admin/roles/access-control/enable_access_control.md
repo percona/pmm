@@ -37,8 +37,8 @@ Choose your preferred method to enable this feature:
     {.power-number}
     
     1. Log in to PMM with an administrator account.
-    2. From the main menu, go to **PMM Configuration > Settings > Advanced Settings > Access Control**.
-    3. Toggle the <i class="uil uil-toggle-off"></i> toggle.
+    2. From the main menu, go to **Configuration > Settings > Advanced Settings**.
+    3. Toggle the <i class="uil uil-toggle-off"></i>  **Access Control** toggle.
     4. Click **Apply changes** to save your settings.
 
 ## After enabling access control

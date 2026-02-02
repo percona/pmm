@@ -81,7 +81,7 @@ sudo ufw --force enable
 After the initial setup, create additional user accounts in PMM for your team members. Follow the principle of least privilege when assigning user roles.
 {.power-number}
 
-1. Go to **Administration > Users and access > Users**.
+1. Go to **Users and access > Users**.
 2. Click **New user** and configure the user with an appropriate role:
 
     - **Admin**: Full system access

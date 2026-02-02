@@ -15,6 +15,5 @@ The **PMM Configuration** page gives you access to PMM setup's settings and inve
     * [Microsoft Azure Monitoring](../configure-pmm/advanced_settings.md#microsoft-azure-monitoring)
 * [SSH Key](../install-pmm/install-pmm-server/deployment-options/virtual/ssh.md)
 * [Percona Portal](../configure-pmm/percona_platform/integrate_with_percona_platform.md)
-    * [Check Percona Portal account information](../configure-pmm/percona_platform/account-info.md)
 
 You can also use the [**Administration** page](../admin/index.md) to manage Grafana-related configurations and account settings.
