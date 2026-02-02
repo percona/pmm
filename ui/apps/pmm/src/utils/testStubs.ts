@@ -1,4 +1,8 @@
-import { RealtimeSession, RealtimeSessionStatus } from 'types/rta.types';
+import {
+  QueryData,
+  RealtimeSession,
+  RealtimeSessionStatus,
+} from 'types/rta.types';
 import {
   BaseService,
   ListServicesResponse,
@@ -123,4 +127,23 @@ export const TEST_REAL_TIME_SESSION: RealtimeSession = {
   clusterName: 'cluster-1',
   startTime: '2021-01-01T00:00:00Z',
   status: RealtimeSessionStatus.unspecified,
+};
+
+export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
+  serviceId: 'service-1',
+  serviceName: 'Service 1',
+  queryId: 'query-1',
+  queryText: '{ find: "mycollection", filter: { status: "active" } }',
+  state: 'running',
+  executionDuration: '10s',
+  rowsExamined: 100,
+  rowsSent: 100,
+  collectTime: '2021-01-01T00:00:00Z',
+  rawQueryJson: '{ find: "mycollection", filter: { status: "active" } }',
+  mongoDbPayload: {
+    opid: '1',
+    client: '127.0.0.1',
+    waitingForLock: false,
+    indexUtilized: 'COLLSCAN',
+  },
 };

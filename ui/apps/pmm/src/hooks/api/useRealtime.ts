@@ -5,12 +5,19 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from '@tanstack/react-query';
-import { getRunningSessions, startSession, stopSession } from 'api/rta';
+import {
+  getRunningSessions,
+  searchQueries,
+  startSession,
+  stopSession,
+} from 'api/rta';
 import {
   RealtimeSession,
   StartSessionResponse,
   StartSessionPayload,
   StopSessionPayload,
+  SearchQueriesResponse,
+  SearchQueriesPayload,
 } from 'types/rta.types';
 import { ManagedService, ServiceType } from 'types/services.types';
 import { useManagedServices } from './useServices';
@@ -23,6 +30,7 @@ const KEYS = {
   START_SESSIONS: 'rta:start-sessions',
   STOP_SESSION: 'rta:stop-session',
   STOP_SESSIONS: 'rta:stop-sessions',
+  SEARCH_QUERIES: 'rta:search-queries',
 };
 
 export const useRealtimeSessions = (
@@ -45,8 +53,8 @@ export const useStartSession = (
     mutationKey: [KEYS.START_SESSION],
     mutationFn: startSession,
     ...options,
-    onSuccess: async (data, variables, context) => {
-      await options?.onSuccess?.(data, variables, context);
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
       await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
     },
   });
@@ -62,8 +70,8 @@ export const useStartSessions = (
     mutationFn: (serviceIds: string[]) =>
       Promise.all(serviceIds.map((serviceId) => startSession({ serviceId }))),
     ...options,
-    onSuccess: async (data, variables, context) => {
-      await options?.onSuccess?.(data, variables, context);
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
       await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
     },
   });
@@ -80,8 +88,8 @@ export const useStopSession = (
     mutationKey: [KEYS.STOP_SESSION],
     mutationFn: stopSession,
     ...options,
-    onSuccess: async (data, variables, context) => {
-      await options?.onSuccess?.(data, variables, context);
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
       await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
     },
   });
@@ -97,8 +105,8 @@ export const useStopSessions = (
     mutationFn: async (serviceIds: string[]) =>
       Promise.all(serviceIds.map((serviceId) => stopSession({ serviceId }))),
     ...options,
-    onSuccess: async (data, variables, context) => {
-      await options?.onSuccess?.(data, variables, context);
+    onSuccess: async (data, variables, onMutate, context) => {
+      await options?.onSuccess?.(data, variables, onMutate, context);
       await queryClient.invalidateQueries({ queryKey: [KEYS.LIST_SESSIONS] });
     },
   });
@@ -136,3 +144,13 @@ export const useAvailableServices = () => {
     sessions: sessions || [],
   };
 };
+
+export const useRealtimeQueries = (
+  payload: SearchQueriesPayload,
+  options?: Partial<UseQueryOptions<SearchQueriesResponse['queries']>>
+) =>
+  useQuery({
+    queryKey: [KEYS.SEARCH_QUERIES, payload],
+    queryFn: async () => (await searchQueries(payload)).queries,
+    ...options,
+  });

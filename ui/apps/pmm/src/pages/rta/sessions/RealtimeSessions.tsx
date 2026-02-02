@@ -9,15 +9,17 @@ import Link from '@mui/material/Link';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import { DOCS_URLS } from 'lib/constants';
 import { RealtimePage } from '../components/rta-page';
+import { createRealtimeOverviewUrl } from 'utils/link.utils';
 
 const RealtimeSessionsPage: FC = () => {
   const [searchParams] = useSearchParams();
+  const serviceIds = searchParams.getAll('serviceIds');
 
   return (
     <RealtimePage>
       <Stack direction="column" gap={1} sx={{ flexShrink: 0 }}>
         {searchParams.get('fromOverview') && (
-          <RouterLink to="/rta/overview">
+          <RouterLink to={createRealtimeOverviewUrl(serviceIds)}>
             <Button
               size="small"
               startIcon={<ArrowBackOutlinedIcon />}

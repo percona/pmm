@@ -9,3 +9,9 @@ export const createRealtimeOverviewUrl = (serviceIds: string[]) => {
   serviceIds.forEach((serviceId) => params.append('serviceIds', serviceId));
   return `/rta/overview?${params.toString()}`;
 };
+
+export const createRealtimeSessionsUrl = (serviceIds: string[]) => {
+  const params = new URLSearchParams();
+  serviceIds.forEach((serviceId) => params.append('serviceIds', serviceId));
+  return `/rta/sessions?fromOverview=true&${params.toString()}`;
+};

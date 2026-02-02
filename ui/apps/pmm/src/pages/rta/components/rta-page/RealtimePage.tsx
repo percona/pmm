@@ -1,14 +1,17 @@
-import Stack from '@mui/material/Stack';
+import Stack, { StackProps } from '@mui/material/Stack';
 import { HEADER_HEIGHT } from 'components/main/header/Header.constants';
-import { FC, PropsWithChildren } from 'react';
+import { FC } from 'react';
 
-const RealtimePage: FC<PropsWithChildren> = ({ children }) => (
+const RealtimePage: FC<StackProps> = ({ children }) => (
   <Stack
     direction="column"
     gap={2}
     p={2}
     sx={{
+      flex: 1,
       height: '100%',
+      minHeight: 0,
+      position: 'relative',
       maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`, // Account for header height
       overflow: 'hidden',
       display: 'flex',
