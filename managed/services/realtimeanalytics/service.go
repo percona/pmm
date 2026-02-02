@@ -18,13 +18,18 @@ package realtimeanalytics
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -32,6 +37,7 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/utils/logger"
 )
 
 // Service provides API for managing Real-Time Analytics.
@@ -316,8 +322,44 @@ func (s *Service) SearchQueries(_ context.Context, req *rtav1.SearchQueriesReque
 }
 
 // Collect handles incoming streaming RTA query data from agents (gRPC handler).
-func (s *Service) Collect(_ grpc.ClientStreamingServer[rtav1.CollectRequest, rtav1.CollectResponse]) error {
-	return status.Errorf(codes.Unimplemented, "ListQueries is not implemented yet")
+func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest, rtav1.CollectResponse]) error {
+	streamCtx := stream.Context()
+	l := logger.Get(streamCtx)
+	for {
+		// Check if context is canceled before receiving
+		select {
+		case <-streamCtx.Done():
+			return status.Error(codes.Canceled, "client disconnected")
+		default:
+		}
+
+		msg, err := stream.Recv()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				// client has closed it's side of stream.
+				// just exit the loop and close our side.
+				l.Info("Client closed the stream, closing our side.")
+				return stream.SendAndClose(&rtav1.CollectResponse{})
+			}
+			return err // stream error
+		}
+
+		if l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+			// do not use default compact representation for large/complex messages
+			if size := proto.Size(msg); size < 100 {
+				l.Debugf("Received message (%d bytes): %s.", size, msg)
+			} else {
+				l.Debugf("Received message (%d bytes):\n%s\n", proto.Size(msg), prototext.Format(msg))
+			}
+		}
+
+		if len(msg.Queries) == 0 {
+			continue
+		}
+		// Store received queries into the in-memory storage.
+		// All queries in the message belong to the same service.
+		s.store.Set(msg.Queries[0].ServiceId, msg.Queries)
+	}
 }
 
 // Helpers
@@ -363,3 +405,9 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}
 }
+
+// check interfaces.
+var (
+	_ rtav1.RealtimeAnalyticsServiceServer = (*Service)(nil)
+	_ rtav1.CollectorServiceServer         = (*Service)(nil)
+)

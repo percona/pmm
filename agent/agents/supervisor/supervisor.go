@@ -47,6 +47,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
 // configGetter allows for getting a config.
@@ -63,6 +64,7 @@ type Supervisor struct {
 	portsRegistry  *portsRegistry
 	changes        chan *agentv1.StateChangedRequest
 	qanRequests    chan *agentv1.QANCollectRequest
+	rtaRequests    chan *rtav1.CollectRequest
 	l              *logrus.Entry
 
 	rw             sync.RWMutex
@@ -98,6 +100,7 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
+// RTA data is sent to RTARequests() channel which must be read until it is closed.
 func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Supervisor {
 	return &Supervisor{
 		ctx:            ctx,
@@ -106,6 +109,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		portsRegistry:  newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
 		changes:        make(chan *agentv1.StateChangedRequest, 100),
 		qanRequests:    make(chan *agentv1.QANCollectRequest, 100),
+		rtaRequests:    make(chan *rtav1.CollectRequest, 100),
 		l:              logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
@@ -210,6 +214,11 @@ func (s *Supervisor) Changes() <-chan *agentv1.StateChangedRequest {
 // QANRequests returns channel with Agent's QAN Collect requests.
 func (s *Supervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 	return s.qanRequests
+}
+
+// RTARequests returns channel with Agent's RTA Collect requests.
+func (s *Supervisor) RTARequests() <-chan *rtav1.CollectRequest {
+	return s.rtaRequests
 }
 
 // SetState starts or updates all agents placed in args and stops all agents not placed in args, but already run.
@@ -658,9 +667,15 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				}
 			}
 			if change.MetricsBucket != nil {
-				l.Infof("Sending %d buckets.", len(change.MetricsBucket))
+				l.Infof("Sending %d metrics buckets.", len(change.MetricsBucket))
 				s.qanRequests <- &agentv1.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
+				}
+			}
+			if change.RTAQueriesBucket != nil {
+				l.Infof("Sending %d RTA queries buckets.", len(change.RTAQueriesBucket))
+				s.rtaRequests <- &rtav1.CollectRequest{
+					Queries: change.RTAQueriesBucket,
 				}
 			}
 		}
@@ -827,6 +842,7 @@ func (s *Supervisor) stopAll() {
 
 	s.l.Infof("Done.")
 	close(s.qanRequests)
+	close(s.rtaRequests)
 	close(s.changes)
 }
 
