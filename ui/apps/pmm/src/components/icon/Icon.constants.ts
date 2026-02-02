@@ -49,6 +49,10 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'expand-content': () => import('icons/expand-content.svg?react'),
   'dynamic-feed': () => import('icons/dynamic-feed.svg?react'),
   'bottom-panel-open': () => import('icons/bottom-panel-open.svg?react'),
+  'electric-bolt': () => import('icons/electric-bolt.svg?react'),
+  'electric-bolt-off': () => import('icons/electric-bolt-off.svg?react'),
+  'play-arrow': () => import('icons/play-arrow.svg?react'),
+  pause: () => import('icons/pause.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<

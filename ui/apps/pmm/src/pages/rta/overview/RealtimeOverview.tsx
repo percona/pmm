@@ -10,20 +10,27 @@ import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
+import { useManagedServices } from 'hooks/api/useServices';
+import { ServiceType } from 'types/services.types';
+import { FetchingIndicator } from './fetching-indicator';
 
 const RealtimeOverviewPage: FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const serviceIds = searchParams.getAll('serviceIds');
+  const [fetching, setFetching] = useState(serviceIds.length > 0);
   const { data: queries = [] } = useRealtimeQueries(
     { serviceIds },
     {
-      enabled: serviceIds.length > 0,
+      enabled: fetching,
       refetchInterval: 5000,
     }
   );
   const [selectedQueryIndex, setSelectedQueryIndex] = useState<number>();
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
-
+  const { data: serviceData } = useManagedServices({
+    serviceType: ServiceType.mongodb,
+  });
   const handleQueryChange = (query: QueryData, index: number) => {
     setSelectedQuery(query);
     setSelectedQueryIndex(index);
@@ -50,6 +57,11 @@ const RealtimeOverviewPage: FC = () => {
     handleQueryChange(queries[idx], idx);
   };
 
+  const handleServiceIdsChange = (serviceIds: string[]) => {
+    setFetching(serviceIds.length > 0);
+    setSearchParams({ serviceIds });
+  };
+
   return (
     <RealtimePage>
       <OverviewTable
@@ -61,10 +73,40 @@ const RealtimeOverviewPage: FC = () => {
             alignItems="center"
             justifyContent="space-between"
             sx={{
+              pl: 2,
               flex: 1,
             }}
           >
-            <Stack>{/* Leaving space for the filters/pause/etc. */}</Stack>
+            <Stack gap={2} direction="row" alignItems="center">
+              <Stack sx={{ width: 360 }}>
+                <ServicesAutocompleteInput
+                  services={serviceData?.services || []}
+                  serviceIds={serviceIds}
+                  onServiceIdsChange={handleServiceIdsChange}
+                  inputProps={{
+                    size: 'small',
+                  }}
+                />
+              </Stack>
+              <FetchingIndicator isFetching={fetching} />
+              <Button
+                size="small"
+                startIcon={
+                  fetching ? <Icon name="pause" /> : <Icon name="play-arrow" />
+                }
+                disabled={serviceIds.length === 0}
+                color={fetching ? 'inherit' : undefined}
+                variant={fetching ? 'text' : 'contained'}
+                onClick={() => setFetching(!fetching)}
+                disableElevation
+                sx={{
+                  width: 100,
+                  height: 32,
+                }}
+              >
+                {fetching ? Messages.pause : Messages.resume}
+              </Button>
+            </Stack>
             <Button
               color="inherit"
               data-testid="overview-table-all-sessions-button"
