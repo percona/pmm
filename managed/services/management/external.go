@@ -50,7 +50,7 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 			runsOnNodeID = nodeID
 		}
 
-		// Get address from runs_on node (same logic as VictoriaMetrics scrape config)
+		// Get address from runs_on_node (same logic as VictoriaMetrics scrape config)
 		var address *string
 		var port *uint16
 		if runsOnNodeID != "" {
