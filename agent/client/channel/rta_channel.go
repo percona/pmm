@@ -56,8 +56,8 @@ type RTAChannel struct { //nolint:maligned
 // Stream should not be used by the caller after channel is created.
 func NewRTAChannel(stream rtav1.CollectorService_CollectClient) *RTAChannel {
 	s := &RTAChannel{
-		s: stream,
-		l: logrus.WithField("component", "rta_channel"), // only for debug logging
+		s:         stream,
+		l:         logrus.WithField("component", "rta_channel"), // only for debug logging
 		closeWait: make(chan struct{}),
 	}
 
