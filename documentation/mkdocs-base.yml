@@ -175,7 +175,6 @@ nav:
                         - Overview: install-pmm/install-pmm-server/deployment-options/virtual/index.md
                         - Download OVA: install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
                         - Deploy on VirtualBox: install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
-                        - Deploy on VMware (deprecated): install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
                   - Install on AWS Marketplace:
                         - Planning: install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
                         - Deployment: install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
@@ -444,7 +443,6 @@ nav:
           - Upgrade PMM Server in K8s:
               - pmm-upgrade/upgrade_helm.md
           - pmm-upgrade/migrating_from_pmm_2.md
-          - pmm-upgrade/migrating_from_vmware.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
   - Uninstall:
@@ -466,6 +464,7 @@ nav:
       - troubleshoot/data_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.6.0 (2026-02-05)": release-notes/3.6.0.md 
       - "PMM 3.5.0 (2025-11-19)": release-notes/3.5.0.md     
       - "PMM 3.4.1 (2025-10-13)": release-notes/3.4.1.md
       - "PMM 3.4.0 (2025-09-15)": release-notes/3.4.0.md
