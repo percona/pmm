@@ -119,7 +119,7 @@ func TestClient(t *testing.T) {
 		})
 		client := New(cfgStorage, nil, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		err := client.Run(ctx)
-		assert.Equal(t, status.Convert(err).Code(), codes.Canceled)
+		assert.Equal(t, codes.Canceled, status.Convert(err).Code())
 	})
 
 	t.Run("WithServer", func(t *testing.T) {

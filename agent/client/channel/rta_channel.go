@@ -28,9 +28,7 @@ import (
 )
 
 const (
-	prometheusRTANamespace = "pmm_agent"
-	prometheusRTASubsystem = "rta_channel"
-	// pingInterval is interval between health ping messages.
+	// Interval between health ping messages.
 	// Should be less than 1 minute to prevent gRPC stream from being closed
 	// by underlying layers due to inactivity.
 	pingInterval = 30 * time.Second
