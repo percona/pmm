@@ -188,6 +188,9 @@ func (c *Client) Run(ctx context.Context) error {
 	}
 	if ctx.Err() != nil {
 		close(c.done)
+		if connErr != nil {
+			return connErr
+		}
 		if agentServiceDialErr != nil {
 			return agentServiceDialErr
 		}

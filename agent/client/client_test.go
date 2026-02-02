@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -34,6 +35,7 @@ import (
 	"github.com/percona/pmm/agent/runner"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
 type testServer struct {
@@ -117,7 +119,7 @@ func TestClient(t *testing.T) {
 		})
 		client := New(cfgStorage, nil, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		err := client.Run(ctx)
-		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
+		assert.Equal(t, status.Convert(err).Code(), codes.Canceled)
 	})
 
 	t.Run("WithServer", func(t *testing.T) {
@@ -160,6 +162,7 @@ func TestClient(t *testing.T) {
 			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+			s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
 			s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 			s.On("ClearChangesChannel").Return()
 
@@ -278,6 +281,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
 	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 	s.On("ClearChangesChannel").Return()
 
