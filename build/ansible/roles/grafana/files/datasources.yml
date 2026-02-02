@@ -1,11 +1,5 @@
 apiVersion: 1
 deleteDatasources:
-  - name: Metrics
-    orgId: 1
-  - name: PostgreSQL
-    orgId: 1
-  - name: PTSummary
-    orgId: 1
   - name: ClickHouse
     orgId: 1
 
@@ -14,7 +8,6 @@ datasources:
   version: 2
   orgId: 1
   type: prometheus
-  uid: prometheus
   access: proxy
   url: http://127.0.0.1:8430/
   isDefault: true
@@ -27,7 +20,6 @@ datasources:
   version: 2
   orgId: 1
   type: postgres
-  uid: postgres
   access: proxy
   url: ${PMM_POSTGRES_ADDR}
   user: ${PMM_POSTGRES_USERNAME}
@@ -45,7 +37,6 @@ datasources:
   version: 2
   orgId: 1
   type: pmm-pt-summary-datasource
-  uid: pt-summary
   access: proxy
 
 # https://github.com/grafana/clickhouse-datasource?tab=readme-ov-file#with-a-configuration-file
@@ -53,7 +44,6 @@ datasources:
   orgId: 1
   version: 2
   type: grafana-clickhouse-datasource
-  uid: clickhouse
   jsonData:
     username: ${PMM_CLICKHOUSE_USER}
     port: ${PMM_CLICKHOUSE_PORT}

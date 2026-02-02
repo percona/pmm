@@ -75,7 +75,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 			if err != nil {
 				l.Fatalf("Database wasn't created: %v", err)
 			}
-			l.Infof("Database created, connecting again %s", dsnutils.RedactDSN(dsn))
+			l.Infof("Connecting again to %s", dsnutils.RedactDSN(dsn))
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
 				l.Fatalf("Connection: %v", err)
@@ -99,10 +99,6 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 
 	data := map[string]any{
 		"engine": migrations.GetEngine(isCluster),
-	}
-	if clusterName != "" {
-		l.Infof("Using ClickHouse cluster name: %s", clusterName)
-		data["cluster"] = fmt.Sprintf("ON CLUSTER %s", clusterName)
 	}
 	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
 		l.Fatalf("migrations: %v", err)
@@ -128,19 +124,21 @@ func createDB(dsn string, clusterName string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	sql := fmt.Sprintf("CREATE DATABASE %s", databaseName)
+	sql := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", databaseName)
 	if clusterName != "" {
 		l.Infof("Using ClickHouse cluster name: %s", clusterName)
 		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
+		sql = fmt.Sprintf("%s ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')", sql)
+	} else {
+		sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 	}
-	sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 
 	result, err := defaultDB.Exec(sql)
 	if err != nil {
 		l.Infof("Result: %v", result)
 		return err
 	}
-	l.Info("Database was created")
+	l.Infof("Database %s created using sql: %s", databaseName, sql)
 
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
 	return nil
@@ -153,19 +151,24 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 	const query = `
 		SELECT DISTINCT partition
 		FROM system.parts
-		WHERE toUInt32OrZero(partition) < toYYYYMMDD(now() - toIntervalDay(?)) AND database = ? and visible = 1 ORDER BY partition
+		WHERE database = ?
+			AND table = 'metrics'
+			AND visible = 1
+			AND match(partition, '^[0-9]{8}$')
+			AND toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?))
+		ORDER BY partition
 	`
 	err := db.Select(
 		&partitions,
 		query,
-		days,
-		dbName)
+		dbName,
+		days)
 	if err != nil {
 		l.Infof("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return
 	}
 	for _, part := range partitions {
-		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE metrics DROP PARTITION %s`, part))
-		l.Infof("Drop %s partitions of metrics. Result: %v, Error: %v", part, result, err)
+		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
+		l.Infof("Drop partition %s of %s.metrics. Result: %v, Error: %v", part, dbName, result, err)
 	}
 }
