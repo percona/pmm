@@ -139,6 +139,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_external_exporter": "external_exporter",
 				},
 				TLSSkipVerify: true,
+				Status:        pointer.ToString(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 
