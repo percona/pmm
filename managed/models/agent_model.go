@@ -301,15 +301,16 @@ func (c ValkeyOptions) IsEmpty() bool {
 //
 //reform:agents
 type Agent struct {
-	AgentID      string    `reform:"agent_id,pk"`
-	AgentType    AgentType `reform:"agent_type"`
-	RunsOnNodeID *string   `reform:"runs_on_node_id"`
-	ServiceID    *string   `reform:"service_id"`
-	NodeID       *string   `reform:"node_id"`
-	PMMAgentID   *string   `reform:"pmm_agent_id"`
-	CustomLabels []byte    `reform:"custom_labels"`
-	CreatedAt    time.Time `reform:"created_at"`
-	UpdatedAt    time.Time `reform:"updated_at"`
+	AgentID              string    `reform:"agent_id,pk"`
+	AgentType            AgentType `reform:"agent_type"`
+	RunsOnNodeID         *string   `reform:"runs_on_node_id"`
+	ServiceID            *string   `reform:"service_id"`
+	NodeID               *string   `reform:"node_id"`
+	PMMAgentID           *string   `reform:"pmm_agent_id"`
+	CustomLabels         []byte    `reform:"custom_labels"`
+	EnvironmentVariables []byte    `reform:"environment_variables"`
+	CreatedAt            time.Time `reform:"created_at"`
+	UpdatedAt            time.Time `reform:"updated_at"`
 
 	Disabled        bool    `reform:"disabled"`
 	Status          string  `reform:"status"`
