@@ -8,21 +8,16 @@ export interface Props {
 // TODO: WIP since the states are not defined yet
 const StateCell: FC<Props> = ({ state }) => {
   const color = useMemo(() => {
-    const normalizedState = state.toLowerCase();
-
-    if (normalizedState === 'blocked') {
-      return 'error';
+    switch (state.toLowerCase()) {
+      case 'blocked':
+        return 'error';
+      case 'running':
+        return 'info';
+      case 'processing':
+        return 'warning';
+      default:
+        return 'default';
     }
-
-    if (normalizedState === 'running') {
-      return 'info';
-    }
-
-    if (normalizedState === 'processing') {
-      return 'warning';
-    }
-
-    return 'default';
   }, [state]);
 
   return <Chip color={color} label={state} variant="outlined" />;
