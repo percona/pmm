@@ -61,7 +61,7 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 		}
 
 		if req.ListenPort > 0 {
-			p := uint16(req.ListenPort)
+			p := uint16(req.ListenPort) //nolint:gosec
 			port = &p
 		}
 
