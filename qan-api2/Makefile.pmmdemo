@@ -61,6 +61,7 @@ BACKUP_NAME ?= 20260120
 BACKUP_LAST_MIGRATION ?= 21
 #
 # Download the ClickHouse backup, unzip it and prepare the directory to restore.
+.PHONY download-clickhouse-backup
 download-clickhouse-backup: 
 	./download_clickhouse_backup.sh $(BACKUP_NAME)
 # Restore the ClickHouse backup into the pmm-server container and apply differential migrations if needed.
