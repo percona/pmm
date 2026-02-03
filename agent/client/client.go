@@ -140,6 +140,7 @@ func (c *Client) Run(ctx context.Context) error {
 
 	// try to connect until success, or until ctx is canceled
 	var agentServiceDialResult *dialResult
+	var rtaChannel *channel.RTAChannel
 	var sharedConn *grpc.ClientConn
 	var connErr, agentServiceDialErr, rtaServiceDialErr error
 	for {
@@ -158,7 +159,7 @@ func (c *Client) Run(ctx context.Context) error {
 				// create a separate gRPC stream to RTA service only after successfully connecting to Agent service.
 				// RTA stream shares the same underlying connection with Agent service.
 				rtaServiceDialCtx, rtaServiceDialCancel := context.WithTimeout(ctx, c.dialTimeout)
-				c.rtaChannel, rtaServiceDialErr = createChannelToRealTimeAnalyticsService(rtaServiceDialCtx, sharedConn, cfg, c.l)
+				rtaChannel, rtaServiceDialErr = createChannelToRealTimeAnalyticsService(rtaServiceDialCtx, sharedConn, cfg, c.l)
 				rtaServiceDialCancel()
 				if rtaServiceDialErr != nil {
 					c.l.Errorf("Failed to create communication channel to Real-Time Analytics service: %s.", rtaServiceDialErr)
@@ -213,6 +214,7 @@ func (c *Client) Run(ctx context.Context) error {
 	c.rw.Lock()
 	c.md = agentServiceDialResult.md
 	c.channel = agentServiceDialResult.channel
+	c.rtaChannel = rtaChannel
 	c.rw.Unlock()
 
 	// Once the client is connected, ctx cancellation is ignored by it.
@@ -783,10 +785,8 @@ func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
 }
 
 type dialResult struct {
-	conn         *grpc.ClientConn
-	streamCancel context.CancelFunc
-	channel      *channel.Channel
-	md           *agentv1.ServerConnectMetadata
+	channel *channel.Channel
+	md      *agentv1.ServerConnectMetadata
 }
 
 // createConnectionToServer tries to connect to the server once.
@@ -908,10 +908,8 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 		time.Since(start), clockDrift)
 
 	return &dialResult{
-		conn:         conn,
-		streamCancel: streamCancel,
-		channel:      channel,
-		md:           md,
+		channel: channel,
+		md:      md,
 	}, nil
 }
 
@@ -1012,6 +1010,7 @@ func (c *Client) Describe(chan<- *prometheus.Desc) {
 func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.rw.RLock()
 	channel := c.channel
+	rtaChannel := c.rtaChannel
 	c.rw.RUnlock()
 
 	desc := prometheus.NewDesc("pmm_agent_connected", "Has value 1 if two-way communication channel is established.", nil, nil)
@@ -1021,6 +1020,11 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0)
 	}
+
+	if rtaChannel != nil {
+		rtaChannel.Collect(ch)
+	}
+
 	c.supervisor.Collect(ch)
 }
 

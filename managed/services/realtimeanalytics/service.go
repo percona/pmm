@@ -346,7 +346,7 @@ func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest
 
 		if l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 			// do not use default compact representation for large/complex messages
-			if size := proto.Size(msg); size < 100 {
+			if size := proto.Size(msg); size < 100 { //nolint:mnd
 				l.Debugf("Received message (%d bytes): %s.", size, msg)
 			} else {
 				l.Debugf("Received message (%d bytes):\n%s\n", proto.Size(msg), prototext.Format(msg))

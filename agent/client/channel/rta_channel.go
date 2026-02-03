@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/prototext"
@@ -32,6 +33,9 @@ const (
 	// Should be less than 1 minute to prevent gRPC stream from being closed
 	// by underlying layers due to inactivity.
 	pingInterval = 30 * time.Second
+
+	rtaPrometheusNamespace = "pmm_agent"
+	rtaPrometheusSubsystem = "rta_channel"
 )
 
 // RTAChannel encapsulates client-streaming gRPC stream from pmm-agent to pmm-managed.
@@ -40,6 +44,9 @@ const (
 type RTAChannel struct { //nolint:maligned
 	s rtav1.CollectorService_CollectClient
 	l *logrus.Entry
+
+	// sent messages counter (for prometheus)
+	mSend prometheus.Counter
 
 	// protects access to `s` stream
 	sendM sync.Mutex
@@ -57,6 +64,12 @@ func NewRTAChannel(stream rtav1.CollectorService_CollectClient) *RTAChannel {
 		s:         stream,
 		l:         logrus.WithField("component", "rta_channel"), // only for debug logging
 		closeWait: make(chan struct{}),
+		mSend: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: rtaPrometheusNamespace,
+			Subsystem: rtaPrometheusSubsystem,
+			Name:      "rta_messages_sent_total",
+			Help:      "A total number of sent Real-Time Analytics messages to pmm-managed.",
+		}),
 	}
 
 	go s.runHealthPing()
@@ -124,7 +137,7 @@ func (c *RTAChannel) Send(msg *rtav1.CollectRequest) {
 	// Do not waste resources in case debug level is not enabled.
 	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		// do not use default compact representation for large/complex messages
-		if size := proto.Size(msg); size < 100 {
+		if size := proto.Size(msg); size < 100 { //nolint:mnd
 			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
 		} else {
 			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
@@ -138,4 +151,20 @@ func (c *RTAChannel) Send(msg *rtav1.CollectRequest) {
 		c.close(errors.Wrap(err, "failed to send message"))
 		return
 	}
+	c.mSend.Inc()
 }
+
+// Describe implements prometheus.Collector.
+func (c *RTAChannel) Describe(ch chan<- *prometheus.Desc) {
+	c.mSend.Describe(ch)
+}
+
+// Collect implement prometheus.Collector.
+func (c *RTAChannel) Collect(ch chan<- prometheus.Metric) {
+	c.mSend.Collect(ch)
+}
+
+// check interfaces.
+var (
+	_ prometheus.Collector = (*RTAChannel)(nil)
+)
