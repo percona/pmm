@@ -222,7 +222,7 @@ nav:
         - Kubernetes Single-Instance: install-pmm/HA-kubernetes-single-instance.md
         - Kubernetes Cluster: 
             - Understand PMM HA Cluster: install-pmm/HA-clustered.md
-            - Install PMM HA Clustered: install-pmm/install-HA-clustered.md
+            - Install PMM HA Cluster: install-pmm/install-HA-clustered.md
 
   - Use:
       - use/using-pmm.md
