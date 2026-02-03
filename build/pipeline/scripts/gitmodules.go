@@ -1,7 +1,24 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// A utility to extract submodule information from a .gitmodules file.
 package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -10,7 +27,7 @@ import (
 
 func main() {
 	if len(os.Args) < 4 { //nolint:mnd
-		fmt.Fprintf(os.Stderr, "Usage: %s <gitmodules-file> <component> <field>\n", os.Args[0])
+		slog.Error("Usage: <gitmodules-file> <component> <field>", "program", os.Args[0])
 		os.Exit(1)
 	}
 
@@ -20,7 +37,7 @@ func main() {
 
 	cfg, err := ini.Load(gitmodulesFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load .gitmodules: %v\n", err)
+		slog.Error("Failed to load .gitmodules", "error", err)
 		os.Exit(1)
 	}
 
@@ -28,11 +45,12 @@ func main() {
 	sectionName := fmt.Sprintf("submodule \"%s\"", component)
 	section := cfg.Section(sectionName)
 	if section == nil {
-		fmt.Fprintf(os.Stderr, "Component '%s' not found in .gitmodules\n", component)
-		fmt.Fprintln(os.Stderr, "Available submodules:")
+		slog.Error("Component not found in .gitmodules", "component", component)
+		slog.Info("Available submodules:")
+
 		for _, sec := range cfg.Sections() {
 			if strings.HasPrefix(sec.Name(), "submodule") {
-				fmt.Fprintf(os.Stderr, "  %s\n", sec.Name())
+				slog.Info(sec.Name())
 			}
 		}
 		os.Exit(1)
@@ -41,7 +59,7 @@ func main() {
 	// Get the requested field (url, branch, or tag)
 	value := section.Key(field).String()
 	if value == "" {
-		fmt.Fprintf(os.Stderr, "Field '%s' not found for component '%s'\n", field, component)
+		slog.Error("Field not found for component", "field", field, "component", component)
 		os.Exit(1)
 	}
 
