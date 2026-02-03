@@ -65,6 +65,7 @@ BACKUP_LAST_MIGRATION ?= 21
 download-clickhouse-backup: 
 	./download_clickhouse_backup.sh $(BACKUP_NAME)
 # Restore the ClickHouse backup into the pmm-server container and apply differential migrations if needed.
+.PHONY restore-clickhouse-backup
 restore-clickhouse-backup: 
 	docker exec pmm-server clickhouse-client --password=clickhouse --query="DROP DATABASE IF EXISTS pmm";
 	docker exec pmm-server clickhouse-client --password=clickhouse --query="RESTORE DATABASE pmm FROM Disk('backup', '$(BACKUP_NAME)')";
