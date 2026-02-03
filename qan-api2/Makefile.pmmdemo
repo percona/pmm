@@ -89,7 +89,9 @@ bench:
 	@echo
 	make bench-example
 # Run bench for getFilters.
+.PHONY bench-filters
 bench-filters:
+  $(info Running Filters benchmark)
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetFilters$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
 # Run bench for getReport.
