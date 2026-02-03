@@ -80,14 +80,8 @@ restore-clickhouse-backup:
 PMM_DEMO_BENCH_PERIOD_FROM ?= 2025-12-27T00:00:00+01:00
 PMM_DEMO_BENCH_PERIOD_TO ?= 2026-01-21T23:59:59+01:00
 # Run bench for all main endpoints.
-bench:
-	make bench-filters
-	@echo
-	make bench-report
-	@echo
-	make bench-metrics
-	@echo
-	make bench-example
+.PHONY bench
+bench: bench-filters bench-report bench-metrics bench-example
 # Run bench for getFilters.
 .PHONY bench-filters
 bench-filters:
