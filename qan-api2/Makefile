@@ -1,5 +1,5 @@
 # PMM Demo benchmark
-include Makefile.pmmdemo
+include Makefile.clickhouse
 
 default: help
 
