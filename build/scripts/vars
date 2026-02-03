@@ -67,7 +67,7 @@ dynamic_binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}-${B
 
 # https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.134.0
 vmagent_commit_hash=8fb6f74a739dc9d433274906fd69d1b2edca6951
-# https://github.com/oliver006/redis_exporter/releases/tag/v1.80.1
-redis_exporter_commit_hash=b0a03b20062314a8ac2918f5c377ebaf44cc8bd8
-# https://github.com/hashicorp/nomad/releases/tag/v1.11.0
-nomad_commit_hash=9103d938133311b2da905858801f0e111a2df0a1
+# https://github.com/oliver006/redis_exporter/releases/tag/v1.80.2
+redis_exporter_commit_hash=3980c9100940be154765f115e3a3079ff75b08ea
+# https://github.com/hashicorp/nomad/releases/tag/v1.11.1
+nomad_commit_hash=5b76eb0535615e32faf4daee479f7155ea16ec0d
