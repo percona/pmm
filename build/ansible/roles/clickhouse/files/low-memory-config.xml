@@ -317,7 +317,12 @@
          This is not a hard limit. In case if the limit is reached the query will still get at least one thread to run.
          Query can upscale to desired number of threads during execution if more threads become available.
     -->
-    <concurrent_threads_soft_limit_num>0</concurrent_threads_soft_limit_num>
+    <concurrent_threads_soft_limit_num>1</concurrent_threads_soft_limit_num>
+    <!-- Low-memory tuning: block size, download threads, parallel parsing/formatting -->
+    <max_block_size>8192</max_block_size>
+    <max_download_threads>1</max_download_threads>
+    <input_format_parallel_parsing>0</input_format_parallel_parsing>
+    <output_format_parallel_formatting>0</output_format_parallel_formatting>
     <concurrent_threads_soft_limit_ratio_to_cores>0</concurrent_threads_soft_limit_ratio_to_cores>
 
     <!-- Maximum number of concurrent queries. -->
@@ -1009,17 +1014,7 @@
     <!-- Trace log. Stores stack traces collected by query profilers.
          See query_profiler_real_time_period_ns and query_profiler_cpu_time_period_ns settings. -->
     <trace_log>
-        <database>system</database>
-        <table>trace_log</table>
-
-        <partition_by>toYYYYMM(event_date)</partition_by>
-        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
-        <max_size_rows>1048576</max_size_rows>
-        <reserved_size_rows>8192</reserved_size_rows>
-        <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
-        <!-- Indication whether logs should be dumped to the disk in case of a crash -->
-        <flush_on_crash>false</flush_on_crash>
-        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
+        <engine>Null</engine>
     </trace_log>
 
     <!-- Query thread log. Has information about all threads participated in query execution.
@@ -1064,28 +1059,13 @@
          Text log contains all information from usual server log but stores it in structured and efficient way.
          The level of the messages that goes to the table can be limited (<level>), if not specified all messages will go to the table.
     <text_log>
-        <database>system</database>
-        <table>text_log</table>
-        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
-        <max_size_rows>1048576</max_size_rows>
-        <reserved_size_rows>8192</reserved_size_rows>
-        <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
-        <flush_on_crash>false</flush_on_crash>
-        <level></level>
+        <engine>Null</engine>
     </text_log>
     -->
 
     <!-- Metric log contains rows with current values of ProfileEvents, CurrentMetrics collected with "collect_interval_milliseconds" interval. -->
     <metric_log>
-        <database>system</database>
-        <table>metric_log</table>
-        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
-        <max_size_rows>1048576</max_size_rows>
-        <reserved_size_rows>8192</reserved_size_rows>
-        <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
-        <collect_interval_milliseconds>1000</collect_interval_milliseconds>
-        <flush_on_crash>false</flush_on_crash>
-        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
+        <engine>Null</engine>
     </metric_log>
 
     <!--
@@ -1093,14 +1073,7 @@
         system.asynchronous_metrics.
     -->
     <asynchronous_metric_log>
-        <database>system</database>
-        <table>asynchronous_metric_log</table>
-        <flush_interval_milliseconds>7000</flush_interval_milliseconds>
-        <max_size_rows>1048576</max_size_rows>
-        <reserved_size_rows>8192</reserved_size_rows>
-        <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
-        <flush_on_crash>false</flush_on_crash>
-        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
+        <engine>Null</engine>
     </asynchronous_metric_log>
 
     <!--
