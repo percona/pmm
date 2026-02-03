@@ -2,9 +2,9 @@ import { FC, HTMLAttributes } from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import {
-  ServiceOption as ServiceOptionType,
   ClusterSelectionState,
-} from 'pages/rta/selection/form/RealtimeSelectionForm.types';
+  ServiceOption as ServiceOptionType,
+} from '../ServicesAutocompleteInput.types';
 
 interface Props extends HTMLAttributes<HTMLLIElement> {
   option: ServiceOptionType;
