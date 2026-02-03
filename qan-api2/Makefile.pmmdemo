@@ -107,6 +107,8 @@ bench-metrics:
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetMetrics$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
 # Run bench for getExample.
+.PHONY bench-example
 bench-example:
+  $(info Running Example benchmark)
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetExample$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
