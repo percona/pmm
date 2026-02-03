@@ -447,7 +447,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
             -e PMM_TEST_HA_BOOTSTRAP=1 \
             -e PMM_TEST_HA_NODE_ID=${PMM_ACTIVE_NODE_ID} \
             -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_ACTIVE_IP} \
@@ -486,7 +485,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
             -e PMM_TEST_HA_BOOTSTRAP=1 \
             -e PMM_TEST_HA_NODE_ID=${PMM_ACTIVE_NODE_ID} \
             -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_ACTIVE_IP} \
@@ -523,7 +521,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
             -e PMM_TEST_HA_BOOTSTRAP=0 \
             -e PMM_TEST_HA_NODE_ID=${PMM_PASSIVE_NODE_ID} \
             -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE_IP} \
@@ -562,7 +559,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
             -e PMM_TEST_HA_BOOTSTRAP=0 \
             -e PMM_TEST_HA_NODE_ID=${PMM_PASSIVE_NODE_ID} \
             -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE_IP} \
@@ -599,7 +595,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \            
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
             -e PMM_TEST_HA_BOOTSTRAP=0 \
             -e PMM_TEST_HA_NODE_ID=${PMM_PASSIVE2_NODE_ID} \
             -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE2_IP} \
@@ -638,7 +633,6 @@ Choose the option that best fits your infrastructure and requirements:
             -e GF_DATABASE_PORT=5432 \
             -e GF_DATABASE_NAME=grafana \
             -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
-            -e PMM_TEST_HA_ENABLE=1 \
             -e PMM_TEST_HA_BOOTSTRAP=0 \
             -e PMM_TEST_HA_NODE_ID=${PMM_PASSIVE2_NODE_ID} \
             -e PMM_TEST_HA_ADVERTISE_ADDRESS=${PMM_PASSIVE2_IP} \

@@ -70,7 +70,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 
     | Dashboard                                                                                | Description |
     |------------------------------------------------------------------------------------------|-------------|
-    | [Experimental MongoDB Collection Overview]                                               | Collection-level statistics (experimental)
+    | [MongoDB Collection Overview]                                               | Collection-level statistics (experimental)
     | [Experimental MongoDB Collection Details]                                                | Detailed collection metrics (experimental)
     | [Experimental MongoDB Oplog Details]                                                     | Oplog operations and replication (experimental)
     | [MongoDB Cluster Summary]                                                                | Sharded cluster health and performance overview
@@ -158,7 +158,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [MySQL Group Replication Summary]: ../../reference/dashboards/dashboard-mysql-group-replication-summary.md
 [MySQL Table Details]: ../../reference/dashboards/dashboard-mysql-table-details.md
 [MySQL User Details]: ../../reference/dashboards/dashboard-mysql-user-details.md
-[Experimental MongoDB Collection Overview]: ../../reference/dashboards/dashboard-mongodb-experimental_collection_overview.md
+[MongoDB Collection Overview]: ../../reference/dashboards/dashboard-mongodb-collection_overview.md
 [Experimental MongoDB Oplog Details]: ../../reference/dashboards/dashboard-mongodb-experimental_oplog.md
 [MongoDB Cluster Summary]: ../../reference/dashboards/dashboard-mongodb-cluster-summary.md
 [MongoDB Instance Summary]: ../../reference/dashboards/dashboard-mongodb-instance-summary.md

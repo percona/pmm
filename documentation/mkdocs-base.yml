@@ -533,7 +533,7 @@ nav:
               - reference/dashboards/dashboard-mysql-table-details.md
               - reference/dashboards/dashboard-mysql-user-details.md
           - MongoDB dashboards:
-              - reference/dashboards/dashboard-mongodb-experimental_collection_overview.md
+              - reference/dashboards/dashboard-mongodb-collection_overview.md
               - reference/dashboards/dashboard-mongodb-experimental_oplog.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md

@@ -6,7 +6,6 @@
      For stable, production-ready configuration options, see the main [Environment variables for PMM Server](../docker/env_var.md) documentation.
 | Variable                               | Description
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------
-| `PMM_TEST_HA_ENABLE`                  | Enable PMM to run in High Availability (HA) mode.
 | `PMM_TEST_HA_BOOTSTRAP`                | Bootstrap HA cluster.
 | `PMM_TEST_HA_NODE_ID`                  | HA Node ID.
 | `PMM_TEST_HA_ADVERTISE_ADDRESS`        | HA Advertise address.
@@ -19,7 +18,6 @@
 
 | Variable                                                      | Description
 | ------------------------------------------------------------- | --------------------------------------------------------------------------
-| `PERCONA_TEST_SAAS_HOST`                                      | SaaS server hostname.
 | `PMM_CLICKHOUSE_ADDR`                                         | Name of the host and port of the external ClickHouse database instance
 | `PMM_CLICKHOUSE_DATABASE`                                     | Database name of the external ClickHouse instance
 | `​​PMM_CLICKHOUSE_USER`                                         | Database user
@@ -33,7 +31,6 @@ Add preview variables to your `docker run` command for testing purposes:
 ```sh 
 docker run -d \
   --name pmm-server \
-  -e PERCONA_TEST_PMM_CLICKHOUSE_ADDR=clickhouse-test:9000 \
   -e PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm_test \
   percona/pmm-server:3
 ```

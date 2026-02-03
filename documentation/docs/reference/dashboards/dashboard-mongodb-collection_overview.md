@@ -1,4 +1,4 @@
-# Experimental MongoDB Collections Overview
+# MongoDB Collections Overview
 
 !!! caution alert alert-warning "Disclaimer"
     This is an Experimental Dashboard that is not part of the official Percona Monitoring and Management (PMM) deployment and might be updated. We ship this Dashboard to obtain feedback from our users.
@@ -11,4 +11,4 @@ The next panel displays data at the **Database Level**, where you can view Mongo
 
 The last panel shows the number of operations in the chosen database.
 
-![!image](../../images/PMM_Mongodb_Collections_Overview_Experimental.png)
+![!image](../../images/PMM_Mongodb_Collections_Overview.png)
