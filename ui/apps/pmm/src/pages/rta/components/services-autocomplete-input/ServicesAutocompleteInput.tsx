@@ -12,20 +12,30 @@ import {
   toggleClusterServices,
 } from './ServicesAutocompleteInput.utils';
 import {
+  PropsWithServices,
+  PropsWithSessions,
   ServiceOption,
   ServicesAutocompleteInputProps,
 } from './ServicesAutocompleteInput.types';
 
 const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   disabled = false,
-  services,
   serviceIds,
   onServiceIdsChange,
   inputProps,
+  ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  // const { availableServices, isLoading } = useAvailableServices();
-  const serviceOptions = useMemo(() => getServiceOptions(services), [services]);
+  const serviceOptions = useMemo(
+    () =>
+      'sessions' in props
+        ? getServiceOptions(props.sessions)
+        : getServiceOptions(props.services),
+    [
+      (props as PropsWithSessions).sessions,
+      (props as PropsWithServices).services,
+    ]
+  );
   const selectedServices = useMemo(() => {
     return serviceOptions.filter((option) => serviceIds?.includes(option.id));
   }, [serviceOptions, serviceIds]);

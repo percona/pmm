@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { RealtimePage } from '../components/rta-page';
-import { useRealtimeQueries } from 'hooks/api/useRealtime';
+import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
 import { DetailsPane } from './details-pane';
 import { QueryData } from 'types/rta.types';
@@ -11,8 +11,6 @@ import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
-import { useManagedServices } from 'hooks/api/useServices';
-import { ServiceType } from 'types/services.types';
 import { FetchingIndicator } from './fetching-indicator';
 
 const RealtimeOverviewPage: FC = () => {
@@ -28,9 +26,7 @@ const RealtimeOverviewPage: FC = () => {
   );
   const [selectedQueryIndex, setSelectedQueryIndex] = useState<number>();
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
-  const { data: serviceData } = useManagedServices({
-    serviceType: ServiceType.mongodb,
-  });
+  const { data: sessions = [] } = useRealtimeSessions();
   const handleQueryChange = (query: QueryData, index: number) => {
     setSelectedQuery(query);
     setSelectedQueryIndex(index);
@@ -80,7 +76,7 @@ const RealtimeOverviewPage: FC = () => {
             <Stack gap={2} direction="row" alignItems="center">
               <Stack sx={{ width: 360 }}>
                 <ServicesAutocompleteInput
-                  services={serviceData?.services || []}
+                  sessions={sessions}
                   serviceIds={serviceIds}
                   onServiceIdsChange={handleServiceIdsChange}
                   inputProps={{

@@ -3,6 +3,7 @@ import {
   ClusterSelectionState,
   ServiceOption,
 } from './ServicesAutocompleteInput.types';
+import { RealtimeSession } from 'types/rta.types';
 
 /**
  * Get the selection state of a cluster
@@ -39,22 +40,30 @@ export const getClusterSelectionState = (
  * Build service options from available services
  */
 export const getServiceOptions = (
-  services: ManagedService[]
+  services: ManagedService[] | RealtimeSession[]
 ): ServiceOption[] => {
   if (services.length === 0) {
     return [];
   }
 
   // Group services by cluster
-  const clusterMap = new Map<string, ManagedService[]>();
-  const standaloneServices: ManagedService[] = [];
+  const clusterMap = new Map<string, (ManagedService | RealtimeSession)[]>();
+  const standaloneServices: (ManagedService | RealtimeSession)[] = [];
 
   services.forEach((service) => {
-    if (service.cluster) {
-      if (!clusterMap.has(service.cluster)) {
-        clusterMap.set(service.cluster, []);
+    let clusterName = '';
+
+    if ('cluster' in service) {
+      clusterName = service.cluster;
+    } else {
+      clusterName = service.clusterName;
+    }
+
+    if (clusterName) {
+      if (!clusterMap.has(clusterName)) {
+        clusterMap.set(clusterName, []);
       }
-      const clusterServices = clusterMap.get(service.cluster);
+      const clusterServices = clusterMap.get(clusterName);
       if (clusterServices) {
         clusterServices.push(service);
       }
