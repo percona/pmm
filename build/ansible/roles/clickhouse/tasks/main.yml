@@ -51,6 +51,9 @@
     - config.xml
     - users.xml
     - dhparam.pem
+    - low-memory-config.xml
+    - high-memory-config.xml
+    - switch-config.sh
 
 # We need to remove capabilities because we run PMM in an unprivileged container
 - name: Remove cap_ipc_lock from clickhouse binary

@@ -1,9 +1,9 @@
 #!/bin/bash
 # Usage: switch-config.sh [low|high]
-# Switches /etc/clickhouse-server/config.xml symlink to selected config profile
+# Switches /etc/clickhouse-server/config.xml
 
 set -e
-CONFIG_DIR="/etc/clickhouse-server"
+CONFIG_DIR="./"
 PROFILE="$1"
 
 if [ -z "$PROFILE" ]; then
@@ -35,7 +35,7 @@ if ! supervisorctl stop clickhouse-server; then
   exit 3
 fi
 
-ln -sf "$CONFIG_DIR/$TARGET" "$CONFIG_DIR/config.xml"
+ln -sf "$TARGET" "$CONFIG_DIR/config.xml"
 echo "Switched config.xml to $TARGET."
 
 echo "Starting clickhouse-server..."
