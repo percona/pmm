@@ -1,6 +1,6 @@
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
 import { listItemTextClasses } from '@mui/material/ListItemText';
-import {typographyClasses} from '@mui/material/Typography';
+import { typographyClasses } from '@mui/material/Typography';
 import { Theme } from '@mui/material';
 
 export const getStyles = (
