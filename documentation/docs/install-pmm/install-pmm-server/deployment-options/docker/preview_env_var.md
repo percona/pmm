@@ -23,18 +23,6 @@
 | `​​PMM_CLICKHOUSE_USER`                                         | Database user
 | `PMM_CLICKHOUSE_PASSWORD`                                     | Database user password
 
-
-## Using preview variables
-
-Add preview variables to your `docker run` command for testing purposes:
-
-```sh 
-docker run -d \
-  --name pmm-server \
-  -e PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm_test \
-  percona/pmm-server:3
-```
-
 ## Testing external ClickHouse connections
 The ClickHouse-related preview variables are useful for testing PMM Server with an external ClickHouse instance:
 {.power-number}
