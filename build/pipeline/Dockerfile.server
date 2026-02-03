@@ -1,0 +1,243 @@
+# syntax=docker/dockerfile:1
+
+# Build arguments for git commits and versions
+ARG PMM_COMMIT
+ARG GRAFANA_COMMIT=0fd020e57635b448100f7300fe89f596bd12daa2
+ARG VM_COMMIT=pmm-6401-v1.114.0
+ARG DASHBOARDS_COMMIT=ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
+ARG PMM_DUMP_COMMIT=main
+ARG TARGETARCH=amd64
+
+#
+# Stage 1: Build all Go binaries
+#
+FROM --platform=$BUILDPLATFORM golang:1.25 AS go-builder
+
+ARG TARGETARCH
+ARG PMM_COMMIT
+ARG GRAFANA_COMMIT
+ARG VM_COMMIT
+ARG PMM_DUMP_COMMIT
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y git make
+
+# Build pmm-managed binaries
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    git clone https://github.com/percona/pmm.git && \
+    cd pmm/managed && \
+    git checkout ${PMM_COMMIT} && \
+    make release GOARCH=${TARGETARCH}
+
+# Build qan-api2
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    cd /build/pmm/qan-api2 && \
+    make release GOARCH=${TARGETARCH}
+
+# Build vmproxy
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    cd /build/pmm/vmproxy && \
+    make release GOARCH=${TARGETARCH}
+
+# Build pmm-dump
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    git clone https://github.com/percona/pmm-dump.git && \
+    cd pmm-dump && \
+    git checkout ${PMM_DUMP_COMMIT} && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -v -o /build/pmm/bin/pmm-dump .
+
+# Build Grafana Go binaries
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    git clone https://github.com/percona/grafana.git && \
+    cd grafana && \
+    git checkout ${GRAFANA_COMMIT} && \
+    sed -i "s/unknown-dev/11.6.3/" pkg/build/git.go && \
+    make build-go
+
+# Build VictoriaMetrics binaries
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    git clone https://github.com/VictoriaMetrics/VictoriaMetrics.git && \
+    cd VictoriaMetrics && \
+    git checkout ${VM_COMMIT} && \
+    PKG_TAG=${VM_COMMIT} BUILDINFO_TAG=${VM_COMMIT} make victoria-metrics-pure vmalert-pure
+
+#
+# Stage 2: Build Grafana UI assets
+#
+FROM node:20 AS grafana-builder
+
+ARG GRAFANA_COMMIT
+
+WORKDIR /grafana
+
+RUN --mount=type=cache,target=/root/.npm \
+    git clone https://github.com/percona/grafana.git . && \
+    git checkout ${GRAFANA_COMMIT} && \
+    npm install -g grunt-cli && \
+    make deps-js && \
+    make build-js
+
+#
+# Stage 3: Build PMM UI and percona-dashboards
+#
+FROM node:20 AS dashboards-builder
+
+ARG DASHBOARDS_COMMIT
+ARG PMM_COMMIT
+
+WORKDIR /dashboards
+
+# Build percona-dashboards
+RUN --mount=type=cache,target=/root/.npm \
+    git clone https://github.com/percona/grafana-dashboards.git . && \
+    git checkout ${DASHBOARDS_COMMIT} && \
+    make release
+
+# Build PMM UI
+WORKDIR /pmm-ui
+RUN --mount=type=cache,target=/root/.npm \
+    git clone https://github.com/percona/pmm.git . && \
+    git checkout ${PMM_COMMIT} && \
+    cd ui && \
+    make release
+
+#
+# Stage 4: Runtime image
+#
+FROM oraclelinux:9-slim
+
+ARG VERSION
+ARG BUILD_DATE
+ARG PMM_COMMIT
+ARG GRAFANA_COMMIT
+ARG VM_COMMIT
+ARG DASHBOARDS_COMMIT
+ARG PMM_DUMP_COMMIT
+
+ENV LANG=en_US.utf8
+ENV GF_PLUGIN_DIR=/srv/grafana/plugins
+ENV PERCONA_TELEMETRY_DISABLE=1
+ENV PS1="[\u@\h \W] # "
+
+WORKDIR /opt
+
+# Install system dependencies
+RUN --mount=type=cache,target=/var/cache/dnf \
+    --mount=type=cache,target=/var/cache/yum \
+    microdnf -y install epel-release && \
+    microdnf -y install \
+        ansible-core \
+        ansible-collection-community-general \
+        ansible-collection-community-postgresql \
+        ansible-collection-ansible-posix \
+        glibc-langpack-en \
+        dnf \
+        vi \
+        fontconfig \
+        python3-pip \
+        rsync \
+        iproute \
+        nss_wrapper
+
+# Create groups
+RUN groupadd -g 1000 pmm && \
+    groupadd -g 1001 nginx && \
+    groupadd -g 1002 clickhouse
+
+# Create users
+RUN useradd -u 1000 -g root -G pmm -d /home/pmm -s /usr/bin/bash -c "PMM Server" pmm && \
+    useradd -u 1001 -g nginx -d /dev/null -s /sbin/nologin -c "Nginx user" nginx && \
+    useradd -u 1002 -g clickhouse -d /dev/null -s /sbin/nologin -c "Clickhouse server" clickhouse
+
+# Create directories with OpenShift-compatible permissions
+RUN mkdir -p /srv /srv/prometheus/rules /etc/grafana /srv/clickhouse /srv/logs \
+             /srv/backup /srv/victoriametrics/data /usr/share/pmm-server \
+             /var/lib/cloud/scripts/per-once /var/lib/cloud/scripts/per-boot \
+             /usr/local/percona/advisors /usr/local/percona/checks /usr/local/percona/alerting-templates \
+             /var/lib/grafana && \
+    chown -R pmm:root /srv /etc/grafana /usr/share/pmm-server /usr/local/percona /var/lib/grafana && \
+    chmod -R 0775 /srv /etc/grafana /usr/share/pmm-server /srv/logs
+
+# Copy Go binaries from go-builder with root:root ownership
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed /usr/sbin/pmm-managed
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-encryption-rotation /usr/sbin/pmm-encryption-rotation
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed-init /usr/sbin/pmm-managed-init
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed-starlark /usr/sbin/pmm-managed-starlark
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/qan-api2 /usr/sbin/percona-qan-api2
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/vmproxy /usr/sbin/vmproxy
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-dump /usr/sbin/pmm-dump
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-amd64/grafana-server /usr/sbin/grafana-server
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-amd64/grafana /usr/sbin/grafana
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-amd64/grafana-cli /usr/bin/grafana-cli
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/VictoriaMetrics/bin/victoria-metrics-pure /usr/sbin/victoriametrics
+COPY --from=go-builder --chown=root:root --chmod=0755 /build/VictoriaMetrics/bin/vmalert-pure /usr/sbin/vmalert
+
+# Copy Grafana assets with pmm:pmm ownership
+COPY --from=grafana-builder --chown=pmm:pmm /grafana/public /usr/share/grafana/public
+COPY --from=grafana-builder --chown=pmm:pmm /grafana/conf /usr/share/grafana/conf
+COPY --from=grafana-builder --chown=pmm:pmm /grafana/tools /usr/share/grafana/tools
+
+# Copy Grafana configuration files
+COPY --from=grafana-builder --chown=pmm:pmm /grafana/conf/sample.ini /etc/grafana/grafana.ini
+COPY --from=grafana-builder --chown=pmm:pmm /grafana/conf/ldap.toml /etc/grafana/ldap.toml
+
+# Copy pmm-managed data assets with pmm:root ownership
+COPY --from=go-builder --chown=pmm:pmm /build/pmm/api/swagger /usr/share/pmm-managed/swagger
+COPY --from=go-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/advisors/*.yml /usr/local/percona/advisors/
+COPY --from=go-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/checks/*.yml /usr/local/percona/checks/
+COPY --from=go-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/alerting-templates/*.yml /usr/local/percona/alerting-templates/
+
+# Copy PMM UI and dashboards with pmm:pmm ownership
+COPY --from=dashboards-builder --chown=pmm:pmm /pmm-ui/ui/apps/pmm/dist /usr/share/pmm-ui
+COPY --from=dashboards-builder --chown=pmm:pmm /pmm-ui/ui/apps/pmm-compat/dist /usr/share/percona-dashboards/panels/pmm-compat-app
+COPY --from=dashboards-builder --chown=pmm:pmm /dashboards/panels /usr/share/percona-dashboards/
+COPY --from=dashboards-builder --chown=pmm:pmm /dashboards/pmm-app/dist /usr/share/percona-dashboards/panels/pmm-app
+
+# Generate VERSION.json for introspection
+RUN echo "{ \
+  \"pmm-managed\": \"${PMM_COMMIT}\", \
+  \"qan-api2\": \"${PMM_COMMIT}\", \
+  \"vmproxy\": \"${PMM_COMMIT}\", \
+  \"grafana\": \"${GRAFANA_COMMIT}\", \
+  \"victoriametrics\": \"${VM_COMMIT}\", \
+  \"percona-dashboards\": \"${DASHBOARDS_COMMIT}\", \
+  \"pmm-dump\": \"${PMM_DUMP_COMMIT}\" \
+}" > /usr/share/pmm-server/VERSION.json && \
+    chmod 0644 /usr/share/pmm-server/VERSION.json
+
+# Copy Ansible playbooks and run configuration
+COPY entrypoint.sh /opt/entrypoint.sh
+COPY ansible /opt/ansible
+COPY gitCommit /tmp/gitCommit
+
+RUN --mount=type=bind,source=pmm-client.tar.gz,target=/tmp/pmm-client.tar.gz \
+    install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
+    install -T -p -m 644 /opt/ansible/hosts /etc/ansible/hosts && \
+    ansible-playbook -vvv /opt/ansible/pmm-docker/main.yml && \
+    ansible-playbook -vvv /opt/ansible/pmm-docker/post-build.yml && \
+    sed -i '/^assumeyes/d' /etc/dnf/dnf.conf
+
+LABEL org.opencontainers.image.created=${BUILD_DATE}
+LABEL org.opencontainers.image.licenses=AGPL-3.0
+LABEL org.opencontainers.image.title="Percona Monitoring and Management"
+LABEL org.opencontainers.image.vendor="Percona LLC"
+LABEL org.opencontainers.image.version=${VERSION}
+LABEL com.percona.pmm=true
+
+USER 1000
+
+VOLUME [ "/srv" ]
+
+EXPOSE 8080 8443
+
+HEALTHCHECK --interval=4s --timeout=2s --start-period=10s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/server/readyz
+
+CMD ["/opt/entrypoint.sh"]

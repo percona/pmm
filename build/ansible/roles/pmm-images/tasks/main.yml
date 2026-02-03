@@ -10,14 +10,7 @@
 - name: List installed gpg keys
   command: ls -la /etc/pki/rpm-gpg
 
-# Local yum repo for building pmm server docker image in autobuild jobs
-- name: Add a local YUM repository
-  yum_repository:
-    name: local
-    description: Local YUM repository - x86_64
-    baseurl: file:///tmp/RPMS
-    gpgcheck: no
-    enabled: no
+# Note: Local yum repo removed - binaries now copied directly in Dockerfile
 
 - name: Update OS packages
   dnf:
@@ -96,18 +89,9 @@
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
 
-- name: Install PMM Server components
-  dnf:
-    name:
-      - percona-grafana
-      - percona-victoriametrics
-      - percona-qan-api2
-      - percona-dashboards
-      - pmm-managed
-      - pmm-dump
-      - vmproxy
-    state: installed
-    enablerepo: local
+# Note: PMM Server binaries and assets are now copied directly in Dockerfile
+# No RPM installation needed for: percona-grafana, percona-victoriametrics,
+# percona-qan-api2, percona-dashboards, pmm-managed, pmm-dump, vmproxy
 
 - name: Configure grafana
   include_role:
