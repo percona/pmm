@@ -61,9 +61,11 @@ BACKUP_NAME ?= 20260120
 BACKUP_LAST_MIGRATION ?= 21
 #
 # Download the ClickHouse backup, unzip it and prepare the directory to restore.
+.PHONY download-clickhouse-backup
 download-clickhouse-backup: 
 	./download_clickhouse_backup.sh $(BACKUP_NAME)
 # Restore the ClickHouse backup into the pmm-server container and apply differential migrations if needed.
+.PHONY restore-clickhouse-backup
 restore-clickhouse-backup: 
 	docker exec pmm-server clickhouse-client --password=clickhouse --query="DROP DATABASE IF EXISTS pmm";
 	docker exec pmm-server clickhouse-client --password=clickhouse --query="RESTORE DATABASE pmm FROM Disk('backup', '$(BACKUP_NAME)')";
@@ -78,27 +80,29 @@ restore-clickhouse-backup:
 PMM_DEMO_BENCH_PERIOD_FROM ?= 2025-12-27T00:00:00+01:00
 PMM_DEMO_BENCH_PERIOD_TO ?= 2026-01-21T23:59:59+01:00
 # Run bench for all main endpoints.
-bench:
-	make bench-filters
-	@echo
-	make bench-report
-	@echo
-	make bench-metrics
-	@echo
-	make bench-example
+.PHONY bench
+bench: bench-filters bench-report bench-metrics bench-example
 # Run bench for getFilters.
+.PHONY bench-filters
 bench-filters:
+  $(info Running Filters benchmark)
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetFilters$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
 # Run bench for getReport.
+.PHONY bench-report
 bench-report:
+  $(info Running Report benchmark)
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetReport$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
 # Run bench for getMetrics.
+.PHONY bench-metrics
 bench-metrics:
+  $(info Running Metrics benchmark)
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetMetrics$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
 # Run bench for getExample.
+.PHONY bench-example
 bench-example:
+  $(info Running Example benchmark)
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetExample$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
