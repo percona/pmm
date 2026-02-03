@@ -2,7 +2,10 @@ import { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 import { RealtimeSession } from 'types/rta.types';
 import { ManagedService } from 'types/services.types';
 
+export type TagPresentation = 'label' | 'tags';
+
 interface BaseProps {
+  tagPresentation?: TagPresentation;
   disabled?: boolean;
   serviceIds: string[];
   onServiceIdsChange: (serviceIds: string[]) => void;

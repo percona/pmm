@@ -2,7 +2,6 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { FC, useMemo, useState } from 'react';
 import {
   ServiceInput,
-  ServiceOptionTag,
   ServiceOption as ServiceOptionComponent,
 } from './components';
 import {
@@ -17,12 +16,14 @@ import {
   ServiceOption,
   ServicesAutocompleteInputProps,
 } from './ServicesAutocompleteInput.types';
+import ServiceTags from './components/ServiceTags';
 
 const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   disabled = false,
   serviceIds,
   onServiceIdsChange,
   inputProps,
+  tagPresentation = 'label',
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -79,17 +80,13 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
           {...inputProps}
         />
       )}
-      renderTags={(value, getTagProps) =>
-        value
-          .slice(0, 2)
-          .map((option, index) => (
-            <ServiceOptionTag
-              {...getTagProps({ index })}
-              key={option.id}
-              option={option}
-            />
-          ))
-      }
+      renderTags={(value, getTagProps) => (
+        <ServiceTags
+          value={value}
+          getTagProps={getTagProps}
+          tagPresentation={tagPresentation}
+        />
+      )}
       renderOption={(props, option, { selected }) => (
         <ServiceOptionComponent
           {...props}

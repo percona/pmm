@@ -27,6 +27,7 @@ const RealtimeOverviewPage: FC = () => {
   const [selectedQueryIndex, setSelectedQueryIndex] = useState<number>();
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   const { data: sessions = [] } = useRealtimeSessions();
+
   const handleQueryChange = (query: QueryData, index: number) => {
     setSelectedQuery(query);
     setSelectedQueryIndex(index);
@@ -54,7 +55,14 @@ const RealtimeOverviewPage: FC = () => {
   };
 
   const handleServiceIdsChange = (serviceIds: string[]) => {
-    setFetching(serviceIds.length > 0);
+    setFetching((fetching) => {
+      // if not fetching, don't start fetching
+      if (!fetching) {
+        return false;
+      }
+
+      return serviceIds.length !== 0;
+    });
     setSearchParams({ serviceIds });
   };
 
@@ -74,7 +82,7 @@ const RealtimeOverviewPage: FC = () => {
             }}
           >
             <Stack gap={2} direction="row" alignItems="center">
-              <Stack sx={{ width: 360 }}>
+              <Stack sx={{ minWidth: 360 }}>
                 <ServicesAutocompleteInput
                   sessions={sessions}
                   serviceIds={serviceIds}
