@@ -31,11 +31,13 @@ const RealtimeOverviewPage: FC = () => {
   const handleQueryChange = (query: QueryData, index: number) => {
     setSelectedQuery(query);
     setSelectedQueryIndex(index);
+    setFetching(false);
   };
 
   const handleCloseDetails = () => {
     setSelectedQuery(undefined);
     setSelectedQueryIndex(undefined);
+    setFetching(true);
   };
 
   const handleNextQuery = () => {
@@ -88,12 +90,19 @@ const RealtimeOverviewPage: FC = () => {
                   serviceIds={serviceIds}
                   onServiceIdsChange={handleServiceIdsChange}
                   inputProps={{
+                    ['data-testid' as any]:
+                      'overview-table-services-autocomplete-input',
                     size: 'small',
                   }}
                 />
               </Stack>
               <FetchingIndicator isFetching={fetching} />
               <Button
+                data-testid={
+                  fetching
+                    ? 'overview-table-pause-button'
+                    : 'overview-table-resume-button'
+                }
                 size="small"
                 startIcon={
                   fetching ? <Icon name="pause" /> : <Icon name="play-arrow" />
