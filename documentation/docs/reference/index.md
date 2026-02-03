@@ -70,7 +70,11 @@ The PMM Client package consists of the following:
 
 - `postgres_exporter` is an exporter that collects PostgreSQL performance metrics.
 
+- `valkey_exporter` is an exporter that collects Valkey and Redis performance metrics.
+
 - `proxysql_exporter` is an exporter that collects ProxySQL performance metrics.
+
+- `haproxy_exporter` is an exporter that collects HAProxy performance metrics.
 
 - `rds_exporter` is an exporter that collects Amazon RDS performance metrics.
 

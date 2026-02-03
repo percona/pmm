@@ -1,18 +1,18 @@
 # MongoDB Router Summary
 
-This dashboard monitors MongoS router nodes in sharded MongoDB clusters.
+This dashboard monitors mongos router nodes in sharded MongoDB clusters.
 
 ![!image](../../images/MongoDB_Router_Summary.png)
 
 ## Routers
 
-Shows the current status of all MongoS router nodes in the selected cluster at a glance. Each hexagon represents a router, color-coded by status: green indicates the router is UP and operational, while red shows it's DOWN or unreachable.
+Shows the current status of all mongos router nodes in the selected cluster at a glance. Each hexagon represents a router, color-coded by status: green indicates the router is UP and operational, while red shows it's DOWN or unreachable.
 
 Use this panel to quickly identify the health of your routing layer and spot any routers that need attention.
 
 
 ## Overview
-For each MongoS in the cluster, this section includes main monitoring metrics like CPU, memory and disk usage. Uptime and MongoS version are reported as well.
+For each mongos in the cluster, this section includes main monitoring metrics like CPU, memory and disk usage. Uptime and mongos version are reported as well.
 
 ### CPU Usage
 Shows CPU usage as a percentage from 0% to 100%. It updates every minute, turning from green to red when usage exceeds 80%. This helps quickly spot high CPU load, which could affect system performance, and monitor how hard the CPU is working at a glance.
@@ -41,7 +41,7 @@ Shows how long the system has been running without a restart. As uptime increase
 Displays the current version of MongoDB running on the system. This information is crucial for ensuring the system is running the intended version and for quickly identifying any nodes that might need updates.
 
 ## Node States
-Shows the status of all MongoDB Shard (MongoS) nodes in the selected cluster over time. It uses a color-coded timeline: green bars mean a node is "UP" and working, while red bars show it's "DOWN" or unreachable. This simple view helps you quickly spot which nodes are active, see any recent status changes, and identify patterns in node availability.
+Shows the status of all MongoDB Shard (mongos) nodes in the selected cluster over time. It uses a color-coded timeline: green bars mean a node is "UP" and working, while red bars show it's "DOWN" or unreachable. This simple view helps you quickly spot which nodes are active, see any recent status changes, and identify patterns in node availability.
 
 ## Details
 
