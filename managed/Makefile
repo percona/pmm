@@ -12,6 +12,7 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+GOARCH ?= amd64
 
 PMM_LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.ProjectName=pmm-managed' \
@@ -39,13 +40,13 @@ pi-validate:              ## Validate Percona Intelligence advisors and checks
 	go run ./cmd/pi-validator/main.go advisors --advisors.dir ./data/advisors/ --checks.dir ./data/checks/
 
 release:                        ## Build pmm-managed release binaries
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+	env CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
 release-encryption-rotation:                        ## Build PMM encryption rotation tool
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
+	env CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
 
 release-starlark:
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
+	env CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
 	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
 
 release-dev:										## Build pmm-managed binaries for development
