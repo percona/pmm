@@ -22,7 +22,7 @@ PMM_RELEASE_PATH ?= ./bin
 
 run-managed: release-dev-managed    ## Replace pmm-managed from build, restart and tail logs
 	supervisorctl stop pmm-managed
-	echo "" > /srv/logs/pmm-managed.log
+	truncate -s 0 /srv/logs/pmm-managed.log
 	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
 	supervisorctl start pmm-managed
 	tail -f /srv/logs/pmm-managed.log
@@ -34,7 +34,7 @@ run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restar
 
 run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
 	supervisorctl stop pmm-agent
-	echo "" > /srv/logs/pmm-agent.log
+	truncate -s 0 /srv/logs/pmm-agent.log
 	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
 	supervisorctl start pmm-agent
 	tail -f /srv/logs/pmm-agent.log
@@ -47,7 +47,7 @@ run-vmproxy: release-vmproxy
 run-qan: release-qan
 	supervisorctl stop qan-api2
 	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
-	echo -n > /srv/logs/qan-api2.log
+	truncate -s 0 /srv/logs/qan-api2.log
 	supervisorctl start qan-api2
 
 run-all: run-agent run-managed run-qan run-vmproxy      ## Run all go services

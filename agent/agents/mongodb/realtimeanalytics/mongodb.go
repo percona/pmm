@@ -27,6 +27,10 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
+const (
+	changesBufferSize = 10
+)
+
 // MongoDBRTA extracts Real-Time Analytics data (currently running DB queries) from MongoDB.
 type MongoDBRTA struct {
 	agentID string
@@ -61,7 +65,7 @@ func New(params *Params, l *logrus.Entry) (*MongoDBRTA, error) {
 		mongoDSN:        params.DSN,
 		CollectInterval: params.CollectInterval,
 		l:               l,
-		changes:         make(chan agents.Change, 10),
+		changes:         make(chan agents.Change, changesBufferSize),
 	}, nil
 }
 
@@ -69,17 +73,20 @@ func New(params *Params, l *logrus.Entry) (*MongoDBRTA, error) {
 // and sends it to the channel until ctx is canceled.
 func (m *MongoDBRTA) Run(ctx context.Context) {
 	m.l.Info("Starting MongoDB RTA agent")
+	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
+
 	defer func() {
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
-	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 	// TODO: run actual RTA data collection
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
+
 	<-ctx.Done()
 	m.l.Info("Stopping MongoDB RTA agent")
+
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 }
 
