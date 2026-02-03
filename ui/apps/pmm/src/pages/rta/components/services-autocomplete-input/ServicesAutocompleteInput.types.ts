@@ -10,13 +10,14 @@ interface BaseProps {
   serviceIds: string[];
   onServiceIdsChange: (serviceIds: string[]) => void;
   inputProps?: Partial<AutocompleteRenderInputParams>;
+  'data-testid'?: string;
 }
 
-export type PropsWithSessions = BaseProps & {
+type PropsWithSessions = BaseProps & {
   sessions: RealtimeSession[];
 };
 
-export type PropsWithServices = BaseProps & {
+type PropsWithServices = BaseProps & {
   services: ManagedService[];
 };
 

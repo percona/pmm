@@ -11,8 +11,6 @@ import {
   toggleClusterServices,
 } from './ServicesAutocompleteInput.utils';
 import {
-  PropsWithServices,
-  PropsWithSessions,
   ServiceOption,
   ServicesAutocompleteInputProps,
 } from './ServicesAutocompleteInput.types';
@@ -24,22 +22,16 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   onServiceIdsChange,
   inputProps,
   tagPresentation = 'label',
+  'data-testid': testId,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const serviceOptions = useMemo(
-    () =>
-      'sessions' in props
-        ? getServiceOptions(props.sessions)
-        : getServiceOptions(props.services),
-    [
-      (props as PropsWithSessions).sessions,
-      (props as PropsWithServices).services,
-    ]
+  const services = 'sessions' in props ? props.sessions : props.services;
+  const serviceOptions = useMemo(() => getServiceOptions(services), [services]);
+  const selectedServices = useMemo(
+    () => serviceOptions.filter((option) => serviceIds?.includes(option.id)),
+    [serviceOptions, serviceIds]
   );
-  const selectedServices = useMemo(() => {
-    return serviceOptions.filter((option) => serviceIds?.includes(option.id));
-  }, [serviceOptions, serviceIds]);
 
   const handleServiceChange = (
     _event: React.SyntheticEvent,
@@ -106,6 +98,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
         />
       )}
       disabled={disabled || serviceOptions.length === 0}
+      data-testid={testId}
     />
   );
 };

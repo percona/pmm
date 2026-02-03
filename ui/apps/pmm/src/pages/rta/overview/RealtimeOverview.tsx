@@ -86,12 +86,11 @@ const RealtimeOverviewPage: FC = () => {
             <Stack gap={2} direction="row" alignItems="center">
               <Stack sx={{ minWidth: 360 }}>
                 <ServicesAutocompleteInput
+                  data-testid="overview-table-services-autocomplete-input"
                   sessions={sessions}
                   serviceIds={serviceIds}
                   onServiceIdsChange={handleServiceIdsChange}
                   inputProps={{
-                    ['data-testid' as any]:
-                      'overview-table-services-autocomplete-input',
                     size: 'small',
                   }}
                 />
