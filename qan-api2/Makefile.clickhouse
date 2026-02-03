@@ -1,3 +1,7 @@
+##
+## NOTE: All commands in this Makefile are intended to be run from the host system (outside of any container).
+## Do not run these targets inside a Docker or PMM container.
+##
 ## Usage:
 ## 1. Download the PMM Demo backup
 ##    Run:
@@ -47,7 +51,6 @@
 ##      make download-clickhouse-backup
 ##      make restore-clickhouse-backup
 ##      make bench
-
 # Since the ClickHouse backup can come from a different migration state (e.g., created when the latest migration was 21),
 # and the current latest migration is 22, we need to ensure that the remaining migrations are applied
 # to make the system fully functional after restore.
