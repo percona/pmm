@@ -8,7 +8,7 @@ import { parseDuration } from 'utils/duration.utils';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
-    minSize: 500,
+    minSize: 400,
     header: Messages.columns.queryText,
     accessorKey: 'queryText',
     Cell: ({ row }) => <QueryCell query={row.original.queryText} />,
@@ -18,6 +18,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     accessorKey: 'serviceName',
   },
   {
+    size: 100,
     header: Messages.columns.elapsedTime,
     accessorKey: 'executionDuration',
     filterVariant: 'range',
@@ -25,10 +26,12 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     sortingFn: (rowA, rowB) =>
       parseDuration(rowA.original.executionDuration) -
       parseDuration(rowB.original.executionDuration),
+    Cell: ({ cell }) => `${parseDuration(cell.getValue() as string).toFixed(5)} ms`,
   },
   {
     header: Messages.columns.state,
     accessorKey: 'state',
+    size: 100,
     Cell: ({ row }) => <StateCell state={row.original.state} />,
   },
 ];

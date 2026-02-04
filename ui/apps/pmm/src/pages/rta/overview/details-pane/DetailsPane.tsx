@@ -8,13 +8,13 @@ import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutl
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import { Icon } from 'components/icon';
 import Paper from '@mui/material/Paper';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import Slide from '@mui/material/Slide';
 import Divider from '@mui/material/Divider';
 import { QueryData } from 'types/rta.types';
-import Typography from '@mui/material/Typography';
 import { useEscapeKey } from 'utils/keys.utils';
 import { Messages } from './DetailsPane.messages';
+import QueryAndDetails from './QueryAndDetails';
+import HistoricalContext from './HistoricalContext';
 
 interface Props {
   query?: QueryData;
@@ -43,7 +43,7 @@ const DetailsPane: FC<Props> = ({
         variant="outlined"
         sx={(theme) => ({
           p: 1,
-          px: 2,
+          px: 3,
           top: 0,
           left: 0,
           right: 0,
@@ -104,14 +104,13 @@ const DetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
-            <Stack gap={1} mb={1}>
-              <Typography variant="h6">{query.serviceName}</Typography>
+            <Stack gap={2} mb={1} >
+              {/* <Typography variant="h6">{query.serviceName}</Typography>
               <Typography variant="body2">{query.queryId}</Typography>
-              <Typography variant="body2">{query.state}</Typography>
+              <Typography variant="body2">{query.state}</Typography> */}
+              <QueryAndDetails query={query} />
+              <HistoricalContext />
             </Stack>
-            <SyntaxHighlighter language="mongodb" showLineNumbers={true}>
-              {query.queryText}
-            </SyntaxHighlighter>
           </CardContent>
         ) : null}
       </Paper>
