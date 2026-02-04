@@ -490,6 +490,8 @@ func TestStopSession(t *testing.T) {
 }
 
 func TestSearchQueries(t *testing.T) {
+	t.Parallel()
+
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -625,7 +627,8 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
 	t.Helper()
 
-	conn, err := grpc.NewClient("passthrough:///bufnet",
+	conn, err := grpc.NewClient(
+		"passthrough:///bufnet",
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
