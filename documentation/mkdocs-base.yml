@@ -216,7 +216,14 @@ nav:
                   - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
               - External services monitoring:
                   - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
-      - Install PMM in HA mode: install-pmm/HA.md
+      - Install PMM in HA mode: 
+        - Compare HA options: install-pmm/HA.md
+        - Docker HA: install-pmm/HA-docker.md
+        - Kubernetes Single-Instance: install-pmm/HA-kubernetes-single-instance.md
+        - Kubernetes Cluster: 
+            - Understand PMM HA Cluster: install-pmm/HA-clustered.md
+            - Install PMM HA Cluster: install-pmm/install-HA-clustered.md
+
   - Use:
       - use/using-pmm.md
       - PMM user interface:
@@ -568,6 +575,7 @@ nav:
               - Replication: reference/dashboards/dashboard-valkey-redis-replication.md
               - Slowlog: reference/dashboards/dashboard-valkey-redis-slowlog.md
           - HA dashboards:
+              - reference/dashboards/dashboard-ha-health-overview.md
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
               - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
               - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
