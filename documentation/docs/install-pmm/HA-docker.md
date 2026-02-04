@@ -217,7 +217,7 @@ To monitor your databases, install PMM Client on each database host and connect 
 ```sh
 pmm-admin config --server-url=https://admin:password@pmm-server:443
 ```
-3. [Add a database service](../install-pmm/install-pmm-client/add-services.md) for monitoring.
+3. [Add a database service](../install-pmm/install-pmm-client/index.md) for monitoring.
 
 ### Test automatic restart
 
