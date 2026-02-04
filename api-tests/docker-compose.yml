@@ -2,9 +2,8 @@
 services:
   pmm-server:
     image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
-    container_name: pmm-agent_pmm-server
+    container_name: pmm-server
     ports:
-      - 127.0.0.1:80:8080
       - 127.0.0.1:443:8443
     environment:
       - PMM_DEBUG=1

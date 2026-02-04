@@ -101,7 +101,7 @@ Decide which  PostgreSQL monitoring extensions to use, and configure your databa
 
 Choose:
 
-- `pg_stat_monitor` when you need comprehensive monitoring capabilities with more detailed insights into query performance:
+- `pg_stat_monitor` when you need comprehensive monitoring capabilities with more detailed insights into query performance
 - `pg_stat_statements` when you need a lightweight, built-in solution with minimal overhead
 
 | Aspect | **pg_stat_statements** | **pg_stat_monitor** |

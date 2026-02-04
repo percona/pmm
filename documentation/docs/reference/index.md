@@ -80,4 +80,4 @@ To make data transfer from PMM Client to PMM Server secure, all exporters are ab
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
-![Client and Server Interactions](../images/arch/C_S_Interactions.jpg)
+![Client Server Interactions](../images/arch/C_S_Interactions.jpg)
