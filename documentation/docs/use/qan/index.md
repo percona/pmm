@@ -40,8 +40,8 @@ Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimu
 
 Query Analytics in PMM supports two ClickHouse configuration profiles for different memory environments:
 
+- **high-memory-config.xml** *(default)* — for high-memory environments and better performance
 - **low-memory-config.xml** — for limited memory resources
-- **high-memory-config.xml** — for high-memory environments and better performance
 
 Both files are located in `/etc/clickhouse-server/` inside the PMM Server container.
 
@@ -73,7 +73,30 @@ The script will:
 
 This activates the high-memory configuration.
 
-After switching, you may need to start ClickHouse again if it does not restart automatically.
+
+### High-memory vs. low-memory configuration: key differences
+
+The following table summarizes the main differences between the two ClickHouse configuration profiles and explains each property:
+
+| Property | high-memory-config.xml (default) | low-memory-config.xml | Description |
+|---|---|---|---|
+| `max_connections` | 4096 | 512 | Maximum number of simultaneous client connections. Higher value allows more clients to connect. |
+| `max_thread_pool_size` | 10000 | 256 | Maximum number of threads in the global pool. Higher = more parallelism, but more memory usage. |
+| `concurrent_threads_soft_limit_num` | 0 (unlimited, uses all cores) | 1 | Maximum query processing threads. 1 limits parallelism for low memory. |
+| `max_server_memory_usage_to_ram_ratio` | 0.75 | 0.25 | Fraction of system RAM ClickHouse can use. Lower value is safer for low-memory hosts. |
+| `uncompressed_cache_size` | 8 GB | 128 MB | Cache for uncompressed data blocks. Lower value saves memory. |
+| `mark_cache_size` | 5 GB | 128 MB | Cache for index marks. Lower value saves memory, but may slow queries. |
+| `max_block_size` | (default) | 8192 | Max block size for query processing. Lower value reduces memory per query. |
+| `max_download_threads` | (default) | 1 | Max threads for downloading data. 1 = less concurrency, less memory. |
+| `input_format_parallel_parsing` | (default) | 0 | Disables parallel parsing of input formats. Saves memory. |
+| `output_format_parallel_formatting` | (default) | 0 | Disables parallel formatting of output. Saves memory. |
+| `compiled_expression_cache_size` | 128 MB | 128 MB | Cache for compiled expressions. Same in both, but can be tuned for memory. |
+| `compiled_expression_cache_elements_size` | 10000 | 10000 | Number of compiled expressions cached. Same in both. |
+
+**Summary:**
+
+- The **high-memory** config is tuned for performance and parallelism, using more RAM and allowing more connections and threads.
+- The **low-memory** config restricts concurrency, cache sizes, and memory usage to fit into smaller environments, at the cost of performance.
 
 
 ## Dashboard components
