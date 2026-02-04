@@ -1,5 +1,8 @@
 # Upgrade
 
+!!! warning "PMM 2 End-of-Life" 
+    PMM 2 reached end-of-life on October 31, 2025. [Migrate to PMM3](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html) for new features, security updates, and ongoing support.
+
 ## Plan the upgrade order
 
 ### Upgrade PMM Server first
