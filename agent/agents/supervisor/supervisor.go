@@ -50,6 +50,12 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
+const (
+	changesBufferSize     = 100
+	qanRequestsBufferSize = 100
+	rtaRequestsBufferSize = 100
+)
+
 // configGetter allows for getting a config.
 type configGetter interface {
 	Get() *config.Config
@@ -107,9 +113,9 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		agentVersioner: av,
 		cfg:            cfg,
 		portsRegistry:  newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
-		changes:        make(chan *agentv1.StateChangedRequest, 100),
-		qanRequests:    make(chan *agentv1.QANCollectRequest, 100),
-		rtaRequests:    make(chan *rtav1.CollectRequest, 100),
+		changes:        make(chan *agentv1.StateChangedRequest, changesBufferSize),
+		qanRequests:    make(chan *agentv1.QANCollectRequest, qanRequestsBufferSize),
+		rtaRequests:    make(chan *rtav1.CollectRequest, rtaRequestsBufferSize),
 		l:              logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
