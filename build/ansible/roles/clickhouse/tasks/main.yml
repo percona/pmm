@@ -55,6 +55,13 @@
     - high-memory-config.xml
     - switch-config.sh
 
+- name: Create symlink to switch-config.sh in /
+  file:
+    src: /etc/clickhouse-server/switch-config.sh
+    dest: /switch-config.sh
+    state: link
+    force: yes
+
 # We need to remove capabilities because we run PMM in an unprivileged container
 - name: Remove cap_ipc_lock from clickhouse binary
   capabilities:
