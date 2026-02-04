@@ -25,6 +25,8 @@ describe('FetchingIndicator', () => {
 
     expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
     expect(screen.getByText(Messages.fetching)).toBeInTheDocument();
-    expect(screen.queryByTestId('fetching-indicator-on')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('fetching-indicator-on')
+    ).not.toBeInTheDocument();
   });
 });
