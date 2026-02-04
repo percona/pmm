@@ -79,7 +79,9 @@ func benchmarkRequest(b *testing.B, url string, params string) time.Duration {
 
 	client := &http.Client{}
 	start := time.Now()
+	b.ResetTimer()
 	resp, err := client.Do(req)
+	b.StopTimer()
 	duration := time.Since(start)
 	if err != nil {
 		b.Fatalf("Request failed: %v", err)
@@ -89,29 +91,32 @@ func benchmarkRequest(b *testing.B, url string, params string) time.Duration {
 		b.Fatalf("Unexpected status code: %d", resp.StatusCode)
 	}
 
+	b.StartTimer()
+
 	return duration
 }
 
 func benchmarkWithStats(b *testing.B, url string, payload string) {
 	b.Helper()
-	durations := make([]time.Duration, b.N)
-	for i := 0; i < b.N; i++ {
+	var durations []time.Duration
+	for b.Loop() {
 		duration := benchmarkRequest(b, url, payload)
-		durations[i] = duration
-		b.Logf("iteration %d took %v", i, duration)
+		durations = append(durations, duration)
+		b.Logf("iteration took %v", duration)
 	}
 
-	if b.N > 0 {
-		var sum time.Duration
-		for _, d := range durations {
-			sum += d
-		}
-		avgDuration := sum / time.Duration(b.N)
-		minDuration := slices.Min(durations)
-		maxDuration := slices.Max(durations)
-
-		b.Logf("avg=%v min=%v max=%v\n", avgDuration, minDuration, maxDuration)
+	var sum time.Duration
+	for _, d := range durations {
+		sum += d
 	}
+	avgDuration := sum / time.Duration(b.N)
+	minDuration := slices.Min(durations)
+	maxDuration := slices.Max(durations)
+
+	b.ReportMetric(float64(avgDuration.Milliseconds()), "avg_duration_ms")
+	b.ReportMetric(float64(minDuration.Milliseconds()), "min_duration_ms")
+	b.ReportMetric(float64(maxDuration.Milliseconds()), "max_duration_ms")
+
 }
 
 func BenchmarkGetFilters(b *testing.B) {
