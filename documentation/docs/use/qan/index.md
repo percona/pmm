@@ -35,6 +35,47 @@ Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimu
     - PMM agent has read permissions to the MongoDB log file
     - Appropriate user roles: `clusterMonitor`, or custom monitoring roles (`getCmdLineOpts` privilege on `{ cluster: true }`)
 
+
+## ClickHouse configuration profiles
+
+Query Analytics in PMM supports two ClickHouse configuration profiles for different memory environments:
+
+- **low-memory-config.xml** — for limited memory resources
+- **high-memory-config.xml** — for high-memory environments and better performance
+
+Both files are located in `/etc/clickhouse-server/` inside the PMM Server container.
+
+### How to switch profiles
+
+!!! note
+    You must run the switch script from inside the PMM Server container (for example, with `docker exec -it <container> bash`).
+
+To switch between profiles, use the `switch-config.sh` script (available in `/etc/clickhouse-server/` and as `/switch-config.sh`).
+
+**Usage:**
+
+    /switch-config.sh [low|high]
+
+Where:
+
+- `low` switches to the low-memory configuration
+- `high` switches to the high-memory configuration
+
+The script will:
+
+1. Stop the ClickHouse service using `supervisorctl`
+2. Update `/etc/clickhouse-server/config.xml` to point to the selected profile
+3. Print a confirmation message
+
+**Example:**
+
+    /switch-config.sh high
+
+This activates the high-memory configuration.
+
+After switching, you may need to start ClickHouse again if it does not restart automatically.
+
+
 ## Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
