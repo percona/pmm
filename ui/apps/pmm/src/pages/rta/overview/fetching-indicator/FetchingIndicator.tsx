@@ -30,7 +30,11 @@ const FetchingIndicator: FC<Props> = ({ isFetching }) => {
 
   if (isFetching) {
     return (
-      <Stack direction="row" alignItems="center">
+      <Stack
+        direction="row"
+        alignItems="center"
+        data-testid="fetching-indicator-on"
+      >
         <Icon
           name="electric-bolt"
           color="primary"
@@ -44,7 +48,11 @@ const FetchingIndicator: FC<Props> = ({ isFetching }) => {
   }
 
   return (
-    <Stack direction="row" alignItems="center">
+    <Stack
+      direction="row"
+      alignItems="center"
+      data-testid="fetching-indicator-off"
+    >
       <Icon name="electric-bolt-off" />
       <Typography sx={styles}>{Messages.fetching}</Typography>
     </Stack>

@@ -56,16 +56,22 @@ const RealtimeOverviewPage: FC = () => {
     handleQueryChange(queries[idx], idx);
   };
 
-  const handleServiceIdsChange = (serviceIds: string[]) => {
-    setFetching((fetching) => {
-      // if not fetching, don't start fetching
-      if (!fetching) {
-        return false;
-      }
+  const handleServiceIdsChange = (newServiceIds: string[]) => {
+    // start fetching if previous state was empty
+    if (serviceIds.length === 0 && newServiceIds.length > 0) {
+      setFetching(true);
+    } else {
+      setFetching((fetching) => {
+        // if not fetching, don't start fetching
+        if (!fetching) {
+          return false;
+        }
 
-      return serviceIds.length !== 0;
-    });
-    setSearchParams({ serviceIds });
+        return newServiceIds.length !== 0;
+      });
+    }
+
+    setSearchParams({ serviceIds: newServiceIds });
   };
 
   return (

@@ -40,6 +40,7 @@ const ServiceOption: FC<Props> = ({
   return (
     <Box
       component="li"
+      data-testid={'service-option-' + option.id}
       key={key}
       {...otherProps}
       onClick={handleClick}

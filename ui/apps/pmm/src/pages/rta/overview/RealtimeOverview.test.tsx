@@ -1,17 +1,24 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import RealtimeOverview from './RealtimeOverview';
-import { TEST_MONGO_DB_QUERY_DATA } from 'utils/testStubs';
+import {
+  TEST_MONGO_DB_QUERY_DATA,
+  TEST_REAL_TIME_SESSION,
+  TEST_REAL_TIME_SESSION_2,
+} from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Messages } from './RealtimeOverview.messages';
 
-const { searchQueries } = vi.hoisted(() => ({
+const { searchQueries, getRunningSessions } = vi.hoisted(() => ({
   searchQueries: vi.fn().mockResolvedValue({
     queries1: [],
   }),
+  getRunningSessions: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock('api/rta', () => ({
   searchQueries,
+  getRunningSessions,
 }));
 
 const renderComponent = ({
@@ -40,6 +47,11 @@ describe('RealtimeOverview', () => {
     searchQueries.mockResolvedValue({
       queries: [TEST_MONGO_DB_QUERY_DATA],
     });
+
+    getRunningSessions.mockResolvedValue([
+      TEST_REAL_TIME_SESSION,
+      TEST_REAL_TIME_SESSION_2,
+    ]);
   });
 
   it('should render', () => {
@@ -103,5 +115,170 @@ describe('RealtimeOverview', () => {
     fireEvent.click(rowAction);
 
     expect(screen.getByTestId('query-details-pane')).toBeInTheDocument();
+  });
+
+  it('should be paused if not services are selected', () => {
+    renderComponent({ initialEntry: '/rta/overview' });
+
+    expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('overview-table-resume-button')
+    ).toBeInTheDocument();
+    expect(screen.getByText(Messages.resume)).toBeInTheDocument();
+    expect(screen.getByTestId('overview-table-resume-button')).toBeDisabled();
+  });
+
+  it('should be resumed if services are selected', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByTestId('overview-table-pause-button')
+    ).toBeInTheDocument();
+    expect(screen.getByText(Messages.pause)).toBeInTheDocument();
+  });
+
+  it('should be paused if services are deselected', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
+    });
+
+    const clearButton = await waitFor(() => screen.findByTitle('Clear'));
+    fireEvent.click(clearButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByTestId('overview-table-resume-button')
+    ).toBeInTheDocument();
+  });
+
+  it('should pause when the button is clicked', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
+    });
+
+    const pauseButton = screen.getByTestId('overview-table-pause-button');
+    fireEvent.click(pauseButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByTestId('overview-table-resume-button')
+    ).toBeInTheDocument();
+    expect(screen.getByText(Messages.resume)).toBeInTheDocument();
+  });
+
+  it('should resume when the button is clicked', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
+    });
+
+    // First pause
+    const pauseButton = screen.getByTestId('overview-table-pause-button');
+    fireEvent.click(pauseButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
+    });
+
+    // Then resume
+    const resumeButton = screen.getByTestId('overview-table-resume-button');
+    fireEvent.click(resumeButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByTestId('overview-table-pause-button')
+    ).toBeInTheDocument();
+    expect(screen.getByText(Messages.pause)).toBeInTheDocument();
+  });
+
+  it('should start fetching if services are selected (from empty)', async () => {
+    renderComponent({
+      initialEntry: '/rta/overview',
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
+    });
+
+    const openButton = await waitFor(() => screen.findByTitle('Open'));
+    fireEvent.click(openButton);
+
+    const serviceOptionId =
+      'service-option-' + TEST_REAL_TIME_SESSION.serviceId;
+    const serviceOption = await waitFor(() =>
+      screen.findByTestId(serviceOptionId)
+    );
+    fireEvent.click(serviceOption);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByTestId('overview-table-pause-button')
+    ).toBeInTheDocument();
+  });
+
+  it('should stay paused when changing service selection if already paused (from nonempty)', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
+    });
+
+    const pauseButton = screen.getByTestId('overview-table-pause-button');
+    fireEvent.click(pauseButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
+    });
+
+    const openButton = await waitFor(() => screen.findByTitle('Open'));
+    fireEvent.click(openButton);
+
+    const serviceOptionId =
+      'service-option-' + TEST_REAL_TIME_SESSION_2.serviceId;
+    const serviceOption = await waitFor(() =>
+      screen.findByTestId(serviceOptionId)
+    );
+    fireEvent.click(serviceOption);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByTestId('overview-table-resume-button')
+    ).toBeInTheDocument();
   });
 });
