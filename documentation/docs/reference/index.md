@@ -4,7 +4,7 @@ PMM is a client/server application built by Percona comprising its own and third
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
-![!image](../images/C_S_Architecture.jpg)
+![Client Server Architecture](../images/arch/C_S_Architecture.jpg)
 
 ## PMM Server
 
@@ -35,7 +35,7 @@ The PMM Server package provides:
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
-![!image](../images/PMM-Server-Component-Based-View.jpg)
+![PMM Server](../images/arch/PMM-Server-Component-Based-View.jpg)
 
 PMM Server includes the following tools:
 
@@ -54,7 +54,7 @@ PMM Server includes the following tools:
 
 ### PMM Client
 
-![!image](../images/PMM-Client-Component-Based-View.jpg)
+![PMM Client](../images/arch/PMM-Client-Component-Based-View.jpg)
 
 The PMM Client package consists of the following:
 
@@ -80,4 +80,4 @@ To make data transfer from PMM Client to PMM Server secure, all exporters are ab
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
-![!image](../images/arch/C_S_Interactions.jpg)
+![Client Server Interactions](../images/arch/C_S_Interactions.jpg)
