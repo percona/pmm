@@ -1,6 +1,6 @@
 #!/bin/bash
 # Usage: switch-config.sh [low|high]
-# Switches /etc/clickhouse-server/config.xml
+# Switches /etc/clickhouse/config.xml
 
 set -e
 CONFIG_DIR="./"
@@ -29,18 +29,18 @@ if [ ! -e "$CONFIG_DIR/$TARGET" ]; then
   exit 2
 fi
 
-echo "Stopping clickhouse-server..."
-if ! supervisorctl stop clickhouse-server; then
-  echo "Failed to stop clickhouse-server!" >&2
+echo "Stopping clickhouse..."
+if ! supervisorctl stop clickhouse; then
+  echo "Failed to stop clickhouse!" >&2
   exit 3
 fi
 
 ln -sf "$TARGET" "$CONFIG_DIR/config.xml"
 echo "Switched config.xml to $TARGET."
 
-echo "Starting clickhouse-server..."
-if ! supervisorctl start clickhouse-server; then
-  echo "Failed to start clickhouse-server!" >&2
+echo "Starting clickhouse..."
+if ! supervisorctl start clickhouse; then
+  echo "Failed to start clickhouse!" >&2
   exit 4
 fi
 
