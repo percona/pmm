@@ -540,8 +540,8 @@ func TestSearchQueries(t *testing.T) {
 		require.Len(t, resp.Queries, 2)
 
 		queryIDs := make([]string, len(resp.Queries))
-		for _, q := range resp.Queries {
-			queryIDs = append(queryIDs, q.QueryId)
+		for i, q := range resp.Queries {
+			queryIDs[i] = q.QueryId
 		}
 		assert.Contains(t, queryIDs, "static-query-0")
 		assert.Contains(t, queryIDs, "static-query-1")
@@ -616,8 +616,6 @@ func TestSearchQueries(t *testing.T) {
 	})
 }
 
-const bufSize = 1024 * 1024
-
 var lis *bufconn.Listener
 
 func bufDialer(context.Context, string) (net.Conn, error) {
@@ -625,6 +623,8 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 }
 
 func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
+	t.Helper()
+
 	conn, err := grpc.NewClient("passthrough:///bufnet",
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -647,6 +647,7 @@ func TestService_Collect(t *testing.T) {
 	store := NewStore()
 	svc := NewService(db, registry, stateUpdater, store)
 	// // Create in-memory listener for testing
+	const bufSize = 1024 * 1024
 	lis = bufconn.Listen(bufSize)
 
 	// Create and start server
@@ -686,8 +687,8 @@ func TestService_Collect(t *testing.T) {
 
 	storeqQs := store.Get("service-1")
 	queryIDs := make([]string, len(storeqQs))
-	for _, q := range storeqQs {
-		queryIDs = append(queryIDs, q.QueryId)
+	for i, q := range storeqQs {
+		queryIDs[i] = q.QueryId
 	}
 	assert.Contains(t, queryIDs, "static-query-0")
 	assert.Contains(t, queryIDs, "static-query-1")
