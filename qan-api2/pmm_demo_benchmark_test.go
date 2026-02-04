@@ -116,7 +116,6 @@ func benchmarkWithStats(b *testing.B, url string, payload string) {
 	b.ReportMetric(float64(avgDuration.Milliseconds()), "avg_duration_ms")
 	b.ReportMetric(float64(minDuration.Milliseconds()), "min_duration_ms")
 	b.ReportMetric(float64(maxDuration.Milliseconds()), "max_duration_ms")
-
 }
 
 func BenchmarkGetFilters(b *testing.B) {
