@@ -29,7 +29,7 @@ To confirm that you have successfully connected the server and check the list of
 
 ## Check Percona Portal entitlements
 
-After connecting to the Percona Platform, PMM has access to [additional alert templates](../../alert/templates_list.md), [Advisor checks](../../advisors/advisor-details.md), and account information. See [Check Percona Portal account information](.md).
+After connecting to the Percona Platform, PMM has access to [additional alert templates](../../alert/templates_list.md), [Advisor checks](../../advisors/advisor-details.md), and account information. See [Check Percona Portal account information](./integrate_with_percona_platform.md).
 
 
 ### Disconnect a PMM instance
@@ -58,4 +58,3 @@ Once you've successfully connected your PMM instance to the Percona Platform, yo
 1. Log out of your existing PMM session.
 2. On the PMM login screen, click **Sign in with Percona Account**.
  If you have an active Percona Account session on the same browser, PMM will log you in automatically. Otherwise, enter your Percona Account credentials to start a new session.
-
