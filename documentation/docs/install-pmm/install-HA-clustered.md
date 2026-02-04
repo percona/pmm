@@ -687,7 +687,7 @@ These variables are automatically set and manage critical cluster functions like
 
 ```yaml
 pmmEnv:
-  DISABLE_UPDATES: "1"                      # Updates managed via Helm (not UI)
+  PMM_ENABLE_UPDATES: "0"                   # Updates managed via Helm (not UI)
   PMM_HA_ENABLE: "1"                        # Enable HA clustering
   PMM_HA_GOSSIP_PORT: "9096"                # Gossip protocol port
   PMM_HA_RAFT_PORT: "9097"                  # Raft consensus port

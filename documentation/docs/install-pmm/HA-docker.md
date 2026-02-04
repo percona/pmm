@@ -93,7 +93,7 @@ Choose the installation method that fits your needs and launch PMM Server with a
           --restart=always \
           -p 443:8443/tcp \
           -v pmm-data:/srv \
-          -e DISABLE_UPDATES=true \
+          -e PMM_ENABLE_UPDATES=0 \
           --ulimit=nofile=1000000:1000000 \
           percona/pmm-server:3
       ```
@@ -103,7 +103,7 @@ Choose the installation method that fits your needs and launch PMM Server with a
         - `--restart=always`: Ensures automatic container restart after failures or reboots
         - `-p 443:8443`: Exposes HTTPS port for secure web access
         - `-v pmm-data:/srv`: Persists PMM data across container restarts
-        - `-e DISABLE_UPDATES=true`: Disables automatic PMM updates (control updates manually)
+        - `-e PMM_ENABLE_UPDATES=0`: Disables automatic PMM updates (control updates manually)
         - `--ulimit=nofile=1000000:1000000`: Increases file descriptor limit for large deployments
 
     2. Access PMM UI at `https://localhost` and log in with default credentials: `admin`/`admin` (change immediately after first login).
@@ -115,8 +115,6 @@ Choose the installation method that fits your needs and launch PMM Server with a
 
     1. Create a `docker-compose.yml` file:
       ```yaml
-        version: '3.8'
-
         services:
           pmm-server:
             image: percona/pmm-server:3
@@ -127,7 +125,7 @@ Choose the installation method that fits your needs and launch PMM Server with a
             volumes:
               - pmm-data:/srv
             environment:
-              - DISABLE_UPDATES=true
+              - PMM_ENABLE_UPDATES=0
             ulimits:
               nofile:
                 soft: 1000000
