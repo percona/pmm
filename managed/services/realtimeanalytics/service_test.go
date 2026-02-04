@@ -630,8 +630,7 @@ func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
 	conn, err := grpc.NewClient(
 		"passthrough:///bufnet",
 		grpc.WithContextDialer(bufDialer),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
