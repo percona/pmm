@@ -6,27 +6,50 @@ import { Page } from 'components/page';
 import { Messages } from '../RealtimeSelection.messages';
 import { DOCS_URL } from '../RealtimeSelection.constants';
 import { EmptyStateMessages } from './EmptyState.messages';
+import { Icon } from 'components/icon';
 
 const RealtimeSelectionViewerEmptyState: FC = () => (
   <Page footer={null}>
     <Stack
-      gap={3}
       sx={{
-        maxWidth: 392,
-        mx: 'auto',
-        py: 6,
-        px: 2,
+        flex: 1,
+        display: 'flex',
         alignItems: 'center',
-        textAlign: 'center',
+        justifyContent: 'center',
       }}
     >
-      <Typography variant="h6">{EmptyStateMessages.title}</Typography>
-      <Typography variant="body1" color="text.secondary">
-        {EmptyStateMessages.description}
-      </Typography>
-      <Link href={DOCS_URL} target="_blank">
-        {Messages.documentation}
-      </Link>
+      <Stack
+        gap={2}
+        sx={{
+          p: 2,
+          maxWidth: 392,
+          mx: 'auto',
+          alignItems: 'center',
+          textAlign: 'center',
+        }}
+      >
+        <Icon
+          name="real-time-database-off"
+          color="primary"
+          sx={{ height: 192, width: 192, marginBottom: -5 }}
+        />
+        <Stack gap={1}>
+          <Typography variant="h6">{EmptyStateMessages.title}</Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{
+              textAlign: 'justify',
+              textAlignLast: 'center',
+            }}
+          >
+            {EmptyStateMessages.description}
+          </Typography>
+        </Stack>
+        <Link href={DOCS_URL} target="_blank">
+          {Messages.documentation}
+        </Link>
+      </Stack>
     </Stack>
   </Page>
 );
