@@ -148,4 +148,4 @@ Now that you understand how PMM HA Cluster works, you can deploy it on your Kube
 
 The installation process uses Helm to set up all three replicas, configure HAProxy load balancing, and deploy the distributed databases automatically.
 
-[Install PMM HA Cluster →](../install-pmm/install-HA-clustered.md){.md-button} 
+[Install PMM HA Cluster →](../install-pmm/install-HA-clustered.md){.md-button}
