@@ -7,7 +7,7 @@ To log in to the PMM user interface:
 
 1. Open a web browser and visit the guest IP address. Your browser may display a security warning about an untrusted certificate. This is expected with the default self-signed certificate. You can safely proceed to the website.
 
-2. The PMM [Log in screen](../../../../reference/ui/log_in.md) appears.
+2. The PMM [Login screen](../../../../reference/ui/log_in.md) appears.
 
 3. On the login screen, enter the default credentials: `admin`/`admin`.
 
