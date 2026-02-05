@@ -37,4 +37,3 @@ After removing the virtual machine, you can:
 
 - [Download the latest PMM Server OVA](download_ova.md) to install a newer version
 - [Deploy PMM Server using an alternative method](../../index.md), such as Docker or Kubernetes
-- [Set up a new PMM Server virtual appliance](vmware.md) with a fresh configuration

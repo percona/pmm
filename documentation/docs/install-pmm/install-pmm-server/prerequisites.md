@@ -148,14 +148,13 @@ Choose your deployment method and ensure it meets these specific requirements:
 === ":material-harddisk: Virtual Appliance (OVA)"
     **Hypervisor compatibility:**
 
-    - VMware ESXi 6.0+, Workstation 12.0+, Fusion 10.0+
-    - VirtualBox 6.0+
+    - VirtualBox 7.0+
     
     **VM specifications (default):**
 
-    - OS: Oracle Linux 9.3
-    - CPU: 1 (adjustable after deployment)
-    - Memory: 4096 MB (adjustable after deployment)
+    - OS: Oracle Linux 9.6 (64-bit)
+    - CPU: 2 (adjustable after deployment)
+    - Memory: 8 GB (adjustable after deployment)
     - Disk 1: 40 GB (system)
     - Disk 2: 400 GB (data)
     
