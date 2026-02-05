@@ -24,6 +24,9 @@ on:
       - "vmproxy/**"
       - "update/**"
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     name: CI

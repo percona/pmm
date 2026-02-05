@@ -6,6 +6,7 @@ This check warns if the storage size is greater than the data size of a collecti
 ## Resolution
 
 Fragmented collections are indicated by:
+
 - wiredTiger storage engines with collections that have storage sizes greater than data size AND
 - high disk usage```
 

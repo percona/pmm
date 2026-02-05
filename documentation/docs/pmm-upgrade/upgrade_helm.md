@@ -33,25 +33,21 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
 {.power-number}
 
 1. Update Helm repository:
-
     ```sh
-    helm repo update percona
+   helm repo update percona
     ```
 
 2. Upgrade PMM:
-
     ```sh
-    helm upgrade pmm -f values.yaml --set podSecurityContext.runAsGroup=null --set podSecurityContext.fsGroup=null percona/pmm
+   helm upgrade pmm -f values.yaml --set podSecurityContext.runAsGroup=null --set podSecurityContext.fsGroup=null percona/pmm
     ```
-
 
 3. After the upgrade, verify that PMM Server is running correctly and all your data is accessible:
-
     ```sh
-    kubectl get pods | grep pmm-server
+   kubectl get pods | grep pmm-server
     ```
-4. Check the logs for any errors:
 
+4. Check the logs for any errors:
     ```sh
-    kubectl logs deployment/pmm-server
+   kubectl logs deployment/pmm-server
     ```

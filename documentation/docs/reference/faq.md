@@ -14,11 +14,14 @@ See our detailed guides:
 - [Setting up PMM Client](../install-pmm/install-pmm-client/index.md) for client setup
 
 Quick reference for typical deployment (up to 30 nodes):
+
 - **Server**:
+
     - CPU: 4 cores (must support SSE4.2)
     - Memory: 8 GB
     - Storage: 100 GB (approximately 1 GB per node per week)
 - **Client**:
+
     - Storage: 100 MB
     - Supports x86_64 and ARM64 architectures
 
