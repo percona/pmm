@@ -1,6 +1,8 @@
 import { SyntaxHighlighterProps as ReactSyntaxHighlighterProps } from 'react-syntax-highlighter';
 import { CodeLanguage } from 'types/util.types';
 
-export interface SyntaxHighlighterProps extends ReactSyntaxHighlighterProps {
+export interface SyntaxHighlighterProps extends Omit<ReactSyntaxHighlighterProps, 'children'> {
   language: CodeLanguage;
+  content: string;
+  showCopyButton?: boolean;
 }

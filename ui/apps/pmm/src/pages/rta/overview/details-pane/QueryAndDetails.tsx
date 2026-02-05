@@ -25,9 +25,7 @@ const QueryAndDetails: FC<Props> = ({ query: { queryText, state, serviceName } }
         flex: 1,
       },
     }}>
-      <SyntaxHighlighter language="mongodb" showLineNumbers={true}>
-        {queryText}
-      </SyntaxHighlighter>
+      <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} />
       <Grid container spacing={3}>
         <GridItem>
           <DetailsMetric title="Current state">
