@@ -16,7 +16,9 @@
 package tarball
 
 import (
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -26,8 +28,10 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/pkg/client"
@@ -80,12 +84,17 @@ func (b *Base) Install(ctx context.Context) error {
 	}
 
 	logrus.Infof("Extracting tarball %s", tarPath)
-	if err := b.extractTarball(tarPath); err != nil {
+	dir, err := os.MkdirTemp("", "pmm-client")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(dir)
+
+	if err := b.extractTarball(tarPath, dir); err != nil {
 		return err
 	}
 
-	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))
-	defer os.RemoveAll(extractedPath) //nolint:errcheck
+	extractedPath := path.Join(dir, fmt.Sprintf("pmm2-client-%s", b.Version))
 
 	if err := b.installTarball(ctx, extractedPath); err != nil {
 		return err
@@ -186,17 +195,67 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 	return nil
 }
 
-func (b *Base) extractTarball(tarPath string) error {
-	if err := os.RemoveAll(path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))); err != nil {
+func (b *Base) extractTarball(tarPath, targetDir string) error {
+	readFile, err := os.Open(tarPath) //nolint:gosec
+	if err != nil {
 		return err
 	}
 
-	cmd := exec.Command("tar", "-C", os.TempDir(), "-zxvf", tarPath) //nolint:gosec
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	defer readFile.Close() //nolint:gosec
 
-	if err := cmd.Run(); err != nil {
+	reader, err := gzip.NewReader(readFile)
+	if err != nil {
 		return err
+	}
+
+	defer reader.Close()
+
+	tarReader := tar.NewReader(reader)
+
+	for {
+		hdr, err := tarReader.Next()
+		if err == io.EOF {
+			// end of tar archive
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		hdrPath := path.Join(targetDir, hdr.Name) //nolint:gosec
+
+		abs, err := filepath.Abs(hdrPath)
+		if err != nil {
+			return err
+		}
+
+		if !strings.HasPrefix(abs, targetDir) {
+			return errors.Errorf("failed to extract %s file as the resolved path is outside of the destination folder", hdr.Name)
+		}
+
+		switch hdr.Typeflag {
+		case tar.TypeDir:
+			logrus.Infof("Creating dir:    %s", hdr.Name)
+
+			err = os.MkdirAll(abs, os.FileMode(hdr.Mode))
+			if err != nil {
+				return err
+			}
+		case tar.TypeReg:
+			logrus.Infof("Extracting file: %s", hdr.Name)
+
+			w, err := os.OpenFile(abs, os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode)) //nolint:gosec
+			if err != nil {
+				return err
+			}
+
+			_, err = io.Copy(w, tarReader) //nolint:gosec
+			if err != nil {
+				return err
+			}
+
+			w.Close()
+		}
 	}
 
 	return nil
