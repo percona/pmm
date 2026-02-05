@@ -79,9 +79,7 @@ func benchmarkRequest(b *testing.B, url string, params string) time.Duration {
 
 	client := &http.Client{}
 	start := time.Now()
-	b.ResetTimer()
 	resp, err := client.Do(req)
-	b.StopTimer()
 	duration := time.Since(start)
 	if err != nil {
 		b.Fatalf("Request failed: %v", err)
@@ -90,8 +88,6 @@ func benchmarkRequest(b *testing.B, url string, params string) time.Duration {
 	if resp.StatusCode != http.StatusOK {
 		b.Fatalf("Unexpected status code: %d", resp.StatusCode)
 	}
-
-	b.StartTimer()
 
 	return duration
 }
