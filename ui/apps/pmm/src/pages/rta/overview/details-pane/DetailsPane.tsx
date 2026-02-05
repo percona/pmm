@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
@@ -15,6 +15,7 @@ import { useEscapeKey } from 'utils/keys.utils';
 import { Messages } from './DetailsPane.messages';
 import QueryAndDetails from './QueryAndDetails';
 import HistoricalContext from './HistoricalContext';
+import { SyntaxHighlighter } from 'components/syntax-highlighter';
 
 interface Props {
   query?: QueryData;
@@ -34,6 +35,7 @@ const DetailsPane: FC<Props> = ({
   onPrevious,
 }) => {
   useEscapeKey(onClose);
+  const [tab, setTab] = useState(0);
 
   return (
     <Slide in={!!query} direction="up">
@@ -54,7 +56,7 @@ const DetailsPane: FC<Props> = ({
         })}
       >
         <Stack direction="row" justifyContent="space-between">
-          <Tabs value={0}>
+          <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)}>
             <Tab
               data-testid="details-pane-details-tab"
               value={0}
@@ -104,13 +106,15 @@ const DetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
-            <Stack gap={2} mb={1} >
-              {/* <Typography variant="h6">{query.serviceName}</Typography>
-              <Typography variant="body2">{query.queryId}</Typography>
-              <Typography variant="body2">{query.state}</Typography> */}
-              <QueryAndDetails query={query} />
-              <HistoricalContext />
-            </Stack>
+            {tab === 0 && (
+              <Stack gap={2} mb={1} >
+                <QueryAndDetails query={query} />
+                <HistoricalContext />
+              </Stack>
+            )}
+            {tab === 1 && (
+              <SyntaxHighlighter language="json" content={query.rawQueryJson} showCopyButton showLineNumbers />
+            )}
           </CardContent>
         ) : null}
       </Paper>
