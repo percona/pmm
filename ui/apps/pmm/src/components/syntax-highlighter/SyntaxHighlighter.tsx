@@ -23,7 +23,6 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
     <Stack
       sx={{
         overflow: 'hidden',
-        overflowX: 'ellipsis',
         borderWidth: 1,
         borderStyle: 'solid',
         borderColor: theme.palette.divider,

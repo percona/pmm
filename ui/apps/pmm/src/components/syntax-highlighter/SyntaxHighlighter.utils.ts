@@ -43,6 +43,9 @@ export const getSyntaxHighlighterStyle = (
       paddingBottom: theme.spacing(1),
       background: tokens.background,
       fontFamily: tokens.fontFamily,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
     },
     'code[class*="language-"]': {
       ...vscDarkPlus['code[class*="language-"]'],
