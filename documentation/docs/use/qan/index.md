@@ -50,13 +50,10 @@ Both files are located in `/etc/clickhouse-server/` inside the PMM Server contai
 
 ### How to switch profiles
 
-!!! note
-    You must run the switch script from inside the PMM Server container (for example, with `docker exec -it <container> bash`).
-
 To switch between profiles, use the `switch-config.sh` script (available in `/etc/clickhouse-server/` and as `/opt/switch-config.sh`).
 
 **Usage:**
-Run inside the container:
+Run inside the container from one of the paths mentioned above:
 
     ./switch-config.sh [low|default]
 
