@@ -24345,6 +24345,23 @@
                           }
                         },
                         "x-order": 13
+                      },
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "BACKUP_COMPRESSION_INVALID",
+                        "enum": [
+                          "BACKUP_COMPRESSION_INVALID",
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4",
+                          "S2",
+                          "GZIP",
+                          "SNAPPY",
+                          "PGZIP"
+                        ],
+                        "x-order": 14
                       }
                     }
                   },
@@ -25030,6 +25047,23 @@
                         "description": "Folder on storage for artifact.",
                         "type": "string",
                         "x-order": 18
+                      },
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "BACKUP_COMPRESSION_INVALID",
+                        "enum": [
+                          "BACKUP_COMPRESSION_INVALID",
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4",
+                          "S2",
+                          "GZIP",
+                          "SNAPPY",
+                          "PGZIP"
+                        ],
+                        "x-order": 19
                       }
                     }
                   },
@@ -25315,6 +25349,23 @@
                   "description": "Folder on storage for artifact.",
                   "type": "string",
                   "x-order": 12
+                },
+                "compression": {
+                  "type": "string",
+                  "title": "BackupCompression specifies compression",
+                  "default": "BACKUP_COMPRESSION_INVALID",
+                  "enum": [
+                    "BACKUP_COMPRESSION_INVALID",
+                    "NONE",
+                    "QUICKLZ",
+                    "ZSTD",
+                    "LZ4",
+                    "S2",
+                    "GZIP",
+                    "SNAPPY",
+                    "PGZIP"
+                  ],
+                  "x-order": 13
                 }
               }
             }
@@ -25429,6 +25480,23 @@
                   "description": "Folder on storage for artifact.",
                   "type": "string",
                   "x-order": 7
+                },
+                "compression": {
+                  "type": "string",
+                  "title": "BackupCompression specifies compression",
+                  "default": "BACKUP_COMPRESSION_INVALID",
+                  "enum": [
+                    "BACKUP_COMPRESSION_INVALID",
+                    "NONE",
+                    "QUICKLZ",
+                    "ZSTD",
+                    "LZ4",
+                    "S2",
+                    "GZIP",
+                    "SNAPPY",
+                    "PGZIP"
+                  ],
+                  "x-order": 8
                 }
               }
             }
@@ -26092,6 +26160,23 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 12
+                      },
+                      "compression": {
+                        "type": "string",
+                        "title": "BackupCompression specifies compression",
+                        "default": "BACKUP_COMPRESSION_INVALID",
+                        "enum": [
+                          "BACKUP_COMPRESSION_INVALID",
+                          "NONE",
+                          "QUICKLZ",
+                          "ZSTD",
+                          "LZ4",
+                          "S2",
+                          "GZIP",
+                          "SNAPPY",
+                          "PGZIP"
+                        ],
+                        "x-order": 13
                       }
                     }
                   },

@@ -209,6 +209,29 @@ func convertBackupStatus(status models.BackupStatus) (backuppb.BackupStatus, err
 	}
 }
 
+func convertBackupCompression(compression models.BackupCompression) (backuppb.BackupCompression, error) {
+	switch compression {
+	case models.QuickLZ:
+		return backuppb.BackupCompression_QUICKLZ, nil
+	case models.ZSTD:
+		return backuppb.BackupCompression_ZSTD, nil
+	case models.LZ4:
+		return backuppb.BackupCompression_LZ4, nil
+	case models.S2:
+		return backuppb.BackupCompression_S2, nil
+	case models.GZIP:
+		return backuppb.BackupCompression_GZIP, nil
+	case models.Snappy:
+		return backuppb.BackupCompression_SNAPPY, nil
+	case models.PGZIP:
+		return backuppb.BackupCompression_PGZIP, nil
+	case models.None:
+		return backuppb.BackupCompression_NONE, nil
+	default:
+		return 0, errors.Errorf("invalid compression '%s'", compression)
+	}
+}
+
 func convertArtifact(
 	a *models.Artifact,
 	services map[string]*models.Service,
@@ -245,6 +268,11 @@ func convertArtifact(
 		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
 	}
 
+	compression, err := convertBackupCompression(a.Compression)
+	if err != nil {
+		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
+	}
+
 	return &backuppb.Artifact{
 		ArtifactId:       a.ID,
 		Name:             a.Name,
@@ -259,6 +287,7 @@ func convertArtifact(
 		CreatedAt:        createdAt,
 		IsShardedCluster: a.IsShardedCluster,
 		Folder:           a.Folder,
+		Compression:      compression,
 		MetadataList:     artifactMetadataListToProto(a),
 	}, nil
 }

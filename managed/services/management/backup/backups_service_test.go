@@ -119,6 +119,7 @@ func TestStartBackup(t *testing.T) {
 					DataModel:     backuppb.DataModel_PHYSICAL,
 					RetryInterval: nil,
 					Retries:       0,
+					Compression:   backuppb.BackupCompression_ZSTD,
 				})
 				assert.Nil(t, resp)
 				st, ok := status.FromError(err)
@@ -131,6 +132,61 @@ func TestStartBackup(t *testing.T) {
 				assert.Equal(t, tc.code, detailedError.Code)
 			})
 		}
+
+		t.Run("compression test cases", func(t *testing.T) {
+			compressionTests := []struct {
+				name        string
+				compression backuppb.BackupCompression
+				shouldError bool
+			}{
+				{
+					name:        "QuickLZ compression",
+					compression: backuppb.BackupCompression_QUICKLZ,
+					shouldError: false,
+				},
+				{
+					name:        "ZSTD compression",
+					compression: backuppb.BackupCompression_ZSTD,
+					shouldError: false,
+				},
+				{
+					name:        "LZ4 compression",
+					compression: backuppb.BackupCompression_LZ4,
+					shouldError: false,
+				},
+				{
+					name:        "None compression",
+					compression: backuppb.BackupCompression_NONE,
+					shouldError: false,
+				},
+			}
+
+			for _, tc := range compressionTests {
+				t.Run(tc.name, func(t *testing.T) {
+					backupService.On("PerformBackup", mock.Anything, mock.Anything).
+						Return("artifact_id", nil).Once()
+					ctx := context.Background()
+					resp, err := backupSvc.StartBackup(ctx, &backuppb.StartBackupRequest{
+						ServiceId:     *agent.ServiceID,
+						LocationId:    "locationID",
+						Name:          "name",
+						Description:   "description",
+						DataModel:     backuppb.DataModel_PHYSICAL,
+						RetryInterval: nil,
+						Retries:       0,
+						Compression:   tc.compression,
+					})
+					if tc.shouldError {
+						assert.Error(t, err)
+						assert.Nil(t, resp)
+					} else {
+						assert.NoError(t, err)
+						assert.NotNil(t, resp)
+						assert.Equal(t, "artifact_id", resp.ArtifactId)
+					}
+				})
+			}
+		})
 	})
 
 	t.Run("mongodb", func(t *testing.T) {
@@ -166,8 +222,77 @@ func TestStartBackup(t *testing.T) {
 				RetryInterval: nil,
 				Retries:       0,
 				DataModel:     backuppb.DataModel_PHYSICAL,
+				Compression:   backuppb.BackupCompression_S2,
 			})
 			require.NoError(t, err)
+		})
+
+		t.Run("mongodb compression test cases", func(t *testing.T) {
+			compressionTests := []struct {
+				name        string
+				compression backuppb.BackupCompression
+				shouldError bool
+			}{
+				{
+					name:        "GZIP compression",
+					compression: backuppb.BackupCompression_GZIP,
+					shouldError: false,
+				},
+				{
+					name:        "Snappy compression",
+					compression: backuppb.BackupCompression_SNAPPY,
+					shouldError: false,
+				},
+				{
+					name:        "LZ4 compression",
+					compression: backuppb.BackupCompression_LZ4,
+					shouldError: false,
+				},
+				{
+					name:        "S2 compression",
+					compression: backuppb.BackupCompression_S2,
+					shouldError: false,
+				},
+				{
+					name:        "PGZIP compression",
+					compression: backuppb.BackupCompression_PGZIP,
+					shouldError: false,
+				},
+				{
+					name:        "ZSTD compression",
+					compression: backuppb.BackupCompression_ZSTD,
+					shouldError: false,
+				},
+				{
+					name:        "None compression",
+					compression: backuppb.BackupCompression_NONE,
+					shouldError: false,
+				},
+			}
+
+			for _, tc := range compressionTests {
+				t.Run(tc.name, func(t *testing.T) {
+					ctx := context.Background()
+					backupService := &mockBackupService{}
+					backupSvc := NewBackupsService(db, backupService, nil, nil)
+					backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("artifact_id", nil)
+					_, err := backupSvc.StartBackup(ctx, &backuppb.StartBackupRequest{
+						ServiceId:     *agent.ServiceID,
+						LocationId:    locationRes.ID,
+						Name:          "name",
+						Description:   "description",
+						RetryInterval: nil,
+						Retries:       0,
+						DataModel:     backuppb.DataModel_PHYSICAL,
+						Compression:   tc.compression,
+					})
+					if tc.shouldError {
+						assert.Error(t, err)
+					} else {
+						assert.NoError(t, err)
+					}
+				})
+			}
 		})
 
 		t.Run("check folder and artifact name", func(t *testing.T) {
@@ -225,10 +350,11 @@ func TestStartBackup(t *testing.T) {
 						backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("", nil).Once()
 					}
 					res, err := backupSvc.StartBackup(ctx, &backuppb.StartBackupRequest{
-						Name:      test.BackupName,
-						Folder:    test.Folder,
-						ServiceId: *agent.ServiceID,
-						DataModel: backuppb.DataModel_LOGICAL,
+						Name:        test.BackupName,
+						Folder:      test.Folder,
+						ServiceId:   *agent.ServiceID,
+						DataModel:   backuppb.DataModel_LOGICAL,
+						Compression: backuppb.BackupCompression_S2,
 					})
 					if test.ErrString != "" {
 						assert.Nil(t, res)
@@ -344,6 +470,7 @@ func TestScheduledBackups(t *testing.T) {
 				Enabled:        true,
 				Mode:           backuppb.BackupMode_SNAPSHOT,
 				DataModel:      backuppb.DataModel_PHYSICAL,
+				Compression:    backuppb.BackupCompression_ZSTD,
 				Retries:        maxRetriesAttempts - 1,
 				RetryInterval:  durationpb.New(maxRetryInterval),
 			}
@@ -399,21 +526,22 @@ func TestScheduledBackups(t *testing.T) {
 			task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 				CronExpression: "* * * * *",
 				Type:           models.ScheduledMySQLBackupTask,
-				Data:           &models.ScheduledTaskData{MySQLBackupTask: &models.MySQLBackupTaskData{CommonBackupTaskData: models.CommonBackupTaskData{Name: t.Name()}}},
+				Data:           &models.ScheduledTaskData{MySQLBackupTask: &models.MySQLBackupTaskData{CommonBackupTaskData: models.CommonBackupTaskData{Name: t.Name(), Compression: models.ZSTD}}},
 			})
 			require.NoError(t, err)
 
 			id := task.ID
 
 			_, err = models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-				Name:       "artifact",
-				Vendor:     "mysql",
-				LocationID: locationRes.ID,
-				ServiceID:  *agent.ServiceID,
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.Snapshot,
-				Status:     models.PendingBackupStatus,
-				ScheduleID: id,
+				Name:        "artifact",
+				Vendor:      "mysql",
+				LocationID:  locationRes.ID,
+				ServiceID:   *agent.ServiceID,
+				DataModel:   models.PhysicalDataModel,
+				Mode:        models.Snapshot,
+				Status:      models.PendingBackupStatus,
+				ScheduleID:  id,
+				Compression: models.ZSTD,
 			})
 			require.NoError(t, err)
 
@@ -453,6 +581,7 @@ func TestScheduledBackups(t *testing.T) {
 				Retries:       maxRetriesAttempts,
 				DataModel:     backuppb.DataModel_PHYSICAL,
 				Mode:          backuppb.BackupMode_PITR,
+				Compression:   backuppb.BackupCompression_S2,
 			})
 			require.Error(t, err)
 			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "PITR is only supported for logical backups", err)
@@ -472,6 +601,7 @@ func TestScheduledBackups(t *testing.T) {
 				Retries:       maxRetriesAttempts,
 				DataModel:     backuppb.DataModel_PHYSICAL,
 				Mode:          backuppb.BackupMode_SNAPSHOT,
+				Compression:   backuppb.BackupCompression_S2,
 			})
 			require.NoError(t, err)
 		})
@@ -625,4 +755,81 @@ func TestGetLogs(t *testing.T) {
 			assert.Equal(t, tc.expect, chunkIDs)
 		}
 	})
+}
+
+func TestConvertCompressionToBackupCompression(t *testing.T) {
+	tests := []struct {
+		name        string
+		compression backuppb.BackupCompression
+		expected    models.BackupCompression
+		shouldError bool
+	}{
+		{
+			name:        "QuickLZ compression",
+			compression: backuppb.BackupCompression_QUICKLZ,
+			expected:    models.QuickLZ,
+			shouldError: false,
+		},
+		{
+			name:        "ZSTD compression",
+			compression: backuppb.BackupCompression_ZSTD,
+			expected:    models.ZSTD,
+			shouldError: false,
+		},
+		{
+			name:        "LZ4 compression",
+			compression: backuppb.BackupCompression_LZ4,
+			expected:    models.LZ4,
+			shouldError: false,
+		},
+		{
+			name:        "S2 compression",
+			compression: backuppb.BackupCompression_S2,
+			expected:    models.S2,
+			shouldError: false,
+		},
+		{
+			name:        "GZIP compression",
+			compression: backuppb.BackupCompression_GZIP,
+			expected:    models.GZIP,
+			shouldError: false,
+		},
+		{
+			name:        "Snappy compression",
+			compression: backuppb.BackupCompression_SNAPPY,
+			expected:    models.Snappy,
+			shouldError: false,
+		},
+		{
+			name:        "PGZIP compression",
+			compression: backuppb.BackupCompression_PGZIP,
+			expected:    models.PGZIP,
+			shouldError: false,
+		},
+		{
+			name:        "None compression",
+			compression: backuppb.BackupCompression_NONE,
+			expected:    models.None,
+			shouldError: false,
+		},
+		{
+			name:        "invalid compression",
+			compression: backuppb.BackupCompression_BACKUP_COMPRESSION_INVALID,
+			expected:    models.BackupCompression(""),
+			shouldError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := convertCompressionToBackupCompression(tt.compression)
+			if tt.shouldError {
+				assert.Error(t, err)
+				assert.Equal(t, models.BackupCompression(""), result)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expected, result)
+			}
+		})
+	}
 }

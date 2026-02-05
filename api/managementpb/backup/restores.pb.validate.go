@@ -164,6 +164,8 @@ func (m *RestoreHistoryItem) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Compression
+
 	if len(errors) > 0 {
 		return RestoreHistoryItemMultiError(errors)
 	}
