@@ -24,6 +24,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
 )
@@ -187,6 +188,22 @@ func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
+		TextFiles: &agentv1.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+	}
+}
+
+// rtaMongoDBAgentConfig returns desired configuration of rta-mongodb-agent RTA agent.
+func rtaMongoDBAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
+
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:       inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
+		Dsn:        agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		RtaOptions: services.ToAPIRTAOptions(&agent.RTAOptions),
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
