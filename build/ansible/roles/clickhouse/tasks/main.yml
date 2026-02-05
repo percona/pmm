@@ -55,10 +55,15 @@
     - default-config.xml
     - switch-config.sh
 
+- name: Set executable permissions for switch-config.sh
+  file:
+    path: /etc/clickhouse-server/switch-config.sh
+    mode: 0755
+
 - name: Create symlink to switch-config.sh in /
   file:
     src: /etc/clickhouse-server/switch-config.sh
-    dest: "{{ ansible_env.HOME }}/switch-config.sh"
+    dest: "~pmm/switch-config.sh"
     owner: pmm
     group: root
     state: link
