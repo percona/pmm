@@ -103,19 +103,14 @@ export const NAV_MYSQL: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-performance-schema/mysql-performance-schema-details`,
     },
     {
-      id: 'mysql-query-response-time-details',
-      text: 'Query response time',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-queryresponsetime/mysql-query-response-time-details`,
-    },
-    {
       id: 'mysql-table-details',
       text: 'Table details',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-table/mysql-table-details`,
     },
     {
-      id: 'mysql-tokudb-details',
-      text: 'TokuDB details',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-tokudb/mysql-tokudb-details`,
+      id: 'mysql-myrocks-details',
+      text: 'MyRocks details',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-myrocks/mysql-myrocks-details`,
     },
   ],
 };

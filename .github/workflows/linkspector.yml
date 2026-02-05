@@ -4,6 +4,9 @@ on:
     paths:
       - "documentation/**"
 
+permissions:
+  contents: read
+
 jobs:
   check-links:
     name: linkspector

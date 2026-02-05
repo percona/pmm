@@ -5,8 +5,6 @@ Alert rules describe the circumstances under which you want to be alerted. The e
 
 An alert rule consists of one or more queries and expressions, a condition, the frequency of evaluation, and the duration over which the condition is met. For example, you might configure an alert to fire and trigger a notification when MongoDB is down.
 
-![!](../images/alerting-normal-alert-rule.png)
-
 An alert rule can be in three possible states:
 
 - Normal: Everything is working correctly and the conditions specified in the rule has not been met. This is the default state for newly created rules.
@@ -114,7 +112,7 @@ To test expressions for custom templates:
 1. On the main menu in PMM, choose **Explore > Metrics**.
 2. Enter your expression in the **Metrics** field and click **Run query**.
 
-For example, to check the CPU usage, Go to **Explore > Metrics** in your PMM dashboard and run the query expression below:
+For example, to check the CPU usage, Go to **Explore > PromSQL builder** and run the query expression below:
 ```
 (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100
 ```
