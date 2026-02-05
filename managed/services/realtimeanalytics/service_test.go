@@ -18,14 +18,21 @@ package realtimeanalytics
 import (
 	"context"
 	"fmt"
+	"net"
+	"slices"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
@@ -34,8 +41,36 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
+
+func getServiceQueries(serviceID, serviceName string, count int) []*rtav1.QueryData {
+	data := make([]*rtav1.QueryData, count)
+	for i := 0; i < count; i++ {
+		data[i] = &rtav1.QueryData{
+			ServiceId:         serviceID,
+			ServiceName:       serviceName,
+			QueryId:           fmt.Sprintf("static-query-%d", i),
+			QueryText:         `{ find: "mycollection", filter: { status: "active" } }`,
+			State:             "RUNNING",
+			ExecutionDuration: durationpb.New(15),
+			RowsExamined:      200,
+			RowsSent:          100,
+			CollectTime:       timestamppb.Now(),
+			RawQueryJson:      `{ find: "mycollection", filter: { status: "active" } }`,
+			Payload: &rtav1.QueryData_MongoDbPayload{
+				MongoDbPayload: &rtav1.QueryMongoDBData{
+					Opid:           "1",
+					Client:         "127.0.0.1:5060",
+					WaitingForLock: false,
+					IndexUtilized:  "COLLSCAN",
+				},
+			},
+		}
+	}
+	return data
+}
 
 func TestListSessions(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -491,72 +526,10 @@ func TestSearchQueries(t *testing.T) {
 	svc := NewService(db, registry, stateUpdater, store)
 
 	// Populate store with static query data for service1
-	store.Set(service1.ServiceID, []*rtav1.QueryData{
-		{
-			ServiceId:         service1.ServiceID,
-			ServiceName:       service1.ServiceName,
-			QueryId:           "static-query-1",
-			QueryText:         `{ find: "mycollection", filter: { status: "active" } }`,
-			State:             "RUNNING",
-			ExecutionDuration: durationpb.New(15),
-			RowsExamined:      200,
-			RowsSent:          100,
-			CollectTime:       timestamppb.Now(),
-			RawQueryJson:      `{ find: "mycollection", filter: { status: "active" } }`,
-			Payload: &rtav1.QueryData_MongoDbPayload{
-				MongoDbPayload: &rtav1.QueryMongoDBData{
-					Opid:           "1",
-					Client:         "127.0.0.1:5060",
-					WaitingForLock: false,
-					IndexUtilized:  "COLLSCAN",
-				},
-			},
-		},
-		{
-			ServiceId:         service1.ServiceID,
-			ServiceName:       service1.ServiceName,
-			QueryId:           "static-query-2",
-			QueryText:         `{ find: "mycollection", filter: { status: "active" } }`,
-			State:             "PROCESSING",
-			ExecutionDuration: durationpb.New(25),
-			RowsExamined:      200,
-			RowsSent:          100,
-			CollectTime:       timestamppb.Now(),
-			RawQueryJson:      `{ find: "mycollection", filter: { status: "active" } }`,
-			Payload: &rtav1.QueryData_MongoDbPayload{
-				MongoDbPayload: &rtav1.QueryMongoDBData{
-					Opid:           "2",
-					Client:         "127.0.0.1:5061",
-					WaitingForLock: true,
-					IndexUtilized:  "IXSCAN",
-				},
-			},
-		},
-	})
+	store.Set(service1.ServiceID, getServiceQueries(service1.ServiceID, service1.ServiceName, 2))
 
 	// Populate store with static query data for service2
-	store.Set(service2.ServiceID, []*rtav1.QueryData{
-		{
-			ServiceId:         service2.ServiceID,
-			ServiceName:       service2.ServiceName,
-			QueryId:           "static-query-3",
-			QueryText:         `{ find: "mycollection", filter: { status: "active" } }`,
-			State:             "FINISHED",
-			ExecutionDuration: durationpb.New(35),
-			RowsExamined:      200,
-			RowsSent:          100,
-			CollectTime:       timestamppb.Now(),
-			RawQueryJson:      `{ find: "mycollection", filter: { status: "active" } }`,
-			Payload: &rtav1.QueryData_MongoDbPayload{
-				MongoDbPayload: &rtav1.QueryMongoDBData{
-					Opid:           "1",
-					Client:         "127.0.0.1:5062",
-					WaitingForLock: true,
-					IndexUtilized:  "COLLSCAN",
-				},
-			},
-		},
-	})
+	store.Set(service2.ServiceID, getServiceQueries(service2.ServiceID, service2.ServiceName, 1))
 
 	t.Run("search all queries for service1", func(t *testing.T) {
 		t.Parallel()
@@ -567,9 +540,18 @@ func TestSearchQueries(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 		require.Len(t, resp.Queries, 2)
-		queryIDs := []string{resp.Queries[0].QueryId, resp.Queries[1].QueryId}
+
+		queryIDs := make([]string, len(resp.Queries))
+		for i, q := range resp.Queries {
+			queryIDs[i] = q.QueryId
+		}
+		assert.Contains(t, queryIDs, "static-query-0")
 		assert.Contains(t, queryIDs, "static-query-1")
-		assert.Contains(t, queryIDs, "static-query-2")
+
+		for i := range resp.Queries {
+			assert.Equal(t, service1.ServiceID, resp.Queries[i].ServiceId)
+			assert.Equal(t, service1.ServiceName, resp.Queries[i].ServiceName)
+		}
 	})
 
 	t.Run("search all queries for service2", func(t *testing.T) {
@@ -581,7 +563,9 @@ func TestSearchQueries(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 		require.Len(t, resp.Queries, 1)
-		assert.Equal(t, "static-query-3", resp.Queries[0].QueryId)
+		assert.Equal(t, "static-query-0", resp.Queries[0].QueryId)
+		assert.Equal(t, service2.ServiceID, resp.Queries[0].ServiceId)
+		assert.Equal(t, service2.ServiceName, resp.Queries[0].ServiceName)
 	})
 
 	t.Run("search all queries for both services", func(t *testing.T) {
@@ -593,10 +577,24 @@ func TestSearchQueries(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 		require.Len(t, resp.Queries, 3)
-		queryIDs := []string{resp.Queries[0].QueryId, resp.Queries[1].QueryId, resp.Queries[2].QueryId}
-		assert.Contains(t, queryIDs, "static-query-1")
-		assert.Contains(t, queryIDs, "static-query-2")
-		assert.Contains(t, queryIDs, "static-query-3")
+		assert.True(t, slices.ContainsFunc(resp.Queries, func(q *rtav1.QueryData) bool {
+			return q.QueryId == "static-query-0" &&
+				q.ServiceId == service1.ServiceID &&
+				q.ServiceName == service1.ServiceName
+		}),
+		)
+		assert.True(t, slices.ContainsFunc(resp.Queries, func(q *rtav1.QueryData) bool {
+			return q.QueryId == "static-query-1" &&
+				q.ServiceId == service1.ServiceID &&
+				q.ServiceName == service1.ServiceName
+		}),
+		)
+		assert.True(t, slices.ContainsFunc(resp.Queries, func(q *rtav1.QueryData) bool {
+			return q.QueryId == "static-query-0" &&
+				q.ServiceId == service2.ServiceID &&
+				q.ServiceName == service2.ServiceName
+		}),
+		)
 	})
 
 	t.Run("search all queries for absent service", func(t *testing.T) {
@@ -618,4 +616,88 @@ func TestSearchQueries(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")
 	})
+}
+
+var lis *bufconn.Listener
+
+func bufDialer(context.Context, string) (net.Conn, error) {
+	return lis.Dial()
+}
+
+func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
+	t.Helper()
+
+	conn, err := grpc.NewClient(
+		"passthrough:///bufnet",
+		grpc.WithContextDialer(bufDialer),
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		t.Fatalf("Failed to dial bufnet: %v", err)
+	}
+
+	client := rtav1.NewCollectorServiceClient(conn)
+
+	return client, func() { conn.Close() }
+}
+
+func TestService_Collect(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	registry := newMockAgentsRegistry(t)
+	stateUpdater := newMockAgentsStateUpdater(t)
+	store := NewStore()
+	svc := NewService(db, registry, stateUpdater, store)
+	// // Create in-memory listener for testing
+	const bufSize = 1024 * 1024
+	lis = bufconn.Listen(bufSize)
+
+	// Create and start server
+	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	s := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			interceptors.Stream(grpcMetrics.StreamServerInterceptor()),
+			interceptors.StreamServiceEnabledInterceptor(),
+			grpc_validator.StreamServerInterceptor())),
+	)
+	rtav1.RegisterCollectorServiceServer(s, svc)
+
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			panic(err)
+		}
+	}()
+
+	time.Sleep(1 * time.Second) // Give server time to start
+	client, cleanup := getTestClient(t)
+	defer cleanup()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	stream, err := client.Collect(ctx)
+	require.NoError(t, err)
+
+	err = stream.Send(&rtav1.CollectRequest{
+		Queries: getServiceQueries("service-1", "mongodb-1", 3),
+	})
+	require.NoError(t, err)
+
+	// Close and receive response
+	_, err = stream.CloseAndRecv()
+	require.NoError(t, err)
+
+	storeqQs := store.Get("service-1")
+	queryIDs := make([]string, len(storeqQs))
+	for i, q := range storeqQs {
+		queryIDs[i] = q.QueryId
+	}
+	assert.Contains(t, queryIDs, "static-query-0")
+	assert.Contains(t, queryIDs, "static-query-1")
+	assert.Contains(t, queryIDs, "static-query-2")
+
+	for i := range storeqQs {
+		assert.Equal(t, "service-1", storeqQs[i].ServiceId)
+		assert.Equal(t, "mongodb-1", storeqQs[i].ServiceName)
+	}
 }
