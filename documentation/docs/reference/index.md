@@ -4,7 +4,7 @@ PMM is a client/server application built by Percona comprising its own and third
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
-![Client Server Architecture](../images/arch/C_S_Architecture.jpg)
+![Client-Server Architecture](../images/arch/C_S_Architecture.jpg)
 
 ## PMM Server
 

@@ -666,7 +666,6 @@ Once the service is confirmed as active, verify that metrics are being properly 
 - [Running custom MySQL queries in PMM][BLOG_CUSTOM_QUERIES_MYSQL]
 
 [DASH_MYSQLUSERDETAILS]: ../../../../reference//dashboards/dashboard-mysql-user-details.md
-[DASH_PXCGALERACLUSTER]: ../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.md
 [LOGROTATE]: https://linux.die.net/man/8/logrotate
 [PERCONA_SERVER_MYSQL]: https://www.percona.com/software/mysql-database/percona-server
 [PERCONA_XTRADB_CLUSTER]: https://www.percona.com/software/mysql-database/percona-xtradb-cluster
