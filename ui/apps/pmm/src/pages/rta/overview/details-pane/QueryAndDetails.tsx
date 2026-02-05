@@ -5,12 +5,19 @@ import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from "types/rta.types";
 import DetailsMetric from "./DetailsMetric";
 import Typography from "@mui/material/Typography";
+import { StateCell } from "pages/rta/components/state-cell";
 
 type Props = {
   query: QueryData;
 };
 
-const QueryAndDetails: FC<Props> = ({ query: { queryText } }) => {
+const GridItem = ({ children }: { children: React.ReactNode }) => (
+  <Grid item xs={12} md={6} sx={{ '& > *': { height: '100%' } }}>
+    {children}
+  </Grid>
+);
+
+const QueryAndDetails: FC<Props> = ({ query: { queryText, state, serviceName } }) => {
   return (
     <Stack direction="row" justifyContent="space-between" gap={3} sx={{
       '& > *': {
@@ -18,48 +25,45 @@ const QueryAndDetails: FC<Props> = ({ query: { queryText } }) => {
         flex: 1,
       },
     }}>
-      {/* <Typography variant="h6">{query.serviceName}</Typography>
-      <Typography variant="body2">{query.queryId}</Typography>
-      <Typography variant="body2">{query.state}</Typography> */}
       <SyntaxHighlighter language="mongodb" showLineNumbers={true}>
         {queryText}
       </SyntaxHighlighter>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <GridItem>
           <DetailsMetric title="Current state">
-            <Typography>Running</Typography>
+            <StateCell state={state} />
           </DetailsMetric>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <DetailsMetric title="Elapsed exec. time">
+        </GridItem>
+        <GridItem>
+          <DetailsMetric title="Elapsed exec. time" subtitle="secs_running">
             <Typography>20s</Typography>
           </DetailsMetric>
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </GridItem>
+        <GridItem>
           <DetailsMetric title="Plan summary">
             <Typography>Full collection scan (COLLSCAN)</Typography>
           </DetailsMetric>
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </GridItem>
+        <GridItem>
           <DetailsMetric title="Docs examined/sent">
             <Typography>84,291/1</Typography>
           </DetailsMetric>
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </GridItem>
+        <GridItem>
           <DetailsMetric title="Snapshot time">
             <Typography>2025-10-17 11:18:29</Typography>
           </DetailsMetric>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <DetailsMetric title="Operation ID">
+        </GridItem>
+        <GridItem>
+          <DetailsMetric title="Operation ID" subtitle="opid">
             <Typography>1238912</Typography>
           </DetailsMetric>
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </GridItem>
+        <GridItem>
           <DetailsMetric title="Service">
-            <Typography>mc-ga-s01-primary</Typography>
+            <Typography>{serviceName}</Typography>
           </DetailsMetric>
-        </Grid>
+        </GridItem>
       </Grid>
     </Stack>
   );

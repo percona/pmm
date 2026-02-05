@@ -2,7 +2,7 @@ import { type MRT_ColumnDef } from 'material-react-table';
 
 import { QueryData } from 'types/rta.types';
 import { Messages } from './OverviewTable.messages';
-import { StateCell } from './state-cell';
+import { StateCell } from '../../components/state-cell';
 import { QueryCell } from './query-cell';
 import { parseDuration } from 'utils/duration.utils';
 
