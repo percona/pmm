@@ -63,7 +63,7 @@
 - name: Create symlink to switch-config.sh in /
   file:
     src: /etc/clickhouse-server/switch-config.sh
-    dest: "~pmm/switch-config.sh"
+    dest: "/opt/switch-config.sh"
     owner: pmm
     group: root
     state: link
