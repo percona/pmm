@@ -58,7 +58,9 @@
 - name: Create symlink to switch-config.sh in /
   file:
     src: /etc/clickhouse-server/switch-config.sh
-    dest: /switch-config.sh
+    dest: "{{ ansible_env.HOME }}/switch-config.sh"
+    owner: pmm
+    group: root
     state: link
     force: yes
 
