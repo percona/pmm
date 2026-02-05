@@ -165,8 +165,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	filters := models.AgentFilters{
 		PMMAgentID:  agent.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
- 		// fetch enabled only
-		Disabled:    pointer.To(false),
+		// fetch enabled only
+		Disabled: pointer.To(false),
 	}
 	agents, err := models.FindAgents(u.db.Querier, filters)
 	if err != nil {
