@@ -2,24 +2,23 @@ import { FC, HTMLAttributes } from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import {
-  ServiceOption as ServiceOptionType,
   ClusterSelectionState,
-} from '../form/RealtimeSelectionForm.types';
+  ServiceOption as ServiceOptionType,
+} from '../ServicesAutocompleteInput.types';
 
-interface ServiceOptionProps {
+interface Props extends HTMLAttributes<HTMLLIElement> {
   option: ServiceOptionType;
-  props: HTMLAttributes<HTMLLIElement>;
   selected: boolean;
   clusterSelectionState?: ClusterSelectionState;
   onClusterToggle?: (clusterName: string) => void;
 }
 
-export const ServiceOption: FC<ServiceOptionProps> = ({
+const ServiceOption: FC<Props> = ({
   option,
-  props,
   selected,
   clusterSelectionState,
   onClusterToggle,
+  ...props
 }) => {
   const { key, ...otherProps } = props as HTMLAttributes<HTMLLIElement> & {
     key?: string;
@@ -41,6 +40,7 @@ export const ServiceOption: FC<ServiceOptionProps> = ({
   return (
     <Box
       component="li"
+      data-testid={'service-option-' + option.id}
       key={key}
       {...otherProps}
       onClick={handleClick}
@@ -93,3 +93,5 @@ export const ServiceOption: FC<ServiceOptionProps> = ({
     </Box>
   );
 };
+
+export default ServiceOption;

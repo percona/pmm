@@ -1,25 +1,22 @@
 import { FC } from 'react';
 import TextField from '@mui/material/TextField';
 import { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
-import { Messages } from '../RealtimeSelection.messages';
+import { Messages } from '../ServicesAutocompleteInput.messages';
 
-interface ServiceInputProps {
-  params: AutocompleteRenderInputParams;
+interface Props extends AutocompleteRenderInputParams {
   hasSelectedServices: boolean;
   isOpen: boolean;
 }
 
-export const ServiceInput: FC<ServiceInputProps> = ({
-  params,
-  hasSelectedServices,
-  isOpen,
-}) => (
+const ServiceInput: FC<Props> = ({ hasSelectedServices, isOpen, ...props }) => (
   <TextField
-    {...params}
     name="service"
     data-testid="realtime-service-input"
     label={hasSelectedServices || isOpen ? Messages.selectLabel : undefined}
     placeholder={!hasSelectedServices ? Messages.searchPlaceholder : ''}
     variant="outlined"
+    {...props}
   />
 );
+
+export default ServiceInput;

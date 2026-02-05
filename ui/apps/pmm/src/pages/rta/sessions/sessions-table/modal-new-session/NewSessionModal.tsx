@@ -5,8 +5,8 @@ import { FC } from 'react';
 import { Messages } from './NewSessionModal.messages';
 import Stack from '@mui/material/Stack';
 import Link from '@mui/material/Link';
-import { RealtimeSelectionForm } from 'pages/rta/selection/form/RealtimeSelectionForm';
 import { DOCS_URLS } from 'lib/constants';
+import { RealtimeSelectionForm } from 'pages/rta/components/selection-form';
 
 interface Props {
   open: boolean;
