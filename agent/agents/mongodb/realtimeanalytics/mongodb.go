@@ -73,6 +73,7 @@ func New(params *Params, l *logrus.Entry) (*MongoDBRTA, error) {
 // and sends it to the channel until ctx is canceled.
 func (m *MongoDBRTA) Run(ctx context.Context) {
 	m.l.Info("Starting MongoDB RTA agent")
+
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	defer func() {
