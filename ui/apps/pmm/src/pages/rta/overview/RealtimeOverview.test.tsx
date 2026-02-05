@@ -117,7 +117,7 @@ describe('RealtimeOverview', () => {
     expect(screen.getByTestId('query-details-pane')).toBeInTheDocument();
   });
 
-  it('should be paused if not services are selected', () => {
+  it('should be paused if no services are selected', () => {
     renderComponent({ initialEntry: '/rta/overview' });
 
     expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();

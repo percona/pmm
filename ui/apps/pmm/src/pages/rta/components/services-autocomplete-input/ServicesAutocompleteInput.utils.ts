@@ -154,4 +154,4 @@ export const toggleClusterServices = (
 export const getServiceIds = (serviceOptions: ServiceOption[]): string[] =>
   serviceOptions
     .filter((option) => option.type === 'service' && option.serviceId)
-    .map((option) => option.serviceId!) ?? [];
+    .map((option) => option.serviceId!);
