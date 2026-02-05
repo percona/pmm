@@ -8,7 +8,6 @@ The PMM Server OVA works with:
 
 - Oracle VirtualBox
 - Other OVF-compatible virtualization platforms
-- VMware products (ESXi, Workstation, Fusion) -- **[Deprecated, will be removed in PMM 3.6.0]**
 
 ## Download options
 

@@ -13,13 +13,10 @@ Roles are essential components of PMM's access control system. They allow you to
 To create access roles in PMM:
 {.power-number}
 
-1. From the [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access control** option.
-2. Go to **Administration > Users and access > Access Roles**.
-
-    ![PMM Access Control - Create role](../../../images/lbac/PMM_access_control_create_role.png)
-
+1. From the [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced Settings** and enable the **Access control** option.
+2. Go to **Users and access > Access Roles**.
 3. Click **Create**.
-4. On the **Create role** page, enter the Role name and Role description.
+4. On the **Create role** page, enter a role name and description.
 5. Configure metrics access by setting label selectors:
     - select a Label (e.g., "service_name", "environment")
     - choose an Operator (e.g., "=", "!=", "=~")
@@ -29,6 +26,6 @@ To create access roles in PMM:
 
     For information on how the Prometheus selectors work, see [Prometheus selectors](https://prometheus.io/docs/prometheus/latest/querying/basics/#time-series-selectors).
 
-6. Review your selections, then click **Create** to finalize the role.
+6. Review your selections, then click **Create role** to finish creating the role.
 
 
