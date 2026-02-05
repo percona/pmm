@@ -53,6 +53,8 @@
     - dhparam.pem
     - low-memory-config.xml
     - default-config.xml
+    - low-memory-users.xml
+    - default-users.xml
     - switch-config.sh
 
 - name: Set executable permissions for switch-config.sh

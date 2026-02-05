@@ -1047,9 +1047,19 @@
 
     <!-- Trace log. Stores stack traces collected by query profilers.
          See query_profiler_real_time_period_ns and query_profiler_cpu_time_period_ns settings. -->
-    <trace_log>
-        <engine>Null</engine> <!-- PMM: Default enabled, now disabled -->
-    </trace_log>
+    <!-- PMM: Default enabled, now disabled -->
+    <!-- <trace_log>
+        <database>system</database>
+        <table>trace_log</table>
+
+        <partition_by>toYYYYMM(event_date)</partition_by>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+        <max_size_rows>1048576</max_size_rows>
+        <reserved_size_rows>8192</reserved_size_rows>
+        <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
+        <flush_on_crash>false</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
+    </trace_log> -->
 
     <!-- Query thread log. Has information about all threads participated in query execution.
          Used only for queries with setting log_query_threads = 1. -->
@@ -1105,17 +1115,34 @@
     -->
 
     <!-- Metric log contains rows with current values of ProfileEvents, CurrentMetrics collected with "collect_interval_milliseconds" interval. -->
-    <metric_log>
-        <engine>Null</engine> <!-- PMM: Default enabled, now disabled -->
-    </metric_log>
+    <!-- PMM: Default enabled, now disabled -->
+    <!-- <metric_log>
+        <database>system</database>
+        <table>metric_log</table>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+        <max_size_rows>1048576</max_size_rows>
+        <reserved_size_rows>8192</reserved_size_rows>
+        <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
+        <collect_interval_milliseconds>1000</collect_interval_milliseconds>
+        <flush_on_crash>false</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
+    </metric_log> -->
 
     <!--
         Asynchronous metric log contains values of metrics from
         system.asynchronous_metrics.
     -->
-    <asynchronous_metric_log>
-        <engine>Null</engine> <!-- PMM: Default enabled, now disabled -->
-    </asynchronous_metric_log>
+    <!-- PMM: Default enabled, now disabled -->
+    <!-- <asynchronous_metric_log>
+        <database>system</database>
+        <table>asynchronous_metric_log</table>
+        <flush_interval_milliseconds>7000</flush_interval_milliseconds>
+        <max_size_rows>1048576</max_size_rows>
+        <reserved_size_rows>8192</reserved_size_rows>
+        <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
+        <flush_on_crash>false</flush_on_crash>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
+    </asynchronous_metric_log> -->
 
     <!--
         OpenTelemetry log contains OpenTelemetry trace spans.

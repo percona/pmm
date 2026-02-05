@@ -1,9 +1,9 @@
 #!/bin/bash
 # Usage: switch-config.sh [low|default]
-# Switches /etc/clickhouse/config.xml
+# Switches /etc/clickhouse-server/config.xml
 
 set -e
-CONFIG_DIR="/etc/clickhouse/"
+CONFIG_DIR="/etc/clickhouse-server/"
 PROFILE="$1"
 
 if [ -z "$PROFILE" ]; then
