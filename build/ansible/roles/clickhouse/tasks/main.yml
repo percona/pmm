@@ -52,7 +52,7 @@
     - users.xml
     - dhparam.pem
     - low-memory-config.xml
-    - high-memory-config.xml
+    - default-config.xml
     - switch-config.sh
 
 - name: Create symlink to switch-config.sh in /
