@@ -36,10 +36,10 @@ Here's how LBAC works:
 To implement label-based access control in PMM:
 {.power-number}
 
-1. [Enable access control](enable_access_control.md) in your PMM settings
-2. Learn about the [labels available for filtering](labels.md)
-3. [Create access roles](create_roles.md) based on your organizational needs
-4. Review common [use cases and examples](use_cases.md) for inspiration
+1. [Enable access control](enable_access_control.md) in your PMM settings.
+2. Learn about the [labels available for filtering](labels.md).
+3. [Create access roles](create_roles.md) based on your organizational needs.
+4. Review common [use cases and examples](use_cases.md) for inspiration.
 
 !!! tip "Best practice"
     Start with broader access controls and refine them over time as you understand your organization's specific needs. Test LBAC behavior in both dashboards and QAN to ensure proper access control.
