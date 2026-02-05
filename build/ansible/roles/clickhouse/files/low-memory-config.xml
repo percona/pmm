@@ -1477,7 +1477,7 @@
     -->
 
     <!-- PMM: Low-memory tuning: block size, download threads, parallel parsing/formatting -->
-    <max_block_size>8192</max_block_size> <!-- PMM: Before default, now decrease to 8GB -->
+    <max_block_size>8192</max_block_size> <!-- PMM: Before 65409, now 8192 rows -->
     <max_download_threads>1</max_download_threads> <!-- PMM: Default no limit (0), now 1-->
     <input_format_parallel_parsing>0</input_format_parallel_parsing> <!-- PMM: Default is enabled, now disabled -->
     <output_format_parallel_formatting>0</output_format_parallel_formatting> <!-- PMM: Default is enabled, now disabled -->

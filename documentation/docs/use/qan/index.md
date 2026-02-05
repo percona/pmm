@@ -87,7 +87,7 @@ The following table summarizes the main differences between the two ClickHouse c
 | `max_server_memory_usage_to_ram_ratio` | 0.75 | 0.5 | Fraction of system RAM ClickHouse can use. Lower value is safer for low-memory hosts. |
 | `uncompressed_cache_size` | 8 GB | 2 GB | Cache for uncompressed data blocks. Lower value saves memory. |
 | `mark_cache_size` | 5 GB | 512 MB | Cache for index marks. Lower value saves memory, but may slow queries. |
-| `max_block_size` | (default) | 8 GB | Max block size for query processing. Lower value reduces memory per query. |
+| `max_block_size` | 65409 | 8192 | Max block size (rows) for query processing. Lower value reduces memory per query. |
 | `max_download_threads` | 0 (unlimited) | 1 | Max threads for downloading data. 1 = less concurrency, less memory. |
 | `input_format_parallel_parsing` | 1 | 0 | Disables parallel parsing of input formats. Saves memory. |
 | `output_format_parallel_formatting` | 1 | 0 | Disables parallel formatting of output. Saves memory. |
