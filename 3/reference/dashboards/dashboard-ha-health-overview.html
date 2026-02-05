@@ -7,19 +7,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="The MongoDB PBM Details dashboard offers an integrated view of your Percona Backup for MongoDB (PBM) environment directly within Percona Monitoring and Management (PMM).">
+        <meta name="description" content="Documentation">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-PBM-details.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-ha-health-overview.html">
       
       
-        <link rel="prev" href="dashboard-mongodb-wiredtiger-details.html">
+        <link rel="prev" href="dashboard-valkey-redis-slowlog.html">
       
       
-        <link rel="next" href="dashboard-postgresql-checkpoints-buffers-wal-usage.html">
+        <link rel="next" href="dashboard-pxc-galera-node-summary.html">
       
       
         
@@ -30,7 +30,7 @@
     
     
       
-        <title>MongoDB PBM Details dashboard - Percona Monitoring and Management</title>
+        <title>PMM HA Health Overview - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - MongoDB PBM Details dashboard" />
+                 <meta property="og:title" content="Percona Monitoring and Management - PMM HA Health Overview" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mongodb-pbm-details-dashboard" class="md-skip">
+        <a href="#pmm-ha-health-overview" class="md-skip">
           Skip to content
         </a>
       
@@ -192,7 +192,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MongoDB PBM Details dashboard
+              PMM HA Health Overview
             
           </span>
         </div>
@@ -1836,34 +1836,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/vmware.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deploy on VMware (deprecated)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -3346,9 +3318,20 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../install-pmm/HA.html" class="md-nav__link">
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
@@ -3362,7 +3345,218 @@
   
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Install PMM in HA mode
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compare HA options
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-docker.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker HA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-kubernetes-single-instance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes Single-Instance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5_4" id="__nav_5_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes Cluster
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kubernetes Cluster
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand PMM HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install PMM HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4337,7 +4531,7 @@
   <span class="md-ellipsis">
     
   
-    Overview Panel
+    Overview panel
   
 
     
@@ -4737,7 +4931,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Versions
+    MongoDB versions
   
 
     
@@ -9872,34 +10066,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/account-info.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check Percona Portal account information
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -10051,7 +10217,7 @@
   <span class="md-ellipsis">
     
   
-    About user management in PMM
+    User management in PMM
   
 
     
@@ -10905,34 +11071,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pmm-upgrade/migrating_from_vmware.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Migrate from VMware to alternative platforms
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
@@ -11614,6 +11752,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.6.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.6.0 (2026-02-05)
   
 
     
@@ -12740,35 +12906,7 @@
   <span class="md-ellipsis">
     
   
-    Environment Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dashboard-environment-summary.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Environment Summary
+    Environments Overview
   
 
     
@@ -12851,7 +12989,7 @@
   <span class="md-ellipsis">
     
   
-    Kubernetes Cluster Summary
+    Kubernetes Cluster Overview
   
 
     
@@ -13870,34 +14008,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dashboard-mysql-tokudb-details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL TokuDB Details
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -13910,20 +14020,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_7" >
         
           
           <label class="md-nav__link" for="__nav_13_2_7" id="__nav_13_2_7_label" tabindex="0">
@@ -13944,7 +14052,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_13_2_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -13962,42 +14070,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
+      <a href="dashboard-mongodb-collection_overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Collection Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experimental MongoDB Collection Details
+    MongoDB Collections Overview
   
 
     
@@ -14295,44 +14375,17 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB PBM Details dashboard
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="dashboard-mongodb-PBM-details.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="dashboard-mongodb-PBM-details.md" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MongoDB PBM Details dashboard
+    None
   
 
     
@@ -14341,103 +14394,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#backup-configured" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Backup Configured
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pitr-enabled" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PITR Enabled
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agent-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Agent Status
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#size-bytes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Size Bytes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#duration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Duration
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#backup-history" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Backup History
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#last-successful-backup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Last Successful Backup
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -15152,18 +15108,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_11" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_11" checked>
         
           
           <label class="md-nav__link" for="__nav_13_2_11" id="__nav_13_2_11_label" tabindex="0">
@@ -15184,7 +15142,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_11_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_11_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_13_2_11">
             <span class="md-nav__icon md-icon"></span>
             
@@ -15194,6 +15152,526 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM HA Health Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="dashboard-ha-health-overview.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM HA Health Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pmm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PMM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VictoriaMetrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#haproxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HAProxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-health-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Health Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Health Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overall-system-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overall System Health
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pod Count
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-restarts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pod Restarts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pods-with-restarts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pods with Restarts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Storage Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postgresql-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VictoriaMetrics Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-availability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service Availability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Service Availability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-availability-by-component" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service Availability by Component
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#postgresql-pods-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL Pod's Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PostgreSQL Pod&#39;s Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postgresql-pods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL Pods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pmm-pods-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PMM Pod's Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PMM Pod&#39;s Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pmm-pods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PMM Pods
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse-pods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse Pods
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics-pods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VictoriaMetrics Pods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#haproxy-pods-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HAProxy Pod's Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HAProxy Pod&#39;s Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#haproxy-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HAProxy Instances
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#haproxy-backends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HAProxy Backends
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-usage-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Usage Tips
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dashboard Usage Tips">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#refresh-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refresh rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-find-whats-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to find what's wrong
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#investigation-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Investigation workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Investigation workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -15210,34 +15688,6 @@
     
   
     PXC/Galera Node Summary
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PXC/Galera Cluster Summary
   
 
     
@@ -15739,7 +16189,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/reference/dashboards/dashboard-mongodb-PBM-details.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/reference/dashboards/dashboard-ha-health-overview.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -15790,79 +16240,447 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#backup-configured" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Backup Configured
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pmm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PMM
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#pitr-enabled" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#postgresql" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PITR Enabled
+        PostgreSQL
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#agent-status" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Agent Status
+        ClickHouse
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#size-bytes" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Size Bytes
+        VictoriaMetrics
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#duration" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#haproxy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Duration
+        HAProxy
       
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#backup-history" class="md-nav__link">
+  <a href="#system-health-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Backup History
+        System Health Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Health Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overall-system-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overall System Health
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#last-successful-backup" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#pod-count" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Last Successful Backup
+        Pod Count
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-restarts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pod Restarts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pods-with-restarts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pods with Restarts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Storage Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postgresql-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VictoriaMetrics Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-availability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service Availability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Service Availability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-availability-by-component" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service Availability by Component
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#postgresql-pods-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL Pod's Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PostgreSQL Pod&#39;s Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postgresql-pods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL Pods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pmm-pods-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PMM Pod's Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PMM Pod&#39;s Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pmm-pods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PMM Pods
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse-pods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse Pods
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics-pods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VictoriaMetrics Pods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#haproxy-pods-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HAProxy Pod's Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HAProxy Pod&#39;s Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#haproxy-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HAProxy Instances
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#haproxy-backends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HAProxy Backends
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-usage-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Usage Tips
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dashboard Usage Tips">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#refresh-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refresh rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-find-whats-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to find what's wrong
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#investigation-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Investigation workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Investigation workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -15888,44 +16706,172 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
   
   
-    
-      
-    
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/reference/dashboards/dashboard-mongodb-PBM-details.md" title="View source of this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
-    </a>
-  
 
 
-<h1 id="mongodb-pbm-details-dashboard">MongoDB PBM Details dashboard<a class="headerlink" href="#mongodb-pbm-details-dashboard" title="Permanent link">&para;</a></h1>
-<p>The MongoDB PBM Details dashboard offers an integrated view of your Percona Backup for MongoDB (PBM) environment directly within Percona Monitoring and Management (PMM).</p>
-<p>The dashboard consolidates key information—such as backup configuration, status, performance metrics, and agent health—into a single, easy-to-use interface.</p>
-<p>By accessing PBM insights directly from PMM, you can efficiently monitor and manage your MongoDB backups without switching between tools.</p>
-<p><img alt="PBM dashboard" src="../../images/PBM_Dashboard.png" /></p>
-<h2 id="backup-configured">Backup Configured<a class="headerlink" href="#backup-configured" title="Permanent link">&para;</a></h2>
-<p>Shows whether backups are properly configured for your MongoDB environment. A green &ldquo;Yes&rdquo; indicates that PBM is properly set up and functioning, while a <strong>No</strong> in red signals that backups are not configured. </p>
-<h2 id="pitr-enabled">PITR Enabled<a class="headerlink" href="#pitr-enabled" title="Permanent link">&para;</a></h2>
-<p>Displays whether Point-in-Time Recovery (PITR) is enabled for your MongoDB environment. A green <strong>Yes</strong> confirms PITR is active, while a <strong>No</strong> in red indicates this feature is not currently enabled.</p>
-<p>PITR allows for more granular recovery options, enabling restoration to any point in time rather than just to specific backup points. </p>
-<h2 id="agent-status">Agent Status<a class="headerlink" href="#agent-status" title="Permanent link">&para;</a></h2>
-<p>This panel monitors the operational status of each PBM agent connected to your MongoDB cluster nodes using a color-coded timeline visualization.</p>
-<p>Each replica set node (e.g., <code>rs101:27017</code>, <code>rs102:27017</code>, <code>rs103:27017</code>) is shown with an <strong>OK</strong> status in green when the PBM agent is functioning correctly. This allows you to quickly identify any agents that may be experiencing issues and potentially affecting backup operations.</p>
-<p>Arbiter nodes, whether in replica sets or sharded clusters, will appear with a <strong>Fail</strong> status. This is because arbiters are designed only to participate in elections and do not store data, so they do not and cannot run PBM agents. In future updates, this status will be clarified with a message such as &ldquo;Arbiter node is not supported&rdquo;.</p>
-<h2 id="size-bytes">Size Bytes<a class="headerlink" href="#size-bytes" title="Permanent link">&para;</a></h2>
-<p>Displays the size of your MongoDB backups in a bar chart format. </p>
-<p>The panel shows the exact size of each backup (e.g., 10.7 MB), helping you track storage requirements and identify any unusual changes in backup size that might indicate problems with your data or backup process.</p>
-<h2 id="duration">Duration<a class="headerlink" href="#duration" title="Permanent link">&para;</a></h2>
-<p>Shows how long each backup operation takes to complete, displayed in seconds.</p>
-<p>By monitoring backup times, you can quickly pinpoint any backups that are taking an unusually long time to complete, which may signal underlying performance problems within your MongoDB setup.</p>
-<h2 id="backup-history">Backup History<a class="headerlink" href="#backup-history" title="Permanent link">&para;</a></h2>
-<p>Provides a tabular view of recent backup operations with columns for <strong>Name</strong> (timestamp of the backup) and <strong>Status</strong> (Done, Error, etc.). </p>
-<p>This historical record helps you verify that scheduled backups are running successfully and lets you quickly identify any failed backup operations that may require attention.</p>
-<p>The current status reporting in this panel may not yet capture the full range of error states available in PBM&rsquo;s native tools (including &ldquo;stuck&rdquo; or &ldquo;incompatible&rdquo; backups). This will be improved with an upcoming release to provide a more complete picture of your backup status.</p>
-<h2 id="last-successful-backup">Last Successful Backup<a class="headerlink" href="#last-successful-backup" title="Permanent link">&para;</a></h2>
-<p>Shows details of the most recent successful backup operation, including its timestamp. This gives you confidence in your recovery capabilities by confirming when your last good backup was taken, ensuring you know your current recovery point objective (RPO) status.</p>
-<p>This dashboard works with both replica sets and sharded clusters, providing unified visibility into your MongoDB backup infrastructure. </p>
-<p>To use it effectively, select the appropriate environments, clusters, and replica sets using the filters at the top of the dashboard.</p>
+<h1 id="pmm-ha-health-overview">PMM HA Health Overview<a class="headerlink" href="#pmm-ha-health-overview" title="Permanent link">&para;</a></h1>
+<p><img alt="PMM HA Health Overview Dashboard" src="../../images/PMM_HA_Health_Overview.png" /></p>
+<p>The PMM HA Health Overview dashboard provides at-a-glance monitoring of your PMM High Availability Cluster deployment health. </p>
+<p>Use this dashboard to quickly identify component failures, resource constraints, and stability issues across your high-availability infrastructure.</p>
+<p>This dashboard monitors all critical components: PMM server replicas, PostgreSQL database cluster, ClickHouse query analytics storage, VictoriaMetrics time series storage, and HAProxy load balancers.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h3 id="pmm">PMM<a class="headerlink" href="#pmm" title="Permanent link">&para;</a></h3>
+<p>Shows the overall health status of PMM server pods with green <strong>Healthy</strong> when all pods are running normally or red <strong>Not Healthy</strong> when one or more pods are down.</p>
+<p>In HA Cluster mode, you have three PMM server replicas providing full redundancy. If one replica fails, the remaining two continue serving requests with no user-visible impact, but you should investigate quickly to restore full redundancy. </p>
+<p>Check the <strong>PMM Pods</strong> table in the Pod Status Details section below to see which specific pods are affected.</p>
+<h3 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h3>
+<p>Shows the overall health status of PostgreSQL database pods. Green <strong>Healthy</strong> indicates the cluster is fully operational with primary and replicas running. Red <strong>Not Healthy</strong> signals the cluster is degraded, putting metadata and configuration storage at risk.</p>
+<p>PostgreSQL stores PMM&rsquo;s critical data including user accounts, dashboard configurations, alerting rules, and inventory information. </p>
+<p>If the primary fails, Patroni automatically promotes a replica within seconds, but you&rsquo;ll temporarily lose write capability during failover (typically under 10 seconds). </p>
+<p>Check the <a href="#postgresql-pods"><strong>PostgreSQL Pods</strong></a> panel in the <strong>PostgreSQL Pod&rsquo;s Status</strong> section to identify whether the primary or a replica is down.</p>
+<h3 id="clickhouse">ClickHouse<a class="headerlink" href="#clickhouse" title="Permanent link">&para;</a></h3>
+<p>Shows the overall health status of ClickHouse pods. Green <strong>Healthy</strong> indicates the cluster is operating normally with all keeper and database nodes running. Red <strong>Not Healthy</strong> signals Query Analytics data storage is degraded.</p>
+<p>ClickHouse stores all Query Analytics (QAN) data. When pods fail, QAN dashboards will show incomplete query performance metrics, you won&rsquo;t be able to analyze slow queries during the outage, and you&rsquo;ll have permanent gaps in your historical query analysis data.</p>
+<p>Check the <strong>ClickHouse Pods</strong> panel in the <strong>ClickHouse Pod&rsquo;s Status</strong> section below to see which pods are down. </p>
+<p>Loss of keeper nodes (which handle coordination) is more critical than loss of a single database node (which handles storage).</p>
+<h3 id="victoriametrics">VictoriaMetrics<a class="headerlink" href="#victoriametrics" title="Permanent link">&para;</a></h3>
+<p>Shows the overall health status of VictoriaMetrics components. Green <strong>Healthy</strong> indicates all components are operational and metrics collection and querying are working properly. Red <strong>Not Healthy</strong> signals the time series infrastructure is degraded.</p>
+<p>VictoriaMetrics uses multiple components working together: 
+- <code>vminsert</code> receives metrics from monitored services, - <code>vmselect</code> processes dashboard queries
+- <code>vmstorage</code> stores time series data
+- <code>vmagent</code> scrapes metrics from targets
+- <code>vmauth</code> handles authentication</p>
+<p>Check the <strong>VictoriaMetrics Pods</strong> panel in the <strong>VictoriaMetrics Pod&rsquo;s Status</strong> section below to see which components are affected. </p>
+<p>Failures in <code>vminsert</code> or <code>vmstorage</code> are most critical as they prevent metrics collection or cause data loss.</p>
+<h3 id="haproxy">HAProxy<a class="headerlink" href="#haproxy" title="Permanent link">&para;</a></h3>
+<p>Shows the overall health status of HAProxy load balancer pods. Green <strong>Healthy</strong> means load balancing is working and traffic is properly distributed across your PMM replicas. Red <strong>Not Healthy</strong> means the load balancer has problems and you may not be able to access PMM.</p>
+<p>HAProxy is how you get into your PMM cluster. It routes web traffic to healthy PMM server replicas and handles automatic failover when the leader changes.</p>
+<p>If HAProxy pods go down, you can&rsquo;t access the PMM web interface, API calls will fail, and automatic failover won&rsquo;t work.</p>
+<p>HAProxy is essential for accessing PMM—if it shows unhealthy, investigate immediately.</p>
+<p>Check the panels under <strong>HAProxy Pod&rsquo;s Status</strong> section below to see which HAProxy pods are down and which backend services are unavailable.</p>
+<h2 id="system-health-metrics">System Health Metrics<a class="headerlink" href="#system-health-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="overall-system-health">Overall System Health<a class="headerlink" href="#overall-system-health" title="Permanent link">&para;</a></h3>
+<p>Shows the overall health percentage of all your PMM HA pods as a gauge from 0 to 100%. This is calculated as <code>(running pods/total expected pods) × 100</code>.</p>
+<p>Green (95-100%) means excellent health—all or nearly all your pods are running normally. </p>
+<p>Yellow (80-95%) means some pods are down, so you should investigate, but your cluster is likely still working. </p>
+<p>Red (below 80%) signals serious problems with multiple component failures.</p>
+<p>A single pod failure in a well-sized cluster might only drop this to 95-98%, which is fine. </p>
+<p>If it drops below 90%, you likely have multiple failures that need urgent attention.</p>
+<h3 id="pod-count">Pod Count<a class="headerlink" href="#pod-count" title="Permanent link">&para;</a></h3>
+<p>Shows two values: running pods versus total expected pods. When the numbers match, all your pods are healthy. </p>
+<p>When running is less than total, some of your pods aren&rsquo;t running—check the restart tables below to see which ones.</p>
+<p>Use this to quickly understand how many pods are down. For example, if you see 45 running out of 50 total, you know 5 pods need investigation.</p>
+<h3 id="pod-restarts">Pod Restarts<a class="headerlink" href="#pod-restarts" title="Permanent link">&para;</a></h3>
+<p>Shows the total number of container restarts across all your pods in the last 24 hours. </p>
+<p>Zero restarts (green) means perfect stability. One to four restarts (yellow) suggests minor issues—check which pods restarted. </p>
+<p>Five or more restarts (red) signals stability problems with either multiple pods or repeated failures.</p>
+<p>Restarts mean your pods are crashing and Kubernetes is automatically restarting them. </p>
+<p>While automatic restart provides self-healing, you need to investigate why the crashes are happening. </p>
+<p>Check the <a href="#pods-with-restarts"><strong>Pods with Restarts</strong></a> panel to see which specific pods are unstable.</p>
+<h3 id="pods-with-restarts">Pods with Restarts<a class="headerlink" href="#pods-with-restarts" title="Permanent link">&para;</a></h3>
+<p>Lists individual pods that have restarted in the last 24 hours with their restart counts. </p>
+<p>The table shows green for stable pods, yellow when a pod has restarted at least once, and red when it has restarted three or more times.</p>
+<p>Use this to see which components are having problems, focus on the ones restarting most often, and check if the restarts match any changes you recently made.</p>
+<p>If a pod has 10 or more restarts in 24 hours, it&rsquo;s stuck in a crash loop—usually because of a configuration mistake or the pod doesn&rsquo;t have enough CPU or memory. </p>
+<p>Run <code>kubectl logs &lt;pod-name&gt;</code> to see what&rsquo;s causing the crashes.</p>
+<h2 id="resource-usage">Resource Usage<a class="headerlink" href="#resource-usage" title="Permanent link">&para;</a></h2>
+<h3 id="cpu-usage">CPU Usage<a class="headerlink" href="#cpu-usage" title="Permanent link">&para;</a></h3>
+<p>Shows CPU consumption in cores for each of your pods over time as a stacked area chart. The legend shows mean, max, and min values for each pod.</p>
+<p>Gradual growth is normal as your monitoring workload increases. Sudden spikes may indicate problem queries, batch jobs, or other issues. </p>
+<p>If one pod is using much more CPU than the others, it might be handling more load or have a problem.</p>
+<p>Compare CPU usage across similar pods—for example, look at all your <code>vmselect</code> pods together. </p>
+<p>If one is consistently higher than the others, traffic might not be balanced properly, or that pod has an issue. </p>
+<p>High CPU on database pods like PostgreSQL, ClickHouse, or <code>vmstorage</code> during backups or maintenance is normal and expected.</p>
+<h3 id="memory-usage">Memory Usage<a class="headerlink" href="#memory-usage" title="Permanent link">&para;</a></h3>
+<p>Shows working set memory consumption in bytes for each of your pods over time as a stacked area chart. The legend shows mean, max, and min values for each pod.</p>
+<p>Steady or slowly growing memory usage is normal. Sudden jumps usually mean large queries, data imports, or memory leaks. </p>
+<p>If memory usage is getting close to the limits you&rsquo;ve set, your pods risk being killed by Kubernetes for using too much memory (called OOM kills).</p>
+<p>If you see pods restarting and they had high memory usage right before the restart, Kubernetes killed them for exceeding their memory limit. </p>
+<p>You&rsquo;ll need to either increase the memory limits or figure out why memory usage is so high—look at query patterns, cache sizes, or other factors that might be using more memory than expected.</p>
+<h2 id="storage-usage">Storage Usage<a class="headerlink" href="#storage-usage" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-storage">PostgreSQL Storage<a class="headerlink" href="#postgresql-storage" title="Permanent link">&para;</a></h3>
+<p>Shows your PostgreSQL persistent volume usage as a percentage from 0 to 100% in a gauge. </p>
+<p>Green (0-70%) means you have plenty of space remaining. Yellow (70-85%) means you should watch it closely and start planning to add more storage. </p>
+<p>Red (85-100%) is urgent—your database will stop accepting writes when it&rsquo;s full.</p>
+<p>PostgreSQL stores metadata and configuration data. While it doesn&rsquo;t grow as fast as metrics or QAN data, if you run out of space, all PMM operations will stop. </p>
+<p>If you&rsquo;re getting close to the limit, either expand the persistent volume or clean up old data like backup history and audit logs.</p>
+<h3 id="clickhouse-storage">ClickHouse Storage<a class="headerlink" href="#clickhouse-storage" title="Permanent link">&para;</a></h3>
+<p>Shows your ClickHouse persistent volume usage as a percentage from 0 to 100% in a gauge. </p>
+<p>Green (0-70%) means you have enough space for QAN data. Yellow (70-85%) means you should plan to expand storage soon. Red (85-100%) requires immediate action.</p>
+<p>ClickHouse stores all your Query Analytics data, which grows based on how many queries you&rsquo;re running and your retention settings. </p>
+<p>If you&rsquo;re running low on space, you can reduce your QAN data retention period, expand the persistent volumes, or check that your slow query log isn&rsquo;t capturing too many queries.</p>
+<p>If ClickHouse runs out of storage, it stops collecting QAN data, which creates gaps in your query performance analysis that you can&rsquo;t recover.</p>
+<h3 id="victoriametrics-storage">VictoriaMetrics Storage<a class="headerlink" href="#victoriametrics-storage" title="Permanent link">&para;</a></h3>
+<p>Shows your VictoriaMetrics persistent volume usage as a percentage from 0 to 100% in a gauge. </p>
+<p>Green (0-70%) means you have enough space for metrics retention. Yellow (70-85%) means you need to expand storage soon. Red (85-100%) is critical—VictoriaMetrics will stop accepting new metrics.</p>
+<p>VictoriaMetrics stores all your time series metrics. How fast it grows depends on how many services and instances you&rsquo;re monitoring, your metrics retention period (default is 30 days), and the cardinality of the metrics you&rsquo;re collecting.</p>
+<p>When storage fills up, VictoriaMetrics can&rsquo;t store new metrics, which creates gaps in all your PMM dashboards. Keep an eye on growth trends and plan for more capacity before you run out of space.</p>
+<h2 id="service-availability">Service Availability<a class="headerlink" href="#service-availability" title="Permanent link">&para;</a></h2>
+<h3 id="service-availability-by-component">Service Availability by Component<a class="headerlink" href="#service-availability-by-component" title="Permanent link">&para;</a></h3>
+<p>Shows the health percentage for each major component over time as a state timeline. </p>
+<p>Green at 100% means all your pods for that component were healthy during that time. Yellow or orange (75-99%) means some pods were down but the component was still partially working. Red (below 75%) means the component had serious problems or was completely down.</p>
+<p>Use this timeline to see when problems happened, identify which components have ongoing stability issues, and match availability drops to things you know about like deployments or maintenance. </p>
+<p>You can also get a sense of your overall system reliability over time.</p>
+<p>A healthy PMM HA deployment should be mostly green with only short gaps during planned maintenance or updates.</p>
+<h2 id="postgresql-pods-status">PostgreSQL Pod&rsquo;s Status<a class="headerlink" href="#postgresql-pods-status" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-pods">PostgreSQL Pods<a class="headerlink" href="#postgresql-pods" title="Permanent link">&para;</a></h3>
+<p>Shows each of your PostgreSQL pods with their status (UP or DOWN) and role (Primary or Replica). In a healthy cluster, you should see one Primary and the rest as Replicas, all showing UP in green.</p>
+<p>If the Primary shows DOWN, a failover is either in progress or just completed. Check that a Replica was promoted to become the new Primary. </p>
+<p>If you see multiple Primaries, you have a split-brain condition that needs immediate attention. </p>
+<p>If there&rsquo;s no Primary at all, your cluster can&rsquo;t accept any writes, which is a critical failure.</p>
+<p>Patroni handles automatic failover for you. When the Primary fails, it automatically promotes a Replica to Primary within seconds. </p>
+<p>After a failover, verify that the new Primary is handling writes correctly.</p>
+<h2 id="pmm-pods-status">PMM Pod&rsquo;s Status<a class="headerlink" href="#pmm-pods-status" title="Permanent link">&para;</a></h2>
+<h3 id="pmm-pods">PMM Pods<a class="headerlink" href="#pmm-pods" title="Permanent link">&para;</a></h3>
+<p>Shows each of your PMM server pods with their current status. Green UP means the pod is running normally. Red DOWN means the pod has failed or isn&rsquo;t running.</p>
+<p>If one pod shows DOWN, identify which replica is affected and investigate the cause. Two or more DOWN pods means your deployment is at serious risk—investigate immediately. </p>
+<p>If all three show DOWN, your entire PMM system is unavailable.</p>
+<p>Use this table to identify which specific PMM server pods need attention when the <a href="#pmm"><strong>PMM</strong></a> health indicator shows <strong>Not Healthy</strong>.</p>
+<h3 id="clickhouse-pods">ClickHouse Pods<a class="headerlink" href="#clickhouse-pods" title="Permanent link">&para;</a></h3>
+<p>Shows each of your ClickHouse pods with their status (UP or DOWN) and role (Leader or Follower). </p>
+<p>ClickHouse uses two types of pods: keeper nodes that handle coordination and metadata, and database nodes that handle storage.</p>
+<p>For a healthy keeper ensemble, you should see one Leader with the rest as Followers, all showing UP. If the Leader goes DOWN, a new leader should be elected automatically within seconds. </p>
+<p>For database pods, when all are UP, your QAN queries are working normally with full capacity. </p>
+<p>If a database pod is DOWN, you have reduced storage capacity but QAN still works—just with less performance.</p>
+<p>The keeper ensemble must maintain quorum to keep the cluster functioning, so losing multiple keeper nodes at once is more serious than losing a database node.</p>
+<h3 id="victoriametrics-pods">VictoriaMetrics Pods<a class="headerlink" href="#victoriametrics-pods" title="Permanent link">&para;</a></h3>
+<p>Shows each VictoriaMetrics pod with its current status, organized by component type. Green UP means the pod is running normally. Red DOWN means the pod has failed.</p>
+<p>Check for failures in <code>vmstorage</code> pods first—each stores a subset of your metrics data, so too many failures cause data loss. Next check <code>vminsert</code> pods—these receive incoming metrics, so failures create gaps in data collection. </p>
+<p>Failures in <code>vmselect</code> pods reduce query capacity but don&rsquo;t cause data loss. Down <code>vmagent</code> or <code>vmauth</code> pods affect metric scraping and authentication respectively.</p>
+<p>Use this table to identify which specific components need attention when the <a href="#victoriametrics"><strong>VictoriaMetrics</strong></a> health indicator shows <strong>Not Healthy</strong>.</p>
+<h2 id="haproxy-pods-status">HAProxy Pod&rsquo;s Status<a class="headerlink" href="#haproxy-pods-status" title="Permanent link">&para;</a></h2>
+<h3 id="haproxy-instances">HAProxy Instances<a class="headerlink" href="#haproxy-instances" title="Permanent link">&para;</a></h3>
+<p>Shows each HAProxy pod with its current status. </p>
+<p>Green UP means the pod is running normally and handling traffic. Red DOWN means the pod has failed.</p>
+<p>If one pod shows DOWN, your load balancing is still working but with reduced capacity. Remaining pods handle the full traffic load. If all pods show DOWN, you can&rsquo;t access PMM at all.</p>
+<p>Investigate DOWN pods quickly to restore full redundancy and prevent a single point of failure. Check pod logs to identify whether the issue is configuration, resource limits, or connectivity problems.</p>
+<p>Use this table to identify which specific HAProxy pods need attention when the <a href="#haproxy"><strong>HAProxy</strong></a> health indicator shows <strong>Not Healthy</strong>.</p>
+<h3 id="haproxy-backends">HAProxy Backends<a class="headerlink" href="#haproxy-backends" title="Permanent link">&para;</a></h3>
+<p>Shows the health status of each backend service that HAProxy routes traffic to. </p>
+<p>Green UP means HAProxy can reach the backend and will route traffic to it. Red DOWN means HAProxy detected the backend is unavailable and won&rsquo;t route traffic there.</p>
+<p>The table shows backends for your PMM server replicas, PostgreSQL database cluster, and other PMM infrastructure services.</p>
+<p>HAProxy performs continuous health checks on each backend—when a backend fails its health check, HAProxy automatically stops routing traffic to it and uses the remaining healthy backends.</p>
+<p>Backends showing DOWN during pod restarts or brief failures is normal and expected—HAProxy&rsquo;s automatic routing prevents any impact on your users. </p>
+<p>However, if backends stay DOWN for more than a few minutes, the underlying pods aren&rsquo;t recovering properly and you need to investigate.</p>
+<p>Check pod status in the tables above to identify why backends remain unavailable. Common causes include resource exhaustion, configuration errors, or failed deployments.</p>
+<h2 id="dashboard-usage-tips">Dashboard Usage Tips<a class="headerlink" href="#dashboard-usage-tips" title="Permanent link">&para;</a></h2>
+<h3 id="refresh-rate">Refresh rate<a class="headerlink" href="#refresh-rate" title="Permanent link">&para;</a></h3>
+<p>This dashboard auto-refreshes every 30 seconds to provide near real-time monitoring.</p>
+<h3 id="filters">Filters<a class="headerlink" href="#filters" title="Permanent link">&para;</a></h3>
+<p>Use the namespace and Helm release variables at the top to focus on your specific PMM HA deployment if you have multiple installations.</p>
+<h3 id="how-to-find-whats-wrong">How to find what&rsquo;s wrong<a class="headerlink" href="#how-to-find-whats-wrong" title="Permanent link">&para;</a></h3>
+<p>When you notice problems, follow this  approach to quickly diagnose issues:</p>
+<h3 id="investigation-workflow">Investigation workflow<a class="headerlink" href="#investigation-workflow" title="Permanent link">&para;</a></h3>
+<p class="power-number">When you notice problems, follow this approach to quickly figure out what&rsquo;s wrong:</p>
+<ol>
+<li>Start with <strong>Overall System Health</strong> gauge. If it&rsquo;s below 95%, something&rsquo;s wrong.</li>
+<li>Check <strong>Component Status</strong> panels to see which components have problems.</li>
+<li>Review <strong>Pod Restarts</strong> to see if pods are still crashing</li>
+<li>Look at the detailed pod status tables to find which specific pods failed.</li>
+<li>Check <strong>Resource Usage</strong> to see if pods ran out of CPU, memory, or storage.</li>
+<li>Review <strong>Service Availability</strong> timeline to see when things started going wrong.</li>
+</ol>
+<h4 id="common-patterns">Common patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Storage full</strong>: Red storage gauges + pods crashing = expand storage immediately</li>
+<li><strong>Resource exhaustion</strong>: High CPU/memory + pod restarts = increase resource limits</li>
+<li><strong>Network issues</strong>: Multiple components partially down + high restart counts = investigate cluster networking</li>
+<li><strong>Single pod failure</strong>: One component shows &ldquo;Not Healthy&rdquo; but no restarts = stuck pod requiring manual intervention</li>
+</ul>
 
 
 
@@ -15948,7 +16894,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2025 08:22:15 UTC">May 29, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
   </span>
 
     
@@ -15958,7 +16904,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2025 08:22:15 UTC">May 29, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
   </span>
 
     
@@ -15977,16 +16923,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             </div>
           
           
-  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
-
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
         
       </main>
       
@@ -16021,7 +16959,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "navigation.tracking", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.images.zoom"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>

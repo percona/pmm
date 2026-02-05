@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A user refers to any individual who can log in to PMM. Each user is assigned a specific role that is associated with permissions. Permissions determine the tasks a user can perform in the system. For instance, the Admin role confers permissions that allow an authorized administrator to create and delete user profiles.">
+        <meta name="description" content="User management controls who can access PMM and what actions they can perform. Every user who logs into PMM has a specific role assigned, which determines their permissions.">
       
       
         <meta name="author" content="Percona LLC">
@@ -30,7 +30,7 @@
     
     
       
-        <title>About user management in PMM - Percona Monitoring and Management</title>
+        <title>User management in PMM - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - About user management in PMM" />
+                 <meta property="og:title" content="Percona Monitoring and Management - User management in PMM" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#about-user-management-in-pmm" class="md-skip">
+        <a href="#user-management-in-pmm" class="md-skip">
           Skip to content
         </a>
       
@@ -192,7 +192,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              About user management in PMM
+              User management in PMM
             
           </span>
         </div>
@@ -1836,34 +1836,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/vmware.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deploy on VMware (deprecated)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -3346,9 +3318,20 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../install-pmm/HA.html" class="md-nav__link">
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
@@ -3362,7 +3345,218 @@
   
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Install PMM in HA mode
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compare HA options
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-docker.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker HA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-kubernetes-single-instance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes Single-Instance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5_4" id="__nav_5_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes Cluster
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kubernetes Cluster
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand PMM HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install PMM HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4337,7 +4531,7 @@
   <span class="md-ellipsis">
     
   
-    Overview Panel
+    Overview panel
   
 
     
@@ -4737,7 +4931,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Versions
+    MongoDB versions
   
 
     
@@ -9872,34 +10066,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/account-info.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check Percona Portal account information
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -10064,7 +10230,7 @@
   <span class="md-ellipsis">
     
   
-    About user management in PMM
+    User management in PMM
   
 
     
@@ -10082,7 +10248,7 @@
   <span class="md-ellipsis">
     
   
-    About user management in PMM
+    User management in PMM
   
 
     
@@ -10106,6 +10272,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#user-management-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User management tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-roles-and-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Understanding roles and permissions
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
@@ -10967,34 +11155,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pmm-upgrade/migrating_from_vmware.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Migrate from VMware to alternative platforms
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
@@ -11676,6 +11836,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.6.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.6.0 (2026-02-05)
   
 
     
@@ -12798,35 +12986,7 @@
   <span class="md-ellipsis">
     
   
-    Environment Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-environment-summary.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Environment Summary
+    Environments Overview
   
 
     
@@ -12909,7 +13069,7 @@
   <span class="md-ellipsis">
     
   
-    Kubernetes Cluster Summary
+    Kubernetes Cluster Overview
   
 
     
@@ -13928,34 +14088,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-tokudb-details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL TokuDB Details
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -14018,42 +14150,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-collection_overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Collection Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experimental MongoDB Collection Details
+    MongoDB Collections Overview
   
 
     
@@ -14354,14 +14458,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-PBM-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-PBM-details.md" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MongoDB PBM Details dashboard
+    None
   
 
     
@@ -15134,14 +15238,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-ha-health-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PXC/Galera Node Summary
+    PMM HA Health Overview
   
 
     
@@ -15162,14 +15266,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PXC/Galera Cluster Summary
+    PXC/Galera Node Summary
   
 
     
@@ -15722,6 +15826,28 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#user-management-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User management tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-roles-and-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Understanding roles and permissions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -15754,24 +15880,33 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
   
   
-    
-      
-    
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/admin/manage-users/index.md" title="View source of this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
-    </a>
-  
 
 
-<h1 id="about-user-management-in-pmm">About user management in PMM<a class="headerlink" href="#about-user-management-in-pmm" title="Permanent link">&para;</a></h1>
-<p>A user refers to any individual who can log in to PMM. Each user is assigned a specific role that is associated with permissions. Permissions determine the tasks a user can perform in the system. For instance, the Admin role confers permissions that allow an authorized administrator to create and delete user profiles. </p>
-<p>The following topics are covered as part of access control:</p>
+<h1 id="user-management-in-pmm">User management in PMM<a class="headerlink" href="#user-management-in-pmm" title="Permanent link">&para;</a></h1>
+<p>User management controls who can access PMM and what actions they can perform. Every user who logs into PMM has a specific role assigned, which determines their permissions.</p>
+<p>User management defines who can access PMM and what actions they are allowed to perform:
+- <strong>Users</strong>: Individual accounts that can log in to PMM with unique credentials.</p>
 <ul>
-<li><a href="add_users.html">Add users</a></li>
-<li><a href="edit_users.html">Edit users</a></li>
-<li><a href="delete_users.html">Delete users</a></li>
+<li>
+<p><strong>Roles</strong>: Predefined permission sets that determine what users can do. The Admin role, for example, allows creating and deleting user profiles, while other roles may have more limited permissions.</p>
+</li>
+<li>
+<p><strong>Permissions</strong>: Specific actions or tasks that a role authorizes. Permissions are role-based—users inherit all permissions associated with their assigned role.</p>
+</li>
 </ul>
+<h2 id="user-management-tasks">User management tasks<a class="headerlink" href="#user-management-tasks" title="Permanent link">&para;</a></h2>
+<p>This section covers the following user management operations:</p>
+<ul>
+<li><a href="add_users.html">Add users</a>: Create new user accounts and assign roles</li>
+<li><a href="edit_users.html">Edit users</a>: Modify user profiles and change assigned roles</li>
+<li><a href="delete_users.html">Delete users</a>: Remove user accounts from the system</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only users with the Admin role can perform user management tasks.</p>
+</div>
+<h2 id="understanding-roles-and-permissions">Understanding roles and permissions<a class="headerlink" href="#understanding-roles-and-permissions" title="Permanent link">&para;</a></h2>
+<p>User capabilities depend entirely on the role assigned to them. For a comprehensive overview of available roles and their associated permissions, see <a href="../roles/access-control/intro.html">Access control in PMM</a>.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <p><a class="md-button" href="../roles/access-control/intro.html">Access control in PMM <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg></span></a></p>
 
@@ -15796,7 +15931,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
   </span>
 
     
@@ -15825,16 +15960,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             </div>
           
           
-  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
-
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
         
       </main>
       
@@ -15869,7 +15996,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "navigation.tracking", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.images.zoom"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>

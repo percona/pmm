@@ -19,7 +19,7 @@
         <link rel="prev" href="install-pmm-client/connect-database/external.html">
       
       
-        <link rel="next" href="../use/using-pmm.html">
+        <link rel="next" href="HA-docker.html">
       
       
         
@@ -30,7 +30,7 @@
     
     
       
-        <title>Install PMM in HA mode - Percona Monitoring and Management</title>
+        <title>Compare HA options - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Install PMM in HA mode" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Compare HA options" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -192,7 +192,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Install PMM in HA mode
+              Compare HA options
             
           </span>
         </div>
@@ -1838,34 +1838,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="install-pmm-server/deployment-options/virtual/vmware.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deploy on VMware (deprecated)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -3350,6 +3322,55 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install PMM in HA mode
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Install PMM in HA mode
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -3365,7 +3386,7 @@
   <span class="md-ellipsis">
     
   
-    Install PMM in HA mode
+    Compare HA options
   
 
     
@@ -3383,7 +3404,7 @@
   <span class="md-ellipsis">
     
   
-    Install PMM in HA mode
+    Compare HA options
   
 
     
@@ -3448,6 +3469,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#feature-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ha-deployment-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3456,116 +3488,197 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="HA deployment options">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        Next step
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-1-define-environment-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Define environment variables
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-create-docker-network-optional" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Create Docker network (optional)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-set-up-clickhouse" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 3: Set up ClickHouse
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-set-up-victoriametrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4: Set up VictoriaMetrics
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-5-set-up-postgresql" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 5: Set up PostgreSQL
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-6-running-pmm-services" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 6: Running PMM services
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-7-set-up-haproxy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 7: Set up HAProxy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-8-access-pmm-and-verify-the-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 8: Access PMM and verify the setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="HA-docker.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker HA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="HA-kubernetes-single-instance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes Single-Instance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5_4" id="__nav_5_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes Cluster
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kubernetes Cluster
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand PMM HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="install-HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install PMM HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -4541,7 +4654,7 @@
   <span class="md-ellipsis">
     
   
-    Overview Panel
+    Overview panel
   
 
     
@@ -4941,7 +5054,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Versions
+    MongoDB versions
   
 
     
@@ -10076,34 +10189,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../configure-pmm/percona_platform/account-info.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check Percona Portal account information
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -10255,7 +10340,7 @@
   <span class="md-ellipsis">
     
   
-    About user management in PMM
+    User management in PMM
   
 
     
@@ -11109,34 +11194,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../pmm-upgrade/migrating_from_vmware.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Migrate from VMware to alternative platforms
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
@@ -11818,6 +11875,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-notes/3.6.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.6.0 (2026-02-05)
   
 
     
@@ -12940,35 +13025,7 @@
   <span class="md-ellipsis">
     
   
-    Environment Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/dashboards/dashboard-environment-summary.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Environment Summary
+    Environments Overview
   
 
     
@@ -13051,7 +13108,7 @@
   <span class="md-ellipsis">
     
   
-    Kubernetes Cluster Summary
+    Kubernetes Cluster Overview
   
 
     
@@ -14070,34 +14127,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/dashboards/dashboard-mysql-tokudb-details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL TokuDB Details
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -14160,42 +14189,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/dashboards/dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-collection_overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Collection Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/dashboards/dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experimental MongoDB Collection Details
+    MongoDB Collections Overview
   
 
     
@@ -14496,14 +14497,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/dashboards/dashboard-mongodb-PBM-details.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-PBM-details.md" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MongoDB PBM Details dashboard
+    None
   
 
     
@@ -15276,14 +15277,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-ha-health-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PXC/Galera Node Summary
+    PMM HA Health Overview
   
 
     
@@ -15304,14 +15305,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PXC/Galera Cluster Summary
+    PXC/Galera Node Summary
   
 
     
@@ -15903,6 +15904,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
+  <a href="#feature-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ha-deployment-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -15911,110 +15923,16 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="HA deployment options">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        Next step
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-1-define-environment-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Define environment variables
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-create-docker-network-optional" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Create Docker network (optional)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-set-up-clickhouse" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 3: Set up ClickHouse
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-set-up-victoriametrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4: Set up VictoriaMetrics
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-5-set-up-postgresql" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 5: Set up PostgreSQL
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-6-running-pmm-services" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 6: Running PMM services
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-7-set-up-haproxy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 7: Set up HAProxy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-8-access-pmm-and-verify-the-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 8: Access PMM and verify the setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -16040,14 +15958,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
   
   
-    
-      
-    
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/install-pmm/HA.md" title="View source of this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
-    </a>
-  
 
 
 <h1 id="install-pmm-in-high-availability-ha-mode">Install PMM in High Availability (HA) mode<a class="headerlink" href="#install-pmm-in-high-availability-ha-mode" title="Permanent link">&para;</a></h1>
@@ -16055,761 +15965,172 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p>Implement HA to build a resilient PMM deployment that keeps monitoring your databases no matter what happens to individual components.</p>
 <h2 id="understand-what-pmm-ha-can-and-cant-do">Understand what PMM HA can and can&rsquo;t do<a class="headerlink" href="#understand-what-pmm-ha-can-and-cant-do" title="Permanent link">&para;</a></h2>
 <p>Before you invest time in setting up HA for PMM, evaluate whether its benefits justify the added complexity for your specific use case.</p>
-<p>Critical systems requiring sub-second failover gain the most value from PMM HA, while environments that can tolerate brief monitoring gaps (seconds to minutes) may find simpler solutions more appropriate. Consider your RTO requirements and incident response processes when deciding whether HA justifies the operational investment:</p>
+<p>Critical systems requiring sub-second failover gain the most value from PMM HA, while environments that can tolerate brief monitoring gaps (seconds to minutes) may find simpler solutions more appropriate. Consider your RTO requirements and incident response processes when deciding whether HA justifies the operational investment.</p>
 <h3 id="what-pmm-ha-provides">What PMM HA provides<a class="headerlink" href="#what-pmm-ha-provides" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Continuous monitoring visibility during server failures, preventing blind spots when you need observability most.</li>
-<li>Automatic failover that restarts services or switches to backup systems without manual intervention.</li>
-<li>Zero metric loss during brief outages, thanks to PMM&rsquo;s client-side caching that preserves data until connectivity resumes.</li>
-<li>Reduced operational risk by maintaining monitoring coverage during critical incidents.</li>
+<li>Continuous monitoring visibility during server failures, preventing blind spots when you need observability most</li>
+<li>Automatic failover that restarts services or switches to backup systems without manual intervention</li>
+<li>Zero metric loss during brief outages, thanks to PMM&rsquo;s client-side caching that preserves data until connectivity resumes</li>
+<li>Reduced operational risk by maintaining monitoring coverage during critical incidents</li>
 </ul>
 <h3 id="what-pmm-ha-cannot-solve">What PMM HA cannot solve<a class="headerlink" href="#what-pmm-ha-cannot-solve" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Even with perfect HA, you&rsquo;ll still only detect issues after PMM&rsquo;s minimum one-minute alerting interval.</li>
-<li>Complete network partitions that isolate entire segments of your infrastructure from monitoring.</li>
-<li>Increased operational overhead since HA introduces additional complexity in deployment, maintenance, and troubleshooting.</li>
+<li>Even with perfect HA, you&rsquo;ll still only detect issues after PMM&rsquo;s minimum one-minute alerting interval</li>
+<li>Complete network partitions that isolate entire segments of your infrastructure from monitoring</li>
+<li>Increased operational overhead since HA introduces additional complexity in deployment, maintenance, and troubleshooting</li>
 </ul>
-<h2 id="ha-deployment-options">HA deployment options<a class="headerlink" href="#ha-deployment-options" title="Permanent link">&para;</a></h2>
-<p>Choose the option that best fits your infrastructure and requirements:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Docker (basic)</label><label for="__tabbed_1_2">Kubernetes (production)</label><label for="__tabbed_1_3">Clustered (future)</label><label for="__tabbed_1_4">Manual setup (advanced)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><strong>Best for</strong>: Development environments, single-server deployments, teams wanting basic restart capabilities without true HA.</p>
-<p>Docker&rsquo;s built-in restart capabilities combined with PMM&rsquo;s client-side data buffering provide basic availability improvements, but this is not a true high availability solution. This approach leverages Docker&rsquo;s automatic container recovery:</p>
-<ul>
-<li>Docker automatically restarts the PMM Server container after crashes or system reboots.</li>
-<li>PMM Clients buffer metrics locally when the server is unavailable, preventing data loss during outages.</li>
-</ul>
-<p>To increase PMM availability and ensure the PMM Server automatically restarts after minor issues, launch the PMM Server in Docker with the <code>--restart=always</code> flag.</p>
-<p>When the PMM Server becomes unavailable, PMM Clients automatically:</p>
-<ul>
-<li>detect the connection failure</li>
-<li>begin caching metrics data locally</li>
-<li>continue attempting to reconnect</li>
-<li>transfer all cached data once the connection is restored</li>
-</ul>
-<p>This solution works well for environments where brief interruptions are acceptable and post-incident analysis is more important than real-time availability. For mission-critical deployments requiring higher availability, consider the more advanced options described in the following sections.</p>
-<p>For deployment instructions, see <a href="install-pmm-server/deployment-options/docker/index.html">Install PMM Server with Docker</a>.</p>
-</div>
-<div class="tabbed-block">
-<p><strong>Best for</strong>: Production environments, cloud-native architectures, teams with existing Kubernetes infrastructure.</p>
-<p>Kubernetes provides enterprise-grade high availability through automated container orchestration, self-healing capabilities, and intelligent workload distribution across multiple nodes. This leverages Kubernetes pod management and PMM&rsquo;s data persistence:</p>
-<ul>
-<li>Kubernetes automatically restarts failed pods and reschedules them to healthy nodes.</li>
-<li>persistent volumes preserve all PMM data, configurations, and dashboards across pod restarts.</li>
-<li>health probes ensure only healthy instances receive traffic.</li>
-<li>PMM Clients cache metrics locally during server unavailability.</li>
-</ul>
-<p>When infrastructure issues occur, Kubernetes automatically:</p>
-<ul>
-<li>detects pod or node failures through health checks (within 30 seconds)</li>
-<li>marks failed resources as unavailable</li>
-<li>reschedules the PMM pod to a healthy node</li>
-<li>mounts the existing persistent volume to restore state</li>
-<li>routes traffic once readiness checks pass</li>
-</ul>
-<p>During failover (typically 2-5 minutes), data integrity is maintained through:</p>
-<ul>
-<li>PMM Client-side caching of up to 24 hours of metrics.</li>
-<li>persistentVolumeClaims that retain all historical data.</li>
-<li>automatic metric synchronization once connection restores.</li>
-<li>preservation of all configurations and custom dashboards.</li>
-</ul>
-<p>This solution works well for production environments that can tolerate brief monitoring interruptions during automatic failover. </p>
-<p>The trade-off between operational simplicity and high availability makes it ideal for most production workloads. For zero-downtime requirements or multi-region deployments, consider the advanced clustering options in the following sections.</p>
-<p>For deployment instructions, see <a href="install-pmm-server/deployment-options/helm/index.html">Install PMM Server with Helm on Kubernetes clusters</a>.</p>
-</div>
-<div class="tabbed-block">
-<p><strong>Best for</strong>: Large enterprises, geographically distributed teams, maximum resilience requirements.</p>
-<p>A fully clustered PMM deployment is under development to provide true high availability with zero downtime and horizontal scalability. This enterprise-grade architecture will leverage Kubernetes orchestration and distributed database technologies:</p>
-<ul>
-<li>multiple active PMM instances with automatic leader election via Raft consensus</li>
-<li>clustered databases ensure no single point of failure across all data stores</li>
-<li>geographic distribution support for multi-region deployments</li>
-<li>automatic failover with zero data loss and minimal service interruption</li>
-</ul>
-<p>The clustered architecture will include:</p>
-<ul>
-<li><strong>PMM instances</strong>: multiple servers in active-passive configuration with automatic leader election.</li>
-<li><strong>PostgreSQL cluster</strong>: replicated metadata and configuration storage with automatic failover.</li>
-<li><strong>ClickHouse cluster</strong>: distributed query analytics data across multiple shards and replicas.</li>
-<li><strong>VictoriaMetrics cluster</strong>: horizontally scaled metrics storage with configurable replication factor.</li>
-<li><strong>HAProxy</strong>: intelligent load balancing and automatic routing to the current leader.</li>
-</ul>
-<p>This solution will address enterprise requirements for mission-critical monitoring infrastructure where any downtime is unacceptable. It will support complex scenarios including disaster recovery, multi-datacenter deployments, and regulatory compliance requiring data residency.</p>
-<p>This feature is currently in development. For immediate high availability needs, consider the Kubernetes deployment option described above, which provides robust automatic recovery suitable for most production environments.</p>
-</div>
-<div class="tabbed-block">
-<p><strong>Best for</strong>: Custom requirements that other options don&rsquo;t meet, integration with existing infrastructure, granular control over individual components.</p>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Availability status</p>
-<p>This feature is currently in <a href="../reference/glossary.html#technical-preview">Technical Preview</a>. Early adopters should use this feature for testing purposes only as it is subject to change.</p>
-</div>
-<p>Manual setup provides complete control over PMM&rsquo;s HA architecture by deploying each component separately. This approach leverages distributed consensus protocols and external clustered databases:</p>
-<ul>
-<li><strong>Gossip protocol</strong> enables PMM servers to discover and share information about their states. It is used for managing the PMM server list and failure detection, ensuring that all instances are aware of the current state of the cluster.</li>
-<li><strong>Raft consensus</strong> ensures that PMM servers agree on a leader and that logs are replicated among all machines to maintain data consistency.</li>
-<li><strong>External clustered databases</strong> eliminate single points of failure for all data stores.</li>
-<li><strong>Three PMM instances</strong> with one leader, two followers. The leader server handles all client requests. If the leader fails, the followers take over, minimizing downtime.</li>
-</ul>
-<p>These protocols work in tandem to ensure that the PMM Server instances can effectively store and manage the data collected from your monitored databases and systems.</p>
-<p>The architecture separates critical services to eliminate single points of failure and provide better Service Level Agreements (SLAs):</p>
-<ul>
-<li><strong>ClickHouse cluster</strong> stores Query Analytics (QAN) metrics. This ensures that QAN data remains highly available and can be accessed even if one of the ClickHouse nodes fails.</li>
-<li><strong>VictoriaMetrics cluster</strong> stores Prometheus metrics. This provides a highly available and scalable solution for storing and querying metrics data.</li>
-<li><strong>PostgreSQL cluster</strong> stores PMM data, such as inventory and settings. This ensures that PMM&rsquo;s configuration and metadata remain highly available and can be accessed by all PMM Server instances.</li>
-<li><strong>HAProxy</strong> routes traffic to the current leader based on health checks.</li>
-</ul>
-<p>When the leader fails, the remaining instances:</p>
-<ul>
-<li>detect the failure through Raft consensus</li>
-<li>elect a new leader from the followers</li>
-<li>update HAProxy routing automatically</li>
-<li>maintain service availability with minimal interruption</li>
-<li>preserve all data through external clustered storage</li>
-</ul>
-<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
-<p>Before you begin:</p>
-<ul>
-<li><a href="https://docs.docker.com/get-docker/">Install and configure Docker</a>.</li>
-<li>Prepare your environment:<ul>
-<li>for testing &gt; run services on a single machine.</li>
-<li>for production &gt; deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.</li>
-</ul>
-</li>
-</ul>
-<h3 id="step-1-define-environment-variables">Step 1: Define environment variables<a class="headerlink" href="#step-1-define-environment-variables" title="Permanent link">&para;</a></h3>
-<p>Before you start, define the necessary environment variables on each instance where the services will be running. You will need these variables for the subsequent commands.</p>
-<p>For all IP addresses, use the format <code>17.10.1.x</code>, and for all usernames and passwords, use a string format like <code>example</code>.</p>
+<h2 id="feature-comparison">Feature comparison<a class="headerlink" href="#feature-comparison" title="Permanent link">&para;</a></h2>
+<p>All three options prevent data loss through PMM Client caching during outages.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;"><strong>Variable</strong></th>
-<th style="text-align: left;"><strong>Description</strong></th>
+<th>Feature</th>
+<th><a href="HA-docker.html">Docker</a></th>
+<th><a href="HA-kubernetes-single-instance.html">Kubernetes (Single-Instance)</a></th>
+<th><a href="HA-clustered.html">Kubernetes (Clustered)</a></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>CH_HOST_IP</code></td>
-<td style="text-align: left;">The IP address of the instance where the ClickHouse service is running or the desired IP address for the ClickHouse container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.2</code></td>
+<td><strong>Status</strong></td>
+<td>✅ GA (Production ready)</td>
+<td>✅ GA (Production-ready)</td>
+<td>⚠️ Tech Preview (Testing only)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>VM_HOST_IP</code></td>
-<td style="text-align: left;">The IP address of the instance where the VictoriaMetrics service is running or the desired IP address for the VictoriaMetrics container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.3</code></td>
+<td><strong>Kubernetes required</strong></td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>PG_HOST_IP</code></td>
-<td style="text-align: left;">The IP address of the instance where the PostgreSQL service is running or the desired IP address for the PostgreSQL container within the Docker network, depending on your setup.<br><br> Example: <code>17.10.1.4</code></td>
+<td><strong>PMM instances</strong></td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>PG_USERNAME</code></td>
-<td style="text-align: left;">The username for your PostgreSQL server.<br><br> Example: <code>pmmuser</code></td>
+<td><strong>Failover time</strong></td>
+<td>1-3 min</td>
+<td>2-5 min</td>
+<td>&lt; 30 sec</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>PG_PASSWORD</code></td>
-<td style="text-align: left;">The password for your PostgreSQL server.<br><br>Example: <code>pgpassword</code></td>
+<td><strong>Zero downtime</strong></td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>GF_USERNAME</code></td>
-<td style="text-align: left;">The username for your Grafana database user.<br><br>Example: <code>gfuser</code></td>
+<td><strong>Setup complexity</strong></td>
+<td>Very Low</td>
+<td>Low</td>
+<td>High</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>PMM_CLICKHOUSE_IS_CLUSTER</code></td>
-<td style="text-align: left;">Set to <code>1</code> to indicate that ClickHouse is running in cluster mode. This enables PMM to use distributed tables and cluster-aware queries for Query Analytics (QAN) metrics.<br><br>Example: <code>1</code></td>
+<td><strong>Resource overhead</strong></td>
+<td>1x</td>
+<td>1.2x</td>
+<td>3-5x</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>PMM_CLICKHOUSE_CLUSTER_NAME</code></td>
-<td style="text-align: left;">Optional. If set, specifies the ClickHouse cluster name to use for distributed table operations. Used together with PMM_CLICKHOUSE_IS_CLUSTER.<br><br>Example: <code>my_cluster</code></td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td><strong>Monitoring data preserved</strong></td>
+<td>Yes, stored on clients during outage</td>
+<td>Yes, stored on clients during outage</td>
+<td>Yes, always available on multiple servers</td>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>[!WARNING]
-<strong>Cluster Name Character Limitations:</strong>
-Use only letters, digits, and underscores (<code>a-z</code>, <code>A-Z</code>, <code>0-9</code>, <code>_</code>) in ClickHouse cluster names. Avoid dashes (<code>-</code>), spaces, and other special characters.</p>
-<p>[!NOTE]
-<strong>QAN Initialization Delay:</strong>
-When using ClickHouse in cluster mode (<code>PMM_CLICKHOUSE_IS_CLUSTER=1</code>), it can take up to 5 minutes for Query Analytics (QAN) to become fully operational after startup or configuration changes. During this period, you may receive error messages in the QAN interface. This is expected and will resolve automatically once the cluster is ready.
-| <code>GF_PASSWORD</code> | The password for your Grafana database user.<br><br>Example: <code>gfpassword</code> |
-| <code>PMM_ACTIVE_IP</code> | The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.5</code> |
-| <code>PMM_ACTIVE_NODE_ID</code> | The unique ID for your active PMM server node.<br><br>Example: <code>pmm-server-active</code> |
-| <code>PMM_PASSIVE_IP</code> | The IP address of the instance where the first passive PMM server is running or the desired IP address for your first passive PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.6</code> |
-| <code>PMM_PASSIVE_NODE_ID</code> | The unique ID for your first passive PMM server node.<br><br>Example: <code>pmm-server-passive</code> |
-| <code>PMM_PASSIVE2_IP</code> | The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.<br><br>Example: <code>17.10.1.7</code> |
-| <code>PMM_PASSIVE2_NODE_ID</code> | The unique ID for your second passive PMM server node.<br><br>Example: <code>pmm-server-passive2</code> |
-| <code>PMM_DOCKER_IMAGE</code> | The specific PMM Server Docker image for this guide.<br><br>Example: <code>percona/pmm-server:3</code> |</p>
-</blockquote>
-<details class="example">
-<summary>Expected output</summary>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">CH_HOST_IP</span><span class="o">=</span><span class="m">17</span>.10.1.2
-<span class="nb">export</span><span class="w"> </span><span class="nv">VM_HOST_IP</span><span class="o">=</span><span class="m">17</span>.10.1.3
-<span class="nb">export</span><span class="w"> </span><span class="nv">PG_HOST_IP</span><span class="o">=</span><span class="m">17</span>.10.1.4
-<span class="nb">export</span><span class="w"> </span><span class="nv">PG_USERNAME</span><span class="o">=</span>pmmuser
-<span class="nb">export</span><span class="w"> </span><span class="nv">PG_PASSWORD</span><span class="o">=</span>pgpassword
-<span class="nb">export</span><span class="w"> </span><span class="nv">GF_USERNAME</span><span class="o">=</span>gfuser
-<span class="nb">export</span><span class="w"> </span><span class="nv">GF_PASSWORD</span><span class="o">=</span>gfpassword
-<span class="nb">export</span><span class="w"> </span><span class="nv">PMM_ACTIVE_IP</span><span class="o">=</span><span class="m">17</span>.10.1.5
-<span class="nb">export</span><span class="w"> </span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="o">=</span>pmm-server-active
-<span class="nb">export</span><span class="w"> </span><span class="nv">PMM_PASSIVE_IP</span><span class="o">=</span><span class="m">17</span>.10.1.6
-<span class="nb">export</span><span class="w"> </span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="o">=</span>pmm-server-passive
-<span class="nb">export</span><span class="w"> </span><span class="nv">PMM_PASSIVE2_IP</span><span class="o">=</span><span class="m">17</span>.10.1.7
-<span class="nb">export</span><span class="w"> </span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="o">=</span>pmm-server-passive2
-<span class="nb">export</span><span class="w"> </span><span class="nv">PMM_DOCKER_IMAGE</span><span class="o">=</span>percona/pmm-server:3
-</code></pre></div>
-</details>
-<h3 id="step-2-create-docker-network-optional">Step 2: Create Docker network (optional)<a class="headerlink" href="#step-2-create-docker-network-optional" title="Permanent link">&para;</a></h3>
-<p class="power-number">Create a dedicated network if you plan to run multiple PMM services on the same instance. This ensures proper communication between containers, especially for High Availability mode:</p>
-<ol>
-<li>
-<p>Set up a Docker network for PMM services if you plan to run all the services on the same instance. As a result of this Docker network, your containers will be able to communicate with each other, which is essential for the High Availability (HA) mode to function properly in PMM. This step may be optional if you run your services on separate instances.</p>
-</li>
-<li>
-<p>Run the following command to create a Docker network:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>pmm-network<span class="w"> </span>--subnet<span class="o">=</span><span class="m">17</span>.10.1.0/16
-</code></pre></div>
-</li>
-</ol>
-<h3 id="step-3-set-up-clickhouse">Step 3: Set up ClickHouse<a class="headerlink" href="#step-3-set-up-clickhouse" title="Permanent link">&para;</a></h3>
-<p>ClickHouse is an open-source column-oriented database management system. In PMM, ClickHouse stores Query Analytics (QAN) metrics, which provide detailed information about your queries.</p>
-<p class="power-number">To set up ClickHouse:</p>
-<ol>
-<li>
-<p>Pull the ClickHouse Docker image:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span>clickhouse/clickhouse-server:25.3.6.56-alpine
-</code></pre></div>
-</li>
-<li>
-<p>Create a Docker volume for ClickHouse data:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>ch_data
-</code></pre></div>
-</li>
-<li>
-<p>Run the ClickHouse container:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Run services on the same instance</label><label for="__tabbed_2_2">Run services on a separate instance</label></div>
+<h2 id="ha-deployment-options">HA deployment options<a class="headerlink" href="#ha-deployment-options" title="Permanent link">&para;</a></h2>
+<p>Choose the deployment option that matches your infrastructure and requirements:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Docker HA (basic)</label><label for="__tabbed_1_2">Kubernetes HA (Single-Instance)</label><label for="__tabbed_1_3">Kubernetes HA (Clustered)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span>ch<span class="w"> </span><span class="se">\</span>
---network<span class="w"> </span>pmm-network<span class="w"> </span><span class="se">\</span>
---ip<span class="w"> </span><span class="si">${</span><span class="nv">CH_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9000</span>:9000<span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>ch_data:/var/lib/clickhouse<span class="w"> </span><span class="se">\</span>
-clickhouse/clickhouse-server:25.3.6.56-alpine
-</code></pre></div>
-<p>The <code>--network</code> and <code>--ip</code> flags assign a specific IP address within the Docker network created in Step 2.</p>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span>ch<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9000</span>:9000<span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>ch_data:/var/lib/clickhouse<span class="w"> </span><span class="se">\</span>
-clickhouse/clickhouse-server:25.3.6.56-alpine
-</code></pre></div>
-<p>When running on separate instances, ClickHouse binds to the default network interface.</p>
-</div>
-</div>
-</div>
-</li>
-</ol>
-<h3 id="step-4-set-up-victoriametrics">Step 4: Set up VictoriaMetrics<a class="headerlink" href="#step-4-set-up-victoriametrics" title="Permanent link">&para;</a></h3>
-<p>VictoriaMetrics provides a long-term storage solution for your time-series data. In PMM, it is used to store Prometheus metrics.</p>
-<p class="power-number">To set up VictoriaMetrics:</p>
-<ol>
-<li>
-<p>Pull the VictoriaMetrics Docker image:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span>victoriametrics/victoria-metrics:v1.93.4
-</code></pre></div>
-</li>
-<li>
-<p>Create a Docker volume for VictoriaMetrics data:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>vm_data
-</code></pre></div>
-</li>
-<li>
-<p>Run the VictoriaMetrics container:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Run services on the same instance</label><label for="__tabbed_3_2">Run services on a separate instance</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span>vm<span class="w"> </span><span class="se">\</span>
---network<span class="w"> </span>pmm-network<span class="w"> </span><span class="se">\</span>
---ip<span class="w"> </span><span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">8428</span>:8428<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">8089</span>:8089<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">8089</span>:8089/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">2003</span>:2003<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">2003</span>:2003/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">4242</span>:4242<span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>vm_data:/storage<span class="w"> </span><span class="se">\</span>
-victoriametrics/victoria-metrics:v1.93.4<span class="w"> </span><span class="se">\</span>
---storageDataPath<span class="o">=</span>/storage<span class="w"> </span><span class="se">\</span>
---graphiteListenAddr<span class="o">=</span>:2003<span class="w"> </span><span class="se">\</span>
---opentsdbListenAddr<span class="o">=</span>:4242<span class="w"> </span><span class="se">\</span>
---httpListenAddr<span class="o">=</span>:8428<span class="w"> </span><span class="se">\</span>
---influxListenAddr<span class="o">=</span>:8089
-</code></pre></div>
-<p>The <code>--network</code> and <code>--ip</code> flags assign a specific IP address within the Docker network created in Step 2.</p>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span>vm<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">8428</span>:8428<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">8089</span>:8089<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">8089</span>:8089/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">2003</span>:2003<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">2003</span>:2003/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">4242</span>:4242<span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>vm_data:/storage<span class="w"> </span><span class="se">\</span>
-victoriametrics/victoria-metrics:v1.93.4<span class="w"> </span><span class="se">\</span>
---storageDataPath<span class="o">=</span>/storage<span class="w"> </span><span class="se">\</span>
---graphiteListenAddr<span class="o">=</span>:2003<span class="w"> </span><span class="se">\</span>
---opentsdbListenAddr<span class="o">=</span>:4242<span class="w"> </span><span class="se">\</span>
---httpListenAddr<span class="o">=</span>:8428<span class="w"> </span><span class="se">\</span>
---influxListenAddr<span class="o">=</span>:8089
-</code></pre></div>
-<p>When running on separate instances, VictoriaMetrics binds to the default network interface.</p>
-</div>
-</div>
-</div>
-</li>
-</ol>
-<h3 id="step-5-set-up-postgresql">Step 5: Set up PostgreSQL<a class="headerlink" href="#step-5-set-up-postgresql" title="Permanent link">&para;</a></h3>
-<p>PostgreSQL is a powerful, open-source object-relational database system. PMM uses it to store data related to inventory, settings, and other features.</p>
-<p class="power-number">To set up PostgreSQL:</p>
-<ol>
-<li>
-<p>Pull the PostgreSQL Docker image:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span>postgres:14
-</code></pre></div>
-</li>
-<li>
-<p>Create a Docker volume for PostgreSQL data:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>pg_data
-</code></pre></div>
-</li>
-<li>
-<p>Create a directory to store initialization SQL queries:</p>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>/path/to/queries
-</code></pre></div>
-<p>Replace <code>/path/to/queries</code> with your desired absolute path (e.g., <code>/opt/pmm/postgres-init</code>).</p>
-</li>
-<li>
-<p>Create an <code>init.sql.template</code> file in the newly created directory with the following content:</p>
-<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="ss">&quot;pmm-managed&quot;</span><span class="p">;</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="o">&lt;</span><span class="n">YOUR_PG_USERNAME</span><span class="o">&gt;</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">ENCRYPTED</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="s1">&#39;&lt;YOUR_PG_PASSWORD&gt;&#39;</span><span class="p">;</span>
-<span class="k">GRANT</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="k">PRIVILEGES</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="ss">&quot;pmm-managed&quot;</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="o">&lt;</span><span class="n">YOUR_PG_USERNAME</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">grafana</span><span class="p">;</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="o">&lt;</span><span class="n">YOUR_GF_USERNAME</span><span class="o">&gt;</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">ENCRYPTED</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="s1">&#39;&lt;YOUR_GF_PASSWORD&gt;&#39;</span><span class="p">;</span>
-<span class="k">GRANT</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="k">PRIVILEGES</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">grafana</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="o">&lt;</span><span class="n">YOUR_GF_USERNAME</span><span class="o">&gt;</span><span class="p">;</span>
-
-<span class="err">\</span><span class="k">c</span><span class="w"> </span><span class="n">pmm</span><span class="o">-</span><span class="n">managed</span>
-
-<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">pg_stat_statements</span><span class="p">;</span>
-</code></pre></div>
-</li>
-<li>
-<p>Use <strong><code>sed</code></strong> to replace the placeholders with the environment variables and write the output to <strong><code>init.sql</code></strong>:</p>
-<div class="highlight"><pre><span></span><code>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s/&lt;YOUR_PG_USERNAME&gt;/&#39;</span><span class="s2">&quot;</span><span class="nv">$PG_USERNAME</span><span class="s2">&quot;</span><span class="s1">&#39;/g&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;s/&lt;YOUR_PG_PASSWORD&gt;/&#39;</span><span class="s2">&quot;</span><span class="nv">$PG_PASSWORD</span><span class="s2">&quot;</span><span class="s1">&#39;/g&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;s/&lt;YOUR_GF_USERNAME&gt;/&#39;</span><span class="s2">&quot;</span><span class="nv">$GF_USERNAME</span><span class="s2">&quot;</span><span class="s1">&#39;/g&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;s/&lt;YOUR_GF_PASSWORD&gt;/&#39;</span><span class="s2">&quot;</span><span class="nv">$GF_PASSWORD</span><span class="s2">&quot;</span><span class="s1">&#39;/g&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>init.sql.template<span class="w"> </span>&gt;<span class="w"> </span>init.sql
-</code></pre></div>
-</li>
-<li>
-<p>Run the PostgreSQL container based on your deployment architecture:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Run services on the same instance</label><label for="__tabbed_4_2">Run services on a separate instance</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span>pg<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--network<span class="w"> </span>pmm-network<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--ip<span class="w"> </span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-p<span class="w"> </span><span class="m">5432</span>:5432<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-v<span class="w"> </span>/path/to/queries:/docker-entrypoint-initdb.d/<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-v<span class="w"> </span>pg_data:/var/lib/postgresql/data<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>postgres:14<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="nv">shared_preload_libraries</span><span class="o">=</span>pg_stat_statements
-</code></pre></div>
-<p>The <code>--network</code> and <code>--ip</code> flags assign a specific IP address within the Docker network created in Step 2.</p>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span>pg<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-p<span class="w"> </span><span class="m">5432</span>:5432<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-v<span class="w"> </span>/path/to/queries:/docker-entrypoint-initdb.d<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-v<span class="w"> </span>pg_data:/var/lib/postgresql/data<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>postgres:14<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="nv">shared_preload_libraries</span><span class="o">=</span>pg_stat_statements
-</code></pre></div>
-<p>When running on separate instances, PostgreSQL binds to the default network interface.</p>
-</div>
-</div>
-</div>
-<div class="admonition important">
-<p class="admonition-title">Path requirements</p>
+<p><strong>Status</strong> <strong>Production-ready</strong></p>
+<p>Simple automatic restart capabilities using Docker&rsquo;s built-in recovery features. Perfect for development, testing, and single-server deployments.</p>
+<p><strong>Key features</strong></p>
 <ul>
-<li>Always use absolute paths for volume mounts (e.g., <code>/opt/pmm/postgres-init</code> instead of <code>./queries</code>).</li>
-<li>The init SQL file in <code>/docker-entrypoint-initdb.d</code> executes automatically on first container startup.</li>
-<li>Ensure the postgres user has read permissions on the mounted directory.</li>
+<li>Docker automatically restarts PMM Server after crashes</li>
+<li>PMM Clients buffer metrics locally during outages</li>
+<li>Minimal operational overhead</li>
+<li>No Kubernetes required</li>
 </ul>
-</div>
-</li>
-</ol>
-<h3 id="step-6-running-pmm-services">Step 6: Running PMM services<a class="headerlink" href="#step-6-running-pmm-services" title="Permanent link">&para;</a></h3>
-<p class="power-number">The PMM server orchestrates the collection, storage, and visualization of metrics. In our high-availability setup, we&rsquo;ll have one active PMM server and two passive PMM servers:</p>
-<ol>
-<li>Check that environment variables from Step 1 are set on each instance where you run these commands.</li>
-<li>
-<p>Pull the PMM Server Docker image:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span><span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
-</code></pre></div>
-</li>
-<li>
-<p>Create Docker volumes for PMM-Server data:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>pmm-server-active_data
-docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>pmm-server-passive_data
-docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>pmm-server-passive-2_data
-</code></pre></div>
-</li>
-<li>
-<p>Run the active PMM managed server. This server will serve as the primary monitoring server.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Run services on same instance</label><label for="__tabbed_5_2">Run services on a separate instance</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
---hostname<span class="w"> </span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
---network<span class="w"> </span>pmm-network<span class="w"> </span><span class="se">\</span>
---ip<span class="w"> </span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">CH_HOST_IP</span><span class="si">}</span>:9000<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span>:5432<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_USERNAME</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_DBPASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_HOST</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\ </span><span class="w">           </span>
--e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>pmm-server-active_data:/srv<span class="w"> </span><span class="se">\</span>
-<span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
-</code></pre></div>
-<p>When running on the same instance, omit <code>-p</code> port flags and use <code>--network</code> and <code>--ip</code> for internal communication.</p>
+<p><strong>Limitations</strong></p>
+<ul>
+<li>1-3 minutes downtime during container restarts</li>
+<li>Single point of failure</li>
+<li>Manual intervention required for host-level failures</li>
+</ul>
+<p><strong>When to use this option</strong></p>
+<ul>
+<li>You&rsquo;re in development or testing</li>
+<li>You don&rsquo;t have Kubernetes</li>
+<li>You want the simplest setup</li>
+<li>You can tolerate 1-3 minutes of downtime</li>
+</ul>
+<h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
+<p><a class="md-button" href="HA-docker.html">View Docker HA installation guide</a> </p>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">80</span>:8080<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9094</span>:9094<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9096</span>:9096<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9094</span>:9094/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9096</span>:9096/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9097</span>:9097<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">CH_HOST_IP</span><span class="si">}</span>:9000<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span>:5432<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_USERNAME</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_DBPASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_HOST</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>pmm-server-active_data:/srv<span class="w"> </span><span class="se">\</span>
-<span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
-</code></pre></div>
-<p>When running on separate instances, include <code>-p</code> port mappings and omit <code>--network</code> and <code>--ip</code> flags.</p>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Run the first passive PMM-managed server. This server will act as a standby server, ready to take over if the active server fails.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Run services on the same instance</label><label for="__tabbed_6_2">Run services on a separate instance</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
---hostname<span class="w"> </span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
---network<span class="w"> </span>pmm-network<span class="w"> </span><span class="se">\</span>
---ip<span class="w"> </span><span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">CH_HOST_IP</span><span class="si">}</span>:9000<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span>:5432<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_USERNAME</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_DBPASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_HOST</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\ </span><span class="w">           </span>
--e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>pmm-server-passive_data:/srv<span class="w"> </span><span class="se">\</span>
-<span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
-</code></pre></div>
-<p>When running on the same instance, omit <code>-p</code> port flags and use <code>--network</code> and <code>--ip</code> for internal communication.</p>
+<p><strong>Status</strong> <strong>Production-ready</strong></p>
+<p>Enterprise-grade high availability through Kubernetes orchestration. Provides automatic pod rescheduling and persistent data across failures.</p>
+<p><strong>Key features</strong></p>
+<ul>
+<li>Kubernetes automatically reschedules failed pods to healthy nodes</li>
+<li>Persistent volumes preserve all data and configurations</li>
+<li>Health probes ensure only healthy instances receive traffic</li>
+<li>Production-tested and stable</li>
+</ul>
+<p><strong>Limitations</strong></p>
+<ul>
+<li>2-5 minutes monitoring interruption during pod rescheduling</li>
+<li>Single PMM instance (no load distribution)</li>
+</ul>
+<p><strong>When to use this option</strong></p>
+<ul>
+<li>You have Kubernetes infrastructure</li>
+<li>You need production-ready HA</li>
+<li>You can tolerate 2-5 minutes of downtime</li>
+<li>You want automatic recovery without complexity</li>
+<li>choice for 90% of production deployments</li>
+</ul>
+<p><a class="md-button" href="HA-kubernetes-single-instance.html">View Kubernetes HA installation guide</a> </p>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">80</span>:8080<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9094</span>:9094<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9096</span>:9096<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9094</span>:9094/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9096</span>:9096/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9097</span>:9097<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">CH_HOST_IP</span><span class="si">}</span>:9000<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span>:5432<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_USERNAME</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_DBPASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_HOST</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\ </span><span class="w">           </span>
--e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>pmm-server-passive_data:/srv<span class="w"> </span><span class="se">\</span>
-<span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
-</code></pre></div>
-<p>When running on separate instances, include <code>-p</code> port mappings and omit <code>--network</code> and <code>--ip</code> flags.</p>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Run the second passive PMM-managed server. Like the first passive server, this server will also act as a standby server.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Run services on the same instance</label><label for="__tabbed_7_2">Run services on a separate instance</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
---hostname<span class="w"> </span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
---network<span class="w"> </span>pmm-network<span class="w"> </span><span class="se">\</span>
---ip<span class="w"> </span><span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">CH_HOST_IP</span><span class="si">}</span>:9000<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span>:5432<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_USERNAME</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_DBPASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_HOST</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\ </span><span class="w">           </span>
--e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>pmm-server-passive-2_data:/srv<span class="w"> </span><span class="se">\</span>
-<span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
-</code></pre></div>
-<p>When running on the same instance, omit <code>-p</code> port flags and use <code>--network</code> and <code>--ip</code> for internal communication.</p>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">80</span>:8080<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9094</span>:9094<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9096</span>:9096<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9094</span>:9094/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9096</span>:9096/udp<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">9097</span>:9097<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">CH_HOST_IP</span><span class="si">}</span>:9000<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span>:5432<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_USERNAME</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_POSTGRES_DBPASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_USERNAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PASSWORD</span><span class="o">=</span><span class="si">${</span><span class="nv">GF_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_HOST</span><span class="o">=</span><span class="si">${</span><span class="nv">PG_HOST_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_PORT</span><span class="o">=</span><span class="m">5432</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">GF_DATABASE_NAME</span><span class="o">=</span>grafana<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_VM_URL</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">VM_HOST_IP</span><span class="si">}</span>:8428<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ENABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_NODE_ID</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_NODE_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_ADVERTISE_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9096</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_RAFT_PORT</span><span class="o">=</span><span class="m">9097</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="o">=</span><span class="m">9094</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_HA_PEERS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_ACTIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE_IP</span><span class="si">}</span>,<span class="si">${</span><span class="nv">PMM_PASSIVE2_IP</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>pmm-server-passive-2_data:/srv<span class="w"> </span><span class="se">\</span>
-<span class="si">${</span><span class="nv">PMM_DOCKER_IMAGE</span><span class="si">}</span>
-</code></pre></div>
-<p>When running on separate instances, include <code>-p</code> port mappings and omit <code>--network</code> and <code>--ip</code> flags.</p>
-</div>
-</div>
-</div>
-</li>
-</ol>
-<h3 id="step-7-set-up-haproxy">Step 7: Set up HAProxy<a class="headerlink" href="#step-7-set-up-haproxy" title="Permanent link">&para;</a></h3>
-<p class="power-number">HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the <code>/v1/server/leaderHealthCheck</code> endpoint:</p>
-<ol>
-<li>
-<p>Pull the HAProxy Docker image:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span>haproxy:2.4.2-alpine
-</code></pre></div>
-</li>
-<li>
-<p>Create a directory to store the SSL certificate:</p>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>/path/to/certs
-</code></pre></div>
-<p>Replace <code>/path/to/certs</code> with the path where you want to store your SSL certificates.</p>
-</li>
-<li>
-<p>Navigate to this directory and generate a new private key:</p>
-<div class="highlight"><pre><span></span><code>openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>pmm.key<span class="w"> </span><span class="m">2048</span>
-</code></pre></div>
-<p>This command generates a 2048-bit RSA private key and saves it to a file named <code>pmm.key</code>.</p>
-</li>
-<li>
-<p>Using the private key, generate a self-signed certificate:</p>
-<div class="highlight"><pre><span></span><code>openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-x509<span class="w"> </span>-key<span class="w"> </span>pmm.key<span class="w"> </span>-out<span class="w"> </span>pmm.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">365</span>
-</code></pre></div>
-<p>Enter country, state, organization name, etc. when asked. Use <code>-days 365</code> option for 365-day certificate validity.</p>
-</li>
-<li>
-<p>Copy your SSL certificate and private key to the directory you created in step 2. Ensure that the certificate file is named <code>pmm.crt</code> and the private key file is named <code>pmm.key</code>.</p>
-<p>Concatenate these two files to create a PEM file:</p>
-<div class="highlight"><pre><span></span><code>cat<span class="w"> </span>pmm.crt<span class="w"> </span>pmm.key<span class="w"> </span>&gt;<span class="w"> </span>pmm.pem
-</code></pre></div>
-</li>
-<li>
-<p>Create a directory to store HAProxy configuration:</p>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>/path/to/haproxy-config
-</code></pre></div>
-<p>Replace <code>/path/to/haproxy-config</code> with the path where you want to store your HAProxy configuration.</p>
-</li>
-<li>
-<p>Create an HAProxy configuration file named <code>haproxy.cfg.template</code> in that directory. This configuration tells HAProxy to use the <code>/v1/server/leaderHealthCheck</code> endpoint of each PMM server to identify the leader:</p>
-<div class="highlight"><pre><span></span><code>global
-    log stdout    local0 debug
-    log stdout    local1 info
-    log stdout    local2 info
-    daemon
-
-defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
-    timeout connect 5000
-    timeout client  50000
-    timeout server  50000
-
-frontend http_front
-    bind *:80
-    default_backend http_back
-
-frontend https_front
-    bind *:443 ssl crt /etc/haproxy/certs/pmm.pem
-    default_backend https_back
-
-backend http_back
-    option httpchk
-    http-check send meth GET uri /v1/server/leaderHealthCheck ver HTTP/1.1 hdr Host www
-    http-check expect status 200
-    server pmm-server-active-http PMM_ACTIVE_IP:8080 check
-    server pmm-server-passive-http PMM_PASSIVE_IP:8080 check backup
-    server pmm-server-passive-2-http PMM_PASSIVE2_IP:8080 check backup
-
-backend https_back
-    option httpchk
-    http-check send meth GET uri /v1/server/leaderHealthCheck ver HTTP/1.1 hdr Host www
-    http-check expect status 200
-    server pmm-server-active-https PMM_ACTIVE_IP:8443 check ssl verify none
-    server pmm-server-passive-https PMM_PASSIVE_IP:8443 check ssl verify none
-    server pmm-server-passive-2-https PMM_PASSIVE2_IP:8443 check ssl verify none
-</code></pre></div>
-</li>
-<li>
-<p>Before starting the HAProxy container, use <code>sed</code> to replace the placeholders in <code>haproxy.cfg.template</code> with the environment variables, and write the output to <code>haproxy.cfg</code>:</p>
-<div class="highlight"><pre><span></span><code>sed<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;s/PMM_ACTIVE_IP/</span><span class="nv">$PMM_ACTIVE_IP</span><span class="s2">/g&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s2">&quot;s/PMM_PASSIVE_IP/</span><span class="nv">$PMM_PASSIVE_IP</span><span class="s2">/g&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s2">&quot;s/PMM_PASSIVE2_IP/</span><span class="nv">$PMM_PASSIVE2_IP</span><span class="s2">/g&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>/path/to/haproxy.cfg.template<span class="w"> </span>&gt;<span class="w"> </span>/path/to/haproxy.cfg
-</code></pre></div>
-</li>
-<li>
-<p>Run the HAProxy container, using absolute paths for all volume mounts. If running services on separate instances, remove the <code>--network</code> flag:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span>haproxy<span class="w"> </span><span class="se">\</span>
---network<span class="w"> </span>pmm-network<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">80</span>:80<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">443</span>:443<span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>/path/to/haproxy-config:/usr/local/etc/haproxy<span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>/path/to/certs:/etc/haproxy/certs<span class="w"> </span><span class="se">\</span>
-haproxy:2.4.2-alpine
-</code></pre></div>
-<p>Replace <code>/path/to/haproxy-config</code> with the path to the <code>haproxy.cfg</code> file you created in step 6, and <code>/path/to/certs</code> with the path.</p>
-</li>
-</ol>
-<p>HAProxy is now configured to redirect traffic to the leader PMM managed server. This ensures highly reliable service by redirecting requests to the remaining servers in the event that the leader server goes down.</p>
-<h3 id="step-8-access-pmm-and-verify-the-setup">Step 8: Access PMM and verify the setup<a class="headerlink" href="#step-8-access-pmm-and-verify-the-setup" title="Permanent link">&para;</a></h3>
-<p class="power-number">Once all components are running, access PMM through HAProxy and verify your high availability configuration:</p>
-<ol>
-<li>Access the PMM services by navigating to <code>https://&lt;HAProxy_IP&gt;</code> in your web browser. Replace <code>&lt;HAProxy_IP&gt;</code> with the IP address or hostname of the machine running the HAProxy container. HAProxy will automatically route your connection to the current leader PMM instance.</li>
-<li>Use the default credentials (<code>admin</code>/<code>admin</code>) unless changed during setup. PMM will prompt you to set a new password on first login.</li>
-<li>Verify HA status to check that your HA setup is functioning correctly. You can use <code>docker ps</code> to check the status of your Docker containers. If a container is not running, you can view its logs using the command <code>docker logs &lt;container_name&gt;</code> to investigate the issue.</li>
-<li>Register PMM Clients. When adding monitored nodes, always use the HAProxy address (or hostname) instead of individual PMM server IPs.</li>
-</ol>
-<p>Your PMM environment is now running in high availability mode with automatic failover capabilities. The setup provides resilience against single node failures and maintains continuous monitoring coverage.</p>
+<p><strong>Status</strong>: Technical Preview (NOT for production environments). Use for testing and feedback purposes only.</p>
+<p>Zero-downtime high availability with multiple active PMM instances, distributed databases, and automatic load balancing.</p>
+<p><strong>Key features</strong></p>
+<ul>
+<li>Zero-downtime failover (&lt; 30 seconds)</li>
+<li>3 PMM server replicas with leader election</li>
+<li>HAProxy load balancing</li>
+<li>Distributed ClickHouse, VictoriaMetrics, and PostgreSQL clusters</li>
+</ul>
+<p><strong>What makes it different</strong></p>
+<ul>
+<li><strong>No monitoring blind spots</strong>: unlike single-instance (2-5 min gaps), clustered maintains continuous visibility</li>
+<li><strong>Multiple active instances</strong>: load distribution and instant failover to followers</li>
+<li><strong>Horizontal scalability</strong>: add replicas as monitoring load grows</li>
+<li><strong>True zero-downtime</strong>: Traffic redirects to healthy instances in &lt; 30 seconds</li>
+</ul>
+<p><strong>Known limitations</strong></p>
+<ul>
+<li>NOT production-ready as it has known bugs</li>
+<li>complex setup requiring 3 Kubernetes operators</li>
+<li>3x resource overhead minimum</li>
+<li>Subject to breaking changes</li>
+<li>Node selection shows incorrect PostgreSQL instances</li>
+<li>Services added via pmm-admin don&rsquo;t show dashboard data</li>
+<li>PostgreSQL monitoring may show incorrect FAILED status</li>
+</ul>
+<p><strong>When to use this option</strong></p>
+<ul>
+<li>You are evaluating zero-downtime architecture for future production, or testing environments where you need to validate continuous monitoring capabilities</li>
+<li>You need continuous monitoring visibility (no 2-5 min gaps)</li>
+<li>You have strict SLA requirements for sub-30-second failover</li>
+<li>You need multiple active PMM instances for load distribution</li>
+<li>You have expert Kubernetes skills</li>
+</ul>
 </div>
 </div>
 </div>
@@ -16835,7 +16156,7 @@ haproxy:2.4.2-alpine
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="January 6, 2026 13:10:07 UTC">January 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
   </span>
 
     
@@ -16864,16 +16185,8 @@ haproxy:2.4.2-alpine
             </div>
           
           
-  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
-
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
         
       </main>
       
@@ -16908,7 +16221,7 @@ haproxy:2.4.2-alpine
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "navigation.tracking", "content.action.view"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.images.zoom"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>

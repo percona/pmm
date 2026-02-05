@@ -7,19 +7,15 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="This realtime dashboard contains panels of data about the Hottest Collections in the MongoDB database.">
+        <meta name="description" content="This dashboard helps you monitor and manage your Percona Backup for MongoDB (PBM) environment directly within PMM. It consolidates backup configuration, agent health, and backup history into a single view, so you don’t need to switch between tools.">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-experimental_collection_overview.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-backup-details.html">
       
       
-        <link rel="prev" href="dashboard-mysql-tokudb-details.html">
-      
-      
-        <link rel="next" href="dashboard-mongodb-experimental_collection_details.html">
       
       
         
@@ -30,7 +26,7 @@
     
     
       
-        <title>Experimental MongoDB Collection Overview - Percona Monitoring and Management</title>
+        <title>MongoDB Backup Details dashboard - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Experimental MongoDB Collection Overview" />
+                 <meta property="og:title" content="Percona Monitoring and Management - MongoDB Backup Details dashboard" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +113,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#experimental-mongodb-collection-overview" class="md-skip">
+        <a href="#mongodb-backup-details-dashboard" class="md-skip">
           Skip to content
         </a>
       
@@ -192,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Experimental MongoDB Collection Overview
+              MongoDB Backup Details dashboard
             
           </span>
         </div>
@@ -1836,34 +1832,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/vmware.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deploy on VMware (deprecated)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -3346,9 +3314,20 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../install-pmm/HA.html" class="md-nav__link">
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
@@ -3362,7 +3341,218 @@
   
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Install PMM in HA mode
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compare HA options
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-docker.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker HA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-kubernetes-single-instance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes Single-Instance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5_4" id="__nav_5_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kubernetes Cluster
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kubernetes Cluster
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand PMM HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-HA-clustered.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install PMM HA Cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -4337,7 +4527,7 @@
   <span class="md-ellipsis">
     
   
-    Overview Panel
+    Overview panel
   
 
     
@@ -4737,7 +4927,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Versions
+    MongoDB versions
   
 
     
@@ -9872,34 +10062,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/account-info.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check Percona Portal account information
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -10051,7 +10213,7 @@
   <span class="md-ellipsis">
     
   
-    About user management in PMM
+    User management in PMM
   
 
     
@@ -10905,34 +11067,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pmm-upgrade/migrating_from_vmware.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Migrate from VMware to alternative platforms
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
@@ -11634,6 +11768,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../release-notes/3.6.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.6.0 (2026-02-05)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../release-notes/3.5.0.html" class="md-nav__link">
         
   
@@ -11890,20 +12052,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
           <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
@@ -11924,7 +12084,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
@@ -12467,20 +12627,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2" >
         
           
           <label class="md-nav__link" for="__nav_13_2" id="__nav_13_2_label" tabindex="0">
@@ -12501,7 +12659,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_13_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -12740,35 +12898,7 @@
   <span class="md-ellipsis">
     
   
-    Environment Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dashboard-environment-summary.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Environment Summary
+    Environments Overview
   
 
     
@@ -12851,7 +12981,7 @@
   <span class="md-ellipsis">
     
   
-    Kubernetes Cluster Summary
+    Kubernetes Cluster Overview
   
 
     
@@ -13870,34 +14000,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dashboard-mysql-tokudb-details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL TokuDB Details
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -13910,20 +14012,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_7" >
         
           
           <label class="md-nav__link" for="__nav_13_2_7" id="__nav_13_2_7_label" tabindex="0">
@@ -13944,7 +14044,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_13_2_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -13959,55 +14059,17 @@
                 
   
   
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experimental MongoDB Collection Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-collection_overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Collection Details
+    MongoDB Collections Overview
   
 
     
@@ -14308,14 +14370,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-PBM-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-PBM-details.md" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MongoDB PBM Details dashboard
+    None
   
 
     
@@ -15088,14 +15150,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-pxc-galera-node-summary.html" class="md-nav__link">
+      <a href="dashboard-ha-health-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PXC/Galera Node Summary
+    PMM HA Health Overview
   
 
     
@@ -15116,14 +15178,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+      <a href="dashboard-pxc-galera-node-summary.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PXC/Galera Cluster Summary
+    PXC/Galera Node Summary
   
 
     
@@ -15625,7 +15687,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/reference/dashboards/dashboard-mongodb-experimental_collection_overview.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/reference/dashboards/dashboard-mongodb-backup-details.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -15669,6 +15731,124 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#backup-configured" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup Configured
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pitr-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PITR Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup Agents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#last-successful-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Last Successful Backup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-agent-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup Agent Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-agent-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup Agent Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-agent-status-over-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup Agent Status Over Time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup History
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-sizes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup Sizes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-duration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup Duration
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                     </div>
                   </div>
@@ -15689,26 +15869,46 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
   
   
-    
-      
-    
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/reference/dashboards/dashboard-mongodb-experimental_collection_overview.md" title="View source of this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
-    </a>
-  
 
 
-<h1 id="experimental-mongodb-collection-overview">Experimental MongoDB Collection Overview<a class="headerlink" href="#experimental-mongodb-collection-overview" title="Permanent link">&para;</a></h1>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Disclaimer</p>
-<p>This is an Experimental Dashboard that is not part of the official Percona Monitoring and Management (PMM) deployment and might be updated. We ship this Dashboard to obtain feedback from our users.</p>
-</div>
-<p>This realtime dashboard contains panels of data about the Hottest Collections in the MongoDB database.</p>
-<p>The Instance level includes two panels, one for the <strong>Hottest Collections by Read (Total)</strong> and the <strong>Hottest Collections by Write (total)</strong>. </p>
-<p>The next panel displays data at the <strong>Database Level</strong>, where you can view MongoDB metrics such as <strong>Commands</strong>, <strong>Inserts</strong>, <strong>Updates</strong>, <strong>Removes</strong>, and <strong>Getmore</strong>.</p>
-<p>The last panel shows the number of operations in the chosen database.</p>
-<p><img alt="!image" src="../../images/PMM_Mongodb_Collections_Overview_Experimental.png" /></p>
+<h1 id="mongodb-backup-details-dashboard">MongoDB Backup Details dashboard<a class="headerlink" href="#mongodb-backup-details-dashboard" title="Permanent link">&para;</a></h1>
+<p>This dashboard helps you monitor and manage your Percona Backup for MongoDB (PBM) environment directly within PMM. It consolidates backup configuration, agent health, and backup history into a single view, so you don&rsquo;t need to switch between tools.</p>
+<p>The dashboard works with both replica sets and sharded clusters. Use the filters at the top to narrow down to specific environments, clusters, or replica sets.</p>
+<p><img alt="MongoDB Backup Details dashboard" src="../../images/BackupDetails_Dashboard.png" /></p>
+<p>This dashboard requires the MongoDB service to be added with the <code>--cluster</code> parameter. If panels show no data, see <a href="../../install-pmm/install-pmm-client/connect-database/mongodb.html#step-3-add-mongodb-service-to-pmm">Add MongoDB service to PMM</a>.</p>
+<h2 id="backup-configured">Backup Configured<a class="headerlink" href="#backup-configured" title="Permanent link">&para;</a></h2>
+<p>Shows whether PBM is configured with remote backup storage for your MongoDB environment. A green <strong>YES</strong> indicates backups are properly configured, while a red <strong>NO</strong> means backup storage is not set up.</p>
+<p>If you see <strong>NO</strong>, verify that PBM has a remote storage location (S3, Azure Blob, or filesystem) defined. See <a href="https://docs.percona.com/percona-backup-mongodb/install/backup-storage.html">Configure backup storage</a>.</p>
+<h2 id="pitr-status">PITR Status<a class="headerlink" href="#pitr-status" title="Permanent link">&para;</a></h2>
+<p>Shows whether Point-in-Time Recovery (PITR) oplog streaming is enabled. A green <strong>ON</strong> confirms PITR is active, while a red <strong>OFF</strong> indicates this feature is not currently enabled.</p>
+<p>PITR allows restoration to any point in time rather than just to specific backup snapshots. If your recovery requirements need granular restore points, ensure this is enabled in your PBM configuration.</p>
+<h2 id="backup-agents">Backup Agents<a class="headerlink" href="#backup-agents" title="Permanent link">&para;</a></h2>
+<p>Shows the total number of PBM agents currently monitored by PMM.</p>
+<p>Use this to verify that all expected agents across your MongoDB environment are registered and reporting. If this count doesn&rsquo;t match your expected number of nodes, you may have agents that failed to register or are offline.</p>
+<p>Backups will fail if agents are down or offline. If the count is lower than expected, check agent status immediately.</p>
+<h2 id="last-successful-backup">Last Successful Backup<a class="headerlink" href="#last-successful-backup" title="Permanent link">&para;</a></h2>
+<p>Shows the name of the most recent successful backup.</p>
+<p>Use this to quickly confirm your current recovery point and verify that backups are running as expected. If this shows an old backup or <strong>N/A</strong>, investigate why recent backups may have failed.</p>
+<h2 id="backup-agent-summary">Backup Agent Summary<a class="headerlink" href="#backup-agent-summary" title="Permanent link">&para;</a></h2>
+<p>Shows the distribution of PBM agent statuses across your environment using a donut chart. Green represents agents with <strong>OK</strong> status, while red indicates agents that need attention (<strong>CHECK</strong>).</p>
+<p>Use this for a quick health check of your backup infrastructure. A predominantly green chart means your agents are healthy. Red segments indicate agents requiring investigation—drill down using the Backup Agent Status panel to identify specific hosts.</p>
+<h2 id="backup-agent-status">Backup Agent Status<a class="headerlink" href="#backup-agent-status" title="Permanent link">&para;</a></h2>
+<p>Shows the current status of each individual PBM agent, displayed as a hexagon grid with one hexagon per host. Green means <strong>OK</strong>, red means <strong>CHECK</strong>.</p>
+<p>Use this to pinpoint exactly which agents need investigation when the Backup Agent Summary shows problems. Hover over a hexagon to see the hostname and quickly identify which nodes require attention.</p>
+<h2 id="backup-agent-status-over-time">Backup Agent Status Over Time<a class="headerlink" href="#backup-agent-status-over-time" title="Permanent link">&para;</a></h2>
+<p>Shows how agent status has changed over the selected time range using a color-coded timeline. Green bars indicate <strong>OK</strong> status, red bars show <strong>FAIL</strong> or <strong>DOWN</strong> states.</p>
+<p>Use this to identify patterns and troubleshoot intermittent issues. This historical view helps correlate backup failures with other events like network issues or maintenance windows, and verify that previously problematic agents have stabilized.</p>
+<p>Arbiter nodes will appear with a <strong>FAIL</strong> status. This is expected, as the PBM agent is not required on arbiter nodes and cannot run on them.</p>
+<h2 id="backup-history">Backup History<a class="headerlink" href="#backup-history" title="Permanent link">&para;</a></h2>
+<p>Shows a historical record of backup operations across your MongoDB infrastructure, including environment, cluster, backup name, size, and duration.</p>
+<p>Use this to verify that scheduled backups are running successfully and to identify failed operations. The size and duration columns help spot anomalies—unusually small backups may indicate incomplete data capture, while long durations may signal performance issues.</p>
+<p>The current status reporting may not capture the full range of error states available in PBM&rsquo;s native tools (including &ldquo;stuck&rdquo; or &ldquo;incompatible&rdquo; backups). This will be improved in an upcoming release.</p>
+<h2 id="backup-sizes">Backup Sizes<a class="headerlink" href="#backup-sizes" title="Permanent link">&para;</a></h2>
+<p>Shows the size of each backup in a bar chart format.</p>
+<p>Use this to track storage requirements and plan capacity. Monitor for unusual changes—unexpectedly small backups could indicate incomplete data capture, while sudden increases might signal data growth that requires storage planning.</p>
+<h2 id="backup-duration">Backup Duration<a class="headerlink" href="#backup-duration" title="Permanent link">&para;</a></h2>
+<p>Shows how long each backup operation took to complete, displayed in seconds.</p>
+<p>Use this to identify performance issues in your backup process. Backups taking unusually long may signal problems with your MongoDB setup, network bandwidth, or storage performance. Tracking duration trends also helps you plan maintenance windows more accurately.</p>
 
 
 
@@ -15731,7 +15931,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
   </span>
 
     
@@ -15741,7 +15941,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
   </span>
 
     
@@ -15760,16 +15960,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             </div>
           
           
-  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
-
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
         
       </main>
       
@@ -15804,7 +15996,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "navigation.tracking", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.images.zoom"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
