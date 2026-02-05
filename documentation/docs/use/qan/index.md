@@ -67,7 +67,7 @@ Where:
 The script will:
 
 1. Stop the ClickHouse service using `supervisorctl`
-2. Update `/etc/clickhouse-server/config.xml` to point to the selected profile
+2. Update `/etc/clickhouse-server/config.xml` and `/etc/clickhouse-server/users.xml` to point to the selected profile (both config and users files are switched for `default` and `low`)
 3. Print a confirmation message
 
 **Example:**
