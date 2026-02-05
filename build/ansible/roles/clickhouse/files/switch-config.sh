@@ -13,10 +13,12 @@ fi
 
 case "$PROFILE" in
   low)
-    TARGET="low-memory-config.xml"
+    CONFIG_TARGET="low-memory-config.xml"
+    USERS_TARGET="low-memory-users.xml"
     ;;
   default)
-    TARGET="default-config.xml"
+    CONFIG_TARGET="default-config.xml"
+    USERS_TARGET="default-users.xml"
     ;;
   *)
     echo "Usage: $0 [low|default]" >&2
@@ -24,8 +26,12 @@ case "$PROFILE" in
     ;;
 esac
 
-if [ ! -e "$CONFIG_DIR/$TARGET" ]; then
-  echo "Config profile $TARGET does not exist in $CONFIG_DIR." >&2
+if [ ! -e "$CONFIG_DIR/$CONFIG_TARGET" ]; then
+  echo "Config profile $CONFIG_TARGET does not exist in $CONFIG_DIR." >&2
+  exit 2
+fi
+if [ ! -e "$CONFIG_DIR/$USERS_TARGET" ]; then
+  echo "Users profile $USERS_TARGET does not exist in $CONFIG_DIR." >&2
   exit 2
 fi
 
@@ -35,8 +41,10 @@ if ! supervisorctl stop clickhouse; then
   exit 3
 fi
 
-ln -sf "$TARGET" "$CONFIG_DIR/config.xml"
-echo "Switched config.xml to $TARGET."
+ln -sf "$CONFIG_TARGET" "$CONFIG_DIR/config.xml"
+ln -sf "$USERS_TARGET" "$CONFIG_DIR/users.xml"
+echo "Switched config.xml to $CONFIG_TARGET."
+echo "Switched users.xml to $USERS_TARGET."
 
 echo "Starting clickhouse..."
 if ! supervisorctl start clickhouse; then
