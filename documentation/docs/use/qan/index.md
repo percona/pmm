@@ -53,7 +53,7 @@ Both files are located in `/etc/clickhouse-server/` inside the PMM Server contai
 !!! note
     You must run the switch script from inside the PMM Server container (for example, with `docker exec -it <container> bash`).
 
-To switch between profiles, use the `switch-config.sh` script (available in `/etc/clickhouse-server/` and as `/switch-config.sh`).
+To switch between profiles, use the `switch-config.sh` script (available in `/etc/clickhouse-server/` and as `~pmm/switch-config.sh`).
 
 **Usage:**
 
@@ -76,7 +76,6 @@ The script will:
 
 This activates the low-memory configuration.
 
-
 ### Default vs. low-memory configuration: key differences
 
 The following table summarizes the main differences between the two ClickHouse configuration profiles and explains each property:
@@ -84,9 +83,6 @@ The following table summarizes the main differences between the two ClickHouse c
 | Property | Default | Low memory | Description |
 |---|---|---|---|
 | `concurrent_threads_soft_limit_num` | 0 (unlimited, uses all cores) | 1 | Maximum query processing threads. 1 limits parallelism for low memory. |
-| `max_server_memory_usage_to_ram_ratio` | 0.75 | 0.5 | Fraction of system RAM ClickHouse can use. Lower value is safer for low-memory hosts. |
-| `uncompressed_cache_size` | 8 GB | 2 GB | Cache for uncompressed data blocks. Lower value saves memory. |
-| `mark_cache_size` | 5 GB | 512 MB | Cache for index marks. Lower value saves memory, but may slow queries. |
 | `max_block_size` | 65409 | 8192 | Max block size (rows) for query processing. Lower value reduces memory per query. |
 | `max_download_threads` | 0 (unlimited) | 1 | Max threads for downloading data. 1 = less concurrency, less memory. |
 | `input_format_parallel_parsing` | 1 | 0 | Disables parallel parsing of input formats. Saves memory. |
@@ -94,10 +90,13 @@ The following table summarizes the main differences between the two ClickHouse c
 | `trace_log` | 1 | 0 | Disables logging for this component. Saves memory. |
 | `metric_log` | 1 | 0 | Disables logging for this component. Saves memory. |
 | `asynchronus_metric_log` | 1 | 0 | Disables logging for this component. Saves memory. |
+| `max_server_memory_usage_to_ram_ratio` | 0.75 | 0.5 | Fraction of system RAM ClickHouse can use. Lower value is safer for low-memory hosts. |
+| `uncompressed_cache_size` | 8 GB | 2 GB | Cache for uncompressed data blocks. Lower value saves memory. |
+| `mark_cache_size` | 5 GB | 512 MB | Cache for index marks. Lower value saves memory, but may slow queries. |
 
 **Summary:**
 
-- The **high-memory** config is tuned for performance and parallelism, using more RAM and allowing more connections and threads.
+- The **default** config is tuned for performance and parallelism, using more RAM and allowing more connections and threads.
 - The **low-memory** config restricts concurrency, cache sizes, and memory usage to fit into smaller environments, at the cost of performance.
 
 
