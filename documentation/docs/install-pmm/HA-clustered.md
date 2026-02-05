@@ -18,7 +18,7 @@ Standard PMM monitoring goes offline for minutes during server failures. PMM HA 
 
 PMM HA Cluster keeps your database monitoring running continuously, even when servers fail or during maintenance windows.
 
-Unlike [Single-Instance deployments](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers—keeping your monitoring online.
+Unlike [Single-Instance deployments](../install-pmm/HA-kubernetes-single-instance.md) where a server failure means minutes of monitoring downtime, PMM HA Cluster immediately fails over to secondary servers, keeping your monitoring online.
 
 Whether a server crashes, you're upgrading software, or scaling your infrastructure, your monitoring stays active with no blind spots or missed incidents.
 
@@ -36,7 +36,7 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 |--------------|----------------------|-----------------------------|
 | **Production status** | ✅ Production-ready | ⚠️ Testing only |
 | **Failover time** | 2-5 minutes | Immediate |
-| **Setup complexity** | ● Low | ●●●●● High |
+| **Setup complexity** | ● Low | ●●● Medium |
 | **Resource overhead** | 1x baseline | 3-5x baseline |
 | **Setup time** | ~5 minutes | ~20 minutes |
 | **PMM instances** | 1 pod | 3 pods with leader election |
@@ -48,7 +48,7 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 
 ### Check prerequisites
 
-- **Kubernetes**: 1.22 or higher
+- **Kubernetes**: 1.32 or higher
 - **Helm**: 3.2.0 or higher
 - **kubectl**: configured to access your cluster
 - **Persistent Volume Provisioner**: available in your cluster
@@ -56,7 +56,7 @@ Whether a server crashes, you're upgrading software, or scaling your infrastruct
 ### Check if your platform is supported
 
 !!! info "Tested Platform: Amazon EKS only"
-    This Tech Preview is validated exclusively on **Amazon EKS (Kubernetes 1.24+)**. Other platforms (GKE, AKS, on-premise, OpenShift) may work but are untested. VMware Tanzu is not supported.
+    This Tech Preview is validated exclusively on **Amazon EKS (Kubernetes 1.32+)**. Other platforms (GKE, AKS, on-premise, OpenShift) may work but are untested. VMware Tanzu is not supported.
 
 ## Plan your resources
 
@@ -141,6 +141,10 @@ PMM HA uses several mechanisms to ensure continuous operation:
 - **Pod anti-affinity**: Kubernetes scheduler distributes components across different nodes
 - **Health checks**: Comprehensive readiness and liveness probes on all components
 - **Rolling updates**: Zero-downtime upgrades with sequential pod updates
+
+### Known issues
+
+- Only databases deployed in the same Kubernetes cluster can be added to monitoring. Remote database monitoring will be added in a future release.
 
 ## Ready to deploy?
 
