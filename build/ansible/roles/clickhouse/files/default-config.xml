@@ -236,7 +236,7 @@
     <max_connections>4096</max_connections>
 
     <!-- For 'Connection: keep-alive' in HTTP 1.1 -->
-    <keep_alive_timeout>3</keep_alive_timeout>
+    <keep_alive_timeout>10</keep_alive_timeout>
 
     <!-- gRPC protocol (see src/Server/grpc_protos/clickhouse_grpc.proto for the API) -->
     <!-- <grpc_port>9100</grpc_port> -->
@@ -333,7 +333,7 @@
          It is not practical to set this constraint to small values like just a few gigabytes,
           because memory allocator will keep this amount of memory in caches and the server will deny service of queries.
       -->
-    <max_server_memory_usage>0</max_server_memory_usage>
+    <max_server_memory_usage>0</max_server_memory_usage> <!-- keep 0 to use max_server_memory_usage_to_ram_ratio below -->
 
     <!-- Maximum number of threads in the Global thread pool.
     This will default to a maximum of 10000 threads if not specified.
@@ -360,7 +360,7 @@
 
     <!-- On memory constrained environments you may have to set this to value larger than 1.
       -->
-    <max_server_memory_usage_to_ram_ratio>0.75</max_server_memory_usage_to_ram_ratio>
+    <max_server_memory_usage_to_ram_ratio>0.75</max_server_memory_usage_to_ram_ratio>  <!-- PMM: Upstream default 0.9, now 0.75 -->
 
     <!-- Simple server-wide memory profiler. Collect a stack trace at every peak allocation step (in bytes).
          Data will be stored in system.trace_log table with query_id = empty string.

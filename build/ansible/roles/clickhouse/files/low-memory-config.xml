@@ -1,4 +1,3 @@
-
 <!--
   NOTE: User and query level settings are set up in "users.xml" file.
   If you have accidentally specified user-level settings here, server won't start.
@@ -234,10 +233,10 @@
 
     <!-- <listen_backlog>4096</listen_backlog> -->
 
-    <max_connections>512</max_connections>
+    <max_connections>4096</max_connections>
 
     <!-- For 'Connection: keep-alive' in HTTP 1.1 -->
-    <keep_alive_timeout>3</keep_alive_timeout>
+    <keep_alive_timeout>10</keep_alive_timeout>
 
     <!-- gRPC protocol (see src/Server/grpc_protos/clickhouse_grpc.proto for the API) -->
     <!-- <grpc_port>9100</grpc_port> -->
@@ -317,12 +316,7 @@
          This is not a hard limit. In case if the limit is reached the query will still get at least one thread to run.
          Query can upscale to desired number of threads during execution if more threads become available.
     -->
-    <concurrent_threads_soft_limit_num>1</concurrent_threads_soft_limit_num>
-    <!-- Low-memory tuning: block size, download threads, parallel parsing/formatting -->
-    <max_block_size>8192</max_block_size>
-    <max_download_threads>1</max_download_threads>
-    <input_format_parallel_parsing>0</input_format_parallel_parsing>
-    <output_format_parallel_formatting>0</output_format_parallel_formatting>
+    <concurrent_threads_soft_limit_num>1</concurrent_threads_soft_limit_num> <!-- PMM: Default no limit (0), now 1 -->
     <concurrent_threads_soft_limit_ratio_to_cores>0</concurrent_threads_soft_limit_ratio_to_cores>
 
     <!-- Maximum number of concurrent queries. -->
@@ -348,7 +342,7 @@
     of the time, in which case a higher number of threads might be required.
     -->
 
-    <max_thread_pool_size>256</max_thread_pool_size>
+    <max_thread_pool_size>10000</max_thread_pool_size>
 
     <!-- Configure other thread pools: -->
     <!--
@@ -366,7 +360,7 @@
 
     <!-- On memory constrained environments you may have to set this to value larger than 1.
       -->
-    <max_server_memory_usage_to_ram_ratio>0.25</max_server_memory_usage_to_ram_ratio>
+    <max_server_memory_usage_to_ram_ratio>0.5</max_server_memory_usage_to_ram_ratio> <!-- PMM: Upstream default 0.9, our default 0.75, now 0.5-->
 
     <!-- Simple server-wide memory profiler. Collect a stack trace at every peak allocation step (in bytes).
          Data will be stored in system.trace_log table with query_id = empty string.
@@ -395,13 +389,13 @@
          is slower than multi-core decompression on some server configurations.
          Enabling it can sometimes paradoxically make queries slower.
       -->
-    <uncompressed_cache_size>134217728</uncompressed_cache_size> <!-- 128MB -->
+    <uncompressed_cache_size>2147483648</uncompressed_cache_size> <!-- PMM: Default 8GB, now 2GB -->
 
     <!-- Approximate size of mark cache, used in tables of MergeTree family.
          In bytes. Cache is single for server. Memory is allocated only on demand.
          You should not lower this value.
       -->
-    <mark_cache_size>134217728</mark_cache_size> <!-- 128MB -->
+    <mark_cache_size>536870912</mark_cache_size> <!-- PMM: Default 5GB, now 512MB -->
 
 
     <!-- If you enable the `min_bytes_to_use_mmap_io` setting,
@@ -433,17 +427,57 @@
     <!-- Path to data directory, with trailing slash. -->
     <path>/srv/clickhouse/</path>
 
+    <!-- Multi-disk configuration example: -->
+    <!--
     <storage_configuration>
         <disks>
-            <backup>
-                <type>local</type>
-                <path>/root/go/src/github.com/percona/pmm/dev/clickhouse-backups/</path>
-            </backup>
+            <default>
+                <keep_free_space_bytes>0</keep_free_space_bytes>
+            </default>
+            <data>
+                <path>/data/</path>
+                <keep_free_space_bytes>0</keep_free_space_bytes>
+            </data>
+            <s3>
+                <type>s3</type>
+                <endpoint>http://path/to/endpoint</endpoint>
+                <access_key_id>your_access_key_id</access_key_id>
+                <secret_access_key>your_secret_access_key</secret_access_key>
+            </s3>
+            <blob_storage_disk>
+                <type>azure_blob_storage</type>
+                <storage_account_url>http://account.blob.core.windows.net</storage_account_url>
+                <container_name>container</container_name>
+                <account_name>account</account_name>
+                <account_key>pass123</account_key>
+                <metadata_path>/var/lib/clickhouse/disks/blob_storage_disk/</metadata_path>
+                <cache_enabled>true</cache_enabled>
+                <cache_path>/var/lib/clickhouse/disks/blob_storage_disk/cache/</cache_path>
+                <skip_access_check>false</skip_access_check>
+            </blob_storage_disk>
         </disks>
+
+        <policies>
+            <all>
+                <volumes>
+                    <main>
+                        <disk>default</disk>
+                        <disk>data</disk>
+                        <disk>s3</disk>
+                        <disk>blob_storage_disk</disk>
+
+                        <max_data_part_size_bytes></max_data_part_size_bytes>
+                        <max_data_part_size_ratio></max_data_part_size_ratio>
+                        <perform_ttl_move_on_insert>true</perform_ttl_move_on_insert>
+                        <prefer_not_to_merge>false</prefer_not_to_merge>
+                        <load_balancing>round_robin</load_balancing>
+                    </main>
+                </volumes>
+                <move_factor>0.2</move_factor>
+            </all>
+        </policies>
     </storage_configuration>
-    <backups>
-        <allowed_disk>backup</allowed_disk>
-    </backups>
+    -->
 
 
     <!-- Path to temporary data for processing hard queries. -->
@@ -1014,7 +1048,7 @@
     <!-- Trace log. Stores stack traces collected by query profilers.
          See query_profiler_real_time_period_ns and query_profiler_cpu_time_period_ns settings. -->
     <trace_log>
-        <engine>Null</engine>
+        <engine>Null</engine> <!-- PMM: Default enabled, now disabled -->
     </trace_log>
 
     <!-- Query thread log. Has information about all threads participated in query execution.
@@ -1059,13 +1093,20 @@
          Text log contains all information from usual server log but stores it in structured and efficient way.
          The level of the messages that goes to the table can be limited (<level>), if not specified all messages will go to the table.
     <text_log>
-        <engine>Null</engine>
+        <database>system</database>
+        <table>text_log</table>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+        <max_size_rows>1048576</max_size_rows>
+        <reserved_size_rows>8192</reserved_size_rows>
+        <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
+        <flush_on_crash>false</flush_on_crash>
+        <level></level>
     </text_log>
     -->
 
     <!-- Metric log contains rows with current values of ProfileEvents, CurrentMetrics collected with "collect_interval_milliseconds" interval. -->
     <metric_log>
-        <engine>Null</engine>
+        <engine>Null</engine> <!-- PMM: Default enabled, now disabled -->
     </metric_log>
 
     <!--
@@ -1073,7 +1114,7 @@
         system.asynchronous_metrics.
     -->
     <asynchronous_metric_log>
-        <engine>Null</engine>
+        <engine>Null</engine> <!-- PMM: Default enabled, now disabled -->
     </asynchronous_metric_log>
 
     <!--
@@ -1416,10 +1457,10 @@
 
     <!-- Configuration for the query cache -->
     <query_cache>
-        <max_size_in_bytes>134217728</max_size_in_bytes> <!-- 128MB -->
-        <max_entries>128</max_entries>
-        <max_entry_size_in_bytes>262144</max_entry_size_in_bytes> <!-- 256KB -->
-        <max_entry_size_in_rows>1000000</max_entry_size_in_rows>
+        <max_size_in_bytes>1073741824</max_size_in_bytes>
+        <max_entries>1024</max_entries>
+        <max_entry_size_in_bytes>1048576</max_entry_size_in_bytes>
+        <max_entry_size_in_rows>30000000</max_entry_size_in_rows>
     </query_cache>
 
     <!-- This allows to disable exposing addresses in stack traces for security reasons.
@@ -1434,4 +1475,10 @@
     <!-- On Linux systems this can control the behavior of OOM killer.
     <oom_score>-1000</oom_score>
     -->
+
+    <!-- PMM: Low-memory tuning: block size, download threads, parallel parsing/formatting -->
+    <max_block_size>8192</max_block_size> <!-- PMM: Before default, now decrease to 8GB -->
+    <max_download_threads>1</max_download_threads> <!-- PMM: Default no limit (0), now 1-->
+    <input_format_parallel_parsing>0</input_format_parallel_parsing> <!-- PMM: Default is enabled, now disabled -->
+    <output_format_parallel_formatting>0</output_format_parallel_formatting> <!-- PMM: Default is enabled, now disabled -->
 </clickhouse>

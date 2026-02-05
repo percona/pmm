@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: switch-config.sh [low|high]
+# Usage: switch-config.sh [low|default]
 # Switches /etc/clickhouse/config.xml
 
 set -e
@@ -7,7 +7,7 @@ CONFIG_DIR="./"
 PROFILE="$1"
 
 if [ -z "$PROFILE" ]; then
-  echo "Usage: $0 [low|high]" >&2
+  echo "Usage: $0 [low|default]" >&2
   exit 1
 fi
 
@@ -15,11 +15,11 @@ case "$PROFILE" in
   low)
     TARGET="low-memory-config.xml"
     ;;
-  high)
-    TARGET="high-memory-config.xml"
+  default)
+    TARGET="default-config.xml"
     ;;
   *)
-    echo "Usage: $0 [low|high]" >&2
+    echo "Usage: $0 [low|default]" >&2
     exit 1
     ;;
 esac
