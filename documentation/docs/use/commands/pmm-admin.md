@@ -308,14 +308,11 @@ When you remove a service, collected data remains on PMM Server for the specifie
             --extra-dsn="allowCleartextPasswords=1"
         ```
 
-            !!! caution "Security warning"
-                 Cleartext authentication transmits password without encryption. Use this parameter only when connections are secured with TLS/SSL or over trusted internal networks.
+        !!! caution "Security warning"
+            Cleartext authentication transmits password without encryption. Use this parameter only when connections are secured with TLS/SSL or over trusted internal networks.
                 
         `--agent-password=password`
-        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
-
-            !!! caution ""
-                Avoid using special characters like '\', ';' and '$' in the custom password.
+        :  Override the default password for accessing the `/metrics` endpoint. Username is `pmm` and default password is the agent ID. Avoid using special characters like '\', ';' and '$' in the custom password.
 
         `--query-source=slowlog`
         : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`). For `slowlog` query source, you need change permissions for specific files. Root permissions are needed for this.
@@ -385,14 +382,12 @@ When you remove a service, collected data remains on PMM Server for the specifie
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER`
-        : Limit query length in QAN. Allowed values:
+        : Limit query length in QAN. Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
+        Allowed values:
 
             - -1: No limit.
             -  0: Default value. The default value is 2048 chars.
             - >0: Query will be truncated after <NUMBER> chars.
-
-            !!! caution ""
-                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
 
         `--comments-parsing=off/on`
         : Enable/disable parsing comments from queries into QAN filter groups:
@@ -422,10 +417,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : PostgreSQL database (default: postgres).
 
         `--agent-password=password`
-        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
-
-            !!! caution ""
-                Avoid using special characters like '\', ';' and '$' in the custom password.
+        :  Override the default password for accessing the `/metrics` endpoint. Username is `pmm` and default password is the agent ID. Avoid using special characters like '\', ';' and '$' in the custom password.
 
         `--query-source=<query source>`
         : Source of SQL queries, one of: `pgstatements`, `pgstatmonitor`, `none` (default: `pgstatements`).
@@ -471,14 +463,11 @@ When you remove a service, collected data remains on PMM Server for the specifie
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER` 
-        : Limit query length in QAN. Allowed values:
+        : Limit query length in QAN.  Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.  Allowed values:
 
             - -1: No limit.
             -  0: Default value. The default value is 2048 chars.
             - >0: Query will be truncated after <NUMBER> chars.
-
-            !!! caution ""
-                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
 
         `--comments-parsing=off/on`
         : Enable/disable parsing comments from queries into QAN filter groups:
@@ -505,11 +494,10 @@ When you remove a service, collected data remains on PMM Server for the specifie
         :  MongoDB password.
 
         `--agent-password=password`
-        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
-
-            !!! caution ""
-                Avoid using special characters like '\', ';' and '$' in the custom password.
-
+        :  Override the default password for accessing the `/metrics` endpoint. Username is `pmm` and default password is the agent ID. Avoid using special characters like '\', ';' and '$' in the custom password.
+        
+        `--agent-env-vars=<env-vars>`
+        : Comma-separated list of environment variables to pass from `pmm-agent` to `mongodb_exporter`. Useful for configurations that require environment-level settings, such as Kerberos credentials. Only variables already set in the `pmm-agent` environment will be passed. *Example*: `--agent-env-vars="LOG_LEVEL,OTHER_VAR"`.
     `--query-source=profiler`
     :  Source of queries, one of: `profiler`, `mongolog`, `none` (default: `profiler`).
 
@@ -551,14 +539,11 @@ When you remove a service, collected data remains on PMM Server for the specifie
             - `pull`: server scrapes metrics from agent.
 
         `--max-query-length=NUMBER` 
-        : Limit query length in QAN. Allowed values:
+        : Limit query length in QAN. Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated. Allowed values:
 
             - -1: No limit.
             -  0: Default value. The default value is 4096 chars.
             - >0: Query will be truncated after <NUMBER> chars.
-
-            !!! caution ""
-                Ensure you do not set the value of `max-query-length` to 1, 2, or 3. Otherwise, the PMM agent will get terminated.
 
     #### Advanced options
 
@@ -572,14 +557,14 @@ When you remove a service, collected data remains on PMM Server for the specifie
     `--disable-collectors`
     :  Comma-separated list of collector names to exclude from exporter.
 
+    `--stats-collections=db1,db2.col1`
+    :  Collections for collstats & indexstats.
+
     `--max-collections-limit=-1`
     :  Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, PMM automatically sets this value.
 
         !!! caution ""
             A very high limit of `max-collections-limit` could impact the CPU and Memory usage. Check `--stats-collections` to limit the scope of collections and DB's metrics to be fetched.
-
-    `--stats-collections=db1,db2.col1`
-    :  Collections for collstats & indexstats.
 
     ##### Enable all collectors
 
@@ -644,6 +629,10 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
     `pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --stats-collections=db1,db2.col1 mongodb_srv_1 127.0.0.1:27017`
 
+    To pass environment variables to mongodb_exporter:
+
+    `pmm-admin add mongodb --username=pmm --password=pmm --agent-env-vars="LOG_LEVEL" --service-name mongodb-kerberos 127.0.0.1:27017`
+
     #### Resolutions
 
     PMM collects metrics in two [resolutions](../../configure-pmm/metrics_res.md) to decrease CPU and Memory usage: high and low resolutions.
@@ -680,10 +669,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : Valkey/Redis password.
 
         `--agent-password=password`
-        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
-
-            !!! caution ""
-                Avoid using special characters like '\', ';' and '$' in the custom password.
+        :  Override the default password for accessing the `/metrics` endpoint. Username is `pmm` and default password is the agent ID. Avoid using special characters like '\', ';' and '$' in the custom password.
 
         `--environment=environment`
         : Environment name.
@@ -730,10 +716,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
         : ProxySQL password.
 
         `--agent-password=password`
-        :  Override the default password for accessing the `/metrics` endpoint. (Username is `pmm` and default password is the agent ID.)
-
-            !!! caution ""
-                Avoid using special characters like '\', ';' and '$' in the custom password.
+        :  Override the default password for accessing the `/metrics` endpoint. Username is `pmm` and default password is the agent ID. Avoid using special characters like '\', ';' and '$' in the custom password.
 
         `--environment=environment`
         : Environment name.
