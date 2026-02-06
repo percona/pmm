@@ -36,6 +36,7 @@ db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 - `*_helpers.go` files contain CRUD operations
 - Always use `reform.Querier` parameter, not concrete types
 - Check for `reform.ErrNoRows` explicitly
+- Use models.Find...() to access data, not q.Reload() or q.Select() directly
 
 ### Service Architecture
 

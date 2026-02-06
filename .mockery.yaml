@@ -2,6 +2,7 @@
 disable-version-string: True
 with-expecter: False
 resolve-type-alias: False
+issue-845-fix: True
 inpackage: True
 dir: "{{.InterfaceDir}}"
 filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
