@@ -24,7 +24,7 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
   ...props
 }) => {
   const theme = useTheme();
-  const highlighterStyle = getSyntaxHighlighterStyle(theme, language);
+  const highlighterStyle = getSyntaxHighlighterStyle(theme, language, showCopyButton);
 
   const handleCopy = () => {
     if (navigator.clipboard && window.isSecureContext) {
@@ -56,7 +56,7 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
         {content}
       </ReactSyntaxHighlighter>
       {showCopyButton && (
-        <IconButton sx={{ position: 'absolute', top: theme.spacing(1.5), right: theme.spacing(2), padding: 0 }} onClick={handleCopy}>
+        <IconButton sx={{ position: 'absolute', top: theme.spacing(1.5), right: theme.spacing(1.8), padding: 0 }} onClick={handleCopy}>
           <ContentCopyIcon sx={{ width: 18, height: 18 }} color='disabled' />
         </IconButton>
       )}
