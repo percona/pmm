@@ -23,55 +23,56 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
   const newOptions: ThemeOptions = {
     palette: {
       mode,
+      surfaces: peakTheme.surfaces,
       ...(mode === 'light'
         ? {
-            primary: {
-              main: peakTheme.primary.pmm.main,
-              dark: peakTheme.primary.pmm.dark,
-              light: peakTheme.primary.pmm.light,
-              contrastText: peakTheme.primary.pmm.contrast,
-            },
-            warning: {
-              main: peakTheme.warning.surface,
-              contrastText: peakTheme.text.primary,
-            },
-            action: {
-              hover: 'rgba(220, 63, 0, 0.04)',
-              hoverOpacity: 0.04,
-              selected: 'rgba(220, 63, 0, 0.08)',
-              selectedOpacity: 0.08,
-              focus: 'rgba(220, 63, 0, 0.12)',
-              focusOpacity: 0.12,
-              focusVisible: 'rgba(220, 48, 0, 0.3)',
-              focusVisibleOpacity: 0.3,
-              outlinedBorder: 'rgba(220, 33, 0, 0.5)',
-              outlinedBorderOpacity: 0.5,
-            },
-          }
+          primary: {
+            main: peakTheme.primary.pmm.main,
+            dark: peakTheme.primary.pmm.dark,
+            light: peakTheme.primary.pmm.light,
+            contrastText: peakTheme.primary.pmm.contrast,
+          },
+          warning: {
+            main: peakTheme.warning.surface,
+            contrastText: peakTheme.text.primary,
+          },
+          action: {
+            hover: 'rgba(220, 63, 0, 0.04)',
+            hoverOpacity: 0.04,
+            selected: 'rgba(220, 63, 0, 0.08)',
+            selectedOpacity: 0.08,
+            focus: 'rgba(220, 63, 0, 0.12)',
+            focusOpacity: 0.12,
+            focusVisible: 'rgba(220, 48, 0, 0.3)',
+            focusVisibleOpacity: 0.3,
+            outlinedBorder: 'rgba(220, 33, 0, 0.5)',
+            outlinedBorderOpacity: 0.5,
+          },
+        }
         : {
-            primary: {
-              main: peakTheme.primary.pmm.main,
-              dark: peakTheme.primary.pmm.dark,
-              light: peakTheme.primary.pmm.light,
-              contrastText: peakTheme.primary.pmm.contrast,
-            },
-            warning: {
-              main: peakTheme.warning.main,
-              contrastText: peakTheme.warning.contrast,
-            },
-            action: {
-              hover: 'rgba(245, 106, 51, 0.08)',
-              hoverOpacity: 0.08,
-              selected: 'rgba(245, 106, 51, 0.12)',
-              selectedOpacity: 0.12,
-              focus: 'rgba(245, 106, 51, 0.15)',
-              focusOpacity: 0.15,
-              focusVisible: 'rgba(245, 106, 51, 0.3)',
-              focusVisibleOpacity: 0.3,
-              outlinedBorder: 'rgba(245, 106, 51, 0.5)',
-              outlinedBorderOpacity: 0.5,
-            },
-          }),
+          primary: {
+            main: peakTheme.primary.pmm.main,
+            dark: peakTheme.primary.pmm.dark,
+            light: peakTheme.primary.pmm.light,
+            contrastText: peakTheme.primary.pmm.contrast,
+          },
+          warning: {
+            main: peakTheme.warning.main,
+            contrastText: peakTheme.warning.contrast,
+          },
+          action: {
+            hover: 'rgba(245, 106, 51, 0.08)',
+            hoverOpacity: 0.08,
+            selected: 'rgba(245, 106, 51, 0.12)',
+            selectedOpacity: 0.12,
+            focus: 'rgba(245, 106, 51, 0.15)',
+            focusOpacity: 0.15,
+            focusVisible: 'rgba(245, 106, 51, 0.3)',
+            focusVisibleOpacity: 0.3,
+            outlinedBorder: 'rgba(245, 106, 51, 0.5)',
+            outlinedBorderOpacity: 0.5,
+          },
+        }),
     },
     components: {
       MuiCssBaseline: {

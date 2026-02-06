@@ -10,10 +10,12 @@ import { getSyntaxHighlighterStyle } from './SyntaxHighlighter.utils';
 // Import only used languages to reduce bundle size
 // @ts-ignore
 import mongodb from 'react-syntax-highlighter/dist/esm/languages/prism/mongodb';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
 import { SyntaxHighlighterProps } from './SyntaxHighlighter.types';
 
 
 ReactSyntaxHighlighter.registerLanguage('mongodb', mongodb);
+ReactSyntaxHighlighter.registerLanguage('json', json);
 
 const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
   language,
