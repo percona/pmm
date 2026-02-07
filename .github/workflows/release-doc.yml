@@ -98,5 +98,5 @@ jobs:
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           draft: true
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}-test', steps.set_version.outputs.version) || github.ref_name }}
-          name: ${{ github.event_name == 'workflow_dispatch' && format('Test Release v{0}', steps.set_version.outputs.version) || format('Release {0}', github.ref_name) }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.set_version.outputs.version) || github.ref_name }}
+          name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', steps.set_version.outputs.version) || format('Release {0}', github.ref_name) }}
