@@ -17,7 +17,6 @@ require (
 	github.com/go-swagger/go-swagger v0.33.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/quasilyte/go-consistent v0.6.0
 	github.com/reviewdog/reviewdog v0.21.0
 	github.com/vburenin/ifacemaker v1.3.0
 	github.com/vektra/mockery/v2 v2.53.2
@@ -115,11 +114,6 @@ require (
 	github.com/go-openapi/swag/yamlutils v0.25.1 // indirect
 	github.com/go-openapi/validate v0.25.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
-	github.com/go-toolsmith/astcast v1.0.0 // indirect
-	github.com/go-toolsmith/astequal v1.0.1 // indirect
-	github.com/go-toolsmith/astinfo v1.0.0 // indirect
-	github.com/go-toolsmith/pkgload v1.0.2-0.20220101231613-e814995d17c5 // indirect
-	github.com/go-toolsmith/typep v1.0.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gofrs/flock v0.13.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
@@ -152,7 +146,6 @@ require (
 	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
-	github.com/kisielk/gotool v1.0.0 // indirect
 	github.com/klauspost/compress v1.18.3 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
