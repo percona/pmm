@@ -27,6 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
@@ -295,12 +296,17 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 }
 
 // SearchQueries returns the list of currently running Database Queries for specified services. (gRPC handler).
-func (s *Service) SearchQueries(_ context.Context, req *rtav1.SearchQueriesRequest) (*rtav1.SearchQueriesResponse, error) {
+func (s *Service) SearchQueries(ctx context.Context, req *rtav1.SearchQueriesRequest) (*rtav1.SearchQueriesResponse, error) {
 	// Validate that all the requested services exist
 	for _, serviceID := range req.ServiceIds {
 		if _, err := models.FindServiceByID(s.db.Querier, serviceID); err != nil {
 			return nil, err
 		}
+	}
+
+	headers := metadata.Pairs("Cache-Control", "no-store")
+	if err := grpc.SetHeader(ctx, headers); err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed to set response headers: %v", err)
 	}
 
 	resp := &rtav1.SearchQueriesResponse{
