@@ -20,6 +20,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -84,17 +85,7 @@ func (r *roster) get(groupID string) (string, []string, error) {
 		if !ok {
 			agentIDs = []string{PMMAgentID}
 		} else {
-			rdsExporterType := models.RDSExporterType
-			awsAccessKey := strings.TrimPrefix(parts[1], rdsPrefix)
-			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType, AWSAccessKey: awsAccessKey}
-			agents, err := models.FindAgents(r.db.Querier, filters)
-			if err != nil {
-				return "", nil, err
-			}
-			agentIDs = make([]string, 0, len(agents))
-			for _, agent := range agents {
-				agentIDs = append(agentIDs, agent.AgentID)
-			}
+			return "", nil, errors.Errorf("roster entry not found for groupID: %s", groupID)
 		}
 	}
 

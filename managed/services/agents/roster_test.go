@@ -79,9 +79,10 @@ func TestRoster(t *testing.T) {
 		const groupID = "pmm-server:rds/AWSAccessKey"
 
 		PMMAgentID, agentIDs, err := r.get(groupID)
-		require.NoError(t, err)
-		assert.Equal(t, "pmm-server", PMMAgentID)
-		assert.Equal(t, []string{}, agentIDs)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "roster entry not found")
+		assert.Equal(t, "", PMMAgentID)
+		assert.Nil(t, agentIDs)
 	})
 
 	t.Run("Clear", func(t *testing.T) {
@@ -110,8 +111,9 @@ func TestRoster(t *testing.T) {
 		r.clear(PMMAgentID)
 		PMMAgentID, agentIDs, err := r.get(groupID)
 
-		require.NoError(t, err)
-		assert.Equal(t, "pmm-server", PMMAgentID)
-		assert.Equal(t, []string{}, agentIDs)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "roster entry not found")
+		assert.Equal(t, "", PMMAgentID)
+		assert.Nil(t, agentIDs)
 	})
 }

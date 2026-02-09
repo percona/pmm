@@ -195,6 +195,9 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		req.AgentId = strings.TrimPrefix(req.AgentId, "/agent_id/")
 		PMMAgentID, agentIDs, err = h.r.roster.get(req.AgentId)
 		if err != nil {
+			// Roster entry missing - trigger state refresh to rebuild roster
+			logger.Get(ctx).Warnf("Roster entry not found for %s, triggering state refresh: %v", req.AgentId, err)
+			h.state.RequestStateUpdate(ctx, PMMAgentID)
 			return err
 		}
 
