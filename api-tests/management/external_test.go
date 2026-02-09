@@ -74,6 +74,8 @@ func TestAddExternal(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         9104,
 				Group:        "external",
 				CustomLabels: map[string]string{},
 			},
@@ -94,6 +96,7 @@ func TestAddExternal(t *testing.T) {
 				Scheme:       "http",
 				MetricsPath:  "/metrics",
 				CustomLabels: map[string]string{},
+				Status:       pointer.ToString(AgentStatusUnknown),
 			},
 		}, listAgents.Payload.ExternalExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -148,6 +151,8 @@ func TestAddExternal(t *testing.T) {
 				ServiceID:      serviceID,
 				NodeID:         nodeID,
 				ServiceName:    serviceName,
+				Address:        "10.10.10.10",
+				Port:           9250,
 				Environment:    "some-environment",
 				Cluster:        "cluster-name",
 				ReplicationSet: "replication-set",
@@ -221,6 +226,8 @@ func TestAddExternal(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Address:      "localhost",
+				Port:         9104,
 				Group:        "external",
 				CustomLabels: map[string]string{},
 			},
@@ -241,6 +248,7 @@ func TestAddExternal(t *testing.T) {
 				Scheme:       "http",
 				MetricsPath:  "/metrics",
 				CustomLabels: map[string]string{},
+				Status:       pointer.ToString(AgentStatusUnknown),
 			},
 		}, listAgents.Payload.ExternalExporter)
 		defer removeAllAgentsInList(t, listAgents)
