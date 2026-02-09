@@ -81,7 +81,7 @@ sudo ufw --force enable
 After the initial setup, create additional user accounts in PMM for your team members. Follow the principle of least privilege when assigning user roles.
 {.power-number}
 
-1. Go to **Administration > Users and access > Users**.
+1. Go to **Users and access > Users**.
 2. Click **New user** and configure the user with an appropriate role:
 
     - **Admin**: Full system access
@@ -374,7 +374,6 @@ To permanently delete your PMM Server instance and clean up resources:
 With your PMM Server fully configured and secured:
 
 - [Configure PMM clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
-- [Register client nodes](../../../register-client-node/index.md) with your PMM Server
 - [Configure SSL certificates](../../../../admin/security/ssl_encryption.md) for production use
 - [Set up monitoring alerts](../../../../alert/index.md) for proactive monitoring
 

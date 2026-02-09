@@ -92,11 +92,17 @@ type ChangeSettingsParams struct {
 	// Enable Backup Management features.
 	EnableBackupManagement *bool
 
+	// EnableInternalPgQAN enables Query Analytics for PMM's internal PG database.
+	EnableInternalPgQAN *bool
+
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID *int
 
 	// List of items in format 'db.table.column' to be encrypted.
 	EncryptedItems []string
+
+	// Duration for which an update is snoozed
+	UpdateSnoozeDuration time.Duration
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -138,6 +144,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableUpdates != nil {
 		settings.Updates.Enabled = params.EnableUpdates
+	}
+
+	if params.UpdateSnoozeDuration != 0 {
+		settings.Updates.SnoozeDuration = params.UpdateSnoozeDuration
 	}
 
 	if params.EnableTelemetry != nil {

@@ -1,0 +1,36 @@
+---
+checks:
+  - version: 2
+    name: postgresql_fsync
+    summary: PostgreSQL fsync is set to off
+    description: This check returns a error if the fsync configuration option is set to off which can lead to database corruptions.
+    family: POSTGRESQL
+    #author: Jobin Augustine
+    advisor: configuration_generic
+    interval: standard
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: name, setting FROM pg_settings WHERE name = 'fsync'
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      # thresholds
+      RECOMMENDED_MAX_VALUE="on"
+
+      def check_context(docs, context):
+          setting = None
+          for row in docs[0]:
+              name, setting = row["name"], row["setting"]
+              if name == "fsync":
+                  break
+              setting = None
+          results = []
+          if setting != RECOMMENDED_MAX_VALUE:
+              results.append({
+                  "summary": "The current value of fsync is {}".format(setting),
+                  "description": "Current value is \"{}\" for the fsync parameter, while we recommend the value \"{}\". PostgreSQL can get corrupt if fsync is off".format(setting, RECOMMENDED_MAX_VALUE),
+                  "read_more_url": read_url.format("configuration-pg-check-fsync-enabled"),
+                  "severity": "error"
+              })
+          return results

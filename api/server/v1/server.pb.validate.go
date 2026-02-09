@@ -2475,6 +2475,37 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for DefaultRoleId
 
+	// no validation rules for EnableInternalPgQan
+
+	if all {
+		switch v := interface{}(m.GetUpdateSnoozeDuration()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "UpdateSnoozeDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "UpdateSnoozeDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdateSnoozeDuration()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingsValidationError{
+				field:  "UpdateSnoozeDuration",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
@@ -3244,6 +3275,35 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetUpdateSnoozeDuration()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "UpdateSnoozeDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "UpdateSnoozeDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdateSnoozeDuration()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeSettingsRequestValidationError{
+				field:  "UpdateSnoozeDuration",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.EnableUpdates != nil {
 		// no validation rules for EnableUpdates
 	}
@@ -3309,6 +3369,10 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	if m.EnableAccessControl != nil {
 		// no validation rules for EnableAccessControl
+	}
+
+	if m.EnableInternalPgQan != nil {
+		// no validation rules for EnableInternalPgQan
 	}
 
 	if len(errors) > 0 {

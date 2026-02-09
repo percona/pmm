@@ -32,7 +32,7 @@ For consistency, environment variables should keep to the following suggestions:
 variables that are not meant for end-users in any circumstance e.g., `PMM_DEV_PERCONA_PLATFORM_ADDRESS`
 - Use the `PMM_TEST_` prefix for any variable that is not part of PMM GA functionality.
 - Use the `PMM_` prefix for variables that is part of PMM GA functionality.
-- Use a sub-prefix if a number of env vars relate to one component, e.g., `PMM_TEST_HA_`
+- Use a sub-prefix if a number of env vars relate to one component, e.g., `PMM_HA_`
 - The use of PERCONA_ prefix is prohibited (exception: PMM_PERCONA_PLATFORM_URL, since it's part of a proper name, not a prefix)
 ## Code style
 

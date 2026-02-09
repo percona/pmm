@@ -718,6 +718,9 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = cfg.Paths.RDSExporter
 	case inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:
 		processParams.Path = cfg.Paths.AzureExporter
+	case inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:
+		templateParams["paths_base"] = cfg.Paths.PathsBase
+		processParams.Path = cfg.Paths.ValkeyExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
 	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
@@ -777,6 +780,17 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	}
 	processParams.Env = append(processParams.Env, env...)
 
+	for _, varName := range agentProcess.EnvVariableNames {
+		value, exists := os.LookupEnv(varName)
+		if !exists {
+			s.l.Warnf("Environment variable %s not found in pmm-agent environment for agent %s", varName, agentID)
+			continue
+		}
+
+		processParams.Env = append(processParams.Env, fmt.Sprintf("%s=%s", varName, value))
+		s.l.Debugf("Resolved environment variable %s for agent %s", varName, agentID)
+	}
+
 	return &processParams, nil
 }
 
@@ -796,6 +810,8 @@ func (s *Supervisor) version(agentType inventoryv1.AgentType, path string) (stri
 		return s.agentVersioner.BinaryVersion(path, 0, rdsExporterRegexp, "--version")
 	case inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, azureMetricsExporterRegexp, "--version")
+	case inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, valkeyExporterRegexp, "--version")
 	default:
 		return "", nil
 	}

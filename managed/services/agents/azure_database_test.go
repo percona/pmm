@@ -95,7 +95,7 @@ resource_groups:
       - Average
     resource_types:
       - "Microsoft.DBforMySQL/servers"
-      - "Microsoft.DBforMySQL/felexibleServers"
+      - "Microsoft.DBforMySQL/flexibleServers"
       - "Microsoft.DBforMariaDB/servers"
     metrics:
       - name: "cpu_percent"

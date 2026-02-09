@@ -29,20 +29,22 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 )
 
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
-	envPlatformInsecure       = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
-	envPlatformPublicKey      = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
-	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
-	envEnableAccessControl    = "PMM_ENABLE_ACCESS_CONTROL"
-	envPlatformAPITimeout     = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
-	// EnvPlatformAddress is the environment variable name used to store the URL for Percona Platform.
-	EnvPlatformAddress = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
-	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
-	ENVvmAgentPrefix = "VMAGENT_"
+	// EnvVMAgentPrefix is the prefix for environment variables related to the VMAgent.
+	EnvVMAgentPrefix = "VMAGENT_"
+	// EnvVMAuthPrefix is the prefix for environment variables related to VMAuth.
+	EnvVMAuthPrefix = "VMAUTH_"
+	// EnvVMSelectPrefix is the prefix for environment variables related to VMSelect.
+	EnvVMSelectPrefix = "VMSELECT_"
+	// EnvVMInsertPrefix is the prefix for environment variables related to VMInsert.
+	EnvVMInsertPrefix = "VMINSERT_"
+	// EnvVMStoragePrefix is the prefix for environment variables related to VMStorage.
+	EnvVMStoragePrefix = "VMSTORAGE_"
 )
 
 // InvalidDurationError invalid duration error.
@@ -74,9 +76,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 	var warns []string
 
 	for _, env := range envs {
-		p := strings.SplitN(env, "=", 2)
+		p := strings.SplitN(env, "=", 2) //nolint:mnd
 
-		if len(p) != 2 {
+		if len(p) != 2 { //nolint:mnd
 			errs = append(errs, fmt.Errorf("failed to parse environment variable %q", env))
 			continue
 		}
@@ -91,17 +93,34 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			continue
 		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
 			continue
-
 		case "CONTAINER":
 			continue
+		case "NSS_WRAPPER_GROUP", "NSS_WRAPPER_PASSWD", "LD_PRELOAD":
+			// skip nss_wrapper environment variables
+			continue
+		case "AWS_ACCESS_KEY", "AWS_SECRET_KEY":
+			continue
+
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
 			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
-			"PMM_DISABLE_BUILTIN_CLICKHOUSE":
+			"PMM_CLICKHOUSE_IS_CLUSTER", "PMM_CLICKHOUSE_CLUSTER_NAME",
+			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE":
 			// skip env variables for external clickhouse
+			continue
+		case "PMM_POSTGRES_ADDR",
+			"PMM_POSTGRES_DBNAME",
+			"PMM_POSTGRES_USERNAME",
+			"PMM_POSTGRES_DBPASSWORD",
+			"PMM_POSTGRES_SSL_MODE",
+			"PMM_POSTGRES_SSL_CA_PATH",
+			"PMM_POSTGRES_SSL_KEY_PATH",
+			"PMM_POSTGRES_SSL_CERT_PATH",
+			"PMM_DISABLE_BUILTIN_POSTGRES":
+			// skip env variables for external postgres
 			continue
 		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
 			// skip watchtower environement variables
@@ -116,6 +135,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableUpdates = &b
+		case "PMM_UPDATE_SNOOZE_DURATION":
+			if envSettings.UpdateSnoozeDuration, err = parseStringDuration(v); err != nil {
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
+			}
 		case "PMM_ENABLE_TELEMETRY":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
@@ -123,6 +147,13 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableTelemetry = &b
+		case pkgenv.EnableInternalPgQAN:
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
+			}
+			envSettings.EnableInternalPgQAN = &b
 		case "PMM_METRICS_RESOLUTION", "PMM_METRICS_RESOLUTION_HR":
 			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
@@ -194,7 +225,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
-		case envEnableAccessControl:
+		// skip various HA-related variables
+		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ADMIN_PASSWORD":
+			continue
+
+		case pkgenv.EnableAccessControl:
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
@@ -204,7 +239,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			envSettings.EnableAccessControl = &b
 
-		case envPlatformAPITimeout:
+		case pkgenv.PlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
@@ -216,13 +251,33 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			// skip Victoria Metric's environment variables
+			// skip Victoria Metrics' environment variables
 			if strings.HasPrefix(k, "VM_") {
 				continue
 			}
 
 			// skip VM Agents environment variables
-			if strings.HasPrefix(k, ENVvmAgentPrefix) {
+			if strings.HasPrefix(k, EnvVMAgentPrefix) {
+				continue
+			}
+
+			// skip VMAuth environment variables
+			if strings.HasPrefix(k, EnvVMAuthPrefix) {
+				continue
+			}
+
+			// skip VMSelect environment variables
+			if strings.HasPrefix(k, EnvVMSelectPrefix) {
+				continue
+			}
+
+			// skip VMInsert environment variables
+			if strings.HasPrefix(k, EnvVMInsertPrefix) {
+				continue
+			}
+
+			// skip VMStorage environment variables
+			if strings.HasPrefix(k, EnvVMStoragePrefix) {
 				continue
 			}
 
@@ -232,7 +287,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 
 			// skip kubernetes environment variables
-			if strings.HasPrefix(k, "KUBERNETES_") {
+			if strings.HasPrefix(k, "KUBERNETES_") || strings.HasPrefix(k, "PMM_OPERATORS_") {
 				continue
 			}
 
@@ -246,9 +301,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
+			// skip PMM HA environment variables
+			if strings.HasPrefix(k, "PMM_HA_") {
+				continue
+			}
+
 			// skip PMM test environment variables
 			if strings.HasPrefix(k, "PMM_TEST_") {
-				warns = append(warns, fmt.Sprintf("environment variable %q may be removed or replaced in the future", env))
+				warns = append(warns, fmt.Sprintf("environment variable %s may be removed or replaced in the future", env))
 				continue
 			}
 
@@ -257,7 +317,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
+			warns = append(warns, fmt.Sprintf("unknown environment variable %s", env))
 		}
 	}
 
@@ -276,24 +336,21 @@ func parseStringDuration(value string) (time.Duration, error) {
 
 func parsePlatformAPITimeout(d string) (time.Duration, string) {
 	if d == "" {
-		msg := fmt.Sprintf(
-			"Environment variable %q is not set, using %q as a default timeout for platform API.",
-			envPlatformAPITimeout,
-			defaultPlatformAPITimeout.String())
+		msg := fmt.Sprintf("Setting the default timeout for Platform API to %s.", defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
 	duration, err := parseStringDuration(d)
 	if err != nil {
-		msg := fmt.Sprintf("Using %q as a default: failed to parse platform API timeout %q: %s.", defaultPlatformAPITimeout.String(), d, err)
+		msg := fmt.Sprintf("Set the default Platform API to %s: failed to parse timeout %s: %s.", defaultPlatformAPITimeout.String(), d, err)
 		return defaultPlatformAPITimeout, msg
 	}
-	msg := fmt.Sprintf("Using %q as a timeout for platform API.", duration.String())
+	msg := fmt.Sprintf("Set the timeout for Platform API to %s.", duration.String())
 	return duration, msg
 }
 
 // GetPlatformAPITimeout returns timeout duration for requests to Platform.
 func GetPlatformAPITimeout(l *logrus.Entry) time.Duration {
-	d := os.Getenv(envPlatformAPITimeout)
+	d := os.Getenv(pkgenv.PlatformAPITimeout)
 	duration, msg := parsePlatformAPITimeout(d)
 	l.Info(msg)
 	return duration
@@ -302,9 +359,9 @@ func GetPlatformAPITimeout(l *logrus.Entry) time.Duration {
 // GetPlatformAddress returns Percona Platform address env variable value if it's present and valid.
 // Otherwise returns default Percona Platform address.
 func GetPlatformAddress() (string, error) {
-	address := os.Getenv(EnvPlatformAddress)
+	address := os.Getenv(pkgenv.PlatformAddress)
 	if address == "" {
-		logrus.Infof("Using default Percona Platform address %q.", defaultPlatformAddress)
+		logrus.Infof("Using default Percona Platform address: %s.", defaultPlatformAddress)
 		return defaultPlatformAddress, nil
 	}
 
@@ -312,20 +369,20 @@ func GetPlatformAddress() (string, error) {
 		return "", errors.Errorf("invalid percona platform address: %s", err)
 	}
 
-	logrus.Infof("Using Percona Platform address %q.", address)
+	logrus.Infof("Using Percona Platform address: %s.", address)
 	return address, nil
 }
 
 // GetPlatformInsecure returns true if invalid/self-signed TLS certificates allowed. Default is false.
 func GetPlatformInsecure() bool {
-	insecure, _ := strconv.ParseBool(os.Getenv(envPlatformInsecure))
+	insecure, _ := strconv.ParseBool(os.Getenv(pkgenv.PlatformInsecure))
 
 	return insecure
 }
 
 // GetPlatformPublicKeys returns public keys used to verify signatures of files downloaded form Percona Portal.
 func GetPlatformPublicKeys() []string {
-	if v := os.Getenv(envPlatformPublicKey); v != "" {
+	if v := os.Getenv(pkgenv.PlatformPublicKey); v != "" {
 		return strings.Split(v, ",")
 	}
 
@@ -334,7 +391,7 @@ func GetPlatformPublicKeys() []string {
 
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
-	return GetEnv(evnInterfaceToBind, "127.0.0.1")
+	return GetEnv(pkgenv.InterfaceToBind, "127.0.0.1")
 }
 
 // GetEnv returns env with fallback option.

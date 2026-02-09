@@ -35,6 +35,8 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+const defaultAgentPingInterval = 10 * time.Second
+
 // Handler handles agent requests.
 type Handler struct {
 	db          *reform.DB
@@ -80,7 +82,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 	h.state.RequestStateUpdate(ctx, agent.id)
 
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(defaultAgentPingInterval)
 	defer ticker.Stop()
 	for {
 		select {
@@ -102,7 +104,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 			if req == nil {
 				disconnectReason = "done"
 				err = agent.channel.Wait()
-				h.r.unregister(agent.id, disconnectReason)
+				h.r.unregister(ctx, agent.id, disconnectReason)
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
@@ -169,23 +171,6 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 	}
 }
 
-func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID string, status inventoryv1.AgentStatus) error {
-	return h.db.InTransaction(func(t *reform.TX) error {
-		agents, err := models.FindAgents(t.Querier, models.AgentFilters{
-			PMMAgentID: agentID,
-		})
-		if err != nil {
-			return errors.Wrap(err, "failed to get pmm-agent's child agents")
-		}
-		for _, agent := range agents {
-			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, uint32(pointer.GetUint16(agent.ListenPort)), agent.ProcessExecPath, nil); err != nil {
-				return errors.Wrap(err, "failed to update agent's status")
-			}
-		}
-		return nil
-	})
-}
-
 func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
 	var PMMAgentID string
 
@@ -233,24 +218,6 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	return nil
 }
 
-// SetAllAgentsStatusUnknown goes through all pmm-agents and sets status to UNKNOWN.
-func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
-	agentType := models.PMMAgentType
-	agents, err := models.FindAgents(h.db.Querier, models.AgentFilters{AgentType: &agentType})
-	if err != nil {
-		return errors.Wrap(err, "failed to get pmm-agents")
-	}
-	for _, agent := range agents {
-		if !h.r.IsConnected(agent.AgentID) {
-			err = h.updateAgentStatusForChildren(ctx, agent.AgentID, inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
 func updateAgentStatus(
 	ctx context.Context,
 	q *reform.Querier,
@@ -276,6 +243,13 @@ func updateAgentStatus(
 	}
 	if err != nil {
 		return errors.Wrap(err, "failed to select Agent by ID")
+	}
+
+	if agent.Disabled {
+		if status != inventoryv1.AgentStatus_AGENT_STATUS_DONE {
+			l.Debugf("Agent %s is disabled, but status is %s. Setting status to DONE.", agentID, status)
+		}
+		status = inventoryv1.AgentStatus_AGENT_STATUS_DONE
 	}
 
 	agent.Status = status.String()

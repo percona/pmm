@@ -8,6 +8,7 @@ package alerting_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type UpdateTemplateReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UpdateTemplateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *UpdateTemplateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewUpdateTemplateOK()
@@ -55,7 +56,7 @@ UpdateTemplateOK describes a response with status code 200, with default header 
 A successful response.
 */
 type UpdateTemplateOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this update template Ok response has a 2xx status code
@@ -98,13 +99,13 @@ func (o *UpdateTemplateOK) String() string {
 	return fmt.Sprintf("[PUT /v1/alerting/templates/{name}][%d] updateTemplateOk %s", 200, payload)
 }
 
-func (o *UpdateTemplateOK) GetPayload() interface{} {
+func (o *UpdateTemplateOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *UpdateTemplateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,7 +178,7 @@ func (o *UpdateTemplateDefault) readResponse(response runtime.ClientResponse, co
 	o.Payload = new(UpdateTemplateDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -262,11 +263,15 @@ func (o *UpdateTemplateDefaultBody) validateDetails(formats strfmt.Registry) err
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("UpdateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("UpdateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -299,11 +304,15 @@ func (o *UpdateTemplateDefaultBody) contextValidateDetails(ctx context.Context, 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("UpdateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("UpdateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -339,7 +348,7 @@ type UpdateTemplateDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// update template default body details items0
-	UpdateTemplateDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	UpdateTemplateDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -366,9 +375,9 @@ func (o *UpdateTemplateDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

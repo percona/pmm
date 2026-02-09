@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListAgentVersionsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAgentVersionsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListAgentVersionsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAgentVersionsOK()
@@ -107,7 +108,7 @@ func (o *ListAgentVersionsOK) readResponse(response runtime.ClientResponse, cons
 	o.Payload = new(ListAgentVersionsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ListAgentVersionsDefault) readResponse(response runtime.ClientResponse,
 	o.Payload = new(ListAgentVersionsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *ListAgentVersionsDefaultBody) validateDetails(formats strfmt.Registry) 
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListAgentVersions default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListAgentVersions default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *ListAgentVersionsDefaultBody) contextValidateDetails(ctx context.Contex
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListAgentVersions default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListAgentVersions default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type ListAgentVersionsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list agent versions default body details items0
-	ListAgentVersionsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListAgentVersionsDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *ListAgentVersionsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -442,11 +451,15 @@ func (o *ListAgentVersionsOKBody) validateAgentVersions(formats strfmt.Registry)
 
 		if o.AgentVersions[i] != nil {
 			if err := o.AgentVersions[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -479,11 +492,15 @@ func (o *ListAgentVersionsOKBody) contextValidateAgentVersions(ctx context.Conte
 			}
 
 			if err := o.AgentVersions[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -546,7 +563,7 @@ func (o *ListAgentVersionsOKBodyAgentVersionsItems0) Validate(formats strfmt.Reg
 	return nil
 }
 
-var listAgentVersionsOkBodyAgentVersionsItems0TypeSeverityPropEnum []interface{}
+var listAgentVersionsOkBodyAgentVersionsItems0TypeSeverityPropEnum []any
 
 func init() {
 	var res []string

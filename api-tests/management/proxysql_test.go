@@ -642,7 +642,7 @@ func TestRemoveProxySQL(t *testing.T) {
 		require.NotNil(t, addProxySQLOK)
 		require.NotNil(t, addProxySQLOK.Payload.Proxysql.Service)
 		serviceID = addProxySQLOK.Payload.Proxysql.Service.ServiceID
-		return
+		return nodeID, pmmAgentID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {

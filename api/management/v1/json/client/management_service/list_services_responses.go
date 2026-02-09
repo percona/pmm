@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListServicesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListServicesOK()
@@ -107,7 +108,7 @@ func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer 
 	o.Payload = new(ListServicesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *ListServicesDefaultBody) validateDetails(formats strfmt.Registry) error
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, fo
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type ListServicesDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// list services default body details items0
-	ListServicesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListServicesDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -442,11 +451,15 @@ func (o *ListServicesOKBody) validateServices(formats strfmt.Registry) error {
 
 		if o.Services[i] != nil {
 			if err := o.Services[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -479,11 +492,15 @@ func (o *ListServicesOKBody) contextValidateServices(ctx context.Context, format
 			}
 
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -646,11 +663,15 @@ func (o *ListServicesOKBodyServicesItems0) validateAgents(formats strfmt.Registr
 
 		if o.Agents[i] != nil {
 			if err := o.Agents[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -660,7 +681,7 @@ func (o *ListServicesOKBodyServicesItems0) validateAgents(formats strfmt.Registr
 	return nil
 }
 
-var listServicesOkBodyServicesItems0TypeStatusPropEnum []interface{}
+var listServicesOkBodyServicesItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -731,11 +752,15 @@ func (o *ListServicesOKBodyServicesItems0) contextValidateAgents(ctx context.Con
 			}
 
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -882,6 +907,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// True if an exporter agent is exposed on all host addresses.
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// valkey options
+	ValkeyOptions any `json:"valkey_options,omitempty"`
+
 	// azure options
 	AzureOptions *ListServicesOKBodyServicesItems0AgentsItems0AzureOptions `json:"azure_options,omitempty"`
 
@@ -945,7 +973,7 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateCreatedAt(formats
 	return nil
 }
 
-var listServicesOkBodyServicesItems0AgentsItems0TypeLogLevelPropEnum []interface{}
+var listServicesOkBodyServicesItems0AgentsItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1018,11 +1046,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateAzureOptions(form
 
 	if o.AzureOptions != nil {
 		if err := o.AzureOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("azure_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("azure_options")
 			}
+
 			return err
 		}
 	}
@@ -1037,11 +1069,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateMongoDBOptions(fo
 
 	if o.MongoDBOptions != nil {
 		if err := o.MongoDBOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("mongo_db_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mongo_db_options")
 			}
+
 			return err
 		}
 	}
@@ -1056,11 +1092,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateMysqlOptions(form
 
 	if o.MysqlOptions != nil {
 		if err := o.MysqlOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("mysql_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mysql_options")
 			}
+
 			return err
 		}
 	}
@@ -1075,11 +1115,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validatePostgresqlOptions
 
 	if o.PostgresqlOptions != nil {
 		if err := o.PostgresqlOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("postgresql_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("postgresql_options")
 			}
+
 			return err
 		}
 	}
@@ -1121,11 +1165,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateAzureOptio
 		}
 
 		if err := o.AzureOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("azure_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("azure_options")
 			}
+
 			return err
 		}
 	}
@@ -1141,11 +1189,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMongoDBOpt
 		}
 
 		if err := o.MongoDBOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("mongo_db_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mongo_db_options")
 			}
+
 			return err
 		}
 	}
@@ -1161,11 +1213,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMysqlOptio
 		}
 
 		if err := o.MysqlOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("mysql_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mysql_options")
 			}
+
 			return err
 		}
 	}
@@ -1181,11 +1237,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidatePostgresql
 		}
 
 		if err := o.PostgresqlOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("postgresql_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("postgresql_options")
 			}
+
 			return err
 		}
 	}

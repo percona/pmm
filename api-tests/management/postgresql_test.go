@@ -623,9 +623,9 @@ func TestAddPostgreSQL(t *testing.T) {
 				},
 			},
 		}
-		addProxySQLOK, err := client.Default.ManagementService.AddService(params)
+		addPostgreSQLOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
-		assert.Nil(t, addProxySQLOK)
+		assert.Nil(t, addPostgreSQLOK)
 	})
 
 	t.Run("With MetricsModePush", func(t *testing.T) {
@@ -887,7 +887,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 		require.NotNil(t, addPostgreSQLOK)
 		require.NotNil(t, addPostgreSQLOK.Payload.Postgresql.Service)
 		serviceID = addPostgreSQLOK.Payload.Postgresql.Service.ServiceID
-		return
+		return nodeID, pmmAgentID, serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {

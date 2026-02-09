@@ -16,16 +16,7 @@
         content: "{{ pmm_server_distribution}}"
         dest: /srv/pmm-distribution
         owner: pmm
-        group: pmm
-
-    - name: Set up pmm-agent
-      command: >
-        pmm-agent setup
-        --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml
-        --skip-registration
-        --id=pmm-server
-        --server-address=127.0.0.1:8443
-        --server-insecure-tls
+        group: root
 
     - name: Remove pmm-managed database from PostgreSQL
       postgresql_db:
@@ -48,7 +39,7 @@
     - name: Cleanup dnf cache
       command: dnf clean all
 
-    - name: Cleanup build logs, data and package cache
+    - name: Cleanup build logs, data, config files and package cache
       file:
         path: "{{ item }}"
         state: absent
@@ -58,11 +49,15 @@
         - /var/log/secure
         - /var/log/wtmp
         - /var/log/clickhouse-server
+        - /var/log/clickhouse-keeper
         - /var/log/nginx
         - /var/lib/pgsql
         - /var/cache/dnf
         - /var/cache/yum
         - /srv/pmm-encryption.key
+        - /srv/pmm-agent/tmp
+        - /srv/pmm-agent/config
+        - /usr/local/percona/pmm/config/pmm-agent.yaml
 
     - name: Remove users created by installers
       user:
@@ -76,6 +71,9 @@
     - name: Clean Clickhouse dir
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
 
+    - name: Clean pmm-server dir
+      shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
+
     # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
     # VictoriaMetrics tries to atomically rename directories in this folder on startup.
     # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
@@ -87,25 +85,52 @@
         state: "{{ item }}"
         path: /srv/victoriametrics
         owner: pmm
-        group: pmm
+        group: root
         mode: 0775
       loop:
         - absent
         - directory
+
+    - name: Remove auto-generated config files
+      file:
+        path: "/etc/supervisord.d/{{ item }}"
+        state: absent
+      loop:
+        - victoriametrics.ini
+        - vmalert.ini
+        - vmproxy.ini
+        - qan-api2.ini
+        - grafana.ini
+        - nomad-server.ini
 
     - name: Create '/srv/logs' directory
       file:
         path: /srv/logs
         state: directory
         owner: pmm
-        group: pmm
+        group: root
         mode: 0775
 
-    # nginx needs to be able to write to /var/lib/nginx, but it's owned by root.
-    - name: Change ownership of nginx dirs
+    - name: Set ownership for Grafana plugins directory
       file:
-        path: /var/lib/nginx
-        state: directory
-        group: pmm
+        path: /srv/grafana/plugins
         owner: pmm
+        group: root
         recurse: yes
+        state: directory
+        mode: 0775
+
+    - name: Set ownership for backup directory
+      file:
+        path: /srv/backup
+        owner: pmm
+        group: root
+        state: directory
+        mode: 0775
+
+    - name: Set ownership for Grafana dashboards version file
+      file:
+        path: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+        owner: pmm
+        group: root
+        state: file

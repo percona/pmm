@@ -1,4 +1,15 @@
 # Connect PMM to Percona Platform
+
+!!! caution alert alert-warning "Percona Platform deprecation"
+    
+    **Percona Platform is deprecated as of PMM 3.5.0 and will be discontinued with PMM 3.7.0 (March 2026).**
+    
+    All advisors and alert templates are now built directly into PMM as free, offline features. Platform connectivity, Percona Account sign-in, and account information features (Entitlements and Support tickets) in PMM will be removed. 
+    
+    [Migrate to a supported authentication method](../../admin/manage-users/edit_users.md#migrate-from-percona-account-authentication-deprecated) before March 2026.
+    
+    **Need help?** Contact [Percona Support](https://www.percona.com/services/support) for migration assistance.
+
 To connect your PMM Server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.
 
 ## Token validity
@@ -8,8 +19,7 @@ For security reasons, access tokens expire after 30 minutes. Make sure to paste 
 To connect your PMM Server to Percona Platform:
 {.power-number}
 
-1. In PMM, go to **PMM Configuration > Settings > Percona Platform** tab to fill in the **Connect PMM to Percona Portal** form: ![Percona_Platform_Login](../../images/PMM_Settings_Percona_Platform_Login.png)
-
+1. In PMM, go to **Configuration > Settings > Percona Platform** tab to fill in the **Connect PMM to Percona Portal** form.
 2. The **PMM Server ID** field is automatically populated with the ID identified for your PMM instance. Enter the name of your PMM instance and click **Get token** to go to Percona Platform Portal and generate your access token.
 3. Log into Percona Platform using your Percona Account (if you don't have an active current session).
 4. On the **Profile Settings page**, copy the code from the **Percona Platform Access Token** field.
@@ -19,7 +29,7 @@ To confirm that you have successfully connected the server and check the list of
 
 ## Check Percona Portal entitlements
 
-After connecting to the Percona Platform, PMM has access to [additional alert templates](../../alert/templates_list.md), [Advisor checks](../../advisors/advisor-details.md), and account information. See [Check Percona Portal account information](account-info.md).
+After connecting to the Percona Platform, PMM has access to [additional alert templates](../../alert/templates_list.md), [Advisor checks](../../advisors/advisor-details.md), and account information. See [Check Percona Portal account information](./integrate_with_percona_platform.md).
 
 
 ### Disconnect a PMM instance
@@ -48,4 +58,3 @@ Once you've successfully connected your PMM instance to the Percona Platform, yo
 1. Log out of your existing PMM session.
 2. On the PMM login screen, click **Sign in with Percona Account**.
  If you have an active Percona Account session on the same browser, PMM will log you in automatically. Otherwise, enter your Percona Account credentials to start a new session.
-

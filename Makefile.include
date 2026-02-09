@@ -14,7 +14,7 @@ init:                 ## Install tools
 	cd tools && go generate -x -tags=tools
 
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v2.3.0 # Version should match specified in CI
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v2.6.2 # Version should match specified in CI
 
 release:              ## Build release versions of all components
 	make -C agent release
@@ -36,7 +36,7 @@ gen: clean            ## Generate files
 	make format ## TODO: One formatting run is not enough, figure out why.
 	go install -v ./...
 
-clean:               ## Remove generated files
+clean:                ## Remove generated files
 	make -C api clean
 
 gen-mocks:
@@ -53,9 +53,9 @@ check:                ## Run required checkers and linters
 	bin/buf lint -v api
 	LOG_LEVEL=error bin/golangci-lint run
 	bin/go-sumtype ./...
-	bin/go-consistent -pedantic ./...
+	bin/go-consistent -pedantic -exclude "tests|api/agent" ./...
 
-check-license:          ## Run license header checks against source files
+check-license:        ## Run license header checks against source files
 	bin/license-eye -c .licenserc.yaml header check
 
 check-all: check-license check    ## Run golangci linter to check for changes against main

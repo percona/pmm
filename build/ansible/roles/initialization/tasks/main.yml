@@ -47,16 +47,17 @@
     copy:
       src: maintenance.html
       dest: /usr/share/pmm-server/maintenance/
-      owner: pmm
-      group: pmm
-      mode: 0644
+      mode: 0664
 
   - name: Wait for PostgreSQL to become responsive
     wait_for:
       host: 127.0.0.1
       port: 5432
       timeout: 150
-    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
+    when:
+      - lookup('env','GF_DATABASE_URL') == ''
+      - lookup('env','GF_DATABASE_HOST') == ''
+      - lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
 
   - name: Create Grafana DB
     block:
@@ -76,7 +77,10 @@
           login_user: postgres
           state: present
         when: not ansible_check_mode
-    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
+    when:
+      - lookup('env','GF_DATABASE_URL') == ''
+      - lookup('env','GF_DATABASE_HOST') == ''
+      - need_initialization
 
   - name: Upgrade/Install dashboards
     include_role:
@@ -86,8 +90,6 @@
     file:
       path: /srv/backup
       state: directory
-      owner: pmm
-      group: pmm
       mode: 0775
     when: need_upgrade
 
@@ -109,7 +111,10 @@
   - name: Initialize admin password for AMI if needed
     include_role:
       name: init-admin-password-ami
-    when: need_initialization and is_ami
+    when:
+      - need_initialization
+      - is_ami
+
   when: need_initialization or need_upgrade
 
 - name: Disable maintenance mode

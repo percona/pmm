@@ -10,6 +10,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   sync:
     name: Sync API Docs
@@ -17,7 +20,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Detect PMM version and API ID
         run: |
@@ -30,11 +33,11 @@ jobs:
           echo "ID=$ID" >> $GITHUB_ENV
 
       - name: API
-        uses: readmeio/rdme@bedea837ac4147b55e1e97ee198324db4d55cc2c # v10.4.0
+        uses: readmeio/rdme@5d702394cb1fd1dc3fab6e0769b44b56c9d425d1 # v10.6.0
         with:
           rdme: openapi ./api/swagger/swagger.json --version=${{ env.VERSION }} --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
 
       - name: Markdown docs
-        uses: readmeio/rdme@bedea837ac4147b55e1e97ee198324db4d55cc2c # v10.4.0
+        uses: readmeio/rdme@5d702394cb1fd1dc3fab6e0769b44b56c9d425d1 # v10.6.0
         with:
           rdme: docs docs/api --version=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

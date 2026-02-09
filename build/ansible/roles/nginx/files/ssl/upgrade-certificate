@@ -2,18 +2,16 @@
 
 expire_limit=30 # days
 
-expire_data=`openssl x509 -enddate -noout -in /srv/nginx/certificate.crt | sed -e 's#notAfter=##'`
-expire_date=`date -d "${expire_data}" '+%s'`
-current_date=`date '+%s'`
+expire_data=$(openssl x509 -enddate -noout -in /srv/nginx/certificate.crt | sed -e 's#notAfter=##')
+expire_date=$(date -d "${expire_data}" '+%s')
+current_date=$(date '+%s')
 diff="$((${expire_date}-${current_date}))"
 
 echo $diff
 
 if test "${diff}" -lt "$((${expire_limit}*24*3600))"; then
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout /etc/nginx/ssl/certificate.key \
-        -out    /etc/nginx/ssl/certificate.crt \
+        -keyout /srv/nginx/certificate.key \
+        -out    /srv/nginx/certificate.crt \
         -config /etc/nginx/ssl/certificate.conf
-    cp /etc/nginx/ssl/certificate.key /srv/nginx/certificate.key
-    cp /etc/nginx/ssl/certificate.crt /srv/nginx/certificate.crt
 fi

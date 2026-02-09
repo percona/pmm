@@ -75,7 +75,7 @@ AddAgent adds an agent to inventory
 Adds an Agent to Inventory. Only one agent at a time can be passed.
 */
 func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAgentOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewAddAgentParams()
 	}
@@ -94,17 +94,22 @@ func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAge
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*AddAgentOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*AddAgentDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -114,7 +119,7 @@ ChangeAgent updates an agent in inventory
 Updates an Agent in Inventory. Only one agent at a time can be passed.
 */
 func (a *Client) ChangeAgent(params *ChangeAgentParams, opts ...ClientOption) (*ChangeAgentOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewChangeAgentParams()
 	}
@@ -133,17 +138,22 @@ func (a *Client) ChangeAgent(params *ChangeAgentParams, opts ...ClientOption) (*
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*ChangeAgentOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ChangeAgentDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -153,7 +163,7 @@ GetAgent gets agent
 Returns a single Agent by ID.
 */
 func (a *Client) GetAgent(params *GetAgentParams, opts ...ClientOption) (*GetAgentOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewGetAgentParams()
 	}
@@ -172,17 +182,22 @@ func (a *Client) GetAgent(params *GetAgentParams, opts ...ClientOption) (*GetAge
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*GetAgentOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetAgentDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -192,7 +207,7 @@ GetAgentLogs gets agent logs
 Returns Agent logs by ID.
 */
 func (a *Client) GetAgentLogs(params *GetAgentLogsParams, opts ...ClientOption) (*GetAgentLogsOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewGetAgentLogsParams()
 	}
@@ -211,17 +226,22 @@ func (a *Client) GetAgentLogs(params *GetAgentLogsParams, opts ...ClientOption) 
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*GetAgentLogsOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetAgentLogsDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -231,7 +251,7 @@ ListAgents lists agents
 Returns a list of all Agents.
 */
 func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewListAgentsParams()
 	}
@@ -250,17 +270,22 @@ func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*Li
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*ListAgentsOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListAgentsDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -270,7 +295,7 @@ RemoveAgent removes an agent from inventory
 Removes an Agent from Inventory.
 */
 func (a *Client) RemoveAgent(params *RemoveAgentParams, opts ...ClientOption) (*RemoveAgentOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewRemoveAgentParams()
 	}
@@ -289,17 +314,22 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams, opts ...ClientOption) (*
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*RemoveAgentOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*RemoveAgentDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -180,7 +180,7 @@ func reload(l *logrus.Entry) {
 	}
 
 	// wait up to 5 seconds for pmm-agent to reload itself
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		time.Sleep(time.Second)
 		_, err = localStatus()
 		l.Debugf("Status error: %#v", err)

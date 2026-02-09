@@ -22,7 +22,83 @@
     display: contents;
   }
 } 
+
 .md-sidebar__inner {
-    font-size: 0.65rem;   /* Font size */
-    line-height: 1.6;
+  font-size: 0.65rem;   /* Font size */
+  line-height: 1.6;
+}
+
+/* Banner container */
+.edit-contrib-banner {
+  display: flex;
+  justify-content: center;    /* center horizontally */
+  padding: 0.7rem 0;            /* top and bottom spacing of the banner */
+  background-color: transparent;
+}
+
+/* Inner content stacked vertically */
+.edit-contrib-banner .banner-content {
+  display: flex;
+  flex-direction: column;    /* stack vertically */
+  align-items: center;       /* center horizontally */
+  gap: 0.3rem;               /* small vertical gap between elements */
+}
+
+/* Edit link styling */
+.edit-contrib-banner .edit-page-link {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 1.2rem;
+  font-weight: normal;
+  color: var(--md-typeset-a-color);
+}
+
+/* Icon inside edit link */
+.edit-contrib-banner .edit-page-icon svg {
+  width: 1.4em;
+  height: 1.4em;
+  fill: currentColor;
+  vertical-align: middle;
+}
+
+/* Divider line with small spacing */
+.edit-contrib-banner .banner-divider {
+  width: 40%;                 /* width of the line */
+  border-top: 1px solid var(--md-typeset-a-color);
+  opacity: 0.3;               /* subtle line */
+  margin: 0.2rem 0;           /* smaller space above and below the line */
+}
+
+/* Contributing Guide smaller and below */
+.edit-contrib-banner .contrib-link {
+  font-size: 0.6rem !important;         /* smaller font */
+  color: var(--md-typeset-a-color);
+}
+
+
+/* External link icon */
+.md-content a[href^="http"]:not([href^="https://docs.percona.com/percona-monitoring-and-management/3/"]):not(.md-button):not(.md-icon)::after {
+  content: "";
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%2393C7FF' d='M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z'/%3E%3C/svg%3E");
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-left: 0.3em;
+  opacity: 0.9;
+  vertical-align: middle;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+[data-md-color-scheme="percona-light"] .md-content a[href^="http"]:not([href^="https://docs.percona.com/percona-monitoring-and-management/3/"]):not(.md-button):not(.md-icon)::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%230E5FB5' d='M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z'/%3E%3C/svg%3E");
+}
+
+/* Hide external link icon in print mode */
+@media print {
+  .md-content a[href^="http"]:not([href^="https://docs.percona.com/percona-monitoring-and-management/3/"]):not(.md-button):not(.md-icon)::after {
+    display: none;
+  }
 }

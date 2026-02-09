@@ -1,16 +1,10 @@
 ---
-# version: '3.7' // Deprecated: see https://docs.docker.com/compose/compose-file/04-version-and-name/
 services:
   pmm-server:
     profiles:
       - pmm
     image: ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
     platform: linux/amd64
-    # build:
-    #   context: .
-    #   args:
-    #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
-    #   dockerfile: ./.devcontainer/Dockerfile
     container_name: pmm-server
     hostname: pmm-server
     networks:
@@ -24,10 +18,10 @@ services:
       - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
       - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
       - PMM_ENABLE_NOMAD=${PMM_ENABLE_NOMAD:-0}
-      - PMM_ENABLE_TELEMETRY=${PMM_ENABLE_TELEMETRY:-0}
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
-      - PMM_RELEASE_VERSION=3.0.0
-      - GO_VERSION=1.24.x
+      - PMM_RELEASE_VERSION=3.6.0
+      - GO_VERSION=1.25.x
+      # - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-1}
       # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
@@ -40,6 +34,8 @@ services:
       # - PMM_CLICKHOUSE_DATABASE=pmm
       # - PMM_CLICKHOUSE_USER=default
       # - PMM_CLICKHOUSE_PASSWORD=<password>
+      # - PMM_CLICKHOUSE_IS_CLUSTER=1
+      # - PMM_CLICKHOUSE_CLUSTER_NAME=pmmclickhouse
       # - PMM_DEBUG=1
       # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/local-checks.yml
       # - PMM_POSTGRES_ADDR=pg
@@ -58,13 +54,6 @@ services:
       # - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
       # - GF_DATABASE_CLIENT_CERT_PATH=/tmp/certs/grafana.crt
 
-    extra_hosts:
-      - host.docker.internal:host-gateway
-      # - portal.localhost:${PORTAL_HOST:-host-gateway}
-      # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-      # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-      # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
-
     # for delve
     cap_add:
       - SYS_PTRACE
@@ -76,38 +65,38 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-80}:8080
       - ${PMM_PORT_HTTPS:-443}:8443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
       # PG
-      - ${PMM_PORT_PG:-15432}:5432
+      - ${PMM_PORT_PG:-5432}:5432
       # VM
       - ${PMM_PORT_VM:-9090}:9090
       # CH
-      - ${PMM_PORT_CH_TCP:-11000}:9000
-      - ${PMM_PORT_CH_HTTP:-11123}:8123
+      - ${PMM_PORT_CH_TCP:-19000}:9000
+      - ${PMM_PORT_CH_HTTP:-8123}:8123
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # substitute Makefile in devcontainer
       - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
       # caching
       - go-modules:/root/go/pkg/mod
-      - root-cache:/root/.cache
+      - go-cache:/root/.cache
       - srv:/srv
+      # mount advisor files for easy development
+      - ./managed/data/advisors/:/usr/local/percona/advisors/
+      - ./managed/data/checks/:/usr/local/percona/checks/
+      - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # grafana
-#      - "../grafana:/workspace"
-#      - "../grafana/public:/usr/share/grafana/public"
-#      - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
-    # command: >
-    #   bash -c "
-    #     rm -rf /tmp/certs
-    #     mkdir /tmp/certs
-    #     cp -R /root/go/src/github.com/percona/pmm/managed/testdata/pg/certs/* /tmp/certs
-    #     chown grafana:grafana /tmp/certs/*
-    #     chmod 600 /tmp/certs/*
-    #     /opt/entrypoint.sh
-    #   "
+      #  - "../grafana:/workspace"
+      #  - "../grafana/public:/usr/share/grafana/public"
+      #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
+      # command: >
+      #   bash -c "
+      #     # script you want to run before entrypoint, e.g.
+      #     bash /tmp/wait-for-it.sh -t 30 some-service:some-port --
+      #     /opt/entrypoint.sh
+      #   "
 
   renderer:
     image: grafana/grafana-image-renderer:latest
@@ -127,17 +116,17 @@ services:
     image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
     container_name: watchtower
     environment:
-        - WATCHTOWER_HTTP_LISTEN_PORT=8080
-        - WATCHTOWER_HTTP_API_UPDATE=1
-        - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
-        - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
+      - WATCHTOWER_HTTP_LISTEN_PORT=8080
+      - WATCHTOWER_HTTP_API_UPDATE=1
+      - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
+      - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
     hostname: watchtower
     networks:
       - ${NETWORK:-default}
     volumes:
-        - ${DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+      - ${DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
 
 volumes:
   go-modules:
-  root-cache:
+  go-cache:
   srv:

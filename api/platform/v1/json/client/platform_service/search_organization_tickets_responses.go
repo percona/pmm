@@ -8,6 +8,7 @@ package platform_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type SearchOrganizationTicketsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *SearchOrganizationTicketsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *SearchOrganizationTicketsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewSearchOrganizationTicketsOK()
@@ -107,7 +108,7 @@ func (o *SearchOrganizationTicketsOK) readResponse(response runtime.ClientRespon
 	o.Payload = new(SearchOrganizationTicketsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (o *SearchOrganizationTicketsDefault) readResponse(response runtime.ClientR
 	o.Payload = new(SearchOrganizationTicketsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -228,11 +229,15 @@ func (o *SearchOrganizationTicketsDefaultBody) validateDetails(formats strfmt.Re
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("SearchOrganizationTickets default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("SearchOrganizationTickets default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *SearchOrganizationTicketsDefaultBody) contextValidateDetails(ctx contex
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("SearchOrganizationTickets default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("SearchOrganizationTickets default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -305,7 +314,7 @@ type SearchOrganizationTicketsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// search organization tickets default body details items0
-	SearchOrganizationTicketsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	SearchOrganizationTicketsDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -332,9 +341,9 @@ func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) UnmarshalJSON(data [
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -442,11 +451,15 @@ func (o *SearchOrganizationTicketsOKBody) validateTickets(formats strfmt.Registr
 
 		if o.Tickets[i] != nil {
 			if err := o.Tickets[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("searchOrganizationTicketsOk" + "." + "tickets" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("searchOrganizationTicketsOk" + "." + "tickets" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -479,11 +492,15 @@ func (o *SearchOrganizationTicketsOKBody) contextValidateTickets(ctx context.Con
 			}
 
 			if err := o.Tickets[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("searchOrganizationTicketsOk" + "." + "tickets" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("searchOrganizationTicketsOk" + "." + "tickets" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}

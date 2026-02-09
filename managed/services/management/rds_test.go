@@ -289,12 +289,13 @@ func TestRDSService(t *testing.T) {
 			Service: &managementv1.AddServiceResponse_Rds{
 				Rds: &managementv1.RDSServiceResult{
 					Node: &inventoryv1.RemoteRDSNode{
-						NodeId:    "00000000-0000-4000-8000-000000000005",
-						NodeName:  "rds-mysql57",
-						Address:   "rds-mysql57",
-						NodeModel: "db.t3.micro",
-						Region:    "us-east-1",
-						Az:        "us-east-1b",
+						NodeId:     "00000000-0000-4000-8000-000000000005",
+						NodeName:   "rds-mysql57",
+						Address:    "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
+						InstanceId: "rds-mysql57",
+						NodeModel:  "db.t3.micro",
+						Region:     "us-east-1",
+						Az:         "us-east-1b",
 						CustomLabels: map[string]string{
 							"foo": "bar",
 						},
@@ -382,12 +383,13 @@ func TestRDSService(t *testing.T) {
 			Service: &managementv1.AddServiceResponse_Rds{
 				Rds: &managementv1.RDSServiceResult{
 					Node: &inventoryv1.RemoteRDSNode{
-						NodeId:    "00000000-0000-4000-8000-00000000000a",
-						NodeName:  "rds-postgresql",
-						Address:   "rds-postgresql",
-						NodeModel: "db.t3.micro",
-						Region:    "us-east-1",
-						Az:        "us-east-1b",
+						NodeId:     "00000000-0000-4000-8000-00000000000a",
+						NodeName:   "rds-postgresql",
+						Address:    "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
+						InstanceId: "rds-postgresql",
+						NodeModel:  "db.t3.micro",
+						Region:     "us-east-1",
+						Az:         "us-east-1b",
 						CustomLabels: map[string]string{
 							"foo": "bar",
 						},

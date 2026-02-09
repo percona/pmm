@@ -110,7 +110,7 @@ func TestNodes(t *testing.T) {
 				},
 			},
 		})
-		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name test already exists.`), err)
 	})
 
 	t.Run("AddHostnameNotUnique", func(t *testing.T) {
@@ -146,7 +146,7 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 
 		_, err = ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test"})
-		expected := status.New(codes.AlreadyExists, `Node with instance "test" and region "test-region" already exists.`)
+		expected := status.New(codes.AlreadyExists, `Node with address "test" and region "test-region" already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})
 
@@ -349,7 +349,7 @@ func TestAddNode(t *testing.T) {
 				RemoteRds: &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test"},
 			},
 		})
-		expected := status.New(codes.AlreadyExists, `Node with instance "test" and region "test-region" already exists.`)
+		expected := status.New(codes.AlreadyExists, `Node with address "test" and region "test-region" already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})
 
@@ -402,6 +402,6 @@ func TestAddNode(t *testing.T) {
 				Remote: &inventoryv1.AddRemoteNodeParams{NodeName: "test"},
 			},
 		})
-		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name test already exists.`), err)
 	})
 }

@@ -24,6 +24,9 @@ on:
       - "vmproxy/**"
       - "update/**"
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     name: CI
@@ -35,10 +38,10 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6.0.2
 
       - name: Setup nodejs
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ui/.nvmrc
           cache: yarn

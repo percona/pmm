@@ -11,8 +11,8 @@ packer {
   }
 }
 
-source "amazon-ebs" "agent" {
-  ami_name              = "Docker Agent v3"
+source "amazon-ebs" "amd-agent" {
+  ami_name              = "Jenkins Agent v3"
   instance_type         = "t3.xlarge"
   force_deregister      = true
   force_delete_snapshot = true
@@ -33,10 +33,10 @@ source "amazon-ebs" "agent" {
     iit-billing-tag = "pmm-worker-3"
   }
   run_tags = {
-    iit-billing-tag = "pmm-worker"
+    iit-billing-tag = "pmm-worker-3"
   }
   run_volume_tags = {
-    iit-billing-tag = "pmm-worker"
+    iit-billing-tag = "pmm-worker-3"
   }
   launch_block_device_mappings {
     device_name = "/dev/sda1"
@@ -58,7 +58,7 @@ source "amazon-ebs" "agent" {
 }
 
 source "amazon-ebs" "arm-agent" {
-  ami_name              = "Docker Agent ARM v3"
+  ami_name              = "Jenkins Agent ARM v3"
   instance_type         = "t4g.xlarge"
   force_deregister      = true
   force_delete_snapshot = true
@@ -79,10 +79,10 @@ source "amazon-ebs" "arm-agent" {
     iit-billing-tag = "pmm-worker-3"
   }
   run_tags = {
-    iit-billing-tag = "pmm-worker",
+    iit-billing-tag = "pmm-worker-3",
   }
   run_volume_tags = {
-    iit-billing-tag = "pmm-worker"
+    iit-billing-tag = "pmm-worker-3"
   }
   launch_block_device_mappings {
     device_name           = "/dev/sda1"
@@ -106,7 +106,7 @@ source "amazon-ebs" "arm-agent" {
 build {
   name = "jenkins-farm"
   sources = [
-    "source.amazon-ebs.agent",
+    "source.amazon-ebs.amd-agent",
     "source.amazon-ebs.arm-agent"
   ]
   provisioner "ansible" {

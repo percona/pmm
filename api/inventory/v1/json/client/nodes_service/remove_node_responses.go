@@ -8,6 +8,7 @@ package nodes_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type RemoveNodeReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RemoveNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RemoveNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRemoveNodeOK()
@@ -55,7 +56,7 @@ RemoveNodeOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type RemoveNodeOK struct {
-	Payload interface{}
+	Payload any
 }
 
 // IsSuccess returns true when this remove node Ok response has a 2xx status code
@@ -98,13 +99,13 @@ func (o *RemoveNodeOK) String() string {
 	return fmt.Sprintf("[DELETE /v1/inventory/nodes/{node_id}][%d] removeNodeOk %s", 200, payload)
 }
 
-func (o *RemoveNodeOK) GetPayload() interface{} {
+func (o *RemoveNodeOK) GetPayload() any {
 	return o.Payload
 }
 
 func (o *RemoveNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,7 +178,7 @@ func (o *RemoveNodeDefault) readResponse(response runtime.ClientResponse, consum
 	o.Payload = new(RemoveNodeDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -225,11 +226,15 @@ func (o *RemoveNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("RemoveNode default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("RemoveNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -262,11 +267,15 @@ func (o *RemoveNodeDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("RemoveNode default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("RemoveNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -302,7 +311,7 @@ type RemoveNodeDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 
 	// remove node default body details items0
-	RemoveNodeDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	RemoveNodeDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -329,9 +338,9 @@ func (o *RemoveNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}

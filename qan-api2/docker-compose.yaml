@@ -5,16 +5,18 @@ services:
     container_name: pmm-server
     image: perconalab/pmm-server:3-dev-latest
     ports:
-      - 80:8080
       - 443:8443
       - 19000:9000
       - 9933:9933
     restart: always
 
   ch:
-    image: clickhouse/clickhouse-server
+    image: clickhouse/clickhouse-server:25.3.6.56
     platform: linux/amd64
     container_name: ch-server
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse
     ulimits:
       nofile:
         soft: 262144

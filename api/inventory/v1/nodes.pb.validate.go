@@ -75,6 +75,8 @@ func (m *GenericNode) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for IsPmmServerNode
+
 	if len(errors) > 0 {
 		return GenericNodeMultiError(errors)
 	}
@@ -193,6 +195,8 @@ func (m *ContainerNode) validate(all bool) error {
 	// no validation rules for Az
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for IsPmmServerNode
 
 	if len(errors) > 0 {
 		return ContainerNodeMultiError(errors)
@@ -420,6 +424,8 @@ func (m *RemoteRDSNode) validate(all bool) error {
 	// no validation rules for Az
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for InstanceId
 
 	if len(errors) > 0 {
 		return RemoteRDSNodeMultiError(errors)

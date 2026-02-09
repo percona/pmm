@@ -31,7 +31,7 @@ PMM Server requirements scale with the number of monitored nodes:
     - **Use cases**: Production environments, mid-sized companies
 
 === "Large (200+ nodes)"
-w1
+
     - **CPU**: 16+ cores with SSE4.2 support
     - **Memory**: 32+ GB RAM
     - **Storage**: 500+ GB
@@ -148,14 +148,13 @@ Choose your deployment method and ensure it meets these specific requirements:
 === ":material-harddisk: Virtual Appliance (OVA)"
     **Hypervisor compatibility:**
 
-    - VMware ESXi 6.0+, Workstation 12.0+, Fusion 10.0+
-    - VirtualBox 6.0+
+    - VirtualBox 7.0+
     
     **VM specifications (default):**
 
-    - OS: Oracle Linux 9.3
-    - CPU: 1 (adjustable after deployment)
-    - Memory: 4096 MB (adjustable after deployment)
+    - OS: Oracle Linux 9.6 (64-bit)
+    - CPU: 2 (adjustable after deployment)
+    - Memory: 8 GB (adjustable after deployment)
     - Disk 1: 40 GB (system)
     - Disk 2: 400 GB (data)
     
@@ -212,9 +211,9 @@ After confirming your environment meets these prerequisites:
 1. [Choose your deployment method](../plan-pmm-installation/choose-deployment.md) based on your infrastructure
 2. Install PMM Server  using your selected method:
 
-   - [Docker installation](../install-pmm-server/deployment-options/docker/index.md)
-   - [Podman installation](../install-pmm-server/deployment-options/podman/index.md)
-   - [Kubernetes/Helm installation](../install-pmm-server/deployment-options/helm/index.md)
-   - [Virtual Appliance deployment](../install-pmm-server/deployment-options/virtual/index.md)
+    - [Docker installation](../install-pmm-server/deployment-options/docker/index.md)
+    - [Podman installation](../install-pmm-server/deployment-options/podman/index.md)
+    - [Kubernetes/Helm installation](../install-pmm-server/deployment-options/helm/index.md)
+    - [Virtual Appliance deployment](../install-pmm-server/deployment-options/virtual/index.md)
 3. [Configure security settings](../../admin/security/index.md) for production use
 4. [Install PMM Clients](../install-pmm-client/index.md) on systems you want to monitor

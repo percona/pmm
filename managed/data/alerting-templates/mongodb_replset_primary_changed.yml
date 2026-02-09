@@ -1,0 +1,11 @@
+---
+templates:
+  - name: pmm_mongodb_replset_primary_changed
+    version: 1
+    summary: MongoDB Primary Changed
+    expr: min by (set)(changes(mongodb_mongod_replset_my_state[10m]) > 0)
+    for: 1m
+    severity: warning
+    annotations:
+      description: Replica set {{ $labels.set }} has undergone a primary change in the last 10 minutes
+      summary: Primary changed in {{ $labels.set }}

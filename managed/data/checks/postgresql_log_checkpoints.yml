@@ -1,0 +1,33 @@
+---
+checks:
+  - version: 2
+    name: postgresql_log_checkpoints
+    summary: PostgreSQL Checkpoints Logging is Disabled.
+    description: This check returns a notice if the log_checkpoints configuration option is not enabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.
+    family: POSTGRESQL
+    #author: Sergey Kuzmichev
+    advisor: configuration_generic
+    interval: standard
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: name, setting FROM pg_settings WHERE name = 'log_checkpoints'
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      def check_context(docs, context):
+          for row in docs[0]:
+              name, setting = row["name"], row["setting"]
+              if name == "log_checkpoints":
+                  val = setting
+
+          results = []
+          if val == "off":
+              results.append({
+                  "summary": "The current value of log_checkpoints is off",
+                  "description": "Logging of checkpoint information is currently disabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.",
+                  "read_more_url": read_url.format("configuration-pg-log-checkpoints-disabled"),
+                  "severity": "notice"
+              })
+
+          return results

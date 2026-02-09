@@ -207,12 +207,6 @@ func TestBasicAuthPermissions(t *testing.T) {
 			{userType: "editor", login: editor, statusCode: 401},
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
-		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
-			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, statusCode: 401},
-			{userType: "editor", login: editor, statusCode: 401},
-			{userType: "admin", login: admin, statusCode: 400}, // We send a bad request, but have access to endpoint
-		}},
 	}
 
 	for _, test := range tests {
@@ -355,12 +349,6 @@ func TestServiceAccountPermissions(t *testing.T) {
 			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
 			{userType: "editor", serviceToken: editorToken, statusCode: 401},
 			{userType: "admin", serviceToken: adminToken, statusCode: 200},
-		}},
-		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
-			{userType: "default", statusCode: 401},
-			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
-			{userType: "editor", serviceToken: editorToken, statusCode: 401},
-			{userType: "admin", serviceToken: adminToken, statusCode: 400}, // We are sending a bad request, but we still have access to the endpoint
 		}},
 	}
 

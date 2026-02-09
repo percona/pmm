@@ -44,7 +44,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			if !req.Reregister {
-				return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", req.NodeName)
+				return status.Errorf(codes.AlreadyExists, "Node with name %s already exists.", req.NodeName)
 			}
 			err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
 		case codes.NotFound:
@@ -54,7 +54,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			return err
 		}
 
-		node, err = models.CheckUniqueNodeInstanceRegion(tx.Querier, req.Address, &req.Region)
+		node, err = models.CheckUniqueNodeAddressRegion(tx.Querier, req.Address, &req.Region)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			// nothing
@@ -81,6 +81,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			ContainerID:   pointer.ToStringOrNil(req.ContainerId),
 			ContainerName: pointer.ToStringOrNil(req.ContainerName),
 			CustomLabels:  req.CustomLabels,
+			InstanceID:    req.InstanceId,
 			Address:       req.Address,
 			Region:        pointer.ToStringOrNil(req.Region),
 		})
@@ -309,20 +310,22 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 		}
 
 		uNode := &managementv1.UniversalNode{
-			Address:       node.Address,
-			CustomLabels:  labels,
-			NodeId:        node.NodeID,
-			NodeName:      node.NodeName,
-			NodeType:      string(node.NodeType),
-			Az:            node.AZ,
-			CreatedAt:     timestamppb.New(node.CreatedAt),
-			ContainerId:   pointer.GetString(node.ContainerID),
-			ContainerName: pointer.GetString(node.ContainerName),
-			Distro:        node.Distro,
-			MachineId:     pointer.GetString(node.MachineID),
-			NodeModel:     node.NodeModel,
-			Region:        pointer.GetString(node.Region),
-			UpdatedAt:     timestamppb.New(node.UpdatedAt),
+			Address:         node.Address,
+			CustomLabels:    labels,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			NodeType:        string(node.NodeType),
+			Az:              node.AZ,
+			CreatedAt:       timestamppb.New(node.CreatedAt),
+			ContainerId:     pointer.GetString(node.ContainerID),
+			ContainerName:   pointer.GetString(node.ContainerName),
+			Distro:          node.Distro,
+			MachineId:       pointer.GetString(node.MachineID),
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			UpdatedAt:       timestamppb.New(node.UpdatedAt),
+			InstanceId:      node.InstanceID,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}
 
 		if metric, ok := metrics[node.NodeID]; ok {
@@ -382,20 +385,21 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 	}
 
 	uNode := &managementv1.UniversalNode{
-		Address:       node.Address,
-		Az:            node.AZ,
-		CreatedAt:     timestamppb.New(node.CreatedAt),
-		ContainerId:   pointer.GetString(node.ContainerID),
-		ContainerName: pointer.GetString(node.ContainerName),
-		CustomLabels:  labels,
-		Distro:        node.Distro,
-		MachineId:     pointer.GetString(node.MachineID),
-		NodeId:        node.NodeID,
-		NodeName:      node.NodeName,
-		NodeType:      string(node.NodeType),
-		NodeModel:     node.NodeModel,
-		Region:        pointer.GetString(node.Region),
-		UpdatedAt:     timestamppb.New(node.UpdatedAt),
+		Address:         node.Address,
+		Az:              node.AZ,
+		CreatedAt:       timestamppb.New(node.CreatedAt),
+		ContainerId:     pointer.GetString(node.ContainerID),
+		ContainerName:   pointer.GetString(node.ContainerName),
+		CustomLabels:    labels,
+		Distro:          node.Distro,
+		MachineId:       pointer.GetString(node.MachineID),
+		NodeId:          node.NodeID,
+		NodeName:        node.NodeName,
+		NodeType:        string(node.NodeType),
+		NodeModel:       node.NodeModel,
+		Region:          pointer.GetString(node.Region),
+		UpdatedAt:       timestamppb.New(node.UpdatedAt),
+		IsPmmServerNode: node.IsPMMServerNode,
 	}
 
 	if metric, ok := metrics[node.NodeID]; ok {

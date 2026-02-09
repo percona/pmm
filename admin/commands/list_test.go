@@ -138,6 +138,14 @@ func TestListJSONOutput(t *testing.T) {
 						Port:        3306,
 					},
 				},
+				Valkey: []*services_service.ListServicesOKBodyValkeyItems0{
+					{
+						ServiceID:   "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
+						ServiceName: "valkey-service",
+						Address:     "127.0.0.1",
+						Port:        6379,
+					},
+				},
 			},
 		}
 		agents := &agents_service.ListAgentsOK{
@@ -159,6 +167,16 @@ func TestListJSONOutput(t *testing.T) {
 						ListenPort:         3306,
 					},
 				},
+				ValkeyExporter: []*agents_service.ListAgentsOKBodyValkeyExporterItems0{
+					{
+						AgentID:            "8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
+						PMMAgentID:         "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
+						ServiceID:          "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
+						Status:             pointer.ToString("RUNNING"),
+						PushMetricsEnabled: false,
+						ListenPort:         6379,
+					},
+				},
 			},
 		}
 		result := listResult{
@@ -176,6 +194,13 @@ func TestListJSONOutput(t *testing.T) {
 					"service_id": "4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 					"service_name": "mysql-service",
 					"address_port": "127.0.0.1:3306",
+					"external_group": ""
+				},
+				{
+					"service_type": "SERVICE_TYPE_VALKEY_SERVICE",
+					"service_id": "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
+					"service_name": "valkey-service",
+					"address_port": "127.0.0.1:6379",
 					"external_group": ""
 				}
 			],
@@ -196,6 +221,15 @@ func TestListJSONOutput(t *testing.T) {
 					"disabled": false,
 					"push_metrics_enabled": "pull",
 					"port": 3306
+				},
+				{
+					"agent_type": "AGENT_TYPE_VALKEY_EXPORTER",
+					"agent_id": "8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
+					"service_id": "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
+					"status": "RUNNING",
+					"disabled": false,
+					"push_metrics_enabled": "pull",
+					"port": 6379
 				}
 			]
 		}
