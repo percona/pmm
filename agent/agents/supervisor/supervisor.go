@@ -653,6 +653,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		params := &mongorta.Params{
 			DSN:             dsn,
 			AgentID:         agentID,
+			ServiceID:       builtinAgent.ServiceId,
+			ServiceName:     builtinAgent.ServiceName,
 			CollectInterval: builtinAgent.RtaOptions.GetCollectInterval().AsDuration(),
 		}
 		agent, err = mongorta.New(params, l)

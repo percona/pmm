@@ -11,10 +11,12 @@ message QueryMongoDBData {
   string opid = 1;
   // Client address.
   string client = 2;
+  // Application name from the MongoDB query.
+  string app_name = 3;
   // Indicates if the query is waiting for a lock.
-  bool waiting_for_lock = 3;
+  bool waiting_for_lock = 4;
   // Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
-  string index_utilized = 4;
+  string index_utilized = 5;
 }
 
 // QueryData represents a single Real-Time Analytics query data point.
@@ -30,7 +32,7 @@ message QueryData {
   string query_text = 4;
   // Current state of the query (e.g., running, completed).
   string state = 5;
-  // Current execution time in seconds.
+  // Current execution time.
   google.protobuf.Duration execution_duration = 6;
   // Number of rows examined by the query.
   int64 rows_examined = 7;

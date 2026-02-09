@@ -61,6 +61,8 @@ func (m *QueryMongoDBData) validate(all bool) error {
 
 	// no validation rules for Client
 
+	// no validation rules for AppName
+
 	// no validation rules for WaitingForLock
 
 	// no validation rules for IndexUtilized

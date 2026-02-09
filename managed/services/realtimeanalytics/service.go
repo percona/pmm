@@ -33,6 +33,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	"github.com/percona/pmm/managed/models"
@@ -325,6 +326,29 @@ func (s *Service) SearchQueries(_ context.Context, req *rtav1.SearchQueriesReque
 func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest, rtav1.CollectResponse]) error {
 	streamCtx := stream.Context()
 	l := logger.Get(streamCtx)
+	agentMD, err := agentv1.ReceiveAgentConnectMetadata(stream)
+	if err != nil {
+		l.Warnf("Disconnecting client: authentication failed: %v", err)
+		return status.Error(codes.Unauthenticated, "Failed to receive agent metadata")
+	}
+
+	err = s.db.InTransactionContext(streamCtx, nil, func(tx *reform.TX) error {
+		// Validate that the pmm-agent exists
+		agent, err := models.FindAgentByID(tx.Querier, agentMD.ID)
+		if err != nil {
+			return err
+		}
+		if agent.AgentType != models.PMMAgentType {
+			return status.Errorf(codes.InvalidArgument, "Agent with ID %s is not a pmm-agent", agentMD.ID)
+		}
+
+		return nil
+	})
+	if err != nil {
+		l.Warnf("Disconnecting client: agent validation failed: %v", err)
+		return status.Error(codes.InvalidArgument, fmt.Sprintf("Invalid Agent ID: %s", agentMD.ID))
+	}
+
 	for {
 		// Check if context is canceled before receiving
 		select {
@@ -353,9 +377,10 @@ func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest
 			}
 		}
 
-		if len(msg.Queries) == 0 {
+		if len(msg.Queries) == 0 || msg.Queries[0].ServiceId == "" {
 			continue
 		}
+
 		// Store received queries into the in-memory storage.
 		// All queries in the message belong to the same service.
 		s.store.Set(msg.Queries[0].ServiceId, msg.Queries)

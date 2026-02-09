@@ -936,6 +936,10 @@ func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc
 
 	l.Infof("Establishing client streaming communication channel to Real-Time Analytics Service at %s ...", cfg.Server.FilteredURL())
 	start := time.Now()
+	streamCtx = agentv1.AddAgentConnectMetadata(streamCtx, &agentv1.AgentConnectMetadata{
+		ID:      cfg.ID,
+		Version: version.Version,
+	})
 	stream, err := rtav1.NewCollectorServiceClient(conn).Collect(streamCtx) //nolint:contextcheck
 	if err != nil {
 		l.Errorf("Failed to establish client streaming communication channel to Real-Time Analytics Service: %s.", err)

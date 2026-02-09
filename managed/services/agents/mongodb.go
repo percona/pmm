@@ -201,9 +201,11 @@ func rtaMongoDBAgentConfig(service *models.Service, agent *models.Agent, pmmAgen
 	tdp := agent.TemplateDelimiters(service)
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
-		Type:       inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
-		Dsn:        agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
-		RtaOptions: services.ToAPIRTAOptions(&agent.RTAOptions),
+		Type:        inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
+		Dsn:         agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		RtaOptions:  services.ToAPIRTAOptions(&agent.RTAOptions),
+		ServiceId:   service.ServiceID,
+		ServiceName: service.ServiceName,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

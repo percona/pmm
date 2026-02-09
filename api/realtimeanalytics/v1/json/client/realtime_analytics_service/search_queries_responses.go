@@ -588,7 +588,7 @@ type SearchQueriesOKBodyQueriesItems0 struct {
 	// Current state of the query (e.g., running, completed).
 	State string `json:"state,omitempty"`
 
-	// Current execution time in seconds.
+	// Current execution time.
 	ExecutionDuration string `json:"execution_duration,omitempty"`
 
 	// Number of rows examined by the query.
@@ -727,6 +727,9 @@ type SearchQueriesOKBodyQueriesItems0MongoDBPayload struct {
 
 	// Client address.
 	Client string `json:"client,omitempty"`
+
+	// Application name from the MongoDB query.
+	AppName string `json:"app_name,omitempty"`
 
 	// Indicates if the query is waiting for a lock.
 	WaitingForLock bool `json:"waiting_for_lock,omitempty"`

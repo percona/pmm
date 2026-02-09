@@ -31,10 +31,12 @@ type QueryMongoDBData struct {
 	Opid string `protobuf:"bytes,1,opt,name=opid,proto3" json:"opid,omitempty"`
 	// Client address.
 	Client string `protobuf:"bytes,2,opt,name=client,proto3" json:"client,omitempty"`
+	// Application name from the MongoDB query.
+	AppName string `protobuf:"bytes,3,opt,name=app_name,json=appName,proto3" json:"app_name,omitempty"`
 	// Indicates if the query is waiting for a lock.
-	WaitingForLock bool `protobuf:"varint,3,opt,name=waiting_for_lock,json=waitingForLock,proto3" json:"waiting_for_lock,omitempty"`
+	WaitingForLock bool `protobuf:"varint,4,opt,name=waiting_for_lock,json=waitingForLock,proto3" json:"waiting_for_lock,omitempty"`
 	// Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
-	IndexUtilized string `protobuf:"bytes,4,opt,name=index_utilized,json=indexUtilized,proto3" json:"index_utilized,omitempty"`
+	IndexUtilized string `protobuf:"bytes,5,opt,name=index_utilized,json=indexUtilized,proto3" json:"index_utilized,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -83,6 +85,13 @@ func (x *QueryMongoDBData) GetClient() string {
 	return ""
 }
 
+func (x *QueryMongoDBData) GetAppName() string {
+	if x != nil {
+		return x.AppName
+	}
+	return ""
+}
+
 func (x *QueryMongoDBData) GetWaitingForLock() bool {
 	if x != nil {
 		return x.WaitingForLock
@@ -111,7 +120,7 @@ type QueryData struct {
 	QueryText string `protobuf:"bytes,4,opt,name=query_text,json=queryText,proto3" json:"query_text,omitempty"`
 	// Current state of the query (e.g., running, completed).
 	State string `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
-	// Current execution time in seconds.
+	// Current execution time.
 	ExecutionDuration *durationpb.Duration `protobuf:"bytes,6,opt,name=execution_duration,json=executionDuration,proto3" json:"execution_duration,omitempty"`
 	// Number of rows examined by the query.
 	RowsExamined int64 `protobuf:"varint,7,opt,name=rows_examined,json=rowsExamined,proto3" json:"rows_examined,omitempty"`
@@ -262,12 +271,13 @@ var File_realtimeanalytics_v1_query_proto protoreflect.FileDescriptor
 
 const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\n" +
-	" realtimeanalytics/v1/query.proto\x12\x14realtimeanalytics.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8f\x01\n" +
+	" realtimeanalytics/v1/query.proto\x12\x14realtimeanalytics.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xaa\x01\n" +
 	"\x10QueryMongoDBData\x12\x12\n" +
 	"\x04opid\x18\x01 \x01(\tR\x04opid\x12\x16\n" +
-	"\x06client\x18\x02 \x01(\tR\x06client\x12(\n" +
-	"\x10waiting_for_lock\x18\x03 \x01(\bR\x0ewaitingForLock\x12%\n" +
-	"\x0eindex_utilized\x18\x04 \x01(\tR\rindexUtilized\"\xed\x03\n" +
+	"\x06client\x18\x02 \x01(\tR\x06client\x12\x19\n" +
+	"\bapp_name\x18\x03 \x01(\tR\aappName\x12(\n" +
+	"\x10waiting_for_lock\x18\x04 \x01(\bR\x0ewaitingForLock\x12%\n" +
+	"\x0eindex_utilized\x18\x05 \x01(\tR\rindexUtilized\"\xed\x03\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
