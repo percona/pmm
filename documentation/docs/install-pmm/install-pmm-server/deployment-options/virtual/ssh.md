@@ -10,7 +10,7 @@ To configure SSH access:
 {.power-number}
 
 1. Enter your **public key** in the **SSH Key** field.
-2. Click **Apply SSH Key**.
+2. Click **Apply SSH key**.
 
 This adds the key to the virtual machine so you can connect to your PMM Server instance via SSH.
 

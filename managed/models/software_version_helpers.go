@@ -195,7 +195,7 @@ func FindServicesSoftwareVersions(
 		if err := ValidateServiceType(*filter.ServiceType); err != nil {
 			return nil, errors.WithStack(err)
 		}
-		tail.WriteString(fmt.Sprintf("WHERE service_type = %s", q.Placeholder(idx)))
+		tail.WriteString(fmt.Sprintf("WHERE service_type = %s ", q.Placeholder(idx)))
 		args = append(args, string(*filter.ServiceType))
 		idx++
 	}

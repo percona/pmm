@@ -24,6 +24,9 @@ on:
       - "vmproxy/**"
       - "update/**"
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     name: CI
@@ -35,7 +38,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@v6.0.2
 
       - name: Setup nodejs
         uses: actions/setup-node@v6
