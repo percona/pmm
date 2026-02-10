@@ -31,6 +31,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	// Installing the gzip encoding registers it as an available compressor.
+	// gRPC will automatically negotiate and use gzip if the client supports it.
+	grpc_gzip "google.golang.org/grpc/encoding/gzip"
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -940,7 +943,8 @@ func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc
 		ID:      cfg.ID,
 		Version: version.Version,
 	})
-	stream, err := rtav1.NewCollectorServiceClient(conn).Collect(streamCtx) //nolint:contextcheck
+	// Send the RPC compressed.
+	stream, err := rtav1.NewCollectorServiceClient(conn).Collect(streamCtx, grpc.UseCompressor(grpc_gzip.Name)) //nolint:contextcheck
 	if err != nil {
 		l.Errorf("Failed to establish client streaming communication channel to Real-Time Analytics Service: %s.", err)
 		teardown()

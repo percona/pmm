@@ -105,7 +105,6 @@ func (m *MongoDBRTA) Run(ctx context.Context) {
 		close(m.changes)
 	}()
 
-	// TODO: run actual RTA data collection
 	// create connection to MongoDB
 	client, err := createSession(ctx, m.mongoDSN, m.agentID)
 	if err != nil {
