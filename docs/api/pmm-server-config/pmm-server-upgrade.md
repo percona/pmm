@@ -1,8 +1,9 @@
 ---
 title: Upgrade your PMM Server
 slug: pmm-server-upgrade
-categorySlug: pmm-server-maintenance
-order: 3
+category:
+  uri: pmm-server-maintenance
+position: 3
 ---
 
 To get the most of PMM, you need to keep your PMM Server up-to-date.
