@@ -142,7 +142,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	// FIXME get it via pmm-agent's API - it is _not_ a good idea to use exec there
 	// golangci-lint should continue complain about it until it is fixed
-	b, err = exec.Command("pmm-agent", "--version").CombinedOutput()
+	b, err = exec.Command("pmm-agent", "--version").CombinedOutput() //nolint:gosec
 	if err != nil {
 		logrus.Debugf("%s", err)
 		b = []byte(err.Error())

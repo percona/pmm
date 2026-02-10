@@ -273,7 +273,7 @@ func mySQLActive(ctx context.Context, mySQLServiceName string) (bool, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", mySQLServiceName)
+	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", mySQLServiceName) //nolint:gosec
 	if err := cmd.Start(); err != nil {
 		return false, errors.Wrap(err, "starting systemctl is-active command failed")
 	}
@@ -295,7 +295,7 @@ func stopMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "stop", mySQLServiceName)
+	cmd := exec.CommandContext(ctx, "systemctl", "stop", mySQLServiceName) //nolint:gosec
 	if err := cmd.Start(); err != nil {
 		return errors.Wrap(err, "starting systemctl stop command failed")
 	}
@@ -307,7 +307,7 @@ func startMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName)
+	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName) //nolint:gosec
 	if err := cmd.Start(); err != nil {
 		return errors.Wrap(err, "starting systemctl start command failed")
 	}
@@ -438,7 +438,7 @@ func getMysqlServiceName(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "list-unit-files", "--type=service")
+	cmd := exec.CommandContext(ctx, "systemctl", "list-unit-files", "--type=service") //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to list system services, output: %s", string(output))

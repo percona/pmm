@@ -146,7 +146,7 @@ func (c *Nomad) generateCACert() error {
 		}
 	}
 
-	command := exec.Command(pathToNomad, "tls", "ca", "create", "-days", "10000")
+	command := exec.Command(pathToNomad, "tls", "ca", "create", "-days", "10000") //nolint:gosec
 	command.Dir = pathToCerts
 	command.Stderr = c.l.WriterLevel(logrus.ErrorLevel)
 	err := command.Run()

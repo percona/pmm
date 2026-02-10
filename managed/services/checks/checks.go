@@ -1252,7 +1252,7 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	cmdCtx, cancel := context.WithTimeout(ctx, scriptExecutionTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(cmdCtx, "pmm-managed-starlark")
+	cmd := exec.CommandContext(cmdCtx, "pmm-managed-starlark") //nolint:gosec
 	pdeathsig.Set(cmd, syscall.SIGKILL)
 
 	var stdin, stderr bytes.Buffer

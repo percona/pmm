@@ -71,7 +71,7 @@ func startPMMServer() error {
 		return nil
 	}
 
-	cmd := exec.Command("supervisorctl", "start pmm-managed")
+	cmd := exec.Command("supervisorctl", "start pmm-managed") //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, output)
@@ -90,7 +90,7 @@ func stopPMMServer() error {
 		return nil
 	}
 
-	cmd := exec.Command("supervisorctl", "stop pmm-managed")
+	cmd := exec.Command("supervisorctl", "stop pmm-managed") //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, output)
@@ -104,7 +104,7 @@ func stopPMMServer() error {
 }
 
 func pmmServerStatus(status string) bool {
-	cmd := exec.Command("supervisorctl", "status pmm-managed")
+	cmd := exec.Command("supervisorctl", "status pmm-managed") //nolint:gosec
 	output, _ := cmd.CombinedOutput()
 
 	return strings.Contains(string(output), strings.ToUpper(status))

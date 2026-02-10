@@ -181,7 +181,7 @@ func execPBMCommand(ctx context.Context, dsn string, to interface{}, args ...str
 	defer cancel()
 
 	args = append(args, "--out=json", "--mongodb-uri="+dsn)
-	cmd := exec.CommandContext(nCtx, pbmBin, args...)
+	cmd := exec.CommandContext(nCtx, pbmBin, args...) //nolint:gosec
 
 	b, err := cmd.Output()
 	if err != nil {
