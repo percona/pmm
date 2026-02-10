@@ -44,7 +44,7 @@ Query Analytics in PMM supports two ClickHouse configuration profiles for differ
 - **low-memory-config.xml** — for limited memory resources
 
 !!! note
-    Low memory config is based on recommendations there: https://clickhouse.com/docs/operations/tips#using-less-than-16gb-of-ram
+    Low memory config is based on ClickHouse' recommendations: https://clickhouse.com/docs/operations/tips#using-less-than-16gb-of-ram
  
 Both files are located in `/etc/clickhouse-server/` inside the PMM Server container.
 
