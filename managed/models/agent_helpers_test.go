@@ -505,6 +505,7 @@ func TestAgentHelpers(t *testing.T) {
 				RunsOnNodeID: pointer.ToString("N1"),
 				ServiceID:    pointer.ToString("S1"),
 				ListenPort:   pointer.ToUint16(9104),
+				Status:       models.AgentStatusUnknown,
 				ExporterOptions: models.ExporterOptions{
 					MetricsPath:   "/metrics",
 					MetricsScheme: "http",
