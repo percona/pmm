@@ -111,6 +111,8 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 
 func commandPmmAgent(args []string) *exec.Cmd {
 	const pmmAgentCommandName = "pmm-agent"
+	// Using exec.Command instead of exec.CommandContext is intentional here
+	// as pmm-agent is a long-lived process that should outlive the entrypoint's context
 	command := exec.Command(pmmAgentCommandName, args...) //nolint:gosec,noctx
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
