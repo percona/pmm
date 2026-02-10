@@ -49,14 +49,14 @@ func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentv1.PBMSwi
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	output, err := exec.CommandContext(
+	output, err := exec.CommandContext( //nolint:gosec
 		ctx,
 		pbmBin,
 		"config",
 		"--set",
 		"pitr.enabled="+strconv.FormatBool(req.Enabled),
 		"--mongodb-uri="+dsn).
-		CombinedOutput() //nolint:gosec
+		CombinedOutput()
 	if err != nil {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))
 	}
