@@ -1,7 +1,8 @@
 ---
 title: List Services
 slug: listservices
-categorySlug: inventory-api
+category:
+  uri: inventory-api
 ---
 
 ## List Services

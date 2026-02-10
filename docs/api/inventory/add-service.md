@@ -1,7 +1,8 @@
 ---
 title: Add a Service
 slug: addservice
-categorySlug: inventory-api
+category:
+  uri: inventory-api
 ---
 
 ## Add a Service
