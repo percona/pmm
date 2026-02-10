@@ -349,7 +349,7 @@ func (s *Agent) BeforeInsert() error {
 	if len(s.EnvironmentVariables) == 0 {
 		s.EnvironmentVariables = nil
 	}
-	if s.Status == "" && s.AgentType != ExternalExporterType && s.AgentType != PMMAgentType {
+	if s.Status == "" && s.AgentType != PMMAgentType {
 		s.Status = AgentStatusUnknown
 	}
 	if s.Disabled {
