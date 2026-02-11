@@ -1,8 +1,9 @@
 ---
 title: Overview
 slug: pmm-server-configuration
-categorySlug: pmm-server-maintenance
-order: 0
+category:
+  uri: pmm-server-maintenance
+position: 0
 ---
 
 This section will provide you with information on how to perform configuration and maintenance of a PMM Server.

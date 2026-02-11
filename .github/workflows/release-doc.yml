@@ -25,84 +25,12 @@ permissions:
   contents: read
 
 jobs:
-  merge-docs:
-    permissions:
-      contents: write  # for git push operations
-
-    if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && github.repository == 'percona/pmm'
-    runs-on: ubuntu-22.04
-    
-    steps:
-      - name: Set version for testing
-        id: set_version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-            echo "source_branch=${{ inputs.source_branch }}" >> $GITHUB_OUTPUT
-            echo "target_docs_branch=${{ inputs.target_docs_branch }}" >> $GITHUB_OUTPUT
-            echo "Testing with version: ${{ inputs.version }}"
-            echo "Target docs branch: ${{ inputs.target_docs_branch }}"
-          else
-            version="${{ github.ref }}"
-            version="${version/refs\/tags\/v/}"
-            echo "version=$version" >> $GITHUB_OUTPUT
-            echo "source_branch=" >> $GITHUB_OUTPUT
-            echo "target_docs_branch=v3" >> $GITHUB_OUTPUT
-            echo "Release with version: $version"
-          fi
-
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-
-      - name: Merge pmm-version branch into target docs branch
-        shell: bash
-        run: |
-          version="${{ steps.set_version.outputs.version }}"
-          source_branch="${{ steps.set_version.outputs.source_branch }}"
-          target_docs_branch="${{ steps.set_version.outputs.target_docs_branch }}"
-          
-          # Use source branch if provided, otherwise use pmm-$version
-          if [ -n "$source_branch" ]; then
-            merge_source_branch="$source_branch"
-            echo "Using specified source branch: $merge_source_branch"
-          else
-            merge_source_branch="pmm-$version"
-            echo "Using standard branch: $merge_source_branch"
-          fi
-          
-          echo "Target documentation branch: $target_docs_branch"
-          
-          # Configure git
-          git config user.name "GitHub Action"
-          git config user.email "github-action@users.noreply.github.com"
-          
-          # Check if branch exists
-          if git ls-remote --heads origin $merge_source_branch | grep -q $merge_source_branch; then
-            echo "Found $merge_source_branch branch, merging into $target_docs_branch..."
-            
-            # Checkout target docs branch
-            git checkout $target_docs_branch || git checkout -b $target_docs_branch origin/$target_docs_branch
-            
-            # Merge branch
-            git merge origin/$merge_source_branch --no-ff -m "Merge $merge_source_branch into $target_docs_branch for release $version"
-            
-            # Push the merge
-            git push origin $target_docs_branch
-            
-            echo "Successfully merged $merge_source_branch into $target_docs_branch"
-          else
-            echo "$merge_source_branch branch not found, skipping merge"
-          fi
-
   release:
     permissions:
       contents: write  # for softprops/action-gh-release to create GitHub release
 
     if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && github.repository == 'percona/pmm'
     runs-on: ubuntu-22.04
-    needs: merge-docs
     steps:
       - name: Set version for testing
         id: set_version
@@ -156,7 +84,7 @@ jobs:
           echo "Changelog content preview:"
           head -5 ${{ github.workspace }}-CHANGELOG.txt
 
-      - name: Convert mkdocs
+      - name: Convert from mkdocs to GitHub markdown
         shell: bash --noprofile --norc -ex {0}
         run: |
           grep -rl '!!! caution' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! caution alert alert-warning "\(.*\)"/\> \:warning\: **\1**/g'
@@ -170,7 +98,5 @@ jobs:
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           draft: true
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}-test', steps.set_version.outputs.version) || github.ref_name }}
-          name: ${{ github.event_name == 'workflow_dispatch' && format('Test Release v{0}', steps.set_version.outputs.version) || format('Release {0}', github.ref_name) }}
-
-
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.set_version.outputs.version) || github.ref_name }}
+          name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', steps.set_version.outputs.version) || format('Release {0}', github.ref_name) }}
