@@ -1,8 +1,9 @@
 ---
 title: Overview
 slug: pmm-advisors
-categorySlug: advisor-api
-order: 0
+category:
+  uri: advisor-api
+position: 0
 ---
 
 
