@@ -1,8 +1,10 @@
 ---
 title: List Locations
 slug: listlocations
-excerpt: ListLocations returns a list of all backup locations.
-categorySlug: backup-api
+content:
+  excerpt: ListLocations returns a list of all backup locations.
+category:
+  uri: backup-api
 ---
 
 The following API call will list all the available backup locations:

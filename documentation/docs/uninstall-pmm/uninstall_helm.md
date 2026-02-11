@@ -13,7 +13,7 @@ Remove PMM Server deployed via Helm in a Kubernetes cluster.
 
 ## Uninstall steps
 
-Follow these steps to completely remove PMM Server from your Kubernetes cluster. While Helm handles most of the cleanup, some resources—such as persistent volumes and secrets—must be deleted manually.
+Follow these steps to completely remove PMM Server from your Kubernetes cluster. Helm removes most components, but some resources such as persistent volumes and secrets must be deleted manually.
 {.power-number}
 
 1. Uninstall the `pmm` Helm release and remove all resources associated with the PMM release and the release history:
