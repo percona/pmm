@@ -1,7 +1,8 @@
 ---
 title: List Nodes
 slug: listnodes
-categorySlug: inventory-api
+category:
+  uri: inventory-api
 ---
 
 ## List Nodes

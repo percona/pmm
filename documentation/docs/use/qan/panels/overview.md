@@ -1,4 +1,4 @@
-# Overview Panel
+# Overview panel
 
 To the right of the Filters panel and occupying the upper part of the dashboard is the Overview panel.
 
