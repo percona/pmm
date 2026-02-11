@@ -86,8 +86,8 @@ github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.4 h1:0ryTNEd
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.4/go.mod h1:HQ4qwNZh32C3CBeO6iJLQlgtMzqeG17ziAA/3KDJFow=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.17 h1:RuNSMoozM8oXlgLG/n6WLaFGoea7/CddrCfIiSA+xdY=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.17/go.mod h1:F2xxQ9TZz5gDWsclCtPQscGpP0VUOc8RqgFM3vDENmU=
-github.com/aws/aws-sdk-go-v2/service/rds v1.114.0 h1:p9c6HDzx6sTf7uyc9xsQd693uzArsPrsVr9n0oRk7DU=
-github.com/aws/aws-sdk-go-v2/service/rds v1.114.0/go.mod h1:JBRYWpz5oXQtHgQC+X8LX9lh0FBCwRHJlWEIT+TTLaE=
+github.com/aws/aws-sdk-go-v2/service/rds v1.115.0 h1:oNl6YghOtxu3MiFk1tQ86QlrYMIEJazGUDbBCg9nxLA=
+github.com/aws/aws-sdk-go-v2/service/rds v1.115.0/go.mod h1:JBRYWpz5oXQtHgQC+X8LX9lh0FBCwRHJlWEIT+TTLaE=
 github.com/aws/aws-sdk-go-v2/service/signin v1.0.4 h1:HpI7aMmJ+mm1wkSHIA2t5EaFFv5EFYXePW30p1EIrbQ=
 github.com/aws/aws-sdk-go-v2/service/signin v1.0.4/go.mod h1:C5RdGMYGlfM0gYq/tifqgn4EbyX99V15P2V3R+VHbQU=
 github.com/aws/aws-sdk-go-v2/service/sso v1.30.8 h1:aM/Q24rIlS3bRAhTyFurowU8A0SMyGDtEOY/l/s/1Uw=
