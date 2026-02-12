@@ -29,7 +29,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-const defaultLastMigration uint = 21
+const defaultLastMigration = uint(21)
 
 func main() {
 	lastMigrationFlag := flag.Uint("last-migration", defaultLastMigration, "Last migration number (e.g., 21)")
