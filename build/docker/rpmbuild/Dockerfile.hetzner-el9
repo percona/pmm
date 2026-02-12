@@ -33,7 +33,7 @@ RUN dnf update -y && \
     bison rpm-build \
     rsync \
     krb5-devel \
-    wget && \
+    wget gzip && \
     dnf install -y --enablerepo=crb glibc-static && \
     dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
 
@@ -44,7 +44,7 @@ RUN sed -i 's|metalink=|#metalink=|g' /etc/yum.repos.d/epel*.repo && \
 # keep that format for easier search
 ENV GO_VERSION=1.25.7
 
-RUN if [ "$(uname -m)" == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
+RUN if [ "$(uname -m)" = "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
     tar -C /usr/local -xzf /tmp/golang.tar.gz && \
     rm /tmp/golang.tar.gz
