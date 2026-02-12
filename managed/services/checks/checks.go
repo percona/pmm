@@ -601,7 +601,6 @@ func (s *Service) filterChecks(checks map[string]check.Check, group check.Interv
 }
 
 // getActiveUserServiceTypes returns a set of service types that have at least one user-added service.
-// This excludes PMM's internal services (e.g., pmm-server-postgresql).
 func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, error) {
 	serviceTypes, err := models.FindActiveUserServiceTypes(s.db.Querier)
 	if err != nil {
@@ -623,8 +622,6 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 		return nil, errors.WithStack(err)
 	}
 
-	// Query active user service types from inventory to skip checks for non-existent DB types.
-	// This excludes PMM's internal services (e.g., pmm-server-postgresql).
 	activeServiceTypes, err := s.getActiveUserServiceTypes()
 	if err != nil {
 		return nil, errors.WithStack(err)
