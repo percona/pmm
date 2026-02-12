@@ -19,10 +19,10 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/percona/saas/pkg/starlark"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/managed/pi/starlark"
 	"github.com/percona/pmm/version"
 )
 
