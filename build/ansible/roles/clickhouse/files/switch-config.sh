@@ -3,7 +3,7 @@
 # Switches /etc/clickhouse-server/config.xml
 
 set -e
-CONFIG_DIR="/etc/clickhouse-server/"
+CONFIG_DIR="/etc/clickhouse-server"
 PROFILE="$1"
 
 if [ -z "$PROFILE" ]; then

@@ -48,8 +48,6 @@
     group: root
     mode: 0664
   loop:
-    - config.xml
-    - users.xml
     - dhparam.pem
     - low-memory-config.xml
     - default-config.xml
@@ -62,13 +60,43 @@
     path: /etc/clickhouse-server/switch-config.sh
     mode: 0755
 
-- name: Create symlink to switch-config.sh in /
+- name: Create symlink for switch-config.sh
   file:
     src: /etc/clickhouse-server/switch-config.sh
     dest: "/opt/switch-config.sh"
     owner: pmm
     group: root
     state: link
+    force: yes
+
+- name: Remove config.xml if it exists and is not a symlink
+  file:
+    path: /etc/clickhouse-server/config.xml
+    state: absent
+  when: config_xml_stat.stat.exists and not config_xml_stat.stat.islnk
+
+- name: Remove users.xml if it exists and is not a symlink
+  file:
+    path: /etc/clickhouse-server/users.xml
+    state: absent
+  when: users_xml_stat.stat.exists and not users_xml_stat.stat.islnk
+
+- name: Create symlink for config.xml to default-config.xml
+  file:
+    src: /etc/clickhouse-server/default-config.xml
+    dest: /etc/clickhouse-server/config.xml
+    state: link
+    owner: pmm
+    group: root
+    force: yes
+
+- name: Create symlink for users.xml to default-users.xml
+  file:
+    src: /etc/clickhouse-server/default-users.xml
+    dest: /etc/clickhouse-server/users.xml
+    state: link
+    owner: pmm
+    group: root
     force: yes
 
 # We need to remove capabilities because we run PMM in an unprivileged container
