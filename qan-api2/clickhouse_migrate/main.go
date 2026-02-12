@@ -37,8 +37,6 @@ func main() {
 	passwordFlag := flag.String("password", "clickhouse", "ClickHouse password")
 	flag.Parse()
 
-	user := *userFlag
-	password := *passwordFlag
 	lastMigration := *lastMigrationFlag
 	if lastMigration == 0 {
 		log.Println("Usage: go run main.go --last-migration <number> [--user <user>] [--password <password>]")
@@ -46,7 +44,7 @@ func main() {
 	}
 	migrationDir := "file:///root/go/src/github.com/percona/pmm/qan-api2/migrations/sql"
 
-	clickhouseDSN := fmt.Sprintf("clickhouse://localhost:9000?username=%s&password=%s&database=pmm", user, password)
+	clickhouseDSN := fmt.Sprintf("clickhouse://localhost:9000?username=%s&password=%s&database=pmm", *userFlag, *passwordFlag)
 	m, err := migrate.New(migrationDir, clickhouseDSN)
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
