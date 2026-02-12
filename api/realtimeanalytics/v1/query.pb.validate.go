@@ -57,15 +57,48 @@ func (m *QueryMongoDBData) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Opid
+	// no validation rules for DbInstanceAddress
 
-	// no validation rules for Client
+	// no validation rules for ClientAppName
 
-	// no validation rules for AppName
+	// no validation rules for DatabaseName
 
-	// no validation rules for WaitingForLock
+	// no validation rules for Collection
 
-	// no validation rules for IndexUtilized
+	// no validation rules for Operation
+
+	if all {
+		switch v := interface{}(m.GetOperationStartTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, QueryMongoDBDataValidationError{
+					field:  "OperationStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, QueryMongoDBDataValidationError{
+					field:  "OperationStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOperationStartTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return QueryMongoDBDataValidationError{
+				field:  "OperationStartTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Username
+
+	// no validation rules for PlanSummary
 
 	if len(errors) > 0 {
 		return QueryMongoDBDataMultiError(errors)
@@ -175,14 +208,14 @@ func (m *QueryData) validate(all bool) error {
 
 	// no validation rules for QueryText
 
-	// no validation rules for State
+	// no validation rules for QueryRawJson
 
 	if all {
-		switch v := interface{}(m.GetExecutionDuration()).(type) {
+		switch v := interface{}(m.GetQueryExecutionDuration()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, QueryDataValidationError{
-					field:  "ExecutionDuration",
+					field:  "QueryExecutionDuration",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -190,32 +223,28 @@ func (m *QueryData) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, QueryDataValidationError{
-					field:  "ExecutionDuration",
+					field:  "QueryExecutionDuration",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetExecutionDuration()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetQueryExecutionDuration()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return QueryDataValidationError{
-				field:  "ExecutionDuration",
+				field:  "QueryExecutionDuration",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	// no validation rules for RowsExamined
-
-	// no validation rules for RowsSent
-
 	if all {
-		switch v := interface{}(m.GetCollectTime()).(type) {
+		switch v := interface{}(m.GetQueryCollectTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, QueryDataValidationError{
-					field:  "CollectTime",
+					field:  "QueryCollectTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -223,23 +252,23 @@ func (m *QueryData) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, QueryDataValidationError{
-					field:  "CollectTime",
+					field:  "QueryCollectTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCollectTime()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetQueryCollectTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return QueryDataValidationError{
-				field:  "CollectTime",
+				field:  "QueryCollectTime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	// no validation rules for RawQueryJson
+	// no validation rules for ClientAddress
 
 	switch v := m.Payload.(type) {
 	case *QueryData_MongoDbPayload:

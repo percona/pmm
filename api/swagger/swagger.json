@@ -29479,12 +29479,12 @@
                     "type": "object",
                     "properties": {
                       "service_id": {
-                        "description": "Service identifier that reported the query.",
+                        "description": "PMM Service identifier that reported the query.",
                         "type": "string",
                         "x-order": 0
                       },
                       "service_name": {
-                        "description": "Service name that reported the query.",
+                        "description": "PMM Service name that reported the query.",
                         "type": "string",
                         "x-order": 1
                       },
@@ -29498,70 +29498,74 @@
                         "type": "string",
                         "x-order": 3
                       },
-                      "state": {
-                        "description": "Current state of the query (e.g., running, completed).",
+                      "query_raw_json": {
+                        "description": "Raw JSON representation of the query.",
                         "type": "string",
                         "x-order": 4
                       },
-                      "execution_duration": {
-                        "description": "Current execution time.",
+                      "query_execution_duration": {
+                        "description": "Current query current execution time.",
                         "type": "string",
                         "x-order": 5
                       },
-                      "rows_examined": {
-                        "description": "Number of rows examined by the query.",
-                        "type": "string",
-                        "format": "int64",
-                        "x-order": 6
-                      },
-                      "rows_sent": {
-                        "description": "Number of rows sent by the query.",
-                        "type": "string",
-                        "format": "int64",
-                        "x-order": 7
-                      },
-                      "collect_time": {
+                      "query_collect_time": {
                         "description": "Timestamp when the query data was collected by Real-Time Analytics agent.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 8
+                        "x-order": 6
                       },
-                      "raw_query_json": {
-                        "description": "Raw JSON representation of the query.",
+                      "client_address": {
+                        "description": "Client address (host:port).",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 7
                       },
                       "mongo_db_payload": {
                         "description": "QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.",
                         "type": "object",
                         "properties": {
-                          "opid": {
-                            "description": "Operation ID of the query.",
+                          "db_instance_address": {
+                            "description": "MongoDB instance address(host:port) that processing the query.",
                             "type": "string",
                             "x-order": 0
                           },
-                          "client": {
-                            "description": "Client address.",
+                          "client_app_name": {
+                            "description": "Client application name from the MongoDB query.",
                             "type": "string",
                             "x-order": 1
                           },
-                          "app_name": {
-                            "description": "Application name from the MongoDB query.",
+                          "database_name": {
+                            "description": "Database name.",
                             "type": "string",
                             "x-order": 2
                           },
-                          "waiting_for_lock": {
-                            "description": "Indicates if the query is waiting for a lock.",
-                            "type": "boolean",
+                          "collection": {
+                            "description": "Collection name.",
+                            "type": "string",
                             "x-order": 3
                           },
-                          "index_utilized": {
-                            "description": "Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.",
+                          "operation": {
+                            "description": "Query operation (\"find\", \"aggregate\", \"update\", etc).",
                             "type": "string",
                             "x-order": 4
+                          },
+                          "operation_start_time": {
+                            "description": "The start time of the operation.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 5
+                          },
+                          "username": {
+                            "description": "MongoDB user name associated with the query.",
+                            "type": "string",
+                            "x-order": 6
+                          },
+                          "plan_summary": {
+                            "description": "Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.",
+                            "type": "string",
+                            "x-order": 7
                           }
                         },
-                        "x-order": 10
+                        "x-order": 8
                       }
                     }
                   },

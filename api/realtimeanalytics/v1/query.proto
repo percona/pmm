@@ -7,44 +7,46 @@ import "google/protobuf/timestamp.proto";
 
 // QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.
 message QueryMongoDBData {
-  // Operation ID of the query.
-  string opid = 1;
-  // Client address.
-  string client = 2;
-  // Application name from the MongoDB query.
-  string app_name = 3;
-  // Indicates if the query is waiting for a lock.
-  bool waiting_for_lock = 4;
+  // MongoDB instance address(host:port) that processing the query.
+  string db_instance_address = 1;
+  // Client application name from the MongoDB query.
+  string client_app_name = 2;
+  // Database name.
+  string database_name = 3;
+  // Collection name.
+  string collection = 4;
+  // Query operation ("find", "aggregate", "update", etc).
+  string operation = 5;
+  // The start time of the operation.
+  google.protobuf.Timestamp operation_start_time = 6;
+  // MongoDB user name associated with the query.
+  string username = 7;
   // Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
-  string index_utilized = 5;
+  string plan_summary = 8;
 }
 
 // QueryData represents a single Real-Time Analytics query data point.
 // It includes general query information and a payload for database-specific details.
 message QueryData {
-  // Service identifier that reported the query.
+  // PMM Service identifier that reported the query.
   string service_id = 1;
-  // Service name that reported the query.
+  // PMM Service name that reported the query.
   string service_name = 2;
   // Unique identifier for the query.
   string query_id = 3;
   // The text of the query.
   string query_text = 4;
-  // Current state of the query (e.g., running, completed).
-  string state = 5;
-  // Current execution time.
-  google.protobuf.Duration execution_duration = 6;
-  // Number of rows examined by the query.
-  int64 rows_examined = 7;
-  // Number of rows sent by the query.
-  int64 rows_sent = 8;
-  // Timestamp when the query data was collected by Real-Time Analytics agent.
-  google.protobuf.Timestamp collect_time = 9;
   // Raw JSON representation of the query.
-  string raw_query_json = 10;
+  string query_raw_json = 5;
+  // Current query current execution time.
+  google.protobuf.Duration query_execution_duration = 6;
+  // Timestamp when the query data was collected by Real-Time Analytics agent.
+  google.protobuf.Timestamp query_collect_time = 7;
+  // Client address (host:port).
+  string client_address = 8;
   // Database-specific payload.
   oneof payload {
     // MongoDB-specific query data.
-    QueryMongoDBData mongo_db_payload = 11;
+    QueryMongoDBData mongo_db_payload = 9;
   }
 }
