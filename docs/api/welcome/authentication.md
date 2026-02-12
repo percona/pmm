@@ -1,8 +1,9 @@
 ---
 title: Authentication
 slug: authentication
-parentSlug: welcome
-order: 1
+parent:
+  uri: welcome
+position: 1
 ---
 
 ## Authentication

@@ -4,14 +4,11 @@ The Home Dashboard provides a high-level overview of your environment, such as t
 
 This Home Dashboard displays data that is organized in panels as given below.
 
-
 ![!image](../../images/PMM_Home_Dashboard.png)
-
 
 ## Overview
 
 This panel lists all added hosts along with essential information about their performance. For each host, you can find the current values of the following metrics:
-
 
 * Monitored DB Services
 * Monitored DB Instances
@@ -43,7 +40,6 @@ The following anomalies are displayed on this panel:
 * Disk Queue anomalies
 * High disk queue
 * High Memory Used
-
 
 ## Command Center
 

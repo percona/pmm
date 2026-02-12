@@ -19,7 +19,7 @@ To remove a PMM Server virtual machine from VirtualBox:
 {.power-number}
 
 1. Select the PMM Server VM in the VirtualBox Manager and right-click and select **Close > Power Off**. 
-2. Right-click on the powered-off VM and select **Remove** .
+2. Right-click on the powered-off VM and select **Remove**.
 3. Choose **Delete all files** to remove the VM and its disk images, then click **Remove** to confirm.
 
 ## Verify removal
@@ -37,4 +37,3 @@ After removing the virtual machine, you can:
 
 - [Download the latest PMM Server OVA](download_ova.md) to install a newer version
 - [Deploy PMM Server using an alternative method](../../index.md), such as Docker or Kubernetes
-- [Set up a new PMM Server virtual appliance](vmware.md) with a fresh configuration

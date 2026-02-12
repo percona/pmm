@@ -27,8 +27,9 @@ import (
 	"text/tabwriter"
 
 	"github.com/alecthomas/kong"
-	"github.com/percona/saas/pkg/alert"
-	"github.com/percona/saas/pkg/check"
+
+	"github.com/percona/pmm/managed/pi/alert"
+	"github.com/percona/pmm/managed/pi/check"
 )
 
 type advisorsCommand struct {

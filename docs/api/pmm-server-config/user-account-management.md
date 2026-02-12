@@ -1,8 +1,9 @@
 ---
 title: User account management
 slug: pmm-server-user-accounts
-categorySlug: pmm-server-maintenance
-order: 1
+category:
+  uri: pmm-server-maintenance
+position: 1
 ---
 
 The pages below explain more in detail how to perform user account management.
