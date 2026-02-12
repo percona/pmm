@@ -175,7 +175,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
 	var PMMAgentID string
 	var portsChanged bool
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", "agents/handler")
 
 	errTX := h.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var agentIDs []string
