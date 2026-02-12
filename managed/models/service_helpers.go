@@ -162,14 +162,12 @@ func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	return res, nil
 }
 
-// FindActiveUserServiceTypes returns all active Service Types, excluding PMM's internal services.
-// This filters out services running on the PMM Server node and the internal pmm-server-postgresql service.
+// FindActiveUserServiceTypes returns all active Service Types, excluding pmm-server-postgresql service.
 func FindActiveUserServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	query := fmt.Sprintf(
-		`SELECT DISTINCT service_type FROM %s WHERE node_id != $1 AND service_name != $2`,
-		ServiceTable.s.SQLName,
-	)
-	rows, err := q.Query(query, PMMServerNodeID, PMMServerPostgreSQLServiceName)
+		`SELECT DISTINCT service_type FROM %s WHERE service_name != $1`,
+		ServiceTable.s.SQLName)
+	rows, err := q.Query(query, PMMServerPostgreSQLServiceName)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
