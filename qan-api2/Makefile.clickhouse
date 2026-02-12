@@ -76,7 +76,7 @@ CLICKHOUSE_PASSWORD ?= clickhouse
 restore-clickhouse-backup: 
 	docker exec pmm-server clickhouse-client --user=$(CLICKHOUSE_USER) --password=$(CLICKHOUSE_PASSWORD) --query="DROP DATABASE IF EXISTS pmm";
 	docker exec pmm-server clickhouse-client --user=$(CLICKHOUSE_USER) --password=$(CLICKHOUSE_PASSWORD) --query="RESTORE DATABASE pmm FROM Disk('backup', '$(BACKUP_NAME)')";
-	docker exec -u root -e CLICKHOUSE_USER=$(CLICKHOUSE_USER) -e CLICKHOUSE_PASSWORD=$(CLICKHOUSE_PASSWORD) pmm-server go run /root/go/src/github.com/percona/pmm/qan-api2/clickhouse_migrate/main.go --start $(BACKUP_LAST_MIGRATION)
+	docker exec -u root pmm-server go run /root/go/src/github.com/percona/pmm/qan-api2/clickhouse_migrate/main.go --last-migration $(BACKUP_LAST_MIGRATION) --user CLICKHOUSE_USER=$(CLICKHOUSE_USER) --password CLICKHOUSE_PASSWORD=$(CLICKHOUSE_PASSWORD)
 #
 # Default time periods for benchmarking.
 # NOTE: These defaults are aligned with the default demo backup (BACKUP_NAME=20260120).
