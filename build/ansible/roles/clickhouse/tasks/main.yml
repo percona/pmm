@@ -69,6 +69,17 @@
     state: link
     force: yes
 
+# Gather file stats for config.xml and users.xml before using them in conditionals
+- name: Stat config.xml
+  stat:
+    path: /etc/clickhouse-server/config.xml
+  register: config_xml_stat
+
+- name: Stat users.xml
+  stat:
+    path: /etc/clickhouse-server/users.xml
+  register: users_xml_stat
+
 - name: Remove config.xml if it exists and is not a symlink
   file:
     path: /etc/clickhouse-server/config.xml
