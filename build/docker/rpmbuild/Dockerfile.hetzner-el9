@@ -22,7 +22,6 @@ RUN dnf update -y && \
     dnf install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
     yarn && \
-    dnf remove -y nodesource-release-el9-1.noarch && \
     dnf install -y gcc gcc-c++ \
     libtool libtool-ltdl \
     make cmake \
