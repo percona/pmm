@@ -27,8 +27,10 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
+const defaultLastMigration uint = 21
+
 func main() {
-	lastMigrationFlag := flag.Int("last-migration", 21, "Last migration number (e.g., 21)")
+	lastMigrationFlag := flag.Uint("last-migration", defaultLastMigration, "Last migration number (e.g., 21)")
 	userFlag := flag.String("user", "default", "ClickHouse username")
 	passwordFlag := flag.String("password", "clickhouse", "ClickHouse password")
 	flag.Parse()
@@ -47,7 +49,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
 	}
-	if err := m.Migrate(uint(lastMigration + 1)); err != nil && err != migrate.ErrNoChange {
+	if err := m.Migrate(lastMigration + 1); err != nil && err != migrate.ErrNoChange {
 		log.Fatalf("Migration failed: %v", err)
 	}
 
