@@ -13,7 +13,7 @@ Before starting the migration:
 
 ### Platform-specific prerequisites
 
-=== " For Docker/Podman"
+=== "For Docker/Podman"
     - Confirm Docker/Podman installation and sufficient disk space
     - Ensure port `443` availability
 
@@ -61,7 +61,7 @@ To migrate away from VMware:
 
 4.  Export custom configurations to save them before migration:
 
-    - **Dashboards**: navigate to each custom dashboards, click the share icon and select **Export > Save to file**.
+    - **Dashboards**: navigate to each custom dashboards, click the share icon and select **Export > Export as JSON > Download file**.
     - **Alert rules**: go to **Alerting > Alert rules** and copy the configuration details or take screenshots of each rule. Alternatively, export all rules via the PMM API:
         ```bash
         curl -k -u admin: https://<your-pmm-ip>/graph/api/ruler/grafana/api/v1/rules

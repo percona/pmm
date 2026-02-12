@@ -5,6 +5,7 @@
 Stale replication slots will lead to WAL file accumulation. This can result in a DB server outage.
 
 A stale replication slot is a slot that satisfies the following criteria:
+
 - Not a temporary slot.
 - Not an active slot.
 - WAL distance between current WAL position and slot’s restart LSN is more than the current setting for the max_wal_size configuration option.

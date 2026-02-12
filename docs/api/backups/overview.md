@@ -1,8 +1,9 @@
 ---
 title: Overview
 slug: database-backups
-categorySlug: backup-api
-order: 0
+category:
+  uri: backup-api
+position: 0
 ---
 
 
