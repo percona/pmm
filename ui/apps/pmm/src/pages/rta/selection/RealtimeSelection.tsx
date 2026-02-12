@@ -6,7 +6,6 @@ import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { Messages } from './RealtimeSelection.messages';
-import { RealtimeSelectionForm } from './form/RealtimeSelectionForm';
 import {
   RealtimeSelectionEmptyState,
   RealtimeSelectionViewerEmptyState,
@@ -16,6 +15,7 @@ import { useAvailableServices } from 'hooks/api/useRealtime';
 import { DOCS_URLS } from 'lib/constants';
 import { RealtimeSession } from 'types/rta.types';
 import { createRealtimeOverviewUrl } from 'utils/link.utils';
+import { RealtimeSelectionForm } from '../components/selection-form';
 
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();

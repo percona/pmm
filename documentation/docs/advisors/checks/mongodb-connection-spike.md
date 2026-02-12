@@ -24,6 +24,7 @@ A sudden spike in MongoDB connections can be caused by multiple factors, includi
 To diagnose the root cause of the sudden spike in connections, you should examine your logs and check related performance metrics to identify any unusual patterns or activity. This can help you determine if the issue is related to user traffic, application code, database configuration, or security issues.
 
 Some of the key Performance metrics that you should examined are:
+
 - Number of connections
 - Query executors & Query targeting
 - Opcounters

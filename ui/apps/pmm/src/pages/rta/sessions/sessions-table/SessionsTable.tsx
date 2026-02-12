@@ -19,8 +19,10 @@ import StopMultipleSessionsModal from './modal-stop-multiple-sessions/StopMultip
 import { ModalType, SessionRow } from './SessionsTable.types';
 import { enqueueSnackbar } from 'notistack';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
+import { useUser } from 'contexts/user';
 
 const SessionsTable: FC = () => {
+  const { user } = useUser();
   const { data: sessions = [], isLoading } = useRealtimeSessions({
     refetchInterval: 5000,
   });
@@ -140,16 +142,18 @@ const SessionsTable: FC = () => {
         enableExpanding
         enableExpandAll
         enableRowActions
-        renderRowActions={({ row }) => (
-          <Button
-            color="inherit"
-            size="small"
-            data-testid="open-stop-modal"
-            onClick={() => openStopModal(row.original)}
-          >
-            {Messages.stop}
-          </Button>
-        )}
+        renderRowActions={({ row }) =>
+          user?.isEditor && (
+            <Button
+              color="inherit"
+              size="small"
+              data-testid="open-stop-modal"
+              onClick={() => openStopModal(row.original)}
+            >
+              {Messages.stop}
+            </Button>
+          )
+        }
         getSubRows={(row) => row.serviceSessions}
         muiTableContainerProps={{
           sx: (theme) => ({
@@ -170,44 +174,46 @@ const SessionsTable: FC = () => {
             // vertically center the buttons
             [`& > .${boxClasses.root}`]: {
               alignItems: 'center',
-              flexDirection: 'row-reverse',
+              flexDirection: user?.isEditor ? 'row-reverse' : undefined,
             },
           },
         }}
-        renderTopToolbarCustomActions={() => (
-          <Stack direction="row" alignItems="center" gap={2}>
-            {selectedSessions.length > 0 && (
-              <Stack direction="row" alignItems="center" gap={2}>
-                <Typography variant="body2">
-                  {Messages.selected(selectedSessions.length)}
-                </Typography>
+        renderTopToolbarCustomActions={() =>
+          user?.isEditor && (
+            <Stack direction="row" alignItems="center" gap={2}>
+              {selectedSessions.length > 0 && (
+                <Stack direction="row" alignItems="center" gap={2}>
+                  <Typography variant="body2">
+                    {Messages.selected(selectedSessions.length)}
+                  </Typography>
+                  <Button
+                    startIcon={<StopCircleOutlinedIcon />}
+                    onClick={openStopSelectedModal}
+                    data-testid="open-stop-selected-modal"
+                  >
+                    {Messages.stopSelected}
+                  </Button>
+                </Stack>
+              )}
+              {!!sessions.length && (
                 <Button
+                  data-testid="open-stop-all-modal"
                   startIcon={<StopCircleOutlinedIcon />}
-                  onClick={openStopSelectedModal}
-                  data-testid="open-stop-selected-modal"
+                  onClick={openStopAllModal}
                 >
-                  {Messages.stopSelected}
+                  {Messages.stopAll}
                 </Button>
-              </Stack>
-            )}
-            {!!sessions.length && (
+              )}
               <Button
-                data-testid="open-stop-all-modal"
-                startIcon={<StopCircleOutlinedIcon />}
-                onClick={openStopAllModal}
+                data-testid="open-new-modal"
+                startIcon={<AddOutlinedIcon />}
+                onClick={openNewSessionModal}
               >
-                {Messages.stopAll}
+                {Messages.newSession}
               </Button>
-            )}
-            <Button
-              data-testid="open-new-modal"
-              startIcon={<AddOutlinedIcon />}
-              onClick={openNewSessionModal}
-            >
-              {Messages.newSession}
-            </Button>
-          </Stack>
-        )}
+            </Stack>
+          )
+        }
       />
       <StopSessionModal
         open={modal === 'stop'}

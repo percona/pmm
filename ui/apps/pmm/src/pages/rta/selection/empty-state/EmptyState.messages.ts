@@ -1,5 +1,5 @@
 export const EmptyStateMessages = {
   title: 'No active sessions now...',
   description:
-    'Real-Time Query Analytics requires real-time agent session to collect data. Contact your system administrator to start a session, then try again.',
+    'Real-Time Query Analytics requires an active real-time agent session to collect data. Please contact a system administrator to start a session for you and check again.',
 };

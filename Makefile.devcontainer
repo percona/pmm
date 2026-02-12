@@ -22,9 +22,10 @@ PMM_RELEASE_PATH ?= ./bin
 
 run-managed: release-dev-managed    ## Replace pmm-managed from build, restart and tail logs
 	supervisorctl stop pmm-managed
+	truncate -s 0 /srv/logs/pmm-managed.log
 	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
-	supervisorctl start pmm-managed &
-	supervisorctl tail -f pmm-managed
+	supervisorctl start pmm-managed
+	tail -f /srv/logs/pmm-managed.log
 
 run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)
 	supervisorctl stop pmm-managed
@@ -33,8 +34,10 @@ run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restar
 
 run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
 	supervisorctl stop pmm-agent
+	truncate -s 0 /srv/logs/pmm-agent.log
 	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
 	supervisorctl start pmm-agent
+	tail -f /srv/logs/pmm-agent.log
 
 run-vmproxy: release-vmproxy
 	supervisorctl stop vmproxy
@@ -44,7 +47,7 @@ run-vmproxy: release-vmproxy
 run-qan: release-qan
 	supervisorctl stop qan-api2
 	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
-	echo -n > /srv/logs/qan-api2.log
+	truncate -s 0 /srv/logs/qan-api2.log
 	supervisorctl start qan-api2
 
 run-all: run-agent run-managed run-qan run-vmproxy      ## Run all go services
@@ -67,7 +70,7 @@ psql-test:                      ## Open database used in unit tests in psql shel
 	env psql -U postgres pmm-managed-dev
 
 dlv/attach:                     ## Attach Delve to `pmm-managed`
-	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient attach $(shell pgrep pmm-managed)
+	dlv --listen=:2345 --headless=true --api-version=2 --continue=true --accept-multiclient attach $(shell pgrep pmm-managed)
 
 refresh-swagger:                ## Refresh swagger files
 	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger.json /usr/share/pmm-managed/swagger/swagger.json

@@ -124,8 +124,10 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 		pprof.SetGoroutineLabels(ctx)
 
 		// set logger
-		l := logrus.WithField("request", logger.MakeRequestID())
-		if info.FullMethod == "/agent.v1.AgentService/Connect" {
+		l := logrus.WithField("request", logger.MakeRequestID()).
+			WithField("method", info.FullMethod)
+		if info.FullMethod == "/agent.v1.AgentService/Connect" ||
+			info.FullMethod == "/realtimeanalytics.v1.CollectorService/Collect" {
 			md, _ := agentv1.ReceiveAgentConnectMetadata(ss)
 			if md != nil && md.ID != "" {
 				l = l.WithField("agent_id", md.ID)

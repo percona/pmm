@@ -129,6 +129,14 @@ export const TEST_REAL_TIME_SESSION: RealtimeSession = {
   status: RealtimeSessionStatus.unspecified,
 };
 
+export const TEST_REAL_TIME_SESSION_2: RealtimeSession = {
+  serviceId: 'service-2',
+  serviceName: 'Service 2',
+  clusterName: 'cluster-2',
+  startTime: '2021-01-01T00:00:00Z',
+  status: RealtimeSessionStatus.unspecified,
+};
+
 export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
   serviceId: 'service-1',
   serviceName: 'Service 1',
