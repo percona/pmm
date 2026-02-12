@@ -24,14 +24,14 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/starlark"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/resolve"
 	"golang.org/x/sys/unix"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/starlark"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
