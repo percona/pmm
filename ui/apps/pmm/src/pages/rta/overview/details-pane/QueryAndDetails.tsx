@@ -3,7 +3,6 @@ import { FC } from "react";
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from "types/rta.types";
 import DetailsMetric from "./DetailsMetric";
-import Typography from "@mui/material/Typography";
 import BigNumberMetric from "./BigNumberMetric";
 
 type Props = {
@@ -42,78 +41,81 @@ const QueryAndDetails: FC<Props> = ({
         <Grid container spacing={3}>
           <GridItem>
             <DetailsMetric title="Operation ID">
-              <BigNumberMetric mainText={queryId} size="small" />
+              <BigNumberMetric mainText={queryId} />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Elapsed exec. time">
-              <BigNumberMetric mainText={queryExecutionDuration ?? undefined} subText="ms" />
+              <BigNumberMetric mainText={queryExecutionDuration ?? undefined} subText={queryExecutionDuration ? "ms" : undefined} />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Plan summary">
-              <Typography variant="body2">{planSummary}</Typography>
+              <BigNumberMetric mainText={planSummary} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Database name">
-              <Typography variant="body2">{databaseName}</Typography>
+              <BigNumberMetric mainText={databaseName} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Collection">
-              <Typography variant="body2">{collection}</Typography>
+              <BigNumberMetric mainText={collection} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Operation">
-              <Typography variant="body2">{operation}</Typography>
+              <BigNumberMetric mainText={operation} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="User name">
-              <Typography variant="body2">{username}</Typography>
+              <BigNumberMetric mainText={username} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Client address">
-              <Typography variant="body2">{clientAddress}</Typography>
+              <BigNumberMetric mainText={clientAddress} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Service">
-              <Typography variant="body2">{serviceName}</Typography>
+              <BigNumberMetric mainText={serviceName} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Host">
-              <Typography variant="body2">{dbInstanceAddress}</Typography>
+              <BigNumberMetric mainText={dbInstanceAddress} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Client app name">
-              <Typography variant="body2">{clientAppName}</Typography>
+              <BigNumberMetric mainText={clientAppName} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Operation start time">
-              <Typography variant="body2">{operationStartTime}</Typography>
+              <BigNumberMetric mainText={operationStartTime} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title="Data capture time">
-              <Typography variant="body2">{queryCollectTime}</Typography>
+              <BigNumberMetric mainText={queryCollectTime} size="small" />
             </DetailsMetric>
           </GridItem>
         </Grid>
       </Grid>
-      <Grid item xs={12} md={6} sx={{
-        mt: {
-          xs: 4,
-          md: 0,
-        }
-      }}>
-        <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} maxHeight="80vh" />
+      <Grid
+        item
+        xs={12}
+        md={6}
+        sx={{
+          maxHeight: '70vh',
+          overflow: 'auto',
+        }}
+      >
+        <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} />
       </Grid>
     </Grid>
   );
