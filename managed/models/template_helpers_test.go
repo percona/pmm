@@ -23,14 +23,14 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/percona/promconfig"
-	"github.com/percona/saas/pkg/alert"
-	"github.com/percona/saas/pkg/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 

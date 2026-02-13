@@ -18,9 +18,8 @@ package services
 import (
 	"maps"
 
-	"github.com/percona/saas/pkg/check"
-
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
 )
 
 // Target contains required info about advisor check target.

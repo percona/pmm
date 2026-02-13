@@ -5,6 +5,9 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
+permissions:
+  contents: read
+
 jobs:
   sbom:
     runs-on: ubuntu-22.04

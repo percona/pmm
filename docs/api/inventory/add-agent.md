@@ -1,7 +1,8 @@
 ---
 title: Add an Agent
 slug: addagent
-categorySlug: inventory-api
+category:
+  uri: inventory-api
 ---
 
 ## Add an Agent

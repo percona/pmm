@@ -64,17 +64,6 @@ For optimal performance, we recommend:
 
 The PMM Server OVA is compatible with VirtualBox 6.0 and later. 
 
-### Deprecated (support ends January 2026)
-
-VMware platforms are deprecated and will lose support in PMM 3.6.0.
- Migrate to VirtualBox or consider alternative deployment methods like Docker or Kubernetes. 
- 
- For details, see [Migrate from VMware to alternative platforms](../../../../pmm-upgrade/migrating_from_vmware.md).
-
-- VMware Workstation 12.0 and later
-- VMware Fusion 10.0 and later
-- VMware ESXi 6.0 and later 
-
 ## Network requirements
 
 Ensure your network environment allows:

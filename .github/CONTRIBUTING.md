@@ -44,23 +44,22 @@ This project relies on the following dependencies:
 
 ## Local setup
 
-1. Run `make -C api init` to install dependencies.
+1. Run `make init` to install dependencies.
 
-### To run nginx
+### To check API documentation locally
 
 1. Install latest nginx.
-2. Change directory to `api`.
-3. Run `make serve` to start nginx server.
-4. Swagger UI will be available on http://127.0.0.1:8080/swagger-ui.html.
+2. Run `make serve` to start nginx server.
+3. Swagger UI will be available on http://127.0.0.1:8080/swagger-ui.html.
 
 ### To update API
 
-1. Make changes in proto files.
-2. Run `make gen` in `api` directory to generate go files and swagger.json.
+1. Update proto files.
+2. Run `make gen` to generate Go files and swagger.json.
 
-## Run PMM-Server in Docker
+## Run PMM Server in Docker
 
-1. Run `docker run -d -p 80:8080 -p 443:8443  --name pmm-server public.ecr.aws/e7j3v3n0/pmm-server:3-dev-latest`.
-2. Open http://localhost/.
+1. Run `docker run -d -p 443:8443 --name pmm-server perconalab/pmm-server:3-dev-latest`.
+2. Open https://localhost/.
 
 Please note, the use of port 80 is discouraged and should be avoided. For optimal security, use port 443 along with a valid SSL certificate.
