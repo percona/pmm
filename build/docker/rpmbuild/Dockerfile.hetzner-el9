@@ -1,3 +1,8 @@
+# keep that format for easier search
+ARG GO_VERSION=1.25.7
+
+FROM golang:${GO_VERSION} AS golang
+
 FROM rockylinux:9-minimal
 
 # Set shell to handle pipe failures
@@ -41,14 +46,10 @@ RUN dnf update -y && \
 RUN sed -i 's|metalink=|#metalink=|g' /etc/yum.repos.d/epel*.repo && \
     sed -i 's|#baseurl=.*|baseurl=https://ftp.fau.de/epel/9/Everything/$basearch/|g' /etc/yum.repos.d/epel.repo || true
 
-# keep that format for easier search
-ENV GO_VERSION=1.25.7
+# Copy Go from official golang image to avoid QEMU extraction issues
+COPY --from=golang /usr/local/go /usr/local/go
 
-RUN if [ "$(uname -m)" = "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
-    curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
-    tar -C /tmp -xzf /tmp/golang.tar.gz && \
-    mv /tmp/go /usr/local/go && \
-    rm /tmp/golang.tar.gz
+ENV GO_VERSION=${GO_VERSION}
 
 RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
 RUN update-alternatives --set go /usr/local/go/bin/go
