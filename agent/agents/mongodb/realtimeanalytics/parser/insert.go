@@ -33,6 +33,7 @@ func parseCommandInsert(commandRaw bson.Raw) string {
 	if params := parseOptions(commandRaw, insertOptions); params != "" {
 		insertPlaceholders = append(insertPlaceholders, params)
 	}
+
 	queryPlaceholders := []string{
 		"db",
 		collectionName,

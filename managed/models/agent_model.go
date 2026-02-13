@@ -316,7 +316,7 @@ type RTAOptions struct {
 func (c RTAOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *RTAOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *RTAOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all RTAOptions fields are unset or have zero values, otherwise returns false.
 func (c RTAOptions) IsEmpty() bool {

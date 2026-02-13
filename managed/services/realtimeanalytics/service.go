@@ -104,10 +104,13 @@ func (s *Service) ListSessions(_ context.Context, req *rtav1.ListSessionsRequest
 
 // StartSession starts Real-Time Analytics Session for a specified service (gRPC handler).
 func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionRequest) (*rtav1.StartSessionResponse, error) {
-	var err error
-	var session *rtav1.Session
+	var (
+		err     error
+		session *rtav1.Session
+	)
 	// Contains pmm-agent ID to be updated after the change with RTA agent.
 	var pmmAgentIDToUpdate string
+
 	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// Validate that the service exists and is of a supported type for RTA
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
@@ -117,7 +120,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 		var rtaAgentType models.AgentType
 		// Check that service type supports RTA
-		if rtaAgentType, err = getRTAAgentTypeForServiceType(service.ServiceType); err != nil {
+		rtaAgentType, err = getRTAAgentTypeForServiceType(service.ServiceType)
+		if err != nil {
 			return status.Errorf(codes.InvalidArgument,
 				"Service %s of type %s does not support Real-Time Analytics",
 				req.ServiceId, service.ServiceType)
@@ -145,13 +149,16 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			rtaAgent.CreatedAt = time.Now()
 			// Encrypt agent's sensitive data before updating it in the database.
 			rtaAgent = pointer.To(models.EncryptAgent(*rtaAgent))
-			if err = tx.Update(rtaAgent); err != nil {
+
+			err = tx.Update(rtaAgent)
+			if err != nil {
 				return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 			}
 
 			// Request state update to pmm-agent
 			pmmAgentIDToUpdate = *rtaAgent.PMMAgentID
 			session = s.convertAgentToSession(rtaAgent, service)
+
 			return nil
 		}
 
@@ -162,6 +169,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		// Retrieve credentials and pmm-agent ID from existing MongoDB agents for this service
 		// Try to find from QAN or exporter agents
 		var agentTypes []models.AgentType
+
 		switch service.ServiceType {
 		case models.MongoDBServiceType:
 			agentTypes = []models.AgentType{
@@ -177,6 +185,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		}
 
 		var existingAgent *models.Agent
+
 		for _, agentType := range agentTypes {
 			agents, err := models.FindAgents(tx.Querier, models.AgentFilters{
 				ServiceID: service.ServiceID,
@@ -185,6 +194,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			if err != nil {
 				return err
 			}
+
 			if len(agents) != 0 {
 				existingAgent = agents[0]
 				break
@@ -221,6 +231,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to create Real-Time Analytics agent for service %s: %v", req.ServiceId, err)
 		}
+
 		pmmAgentIDToUpdate = *rtaAgent.PMMAgentID
 		session = s.convertAgentToSession(rtaAgent, service)
 
@@ -234,6 +245,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		// Request state update to pmm-agent
 		s.stateUpdater.RequestStateUpdate(ctx, pmmAgentIDToUpdate)
 	}
+
 	return &rtav1.StartSessionResponse{Session: session}, nil
 }
 
@@ -241,6 +253,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest) (*rtav1.StopSessionResponse, error) {
 	// Contains pmm-agent ID to be updated after the change with RTA agent.
 	var pmmAgentIDToUpdate string
+
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// Validate that the service exists and is of a supported type for RTA
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
@@ -250,7 +263,8 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 
 		var agentType models.AgentType
 		// Check that service type supports RTA
-		if agentType, err = getRTAAgentTypeForServiceType(service.ServiceType); err != nil {
+		agentType, err = getRTAAgentTypeForServiceType(service.ServiceType)
+		if err != nil {
 			return status.Errorf(codes.InvalidArgument,
 				"Service %s of type %s does not support Real-Time Analytics",
 				req.ServiceId, service.ServiceType)
@@ -276,10 +290,14 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		rtaAgent.Disabled = true
 		// Encrypt agent's sensitive data before updating it in the database.
 		rtaAgent = pointer.To(models.EncryptAgent(*rtaAgent))
-		if err = tx.Update(rtaAgent); err != nil {
+
+		err = tx.Update(rtaAgent)
+		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 		}
+
 		pmmAgentIDToUpdate = *rtaAgent.PMMAgentID
+
 		return nil
 	})
 	if err != nil {
@@ -300,13 +318,16 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 func (s *Service) SearchQueries(ctx context.Context, req *rtav1.SearchQueriesRequest) (*rtav1.SearchQueriesResponse, error) {
 	// Validate that all the requested services exist
 	for _, serviceID := range req.ServiceIds {
-		if _, err := models.FindServiceByID(s.db.Querier, serviceID); err != nil {
+		_, err := models.FindServiceByID(s.db.Querier, serviceID)
+		if err != nil {
 			return nil, err
 		}
 	}
 
 	headers := metadata.Pairs("Cache-Control", "no-store")
-	if err := grpc.SetHeader(ctx, headers); err != nil {
+
+	err := grpc.SetHeader(ctx, headers)
+	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to set response headers: %v", err)
 	}
 
@@ -332,6 +353,7 @@ func (s *Service) SearchQueries(ctx context.Context, req *rtav1.SearchQueriesReq
 func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest, rtav1.CollectResponse]) error {
 	streamCtx := stream.Context()
 	l := logger.Get(streamCtx)
+
 	agentMD, err := agentv1.ReceiveAgentConnectMetadata(stream)
 	if err != nil {
 		l.Warnf("Disconnecting client: authentication failed: %v", err)
@@ -344,6 +366,7 @@ func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest
 		if err != nil {
 			return err
 		}
+
 		if agent.AgentType != models.PMMAgentType {
 			return status.Errorf(codes.InvalidArgument, "Agent with ID %s is not a pmm-agent", agentMD.ID)
 		}
@@ -352,7 +375,7 @@ func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest
 	})
 	if err != nil {
 		l.Warnf("Disconnecting client: agent validation failed: %v", err)
-		return status.Error(codes.InvalidArgument, fmt.Sprintf("Invalid Agent ID: %s", agentMD.ID))
+		return status.Error(codes.InvalidArgument, "Invalid Agent ID: "+agentMD.ID)
 	}
 
 	for {
@@ -371,6 +394,7 @@ func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest
 				l.Info("Client closed the stream, closing our side.")
 				return stream.SendAndClose(&rtav1.CollectResponse{})
 			}
+
 			return err // stream error
 		}
 
@@ -393,7 +417,7 @@ func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest
 	}
 }
 
-// Helpers
+// Helpers.
 
 func convertAgentStatusToSessionStatus(status inventoryv1.AgentStatus) rtav1.SessionStatus {
 	switch status {

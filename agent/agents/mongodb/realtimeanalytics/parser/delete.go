@@ -28,7 +28,6 @@ func parseCommandDelete(commandRaw bson.Raw, collectionName string) string {
 	// command has format:
 	// https://www.mongodb.com/docs/manual/reference/method/db.collection.deleteMany/#syntax
 	// db.<collection>.<deleteOne|deleteMany>(<filter>, <options>)
-
 	deletePlaceholders := []string{
 		parseDocument(commandRaw, "q"),
 	}

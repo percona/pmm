@@ -16,7 +16,6 @@ package realtimeanalytics
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"time"
 
@@ -45,14 +44,15 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 		SetTimeout(mgoQueryTimeout).
 		SetConnectTimeout(mgoConnectTimeout).
 		SetCompressors([]string{"snappy", "zlib", "zstd"}).
-		SetAppName(fmt.Sprintf("RTA-mongodb-%s", agentID))
+		SetAppName("RTA-mongodb-" + agentID)
 
 	client, err := mongo.Connect(opts)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = client.Ping(ctx, readpref.Nearest()); err != nil {
+	err = client.Ping(ctx, readpref.Nearest())
+	if err != nil {
 		return nil, err
 	}
 
@@ -62,7 +62,9 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 // ClientOptionsForDSN applies URI to Client.
 func clientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
 	clientOptions := options.Client().ApplyURI(dsn)
-	if e := clientOptions.Validate(); e != nil {
+
+	e := clientOptions.Validate()
+	if e != nil {
 		return nil, e
 	}
 
@@ -73,7 +75,9 @@ func clientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
 		// for non-URI, do nothing (PMM-10265)
 		return clientOptions, nil //nolint:nilerr
 	}
+
 	username := parsedDsn.User.Username()
+
 	password, _ := parsedDsn.User.Password()
 	if username != "" || password != "" {
 		clientOptions.Auth.Username = username

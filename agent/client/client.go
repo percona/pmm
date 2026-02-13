@@ -32,7 +32,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	// Installing the gzip encoding registers it as an available compressor.
-	// gRPC will automatically negotiate and use gzip if the client supports it.
+	// GRPC will automatically negotiate and use gzip if the client supports it.
 	grpc_gzip "google.golang.org/grpc/encoding/gzip"
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -142,18 +142,23 @@ func (c *Client) Run(ctx context.Context) error {
 	}
 
 	// try to connect until success, or until ctx is canceled
-	var agentServiceDialResult *dialResult
-	var rtaChannel *channel.RTAChannel
-	var sharedConn *grpc.ClientConn
-	var connErr, agentServiceDialErr, rtaServiceDialErr error
+	var (
+		agentServiceDialResult                          *dialResult
+		rtaChannel                                      *channel.RTAChannel
+		sharedConn                                      *grpc.ClientConn
+		connErr, agentServiceDialErr, rtaServiceDialErr error
+	)
 	for {
-		if sharedConn, connErr = createConnectionToServer(cfg, c.l); connErr != nil {
+		sharedConn, connErr = createConnectionToServer(cfg, c.l)
+		if connErr != nil {
 			c.l.Errorf("Failed to create gRPC connection to server %s: %s.", cfg.Server.Address, connErr)
 		} else {
 			// try to create gRPC streams to Agents and RTA services only in case gRPC connection to server was created successfully.
 			agentServiceDialCtx, agentServiceDialCancel := context.WithTimeout(ctx, c.dialTimeout)
 			agentServiceDialResult, agentServiceDialErr = createChannelToAgentService(agentServiceDialCtx, sharedConn, cfg, c.l)
+
 			agentServiceDialCancel()
+
 			if agentServiceDialErr != nil {
 				c.l.Errorf("Failed to create gRPC stream to Agents service: %s.", agentServiceDialErr)
 			} else {
@@ -163,7 +168,9 @@ func (c *Client) Run(ctx context.Context) error {
 				// RTA stream shares the same underlying connection with Agent service.
 				rtaServiceDialCtx, rtaServiceDialCancel := context.WithTimeout(ctx, c.dialTimeout)
 				rtaChannel, rtaServiceDialErr = createChannelToRealTimeAnalyticsService(rtaServiceDialCtx, sharedConn, cfg, c.l)
+
 				rtaServiceDialCancel()
+
 				if rtaServiceDialErr != nil {
 					c.l.Errorf("Failed to create communication channel to Real-Time Analytics service: %s.", rtaServiceDialErr)
 				} else {
@@ -177,9 +184,11 @@ func (c *Client) Run(ctx context.Context) error {
 		// either connection creation failed, or some of channels creation failed.
 		// close the connection if it was created.
 		if sharedConn != nil {
-			if err := sharedConn.Close(); err != nil {
+			err := sharedConn.Close()
+			if err != nil {
 				c.l.Errorf("Connection closed: %s.", err)
 			}
+
 			c.l.Debug("Connection closed.")
 		}
 
@@ -192,12 +201,15 @@ func (c *Client) Run(ctx context.Context) error {
 	}
 	if ctx.Err() != nil {
 		close(c.done)
+
 		if connErr != nil {
 			return connErr
 		}
+
 		if agentServiceDialErr != nil {
 			return agentServiceDialErr
 		}
+
 		if rtaServiceDialErr != nil {
 			return rtaServiceDialErr
 		}
@@ -207,7 +219,8 @@ func (c *Client) Run(ctx context.Context) error {
 	c.backoff.Reset()
 
 	defer func() {
-		if err := sharedConn.Close(); err != nil {
+		err := sharedConn.Close()
+		if err != nil {
 			c.l.Errorf("Connection closed: %s.", err)
 			return
 		}
@@ -395,23 +408,21 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 		}
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for {
 			select {
 			case collect := <-c.supervisor.RTARequests():
 				if collect == nil {
 					continue
 				}
+
 				c.rtaChannel.Send(collect)
 			case <-ctx.Done():
 				c.l.Infof("Supervisor RTARequests() channel drained.")
 				return
 			}
 		}
-	}()
+	})
 	wg.Wait()
 }
 
@@ -825,10 +836,12 @@ func createConnectionToServer(cfg *config.Config, l *logrus.Entry) (*grpc.Client
 	}
 
 	l.Infof("Creating gRPC client to %s ...", cfg.Server.FilteredURL())
+
 	conn, err := grpc.NewClient(cfg.Server.Address, opts...)
 	if err != nil {
 		msg := err.Error()
 		l.Errorf("Failed to create gRPC client to %s: %s.", cfg.Server.Address, msg)
+
 		return nil, errors.Wrap(err, "failed to create client")
 	}
 
@@ -907,6 +920,7 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 	if clockDrift > clockDriftWarning || -clockDrift > clockDriftWarning {
 		level = logrus.WarnLevel
 	}
+
 	l.Logf(level, "Two-way communication channel to Agents Service established in %s. Estimated clock drift: %s.",
 		time.Since(start), clockDrift)
 
@@ -924,20 +938,26 @@ func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc
 	streamCtx, streamCancel := context.WithCancel(context.Background())
 	teardown := func() {
 		streamCancel()
-		if err := conn.Close(); err != nil {
+
+		err := conn.Close()
+		if err != nil {
 			l.Debugf("Connection closed: %s.", err)
 			return
 		}
+
 		l.Debugf("Connection closed.")
 	}
+
 	d, ok := dialCtx.Deadline()
 	if !ok {
 		panic("no deadline in dialCtx")
 	}
+
 	streamCancelT := time.AfterFunc(time.Until(d), streamCancel)
 	defer streamCancelT.Stop()
 
 	l.Infof("Establishing client streaming communication channel to Real-Time Analytics Service at %s ...", cfg.Server.FilteredURL())
+
 	start := time.Now()
 	streamCtx = agentv1.AddAgentConnectMetadata(streamCtx, &agentv1.AgentConnectMetadata{
 		ID:      cfg.ID,
@@ -948,8 +968,10 @@ func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc
 	if err != nil {
 		l.Errorf("Failed to establish client streaming communication channel to Real-Time Analytics Service: %s.", err)
 		teardown()
+
 		return nil, errors.Wrap(err, "failed to connect")
 	}
+
 	l.Logf(logrus.InfoLevel, "Client streaming communication channel to Real-Time Analytics Service established in %s.",
 		time.Since(start))
 

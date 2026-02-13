@@ -57,12 +57,15 @@ func TestStore(t *testing.T) {
 
 		// Write to multiple services concurrently to test sharding
 		var wg sync.WaitGroup
+
 		numServices := 100
 
 		for i := range numServices {
 			wg.Add(1)
+
 			go func(idx int) {
 				defer wg.Done()
+
 				serviceID := fmt.Sprintf("service%d", idx)
 				queries := []*rtav1.QueryData{
 					{
@@ -79,15 +82,17 @@ func TestStore(t *testing.T) {
 
 		// Verify all services are present
 		stats := store.Stats()
-		assert.Equal(t, numServices, len(stats), "Should have all services")
+		assert.Len(t, stats, numServices, "Should have all services")
 
 		// Verify shards are being used (buckets should be distributed)
 		usedShards := 0
-		for i := 0; i < numShards; i++ {
+
+		for i := range numShards {
 			if len(store.shards[i].buckets) != 0 {
 				usedShards++
 			}
 		}
+
 		assert.Greater(t, usedShards, 1, "Should use multiple shards")
 	})
 
@@ -235,11 +240,13 @@ func TestStore(t *testing.T) {
 
 	t.Run("ThreadSafety", func(t *testing.T) {
 		store := NewStore()
+
 		var wg sync.WaitGroup
 
 		// Concurrent writes
 		for i := range 100 {
 			idx := i
+
 			wg.Go(func() {
 				queries := []*rtav1.QueryData{
 					{

@@ -56,6 +56,7 @@ func parseCommandFind(commandRaw bson.Raw) string {
 		if projection == "" {
 			projection = "{}"
 		}
+
 		if filter == "" {
 			filter = "{}"
 		}
@@ -83,5 +84,6 @@ func parseCommandFind(commandRaw bson.Raw) string {
 	queryPlaceholders = slices.DeleteFunc(queryPlaceholders, func(s string) bool {
 		return s == ""
 	})
+
 	return strings.Join(queryPlaceholders, ".")
 }

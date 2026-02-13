@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package parser provides functionality for parsing raw bson documents
+// returned by MongoDB's currentOp command into structured QueryData format used by RTA.
 package parser
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -28,7 +30,7 @@ import (
 )
 
 // ParseCurrentOp parses raw bson document returned by currentOp command into *QueryData.
-func ParseCurrentOp(raw bson.Raw) (qData *rtav1.QueryData) {
+func ParseCurrentOp(raw bson.Raw) (qData *rtav1.QueryData) { //nolint:nonamedreturns
 	qData = &rtav1.QueryData{
 		Payload: &rtav1.QueryData_MongoDbPayload{
 			MongoDbPayload: &rtav1.QueryMongoDBData{},
@@ -53,16 +55,21 @@ func ParseCurrentOp(raw bson.Raw) (qData *rtav1.QueryData) {
 // parseGenericFields parses common fields from raw bson document returned by currentOp command into *QueryData.
 func parseGenericFields(raw bson.Raw, q *rtav1.QueryData) {
 	if opid, ok := raw.Lookup("opid").Int32OK(); ok {
-		q.QueryId = fmt.Sprintf("%v", opid)
+		q.QueryId = strconv.Itoa(int(opid))
 	}
 
-	if msRunning, ok := raw.Lookup("microsecs_running").Int64OK(); ok {
-		q.QueryExecutionDuration = durationpb.New(time.Duration(1000 * msRunning))
+	if usRunning, ok := raw.Lookup("microsecs_running").Int64OK(); ok {
+		q.QueryExecutionDuration = durationpb.New(time.Duration(usRunning) * time.Microsecond)
 	}
+
 	q.ClientAddress, _ = raw.Lookup("client").StringValueOK()
+
 	var m any
-	if err := bson.Unmarshal(raw, &m); err == nil {
-		if jsonValue, err := json.MarshalIndent(m, "", "    "); err == nil {
+
+	err := bson.Unmarshal(raw, &m)
+	if err == nil {
+		jsonValue, err := json.MarshalIndent(m, "", "    ")
+		if err == nil {
 			q.QueryRawJson = string(jsonValue)
 		}
 	}
@@ -70,8 +77,11 @@ func parseGenericFields(raw bson.Raw, q *rtav1.QueryData) {
 
 // parseMongoFields parses MongoDB-specific fields from raw bson document returned by currentOp command into *QueryData.
 func parseMongoFields(raw bson.Raw, q *rtav1.QueryData) {
-	var p *rtav1.QueryData_MongoDbPayload
-	var ok bool
+	var (
+		p  *rtav1.QueryData_MongoDbPayload
+		ok bool
+	)
+
 	if q.Payload == nil {
 		p = &rtav1.QueryData_MongoDbPayload{
 			MongoDbPayload: &rtav1.QueryMongoDBData{},
@@ -86,9 +96,11 @@ func parseMongoFields(raw bson.Raw, q *rtav1.QueryData) {
 	p.MongoDbPayload.DbInstanceAddress, _ = raw.Lookup("host").StringValueOK()
 	p.MongoDbPayload.ClientAppName, _ = raw.Lookup("appName").StringValueOK()
 	p.MongoDbPayload.PlanSummary, _ = raw.Lookup("planSummary").StringValueOK()
+
 	p.MongoDbPayload.Operation, _ = raw.Lookup("op").StringValueOK()
 	if opTimeStr, ok := raw.Lookup("currentOpTime").StringValueOK(); ok {
-		if opTime, err := time.Parse(time.RFC3339, opTimeStr); err == nil {
+		opTime, err := time.Parse(time.RFC3339, opTimeStr)
+		if err == nil {
 			p.MongoDbPayload.OperationStartTime = timestamppb.New(opTime)
 		}
 	}
@@ -103,7 +115,8 @@ func parseMongoFields(raw bson.Raw, q *rtav1.QueryData) {
 	var ns string
 	if ns, ok = raw.Lookup("ns").StringValueOK(); ok {
 		// ns has in format "database.collection", we need to split it to get database name
-		parts := strings.SplitN(ns, ".", -1)
+		parts := strings.Split(ns, ".")
+
 		p.MongoDbPayload.DatabaseName = parts[0]
 		if len(parts) > 1 {
 			col := parts[1]
@@ -111,12 +124,14 @@ func parseMongoFields(raw bson.Raw, q *rtav1.QueryData) {
 				// reset collection name because $cmd is not a real collection, it's just a namespace for commands
 				col = ""
 			}
+
 			p.MongoDbPayload.Collection = col
 		}
 	}
 
 	// parse command field to get query text
 	commandRaw, _ := raw.Lookup("command").DocumentOK()
+
 	switch p.MongoDbPayload.Operation {
 	case "query":
 		q.QueryText = parseCommandFind(commandRaw)

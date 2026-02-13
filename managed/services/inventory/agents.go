@@ -1481,17 +1481,20 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 		if err != nil {
 			return err
 		}
+
 		if !p.SkipConnectionCheck {
 			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
 			if err != nil {
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1500,7 +1503,9 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 		if err != nil {
 			return err
 		}
+
 		agent = aa.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
+
 		return nil
 	})
 	if e != nil {
@@ -1508,6 +1513,7 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 	}
 
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_RtaMongodbAgent{
 			RtaMongodbAgent: agent,
@@ -1542,6 +1548,7 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(ctx context.Context, agentID stri
 			RtaMongodbAgent: agent,
 		},
 	}
+
 	return res, nil
 }
 

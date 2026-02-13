@@ -99,6 +99,7 @@ func (m *MongoDBRTA) Run(ctx context.Context) {
 
 	defer func() {
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
+
 		close(m.changes)
 	}()
 
@@ -106,9 +107,12 @@ func (m *MongoDBRTA) Run(ctx context.Context) {
 	client, err := createSession(ctx, m.mongoDSN, m.agentID)
 	if err != nil {
 		m.l.Errorf("Can't run Real-Time Analytics agent, reason: %v", err)
+
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
+
 		return
 	}
+
 	defer func() {
 		_ = client.Disconnect(ctx)
 	}()
@@ -126,6 +130,7 @@ func (m *MongoDBRTA) Run(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			m.l.Info("Stopping MongoDB RTA agent")
+
 			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 			// m.changes channel will be closed in defer, so we don't need to close it here, just exit the function
 			return
@@ -135,6 +140,7 @@ func (m *MongoDBRTA) Run(ctx context.Context) {
 				m.l.Warnf("CurrentOp collection failed: %v", err)
 				continue
 			}
+
 			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, RTAQueriesBucket: rtaQueryBucket}
 		}
 	}
@@ -146,6 +152,7 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 	if err != nil {
 		return nil, fmt.Errorf("currentOp not available or permission denied: %w", err)
 	}
+
 	defer func() {
 		_ = cur.Close(ctx)
 	}()
@@ -168,11 +175,9 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 		default:
 		}
 
-		// We create a copy of the cursor to avoid unwanted overrides.
-		curCopy := *cur
-
 		wg.Add(1)
-		go func(cur mongo.Cursor) {
+
+		go func(curCopy mongo.Cursor) {
 			defer wg.Done()
 
 			queryData := rtaParser.ParseCurrentOp(curCopy.Current)
@@ -180,13 +185,16 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 				// If parsing failed, we skip this operation and don't include it in the results.
 				return
 			}
+
 			queryData.ServiceId = m.serviceID
 			queryData.ServiceName = m.serviceName
 			queryData.QueryCollectTime = currTime
 			indexedRes.Store(queryData.QueryId, queryData)
-		}(curCopy)
+		}(*cur) // We create a copy of the cursor to avoid unwanted overrides.
 	}
-	if err = cur.Err(); err != nil {
+
+	err = cur.Err()
+	if err != nil {
 		m.l.Warnf("Failed to iterate currentOp cursor: %v", err)
 		return nil, err
 	}
@@ -195,8 +203,12 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 	wg.Wait()
 
 	var results []*rtav1.QueryData
-	indexedRes.Range(func(key, value any) bool {
-		results = append(results, value.(*rtav1.QueryData))
+
+	indexedRes.Range(func(_, value any) bool {
+		if q, ok := value.(*rtav1.QueryData); ok {
+			results = append(results, q)
+		}
+
 		return true
 	})
 
@@ -218,7 +230,7 @@ func (m *MongoDBRTA) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
-// Helper functions
+// Helper functions.
 
 // buildCurrentOpsPipeline prepares aggregation pipeline to fetch current operations from MongoDB.
 func buildCurrentOpsPipeline() mongo.Pipeline {
@@ -227,11 +239,11 @@ func buildCurrentOpsPipeline() mongo.Pipeline {
 	// Fetch current operations using aggregation pipeline.
 	// Get only active operations for all users.
 	selectStage := bson.D{{
-		"$currentOp", bson.D{
-			{"allUsers", true},
-			{"idleConnections", false},
-			{"idleCursors", false},
-			{"idleSessions", false},
+		Key: "$currentOp", Value: bson.D{
+			{Key: "allUsers", Value: true},
+			{Key: "idleConnections", Value: false},
+			{Key: "idleCursors", Value: false},
+			{Key: "idleSessions", Value: false},
 		},
 	}}
 	// Filter only active operations of type "op" (exclude "command" and other types)
@@ -253,15 +265,15 @@ func buildCurrentOpsPipeline() mongo.Pipeline {
 		    ]);
 	*/
 	matchStage := bson.D{{
-		"$match", bson.D{
+		Key: "$match", Value: bson.D{
 			{
-				"$and", bson.A{
+				Key: "$and", Value: bson.A{
 					// Get operations/commands that are active.
-					bson.D{{"active", true}},
+					bson.D{{Key: "active", Value: true}},
 					// Exclude operations from internal MongoDB tools.
-					bson.D{{"desc", bson.D{{"$nin", bson.A{"Checkpointer", "JournalFlusher"}}}}},
+					bson.D{{Key: "desc", Value: bson.D{{Key: "$nin", Value: bson.A{"Checkpointer", "JournalFlusher"}}}}},
 					// Exclude operations from RTA agent itself.
-					bson.D{{"appName", bson.D{{"$not", bson.D{{"$regex", "^(RTA-mongodb-.*$)"}}}}}},
+					bson.D{{Key: "appName", Value: bson.D{{Key: "$not", Value: bson.D{{Key: "$regex", Value: "^(RTA-mongodb-.*$)"}}}}}},
 				},
 			},
 		},

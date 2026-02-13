@@ -689,8 +689,10 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 					MetricsBucket: change.MetricsBucket,
 				}
 			}
+
 			if change.RTAQueriesBucket != nil {
 				l.Infof("Sending %d RTA queries buckets.", len(change.RTAQueriesBucket))
+
 				s.rtaRequests <- &rtav1.CollectRequest{
 					Queries: change.RTAQueriesBucket,
 				}

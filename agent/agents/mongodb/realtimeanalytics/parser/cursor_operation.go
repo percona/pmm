@@ -29,7 +29,7 @@ var cursorOperation = []string{
 // parseCursorOperations parses query cursor operations from raw bson document returned by currentOp command into string.
 // Stages are places like:
 // db.collection.find(...).operation1(...).operation2(...)
-// Example: db.collection.find(...).sort(...).limit(5).skip(10).batchSize(1)
+// Example: db.collection.find(...).sort(...).limit(5).skip(10).batchSize(1).
 func parseCursorOperations(raw bson.Raw) string {
 	var parsedOperations []string
 
@@ -39,5 +39,6 @@ func parseCursorOperations(raw bson.Raw) string {
 				fmt.Sprintf("%s(%s)", key, parseRawValue(phaseRaw)))
 		}
 	}
+
 	return strings.Join(parsedOperations, ".")
 }

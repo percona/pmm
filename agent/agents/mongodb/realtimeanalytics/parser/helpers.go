@@ -24,47 +24,62 @@ func parseRawValue(rawValue bson.RawValue) string {
 	if rawValue.IsZero() {
 		return ""
 	}
+
 	var m any
-	if err := bson.UnmarshalValue(rawValue.Type, rawValue.Value, &m); err == nil {
-		if jsonValue, err := json.MarshalIndent(m, "", "    "); err == nil {
+
+	err := bson.UnmarshalValue(rawValue.Type, rawValue.Value, &m)
+	if err == nil {
+		jsonValue, err := json.MarshalIndent(m, "", "    ")
+		if err == nil {
 			return string(jsonValue)
 		}
 	}
+
 	return rawValue.String()
 }
 
 func parseOption(commandRaw bson.Raw, key string) any {
 	if opt := commandRaw.Lookup(key); !opt.IsZero() {
 		var m any
-		if err := bson.UnmarshalValue(opt.Type, opt.Value, &m); err == nil {
+
+		err := bson.UnmarshalValue(opt.Type, opt.Value, &m)
+		if err == nil {
 			return m
 		}
 	}
+
 	return nil
 }
 
 func parseOptions(commandRaw bson.Raw, keys []string) string {
 	opts := make(map[string]any)
+
 	for _, key := range keys {
-		if val := parseOption(commandRaw, key); val != nil {
+		val := parseOption(commandRaw, key)
+		if val != nil {
 			opts[key] = val
 		}
 	}
 
 	if len(opts) > 0 {
-		if optionsJSON, err := json.Marshal(opts); err == nil {
+		optionsJSON, err := json.Marshal(opts)
+		if err == nil {
 			return string(optionsJSON)
 		}
 	}
+
 	return ""
 }
 
 func parseDocument(commandRaw bson.Raw, key string) string {
 	if doc := commandRaw.Lookup(key); !doc.IsZero() {
 		var m any
-		if err := bson.UnmarshalValue(doc.Type, doc.Value, &m); err == nil {
+
+		err := bson.UnmarshalValue(doc.Type, doc.Value, &m)
+		if err == nil {
 			return parseRawValue(doc)
 		}
 	}
+
 	return ""
 }

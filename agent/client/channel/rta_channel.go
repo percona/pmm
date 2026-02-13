@@ -15,10 +15,10 @@
 package channel
 
 import (
+	"errors"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/status"
@@ -73,10 +73,11 @@ func NewRTAChannel(stream rtav1.CollectorService_CollectClient) *RTAChannel {
 	}
 
 	go s.runHealthPing()
+
 	return s
 }
 
-// runHealthPing sends empty rtav1.CollectRequest{} as health ping periodically
+// runHealthPing sends empty rtav1.CollectRequest{} as health ping periodically.
 func (c *RTAChannel) runHealthPing() {
 	// It is required to send something periodically to keep the stream alive.
 	// As soon as stream for sending RTA data is created always, there are
@@ -88,8 +89,10 @@ func (c *RTAChannel) runHealthPing() {
 	// Keep-alive pings on lower layers (TCP, HTTP/2, gRPC) are not sufficient because they
 	// are applied to the whole connection.
 	pingReq := &rtav1.CollectRequest{Queries: []*rtav1.QueryData{}}
+
 	ticker := time.NewTicker(pingInterval)
 	defer ticker.Stop()
+
 	for {
 		select {
 		case <-c.closeWait:
@@ -108,9 +111,11 @@ func (c *RTAChannel) close(err error) {
 
 		c.sendM.Lock()
 		// Close stream and receive final response
-		if _, closeErr := c.s.CloseAndRecv(); closeErr != nil {
+		_, closeErr := c.s.CloseAndRecv()
+		if closeErr != nil {
 			c.l.Errorf("Failed to receive final response: %v", closeErr)
 		}
+
 		close(c.closeWait)
 		c.sendM.Unlock()
 	})
@@ -127,6 +132,7 @@ func (c *RTAChannel) Wait() error {
 // Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *RTAChannel) Send(msg *rtav1.CollectRequest) {
 	c.sendM.Lock()
+
 	select {
 	case <-c.closeWait:
 		return
@@ -146,11 +152,14 @@ func (c *RTAChannel) Send(msg *rtav1.CollectRequest) {
 
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
+
 	if err != nil {
 		c.l.Errorf("Failed to send message: %+v", status.Code(err))
-		c.close(errors.Wrap(err, "failed to send message"))
+		c.close(errors.Join(err, errors.New("failed to send message")))
+
 		return
 	}
+
 	c.mSend.Inc()
 }
 

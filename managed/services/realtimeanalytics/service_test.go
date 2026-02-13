@@ -49,7 +49,7 @@ import (
 
 func getServiceQueries(serviceID, serviceName string, count int) []*rtav1.QueryData {
 	data := make([]*rtav1.QueryData, count)
-	for i := 0; i < count; i++ {
+	for i := range count {
 		data[i] = &rtav1.QueryData{
 			ServiceId:              serviceID,
 			ServiceName:            serviceName,
@@ -73,6 +73,7 @@ func getServiceQueries(serviceID, serviceName string, count int) []*rtav1.QueryD
 			},
 		}
 	}
+
 	return data
 }
 
@@ -119,7 +120,7 @@ func TestListSessions(t *testing.T) {
 		svc := NewService(db, registry, stateUpdater, store)
 
 		rtaAgent.Status = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)]
-		err = db.Querier.Update(rtaAgent)
+		err = db.Update(rtaAgent)
 
 		resp, err := svc.ListSessions(context.Background(), &rtav1.ListSessionsRequest{})
 		require.NoError(t, err)
@@ -306,7 +307,7 @@ func TestStartSession(t *testing.T) {
 			ServiceId: service2.ServiceID,
 		})
 		require.Error(t, err)
-		assert.Equal(t, status.Convert(err).Code(), codes.InvalidArgument)
+		assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
 		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s does not support Real-Time Analytics",
 			service2.ServiceID, service2.ServiceType))
 	})
@@ -323,7 +324,7 @@ func TestStartSession(t *testing.T) {
 			ServiceId: service3.ServiceID,
 		})
 		require.Error(t, err)
-		assert.Equal(t, status.Convert(err).Code(), codes.FailedPrecondition)
+		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
 		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s doesn't have agents to retrieve credentials and pmm-agent ID",
 			service3.ServiceID, service3.ServiceType))
 	})
@@ -385,6 +386,7 @@ func TestStopSession(t *testing.T) {
 	registry := newMockAgentsRegistry(t)
 	stateUpdater := newMockAgentsStateUpdater(t)
 	stateUpdater.On("RequestStateUpdate", context.Background(), pmmAgent.AgentID).Return()
+
 	store := NewStore()
 	svc := NewService(db, registry, stateUpdater, store)
 
@@ -487,7 +489,7 @@ func TestStopSession(t *testing.T) {
 			ServiceId: service2.ServiceID,
 		})
 		require.Error(t, err)
-		assert.Equal(t, status.Convert(err).Code(), codes.InvalidArgument)
+		assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
 		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s does not support Real-Time Analytics",
 			service2.ServiceID, service2.ServiceType))
 	})
@@ -550,6 +552,7 @@ func TestSearchQueries(t *testing.T) {
 		for i, q := range resp.Queries {
 			queryIDs[i] = q.QueryId
 		}
+
 		assert.Contains(t, queryIDs, "static-query-0")
 		assert.Contains(t, queryIDs, "static-query-1")
 
@@ -646,7 +649,7 @@ func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
 
 	client := rtav1.NewCollectorServiceClient(conn)
 
-	return client, func() { conn.Close() }
+	return client, func() { _ = conn.Close() }
 }
 
 func TestService_Collect(t *testing.T) {
@@ -688,6 +691,7 @@ func TestService_Collect(t *testing.T) {
 	svc := NewService(db, registry, stateUpdater, store)
 	// // Create in-memory listener for testing
 	const bufSize = 1024 * 1024
+
 	lis = bufconn.Listen(bufSize)
 
 	// Create and start server
@@ -701,12 +705,14 @@ func TestService_Collect(t *testing.T) {
 	rtav1.RegisterCollectorServiceServer(s, svc)
 
 	go func() {
-		if err := s.Serve(lis); err != nil {
+		err := s.Serve(lis)
+		if err != nil {
 			panic(err)
 		}
 	}()
 
 	time.Sleep(1 * time.Second) // Give server time to start
+
 	client, cleanup := getTestClient(t)
 	defer cleanup()
 
@@ -731,10 +737,12 @@ func TestService_Collect(t *testing.T) {
 	require.NoError(t, err)
 
 	storeqQs := store.Get("service-1")
+
 	queryIDs := make([]string, len(storeqQs))
 	for i, q := range storeqQs {
 		queryIDs[i] = q.QueryId
 	}
+
 	assert.Contains(t, queryIDs, "static-query-0")
 	assert.Contains(t, queryIDs, "static-query-1")
 	assert.Contains(t, queryIDs, "static-query-2")

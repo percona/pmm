@@ -39,6 +39,7 @@ func parseCommandUpdate(commandRaw bson.Raw, collectionName string) string {
 	if options := parseOptions(commandRaw, updateOptions); options != "" {
 		updatePlaceholders = append(updatePlaceholders, options)
 	}
+
 	updatePlaceholders = slices.DeleteFunc(updatePlaceholders, func(s string) bool {
 		return s == ""
 	})

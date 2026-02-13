@@ -114,8 +114,9 @@ func (s *Store) getShard(serviceID string) *shard {
 	// Uses prime multiplier (31) for good distribution
 	hash := uint32(0)
 	for i := range len(serviceID) {
-		hash = hash*31 + uint32(serviceID[i])
+		hash = hash*31 + uint32(serviceID[i]) //nolint:mnd
 	}
+
 	return s.shards[hash%numShards]
 }
 
@@ -146,6 +147,7 @@ func (s *Store) Run(ctx context.Context) {
 // for a single global lock.
 func (s *Store) Set(serviceID string, queries []*rtav1.QueryData) {
 	shard := s.getShard(serviceID)
+
 	shard.mu.Lock() // Lock ONLY this shard, not the entire store
 	defer shard.mu.Unlock()
 
@@ -211,6 +213,7 @@ func (s *Store) cleanup() {
 // Safe to call even if the service has no data (delete on non-existent key is a no-op).
 func (s *Store) Clear(serviceID string) {
 	shard := s.getShard(serviceID)
+
 	shard.mu.Lock()
 	defer shard.mu.Unlock()
 
@@ -225,9 +228,11 @@ func (s *Store) Stats() map[string]int {
 	for i := range numShards {
 		shard := s.shards[i]
 		shard.mu.RLock()
+
 		for serviceID, bucket := range shard.buckets {
 			stats[serviceID] += len(bucket.queries)
 		}
+
 		shard.mu.RUnlock()
 	}
 
