@@ -42,7 +42,7 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
     <>
       {/* @ts-expect-error - react-syntax-highlighter types are incompatible with React 18 */}
       <ReactSyntaxHighlighter language={language} style={highlighterStyle} {...props}>
-      {content}
+        {content}
       </ReactSyntaxHighlighter>
     </>
   );

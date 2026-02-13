@@ -108,7 +108,7 @@ const DetailsPane: FC<Props> = ({
               <QueryAndDetails queryData={query} />
             )}
             {tab === 1 && (
-              <SyntaxHighlighter language="json" content={query.queryRawJson} showCopyButton showLineNumbers maxHeight="70vh" />
+              <SyntaxHighlighter language="json" content={query.queryRawJson} showCopyButton showLineNumbers maxHeight="80vh" />
             )}
           </CardContent>
         ) : null}

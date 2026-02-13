@@ -113,7 +113,7 @@ const QueryAndDetails: FC<Props> = ({
           md: 0,
         }
       }}>
-        <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} maxHeight="70vh" />
+        <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} maxHeight="80vh" />
       </Grid>
     </Grid>
   );
