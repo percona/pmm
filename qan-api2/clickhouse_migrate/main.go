@@ -29,7 +29,10 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-const defaultLastMigration = uint(21)
+const (
+	defaultLastMigration = uint(21)
+	defaultMigrationsDir = "file:///root/go/src/github.com/percona/pmm/qan-api2/migrations/sql"
+)
 
 func main() {
 	lastMigrationFlag := flag.Uint("last-migration", defaultLastMigration, "Last migration number (e.g., 21)")
@@ -42,10 +45,13 @@ func main() {
 		log.Println("Usage: go run main.go --last-migration <number> [--user <user>] [--password <password>]")
 		os.Exit(1)
 	}
-	migrationDir := "file:///root/go/src/github.com/percona/pmm/qan-api2/migrations/sql"
+	migrationsDir := os.Getenv("MIGRATIONS_DIR")
+	if migrationsDir == "" {
+		migrationsDir = defaultMigrationsDir
+	}
 
 	clickhouseDSN := fmt.Sprintf("clickhouse://localhost:9000?username=%s&password=%s&database=pmm", *userFlag, *passwordFlag)
-	m, err := migrate.New(migrationDir, clickhouseDSN)
+	m, err := migrate.New(migrationsDir, clickhouseDSN)
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
 	}
