@@ -43,18 +43,20 @@ export interface QueryData {
   serviceName: string;
   queryId: string;
   queryText: string;
-  state: string;
-  executionDuration: string;
-  rowsExamined: number;
-  rowsSent: number;
-  collectTime: string;
-  rawQueryJson: string;
-  mongoDbPayload?: QueryMongoDBData;
+  queryExecutionDuration?: string | null;
+  queryCollectTime: string;
+  clientAddress: string;
+  queryRawJson: string;
+  mongoDbPayload: QueryMongoDBData;
 }
 
 export interface QueryMongoDBData {
-  opid: string;
-  client: string;
-  waitingForLock: boolean;
-  indexUtilized: string;
+  dbInstanceAddress: string;
+  clientAppName: string;
+  databaseName: string;
+  operationStartTime: string;
+  planSummary: string;
+  operation: string;
+  username: string;
+  collection?: string;
 }

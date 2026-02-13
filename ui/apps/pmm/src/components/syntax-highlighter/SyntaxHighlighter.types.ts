@@ -5,4 +5,7 @@ export interface SyntaxHighlighterProps extends Omit<ReactSyntaxHighlighterProps
   language: CodeLanguage;
   content: string;
   showCopyButton?: boolean;
+  disableBorder?: boolean;
+  /** When set, the code area scrolls inside the bordered box (e.g. "70vh") */
+  maxHeight?: string | number;
 }

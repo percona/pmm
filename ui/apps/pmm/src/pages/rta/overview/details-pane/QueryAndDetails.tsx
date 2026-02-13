@@ -1,70 +1,121 @@
-import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import { FC } from "react";
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from "types/rta.types";
 import DetailsMetric from "./DetailsMetric";
 import Typography from "@mui/material/Typography";
-import { StateCell } from "pages/rta/components/state-cell";
 import BigNumberMetric from "./BigNumberMetric";
 
 type Props = {
-  query: QueryData;
+  queryData: QueryData;
 };
 
 const GridItem = ({ children }: { children: React.ReactNode }) => (
-  <Grid item xs={12} md={6} sx={{ '& > *': { height: '100%' } }}>
+  <Grid item xs={6} sx={{ '& > *': { height: '100%' } }}>
     {children}
   </Grid>
 );
 
-const QueryAndDetails: FC<Props> = ({ query: { queryText, state, serviceName } }) => {
+const QueryAndDetails: FC<Props> = ({
+  queryData: {
+    queryText,
+    queryId,
+    queryExecutionDuration,
+    queryCollectTime,
+    serviceName,
+    clientAddress,
+    mongoDbPayload: {
+      planSummary,
+      databaseName,
+      collection,
+      operation,
+      username,
+      dbInstanceAddress,
+      clientAppName,
+      operationStartTime,
+    },
+  }
+}) => {
   return (
-    <Stack direction="row" justifyContent="space-between" gap={3} sx={{
-      '& > *': {
-        flexBasis: 0,
-        flex: 1,
-      },
-    }}>
-      <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} />
-      <Grid container spacing={3}>
-        <GridItem>
-          <DetailsMetric title="Current state">
-            <StateCell state={state} />
-          </DetailsMetric>
-        </GridItem>
-        <GridItem>
-          <DetailsMetric title="Elapsed exec. time">
-            <BigNumberMetric mainText="20" subText="ms" />
-          </DetailsMetric>
-        </GridItem>
-        <GridItem>
-          <DetailsMetric title="Plan summary">
-            <Typography variant="body2">Full collection scan (COLLSCAN)</Typography>
-          </DetailsMetric>
-        </GridItem>
-        <GridItem>
-          <DetailsMetric title="Docs examined/sent">
-            <BigNumberMetric mainText="84,291/1" />
-          </DetailsMetric>
-        </GridItem>
-        <GridItem>
-          <DetailsMetric title="Snapshot time">
-            <BigNumberMetric mainText="2025-10-17 11:18:29" size="small" />
-          </DetailsMetric>
-        </GridItem>
-        <GridItem>
-          <DetailsMetric title="Operation ID" subtitle="opid">
-            <BigNumberMetric mainText="1238912" size="small" />
-          </DetailsMetric>
-        </GridItem>
-        <GridItem>
-          <DetailsMetric title="Service">
-            <BigNumberMetric mainText={serviceName} size="small" />
-          </DetailsMetric>
-        </GridItem>
+    <Grid container spacing={3}>
+      <Grid item xs={12} md={6}>
+        <Grid container spacing={3}>
+          <GridItem>
+            <DetailsMetric title="Operation ID">
+              <BigNumberMetric mainText={queryId} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Elapsed exec. time">
+              <BigNumberMetric mainText={queryExecutionDuration ?? undefined} subText="ms" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Plan summary">
+              <Typography variant="body2">{planSummary}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Database name">
+              <Typography variant="body2">{databaseName}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Collection">
+              <Typography variant="body2">{collection}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Operation">
+              <Typography variant="body2">{operation}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="User name">
+              <Typography variant="body2">{username}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Client address">
+              <Typography variant="body2">{clientAddress}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Service">
+              <Typography variant="body2">{serviceName}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Host">
+              <Typography variant="body2">{dbInstanceAddress}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Client app name">
+              <Typography variant="body2">{clientAppName}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Operation start time">
+              <Typography variant="body2">{operationStartTime}</Typography>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Data capture time">
+              <Typography variant="body2">{queryCollectTime}</Typography>
+            </DetailsMetric>
+          </GridItem>
+        </Grid>
       </Grid>
-    </Stack>
+      <Grid item xs={12} md={6} sx={{
+        mt: {
+          xs: 4,
+          md: 0,
+        }
+      }}>
+        <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} maxHeight="70vh" />
+      </Grid>
+    </Grid>
   );
 };
 

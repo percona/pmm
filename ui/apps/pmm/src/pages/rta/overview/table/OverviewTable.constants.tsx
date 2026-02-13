@@ -2,7 +2,6 @@ import { type MRT_ColumnDef } from 'material-react-table';
 
 import { QueryData } from 'types/rta.types';
 import { Messages } from './OverviewTable.messages';
-import { StateCell } from '../../components/state-cell';
 import { QueryCell } from './query-cell';
 import { parseDuration } from 'utils/duration.utils';
 
@@ -20,18 +19,12 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
     size: 100,
     header: Messages.columns.elapsedTime,
-    accessorKey: 'executionDuration',
+    accessorKey: 'queryExecutionDuration',
     filterVariant: 'range',
     filterFn: 'between',
     sortingFn: (rowA, rowB) =>
-      parseDuration(rowA.original.executionDuration) -
-      parseDuration(rowB.original.executionDuration),
-    Cell: ({ cell }) => `${parseDuration(cell.getValue() as string).toFixed(5)} ms`,
-  },
-  {
-    header: Messages.columns.state,
-    accessorKey: 'state',
-    size: 100,
-    Cell: ({ row }) => <StateCell state={row.original.state} />,
+      parseDuration(rowA.original.queryExecutionDuration ?? '0s') -
+      parseDuration(rowB.original.queryExecutionDuration ?? '0s'),
+    Cell: ({ cell }) => `${cell.getValue() ? `${parseDuration(cell.getValue() as string).toFixed(2)} ms` : 'N/A'}`,
   },
 ];

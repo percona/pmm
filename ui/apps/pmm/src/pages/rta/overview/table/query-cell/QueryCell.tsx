@@ -11,6 +11,7 @@ const QueryCell: FC<Props> = ({ query }) => (
     containerProps={{
       sx: {
         width: '100%',
+        maxHeight: '50px',
       },
     }}
     language="mongodb"

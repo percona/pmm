@@ -9,12 +9,10 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import { Icon } from 'components/icon';
 import Paper from '@mui/material/Paper';
 import Slide from '@mui/material/Slide';
-import Divider from '@mui/material/Divider';
 import { QueryData } from 'types/rta.types';
 import { useEscapeKey } from 'utils/keys.utils';
 import { Messages } from './DetailsPane.messages';
 import QueryAndDetails from './QueryAndDetails';
-import HistoricalContext from './HistoricalContext';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 
 interface Props {
@@ -44,7 +42,7 @@ const DetailsPane: FC<Props> = ({
         aria-hidden={query ? 'false' : 'true'}
         variant="outlined"
         sx={(theme) => ({
-          p: 1,
+          pb: 1,
           px: 3,
           top: 0,
           left: 0,
@@ -52,10 +50,11 @@ const DetailsPane: FC<Props> = ({
           m: 2,
           bottom: theme.spacing(-2),
           position: 'absolute',
+          overflow: 'scroll',
           zIndex: theme.zIndex.modal,
         })}
       >
-        <Stack direction="row" justifyContent="space-between">
+        <Stack direction="row" justifyContent="space-between" sx={{ borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'inherit' }}>
           <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)}>
             <Tab
               data-testid="details-pane-details-tab"
@@ -94,7 +93,6 @@ const DetailsPane: FC<Props> = ({
             </IconButton>
           </Stack>
         </Stack>
-        <Divider />
         {query ? (
           <CardContent
             sx={{
@@ -107,13 +105,10 @@ const DetailsPane: FC<Props> = ({
             }}
           >
             {tab === 0 && (
-              <Stack gap={2} mb={1} >
-                <QueryAndDetails query={query} />
-                <HistoricalContext />
-              </Stack>
+              <QueryAndDetails queryData={query} />
             )}
             {tab === 1 && (
-              <SyntaxHighlighter language="json" content={query.rawQueryJson} showCopyButton showLineNumbers />
+              <SyntaxHighlighter language="json" content={query.queryRawJson} showCopyButton showLineNumbers maxHeight="70vh" />
             )}
           </CardContent>
         ) : null}
