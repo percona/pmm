@@ -35,7 +35,7 @@ RUN dnf update -y && \
     krb5-devel \
     wget gzip && \
     dnf install -y --enablerepo=crb glibc-static && \
-    dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
+    dnf clean all && rm -rf /var/cache/dnf
 
 # Configure EPEL to use European mirror
 RUN sed -i 's|metalink=|#metalink=|g' /etc/yum.repos.d/epel*.repo && \
@@ -46,7 +46,8 @@ ENV GO_VERSION=1.25.7
 
 RUN if [ "$(uname -m)" = "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
-    tar -C /usr/local -xzf /tmp/golang.tar.gz && \
+    tar -C /tmp -xzf /tmp/golang.tar.gz && \
+    mv /tmp/go /usr/local/go && \
     rm /tmp/golang.tar.gz
 
 RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
