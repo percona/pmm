@@ -18,6 +18,7 @@ package realtimeanalytics
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -28,6 +29,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
+	rtaParser "github.com/percona/pmm/agent/agents/mongodb/realtimeanalytics/parser"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
@@ -148,11 +150,17 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 		_ = cur.Close(ctx)
 	}()
 
-	var results []*rtav1.QueryData
 	currTime := timestamppb.New(time.Now())
-	for cur.Next(ctx) {
-		// TODO: try to parallel parsing of currentOp results
 
+	// Parallel parsing of currentOp results using WaitGroup and sync.Map to store
+	// results from goroutines safely without worrying about concurrent map writes,
+	// to speed up processing of large number of current operations.
+	wg := sync.WaitGroup{}
+
+	// Used to index every result at its correct position
+	indexedRes := sync.Map{}
+
+	for cur.Next(ctx) {
 		// check if the context is done to avoid unnecessary processing
 		select {
 		case <-ctx.Done():
@@ -160,16 +168,38 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 		default:
 		}
 
-		queryData := parseCurrentOp(cur.Current)
-		queryData.ServiceId = m.serviceID
-		queryData.ServiceName = m.serviceName
-		queryData.QueryCollectTime = currTime
-		results = append(results, queryData)
+		// We create a copy of the cursor to avoid unwanted overrides.
+		curCopy := *cur
+
+		wg.Add(1)
+		go func(cur mongo.Cursor) {
+			defer wg.Done()
+
+			queryData := rtaParser.ParseCurrentOp(curCopy.Current)
+			if queryData == nil {
+				// If parsing failed, we skip this operation and don't include it in the results.
+				return
+			}
+			queryData.ServiceId = m.serviceID
+			queryData.ServiceName = m.serviceName
+			queryData.QueryCollectTime = currTime
+			indexedRes.Store(queryData.QueryId, queryData)
+		}(curCopy)
 	}
 	if err = cur.Err(); err != nil {
 		m.l.Warnf("Failed to iterate currentOp cursor: %v", err)
 		return nil, err
 	}
+
+	// Wait for all parsing goroutines to finish
+	wg.Wait()
+
+	var results []*rtav1.QueryData
+	indexedRes.Range(func(key, value any) bool {
+		results = append(results, value.(*rtav1.QueryData))
+		return true
+	})
+
 	return results, nil
 }
 
@@ -206,40 +236,35 @@ func buildCurrentOpsPipeline() mongo.Pipeline {
 	}}
 	// Filter only active operations of type "op" (exclude "command" and other types)
 	// to focus on actual queries and reduce amount of data transferred from MongoDB and speed up processing
-	// matchStage := bson.D{{
-	// 	"$match", bson.D{
-	// 		{"active", true},
-	// 		{"type", "op"},
-	// 		{"desc", bson.D{{"$nin", bson.A{"Checkpointer", "JournalFlusher"}}}},
-	// 	},
-	// }}
 
 	/*
-	The matchStage below equal to the following aggregation pipeline in MongoDB shell,
-	which filters out operations from RTA agent itself and internal MongoDB tools, and gets only active operations/commands:
-	db.aggregate([
-	    { $currentOp : { allUsers: true, idleSessions: false,  idleCursors:false, idleConnections:false} },
-	    { $match : {
-	        $and: [
-	            {"appName": {$not: {$regex: "^(RTA-mongodb-.*$)"}}},
-	            { "desc": {$nin: ["Checkpointer", "JournalFlusher"]}},
-	            { active: true}
-	            ],
-	        }
-	        }
-	    ]);
-	 */
+		The matchStage below equal to the following aggregation pipeline in MongoDB shell,
+		which filters out operations from RTA agent itself and internal MongoDB tools, and gets only active operations/commands:
+		db.aggregate([
+		    { $currentOp : { allUsers: true, idleSessions: false,  idleCursors:false, idleConnections:false} },
+		    { $match : {
+		        $and: [
+		            {"appName": {$not: {$regex: "^(RTA-mongodb-.*$)"}}},
+		            { "desc": {$nin: ["Checkpointer", "JournalFlusher"]}},
+		            { active: true}
+		            ],
+		        }
+		        }
+		    ]);
+	*/
 	matchStage := bson.D{{
-			"$match", bson.D{
-				{"$and", bson.A{
+		"$match", bson.D{
+			{
+				"$and", bson.A{
 					// Get operations/commands that are active.
 					bson.D{{"active", true}},
 					// Exclude operations from internal MongoDB tools.
 					bson.D{{"desc", bson.D{{"$nin", bson.A{"Checkpointer", "JournalFlusher"}}}}},
 					// Exclude operations from RTA agent itself.
 					bson.D{{"appName", bson.D{{"$not", bson.D{{"$regex", "^(RTA-mongodb-.*$)"}}}}}},
-					},
-				}},
+				},
+			},
+		},
 	}}
 
 	return mongo.Pipeline{selectStage, matchStage}

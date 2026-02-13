@@ -1,6 +1,21 @@
-package realtimeanalytics
+// Copyright (C) 2023 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package parser
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -12,24 +27,31 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
-// parseCurrentOp parses raw bson document returned by currentOp command into *QueryData.
-func parseCurrentOp(raw bson.Raw) *rtav1.QueryData {
-	q := &rtav1.QueryData{
+// ParseCurrentOp parses raw bson document returned by currentOp command into *QueryData.
+func ParseCurrentOp(raw bson.Raw) (qData *rtav1.QueryData) {
+	qData = &rtav1.QueryData{
 		Payload: &rtav1.QueryData_MongoDbPayload{
 			MongoDbPayload: &rtav1.QueryMongoDBData{},
 		},
 	}
 
-	// TODO: errgroup.Go
-	parseGenericFields(raw, q)
-	parseMongoFields(raw, q)
+	// MongoDB driver parser may panic.
+	// We need to recover from panic and return empty QueryData in this case
+	// to avoid crashing the whole agent.
+	defer func() {
+		if r := recover(); r != nil {
+			qData = nil
+		}
+	}()
 
-	return q
+	parseGenericFields(raw, qData)
+	parseMongoFields(raw, qData)
+
+	return qData
 }
 
 // parseGenericFields parses common fields from raw bson document returned by currentOp command into *QueryData.
 func parseGenericFields(raw bson.Raw, q *rtav1.QueryData) {
-	// TODO: recover from panic
 	if opid, ok := raw.Lookup("opid").Int32OK(); ok {
 		q.QueryId = fmt.Sprintf("%v", opid)
 	}
@@ -38,12 +60,16 @@ func parseGenericFields(raw bson.Raw, q *rtav1.QueryData) {
 		q.QueryExecutionDuration = durationpb.New(time.Duration(1000 * msRunning))
 	}
 	q.ClientAddress, _ = raw.Lookup("client").StringValueOK()
-	q.QueryRawJson = raw.String()
+	var m any
+	if err := bson.Unmarshal(raw, &m); err == nil {
+		if jsonValue, err := json.MarshalIndent(m, "", "    "); err == nil {
+			q.QueryRawJson = string(jsonValue)
+		}
+	}
 }
 
 // parseMongoFields parses MongoDB-specific fields from raw bson document returned by currentOp command into *QueryData.
 func parseMongoFields(raw bson.Raw, q *rtav1.QueryData) {
-	// TODO: recover from panic
 	var p *rtav1.QueryData_MongoDbPayload
 	var ok bool
 	if q.Payload == nil {
@@ -74,7 +100,8 @@ func parseMongoFields(raw bson.Raw, q *rtav1.QueryData) {
 	}
 
 	// parse database name and collection name from ns field
-	if ns, ok := raw.Lookup("ns").StringValueOK(); ok {
+	var ns string
+	if ns, ok = raw.Lookup("ns").StringValueOK(); ok {
 		// ns has in format "database.collection", we need to split it to get database name
 		parts := strings.SplitN(ns, ".", -1)
 		p.MongoDbPayload.DatabaseName = parts[0]
@@ -86,5 +113,20 @@ func parseMongoFields(raw bson.Raw, q *rtav1.QueryData) {
 			}
 			p.MongoDbPayload.Collection = col
 		}
+	}
+
+	// parse command field to get query text
+	commandRaw, _ := raw.Lookup("command").DocumentOK()
+	switch p.MongoDbPayload.Operation {
+	case "query":
+		q.QueryText = parseCommandFind(commandRaw)
+	case "insert":
+		q.QueryText = parseCommandInsert(commandRaw)
+	case "update":
+		q.QueryText = parseCommandUpdate(commandRaw, p.MongoDbPayload.Collection)
+	case "remove", "delete":
+		q.QueryText = parseCommandDelete(commandRaw, p.MongoDbPayload.Collection)
+	default:
+		q.QueryText = parseCommand(raw)
 	}
 }

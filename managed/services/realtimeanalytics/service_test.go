@@ -26,6 +26,7 @@ import (
 	"github.com/AlekSi/pointer"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
+	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -38,6 +39,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	"github.com/percona/pmm/managed/models"
@@ -49,22 +51,24 @@ func getServiceQueries(serviceID, serviceName string, count int) []*rtav1.QueryD
 	data := make([]*rtav1.QueryData, count)
 	for i := 0; i < count; i++ {
 		data[i] = &rtav1.QueryData{
-			ServiceId:         serviceID,
-			ServiceName:       serviceName,
-			QueryId:           fmt.Sprintf("static-query-%d", i),
-			QueryText:         `{ find: "mycollection", filter: { status: "active" } }`,
-			State:             "RUNNING",
-			ExecutionDuration: durationpb.New(15),
-			RowsExamined:      200,
-			RowsSent:          100,
-			CollectTime:       timestamppb.Now(),
-			RawQueryJson:      `{ find: "mycollection", filter: { status: "active" } }`,
+			ServiceId:              serviceID,
+			ServiceName:            serviceName,
+			QueryId:                fmt.Sprintf("static-query-%d", i),
+			QueryText:              `{ find: "mycollection", filter: { status: "active" } }`,
+			QueryExecutionDuration: durationpb.New(15),
+			QueryCollectTime:       timestamppb.Now(),
+			QueryRawJson:           `{ find: "mycollection", filter: { status: "active" } }`,
+			ClientAddress:          "127.0.0.1:5060",
 			Payload: &rtav1.QueryData_MongoDbPayload{
 				MongoDbPayload: &rtav1.QueryMongoDBData{
-					Opid:           "1",
-					Client:         "127.0.0.1:5060",
-					WaitingForLock: false,
-					IndexUtilized:  "COLLSCAN",
+					DbInstanceAddress:  "c4486b1ebd30:27017",
+					DatabaseName:       "mydb",
+					ClientAppName:      "myapp",
+					Collection:         "mycollection",
+					Operation:          "find",
+					OperationStartTime: timestamppb.Now(),
+					Username:           "test-user",
+					PlanSummary:        "COLLSCAN",
 				},
 			},
 		}
@@ -534,7 +538,8 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("search all queries for service1", func(t *testing.T) {
 		t.Parallel()
 
-		resp, err := svc.SearchQueries(context.Background(), &rtav1.SearchQueriesRequest{
+		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		resp, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{service1.ServiceID},
 		})
 		require.NoError(t, err)
@@ -557,7 +562,8 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("search all queries for service2", func(t *testing.T) {
 		t.Parallel()
 
-		resp, err := svc.SearchQueries(context.Background(), &rtav1.SearchQueriesRequest{
+		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		resp, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{service2.ServiceID},
 		})
 		require.NoError(t, err)
@@ -571,7 +577,8 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("search all queries for both services", func(t *testing.T) {
 		t.Parallel()
 
-		resp, err := svc.SearchQueries(context.Background(), &rtav1.SearchQueriesRequest{
+		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		resp, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{service1.ServiceID, service2.ServiceID},
 		})
 		require.NoError(t, err)
@@ -600,7 +607,8 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("search all queries for absent service", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := svc.SearchQueries(context.Background(), &rtav1.SearchQueriesRequest{
+		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		_, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{"absent-service"},
 		})
 		require.Error(t, err)
@@ -610,7 +618,8 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("one of the services is absent", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := svc.SearchQueries(context.Background(), &rtav1.SearchQueriesRequest{
+		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		_, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{service1.ServiceID, "absent-service"},
 		})
 		require.Error(t, err)
@@ -644,6 +653,35 @@ func TestService_Collect(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	// Create test data
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "test-node",
+	})
+	require.NoError(t, err)
+
+	service, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "test-mongodb",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(27017),
+		Cluster:     "test-cluster",
+	})
+	require.NoError(t, err)
+
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+
+	// Create a MongoDB Realtime Agent
+	_, err = models.CreateAgent(db.Querier, models.RTAMongoDBAgentType, &models.CreateAgentParams{
+		PMMAgentID: pmmAgent.AgentID,
+		ServiceID:  service.ServiceID,
+		Username:   "test-user",
+		Password:   "test-pass",
+		Disabled:   false,
+		RTAOptions: models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+	})
+	require.NoError(t, err)
+
 	registry := newMockAgentsRegistry(t)
 	stateUpdater := newMockAgentsStateUpdater(t)
 	store := NewStore()
@@ -675,7 +713,12 @@ func TestService_Collect(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	stream, err := client.Collect(ctx)
+	streamCtx := agentv1.AddAgentConnectMetadata(ctx, &agentv1.AgentConnectMetadata{
+		ID:      pmmAgent.AgentID,
+		Version: "1.0.0",
+	})
+
+	stream, err := client.Collect(streamCtx)
 	require.NoError(t, err)
 
 	err = stream.Send(&rtav1.CollectRequest{
