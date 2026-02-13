@@ -61,7 +61,7 @@ func parseOptions(commandRaw bson.Raw, keys []string) string {
 		}
 	}
 
-	if len(opts) > 0 {
+	if len(opts) != 0 {
 		optionsJSON, err := json.Marshal(opts)
 		if err == nil {
 			return string(optionsJSON)
