@@ -7,7 +7,6 @@
     kubectl_version: "1.35.0"
     doctl_version: "1.148.0"
     node_version: "22.x"
-    goreleaser_version: "2.13.3" # https://github.com/goreleaser/goreleaser/releases
     eksctl_version: "0.221.0"
     helm_version: "3.20.0"
 
@@ -125,12 +124,6 @@
         dest: /usr/local/bin
         remote_src: yes
         mode: "u+x,g+x,o+x"
-
-    - name: Install Goreleaser
-      dnf:
-        name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
-        state: present
-        disable_gpg_check: yes
 
     - name: Install latest YQ (YAML processor) 
       get_url:
