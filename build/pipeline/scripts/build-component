@@ -9,6 +9,14 @@ set -o nounset
 COMPONENT="${1:-}"
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 WORKSPACE_DIR="$(realpath "$SCRIPT_DIR/../../..")"
+
+# Load environment variables from .env file
+if [ -f "${SCRIPT_DIR}/../.env" ]; then
+    set -o allexport
+    source "${SCRIPT_DIR}/../.env"
+    set +o allexport
+fi
+
 PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
 BUILD_TYPE="${BUILD_TYPE:-static}"
 GOARCH="${GOARCH:-amd64}"
@@ -177,11 +185,11 @@ get_component_info() {
     if [ -z "$value" ]; then
         case "${component}_${field}" in
             redis_exporter_url) echo "https://github.com/oliver006/redis_exporter.git" ;;
-            redis_exporter_branch) echo "8d5f9dea4a8863ce7cad62352957ae5e75047346" ;;
+            redis_exporter_branch) echo "${REDIS_EXPORTER_REF}" ;;
             vmagent_url) echo "https://github.com/VictoriaMetrics/VictoriaMetrics.git" ;;
-            vmagent_branch) echo "a5e3c6d4492db765800363dfae48a04b4d7888be" ;;
+            vmagent_branch) echo "${VMAGENT_REF}" ;;
             nomad_url) echo "https://github.com/hashicorp/nomad.git" ;;
-            nomad_branch) echo "9103d938133311b2da905858801f0e111a2df0a1" ;;
+            nomad_branch) echo "${NOMAD_REF}" ;;
             *) echo "" ;;
         esac
     else

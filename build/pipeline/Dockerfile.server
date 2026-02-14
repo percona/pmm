@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
 
 # Build arguments for git commits and versions
-ARG PMM_COMMIT
-ARG GRAFANA_COMMIT=0fd020e57635b448100f7300fe89f596bd12daa2
-ARG VM_COMMIT=pmm-6401-v1.114.0
-ARG DASHBOARDS_COMMIT=ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
-ARG PMM_DUMP_COMMIT=main
+ARG PMM_REF=v3
+ARG GRAFANA_REF=v3
+ARG VM_REF=pmm-6401-v1.114.0
+ARG DASHBOARDS_REF=main
+ARG PMM_DUMP_REF=main
 ARG TARGETARCH=amd64
 
 #
@@ -14,10 +14,10 @@ ARG TARGETARCH=amd64
 FROM --platform=$BUILDPLATFORM golang:1.25 AS go-builder
 
 ARG TARGETARCH
-ARG PMM_COMMIT
-ARG GRAFANA_COMMIT
-ARG VM_COMMIT
-ARG PMM_DUMP_COMMIT
+ARG PMM_REF
+ARG GRAFANA_REF
+ARG VM_REF
+ARG PMM_DUMP_REF
 
 WORKDIR /build
 
@@ -27,9 +27,12 @@ RUN apt-get update && apt-get install -y git make
 # Build pmm-managed binaries
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    git clone https://github.com/percona/pmm.git && \
-    cd pmm/managed && \
-    git checkout ${PMM_COMMIT} && \
+    --mount=type=bind,source=.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
+    echo "Using cached pmm repository from Minio..." && \
+    git clone /repo-cache/pmm.git /build/pmm && \
+    cd /build/pmm && \
+    git checkout ${PMM_REF} && \
+    cd managed && \
     make release GOARCH=${TARGETARCH}
 
 # Build qan-api2
@@ -47,40 +50,48 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 # Build pmm-dump
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    git clone https://github.com/percona/pmm-dump.git && \
-    cd pmm-dump && \
-    git checkout ${PMM_DUMP_COMMIT} && \
+    --mount=type=bind,source=.cache/repos/pmm-dump.git,target=/repo-cache/pmm-dump.git,readonly \
+    echo "Using cached pmm-dump repository from Minio..." && \
+    git clone /repo-cache/pmm-dump.git /build/pmm-dump && \
+    cd /build/pmm-dump && \
+    git checkout ${PMM_DUMP_REF} && \
     CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -v -o /build/pmm/bin/pmm-dump .
 
 # Build Grafana Go binaries
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    git clone https://github.com/percona/grafana.git && \
-    cd grafana && \
-    git checkout ${GRAFANA_COMMIT} && \
+    --mount=type=bind,source=.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
+    echo "Using cached grafana repository from Minio..." && \
+    git clone /repo-cache/grafana.git /build/grafana && \
+    cd /build/grafana && \
+    git checkout ${GRAFANA_REF} && \
     sed -i "s/unknown-dev/11.6.3/" pkg/build/git.go && \
     make build-go
 
 # Build VictoriaMetrics binaries
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    git clone https://github.com/VictoriaMetrics/VictoriaMetrics.git && \
-    cd VictoriaMetrics && \
-    git checkout ${VM_COMMIT} && \
-    PKG_TAG=${VM_COMMIT} BUILDINFO_TAG=${VM_COMMIT} make victoria-metrics-pure vmalert-pure
+    --mount=type=bind,source=.cache/repos/VictoriaMetrics.git,target=/repo-cache/VictoriaMetrics.git,readonly \
+    echo "Using cached VictoriaMetrics repository from Minio..." && \
+    git clone /repo-cache/VictoriaMetrics.git /build/VictoriaMetrics && \
+    cd /build/VictoriaMetrics && \
+    git checkout ${VM_REF} && \
+    PKG_TAG=${VM_REF} BUILDINFO_TAG=${VM_REF} make victoria-metrics-pure vmalert-pure
 
 #
 # Stage 2: Build Grafana UI assets
 #
-FROM node:20 AS grafana-builder
+FROM node:22 AS grafana-builder
 
-ARG GRAFANA_COMMIT
+ARG GRAFANA_REF
 
 WORKDIR /grafana
 
 RUN --mount=type=cache,target=/root/.npm \
-    git clone https://github.com/percona/grafana.git . && \
-    git checkout ${GRAFANA_COMMIT} && \
+    --mount=type=bind,source=.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
+    echo "Using cached grafana repository from Minio..." && \
+    git clone /repo-cache/grafana.git . && \
+    git checkout ${GRAFANA_REF} && \
     npm install -g grunt-cli && \
     make deps-js && \
     make build-js
@@ -88,24 +99,28 @@ RUN --mount=type=cache,target=/root/.npm \
 #
 # Stage 3: Build PMM UI and percona-dashboards
 #
-FROM node:20 AS dashboards-builder
+FROM node:22 AS dashboards-builder
 
-ARG DASHBOARDS_COMMIT
-ARG PMM_COMMIT
+ARG DASHBOARDS_REF
+ARG PMM_REF
 
 WORKDIR /dashboards
 
 # Build percona-dashboards
 RUN --mount=type=cache,target=/root/.npm \
-    git clone https://github.com/percona/grafana-dashboards.git . && \
-    git checkout ${DASHBOARDS_COMMIT} && \
+    --mount=type=bind,source=.cache/repos/grafana-dashboards.git,target=/repo-cache/grafana-dashboards.git,readonly \
+    echo "Using cached grafana-dashboards repository from Minio..." && \
+    git clone /repo-cache/grafana-dashboards.git . && \
+    git checkout ${DASHBOARDS_REF} && \
     make release
 
 # Build PMM UI
 WORKDIR /pmm-ui
 RUN --mount=type=cache,target=/root/.npm \
-    git clone https://github.com/percona/pmm.git . && \
-    git checkout ${PMM_COMMIT} && \
+    --mount=type=bind,source=.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
+    echo "Using cached pmm repository from Minio..." && \
+    git clone /repo-cache/pmm.git . && \
+    git checkout ${PMM_REF} && \
     cd ui && \
     make release
 
@@ -116,11 +131,11 @@ FROM oraclelinux:9-slim
 
 ARG VERSION
 ARG BUILD_DATE
-ARG PMM_COMMIT
-ARG GRAFANA_COMMIT
-ARG VM_COMMIT
-ARG DASHBOARDS_COMMIT
-ARG PMM_DUMP_COMMIT
+ARG PMM_REF
+ARG GRAFANA_REF
+ARG VM_REF
+ARG DASHBOARDS_REF
+ARG PMM_DUMP_REF
 
 ENV LANG=en_US.utf8
 ENV GF_PLUGIN_DIR=/srv/grafana/plugins
@@ -131,7 +146,6 @@ WORKDIR /opt
 
 # Install system dependencies
 RUN --mount=type=cache,target=/var/cache/dnf \
-    --mount=type=cache,target=/var/cache/yum \
     microdnf -y install epel-release && \
     microdnf -y install \
         ansible-core \
@@ -203,22 +217,22 @@ COPY --from=dashboards-builder --chown=pmm:pmm /dashboards/pmm-app/dist /usr/sha
 
 # Generate VERSION.json for introspection
 RUN echo "{ \
-  \"pmm-managed\": \"${PMM_COMMIT}\", \
-  \"qan-api2\": \"${PMM_COMMIT}\", \
-  \"vmproxy\": \"${PMM_COMMIT}\", \
-  \"grafana\": \"${GRAFANA_COMMIT}\", \
-  \"victoriametrics\": \"${VM_COMMIT}\", \
-  \"percona-dashboards\": \"${DASHBOARDS_COMMIT}\", \
-  \"pmm-dump\": \"${PMM_DUMP_COMMIT}\" \
+  \"pmm-managed\": \"${PMM_REF}\", \
+  \"qan-api2\": \"${PMM_REF}\", \
+  \"vmproxy\": \"${PMM_REF}\", \
+  \"grafana\": \"${GRAFANA_REF}\", \
+  \"victoriametrics\": \"${VM_REF}\", \
+  \"percona-dashboards\": \"${DASHBOARDS_REF}\", \
+  \"pmm-dump\": \"${PMM_DUMP_REF}\" \
 }" > /usr/share/pmm-server/VERSION.json && \
     chmod 0644 /usr/share/pmm-server/VERSION.json
 
 # Copy Ansible playbooks and run configuration
-COPY entrypoint.sh /opt/entrypoint.sh
+COPY docker/server/entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible
-COPY gitCommit /tmp/gitCommit
+COPY pipeline/gitCommit /tmp/gitCommit
 
-RUN --mount=type=bind,source=pmm-client.tar.gz,target=/tmp/pmm-client.tar.gz \
+RUN --mount=type=bind,source=pipeline/pmm-client.tar.gz,target=/tmp/pmm-client.tar.gz \
     install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
     install -T -p -m 644 /opt/ansible/hosts /etc/ansible/hosts && \
     ansible-playbook -vvv /opt/ansible/pmm-docker/main.yml && \

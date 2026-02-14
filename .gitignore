@@ -39,9 +39,6 @@ compose.yml
 build.log
 packer.log
 ci.yml
-/build/pipeline/output/
-/build/pipeline/package/
-/build/pipeline/scripts/gitmodules
 
 /api-tests/pmm-api-tests-output.txt
 /api-tests/pmm-api-tests-junit-report.xml

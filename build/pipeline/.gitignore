@@ -1,0 +1,11 @@
+# Build outputs
+output/
+package/
+
+# Local cache directory (synced from Minio)
+.cache/
+
+# Temporary build files
+pmm-client.tar.gz
+gitCommit
+scripts/gitmodules

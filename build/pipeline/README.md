@@ -2,16 +2,62 @@
 
 Docker-based build system for PMM components using a custom `pmm-builder` image based on `golang:latest`.
 
+## Setup
+
+Before building, copy the example environment file and customize if needed:
+
+```bash
+cd build/pipeline
+cp .env.example .env
+```
+
+The `.env` file contains git refs for all external dependencies (Grafana, VictoriaMetrics, exporters, etc.). You can modify these to build with different versions.
+
+### Minio Requirement for Server Builds
+
+PMM Server builds require a local Minio instance for repository cache. See [Cache Management](#cache-management) section for setup instructions.
+
+Quick Minio setup:
+
+```bash
+# Start Minio container
+docker run -d --name minio -p 9000:9000 -p 9001:9001 \
+  -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
+  minio/minio server /data --console-address ":9001"
+
+# Install and configure mc (Minio client)
+brew install minio/stable/mc  # macOS
+mc alias set pmm http://localhost:9000 minioadmin minioadmin
+mc mb pmm/pmm-build-cache
+
+# Populate cache (see Cache Maintenance section for details)
+```
+
 ## Quick Start
 
 ```bash
 cd build/pipeline
 
+# Build all PMM Client components (binaries only)
+make build-client
+
+# Build PMM Client Docker image
+make build-client-docker
+
+# Build PMM Client tarball
+make build-client-tarball
+
+# Build everything for client (components + Docker image + tarball)
+make client
+
+# Build PMM Server (Docker image)
+make server
+
+# Build everything (client + server)
+make all
+
 # Build a single component
 make build COMPONENT=pmm-admin
-
-# Build all components
-make build-all
 
 # Build with dynamic linking (GSSAPI support)
 make build-dynamic COMPONENT=mongodb_exporter
@@ -46,15 +92,37 @@ Built from external Git repositories:
 
 ## Environment Variables
 
+### Build Variables
+
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `PMM_VERSION` | Version to build | From `VERSION` file |
 | `BUILD_TYPE` | Build type: `static` or `dynamic` | `static` |
 | `GOARCH` | Target architecture: `amd64` or `arm64` | `amd64` |
-| `PLATFORM` | Docker platform: `linux/amd64` or `linux/arm64` | Auto-detected |
-| `GO_VERSION` | Go version for builder image | `latest` |
+| `PLATFORM` | Docker platform: `linux/amd64` or `linux/arm64` | `linux/amd64` |
+| `SERVER_PLATFORMS` | Server build platforms (comma-separated) | `linux/amd64` |
+| `GO_VERSION` | Go version for builder image | `1.25` |
 | `OUTPUT_DIR` | Output directory for artifacts | `./output` |
 | `PACKAGE_DIR` | Output directory for tarball packages | `./package` |
+| `MINIO_ENDPOINT` | Minio S3 endpoint URL | `http://localhost:9000` |
+| `MINIO_BUCKET` | Minio bucket name | `pmm-build-cache` |
+| `MINIO_CACHE_PREFIX` | Cache prefix in bucket | `repo-cache` |
+
+### Component Versions (.env file)
+
+Component versions are managed via the `.env` file. Copy `.env.example` to `.env` and customize as needed:
+
+**Server Components:**
+- `PMM_REF` - PMM (pmm-managed, qan-api2, vmproxy, UI) git ref (branch/tag/commit)
+- `GRAFANA_REF` - Grafana git ref (branch/tag/commit)
+- `VM_REF` - VictoriaMetrics git ref (branch/tag/commit)
+- `DASHBOARDS_REF` - percona-dashboards git ref (branch/tag/commit)
+- `PMM_DUMP_REF` - pmm-dump git ref (branch/tag/commit)
+
+**Client Components:**
+- `REDIS_EXPORTER_REF` - redis_exporter git ref (branch/tag/commit)
+- `VMAGENT_REF` - vmagent git ref (branch/tag/commit)
+- `NOMAD_REF` - nomad git ref (branch/tag/commit)
 
 
 ## Build Process
@@ -83,32 +151,220 @@ External components are cloned from their Git repositories and built:
 make build COMPONENT=mysqld_exporter
 ```
 
-## Caching
+## Cache Management
 
-Two Docker volumes are used for caching:
+PMM uses **Minio S3** for persistent build cache storage across ephemeral build agents.
 
-- **pmm-mod** - Go module cache (`/go/pkg/mod`)
-- **pmm-build** - Build source cache (`/build`)
+### Cache Strategy
 
-To clear caches:
+- **One-way sync**: Cache is downloaded from Minio to local disk before builds
+- **No upload**: Local cache is never synced back to avoid conflicts between parallel builds  
+- **Mandatory**: Builds fail if Minio cache is unavailable (no graceful fallback)
+- **Cache maintenance**: A separate process/job maintains the Minio cache (see Cache Maintenance below)
+
+### Local Minio Setup
+
+Start a local Minio container for development:
 
 ```bash
-make clean-volumes
+docker run -d \
+  --name minio \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  -e MINIO_ROOT_USER=minioadmin \
+  -e MINIO_ROOT_PASSWORD=minioadmin \
+  -v minio-data:/data \
+  minio/minio server /data --console-address ":9001"
 ```
+
+Configure Minio client (mc):
+
+```bash
+# Install mc
+brew install minio/stable/mc  # macOS
+# Or for Linux: https://min.io/docs/minio/linux/reference/minio-mc.html
+
+# Configure alias
+mc alias set pmm http://localhost:9000 minioadmin minioadmin
+
+# Create bucket
+mc mb pmm/pmm-build-cache
+```
+
+### Minio Configuration
+
+Configure Minio access via environment variables or `.env` file:
+
+```bash
+MINIO_ENDPOINT=http://localhost:9000
+MINIO_BUCKET=pmm-build-cache
+MINIO_CACHE_PREFIX=repo-cache
+```
+
+### Cache Targets
+
+```bash
+# Download repository cache from Minio (mandatory for server builds)
+make download-cache
+
+# Build server (downloads cache first, fails if Minio unavailable)
+make server
+
+# Clean local cache only
+make clean-cache
+
+# Clean Docker volumes only
+make clean-volumes
+
+# Clean everything (cache + volumes + output)
+make clean-all
+```
+
+### Cache Structure
+
+The `.cache/repos/` directory contains bare Git repositories:
+
+```
+.cache/
+└── repos/
+    ├── pmm.git/
+    ├── pmm-dump.git/
+    ├── grafana.git/
+    ├── VictoriaMetrics.git/
+    └── grafana-dashboards.git/
+```
+
+These are mounted read-only into Docker build stages to speed up builds.
+
+### Cache Maintenance (for build administrators)
+
+To populate or update the Minio cache (run from a dedicated maintenance job, not build agents):
+
+```bash
+# Create cache directory
+mkdir -p /tmp/pmm-cache-update && cd /tmp/pmm-cache-update
+
+# Clone repositories as bare for efficiency
+git clone --bare https://github.com/percona/pmm.git  pmm.git
+git clone --bare https://github.com/percona/pmm-dump.git pmm-dump.git
+git clone --bare https://github.com/percona/grafana.git grafana.git
+git clone --bare https://github.com/VictoriaMetrics/VictoriaMetrics.git VictoriaMetrics.git
+git clone --bare https://github.com/percona/grafana-dashboards.git grafana-dashboards.git
+
+# Update existing bare repositories (if refreshing cache)
+for repo in *.git; do
+    cd "$repo" && git fetch --all --prune && cd ..
+done
+
+# Upload to Minio
+mc mirror --overwrite . pmm/pmm-build-cache/repo-cache/
+```
+
+**Recommended**: Set up a scheduled job (e.g., daily cron) to keep the cache fresh.
+
+### Troubleshooting
+
+**Error: mc is not installed**
+```bash
+brew install minio/stable/mc  # macOS
+# Or see: https://min.io/docs/minio/linux/reference/minio-mc.html
+```
+
+**Error: Failed to download cache from Minio**
+- Ensure Minio container is running: `docker ps | grep minio`
+- Check Minio endpoint: `mc ls pmm/pmm-build-cache/`
+- Verify bucket exists: `mc mb pmm/pmm-build-cache`
+- Populate cache: See Cache Maintenance section above
 
 ## Directory Structure
 
 ```
 build/
 ├── pipeline/
-│   ├── Makefile          # Main build targets
-│   ├── README.md         # This file
-│   └── output/           # Build artifacts (created)
+│   ├── Makefile              # Main build targets
+│   ├── README.md             # This file
+│   ├── Dockerfile.client     # PMM Client Docker image
+│   ├── Dockerfile.server     # PMM Server Docker image (multi-stage)
+│   ├── Dockerfile.builder    # PMM Builder base image
+│   ├── output/               # Build artifacts (created)
+│   └── package/              # Tarballs (created)
 └── scripts/
-    └── build-component   # Build script
+    ├── build-component       # Component build script
+    ├── package-tarball       # Tarball packaging script
+    └── build-client-docker   # Client Docker build script
 ```
 
+## Build Targets
+
+### Main Targets
+
+- **`make client`** - Builds all client components, Docker image, and tarball
+- **`make server`** - Builds the PMM Server Docker image using multi-stage build
+- **`make all`** - Builds both client and server
+
+### Client Build Targets
+
+- **`make build-client`** - Build all client components (binaries only)
+- **`make build-client-docker`** - Build PMM Client Docker image
+- **`make build-client-tarball`** - Build PMM Client tarball package
+
+### Server Build Targets
+
+- **`make build-server`** - Build PMM Server Docker image (multi-architecture)
+- **`make build-server-docker`** - Same as build-server
+
+### Component Targets
+
+- **`make build COMPONENT=<name>`** - Build a specific component
+- **`make build-dynamic COMPONENT=<name>`** - Build with dynamic linking (GSSAPI)
+- **`make build-arm64 COMPONENT=<name>`** - Build for ARM64
+
+### Utility Targets
+
+- **`make builder-image`** - Build the pmm-builder Docker image
+- **`make gitmodules`** - Build gitmodules parser binary
+- **`make clean`** - Remove output directory
+- **`make clean-volumes`** - Remove Docker cache volumes
+
 ## Examples
+
+### Build PMM Client
+
+```bash
+cd build/pipeline
+make client
+```
+
+This will:
+1. Build all client components (pmm-admin, pmm-agent, exporters)
+2. Create the PMM Client Docker image
+3. Generate the PMM Client tarball package
+4. Output artifacts to `./output/` and `./package/`
+
+### Build PMM Server
+
+```bash
+cd build/pipeline
+make server
+```
+
+This builds the PMM Server Docker image using a multi-stage build that:
+1. Builds all Go binaries (pmm-managed, qan-api2, vmproxy, Grafana, VictoriaMetrics)
+2. Builds all Node.js assets (Grafana UI, PMM UI, percona-dashboards)
+3. Creates a runtime image with all components installed
+
+By default, builds for `linux/amd64` only. To build for multiple architectures:
+
+```bash
+make server SERVER_PLATFORMS=linux/amd64,linux/arm64
+```
+
+### Build Everything
+
+```bash
+cd build/pipeline
+make all
+```
 
 ### Build pmm-admin
 
@@ -134,8 +390,8 @@ BUILD_TYPE=dynamic GOARCH=arm64 make build COMPONENT=mongodb_exporter
 First build all components, then package them:
 
 ```bash
-make build-all
-make package-tarball
+make build-client
+make build-client-tarball
 ```
 
 The tarball will be created at `./package/pmm-client-${VERSION}.tar.gz` with the following structure:
