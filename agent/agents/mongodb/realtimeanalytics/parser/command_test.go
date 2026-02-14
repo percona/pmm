@@ -15,9 +15,9 @@
 package parser
 
 import (
-    "testing"
+	"testing"
 
-    "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 )
 
 var dataCommand = []byte(`
@@ -109,17 +109,17 @@ var dataCommand = []byte(`
 `)
 
 func Test_parseCommand(t *testing.T) {
-    t.Parallel()
+	t.Parallel()
 
-    raw := parseBsonRaw(dataCommand)
-    result := parseCommand(raw)
-    require.NotEmpty(t, result, "Expected non-empty result from parseCommand")
-    require.Contains(t, result, "db.runCommand({", "Expected fingerprint to contain 'db.runCommand({'")
+	raw := parseBsonRaw(dataCommand)
+	result := parseCommand(raw)
+	require.NotEmpty(t, result, "Expected non-empty result from parseCommand")
+	require.Contains(t, result, "db.runCommand({", "Expected fingerprint to contain 'db.runCommand({'")
 }
 
 func Benchmark(b *testing.B) {
-    raw := parseBsonRaw(dataAggregate)
-    for b.Loop() {
-        parseCommand(raw)
-    }
+	raw := parseBsonRaw(dataAggregate)
+	for b.Loop() {
+		parseCommand(raw)
+	}
 }

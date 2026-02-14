@@ -20,38 +20,54 @@ _bash:
 
 PMM_RELEASE_PATH ?= ./bin
 
-run-managed: release-dev-managed    ## Replace pmm-managed from build, restart and tail logs
+.PHONY: run-managed-ci
+run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)
 	supervisorctl stop pmm-managed
 	truncate -s 0 /srv/logs/pmm-managed.log
 	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
 	supervisorctl start pmm-managed
+
+.PHONY: run-managed
+run-managed: run-managed-ci    ## Replace pmm-managed from build, restart and tail logs
 	tail -f /srv/logs/pmm-managed.log
 
-run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)
-	supervisorctl stop pmm-managed
-	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
-	supervisorctl start pmm-managed
-
-run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
+.PHONY: run-agent-ci
+run-agent-ci: release-dev-agent        ## Replace pmm-agent from build and restart (used in CI)
 	supervisorctl stop pmm-agent
 	truncate -s 0 /srv/logs/pmm-agent.log
 	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
 	supervisorctl start pmm-agent
+
+.PHONY: run-agent
+run-agent: run-agent-ci        ## Replace pmm-agent from build, restart and tail logs
 	tail -f /srv/logs/pmm-agent.log
 
-run-vmproxy: release-vmproxy
+.PHONY: run-vmproxy-ci
+run-vmproxy-ci: release-vmproxy ## Replace vmproxy from build and restart (used in CI)
 	supervisorctl stop vmproxy
+	truncate -s 0 /srv/logs/vmproxy.log
 	cp $(PMM_RELEASE_PATH)/vmproxy /usr/sbin/vmproxy
 	supervisorctl start vmproxy
 
-run-qan: release-qan
+.PHONY: run-vmproxy
+run-vmproxy: run-vmproxy-ci ## Replace vmproxy from build, restart and tail logs
+	tail -f /srv/logs/vmproxy.log
+
+.PHONY: run-qan-ci
+run-qan-ci: release-qan ## Replace qan-api2 from build and restart (used in CI)
 	supervisorctl stop qan-api2
 	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
 	truncate -s 0 /srv/logs/qan-api2.log
 	supervisorctl start qan-api2
 
-run-all: run-agent run-managed run-qan run-vmproxy      ## Run all go services
+.PHONY: run-qan
+run-qan: run-qan-ci ## Replace qan-api2 from build, restart and tail logs
+	tail -f  /srv/logs/qan-api2.log
 
+.PHONY: run-all
+run-all: run-agent-ci run-managed-ci run-qan-ci run-vmproxy-ci      ## Run all go services
+
+.PHONY: run
 run: run-all                         ## Aliased to "run-all"
 	echo "run is aliased to run-all"
 
@@ -63,15 +79,19 @@ run: run-all                         ## Aliased to "run-all"
 # 			-race -c -o bin/pmm-managed.test
 # 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
 
+.PHONY: psql
 psql:                           ## Open database for the pmm-managed instance in psql shell
 	env PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
 
+.PHONY: psql-test:
 psql-test:                      ## Open database used in unit tests in psql shell
 	env psql -U postgres pmm-managed-dev
 
+.PHONY: dlv/attach
 dlv/attach:                     ## Attach Delve to `pmm-managed`
 	dlv --listen=:2345 --headless=true --api-version=2 --continue=true --accept-multiclient attach $(shell pgrep pmm-managed)
 
+.PHONY: refresh-swagger
 refresh-swagger:                ## Refresh swagger files
 	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger.json /usr/share/pmm-managed/swagger/swagger.json
 	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger-dev.json /usr/share/pmm-managed/swagger/swagger-dev.json

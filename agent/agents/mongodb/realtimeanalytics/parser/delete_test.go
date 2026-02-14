@@ -15,9 +15,9 @@
 package parser
 
 import (
-    "testing"
+	"testing"
 
-    "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 )
 
 var dataDelete = []byte(`
@@ -155,27 +155,27 @@ var dataDelete = []byte(`
 `)
 
 func Test_parseCommandDelete(t *testing.T) {
-    t.Parallel()
+	t.Parallel()
 
-    raw := parseBsonRaw(dataDelete)
-    commandRaw, ok := raw.Lookup("command").DocumentOK()
-    require.True(t, ok, "Expected to find 'command' field in raw BSON")
+	raw := parseBsonRaw(dataDelete)
+	commandRaw, ok := raw.Lookup("command").DocumentOK()
+	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
-    ns, ok := raw.Lookup("ns").StringValueOK()
-    require.True(t, ok, "Expected to find 'ns' field in raw BSON")
+	ns, ok := raw.Lookup("ns").StringValueOK()
+	require.True(t, ok, "Expected to find 'ns' field in raw BSON")
 
-    result := parseCommandDelete(commandRaw, ns)
-    println(result)
-    require.NotEmpty(t, result, "Expected non-empty result from parseCommandDelete")
-    require.Contains(t, result, "db.airline.flights.deleteOne({", "Expected fingerprint to contain 'db.airline.flights.deleteOne({'")
+	result := parseCommandDelete(commandRaw, ns)
+	println(result)
+	require.NotEmpty(t, result, "Expected non-empty result from parseCommandDelete")
+	require.Contains(t, result, "db.airline.flights.deleteOne({", "Expected fingerprint to contain 'db.airline.flights.deleteOne({'")
 }
 
 func Benchmark_ParseCommandDelete(b *testing.B) {
-    raw := parseBsonRaw(dataDelete)
-    commandRaw, _ := raw.Lookup("command").DocumentOK()
-    ns, _ := raw.Lookup("ns").StringValueOK()
+	raw := parseBsonRaw(dataDelete)
+	commandRaw, _ := raw.Lookup("command").DocumentOK()
+	ns, _ := raw.Lookup("ns").StringValueOK()
 
-    for b.Loop() {
-        _ = parseCommandDelete(commandRaw, ns)
-    }
+	for b.Loop() {
+		_ = parseCommandDelete(commandRaw, ns)
+	}
 }

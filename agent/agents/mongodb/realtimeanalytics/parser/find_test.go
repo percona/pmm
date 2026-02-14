@@ -15,9 +15,9 @@
 package parser
 
 import (
-    "testing"
+	"testing"
 
-    "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 )
 
 var dataFind = []byte(`
@@ -237,23 +237,23 @@ var dataFind = []byte(`
 `)
 
 func Test_parseCommandFind(t *testing.T) {
-    t.Parallel()
+	t.Parallel()
 
-    raw := parseBsonRaw(dataFind)
-    commandRaw, ok := raw.Lookup("command").DocumentOK()
-    require.True(t, ok, "Expected to find 'command' field in raw BSON")
+	raw := parseBsonRaw(dataFind)
+	commandRaw, ok := raw.Lookup("command").DocumentOK()
+	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
-    result := parseCommandFind(commandRaw)
-    println("Parsed command fingerprint:", result)
-    require.NotEmpty(t, result, "Expected non-empty result from parseCommandFind")
-    require.Contains(t, result, "db.flights.find({", "Expected fingerprint to contain 'db.flights.find({'")
+	result := parseCommandFind(commandRaw)
+	println("Parsed command fingerprint:", result)
+	require.NotEmpty(t, result, "Expected non-empty result from parseCommandFind")
+	require.Contains(t, result, "db.flights.find({", "Expected fingerprint to contain 'db.flights.find({'")
 }
 
 func Benchmark_ParseCommandFind(b *testing.B) {
-    raw := parseBsonRaw(dataFind)
-    commandRaw, _ := raw.Lookup("command").DocumentOK()
+	raw := parseBsonRaw(dataFind)
+	commandRaw, _ := raw.Lookup("command").DocumentOK()
 
-    for b.Loop() {
-        _ = parseCommandFind(commandRaw)
-    }
+	for b.Loop() {
+		_ = parseCommandFind(commandRaw)
+	}
 }

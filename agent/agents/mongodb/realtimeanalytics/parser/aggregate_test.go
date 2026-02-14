@@ -15,11 +15,11 @@
 package parser
 
 import (
-    "bytes"
-    "testing"
+	"bytes"
+	"testing"
 
-    "github.com/stretchr/testify/require"
-    "go.mongodb.org/mongo-driver/v2/bson"
+	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 var dataAggregate = []byte(`
@@ -146,41 +146,41 @@ var dataAggregate = []byte(`
 `)
 
 func parseBsonRaw(data []byte) bson.Raw {
-    vr, err := bson.NewExtJSONValueReader(bytes.NewReader(data), true)
-    if err != nil {
-        panic(err)
-    }
-    decoder := bson.NewDecoder(vr)
+	vr, err := bson.NewExtJSONValueReader(bytes.NewReader(data), true)
+	if err != nil {
+		panic(err)
+	}
+	decoder := bson.NewDecoder(vr)
 
-    var raw bson.Raw
-    err = decoder.Decode(&raw)
-    if err != nil {
-        panic(err)
-    }
-    return raw
+	var raw bson.Raw
+	err = decoder.Decode(&raw)
+	if err != nil {
+		panic(err)
+	}
+	return raw
 }
 
 func Test_parseCommandAggregate(t *testing.T) {
-    t.Parallel()
+	t.Parallel()
 
-    raw := parseBsonRaw(dataAggregate)
-    commandRaw, ok := raw.Lookup("command").DocumentOK()
-    require.True(t, ok, "Expected to find 'command' field in raw BSON")
+	raw := parseBsonRaw(dataAggregate)
+	commandRaw, ok := raw.Lookup("command").DocumentOK()
+	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
-    ns, ok := raw.Lookup("ns").StringValueOK()
-    require.True(t, ok, "Expected to find 'ns' field in raw BSON")
+	ns, ok := raw.Lookup("ns").StringValueOK()
+	require.True(t, ok, "Expected to find 'ns' field in raw BSON")
 
-    result := parseCommandAggregate(commandRaw, ns)
-    require.NotEmpty(t, result, "Expected non-empty result from parseCommandAggregate")
-    require.Contains(t, result, "admin.$cmd.aggregate", "Expected fingerprint to contain 'admin.$cmd.aggregate'")
+	result := parseCommandAggregate(commandRaw, ns)
+	require.NotEmpty(t, result, "Expected non-empty result from parseCommandAggregate")
+	require.Contains(t, result, "admin.$cmd.aggregate", "Expected fingerprint to contain 'admin.$cmd.aggregate'")
 }
 
 func Benchmark_ParseCommandAggregate(b *testing.B) {
-    raw := parseBsonRaw(dataAggregate)
-    commandRaw, _ := raw.Lookup("command").DocumentOK()
-    ns, _ := raw.Lookup("ns").StringValueOK()
+	raw := parseBsonRaw(dataAggregate)
+	commandRaw, _ := raw.Lookup("command").DocumentOK()
+	ns, _ := raw.Lookup("ns").StringValueOK()
 
-    for b.Loop() {
-        _ = parseCommandAggregate(commandRaw, ns)
-    }
+	for b.Loop() {
+		_ = parseCommandAggregate(commandRaw, ns)
+	}
 }
