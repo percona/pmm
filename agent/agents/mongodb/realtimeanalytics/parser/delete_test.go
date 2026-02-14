@@ -165,7 +165,6 @@ func Test_parseCommandDelete(t *testing.T) {
 	require.True(t, ok, "Expected to find 'ns' field in raw BSON")
 
 	result := parseCommandDelete(commandRaw, ns)
-	println(result)
 	require.NotEmpty(t, result, "Expected non-empty result from parseCommandDelete")
 	require.Contains(t, result, "db.airline.flights.deleteOne({", "Expected fingerprint to contain 'db.airline.flights.deleteOne({'")
 }

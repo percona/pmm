@@ -244,7 +244,6 @@ func Test_parseCommandFind(t *testing.T) {
 	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
 	result := parseCommandFind(commandRaw)
-	println("Parsed command fingerprint:", result)
 	require.NotEmpty(t, result, "Expected non-empty result from parseCommandFind")
 	require.Contains(t, result, "db.flights.find({", "Expected fingerprint to contain 'db.flights.find({'")
 }
