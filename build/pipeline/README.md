@@ -50,8 +50,11 @@ make build-client-tarball
 # Build everything for client (components + Docker image + tarball)
 make client
 
-# Build PMM Server (Docker image)
+# Build PMM Server (Docker image) - defaults to linux/amd64
 make server
+
+# Build PMM Server for ARM64
+make server SERVER_PLATFORMS=linux/arm64
 
 # Build everything (client + server)
 make all
@@ -236,6 +239,8 @@ The `.cache/repos/` directory contains bare Git repositories:
 
 These are mounted read-only into Docker build stages to speed up builds.
 
+**Note:** The `download-cache` Make target automatically fixes bare repository structure by creating empty `refs` subdirectories. This is necessary because some sync tools (like `mc mirror`) don't preserve empty directories.
+
 ### Cache Maintenance (for build administrators)
 
 To populate or update the Minio cache (run from a dedicated maintenance job, not build agents):
@@ -250,6 +255,11 @@ git clone --bare https://github.com/percona/pmm-dump.git pmm-dump.git
 git clone --bare https://github.com/percona/grafana.git grafana.git
 git clone --bare https://github.com/VictoriaMetrics/VictoriaMetrics.git VictoriaMetrics.git
 git clone --bare https://github.com/percona/grafana-dashboards.git grafana-dashboards.git
+
+# Fix bare repository structure (git requires refs directories to exist)
+for repo in *.git; do
+    mkdir -p "$repo/refs/heads" "$repo/refs/tags" "$repo/refs/remotes"
+done
 
 # Update existing bare repositories (if refreshing cache)
 for repo in *.git; do
@@ -353,11 +363,19 @@ This builds the PMM Server Docker image using a multi-stage build that:
 2. Builds all Node.js assets (Grafana UI, PMM UI, percona-dashboards)
 3. Creates a runtime image with all components installed
 
-By default, builds for `linux/amd64` only. To build for multiple architectures:
+**Default Architecture:** `linux/amd64`
+
+The server builds for `linux/amd64` by default, regardless of your host platform. To build for a different architecture:
 
 ```bash
+# Build for ARM64
+make server SERVER_PLATFORMS=linux/arm64
+
+# Build for multiple architectures (multi-arch image)
 make server SERVER_PLATFORMS=linux/amd64,linux/arm64
 ```
+
+**Note:** The Dockerfile uses `--platform=$BUILDPLATFORM` for build stages, allowing fast native builds even when cross-compiling the final image.
 
 ### Build Everything
 

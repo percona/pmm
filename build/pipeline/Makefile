@@ -216,6 +216,10 @@ download-cache:
 	@echo "Syncing cache from Minio..."
 	@mc mirror --overwrite pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) $(REPO_CACHE_DIR) || \
 		(echo "Error: Failed to download cache from Minio" && exit 1)
+	@echo "Fixing bare repository structure..."
+	@for repo in $(REPO_CACHE_DIR)/*.git; do \
+		mkdir -p "$$repo/refs/heads" "$$repo/refs/tags" "$$repo/refs/remotes"; \
+	done
 	@echo "Cache download complete"
 	@echo "Cached repositories:"
 	@ls -lh $(REPO_CACHE_DIR)
@@ -262,7 +266,7 @@ build-server-docker:
 		echo "Run 'make build-client-tarball' first to create the tarball"; \
 	fi
 	@git rev-parse HEAD > gitCommit
-	@docker buildx build \
+	@cd .. && docker buildx build \
 		--platform $(SERVER_PLATFORMS) \
 		--progress plain \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
@@ -272,7 +276,7 @@ build-server-docker:
 		--build-arg VM_REF="$(VM_REF)" \
 		--build-arg DASHBOARDS_REF="$(DASHBOARDS_REF)" \
 		--build-arg PMM_DUMP_REF="$(PMM_DUMP_REF)" \
-		-f $(SERVER_DOCKERFILE) \
+		-f pipeline/$(SERVER_DOCKERFILE) \
 		-t $(SERVER_DOCKER_TAG) \
 		.
 	@rm -f pmm-client.tar.gz gitCommit

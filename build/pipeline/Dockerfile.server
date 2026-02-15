@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y git make
 # Build pmm-managed binaries
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
     echo "Using cached pmm repository from Minio..." && \
     git clone /repo-cache/pmm.git /build/pmm && \
     cd /build/pmm && \
@@ -50,28 +50,28 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 # Build pmm-dump
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=.cache/repos/pmm-dump.git,target=/repo-cache/pmm-dump.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm-dump.git,target=/repo-cache/pmm-dump.git,readonly \
     echo "Using cached pmm-dump repository from Minio..." && \
     git clone /repo-cache/pmm-dump.git /build/pmm-dump && \
     cd /build/pmm-dump && \
     git checkout ${PMM_DUMP_REF} && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -v -o /build/pmm/bin/pmm-dump .
+    CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} make build
 
 # Build Grafana Go binaries
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
     echo "Using cached grafana repository from Minio..." && \
     git clone /repo-cache/grafana.git /build/grafana && \
     cd /build/grafana && \
     git checkout ${GRAFANA_REF} && \
-    sed -i "s/unknown-dev/11.6.3/" pkg/build/git.go && \
+    sed -i "s/unknown-dev/11.6.4/" pkg/build/git.go && \
     make build-go
 
 # Build VictoriaMetrics binaries
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=.cache/repos/VictoriaMetrics.git,target=/repo-cache/VictoriaMetrics.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/VictoriaMetrics.git,target=/repo-cache/VictoriaMetrics.git,readonly \
     echo "Using cached VictoriaMetrics repository from Minio..." && \
     git clone /repo-cache/VictoriaMetrics.git /build/VictoriaMetrics && \
     cd /build/VictoriaMetrics && \
@@ -87,8 +87,14 @@ ARG GRAFANA_REF
 
 WORKDIR /grafana
 
+# Increase Node.js heap size for large builds
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Install git
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=bind,source=.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
     echo "Using cached grafana repository from Minio..." && \
     git clone /repo-cache/grafana.git . && \
     git checkout ${GRAFANA_REF} && \
@@ -106,9 +112,15 @@ ARG PMM_REF
 
 WORKDIR /dashboards
 
+# Increase Node.js heap size for large builds
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Install git
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 # Build percona-dashboards
 RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=bind,source=.cache/repos/grafana-dashboards.git,target=/repo-cache/grafana-dashboards.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/grafana-dashboards.git,target=/repo-cache/grafana-dashboards.git,readonly \
     echo "Using cached grafana-dashboards repository from Minio..." && \
     git clone /repo-cache/grafana-dashboards.git . && \
     git checkout ${DASHBOARDS_REF} && \
@@ -117,7 +129,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # Build PMM UI
 WORKDIR /pmm-ui
 RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=bind,source=.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
     echo "Using cached pmm repository from Minio..." && \
     git clone /repo-cache/pmm.git . && \
     git checkout ${PMM_REF} && \

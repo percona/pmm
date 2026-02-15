@@ -2,8 +2,10 @@
 /.vscode/
 *.iml
 
+# Temprorary build files
 /api/nginx/*.pem
 bin/
+pmm-client.tar.gz
 !/documentation/resources/bin/
 
 # System Files
@@ -13,7 +15,6 @@ cover.out
 crosscover.out
 
 agent/testdata/
-
 agent/agents/mysql/slowlog/parser/corpus/
 agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
