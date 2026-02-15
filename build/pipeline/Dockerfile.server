@@ -9,15 +9,12 @@ ARG PMM_DUMP_REF=main
 ARG TARGETARCH=amd64
 
 #
-# Stage 1: Build all Go binaries
+# Stage 1: Build pmm-managed and related components
 #
-FROM --platform=$BUILDPLATFORM golang:1.25 AS go-builder
+FROM --platform=$BUILDPLATFORM golang:1.25 AS pmm-managed-builder
 
 ARG TARGETARCH
 ARG PMM_REF
-ARG GRAFANA_REF
-ARG VM_REF
-ARG PMM_DUMP_REF
 
 WORKDIR /build
 
@@ -47,6 +44,19 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     cd /build/pmm/vmproxy && \
     make release GOARCH=${TARGETARCH}
 
+#
+# Stage 2: Build pmm-dump
+#
+FROM --platform=$BUILDPLATFORM golang:1.25 AS pmm-dump-builder
+
+ARG TARGETARCH
+ARG PMM_DUMP_REF
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y git make
+
 # Build pmm-dump
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -57,7 +67,20 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     git checkout ${PMM_DUMP_REF} && \
     CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} make build
 
-# Build Grafana Go binaries
+#
+# Stage 3: Build Grafana Go binaries
+#
+FROM --platform=$TARGETPLATFORM golang:1.25 AS grafana-go-builder
+
+ARG TARGETARCH
+ARG GRAFANA_REF
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y git make
+
+# Build Grafana Go binaries (native build, no cross-compilation due to CGO/SQLite)
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
@@ -68,6 +91,19 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     sed -i "s/unknown-dev/11.6.4/" pkg/build/git.go && \
     make build-go
 
+#
+# Stage 4: Build VictoriaMetrics binaries
+#
+FROM --platform=$BUILDPLATFORM golang:1.25 AS victoriametrics-builder
+
+ARG TARGETARCH
+ARG VM_REF
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y git make
+
 # Build VictoriaMetrics binaries
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -76,10 +112,10 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     git clone /repo-cache/VictoriaMetrics.git /build/VictoriaMetrics && \
     cd /build/VictoriaMetrics && \
     git checkout ${VM_REF} && \
-    PKG_TAG=${VM_REF} BUILDINFO_TAG=${VM_REF} make victoria-metrics-pure vmalert-pure
+    GOARCH=${TARGETARCH} PKG_TAG=${VM_REF} BUILDINFO_TAG=${VM_REF} make victoria-metrics-pure vmalert-pure
 
 #
-# Stage 2: Build Grafana UI assets
+# Stage 5: Build Grafana UI assets
 #
 FROM node:22 AS grafana-builder
 
@@ -103,7 +139,7 @@ RUN --mount=type=cache,target=/root/.npm \
     make build-js
 
 #
-# Stage 3: Build PMM UI and percona-dashboards
+# Stage 6: Build PMM UI and percona-dashboards
 #
 FROM node:22 AS dashboards-builder
 
@@ -137,7 +173,7 @@ RUN --mount=type=cache,target=/root/.npm \
     make release
 
 #
-# Stage 4: Runtime image
+# Stage 7: Runtime image
 #
 FROM oraclelinux:9-slim
 
@@ -192,19 +228,20 @@ RUN mkdir -p /srv /srv/prometheus/rules /etc/grafana /srv/clickhouse /srv/logs \
     chown -R pmm:root /srv /etc/grafana /usr/share/pmm-server /usr/local/percona /var/lib/grafana && \
     chmod -R 0775 /srv /etc/grafana /usr/share/pmm-server /srv/logs
 
-# Copy Go binaries from go-builder with root:root ownership
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed /usr/sbin/pmm-managed
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-encryption-rotation /usr/sbin/pmm-encryption-rotation
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed-init /usr/sbin/pmm-managed-init
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed-starlark /usr/sbin/pmm-managed-starlark
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/qan-api2 /usr/sbin/percona-qan-api2
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/vmproxy /usr/sbin/vmproxy
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-dump /usr/sbin/pmm-dump
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-amd64/grafana-server /usr/sbin/grafana-server
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-amd64/grafana /usr/sbin/grafana
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-amd64/grafana-cli /usr/bin/grafana-cli
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/VictoriaMetrics/bin/victoria-metrics-pure /usr/sbin/victoriametrics
-COPY --from=go-builder --chown=root:root --chmod=0755 /build/VictoriaMetrics/bin/vmalert-pure /usr/sbin/vmalert
+# Copy Go binaries from individual builder stages with root:root ownership
+ARG TARGETARCH
+COPY --from=pmm-managed-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed /usr/sbin/pmm-managed
+COPY --from=pmm-managed-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-encryption-rotation /usr/sbin/pmm-encryption-rotation
+COPY --from=pmm-managed-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed-init /usr/sbin/pmm-managed-init
+COPY --from=pmm-managed-builder --chown=root:root --chmod=0755 /build/pmm/bin/pmm-managed-starlark /usr/sbin/pmm-managed-starlark
+COPY --from=pmm-managed-builder --chown=root:root --chmod=0755 /build/pmm/bin/qan-api2 /usr/sbin/percona-qan-api2
+COPY --from=pmm-managed-builder --chown=root:root --chmod=0755 /build/pmm/bin/vmproxy /usr/sbin/vmproxy
+COPY --from=pmm-dump-builder --chown=root:root --chmod=0755 /build/pmm-dump/pmm-dump /usr/sbin/pmm-dump
+COPY --from=grafana-go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-${TARGETARCH}/grafana-server /usr/sbin/grafana-server
+COPY --from=grafana-go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-${TARGETARCH}/grafana /usr/sbin/grafana
+COPY --from=grafana-go-builder --chown=root:root --chmod=0755 /build/grafana/bin/linux-${TARGETARCH}/grafana-cli /usr/bin/grafana-cli
+COPY --from=victoriametrics-builder --chown=root:root --chmod=0755 /build/VictoriaMetrics/bin/victoria-metrics-pure /usr/sbin/victoriametrics
+COPY --from=victoriametrics-builder --chown=root:root --chmod=0755 /build/VictoriaMetrics/bin/vmalert-pure /usr/sbin/vmalert
 
 # Copy Grafana assets with pmm:pmm ownership
 COPY --from=grafana-builder --chown=pmm:pmm /grafana/public /usr/share/grafana/public
@@ -216,16 +253,20 @@ COPY --from=grafana-builder --chown=pmm:pmm /grafana/conf/sample.ini /etc/grafan
 COPY --from=grafana-builder --chown=pmm:pmm /grafana/conf/ldap.toml /etc/grafana/ldap.toml
 
 # Copy pmm-managed data assets with pmm:root ownership
-COPY --from=go-builder --chown=pmm:pmm /build/pmm/api/swagger /usr/share/pmm-managed/swagger
-COPY --from=go-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/advisors/*.yml /usr/local/percona/advisors/
-COPY --from=go-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/checks/*.yml /usr/local/percona/checks/
-COPY --from=go-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/alerting-templates/*.yml /usr/local/percona/alerting-templates/
+COPY --from=pmm-managed-builder --chown=pmm:pmm /build/pmm/api/swagger /usr/share/pmm-managed/swagger
+COPY --from=pmm-managed-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/advisors/*.yml /usr/local/percona/advisors/
+COPY --from=pmm-managed-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/checks/*.yml /usr/local/percona/checks/
+COPY --from=pmm-managed-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/alerting-templates/*.yml /usr/local/percona/alerting-templates/
 
 # Copy PMM UI and dashboards with pmm:pmm ownership
 COPY --from=dashboards-builder --chown=pmm:pmm /pmm-ui/ui/apps/pmm/dist /usr/share/pmm-ui
 COPY --from=dashboards-builder --chown=pmm:pmm /pmm-ui/ui/apps/pmm-compat/dist /usr/share/percona-dashboards/panels/pmm-compat-app
 COPY --from=dashboards-builder --chown=pmm:pmm /dashboards/panels /usr/share/percona-dashboards/
 COPY --from=dashboards-builder --chown=pmm:pmm /dashboards/pmm-app/dist /usr/share/percona-dashboards/panels/pmm-app
+
+# Create VERSION file for percona-dashboards
+RUN echo "${VERSION}" > /usr/share/percona-dashboards/VERSION && \
+    chown pmm:pmm /usr/share/percona-dashboards/VERSION
 
 # Generate VERSION.json for introspection
 RUN echo "{ \
