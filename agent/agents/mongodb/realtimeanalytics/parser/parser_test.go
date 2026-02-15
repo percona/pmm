@@ -35,6 +35,7 @@ func TestParseCurrentOp(t *testing.T) {
 	findTime, _ := time.Parse(time.RFC3339, "2026-02-11T19:34:56.677Z")
 	insertTime, _ := time.Parse(time.RFC3339, "2026-02-12T09:44:46.880Z")
 	updateTime, _ := time.Parse(time.RFC3339, "2026-02-12T10:45:40.456Z")
+
 	tests := []struct {
 		name      string
 		raw       bson.Raw

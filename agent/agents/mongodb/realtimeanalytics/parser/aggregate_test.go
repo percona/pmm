@@ -150,13 +150,16 @@ func parseBsonRaw(data []byte) bson.Raw {
 	if err != nil {
 		panic(err)
 	}
+
 	decoder := bson.NewDecoder(vr)
 
 	var raw bson.Raw
+
 	err = decoder.Decode(&raw)
 	if err != nil {
 		panic(err)
 	}
+
 	return raw
 }
 

@@ -159,13 +159,14 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 
 	currTime := timestamppb.New(time.Now())
 
-	// Parallel parsing of currentOp results using WaitGroup and sync.Map to store
-	// results from goroutines safely without worrying about concurrent map writes,
-	// to speed up processing of large number of current operations.
+	// Parallel parsing of currentOp results using WaitGroup and channel to store
+	// results from goroutines safely to speed up processing of large number of current operations.
 	wg := sync.WaitGroup{}
 
-	// Used to index every result at its correct position
-	indexedRes := sync.Map{}
+	// Buffered channel to store results from goroutines(parsers)
+	// and avoid blocking when sending results to the channel.
+	resultsChan := make(chan *rtav1.QueryData, 10) //nolint:mnd
+	results := make([]*rtav1.QueryData, cur.RemainingBatchLength(), 0)
 
 	for cur.Next(ctx) {
 		// check if the context is done to avoid unnecessary processing
@@ -177,7 +178,7 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 
 		wg.Add(1)
 
-		go func(curCopy mongo.Cursor) {
+		go func(curCopy mongo.Cursor, ch chan<- *rtav1.QueryData) {
 			defer wg.Done()
 
 			queryData := rtaParser.ParseCurrentOp(curCopy.Current)
@@ -188,10 +189,17 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 
 			queryData.ServiceId = m.serviceID
 			queryData.ServiceName = m.serviceName
+
 			queryData.QueryCollectTime = currTime
-			indexedRes.Store(queryData.QueryId, queryData)
-		}(*cur) // We create a copy of the cursor to avoid unwanted overrides.
+			ch <- queryData
+		}(*cur, resultsChan) // We create a copy of the cursor to avoid unwanted overrides.
 	}
+	// Wait for all parsing goroutines to finish and
+	// close the results channel to signal that no more results will be sent.
+	go func() {
+		wg.Wait()
+		close(resultsChan)
+	}()
 
 	err = cur.Err()
 	if err != nil {
@@ -199,18 +207,9 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 		return nil, err
 	}
 
-	// Wait for all parsing goroutines to finish
-	wg.Wait()
-
-	var results []*rtav1.QueryData
-
-	indexedRes.Range(func(_, value any) bool {
-		if q, ok := value.(*rtav1.QueryData); ok {
-			results = append(results, q)
-		}
-
-		return true
-	})
+	for q := range resultsChan {
+		results = append(results, q)
+	}
 
 	return results, nil
 }
