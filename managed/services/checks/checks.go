@@ -600,10 +600,29 @@ func (s *Service) filterChecks(checks map[string]check.Check, group check.Interv
 	return res
 }
 
+// getActiveUserServiceTypes returns a set of service types that have at least one user-added service.
+func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, error) {
+	serviceTypes, err := models.FindActiveUserServiceTypes(s.db.Querier)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	result := make(map[models.ServiceType]struct{}, len(serviceTypes))
+	for _, st := range serviceTypes {
+		result[st] = struct{}{}
+	}
+	return result, nil
+}
+
 // executeChecks runs checks for all reachable services. If intervalGroup specified only checks from that group will be
 // executed. If checkNames specified then only matched checks will be executed.
 func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) ([]services.CheckResult, error) {
 	disabledChecks, err := s.GetDisabledChecks()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	activeServiceTypes, err := s.getActiveUserServiceTypes()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -615,17 +634,32 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	}
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 
-	mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
-	mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
-	res = append(res, mySQLCheckResults...)
+	// Execute MySQL checks only if MySQL services exist
+	if _, hasMySQL := activeServiceTypes[models.MySQLServiceType]; hasMySQL {
+		mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
+		mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
+		res = append(res, mySQLCheckResults...)
+	} else {
+		s.l.Info("Skipping MySQL advisor checks: no MySQL services in inventory")
+	}
 
-	postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
-	postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks)
-	res = append(res, postgreSQLCheckResults...)
+	// Execute PostgreSQL checks only if PostgreSQL services exist
+	if _, hasPostgreSQL := activeServiceTypes[models.PostgreSQLServiceType]; hasPostgreSQL {
+		postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
+		postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks)
+		res = append(res, postgreSQLCheckResults...)
+	} else {
+		s.l.Info("Skipping PostgreSQL advisor checks: no PostgreSQL services in inventory")
+	}
 
-	mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
-	mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks)
-	res = append(res, mongoDBCheckResults...)
+	// Execute MongoDB checks only if MongoDB services exist
+	if _, hasMongoDB := activeServiceTypes[models.MongoDBServiceType]; hasMongoDB {
+		mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
+		mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks)
+		res = append(res, mongoDBCheckResults...)
+	} else {
+		s.l.Info("Skipping MongoDB advisor checks: no MongoDB services in inventory")
+	}
 
 	return res, nil
 }
