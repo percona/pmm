@@ -1,7 +1,8 @@
 ---
 title: List Agents
 slug: listagents
-categorySlug: inventory-api
+category:
+  uri: inventory-api
 ---
 
 ### Get all agents running on a specific node

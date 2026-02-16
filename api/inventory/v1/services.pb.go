@@ -932,7 +932,11 @@ type ExternalService struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Group name of external service.
-	Group         string `protobuf:"bytes,8,opt,name=group,proto3" json:"group,omitempty"`
+	Group string `protobuf:"bytes,8,opt,name=group,proto3" json:"group,omitempty"`
+	// Access address (DNS name or IP).
+	Address string `protobuf:"bytes,9,opt,name=address,proto3" json:"address,omitempty"`
+	// Access port.
+	Port          uint32 `protobuf:"varint,10,opt,name=port,proto3" json:"port,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1021,6 +1025,20 @@ func (x *ExternalService) GetGroup() string {
 		return x.Group
 	}
 	return ""
+}
+
+func (x *ExternalService) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *ExternalService) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
 }
 
 type ListServicesRequest struct {
@@ -3040,7 +3058,7 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\rcustom_labels\x18\a \x03(\v2..inventory.v1.HAProxyService.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfe\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xac\x03\n" +
 	"\x0fExternalService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -3050,7 +3068,10 @@ const file_inventory_v1_services_proto_rawDesc = "" +
 	"\acluster\x18\x05 \x01(\tR\acluster\x12'\n" +
 	"\x0freplication_set\x18\x06 \x01(\tR\x0ereplicationSet\x12T\n" +
 	"\rcustom_labels\x18\a \x03(\v2/.inventory.v1.ExternalService.CustomLabelsEntryR\fcustomLabels\x12\x14\n" +
-	"\x05group\x18\b \x01(\tR\x05group\x1a?\n" +
+	"\x05group\x18\b \x01(\tR\x05group\x12\x18\n" +
+	"\aaddress\x18\t \x01(\tR\aaddress\x12\x12\n" +
+	"\x04port\x18\n" +
+	" \x01(\rR\x04port\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x93\x01\n" +

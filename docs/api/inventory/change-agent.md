@@ -1,7 +1,8 @@
 ---
 title: Change Agent Attributes
 slug: changeagent
-categorySlug: inventory-api
+category:
+  uri: inventory-api
 ---
 
 ## Change Agent Attributes

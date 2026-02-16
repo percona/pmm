@@ -1,3 +1,6 @@
+# PMM Demo benchmark
+include Makefile.clickhouse
+
 default: help
 
 help:                           ## Display this help message
