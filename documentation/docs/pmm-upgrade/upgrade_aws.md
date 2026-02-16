@@ -20,16 +20,16 @@ To upgrade PMM Server on AWS:
     aws ec2 create-snapshot --volume-id vol-xxxxxxxxx --description "Pre-upgrade backup $(date)"
     ```
 
-2. Go to **PMM Configuration > Updates**  and click **Update now** if a newer version is available.
+2. Go to **Configuration > Updates > Check updates now**  and click **Upgrade now** if a newer version is available.
 
 ## Post-upgrade tasks
 
 After upgrading PMM Server:
 {.power-number}
 
-1. Go to **Dashboards > Experimental > PMM Health** and check that all services are running. 
+1. Go to **All Dashboards > Experimental > PMM Health** and check that all services are running. 
 
-2. Go to **PMM Configuration > Inventory > Services** and verify that all monitored nodes and services are listed, their status is **Up**.
+2. Go to **Inventory > Services** and verify that all monitored nodes and services are listed, their status is **Up**.
 
 3. Test monitoring functionality to ensure data collection continues normally.
 

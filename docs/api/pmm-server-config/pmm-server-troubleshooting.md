@@ -1,7 +1,10 @@
 ---
 title: Troubleshooting
 slug: pmm-server-troubleshooting
-categorySlug: pmm-server-maintenance
-order: 4
-hidden: 0
+category:
+  uri: pmm-server-maintenance
+position: 4
+privacy:
+  view: public
 ---
+

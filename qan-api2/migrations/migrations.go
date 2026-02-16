@@ -18,15 +18,15 @@ import (
 
 const (
 	metricsEngineSimple           = "MergeTree"
-	metricsEngineCluster          = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/metrics', '{replica}')"
-	schemaMigrationsEngineCluster = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/schema_migrations', '{replica}') ORDER BY version"
+	metricsEngineCluster          = "ReplicatedMergeTree"
+	schemaMigrationsEngineCluster = "ReplicatedMergeTree ORDER BY version"
 )
 
 //go:embed sql/*.sql
 var eFS embed.FS
 
 func IsClickhouseClusterReady(dsn string, clusterName string) (bool, error) {
-	var args []interface{}
+	var args []any
 	sql := "SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters"
 	if clusterName != "" {
 		sql = fmt.Sprintf("%s WHERE cluster = ?", sql)
@@ -58,27 +58,18 @@ func IsClickhouseClusterReady(dsn string, clusterName string) (bool, error) {
 	return false, nil
 }
 
-// Force schema_migrations table cluster engine, optionally cluster name in DSN.
-func addClusterSchemaMigrationsParams(dsn string, clusterName string) (string, error) {
+// Force schema_migrations table cluster engine.
+func addSchemaMigrationsParams(dsn string) (string, error) {
 	u, err := url.Parse(dsn)
 	if err != nil {
 		return "", err
 	}
 
-	// Values x-cluster-name and x-migrations-table-engine goes as part of query.
-	// Since only x-migrations-table-engine contains special chars only this one is needed not to be escaped.
+	// Values prefixed with "x", such as "x-migrations-table-engine", are part of the query.
+	// Since x-migrations-table-engine contains special chars, it must not be escaped.
 	q := u.Query()
-	if clusterName != "" {
-		logrus.Printf("Using ClickHouse cluster name: %s", clusterName)
-		q.Set("x-cluster-name", clusterName)
-	}
-
-	encoded := q.Encode()
-	if encoded != "" {
-		u.RawQuery = encoded + "&x-migrations-table-engine=" + schemaMigrationsEngineCluster
-	} else {
-		u.RawQuery = "x-migrations-table-engine=" + schemaMigrationsEngineCluster
-	}
+	q.Set("x-migrations-table-engine", schemaMigrationsEngineCluster)
+	u.RawQuery = q.Encode()
 	logrus.Debugf("ClickHouse cluster detected, setting schema_migrations table engine to: %s", schemaMigrationsEngineCluster)
 
 	return u.String(), nil
@@ -101,7 +92,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 		}
 		if isClusterReady {
 			l.Infof("ClickHouse cluster detected, adjusting DSN for migrations, original dsn: %s", dsnutils.RedactDSN(dsn))
-			dsn, err = addClusterSchemaMigrationsParams(dsn, clusterName)
+			dsn, err = addSchemaMigrationsParams(dsn)
 			if err != nil {
 				return err
 			}
@@ -114,10 +105,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 	if err != nil {
 		return err
 	}
-	instance, err := bindata.WithInstance(
-		bindata.Resource(
-			names,
-			tfs.ReadFile))
+	instance, err := bindata.WithInstance(bindata.Resource(names, tfs.ReadFile))
 	if err != nil {
 		return err
 	}
@@ -139,7 +127,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 
 		ver := errDirty.Version - 1
 		if ver == 0 {
-			// Note: since 0th migration does not exist, we set it to -1, which means "start from scratch"
+			// since 0th migration does not exist, we set it to -1, which means "start from scratch"
 			ver = -1
 		}
 		err = m.Force(ver)

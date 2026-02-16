@@ -1,41 +1,119 @@
 # MongoDB Instances Overview
 
-![!image](../../images/PMM_MongoDB_Instances_Overview.jpg)
+Provides a high-level view of all MongoDB deployments monitored by PMM, including sharded clusters, replica sets, and standalone instances. 
 
-This dashboard provides basic information about MongoDB instances.
+Use this dashboard as your starting point for MongoDB monitoring to quickly assess overall health before drilling down into specific instances.
 
-## Command Operations
+![!image](../../images/PMM_MongoDB_Instances_Overview.png)
 
-Shows how many times a command is executed per second on average during the selected interval.
+## Overview
 
-Look for peaks and drops and correlate them with other graphs.
+### Sharded Clusters
+Displays the total number of sharded clusters currently being monitored by PMM.
 
-## Connections
+### Replica Sets
+Shows the count of replica sets that are not part of a sharded cluster. This helps you understand your standalone replica set deployment scope.
 
-Keep in mind the hard limit on the maximum number of connections set by your distribution.
+### Processes
+Displays the total number of MongoDB processes (mongod + mongos) being monitored across all environments and clusters.
 
-Anything over 5,000 should be a concern, because the application may not close connections correctly.
 
-## Cursors
+### Availability
+Shows the percentage of time each cluster or replica set had a primary node available during the selected time range. 
 
-Helps identify why connections are increasing.  Shows active cursors compared to cursors being automatically killed after 10 minutes due to an application not closing the connection.
+Color-coded thresholds help identify availability concerns: red indicates low availability, yellow shows moderate availability, and green confirms healthy uptime.
 
-## Document Operations
+### Operations 
+Displays the total rate of read/write operations per second across selected instances, excluding administrative commands.
 
-When used in combination with *Command Operations*, this graph can help identify *write amplification*.  For example, when one `insert` or `update` command actually inserts or updates hundreds, thousands, or even millions of documents.
+### Docs Accessed 
+Shows the rate of documents being inserted, updated, deleted, or returned per second across selected instances.
 
-## Queued Operations
+### Time Since Election 
+Displays how long ago the most recent replica set election occurred. 
 
-Any number of queued operations for long periods of time is an indication of possible issues.  Find the cause and fix it before requests get stuck in the queue.
+Color-coded to highlight recent elections: red (less than 5 minutes), yellow (5-60 minutes), and green (over 1 hour). Frequent elections may indicate cluster instability.
 
-## `getLastError` Write Time, `getLastError` Write Operations
+### Min Uptime
+Shows the minimum uptime among all monitored MongoDB processes. This helps quickly identify recently restarted nodes that may need attention.
 
-This is useful for write-heavy workloads to understand how long it takes to verify writes and how many concurrent writes are occurring.
+## Status
 
-## Asserts
+### Node Summary
+A donut chart showing the count of mongod nodes grouped by health status. Green represents nodes in healthy states (PRIMARY, SECONDARY, ARBITER), while red flags nodes requiring attention.
 
-Asserts are not important by themselves, but you can correlate spikes with other graphs.
+### Replica Set Status
+A hexagon grid displaying each replica set's health status. 
 
-## Memory Faults
+Each hexagon represents a replica set and is color-coded: green for OK, red for CHECK. 
 
-Memory faults indicate that requests are processed from disk either because an index is missing or there is not enough memory for the data set.  Consider increasing memory or sharding out.
+Click any hexagon to open the Replica Set Summary dashboard for detailed monitoring.
+
+### Sharded Cluster Status
+A hexagon grid showing the health of each sharded cluster. Click any cluster hexagon to navigate to its Sharded Cluster Summary dashboard for detailed metrics.
+
+### Router Status
+A hexagon grid displaying individual MongoS router status. Each hexagon represents a router and shows OK (green) or CHECK (red). Click any router to open its Router Summary dashboard.
+
+
+### Router Summary
+
+A donut chart showing the count of MongoS routers registered with PMM Server, grouped by status. Green (OK) indicates routers that are up and operational, while red (CHECK) flags routers that are down or unreachable.
+
+## Connections Detail
+
+### Top 5 Connections
+Shows a time series of the five services with the highest TCP connection counts, plus the overall average. 
+
+### Current Connections
+The Current Connections hexagon grid displays the current connection count for each service. 
+
+Click any hexagon to drill down to that instance's summary.
+
+## Opcounters Detail
+
+### Top 5 Command Operations/Command Operations 
+
+Shows the rate of administrative commands processed per second. The Top 5 panel displays a time series of the busiest services, while the hexagon grid shows all services at a glance.
+
+### Top 5 Getmore Operations/Getmore Operations
+
+Tracks requests to fetch more results from a query cursor, such as when iterating through large result sets.
+
+Useful for identifying services with heavy cursor activity.
+
+### Top 5 Delete Operations/Delete Operations 
+
+Displays the rate of delete commands per second across your MongoDB instances.
+
+### Top 5 Insert Operations/Insert Operations 
+
+Shows the rate of insert commands per second, helping you identify write-heavy services.
+
+### Top 5 Update Operations/Update Operations 
+
+Displays the rate of update commands per second across monitored instances.
+
+### Top 5 Query Operations/Query Operations 
+
+Shows the rate of query/find operations per second, helping identify read-heavy services.
+
+## Document Operations Detail 
+
+### Top 5 Document Delete/Insert/Return/Update Operations
+Track the actual number of documents affected by operations, as opposed to the command count. 
+
+A single update command, for example, could affect hundreds of documents. 
+
+High values may indicate queries operating on more documents than expected.
+
+## Queued Operations Detail
+
+### Top 5 Queued Read Operations/Queued Read Operations
+Shows read operations waiting for a lock. 
+
+Consistently small values are normal, but persistently high values indicate queries causing long lock times that should be investigated.
+
+### Top 5 Queued Write Operations/Queued Write Operations 
+
+Displays write operations waiting for a lock. High values may indicate write contention that could impact performance.

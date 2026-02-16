@@ -11,6 +11,7 @@ import {
   addExplore,
   addHighAvailability,
   addUsersAndAccess,
+  addHomePage,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
@@ -21,7 +22,6 @@ import {
   NAV_BACKUPS,
   NAV_DIVIDERS,
   NAV_HELP,
-  NAV_HOME_PAGE,
   NAV_INVENTORY,
   NAV_QAN,
   NAV_SIGN_IN,
@@ -34,6 +34,7 @@ import { useHaInfo } from 'hooks/api/useHA';
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
   const { data: serviceTypes } = useServiceTypes({
+    enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
   const { settings } = useSettings();
@@ -56,7 +57,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       ? serviceTypes?.serviceTypes || []
       : ALL_SERVICE_TYPES;
 
-    items.push(NAV_HOME_PAGE);
+    items.push(addHomePage(user?.preferences));
 
     if (haInfo.enabled) {
       items.push(addHighAvailability(haInfo));

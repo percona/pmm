@@ -94,6 +94,7 @@ func TestAddHAProxy(t *testing.T) {
 				MetricsPath:        "/metrics",
 				PushMetricsEnabled: true,
 				CustomLabels:       map[string]string{},
+				Status:             pointer.ToString(AgentStatusUnknown),
 			},
 		}, listAgents.Payload.ExternalExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -238,6 +239,7 @@ func TestAddHAProxy(t *testing.T) {
 				Scheme:       "http",
 				MetricsPath:  "/metrics",
 				CustomLabels: map[string]string{},
+				Status:       pointer.ToString(AgentStatusUnknown),
 			},
 		}, listAgents.Payload.ExternalExporter)
 		defer removeAllAgentsInList(t, listAgents)

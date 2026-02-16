@@ -9,7 +9,10 @@ export type MessageType =
   | 'GRAFANA_READY'
   | 'DOCUMENT_TITLE_CHANGE'
   | 'GRAFANA_THEME_CHANGED'
-  | 'CHANGE_THEME';
+  | 'CHANGE_THEME'
+  | 'SETTINGS_CHANGED'
+  | 'SERVICE_ADDED'
+  | 'SERVICE_DELETED';
 
 export type LocationState = { fromGrafana?: boolean } | null;
 
@@ -55,3 +58,7 @@ export type ChangeThemeMessage = Message<
     theme: ColorMode;
   }
 >;
+
+export type SettingsChangedMessage = Message<'SETTINGS_CHANGED'>;
+
+export type ServiceAddedMessage = Message<'SERVICE_ADDED'>;

@@ -5,6 +5,6 @@ By default Grafana uses the timezone from your web browser. However, you can cha
 To set the timezone:
 {.power-number}
 
-1. On the left menu, hover your cursor over your avatar and then click **Preferences**.
-2. Click to select an option in the **Timezone list**.
+1. On the main menu, go to **Account > Profile > Preferences**.
+2. Click to select an option in the **Timezone**.
 3. Click **Save**.

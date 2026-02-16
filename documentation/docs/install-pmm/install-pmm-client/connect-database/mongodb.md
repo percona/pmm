@@ -415,6 +415,21 @@ After configuring your database server, add a MongoDB service using either the u
 
     ![!](../../../images/PMM_Add_Instance_MongoDB.jpg)
 
+=== "With environment variables"
+    Use `--agent-env-vars` to pass environment variables from `pmm-agent` to `mongodb_exporter`:
+
+    ```sh
+    pmm-admin add mongodb \
+    --username=pmm \
+    --password=your_secure_password \
+    --host=127.0.0.1 \
+    --port=27017 \
+    --agent-env-vars="LOG_LEVEL,OTHER_VAR" \
+    --enable-all-collectors
+    ```
+    
+    Only variables already set in the `pmm-agent` environment will be passed to the exporter.
+
 ## Step 4: Verify MongoDB service configuration
 
 After adding MongoDB service to PMM, verify that it's properly configured and collecting data. This ensures your monitoring setup is working correctly.

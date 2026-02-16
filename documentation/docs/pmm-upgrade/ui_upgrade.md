@@ -15,9 +15,9 @@ If Watchtower is not installed, the UI upgrade options will not be available. Se
 The preferred and simplest way to update PMM v3 Server is via the **Updates** page:
 {.power-number}
 
-1. Go to **PMM Configuration > Updates** in your PMM web interface. Here you can check the current PMM Server version, the timestamp of the last update check and whether your instance is up-to-date.  
+1. Go to **Configuration > Updates** in your PMM web interface. Here you can check the current PMM Server version, the timestamp of the last update check and whether your instance is up-to-date.  
 
-2. If an update is available, click the **Update now** button to install the latest version.
+2. Click Check Updates now If an update is available, click the **Update now** button to install the latest version.
 
 ![Update page](../images/Update_page.png)
 

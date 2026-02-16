@@ -68,7 +68,7 @@ jobs:
     name: Tests
     runs-on: ubuntu-22.04
     env:
-      PMM_URL: http://admin:admin@127.0.0.1
+      PMM_URL: https://admin:admin@127.0.0.1
       BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
       MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
       POSTGRESQL_IMAGE: ${{ github.event.inputs.POSTGRESQL_IMAGE || 'postgres:12' }}
@@ -77,12 +77,12 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ env.BRANCH }}        
 
       - name: Login to docker.io registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -94,7 +94,7 @@ jobs:
           services:
             pmm-server:
               image: ${{ env.PMM_SERVER_IMAGE }}
-              container_name: pmm-agent_pmm-server
+              container_name: pmm-server
               environment:
                 - PMM_DEBUG=1
                 - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com
@@ -114,21 +114,16 @@ jobs:
         run: |
           docker build -t percona/pmm-api-tests .
 
-      - name: Run DB containers
+      - name: Run compose up for test DBs
         shell: bash
         run: |
           pushd api-tests
           docker compose up test_db # no daemon mode
-          # TODO: review the provisions below (copied from the Jenkins pipeline)
-          # MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker compose up -d mysql
-          # MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker compose up -d mongo
-          # POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker compose up -d postgres
-          # docker compose up -d sysbench
           popd
 
       - name: Check connectivity to PMM Server
         shell: bash
-        run: curl -f ${{env.PMM_URL}}/ping
+        run: curl -kf ${{env.PMM_URL}}/ping
 
       - name: Run API tests
         shell: bash
@@ -142,7 +137,7 @@ jobs:
 
       - name: Get PMM logs
         if: ${{ failure() }}
-        run: curl --insecure ${{env.PMM_URL}}/logs.zip --output ${{ github.workspace }}/logs.zip || true
+        run: curl -k ${{env.PMM_URL}}/logs.zip --output ${{ github.workspace }}/logs.zip || true
 
       - name: Upload the logs on failure
         if: ${{ failure() }}

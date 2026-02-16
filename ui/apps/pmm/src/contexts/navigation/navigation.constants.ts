@@ -21,8 +21,11 @@ export const NAV_HOME_PAGE: NavItem = {
   id: 'home-page',
   icon: 'home',
   text: 'Home page',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
-  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`],
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
+  ],
 };
 
 //
@@ -100,19 +103,14 @@ export const NAV_MYSQL: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-performance-schema/mysql-performance-schema-details`,
     },
     {
-      id: 'mysql-query-response-time-details',
-      text: 'Query response time',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-queryresponsetime/mysql-query-response-time-details`,
-    },
-    {
       id: 'mysql-table-details',
       text: 'Table details',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-table/mysql-table-details`,
     },
     {
-      id: 'mysql-tokudb-details',
-      text: 'TokuDB details',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-tokudb/mysql-tokudb-details`,
+      id: 'mysql-myrocks-details',
+      text: 'MyRocks details',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-myrocks/mysql-myrocks-details`,
     },
   ],
 };
@@ -162,14 +160,9 @@ export const NAV_MONGO: NavItem = {
       ],
     },
     {
-      id: 'mongo-memory-details',
-      text: 'InMemory',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-inmemory/mongodb-inmemory-details`,
-    },
-    {
-      id: 'mondo-wiredtiger-details',
-      text: 'WiredTiger',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-wiredtiger/mongodb-wiredtiger-details`,
+      id: 'mongo-backup-details',
+      text: 'Backup status',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-backup-details/mongodb-backup-details`,
     },
     {
       id: 'mongo-collections-overview',

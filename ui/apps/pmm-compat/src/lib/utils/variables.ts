@@ -77,18 +77,30 @@ const getDbType = (url: string): string | undefined => {
   return dashboardUid;
 };
 
-const cleanupVariables = (urlWithLinks: string) => {
+export const cleanupVariables = (urlWithLinks: string) => {
   const [base, params] = urlWithLinks.split('?');
 
   if (params) {
-    // remove variables which have the All value or the value is empty
-    const variables = params
-      .split('&')
-      .filter((param) => !(param.includes('All') || param.endsWith('=')))
-      .join('&');
+    const variables = params.split('&').filter(filterVariable).join('&');
 
     return base + '?' + variables;
   }
 
   return base;
+};
+
+const filterVariable = (param: string) => {
+  const [_, value] = param.split('=');
+
+  // Filter out variables with the All value
+  if (value === '$__all' || value === 'All') {
+    return false;
+  }
+
+  // Filter out variables with no value
+  if (value === '' || value === 'None') {
+    return false;
+  }
+
+  return true;
 };
