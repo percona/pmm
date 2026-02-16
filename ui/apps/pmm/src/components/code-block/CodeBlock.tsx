@@ -18,7 +18,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ code, language, containerProps }) => (
       containerProps?.sx,
     ])}
   >
-    <SyntaxHighlighter language={language}>{code}</SyntaxHighlighter>
+    <SyntaxHighlighter language={language} content={code} />
   </Stack>
 );
 

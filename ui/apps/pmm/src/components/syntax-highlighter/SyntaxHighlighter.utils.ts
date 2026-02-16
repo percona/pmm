@@ -5,7 +5,8 @@ import { CodeLanguage } from 'types/util.types';
 
 export const getSyntaxHighlighterStyle = (
   theme: Theme,
-  language: CodeLanguage
+  language: CodeLanguage,
+  showCopyButton = false
 ) => {
   const isLight = theme.palette.mode === 'light';
 
@@ -38,11 +39,14 @@ export const getSyntaxHighlighterStyle = (
     'pre[class*="language-"]': {
       margin: 0,
       paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2),
+      paddingRight: theme.spacing(showCopyButton ? 3.5 : 2),
       paddingTop: theme.spacing(1),
       paddingBottom: theme.spacing(1),
       background: tokens.background,
       fontFamily: tokens.fontFamily,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
     },
     'code[class*="language-"]': {
       ...vscDarkPlus['code[class*="language-"]'],
