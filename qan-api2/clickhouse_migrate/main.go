@@ -38,20 +38,17 @@ func main() {
 	lastMigrationFlag := flag.Uint("last-migration", defaultLastMigration, "Last migration number (e.g., 21)")
 	userFlag := flag.String("user", "default", "ClickHouse username")
 	passwordFlag := flag.String("password", "clickhouse", "ClickHouse password")
+	migrationsDirFlag := flag.String("migrations-dir", defaultMigrationsDir, "Directory with migration files")
 	flag.Parse()
 
 	lastMigration := *lastMigrationFlag
 	if lastMigration == 0 {
-		log.Println("Usage: go run main.go --last-migration <number> [--user <user>] [--password <password>]")
+		log.Println("Usage: go run main.go --last-migration <number> [--user <user>] [--password <password>] [--migrations-dir <dir>]")
 		os.Exit(1)
-	}
-	migrationsDir := os.Getenv("MIGRATIONS_DIR")
-	if migrationsDir == "" {
-		migrationsDir = defaultMigrationsDir
 	}
 
 	clickhouseDSN := fmt.Sprintf("clickhouse://localhost:9000?username=%s&password=%s&database=pmm", *userFlag, *passwordFlag)
-	m, err := migrate.New(migrationsDir, clickhouseDSN)
+	m, err := migrate.New(*migrationsDirFlag, clickhouseDSN)
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
 	}
