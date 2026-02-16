@@ -17,9 +17,10 @@
 package signatures
 
 import (
-	"github.com/percona/saas/pkg/check"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/managed/pi/check"
 )
 
 // defaultPublicKeys are the public keys used to download content from Percona Platform.

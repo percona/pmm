@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
@@ -8,13 +8,12 @@ import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutl
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import { Icon } from 'components/icon';
 import Paper from '@mui/material/Paper';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import Slide from '@mui/material/Slide';
-import Divider from '@mui/material/Divider';
 import { QueryData } from 'types/rta.types';
-import Typography from '@mui/material/Typography';
 import { useEscapeKey } from 'utils/keys.utils';
 import { Messages } from './DetailsPane.messages';
+import QueryAndDetails from './QueryAndDetails';
+import { SyntaxHighlighter } from 'components/syntax-highlighter';
 
 interface Props {
   query?: QueryData;
@@ -34,6 +33,7 @@ const DetailsPane: FC<Props> = ({
   onPrevious,
 }) => {
   useEscapeKey(onClose);
+  const [tab, setTab] = useState(0);
 
   return (
     <Slide in={!!query} direction="up">
@@ -42,19 +42,20 @@ const DetailsPane: FC<Props> = ({
         aria-hidden={query ? 'false' : 'true'}
         variant="outlined"
         sx={(theme) => ({
-          p: 1,
-          px: 2,
+          pb: 1,
+          px: 3,
           top: 0,
           left: 0,
           right: 0,
           m: 2,
           bottom: theme.spacing(-2),
           position: 'absolute',
+          overflow: 'scroll',
           zIndex: theme.zIndex.modal,
         })}
       >
-        <Stack direction="row" justifyContent="space-between">
-          <Tabs value={0}>
+        <Stack direction="row" justifyContent="space-between" sx={{ borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'inherit' }}>
+          <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)}>
             <Tab
               data-testid="details-pane-details-tab"
               value={0}
@@ -92,7 +93,6 @@ const DetailsPane: FC<Props> = ({
             </IconButton>
           </Stack>
         </Stack>
-        <Divider />
         {query ? (
           <CardContent
             sx={{
@@ -104,14 +104,12 @@ const DetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
-            <Stack gap={1} mb={1}>
-              <Typography variant="h6">{query.serviceName}</Typography>
-              <Typography variant="body2">{query.queryId}</Typography>
-              <Typography variant="body2">{query.state}</Typography>
-            </Stack>
-            <SyntaxHighlighter language="mongodb" showLineNumbers={true}>
-              {query.queryText}
-            </SyntaxHighlighter>
+            {tab === 0 && (
+              <QueryAndDetails queryData={query} />
+            )}
+            {tab === 1 && (
+              <SyntaxHighlighter language="json" content={query.queryRawJson} showCopyButton showLineNumbers maxHeight="80vh" />
+            )}
           </CardContent>
         ) : null}
       </Paper>

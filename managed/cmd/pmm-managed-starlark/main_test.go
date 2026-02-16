@@ -24,11 +24,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/saas/pkg/check"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services/checks"
 )
 
