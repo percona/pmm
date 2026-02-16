@@ -35,7 +35,6 @@ func TestParsePostgreSQLVersion(t *testing.T) {
 			default:
 				assert.Equal(t, expected, major, "%s", v)
 			}
-
 		})
 	}
 }
