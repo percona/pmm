@@ -69,7 +69,10 @@ func OpenTestPostgreSQL(tb testing.TB) *sql.DB {
 	return db
 }
 
-// PostgreSQLVersion returns major and minor PostgreSQL version (e.g. "9" and "6", "10" and "", etc.).
+// PostgreSQLVersion returns PostgreSQL version components as major and minor/patch.
+// For versions before 10, this is major and minor (e.g. "9" and "6").
+// For versions 10 and above, this is major and patch level according to PostgreSQL's versioning scheme
+// (e.g. "10" and "", "18" and "2" for PostgreSQL 18.2).
 func PostgreSQLVersion(tb testing.TB, db *sql.DB) (string, string) {
 	tb.Helper()
 
