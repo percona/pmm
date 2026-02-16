@@ -31,9 +31,10 @@ func TestParsePostgreSQLVersion(t *testing.T) {
 			major, minor := ParsePostgreSQLVersion(v)
 			switch minor {
 			case "":
-				assert.Equal(t, expected, fmt.Sprintf("%s.%s", major, minor), "%s", v)
-			default:
 				assert.Equal(t, expected, major, "%s", v)
+			default:
+
+				assert.Equal(t, expected, fmt.Sprintf("%s.%s", major, minor), "%s", v)
 			}
 		})
 	}
