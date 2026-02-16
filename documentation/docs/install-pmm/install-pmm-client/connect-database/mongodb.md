@@ -70,7 +70,7 @@ db.getSiblingDB("admin").createRole({
 
 ### Create user and assign created role
 
-After creating the custom role(s), create the PMM user and assign the role(s) based on your MongoDB version and requirements:
+After creating the custom roles, create the PMM user and assign the roles based on your MongoDB version and requirements:
 
 === "MongoDB 8.0+ (Standard)"
     MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the `directShardOperations` role to collect complete metrics from all cluster components:
