@@ -69,7 +69,6 @@ import (
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	platformv1 "github.com/percona/pmm/api/platform/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -396,7 +395,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		dumpv1beta1.RegisterDumpServiceHandler,
 
-		platformv1.RegisterPlatformServiceHandler,
 		uieventsv1.RegisterUIEventsServiceHandler,
 
 		userv1.RegisterUserServiceHandler,
@@ -931,9 +929,9 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatal(err)
 	}
 
-	platformClient, err := platformClient.NewClient(db, platformAddress)
+	platformClient, err := platformClient.NewClient(platformAddress)
 	if err != nil {
-		l.Fatalf("Could not create Percona Portal client: %s", err)
+		l.Fatalf("Could not create telemetry client: %s", err)
 	}
 
 	uieventsService := uievents.New()

@@ -55,7 +55,6 @@ gen:            ## Generate PMM API
 		advisors/v1/json/v1.json \
 		backup/v1/json/v1.json \
 		qan/v1/json/v1.json \
-		platform/v1/json/v1.json \
 		ha/v1beta1/json/v1beta1.json
 	../bin/swagger validate swagger/swagger.json
 
@@ -77,7 +76,6 @@ gen:            ## Generate PMM API
 		dump/v1beta1/json/v1beta1.json \
 		accesscontrol/v1beta1/json/v1beta1.json \
 		qan/v1/json/v1.json \
-		platform/v1/json/v1.json \
 		ha/v1beta1/json/v1beta1.json
 
 	../bin/swagger validate swagger/swagger-dev.json

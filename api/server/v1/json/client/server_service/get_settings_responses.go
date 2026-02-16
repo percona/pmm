@@ -705,7 +705,7 @@ type GetSettingsOKBodySettings struct {
 	// True if Advisor is enabled.
 	AdvisorEnabled bool `json:"advisor_enabled,omitempty"`
 
-	// Percona Platform user's email, if this PMM instance is linked to the Platform.
+	// platform email
 	PlatformEmail string `json:"platform_email,omitempty"`
 
 	// True if Alerting is enabled.
