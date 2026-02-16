@@ -5,9 +5,9 @@ package management
 import (
 	context "context"
 
-	check "github.com/percona/saas/pkg/check"
 	mock "github.com/stretchr/testify/mock"
 
+	check "github.com/percona/pmm/managed/pi/check"
 	services "github.com/percona/pmm/managed/services"
 )
 
