@@ -698,15 +698,15 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				// This may happen because of some bucket is huge and takes a lot of time to process,
 				// so the next one is already collected and sent to channel.
 				// We check that collect time of the next bucket is not earlier than the prev one.
-				// See MongoDBRTAcollectCurrentOps() for details.
-				bucketCollectTime := change.RTAQueriesBucket[0].QueryCollectTime.AsTime()
-				if rtaBucketLastCollectTime.After(bucketCollectTime) {
+				// See MongoDBRTA.collectCurrentOps() for details.
+				currentBucketCollectTime := change.RTAQueriesBucket[0].QueryCollectTime.AsTime()
+				if rtaBucketLastCollectTime.After(currentBucketCollectTime) {
 					continue
 				}
 
 				l.Infof("Sending %d RTA queries buckets.", len(change.RTAQueriesBucket))
 
-				rtaBucketLastCollectTime = bucketCollectTime
+				rtaBucketLastCollectTime = currentBucketCollectTime
 
 				s.rtaRequests <- &rtav1.CollectRequest{
 					Queries: change.RTAQueriesBucket,
