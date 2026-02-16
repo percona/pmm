@@ -135,13 +135,32 @@ func (m *MongoDBRTA) Run(ctx context.Context) {
 			// m.changes channel will be closed in defer, so we don't need to close it here, just exit the function
 			return
 		case <-ticker.C:
-			rtaQueryBucket, err := m.collectCurrentOps(ctx)
-			if err != nil {
-				m.l.Warnf("CurrentOp collection failed: %v", err)
-				continue
-			}
+			// We run collection in a separate goroutine to avoid blocking the main loop
+			// and allow timely execution of next ticks in case collection/parsing takes longer
+			// than the collect interval.
+			go func(curCtx context.Context) {
+				rtaQueryBucket, err := m.collectCurrentOps(curCtx)
+				if err != nil {
+					m.l.Warnf("CurrentOp collection failed: %v", err)
+					return
+				}
 
-			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, RTAQueriesBucket: rtaQueryBucket}
+				select {
+				case <-curCtx.Done():
+					// If context is done, we don't send anything to the channel.
+					return
+				default:
+					change := agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
+					if len(rtaQueryBucket) != 0 {
+						// If we have data, send it to the channel.
+						// If not, send only status without data to avoid triggering
+						// unnecessary processing in the receiver.
+						change.RTAQueriesBucket = rtaQueryBucket
+					}
+
+					m.changes <- change
+				}
+			}(ctx)
 		}
 	}
 }
@@ -157,6 +176,14 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 		_ = cur.Close(ctx)
 	}()
 
+	resultLen := cur.RemainingBatchLength()
+	if resultLen == 0 {
+		// If there are no current operations, we can return early with an empty slice
+		// to avoid unnecessary processing.
+		return nil, nil
+	}
+
+	results := make([]*rtav1.QueryData, 0, resultLen)
 	currTime := timestamppb.New(time.Now())
 
 	// Parallel parsing of currentOp results using WaitGroup and channel to store
@@ -166,7 +193,6 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 	// Buffered channel to store results from goroutines(parsers)
 	// and avoid blocking when sending results to the channel.
 	resultsChan := make(chan *rtav1.QueryData, 10) //nolint:mnd
-	results := make([]*rtav1.QueryData, cur.RemainingBatchLength(), 0)
 
 	for cur.Next(ctx) {
 		// check if the context is done to avoid unnecessary processing
