@@ -173,7 +173,9 @@ func getPGVersion(q *reform.Querier) (pgVersion, error) {
 		return pgVersion(0), err
 	}
 	major, minor := version.ParsePostgreSQLVersion(v)
-
+	if minor == "" {
+		minor = "0"
+	}
 	parsed, err := strconv.ParseFloat(fmt.Sprintf("%s.%s", major, minor), 64)
 
 	return pgVersion(parsed), err
