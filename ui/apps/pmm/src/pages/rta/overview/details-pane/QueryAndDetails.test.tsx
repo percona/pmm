@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-// import QueryAndDetails from './QueryAndDetails';
+import QueryAndDetails from './QueryAndDetails';
 import { TEST_MONGO_DB_QUERY_DATA } from 'utils/testStubs';
 
 const renderComponent = () =>
   render(
     <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
-      {/* <QueryAndDetails queryData={query} /> */}
+      <QueryAndDetails queryData={TEST_MONGO_DB_QUERY_DATA} />
     </ThemeProvider>
   );
 
@@ -26,7 +26,7 @@ describe.skip('QueryAndDetails', () => {
 
     expect(screen.getByText('Service')).toBeInTheDocument();
     expect(
-      screen.getByText(TEST_MONGO_DB_QUERY_DATA.service_name)
+      screen.getByText(TEST_MONGO_DB_QUERY_DATA.serviceName)
     ).toBeInTheDocument();
   });
 
