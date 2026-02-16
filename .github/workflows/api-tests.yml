@@ -13,7 +13,7 @@ on:
     inputs:
       PMM_SERVER_IMAGE:
         description: "PMM Server image version"
-        default: "ghcr.io/percona/pmm:3-dev-container"
+        default: "perconalab/pmm-server:3-dev-latest"
         required: true
         type: string
 
@@ -26,7 +26,7 @@ on:
         type: string      
       PMM_SERVER_IMAGE:
         description: "PMM Server image version"
-        default: "ghcr.io/percona/pmm:3-dev-container"
+        default: "perconalab/pmm-server:3-dev-latest"
         required: true
         type: string
 
