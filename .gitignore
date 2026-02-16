@@ -47,3 +47,6 @@ ci.yml
 encryption.key
 
 /tmp/
+
+# PMM Demo backups (it would increase repository size significantly)
+dev/clickhouse-backups/
