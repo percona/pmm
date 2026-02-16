@@ -70,15 +70,16 @@ func OpenTestPostgreSQL(tb testing.TB) *sql.DB {
 }
 
 // PostgreSQLVersion returns major PostgreSQL version (e.g. "9.6", "10", etc.).
-func PostgreSQLVersion(tb testing.TB, db *sql.DB) string {
+func PostgreSQLVersion(tb testing.TB, db *sql.DB) (string, string) {
 	tb.Helper()
 
 	var v string
 	err := db.QueryRow("SELECT /* pmm-agent-tests:PostgreSQLVersion */ version()").Scan(&v)
 	require.NoError(tb, err)
 
-	m := version.ParsePostgreSQLVersion(v)
-	require.NotEmpty(tb, m, "Failed to parse PostgreSQL version from %q.", v)
-	tb.Logf("version = %q (m = %q)", v, m)
-	return m
+	major, minor := version.ParsePostgreSQLVersion(v)
+	require.NotEmpty(tb, major, "Failed to parse PostgreSQL version from %q.", v)
+	tb.Logf("version = %q (major = %q, minor = %q)", v, major, minor)
+
+	return major, minor
 }

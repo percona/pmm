@@ -15,6 +15,7 @@
 package version
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,8 @@ func TestParsePostgreSQLVersion(t *testing.T) {
 		"PostgreSQL 9.4.23 on x86_64-pc-linux-gnu (Debian 9.4.23-1.pgdg90+1), compiled by gcc (Debian 6.3.0-18+deb9u1) 6.3.0 20170516, 64-bit": "9.4",
 	} {
 		t.Run(v, func(t *testing.T) {
-			actual := ParsePostgreSQLVersion(v)
+			major, minor := ParsePostgreSQLVersion(v)
+			actual := fmt.Sprintf("%s.%s", major, minor)
 			assert.Equal(t, expected, actual, "%s", v)
 		})
 	}

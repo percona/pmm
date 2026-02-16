@@ -25,21 +25,16 @@ var (
 )
 
 // ParsePostgreSQLVersion parses the given PostgreSQL version string.
-func ParsePostgreSQLVersion(v string) string {
+func ParsePostgreSQLVersion(v string) (string, string) {
 	m := postgresDBRegexp.FindStringSubmatch(v)
 	if len(m) != 2 {
-		return ""
+		return "", ""
 	}
 
 	parts := strings.Split(m[1], ".")
-	switch len(parts) {
-	case 1: // major only
-		return parts[0]
-	case 2: // major and patch
-		return parts[0]
-	case 3: // major, minor, and patch
-		return parts[0] + "." + parts[1]
-	default:
-		return ""
+	if len(parts) == 1 {
+		return parts[0], ""
 	}
+
+	return parts[0], parts[1]
 }
