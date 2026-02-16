@@ -65,7 +65,7 @@ describe('RealtimeOverview', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByText(TEST_MONGO_DB_QUERY_DATA.serviceName)
+        screen.getByText(TEST_MONGO_DB_QUERY_DATA.service_name)
       ).toBeInTheDocument()
     );
   });
@@ -101,18 +101,18 @@ describe('RealtimeOverview', () => {
     expect(searchQueries).toHaveBeenCalled();
 
     const serviceName = await screen.findByText(
-      TEST_MONGO_DB_QUERY_DATA.serviceName
+      TEST_MONGO_DB_QUERY_DATA.service_name
     );
     fireEvent.click(serviceName);
 
     expect(screen.getByTestId('query-details-pane')).toBeInTheDocument();
   });
 
-  it('should open details pane through row action', async () => {
+  it('should open details pane by clicking row', async () => {
     renderComponent();
 
-    const rowAction = await screen.findByTestId('open-query-details');
-    fireEvent.click(rowAction);
+    const row = await screen.findByText(TEST_MONGO_DB_QUERY_DATA.service_name);
+    fireEvent.click(row);
 
     expect(screen.getByTestId('query-details-pane')).toBeInTheDocument();
   });

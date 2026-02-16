@@ -1,5 +1,5 @@
 import {
-  QueryData,
+  RawQueryData,
   RealtimeSession,
   RealtimeSessionStatus,
 } from 'types/rta.types';
@@ -137,21 +137,23 @@ export const TEST_REAL_TIME_SESSION_2: RealtimeSession = {
   status: RealtimeSessionStatus.unspecified,
 };
 
-export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
-  serviceId: 'service-1',
-  serviceName: 'Service 1',
-  queryId: 'query-1',
-  queryText: '{ find: "mycollection", filter: { status: "active" } }',
-  state: 'running',
-  executionDuration: '10s',
-  rowsExamined: 100,
-  rowsSent: 100,
-  collectTime: '2021-01-01T00:00:00Z',
-  rawQueryJson: '{ find: "mycollection", filter: { status: "active" } }',
-  mongoDbPayload: {
-    opid: '1',
-    client: '127.0.0.1',
-    waitingForLock: false,
-    indexUtilized: 'COLLSCAN',
+export const TEST_MONGO_DB_QUERY_DATA: RawQueryData = {
+  service_id: 'service-1',
+  service_name: 'Service 1',
+  query_id: 'query-1',
+  query_text: '{ find: "mycollection", filter: { status: "active" } }',
+  execution_duration: '10s',
+  collect_time: '2021-01-01T00:00:00Z',
+  client: '127.0.0.1',
+  raw_query_json: '{ find: "mycollection", filter: { status: "active" } }',
+  mongo_db_payload: {
+    db_instance_address: '127.0.0.1',
+    client_app_name: 'client-app-name',
+    database_name: 'database-name',
+    operation_start_time: '2021-01-01T00:00:00Z',
+    plan_summary: 'plan-summary',
+    operation: 'operation',
+    username: 'username',
+    collection: 'collection',
   },
 };
