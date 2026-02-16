@@ -24,7 +24,14 @@ var (
 	postgresDBRegexp = regexp.MustCompile(`PostgreSQL ([\d\.]+)`)
 )
 
-// ParsePostgreSQLVersion parses the given PostgreSQL version string.
+// ParsePostgreSQLVersion parses the given PostgreSQL version string (such as the
+// output of `SELECT version()`) and returns the major version and the second
+// numeric component as strings.
+//
+// For PostgreSQL versions prior to 10, this typically corresponds to
+// "major" and "minor" (e.g., 9.6.5 -> "9", "6"). For PostgreSQL 10 and above,
+// PostgreSQL uses a two-part versioning scheme where the second component is
+// the patch level (e.g., 18.2 -> "18", "2"), not a traditional minor version.
 func ParsePostgreSQLVersion(v string) (string, string) {
 	m := postgresDBRegexp.FindStringSubmatch(v)
 	if len(m) != 2 {
