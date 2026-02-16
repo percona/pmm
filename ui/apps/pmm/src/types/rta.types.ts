@@ -35,9 +35,31 @@ export interface SearchQueriesPayload {
 }
 
 export interface SearchQueriesResponse {
-  queries: QueryData[];
+  queries: RawQueryData[];
 }
 
+export interface RawQueryMongoDBData {
+  db_instance_address: string;
+  client_app_name: string;
+  database_name: string;
+  operation_start_time: string;
+  plan_summary: string;
+  operation: string;
+  username: string;
+  collection?: string;
+}
+
+export interface RawQueryData {
+  service_id: string;
+  service_name: string;
+  query_id: string;
+  query_text: string;
+  execution_duration: string;
+  collect_time: string;
+  client: string;
+  raw_query_json: string;
+  mongo_db_payload: RawQueryMongoDBData;
+}
 export interface QueryData {
   serviceId: string;
   serviceName: string;
