@@ -58,7 +58,6 @@ gen:            ## Generate PMM API
 		backup/v1/json/v1.json \
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
-		platform/v1/json/v1.json \
 		ha/v1beta1/json/v1beta1.json
 	../bin/swagger validate swagger/swagger.json
 
@@ -81,7 +80,6 @@ gen:            ## Generate PMM API
 		accesscontrol/v1beta1/json/v1beta1.json \
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
-		platform/v1/json/v1.json \
 		ha/v1beta1/json/v1beta1.json
 
 	../bin/swagger validate swagger/swagger-dev.json

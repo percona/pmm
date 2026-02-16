@@ -1,9 +1,11 @@
 ---
 title: Create user accounts
 slug: create-user-accounts
-categorySlug: pmm-server-maintenance
-parentDocSlug: pmm-server-user-accounts
-order: 1
+category:
+  uri: pmm-server-maintenance
+parent:
+  uri: pmm-server-user-accounts
+position: 1
 ---
 
 ### Create multiple user accounts

@@ -13,6 +13,7 @@ header:
       - "**/amclient/**"
       - "**/ammodels/**"
       - "qan-api2/migrations/**"
+      - "managed/pi/common/severity_string.go"
     license:
       spdx-id: AGPL-3.0-or-later
       copyright-owner: Percona LLC

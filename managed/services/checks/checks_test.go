@@ -23,8 +23,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/common"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
@@ -34,6 +32,8 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/version"
@@ -120,7 +120,6 @@ func TestUpdateAdvisorsList(t *testing.T) {
 		require.Equal(t, "Dev Advisor", advisor.Summary)
 		require.Equal(t, "Advisor used for developing checks", advisor.Description)
 		require.Equal(t, "development", advisor.Category)
-		require.Empty(t, advisor.Tiers)
 		require.Len(t, advisor.Checks, 1)
 
 		checkNames := make([]string, 0, len(advisor.Checks))
