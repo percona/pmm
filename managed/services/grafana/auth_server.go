@@ -49,7 +49,6 @@ var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
 	connectionEndpointV2: admin, // compatibility for v2 agents
 	connectionEndpoint:   admin,
-	rtaCollectEndpoint:   admin,
 
 	"/inventory.":                               admin,
 	"/management.":                              admin,
@@ -110,6 +109,13 @@ var rules = map[string]role{
 	"/v1/readyz":  none,   // redirects to /v1/server/readyz
 	"/v1/version": viewer, // redirects to /v1/server/version
 	"/logs.zip":   admin,  // redirects to /v1/server/logs.zip
+
+	// Real-Time Analytics endpoints.
+	rtaCollectEndpoint:                     admin,
+	"/v1/realtimeanalytics/sessions:start": admin,
+	"/v1/realtimeanalytics/sessions:stop":  admin,
+	"/v1/realtimeanalytics/sessions":       viewer,
+	"/v1/realtimeanalytics/queries:search": viewer,
 
 	// "/auth_request"  has auth_request disabled in nginx config
 
