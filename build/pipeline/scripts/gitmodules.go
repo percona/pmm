@@ -63,5 +63,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Print(value)
+	slog.Info(value)
 }
