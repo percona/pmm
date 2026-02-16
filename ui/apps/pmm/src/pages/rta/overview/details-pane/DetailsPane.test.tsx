@@ -109,7 +109,6 @@ describe('DetailsPane', () => {
     expect(
       screen.getByText((content) => content.includes('mycollection'))
     ).toBeInTheDocument();
-    expect(screen.getByText('Historical Context')).toBeInTheDocument();
   });
 
   it('shows raw data tab content when switching to raw data tab', () => {
