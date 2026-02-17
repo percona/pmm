@@ -4,6 +4,7 @@ import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from "types/rta.types";
 import DetailsMetric from "./DetailsMetric";
 import BigNumberMetric from "./BigNumberMetric";
+import { Messages } from "./QueryAndDetails.messages";
 
 type Props = {
   queryData: QueryData;
@@ -40,67 +41,67 @@ const QueryAndDetails: FC<Props> = ({
       <Grid item xs={12} md={6}>
         <Grid container spacing={3}>
           <GridItem>
-            <DetailsMetric title="Operation ID">
+            <DetailsMetric title={Messages.titles.operationId}>
               <BigNumberMetric mainText={queryId} />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Elapsed exec. time">
+            <DetailsMetric title={Messages.titles.elapsedExecTime}>
               <BigNumberMetric mainText={queryExecutionDuration ?? undefined} subText={queryExecutionDuration ? "ms" : undefined} />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Plan summary">
+            <DetailsMetric title={Messages.titles.planSummary}>
               <BigNumberMetric mainText={planSummary} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Database name">
+            <DetailsMetric title={Messages.titles.databaseName}>
               <BigNumberMetric mainText={databaseName} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Collection">
+            <DetailsMetric title={Messages.titles.collection}>
               <BigNumberMetric mainText={collection} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Operation">
+            <DetailsMetric title={Messages.titles.operation}>
               <BigNumberMetric mainText={operation} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="User name">
+            <DetailsMetric title={Messages.titles.username}>
               <BigNumberMetric mainText={username} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Client address">
+            <DetailsMetric title={Messages.titles.host}>
               <BigNumberMetric mainText={clientAddress} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Service">
+            <DetailsMetric title={Messages.titles.service}>
               <BigNumberMetric mainText={serviceName} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Host">
+            <DetailsMetric title={Messages.titles.dbInstanceAddress}>
               <BigNumberMetric mainText={dbInstanceAddress} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Client app name">
+            <DetailsMetric title={Messages.titles.clientAppName}>
               <BigNumberMetric mainText={clientAppName} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Operation start time">
+            <DetailsMetric title={Messages.titles.operationStartTime}>
               <BigNumberMetric mainText={operationStartTime} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Data capture time">
+            <DetailsMetric title={Messages.titles.dataCaptureTime}>
               <BigNumberMetric mainText={queryCollectTime} size="small" />
             </DetailsMetric>
           </GridItem>
