@@ -1,10 +1,9 @@
-// todo: fix this test
-
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import DetailsPane from './DetailsPane';
 import { Messages } from './DetailsPane.messages';
+import { TEST_MONGO_DB_QUERY_DATA } from 'utils/testStubs';
 
 const defaultProps = {
   isFirstQuery: false,
@@ -17,7 +16,7 @@ const defaultProps = {
 const renderComponent = () =>
   render(
     <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
-      {/* <DetailsPane {...defaultProps} query={query} /> */}
+      <DetailsPane {...defaultProps} query={TEST_MONGO_DB_QUERY_DATA} />
     </ThemeProvider>
   );
 
