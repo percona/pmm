@@ -101,8 +101,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
-	if !supportedVersion(engineVersion) || !extensionExists(db) {
+	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
+	if !supportedVersion(majorVersion) || !extensionExists(db) {
 		t.Skip()
 	}
 
@@ -147,7 +147,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		"$341, $342, $343, $3 ..."
 
 	var digests map[string]string
-	switch engineVersion {
+	switch majorVersion {
 	case "11":
 		digests = map[string]string{
 			selectAllCountries:     "8055E3FCBD5A55B1",
