@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -339,12 +340,31 @@ func (s *Service) SearchQueries(ctx context.Context, req *rtav1.SearchQueriesReq
 	for _, serviceID := range req.ServiceIds {
 		// Queries for a particular service requested
 		resp.Queries = append(resp.Queries, s.store.Get(serviceID)...)
+	}
 
-		// Apply limit if specified
-		if req.Limit > 0 && int64(len(resp.Queries)) > req.Limit {
-			resp.Queries = resp.Queries[:req.Limit]
-			break
+	// Sort queries by query_execution_duration in descending order.
+	slices.SortStableFunc(resp.Queries, func(a, b *rtav1.QueryData) int {
+		var aD, bD int64
+		if a.QueryExecutionDuration != nil {
+			aD = a.QueryExecutionDuration.AsDuration().Nanoseconds()
 		}
+
+		if b.QueryExecutionDuration != nil {
+			bD = b.QueryExecutionDuration.AsDuration().Nanoseconds()
+		}
+
+		if aD < bD {
+			return 1
+		} else if aD > bD {
+			return -1
+		}
+
+		return 0
+	})
+
+	// Apply limit if specified to final list of queries after filtering by service and sorting.
+	if req.Limit > 0 && int64(len(resp.Queries)) > req.Limit {
+		resp.Queries = resp.Queries[:req.Limit]
 	}
 
 	return resp, nil
