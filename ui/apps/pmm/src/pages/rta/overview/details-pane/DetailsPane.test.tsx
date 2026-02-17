@@ -43,12 +43,12 @@ describe.skip('DetailsPane', () => {
   it('renders Details and Raw data tabs', () => {
     renderComponent();
 
-    expect(
-      screen.getByTestId('details-pane-details-tab')
-    ).toHaveTextContent(Messages.tabs.details);
-    expect(
-      screen.getByTestId('details-pane-raw-data-tab')
-    ).toHaveTextContent(Messages.tabs.rawData);
+    expect(screen.getByTestId('details-pane-details-tab')).toHaveTextContent(
+      Messages.tabs.details
+    );
+    expect(screen.getByTestId('details-pane-raw-data-tab')).toHaveTextContent(
+      Messages.tabs.rawData
+    );
   });
 
   it('calls onClose when close button is clicked', () => {

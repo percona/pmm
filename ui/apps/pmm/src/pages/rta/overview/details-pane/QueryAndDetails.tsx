@@ -1,10 +1,10 @@
-import Grid from "@mui/material/Grid";
-import { FC } from "react";
+import Grid from '@mui/material/Grid';
+import { FC } from 'react';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
-import { QueryData } from "types/rta.types";
-import DetailsMetric from "./DetailsMetric";
-import BigNumberMetric from "./BigNumberMetric";
-import { Messages } from "./QueryAndDetails.messages";
+import { QueryData } from 'types/rta.types';
+import DetailsMetric from './DetailsMetric';
+import BigNumberMetric from './BigNumberMetric';
+import { Messages } from './QueryAndDetails.messages';
 
 type Props = {
   queryData: QueryData;
@@ -34,7 +34,7 @@ const QueryAndDetails: FC<Props> = ({
       clientAppName,
       operationStartTime,
     },
-  }
+  },
 }) => {
   return (
     <Grid container spacing={3}>
@@ -47,7 +47,10 @@ const QueryAndDetails: FC<Props> = ({
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.elapsedExecTime}>
-              <BigNumberMetric mainText={queryExecutionDuration ?? undefined} subText={queryExecutionDuration ? "ms" : undefined} />
+              <BigNumberMetric
+                mainText={queryExecutionDuration ?? undefined}
+                subText={queryExecutionDuration ? 'ms' : undefined}
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
@@ -116,7 +119,12 @@ const QueryAndDetails: FC<Props> = ({
           overflow: 'auto',
         }}
       >
-        <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} />
+        <SyntaxHighlighter
+          language="mongodb"
+          showLineNumbers={true}
+          showCopyButton
+          content={queryText}
+        />
       </Grid>
     </Grid>
   );

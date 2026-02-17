@@ -25,6 +25,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     sortingFn: (rowA, rowB) =>
       parseDuration(rowA.original.queryExecutionDuration ?? '0s') -
       parseDuration(rowB.original.queryExecutionDuration ?? '0s'),
-    Cell: ({ cell }) => `${cell.getValue() ? `${parseDuration(cell.getValue() as string).toFixed(2)} ms` : 'N/A'}`,
+    Cell: ({ cell }) =>
+      `${cell.getValue() ? `${parseDuration(cell.getValue() as string).toFixed(2)} ms` : 'N/A'}`,
   },
 ];

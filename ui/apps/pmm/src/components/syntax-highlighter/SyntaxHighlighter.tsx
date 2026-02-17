@@ -14,7 +14,6 @@ import mongodb from 'react-syntax-highlighter/dist/esm/languages/prism/mongodb';
 import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
 import { SyntaxHighlighterProps } from './SyntaxHighlighter.types';
 
-
 ReactSyntaxHighlighter.registerLanguage('mongodb', mongodb);
 ReactSyntaxHighlighter.registerLanguage('json', json);
 
@@ -27,7 +26,11 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
   ...props
 }) => {
   const theme = useTheme();
-  const highlighterStyle = getSyntaxHighlighterStyle(theme, language, showCopyButton);
+  const highlighterStyle = getSyntaxHighlighterStyle(
+    theme,
+    language,
+    showCopyButton
+  );
 
   const handleCopy = () => {
     if (navigator.clipboard && window.isSecureContext) {
@@ -41,7 +44,11 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
   const highlighterBlock = (
     <>
       {/* @ts-expect-error - react-syntax-highlighter types are incompatible with React 18 */}
-      <ReactSyntaxHighlighter language={language} style={highlighterStyle} {...props}>
+      <ReactSyntaxHighlighter
+        language={language}
+        style={highlighterStyle}
+        {...props}
+      >
         {content}
       </ReactSyntaxHighlighter>
     </>
@@ -69,8 +76,16 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
         highlighterBlock
       )}
       {showCopyButton && (
-        <IconButton sx={{ position: 'absolute', top: theme.spacing(1.5), right: theme.spacing(1.8), padding: 0 }} onClick={handleCopy}>
-          <ContentCopyIcon sx={{ width: 18, height: 18 }} color='disabled' />
+        <IconButton
+          sx={{
+            position: 'absolute',
+            top: theme.spacing(1.5),
+            right: theme.spacing(1.8),
+            padding: 0,
+          }}
+          onClick={handleCopy}
+        >
+          <ContentCopyIcon sx={{ width: 18, height: 18 }} color="disabled" />
         </IconButton>
       )}
     </Stack>
