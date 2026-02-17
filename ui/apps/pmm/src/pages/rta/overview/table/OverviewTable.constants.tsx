@@ -4,6 +4,7 @@ import { QueryData } from 'types/rta.types';
 import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
 import { formatDuration } from 'date-fns';
+import UnavailableText from 'components/unavailable-text';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
@@ -26,10 +27,10 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     accessorKey: 'queryExecutionDurationMs',
     filterVariant: 'range',
     filterFn: 'between',
-    Cell: ({ cell }) => `${cell.getValue() ? formatDuration({
+    Cell: ({ cell }) => cell.getValue() ? `${formatDuration({
       seconds: cell.getValue() as number / 1000,
     }, {
       format: ['seconds'],
-    }) : 'N/A'}`,
+    })}` : <UnavailableText />,
   },
 ];
