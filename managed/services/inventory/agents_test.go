@@ -981,7 +981,7 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 			SkipConnectionCheck: true,
 		})
 		require.NoError(t, err)
-		assert.Equal(t, durationpb.New(time.Second), rtaAgent.GetRtaMongodbAgent().RtaOptions.CollectInterval)
+		assert.Equal(t, durationpb.New(2*time.Second), rtaAgent.GetRtaMongodbAgent().RtaOptions.CollectInterval)
 
 		resp, err := as.ChangeRTAMongoDBAgent(ctx, rtaAgent.GetRtaMongodbAgent().AgentId, &inventoryv1.ChangeRTAMongoDBAgentParams{
 			RtaOptions: &inventoryv1.RTAOptions{
