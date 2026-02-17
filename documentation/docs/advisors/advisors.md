@@ -9,7 +9,8 @@ Advisors are bundled with every PMM installation and automatically loaded by PMM
 
 ## Automatic checks
 Advisor checks can be executed manually or automatically.
-By default, PMM runs all the checks available for your PMM instances every 24 hours.
+
+By default, PMM runs checks every 24 hours, only for database types present in your inventory. Checks for database types you're not monitoring are automatically skipped. For example, if you only monitor PostgreSQL services, the **Advisors** page and **Home** dashboard will only show PostgreSQL checks.
 
 Check results *always* remain on the PMM Server. They are never sent as part of Telemetry.
 
