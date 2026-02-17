@@ -5,9 +5,6 @@ import { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import { Icon } from 'components/icon';
-import Stack from '@mui/material/Stack';
 import { Messages } from './OverviewTable.messages';
 
 interface Props {
@@ -43,44 +40,6 @@ const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
       enableRowHoverAction
       rowHoverAction={(row) => onQuerySelected(row.original, row.index)}
       renderTopToolbarCustomActions={actions}
-      enableRowActions
-      renderRowActions={({ row }) => (
-        <Stack
-          className="row-actions"
-          justifyContent="center"
-          alignItems="center"
-          sx={{
-            flex: 1,
-            height: '100%',
-            display: 'none',
-          }}
-        >
-          <IconButton
-            color="inherit"
-            data-testid="open-query-details"
-            aria-label={Messages.actions.openDetails}
-            onClick={() => onQuerySelected(row.original, row.index)}
-          >
-            <Icon name="bottom-panel-open" />
-          </IconButton>
-        </Stack>
-      )}
-      // Show the row actions only on hover
-      muiTableBodyRowProps={{
-        sx: {
-          '&:hover .row-actions': {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          },
-        },
-      }}
-      displayColumnDefOptions={{
-        'mrt-row-actions': {
-          header: '',
-          size: 56,
-        },
-      }}
     />
   </RealtimeTableWrapper>
 );

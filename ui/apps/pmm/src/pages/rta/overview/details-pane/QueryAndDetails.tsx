@@ -5,6 +5,8 @@ import { QueryData } from "types/rta.types";
 import DetailsMetric from "./DetailsMetric";
 import BigNumberMetric from "./BigNumberMetric";
 import { Messages } from "./QueryAndDetails.messages";
+import formatDuration from "date-fns/formatDuration";
+
 
 type Props = {
   queryData: QueryData;
@@ -20,7 +22,7 @@ const QueryAndDetails: FC<Props> = ({
   queryData: {
     queryText,
     queryId,
-    queryExecutionDuration,
+    queryExecutionDurationMs,
     queryCollectTime,
     serviceName,
     clientAddress,
@@ -36,6 +38,14 @@ const QueryAndDetails: FC<Props> = ({
     },
   }
 }) => {
+  const formattedQueryExecutionDuration = queryExecutionDurationMs ? formatDuration({
+    seconds: queryExecutionDurationMs / 1000,
+  }, {
+    format: ['seconds'],
+  }) : '';
+
+  const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration ? formattedQueryExecutionDuration.split(' ') : [];
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={6}>
@@ -47,7 +57,10 @@ const QueryAndDetails: FC<Props> = ({
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.elapsedExecTime}>
-              <BigNumberMetric mainText={queryExecutionDuration ?? undefined} subText={queryExecutionDuration ? "ms" : undefined} />
+              <BigNumberMetric
+                mainText={formattedQueryExecutionDurationParts.length > 1 ? formattedQueryExecutionDurationParts[0] : undefined}
+                subText={formattedQueryExecutionDurationParts.length > 1 ? formattedQueryExecutionDurationParts[1] : undefined}
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>

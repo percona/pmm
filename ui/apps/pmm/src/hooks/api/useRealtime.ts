@@ -18,11 +18,13 @@ import {
   StopSessionPayload,
   SearchQueriesPayload,
   QueryData,
+  RawQueryData,
 } from 'types/rta.types';
 import { ManagedService, ServiceType } from 'types/services.types';
 import { useManagedServices } from './useServices';
 import { useMemo } from 'react';
 import { EmptyResponse } from 'types/util.types';
+import { parseDuration } from 'utils/duration.utils';
 
 const KEYS = {
   LIST_SESSIONS: 'rta:list-sessions',
@@ -147,10 +149,17 @@ export const useAvailableServices = () => {
 
 export const useRealtimeQueries = (
   payload: SearchQueriesPayload,
-  options?: Partial<UseQueryOptions<QueryData[]>>
+  options?: Partial<UseQueryOptions<RawQueryData[]>>
 ) =>
-  useQuery<QueryData[], Error, QueryData[]>({
+  useQuery<RawQueryData[], Error, QueryData[]>({
     queryKey: [KEYS.SEARCH_QUERIES, payload],
     queryFn: async () => (await searchQueries(payload)).queries,
+    select: (data) =>
+      data.map((query) => ({
+        ...query,
+        queryExecutionDurationMs: query.queryExecutionDuration
+          ? parseDuration(query.queryExecutionDuration)
+          : null,
+      })),
     ...options,
   });

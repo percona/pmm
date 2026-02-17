@@ -3,7 +3,7 @@ import { type MRT_ColumnDef } from 'material-react-table';
 import { QueryData } from 'types/rta.types';
 import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
-import { parseDuration } from 'utils/duration.utils';
+import { formatDuration } from 'date-fns';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
@@ -13,18 +13,23 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     Cell: ({ row }) => <QueryCell query={row.original.queryText} />,
   },
   {
-    header: Messages.columns.service,
-    accessorKey: 'serviceName',
+    header: Messages.columns.host,
+    accessorKey: 'clientAddress',
   },
   {
-    size: 100,
+    header: Messages.columns.operationId,
+    accessorKey: 'queryId',
+  },
+  {
+    size: 150,
     header: Messages.columns.elapsedTime,
-    accessorKey: 'queryExecutionDuration',
+    accessorKey: 'queryExecutionDurationMs',
     filterVariant: 'range',
     filterFn: 'between',
-    sortingFn: (rowA, rowB) =>
-      parseDuration(rowA.original.queryExecutionDuration ?? '0s') -
-      parseDuration(rowB.original.queryExecutionDuration ?? '0s'),
-    Cell: ({ cell }) => `${cell.getValue() ? `${parseDuration(cell.getValue() as string).toFixed(2)} ms` : 'N/A'}`,
+    Cell: ({ cell }) => `${cell.getValue() ? formatDuration({
+      seconds: cell.getValue() as number / 1000,
+    }, {
+      format: ['seconds'],
+    }) : 'N/A'}`,
   },
 ];
