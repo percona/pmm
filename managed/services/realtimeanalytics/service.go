@@ -31,6 +31,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -444,11 +445,12 @@ func (s *Service) convertAgentToSession(agent *models.Agent, service *models.Ser
 	}
 
 	return &rtav1.Session{
-		ServiceId:   service.ServiceID,
-		ServiceName: service.ServiceName,
-		ClusterName: service.Cluster,
-		StartTime:   timestamppb.New(agent.CreatedAt),
-		Status:      status,
+		ServiceId:       service.ServiceID,
+		ServiceName:     service.ServiceName,
+		ClusterName:     service.Cluster,
+		StartTime:       timestamppb.New(agent.CreatedAt),
+		CollectInterval: durationpb.New(*agent.RTAOptions.CollectInterval),
+		Status:          status,
 	}
 }
 

@@ -1261,7 +1261,7 @@ ListAgentsOKBodyAgentsItems0RtaOptions RTAOptions holds Real-Time Query Analytic
 swagger:model ListAgentsOKBodyAgentsItems0RtaOptions
 */
 type ListAgentsOKBodyAgentsItems0RtaOptions struct {
-	// Query collect interval (default 1s is set by server).
+	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
 

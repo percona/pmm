@@ -963,7 +963,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	// For the time being only RTA MangoDB Agent has RTA options.
 	case RTAMongoDBAgentType:
 		row.RTAOptions = RTAOptions{
-			CollectInterval: pointer.To(2 * time.Second), // default value
+			// default value
+			CollectInterval: pointer.To(2 * time.Second), //nolint:mnd
 		}
 		// RTA options
 		row.RTAOptions.Merge(&params.RTAOptions)

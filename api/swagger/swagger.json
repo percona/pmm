@@ -6451,7 +6451,7 @@
                         "type": "object",
                         "properties": {
                           "collect_interval": {
-                            "description": "Query collect interval (default 1s is set by server).",
+                            "description": "Query collect interval (default 2s is set by server).",
                             "type": "string",
                             "x-order": 0
                           }
@@ -8039,7 +8039,7 @@
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Query collect interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 2s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -9969,7 +9969,7 @@
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Query collect interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 2s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -12072,7 +12072,7 @@
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Query collect interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 2s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -13036,7 +13036,7 @@
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Query collect interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 2s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -14979,7 +14979,7 @@
                       "type": "object",
                       "properties": {
                         "collect_interval": {
-                          "description": "Query collect interval (default 1s is set by server).",
+                          "description": "Query collect interval (default 2s is set by server).",
                           "type": "string",
                           "x-order": 0
                         }
@@ -19502,7 +19502,7 @@
                         "type": "object",
                         "properties": {
                           "collect_interval": {
-                            "description": "Query collect interval (default 1s is set by server).",
+                            "description": "Query collect interval (default 2s is set by server).",
                             "type": "string",
                             "x-order": 0
                           }
@@ -21056,7 +21056,7 @@
                               "type": "object",
                               "properties": {
                                 "collect_interval": {
-                                  "description": "Query collect interval (default 1s is set by server).",
+                                  "description": "Query collect interval (default 2s is set by server).",
                                   "type": "string",
                                   "x-order": 0
                                 }
@@ -23876,7 +23876,7 @@
                           "type": "object",
                           "properties": {
                             "collect_interval": {
-                              "description": "Query collect interval (default 1s is set by server).",
+                              "description": "Query collect interval (default 2s is set by server).",
                               "type": "string",
                               "x-order": 0
                             }
@@ -29233,6 +29233,11 @@
                         "format": "date-time",
                         "x-order": 3
                       },
+                      "collect_interval": {
+                        "description": "Query collect interval.",
+                        "type": "string",
+                        "x-order": 4
+                      },
                       "status": {
                         "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled.",
                         "type": "string",
@@ -29243,7 +29248,7 @@
                           "SESSION_STATUS_RUNNING",
                           "SESSION_STATUS_DOWN"
                         ],
-                        "x-order": 4
+                        "x-order": 5
                       }
                     }
                   },
@@ -29345,6 +29350,11 @@
                       "format": "date-time",
                       "x-order": 3
                     },
+                    "collect_interval": {
+                      "description": "Query collect interval.",
+                      "type": "string",
+                      "x-order": 4
+                    },
                     "status": {
                       "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled.",
                       "type": "string",
@@ -29355,7 +29365,7 @@
                         "SESSION_STATUS_RUNNING",
                         "SESSION_STATUS_DOWN"
                       ],
-                      "x-order": 4
+                      "x-order": 5
                     }
                   },
                   "x-order": 0

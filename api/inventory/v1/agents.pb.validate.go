@@ -1871,32 +1871,33 @@ func (m *RTAOptions) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetCollectInterval()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, RTAOptionsValidationError{
-					field:  "CollectInterval",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, RTAOptionsValidationError{
-					field:  "CollectInterval",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetCollectInterval()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return RTAOptionsValidationError{
+	if d := m.GetCollectInterval(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = RTAOptionsValidationError{
 				field:  "CollectInterval",
-				reason: "embedded message failed validation",
+				reason: "value is not a valid duration",
 				cause:  err,
 			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(1*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := RTAOptionsValidationError{
+					field:  "CollectInterval",
+					reason: "value must be greater than or equal to 1s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 

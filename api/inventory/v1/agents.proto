@@ -531,8 +531,10 @@ message QANMongoDBMongologAgent {
 
 // RTAOptions holds Real-Time Query Analytics agent options.
 message RTAOptions {
-  // Query collect interval (default 1s is set by server).
-  google.protobuf.Duration collect_interval = 1;
+  // Query collect interval (default 2s is set by server).
+  google.protobuf.Duration collect_interval = 1 [(validate.rules).duration = {
+    gte: {seconds: 1}
+  }];
 }
 
 // RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.

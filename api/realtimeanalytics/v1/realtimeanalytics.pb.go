@@ -16,6 +16,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -93,8 +94,10 @@ type Session struct {
 	ClusterName string `protobuf:"bytes,3,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
 	// Timestamp when the Real-Time Analytics session started.
 	StartTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// Query collect interval.
+	CollectInterval *durationpb.Duration `protobuf:"bytes,5,opt,name=collect_interval,json=collectInterval,proto3" json:"collect_interval,omitempty"`
 	// Current status of the Real-Time Analytics session.
-	Status        SessionStatus `protobuf:"varint,5,opt,name=status,proto3,enum=realtimeanalytics.v1.SessionStatus" json:"status,omitempty"`
+	Status        SessionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=realtimeanalytics.v1.SessionStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -153,6 +156,13 @@ func (x *Session) GetClusterName() string {
 func (x *Session) GetStartTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.StartTime
+	}
+	return nil
+}
+
+func (x *Session) GetCollectInterval() *durationpb.Duration {
+	if x != nil {
+		return x.CollectInterval
 	}
 	return nil
 }
@@ -535,15 +545,16 @@ var File_realtimeanalytics_v1_realtimeanalytics_proto protoreflect.FileDescripto
 
 const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\n" +
-	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a realtimeanalytics/v1/query.proto\x1a\x17validate/validate.proto\"\xe6\x01\n" +
+	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a realtimeanalytics/v1/query.proto\x1a\x17validate/validate.proto\"\xac\x02\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
 	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x12!\n" +
 	"\fcluster_name\x18\x03 \x01(\tR\vclusterName\x129\n" +
 	"\n" +
-	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12;\n" +
-	"\x06status\x18\x05 \x01(\x0e2#.realtimeanalytics.v1.SessionStatusR\x06status\"8\n" +
+	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12D\n" +
+	"\x10collect_interval\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\x0fcollectInterval\x12;\n" +
+	"\x06status\x18\x06 \x01(\x0e2#.realtimeanalytics.v1.SessionStatusR\x06status\"8\n" +
 	"\x13ListSessionsRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\"Q\n" +
 	"\x14ListSessionsResponse\x129\n" +
@@ -603,29 +614,31 @@ var (
 		(*SearchQueriesRequest)(nil),  // 8: realtimeanalytics.v1.SearchQueriesRequest
 		(*SearchQueriesResponse)(nil), // 9: realtimeanalytics.v1.SearchQueriesResponse
 		(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-		(*QueryData)(nil),             // 11: realtimeanalytics.v1.QueryData
+		(*durationpb.Duration)(nil),   // 11: google.protobuf.Duration
+		(*QueryData)(nil),             // 12: realtimeanalytics.v1.QueryData
 	}
 )
 
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
 	10, // 0: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
-	0,  // 1: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
-	1,  // 2: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
-	1,  // 3: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
-	11, // 4: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
-	2,  // 5: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
-	4,  // 6: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
-	6,  // 7: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
-	8,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
-	3,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
-	5,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
-	7,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
-	9,  // 12: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	11, // 1: realtimeanalytics.v1.Session.collect_interval:type_name -> google.protobuf.Duration
+	0,  // 2: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
+	1,  // 3: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
+	1,  // 4: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
+	12, // 5: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
+	2,  // 6: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
+	4,  // 7: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
+	6,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
+	8,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
+	3,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
+	5,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
+	7,  // 12: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
+	9,  // 13: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_realtimeanalytics_proto_init() }
