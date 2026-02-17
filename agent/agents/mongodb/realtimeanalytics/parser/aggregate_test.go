@@ -91,7 +91,7 @@ var dataAggregate = []byte(`
               {
                 "appName": {
                   "$not": {
-                    "$regex": "^(RTA-mongodb-.*$)"
+                    "$regex": "^(rta-mongodb-.*$)"
                   }
                 }
               },

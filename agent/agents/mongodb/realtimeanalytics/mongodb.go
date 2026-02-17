@@ -281,7 +281,7 @@ func buildCurrentOpsPipeline() mongo.Pipeline {
 		    { $currentOp : { allUsers: true, idleSessions: false,  idleCursors:false, idleConnections:false} },
 		    { $match : {
 		        $and: [
-		            {"appName": {$not: {$regex: "^(RTA-mongodb-.*$)"}}},
+		            {"appName": {$not: {$regex: "^(rta-mongodb-.*$)"}}},
 		            { "desc": {$nin: ["Checkpointer", "JournalFlusher"]}},
 		            { active: true}
 		            ],
@@ -298,7 +298,7 @@ func buildCurrentOpsPipeline() mongo.Pipeline {
 					// Exclude operations from internal MongoDB tools.
 					bson.D{{Key: "desc", Value: bson.D{{Key: "$nin", Value: bson.A{"Checkpointer", "JournalFlusher"}}}}},
 					// Exclude operations from RTA agent itself.
-					bson.D{{Key: "appName", Value: bson.D{{Key: "$not", Value: bson.D{{Key: "$regex", Value: "^(RTA-mongodb-.*$)"}}}}}},
+					bson.D{{Key: "appName", Value: bson.D{{Key: "$not", Value: bson.D{{Key: "$regex", Value: "^(rta-mongodb-.*$)"}}}}}},
 				},
 			},
 		},

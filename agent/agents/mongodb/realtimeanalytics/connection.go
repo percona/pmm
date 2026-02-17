@@ -44,7 +44,7 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 		SetTimeout(mgoQueryTimeout).
 		SetConnectTimeout(mgoConnectTimeout).
 		SetCompressors([]string{"snappy", "zlib", "zstd"}).
-		SetAppName("RTA-mongodb-" + agentID)
+		SetAppName("rta-mongodb-" + agentID)
 
 	client, err := mongo.Connect(opts)
 	if err != nil {

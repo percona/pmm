@@ -15,7 +15,7 @@
 package channel
 
 import (
-	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -155,7 +155,7 @@ func (c *RTAChannel) Send(msg *rtav1.CollectRequest) {
 
 	if err != nil {
 		c.l.Errorf("Failed to send message: %+v", status.Code(err))
-		c.close(errors.Join(err, errors.New("failed to send message")))
+		c.close(fmt.Errorf("failed to send message: %w", err))
 
 		return
 	}
