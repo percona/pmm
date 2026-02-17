@@ -275,7 +275,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	}
 
 	if filters.Disabled != nil {
-		conditions = append(conditions, "disabled = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
 		args = append(args, pointer.Get(filters.Disabled))
 	}
 
