@@ -17,7 +17,6 @@ import {
   StartSessionPayload,
   StopSessionPayload,
   SearchQueriesPayload,
-  RawQueryData,
   QueryData,
 } from 'types/rta.types';
 import { ManagedService, ServiceType } from 'types/services.types';
@@ -148,31 +147,10 @@ export const useAvailableServices = () => {
 
 export const useRealtimeQueries = (
   payload: SearchQueriesPayload,
-  options?: Partial<UseQueryOptions<RawQueryData[], Error, QueryData[]>>
+  options?: Partial<UseQueryOptions<QueryData[]>>
 ) =>
-  useQuery<RawQueryData[], Error, QueryData[]>({
+  useQuery<QueryData[], Error, QueryData[]>({
     queryKey: [KEYS.SEARCH_QUERIES, payload],
     queryFn: async () => (await searchQueries(payload)).queries,
-    select: (data) =>
-      data.map((query) => ({
-        serviceId: query.service_id,
-        serviceName: query.service_name,
-        queryId: query.query_id,
-        queryText: query.query_text,
-        queryExecutionDuration: query.execution_duration,
-        queryCollectTime: query.collect_time,
-        clientAddress: query.client,
-        queryRawJson: query.raw_query_json,
-        mongoDbPayload: {
-          dbInstanceAddress: query.mongo_db_payload.db_instance_address,
-          clientAppName: query.mongo_db_payload.client_app_name,
-          databaseName: query.mongo_db_payload.database_name,
-          operationStartTime: query.mongo_db_payload.operation_start_time,
-          planSummary: query.mongo_db_payload.plan_summary,
-          operation: query.mongo_db_payload.operation,
-          username: query.mongo_db_payload.username,
-          collection: query.mongo_db_payload.collection,
-        },
-      })),
     ...options,
   });
