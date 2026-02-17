@@ -33,7 +33,7 @@ const DetailsPane: FC<Props> = ({
   onPrevious,
 }) => {
   useEscapeKey(onClose);
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState<'details' | 'raw-data'>('details');
 
   return (
     <Slide in={!!query} direction="up">
@@ -58,12 +58,12 @@ const DetailsPane: FC<Props> = ({
           <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)}>
             <Tab
               data-testid="details-pane-details-tab"
-              value={0}
+              value="details"
               label={Messages.tabs.details}
             />
             <Tab
               data-testid="details-pane-raw-data-tab"
-              value={1}
+              value="raw-data"
               label={Messages.tabs.rawData}
             />
           </Tabs>
@@ -104,10 +104,10 @@ const DetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
-            {tab === 0 && (
+            {tab === 'details' && (
               <QueryAndDetails queryData={query} />
             )}
-            {tab === 1 && (
+            {tab === 'raw-data' && (
               <SyntaxHighlighter language="json" content={query.queryRawJson} showCopyButton showLineNumbers maxHeight="80vh" />
             )}
           </CardContent>
