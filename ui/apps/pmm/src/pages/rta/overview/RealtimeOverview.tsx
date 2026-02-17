@@ -134,7 +134,7 @@ const RealtimeOverviewPage: FC = () => {
                   data-testid="overview-table-refresh-button"
                   size="small"
                   startIcon={<Icon name="refresh" />}
-                  onClick={refetch}
+                  onClick={() => refetch()}
                   color="inherit"
                   disableElevation
                   sx={{
