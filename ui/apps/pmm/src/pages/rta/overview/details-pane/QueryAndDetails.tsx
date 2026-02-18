@@ -1,9 +1,14 @@
 import Grid from "@mui/material/Grid";
 import { FC } from "react";
+import { format } from "date-fns";
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from "types/rta.types";
 import DetailsMetric from "./DetailsMetric";
 import BigNumberMetric from "./BigNumberMetric";
+import { Messages } from "./QueryAndDetails.messages";
+import formatDuration from "date-fns/formatDuration";
+import { TIME_FORMAT } from "lib/constants";
+
 
 type Props = {
   queryData: QueryData;
@@ -19,7 +24,7 @@ const QueryAndDetails: FC<Props> = ({
   queryData: {
     queryText,
     queryId,
-    queryExecutionDuration,
+    queryExecutionDurationMs,
     queryCollectTime,
     serviceName,
     clientAddress,
@@ -35,73 +40,85 @@ const QueryAndDetails: FC<Props> = ({
     },
   }
 }) => {
+
+  const formattedQueryExecutionDuration = queryExecutionDurationMs ? formatDuration({
+    seconds: queryExecutionDurationMs,
+  }, {
+    format: ['seconds'],
+  }) : '';
+
+  const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration ? formattedQueryExecutionDuration.split(' ') : [];
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={6}>
         <Grid container spacing={3}>
           <GridItem>
-            <DetailsMetric title="Operation ID">
+            <DetailsMetric title={Messages.titles.operationId}>
               <BigNumberMetric mainText={queryId} />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Elapsed exec. time">
-              <BigNumberMetric mainText={queryExecutionDuration ?? undefined} subText={queryExecutionDuration ? "ms" : undefined} />
+            <DetailsMetric title={Messages.titles.elapsedExecTime}>
+              <BigNumberMetric
+                mainText={formattedQueryExecutionDurationParts.length > 1 ? formattedQueryExecutionDurationParts[0] : undefined}
+                subText={formattedQueryExecutionDurationParts.length > 1 ? formattedQueryExecutionDurationParts[1] : undefined}
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Plan summary">
-              <BigNumberMetric mainText={planSummary} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title="Database name">
-              <BigNumberMetric mainText={databaseName} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title="Collection">
-              <BigNumberMetric mainText={collection} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title="Operation">
-              <BigNumberMetric mainText={operation} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title="User name">
-              <BigNumberMetric mainText={username} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title="Client address">
-              <BigNumberMetric mainText={clientAddress} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title="Service">
-              <BigNumberMetric mainText={serviceName} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title="Host">
+            <DetailsMetric title={Messages.titles.dbInstanceAddress}>
               <BigNumberMetric mainText={dbInstanceAddress} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Client app name">
+            <DetailsMetric title={Messages.titles.host}>
+              <BigNumberMetric mainText={clientAddress} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.databaseName}>
+              <BigNumberMetric mainText={databaseName} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.service}>
+              <BigNumberMetric mainText={serviceName} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.username}>
+              <BigNumberMetric mainText={username} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.collection}>
+              <BigNumberMetric mainText={collection} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.operation}>
+              <BigNumberMetric mainText={operation} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.planSummary}>
+              <BigNumberMetric mainText={planSummary} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.clientAppName}>
               <BigNumberMetric mainText={clientAppName} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Operation start time">
-              <BigNumberMetric mainText={operationStartTime} size="small" />
+            <DetailsMetric title={Messages.titles.operationStartTime}>
+              <BigNumberMetric mainText={format(new Date(operationStartTime), TIME_FORMAT)} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title="Data capture time">
-              <BigNumberMetric mainText={queryCollectTime} size="small" />
+            <DetailsMetric title={Messages.titles.dataCaptureTime}>
+              <BigNumberMetric mainText={format(new Date(queryCollectTime), TIME_FORMAT)} size="small" />
             </DetailsMetric>
           </GridItem>
         </Grid>

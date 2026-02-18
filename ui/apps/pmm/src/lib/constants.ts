@@ -53,3 +53,5 @@ export const DOCS_URLS = {
   qan: 'https://per.co.na/QAN',
   forums: 'https://per.co.na/PMM3_forums',
 };
+
+export const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
