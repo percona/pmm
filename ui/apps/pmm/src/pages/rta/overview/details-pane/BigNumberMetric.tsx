@@ -1,27 +1,30 @@
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import UnavailableText from 'components/unavailable-text';
 import { FC } from 'react';
 
 type Props = {
   mainText?: string;
   subText?: string;
-  tertiaryText?: string;
   size?: 'small' | 'medium';
 };
 
-const BigNumberMetric: FC<Props> = ({
-  mainText,
-  subText,
-  tertiaryText,
-  size = 'medium',
-}) => (
-  <span style={{ display: 'inline-flex', alignItems: 'baseline' }}>
-    <Typography
-      variant={size === 'small' ? 'body1' : 'h5'}
-      fontWeight="600"
-      fontFamily="Roboto Mono, monospace"
-    >
-      {mainText || 'N/A'}
-    </Typography>
+const BigNumberMetric: FC<Props> = ({ mainText, subText, size = 'medium' }) => (
+  <Box style={{ display: 'flex', alignItems: 'baseline' }}>
+    {mainText ? (
+      <Typography
+        variant={size === 'small' ? 'body1' : 'h5'}
+        fontWeight="600"
+        fontFamily="Roboto Mono, monospace"
+        overflow="hidden"
+        textOverflow="ellipsis"
+        whiteSpace="nowrap"
+      >
+        {mainText}
+      </Typography>
+    ) : (
+      <UnavailableText />
+    )}
     {subText && (
       <Typography
         variant="body2"
@@ -32,18 +35,7 @@ const BigNumberMetric: FC<Props> = ({
         {subText}
       </Typography>
     )}
-    {tertiaryText && (
-      <Typography
-        variant="body2"
-        color="text.disabled"
-        fontWeight="400"
-        fontFamily="Roboto Mono, monospace"
-        ml={2}
-      >
-        {tertiaryText}
-      </Typography>
-    )}
-  </span>
+  </Box>
 );
 
 export default BigNumberMetric;

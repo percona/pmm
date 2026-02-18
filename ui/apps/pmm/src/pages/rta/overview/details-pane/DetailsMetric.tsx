@@ -12,7 +12,7 @@ type Props = {
 const DetailsMetric: FC<Props> = ({ title, subtitle, children }) => {
   return (
     <Stack>
-      <span style={{ display: 'inline-flex', alignItems: 'baseline' }}>
+      <span>
         <Typography variant="body1" fontFamily="Poppins" fontWeight="600">
           {title}
         </Typography>

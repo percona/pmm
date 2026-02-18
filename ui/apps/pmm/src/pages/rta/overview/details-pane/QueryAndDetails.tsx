@@ -1,10 +1,13 @@
 import Grid from '@mui/material/Grid';
 import { FC } from 'react';
+import { format } from 'date-fns';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from 'types/rta.types';
 import DetailsMetric from './DetailsMetric';
 import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';
+import formatDuration from 'date-fns/formatDuration';
+import { TIME_FORMAT } from 'lib/constants';
 
 type Props = {
   queryData: QueryData;
@@ -20,7 +23,7 @@ const QueryAndDetails: FC<Props> = ({
   queryData: {
     queryText,
     queryId,
-    queryExecutionDuration,
+    queryExecutionDurationMs,
     queryCollectTime,
     serviceName,
     clientAddress,
@@ -36,6 +39,21 @@ const QueryAndDetails: FC<Props> = ({
     },
   },
 }) => {
+  const formattedQueryExecutionDuration = queryExecutionDurationMs
+    ? formatDuration(
+        {
+          seconds: queryExecutionDurationMs,
+        },
+        {
+          format: ['seconds'],
+        }
+      )
+    : '';
+
+  const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration
+    ? formattedQueryExecutionDuration.split(' ')
+    : [];
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={6}>
@@ -48,19 +66,42 @@ const QueryAndDetails: FC<Props> = ({
           <GridItem>
             <DetailsMetric title={Messages.titles.elapsedExecTime}>
               <BigNumberMetric
-                mainText={queryExecutionDuration ?? undefined}
-                subText={queryExecutionDuration ? 'ms' : undefined}
+                mainText={
+                  formattedQueryExecutionDurationParts.length > 1
+                    ? formattedQueryExecutionDurationParts[0]
+                    : undefined
+                }
+                subText={
+                  formattedQueryExecutionDurationParts.length > 1
+                    ? formattedQueryExecutionDurationParts[1]
+                    : undefined
+                }
               />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.planSummary}>
-              <BigNumberMetric mainText={planSummary} size="small" />
+            <DetailsMetric title={Messages.titles.dbInstanceAddress}>
+              <BigNumberMetric mainText={dbInstanceAddress} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.host}>
+              <BigNumberMetric mainText={clientAddress} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.databaseName}>
               <BigNumberMetric mainText={databaseName} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.service}>
+              <BigNumberMetric mainText={serviceName} size="small" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.username}>
+              <BigNumberMetric mainText={username} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
@@ -74,23 +115,8 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.username}>
-              <BigNumberMetric mainText={username} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title={Messages.titles.host}>
-              <BigNumberMetric mainText={clientAddress} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title={Messages.titles.service}>
-              <BigNumberMetric mainText={serviceName} size="small" />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric title={Messages.titles.dbInstanceAddress}>
-              <BigNumberMetric mainText={dbInstanceAddress} size="small" />
+            <DetailsMetric title={Messages.titles.planSummary}>
+              <BigNumberMetric mainText={planSummary} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
@@ -100,12 +126,18 @@ const QueryAndDetails: FC<Props> = ({
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.operationStartTime}>
-              <BigNumberMetric mainText={operationStartTime} size="small" />
+              <BigNumberMetric
+                mainText={format(new Date(operationStartTime), TIME_FORMAT)}
+                size="small"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.dataCaptureTime}>
-              <BigNumberMetric mainText={queryCollectTime} size="small" />
+              <BigNumberMetric
+                mainText={format(new Date(queryCollectTime), TIME_FORMAT)}
+                size="small"
+              />
             </DetailsMetric>
           </GridItem>
         </Grid>
