@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import Typography, { TypographyProps } from '@mui/material/Typography';
 import UnavailableText from 'components/unavailable-text';
 import { FC } from 'react';
 
@@ -7,9 +7,13 @@ type Props = {
   mainText?: string;
   subText?: string;
   size?: 'small' | 'medium';
+  props?: {
+    mainText?: TypographyProps;
+    subText?: TypographyProps;
+  }
 };
 
-const BigNumberMetric: FC<Props> = ({ mainText, subText, size = 'medium' }) => (
+const BigNumberMetric: FC<Props> = ({ mainText, subText, size = 'medium', props }) => (
   <Box style={{ display: 'flex', alignItems: 'baseline' }}>
     {mainText ? (
       <Typography
@@ -19,6 +23,7 @@ const BigNumberMetric: FC<Props> = ({ mainText, subText, size = 'medium' }) => (
         overflow="hidden"
         textOverflow="ellipsis"
         whiteSpace="nowrap"
+        {...props?.mainText}
       >
         {mainText}
       </Typography>
@@ -31,6 +36,7 @@ const BigNumberMetric: FC<Props> = ({ mainText, subText, size = 'medium' }) => (
         fontWeight="400"
         fontFamily="Roboto Mono, monospace"
         ml={0.5}
+        {...props?.subText}
       >
         {subText}
       </Typography>
