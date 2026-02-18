@@ -276,13 +276,14 @@ func buildCurrentOpsPipeline() mongo.Pipeline {
 
 	/*
 		The matchStage below equal to the following aggregation pipeline in MongoDB shell,
-		which filters out operations from RTA agent itself and internal MongoDB tools, and gets only active operations/commands:
+		which filters out operations from RTA agent itself and internal MongoDB tools, and gets only active operations/commands
+		with execution time => 0.01s:
 		db.aggregate([
 		    { $currentOp : { allUsers: true, idleSessions: false,  idleCursors:false, idleConnections:false} },
 		    { $match : {
 		        $and: [
 		            { active: true}
-					{"microsecs_running": {$ne: null}},
+					{"microsecs_running": {$gte: 10_000}},
 		            { "desc": {$nin: ["Checkpointer", "JournalFlusher"]}},
 		            {"appName": {$not: {$regex: "^(rta-mongodb-.*$)"}}},
 		            ],
@@ -296,8 +297,8 @@ func buildCurrentOpsPipeline() mongo.Pipeline {
 				Key: "$and", Value: bson.A{
 					// Get operations/commands that are active.
 					bson.D{{Key: "active", Value: true}},
-					// Get operations/commands that have execution duration.
-					bson.D{{Key: "microsecs_running", Value: bson.D{{Key: "$ne", Value: nil}}}},
+					// Get operations/commands that have execution duration => 0.01s.
+					bson.D{{Key: "microsecs_running", Value: bson.D{{Key: "$gte", Value: 10_000}}}}, //nolint:mnd
 					// Exclude operations from internal MongoDB tools.
 					bson.D{{Key: "desc", Value: bson.D{{Key: "$nin", Value: bson.A{"Checkpointer", "JournalFlusher"}}}}},
 					// Exclude operations from RTA agent itself.

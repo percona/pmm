@@ -59,7 +59,10 @@ func parseGenericFields(raw bson.Raw, q *rtav1.QueryData) {
 	}
 
 	if usRunning, ok := raw.Lookup("microsecs_running").Int64OK(); ok {
-		q.QueryExecutionDuration = durationpb.New(time.Duration(usRunning) * time.Microsecond)
+		d := time.Duration(usRunning) * time.Microsecond
+		// Round duration to 0.01s to avoid too much precision,
+		// because it doesn't make sense to have microsecond precision in query execution time.
+		q.QueryExecutionDuration = durationpb.New(d.Round(10 * time.Millisecond)) //nolint:mnd
 	}
 
 	q.ClientAddress, _ = raw.Lookup("client").StringValueOK()
