@@ -343,7 +343,10 @@ telemetry:
       - metric_name: "redis_version"
         label: "version"
       - metric_name: "valkey_redis_service_type"
-        label: "service_type"        
+        label: "service_type"
+      - metric_name: "valkey_redis_role"
+        label: "role"
+
   #
   - id: GrafanaStatTotalUsers
     source: VM
