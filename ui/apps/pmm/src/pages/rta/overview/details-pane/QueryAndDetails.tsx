@@ -41,13 +41,13 @@ const QueryAndDetails: FC<Props> = ({
 }) => {
   const formattedQueryExecutionDuration = queryExecutionDurationMs
     ? formatDuration(
-        {
-          seconds: queryExecutionDurationMs,
-        },
-        {
-          format: ['seconds'],
-        }
-      )
+      {
+        seconds: queryExecutionDurationMs,
+      },
+      {
+        format: ['seconds'],
+      }
+    )
     : '';
 
   const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration
@@ -116,7 +116,13 @@ const QueryAndDetails: FC<Props> = ({
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.planSummary}>
-              <BigNumberMetric mainText={planSummary} size="small" />
+              <BigNumberMetric mainText={planSummary.replace(/,/g, ',\n')} props={{
+                mainText: {
+                  overflow: 'visible',
+                  textOverflow: 'clip',
+                  whiteSpace: 'pre',
+                }
+              }} size="small" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
