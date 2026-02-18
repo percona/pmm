@@ -72,7 +72,7 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.host}>
+            <DetailsMetric title={Messages.titles.clientAddress}>
               <BigNumberMetric mainText={clientAddress} size="small" />
             </DetailsMetric>
           </GridItem>

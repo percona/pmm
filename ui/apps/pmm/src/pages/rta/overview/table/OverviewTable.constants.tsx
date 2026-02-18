@@ -15,7 +15,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   },
   {
     header: Messages.columns.host,
-    accessorKey: 'clientAddress',
+    accessorKey: 'serviceName',
   },
   {
     header: Messages.columns.operationId,

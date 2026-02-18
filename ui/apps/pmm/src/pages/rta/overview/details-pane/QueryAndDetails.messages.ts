@@ -11,7 +11,7 @@ export const Messages = {
     clientAppName: 'Client app name',
     operationStartTime: 'Operation start time',
     dataCaptureTime: 'Data capture time',
-    host: 'Client address',
+    clientAddress: 'Client address',
     service: 'Service',
   },
 };
