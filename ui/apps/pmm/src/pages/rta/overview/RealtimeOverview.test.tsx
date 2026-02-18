@@ -120,7 +120,7 @@ describe('RealtimeOverview', () => {
   it('should be paused if no services are selected', () => {
     renderComponent({ initialEntry: '/rta/overview' });
 
-    expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
+    expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
     expect(
       screen.getByTestId('overview-table-resume-button')
     ).toBeInTheDocument();
@@ -134,9 +134,7 @@ describe('RealtimeOverview', () => {
         '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
 
     expect(
       screen.getByTestId('overview-table-pause-button')
@@ -150,16 +148,12 @@ describe('RealtimeOverview', () => {
         '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
 
     const clearButton = await waitFor(() => screen.findByTitle('Clear'));
     fireEvent.click(clearButton);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
     expect(
       screen.getByTestId('overview-table-resume-button')
     ).toBeInTheDocument();
@@ -171,16 +165,12 @@ describe('RealtimeOverview', () => {
         '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
 
     const pauseButton = screen.getByTestId('overview-table-pause-button');
     fireEvent.click(pauseButton);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
 
     expect(
       screen.getByTestId('overview-table-resume-button')
@@ -194,25 +184,19 @@ describe('RealtimeOverview', () => {
         '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
 
     // First pause
     const pauseButton = screen.getByTestId('overview-table-pause-button');
     fireEvent.click(pauseButton);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
 
     // Then resume
     const resumeButton = screen.getByTestId('overview-table-resume-button');
     fireEvent.click(resumeButton);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
 
     expect(
       screen.getByTestId('overview-table-pause-button')
@@ -225,9 +209,7 @@ describe('RealtimeOverview', () => {
       initialEntry: '/rta/overview',
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
 
     const openButton = await waitFor(() => screen.findByTitle('Open'));
     fireEvent.click(openButton);
@@ -239,9 +221,7 @@ describe('RealtimeOverview', () => {
     );
     fireEvent.click(serviceOption);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
     expect(
       screen.getByTestId('overview-table-pause-button')
     ).toBeInTheDocument();
@@ -253,16 +233,12 @@ describe('RealtimeOverview', () => {
         '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-on')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
 
     const pauseButton = screen.getByTestId('overview-table-pause-button');
     fireEvent.click(pauseButton);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
 
     const openButton = await waitFor(() => screen.findByTitle('Open'));
     fireEvent.click(openButton);
@@ -274,11 +250,59 @@ describe('RealtimeOverview', () => {
     );
     fireEvent.click(serviceOption);
 
-    await waitFor(() => {
-      expect(screen.getByTestId('fetching-indicator-off')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
     expect(
       screen.getByTestId('overview-table-resume-button')
     ).toBeInTheDocument();
+  });
+
+  it('doesnt show refresh button if no services are selected', () => {
+    renderComponent({
+      initialEntry: '/rta/overview',
+    });
+
+    expect(
+      screen.queryByTestId('overview-table-refresh-button')
+    ).not.toBeInTheDocument();
+  });
+
+  it("doesn't show refresh button when fetching", () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    expect(
+      screen.queryByTestId('overview-table-refresh-button')
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows refresh button if paused', () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    const pauseButton = screen.getByTestId('overview-table-pause-button');
+    fireEvent.click(pauseButton);
+
+    expect(
+      screen.getByTestId('overview-table-refresh-button')
+    ).toBeInTheDocument();
+  });
+
+  it('refresh button fetches queries', () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    const pauseButton = screen.getByTestId('overview-table-pause-button');
+    fireEvent.click(pauseButton);
+
+    const refreshButton = screen.getByTestId('overview-table-refresh-button');
+    fireEvent.click(refreshButton);
+
+    expect(searchQueries).toHaveBeenCalled();
   });
 });

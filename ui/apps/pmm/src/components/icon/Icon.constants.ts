@@ -53,6 +53,7 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'electric-bolt-off': () => import('icons/electric-bolt-off.svg?react'),
   'play-arrow': () => import('icons/play-arrow.svg?react'),
   pause: () => import('icons/pause.svg?react'),
+  refresh: () => import('icons/refresh.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<
