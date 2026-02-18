@@ -11,7 +11,7 @@ const renderComponent = () =>
     </ThemeProvider>
   );
 
-describe.skip('QueryAndDetails', () => {
+describe('QueryAndDetails', () => {
   it('renders the query text in a syntax highlighter', () => {
     renderComponent();
 
@@ -34,16 +34,11 @@ describe.skip('QueryAndDetails', () => {
     renderComponent();
 
     expect(screen.getByText('Elapsed exec. time')).toBeInTheDocument();
-    // expect(screen.getByText('20')).toBeInTheDocument();
-    // expect(screen.getByText('ms')).toBeInTheDocument();
   });
 
   it('renders plan summary metric', () => {
     renderComponent();
 
     expect(screen.getByText('Plan summary')).toBeInTheDocument();
-    // expect(
-    //   screen.getByText('Full collection scan (COLLSCAN)')
-    // ).toBeInTheDocument();
   });
 });
