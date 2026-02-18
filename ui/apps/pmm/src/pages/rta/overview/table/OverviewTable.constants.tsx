@@ -8,7 +8,7 @@ import UnavailableText from 'components/unavailable-text';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
-    minSize: 400,
+    size: 400,
     header: Messages.columns.queryText,
     accessorKey: 'queryText',
     filterFn: 'contains',

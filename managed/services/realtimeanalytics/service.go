@@ -381,22 +381,15 @@ func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest
 		return status.Error(codes.Unauthenticated, "Failed to receive agent metadata")
 	}
 
-	err = s.db.InTransactionContext(streamCtx, nil, func(tx *reform.TX) error {
-		// Validate that the pmm-agent exists
-		agent, err := models.FindAgentByID(tx.Querier, agentMD.ID)
-		if err != nil {
-			return err
-		}
-
-		if agent.AgentType != models.PMMAgentType {
-			return status.Errorf(codes.InvalidArgument, "Agent with ID %s is not a pmm-agent", agentMD.ID)
-		}
-
-		return nil
-	})
+	// Validate that the pmm-agent exists
+	agent, err := models.FindAgentByID(s.db.Querier, agentMD.ID)
 	if err != nil {
 		l.Warnf("Disconnecting client: agent validation failed: %v", err)
 		return status.Error(codes.InvalidArgument, "Invalid Agent ID: "+agentMD.ID)
+	}
+
+	if agent.AgentType != models.PMMAgentType {
+		return status.Errorf(codes.InvalidArgument, "Agent with ID %s is not a pmm-agent", agentMD.ID)
 	}
 
 	for {
