@@ -1,14 +1,13 @@
-import Grid from "@mui/material/Grid";
-import { FC } from "react";
-import { format } from "date-fns";
+import Grid from '@mui/material/Grid';
+import { FC } from 'react';
+import { format } from 'date-fns';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
-import { QueryData } from "types/rta.types";
-import DetailsMetric from "./DetailsMetric";
-import BigNumberMetric from "./BigNumberMetric";
-import { Messages } from "./QueryAndDetails.messages";
-import formatDuration from "date-fns/formatDuration";
-import { TIME_FORMAT } from "lib/constants";
-
+import { QueryData } from 'types/rta.types';
+import DetailsMetric from './DetailsMetric';
+import BigNumberMetric from './BigNumberMetric';
+import { Messages } from './QueryAndDetails.messages';
+import formatDuration from 'date-fns/formatDuration';
+import { TIME_FORMAT } from 'lib/constants';
 
 type Props = {
   queryData: QueryData;
@@ -38,16 +37,22 @@ const QueryAndDetails: FC<Props> = ({
       clientAppName,
       operationStartTime,
     },
-  }
+  },
 }) => {
+  const formattedQueryExecutionDuration = queryExecutionDurationMs
+    ? formatDuration(
+        {
+          seconds: queryExecutionDurationMs,
+        },
+        {
+          format: ['seconds'],
+        }
+      )
+    : '';
 
-  const formattedQueryExecutionDuration = queryExecutionDurationMs ? formatDuration({
-    seconds: queryExecutionDurationMs,
-  }, {
-    format: ['seconds'],
-  }) : '';
-
-  const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration ? formattedQueryExecutionDuration.split(' ') : [];
+  const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration
+    ? formattedQueryExecutionDuration.split(' ')
+    : [];
 
   return (
     <Grid container spacing={3}>
@@ -61,8 +66,16 @@ const QueryAndDetails: FC<Props> = ({
           <GridItem>
             <DetailsMetric title={Messages.titles.elapsedExecTime}>
               <BigNumberMetric
-                mainText={formattedQueryExecutionDurationParts.length > 1 ? formattedQueryExecutionDurationParts[0] : undefined}
-                subText={formattedQueryExecutionDurationParts.length > 1 ? formattedQueryExecutionDurationParts[1] : undefined}
+                mainText={
+                  formattedQueryExecutionDurationParts.length > 1
+                    ? formattedQueryExecutionDurationParts[0]
+                    : undefined
+                }
+                subText={
+                  formattedQueryExecutionDurationParts.length > 1
+                    ? formattedQueryExecutionDurationParts[1]
+                    : undefined
+                }
               />
             </DetailsMetric>
           </GridItem>
@@ -113,12 +126,18 @@ const QueryAndDetails: FC<Props> = ({
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.operationStartTime}>
-              <BigNumberMetric mainText={format(new Date(operationStartTime), TIME_FORMAT)} size="small" />
+              <BigNumberMetric
+                mainText={format(new Date(operationStartTime), TIME_FORMAT)}
+                size="small"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.dataCaptureTime}>
-              <BigNumberMetric mainText={format(new Date(queryCollectTime), TIME_FORMAT)} size="small" />
+              <BigNumberMetric
+                mainText={format(new Date(queryCollectTime), TIME_FORMAT)}
+                size="small"
+              />
             </DetailsMetric>
           </GridItem>
         </Grid>
@@ -132,7 +151,12 @@ const QueryAndDetails: FC<Props> = ({
           overflow: 'auto',
         }}
       >
-        <SyntaxHighlighter language="mongodb" showLineNumbers={true} showCopyButton content={queryText} />
+        <SyntaxHighlighter
+          language="mongodb"
+          showLineNumbers={true}
+          showCopyButton
+          content={queryText}
+        />
       </Grid>
     </Grid>
   );

@@ -54,7 +54,18 @@ const DetailsPane: FC<Props> = ({
           zIndex: theme.zIndex.modal,
         })}
       >
-        <Stack direction="row" justifyContent="space-between" sx={{ borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'inherit' }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          sx={{
+            borderBottom: 1,
+            borderColor: 'divider',
+            position: 'sticky',
+            top: 0,
+            zIndex: 1,
+            backgroundColor: 'inherit',
+          }}
+        >
           <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)}>
             <Tab
               data-testid="details-pane-details-tab"
@@ -104,11 +115,15 @@ const DetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
-            {tab === 'details' && (
-              <QueryAndDetails queryData={query} />
-            )}
+            {tab === 'details' && <QueryAndDetails queryData={query} />}
             {tab === 'raw-data' && (
-              <SyntaxHighlighter language="json" content={query.queryRawJson} showCopyButton showLineNumbers maxHeight="80vh" />
+              <SyntaxHighlighter
+                language="json"
+                content={query.queryRawJson}
+                showCopyButton
+                showLineNumbers
+                maxHeight="80vh"
+              />
             )}
           </CardContent>
         ) : null}
