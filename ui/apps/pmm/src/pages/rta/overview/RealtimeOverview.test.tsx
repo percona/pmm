@@ -266,7 +266,7 @@ describe('RealtimeOverview', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('doesnt show refresh button when fetching`', () => {
+  it("doesn't show refresh button when fetching", () => {
     renderComponent({
       initialEntry:
         '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
@@ -289,5 +289,20 @@ describe('RealtimeOverview', () => {
     expect(
       screen.getByTestId('overview-table-refresh-button')
     ).toBeInTheDocument();
+  });
+
+  it('refresh button fetches queries', () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    const pauseButton = screen.getByTestId('overview-table-pause-button');
+    fireEvent.click(pauseButton);
+
+    const refreshButton = screen.getByTestId('overview-table-refresh-button');
+    fireEvent.click(refreshButton);
+
+    expect(searchQueries).toHaveBeenCalled();
   });
 });

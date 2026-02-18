@@ -1,4 +1,4 @@
-import { TextSelectOption } from 'components/text-select/TextSelect.types';
+import type { TextSelectOption } from 'components/text-select/TextSelect.types';
 
 export const REFRESH_INTERVAL_OPTIONS: TextSelectOption<number>[] = [
   {

@@ -1,4 +1,4 @@
-import { ButtonProps } from '@mui/material/Button';
+import type { ButtonProps } from '@mui/material/Button';
 
 export interface TextSelectOption<T> {
   label: string;
