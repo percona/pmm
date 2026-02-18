@@ -18,13 +18,4 @@ Currently, our development team has fewer people than components/repositories. I
 - [gocoverutil](https://github.com/AlekSi/gocoverutil) gather code coverage metrics.
 - [Docker Compose](https://docs.docker.com/compose/) is used for a local development environment and in CI.
 - [Kong](https://github.com/alecthomas/kong) for PMM CLI and [kingpin.v2](http://gopkg.in/alecthomas/kingpin.v2) for exporters and some other code. Use [Kong](https://github.com/alecthomas/kong) if you want to contribute a brand new CLI or need to make significant changes to the old `kingpin.v2`-based CLI.
-- [go modules](https://go.dev/ref/mod#introduction) for vendoring.
-
-## Open questions
-
-- Do we need something else for tracing?
-- Do we need something for integration tests? Something like https://github.com/go-gophers/gophers?
-- Configuration library? Files, flags, environment variables?
-- Build system:
-  - Use promu so we don't have to copy&paste Makefiles everywhere? It also has a nice cross-build functionality, it can build containers, it has license checking tools.
-  - Consider [Go Releaser](https://goreleaser.com)?
+- [go modules](https://go.dev/ref/mod#introduction) for dependency management.
