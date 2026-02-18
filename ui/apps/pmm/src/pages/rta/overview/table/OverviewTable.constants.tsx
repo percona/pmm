@@ -11,11 +11,12 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     minSize: 400,
     header: Messages.columns.queryText,
     accessorKey: 'queryText',
+    filterFn: 'fuzzy',
     Cell: ({ row }) => <QueryCell query={row.original.queryText} />,
   },
   {
     header: Messages.columns.host,
-    accessorKey: 'clientAddress',
+    accessorKey: 'serviceName',
   },
   {
     header: Messages.columns.operationId,

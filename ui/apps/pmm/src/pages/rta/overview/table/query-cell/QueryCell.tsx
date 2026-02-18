@@ -7,7 +7,7 @@ export interface Props {
 
 const QueryCell: FC<Props> = ({ query }) => (
   <CodeBlock
-    code={query}
+    code={query.replace(/[\n\r\t]/g, '').replace(/\s{2,}/g, ' ').trim()}
     containerProps={{
       sx: {
         width: '100%',
