@@ -11,7 +11,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     minSize: 400,
     header: Messages.columns.queryText,
     accessorKey: 'queryText',
-    filterFn: 'fuzzy',
+    filterFn: 'contains',
     Cell: ({ row }) => <QueryCell query={row.original.queryText} />,
   },
   {
