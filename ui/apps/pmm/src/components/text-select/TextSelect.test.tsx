@@ -1,7 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TextSelect } from './TextSelect';
 import { TextSelectOption } from './TextSelect.types';
-import { Icon } from 'components/icon';
 
 const OPTIONS: TextSelectOption<string>[] = [
   {
