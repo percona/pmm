@@ -26,9 +26,9 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     header: Messages.columns.elapsedTime,
     accessorKey: 'queryExecutionDurationMs',
     filterVariant: 'range',
-    filterFn: 'between',
+    filterFn: 'timeRangeFilterFn',
     Cell: ({ cell }) => cell.getValue() ? `${formatDuration({
-      seconds: cell.getValue() as number / 1000,
+      seconds: cell.getValue<number>(),
     }, {
       format: ['seconds'],
     })}` : <UnavailableText />,

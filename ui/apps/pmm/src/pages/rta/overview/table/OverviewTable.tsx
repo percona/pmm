@@ -40,6 +40,29 @@ const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
       enableRowHoverAction
       rowHoverAction={(row) => onQuerySelected(row.original, row.index)}
       renderTopToolbarCustomActions={actions}
+      filterFns={{
+        // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds
+        timeRangeFilterFn: (row, id, filterValue) => {
+          const [min, max] = filterValue;
+          if (min === '' || max === '' || min === null || max === null || min === undefined || max === undefined) {
+            return true
+          }
+
+          if (Number.isNaN(min) || Number.isNaN(max)) {
+            return false
+          }
+
+          const minSeconds = parseFloat(min);
+          const maxSeconds = parseFloat(max);
+
+          const valueSeconds = row.getValue<number>(id);
+          if (valueSeconds === null || valueSeconds === undefined) {
+            return false
+          }
+
+          return valueSeconds >= minSeconds && valueSeconds <= maxSeconds;
+        }
+      }}
     />
   </RealtimeTableWrapper>
 );

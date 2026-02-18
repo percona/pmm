@@ -158,7 +158,7 @@ export const useRealtimeQueries = (
       data.map((query) => ({
         ...query,
         queryExecutionDurationMs: query.queryExecutionDuration
-          ? parseDuration(query.queryExecutionDuration)
+          ? parseDuration(query.queryExecutionDuration) / 1000
           : null,
       })),
     ...options,
