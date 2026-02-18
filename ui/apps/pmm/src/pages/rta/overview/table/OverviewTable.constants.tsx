@@ -27,10 +27,18 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     accessorKey: 'queryExecutionDurationMs',
     filterVariant: 'range',
     filterFn: 'timeRangeFilterFn',
-    Cell: ({ cell }) => cell.getValue() ? `${formatDuration({
-      seconds: cell.getValue<number>(),
-    }, {
-      format: ['seconds'],
-    })}` : <UnavailableText />,
+    Cell: ({ cell }) =>
+      cell.getValue() ? (
+        `${formatDuration(
+          {
+            seconds: cell.getValue<number>(),
+          },
+          {
+            format: ['seconds'],
+          }
+        )}`
+      ) : (
+        <UnavailableText />
+      ),
   },
 ];

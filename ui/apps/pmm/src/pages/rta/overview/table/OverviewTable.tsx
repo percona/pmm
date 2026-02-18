@@ -44,12 +44,19 @@ const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
         // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds
         timeRangeFilterFn: (row, id, filterValue) => {
           const [min, max] = filterValue;
-          if (min === '' || max === '' || min === null || max === null || min === undefined || max === undefined) {
-            return true
+          if (
+            min === '' ||
+            max === '' ||
+            min === null ||
+            max === null ||
+            min === undefined ||
+            max === undefined
+          ) {
+            return true;
           }
 
           if (Number.isNaN(min) || Number.isNaN(max)) {
-            return false
+            return false;
           }
 
           const minSeconds = parseFloat(min);
@@ -57,11 +64,11 @@ const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
 
           const valueSeconds = row.getValue<number>(id);
           if (valueSeconds === null || valueSeconds === undefined) {
-            return false
+            return false;
           }
 
           return valueSeconds >= minSeconds && valueSeconds <= maxSeconds;
-        }
+        },
       }}
     />
   </RealtimeTableWrapper>

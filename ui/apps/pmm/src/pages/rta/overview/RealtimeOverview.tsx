@@ -11,17 +11,18 @@ import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
-import { FetchingIndicator } from './fetching-indicator';
+import { AutoRefreshSelect } from './auto-refresh-select';
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const serviceIds = searchParams.getAll('serviceIds');
   const [fetching, setFetching] = useState(serviceIds.length > 0);
-  const { data: queries = [] } = useRealtimeQueries(
+  const [refreshInterval, setRefreshInterval] = useState(2000);
+  const { data: queries = [], refetch } = useRealtimeQueries(
     { serviceIds },
     {
       enabled: fetching,
-      refetchInterval: 5000,
+      refetchInterval: refreshInterval,
     }
   );
   const [selectedQueryIndex, setSelectedQueryIndex] = useState<number>();
@@ -104,7 +105,11 @@ const RealtimeOverviewPage: FC = () => {
                   }}
                 />
               </Stack>
-              <FetchingIndicator isFetching={fetching} />
+              <AutoRefreshSelect
+                isFetching={fetching}
+                refreshInterval={refreshInterval}
+                onRefreshIntervalChange={setRefreshInterval}
+              />
               <Button
                 data-testid={
                   fetching
@@ -127,6 +132,22 @@ const RealtimeOverviewPage: FC = () => {
               >
                 {fetching ? Messages.pause : Messages.resume}
               </Button>
+              {!fetching && serviceIds.length !== 0 && (
+                <Button
+                  data-testid="overview-table-refresh-button"
+                  size="small"
+                  startIcon={<Icon name="refresh" />}
+                  onClick={() => refetch()}
+                  color="inherit"
+                  disableElevation
+                  sx={{
+                    width: 100,
+                    height: 36,
+                  }}
+                >
+                  {Messages.refresh}
+                </Button>
+              )}
             </Stack>
             <Button
               color="inherit"

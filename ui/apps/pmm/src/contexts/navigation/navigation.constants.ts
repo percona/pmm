@@ -383,6 +383,7 @@ export const NAV_QAN: NavItem = {
   icon: 'qan',
   text: 'Query Analytics (QAN)',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`,
+  matches: ['*', `${PMM_NEW_NAV_PATH}/rta/*`],
 };
 
 //
