@@ -5,9 +5,6 @@ import { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import { Icon } from 'components/icon';
-import Stack from '@mui/material/Stack';
 import { Messages } from './OverviewTable.messages';
 
 interface Props {
@@ -43,43 +40,28 @@ const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
       enableRowHoverAction
       rowHoverAction={(row) => onQuerySelected(row.original, row.index)}
       renderTopToolbarCustomActions={actions}
-      enableRowActions
-      renderRowActions={({ row }) => (
-        <Stack
-          className="row-actions"
-          justifyContent="center"
-          alignItems="center"
-          sx={{
-            flex: 1,
-            height: '100%',
-            display: 'none',
-          }}
-        >
-          <IconButton
-            color="inherit"
-            data-testid="open-query-details"
-            aria-label={Messages.actions.openDetails}
-            onClick={() => onQuerySelected(row.original, row.index)}
-          >
-            <Icon name="bottom-panel-open" />
-          </IconButton>
-        </Stack>
-      )}
-      // Show the row actions only on hover
-      muiTableBodyRowProps={{
-        sx: {
-          '&:hover .row-actions': {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          },
-        },
-      }}
-      displayColumnDefOptions={{
-        'mrt-row-actions': {
-          header: '',
-          size: 56,
-        },
+      filterFns={{
+        // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds
+        timeRangeFilterFn: (row, id, filterValue) => {
+          const [min, max] = filterValue;
+          if (min === '' || max === '' || min === null || max === null || min === undefined || max === undefined) {
+            return true
+          }
+
+          if (Number.isNaN(min) || Number.isNaN(max)) {
+            return false
+          }
+
+          const minSeconds = parseFloat(min);
+          const maxSeconds = parseFloat(max);
+
+          const valueSeconds = row.getValue<number>(id);
+          if (valueSeconds === null || valueSeconds === undefined) {
+            return false
+          }
+
+          return valueSeconds >= minSeconds && valueSeconds <= maxSeconds;
+        }
       }}
     />
   </RealtimeTableWrapper>

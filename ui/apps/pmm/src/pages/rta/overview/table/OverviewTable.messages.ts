@@ -1,9 +1,9 @@
 export const Messages = {
   columns: {
     queryText: 'Query text',
-    service: 'Service',
+    host: 'Host',
+    operationId: 'Operation ID',
     elapsedTime: 'Elapsed time',
-    state: 'State',
   },
   actions: {
     openDetails: 'Open query details',

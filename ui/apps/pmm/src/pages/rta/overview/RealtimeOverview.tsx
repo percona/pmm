@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
@@ -26,18 +26,21 @@ const RealtimeOverviewPage: FC = () => {
   );
   const [selectedQueryIndex, setSelectedQueryIndex] = useState<number>();
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
+  // We need to store the previous fetching state to restore it when the details pane is closed
+  const previousFetchingState = useRef<boolean>(fetching);
   const { data: sessions = [] } = useRealtimeSessions();
 
   const handleQueryChange = (query: QueryData, index: number) => {
     setSelectedQuery(query);
     setSelectedQueryIndex(index);
+    previousFetchingState.current = fetching;
     setFetching(false);
   };
 
   const handleCloseDetails = () => {
     setSelectedQuery(undefined);
     setSelectedQueryIndex(undefined);
-    setFetching(true);
+    setFetching(previousFetchingState.current);
   };
 
   const handleNextQuery = () => {

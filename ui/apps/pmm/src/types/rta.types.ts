@@ -35,21 +35,10 @@ export interface SearchQueriesPayload {
 }
 
 export interface SearchQueriesResponse {
-  queries: QueryData[];
+  queries: RawQueryData[];
 }
 
-export interface RawQueryMongoDBData {
-  db_instance_address: string;
-  client_app_name: string;
-  database_name: string;
-  operation_start_time: string;
-  plan_summary: string;
-  operation: string;
-  username: string;
-  collection?: string;
-}
-
-export interface QueryData {
+export interface RawQueryData {
   serviceId: string;
   serviceName: string;
   queryId: string;
@@ -60,6 +49,10 @@ export interface QueryData {
   queryRawJson: string;
   mongoDbPayload: QueryMongoDBData;
 }
+
+export type QueryData = Exclude<RawQueryData, 'queryExecutionDuration'> & {
+  queryExecutionDurationMs?: number | null;
+};
 
 export interface QueryMongoDBData {
   dbInstanceAddress: string;
