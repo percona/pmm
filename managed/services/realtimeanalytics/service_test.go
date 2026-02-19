@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"slices"
 	"testing"
 	"time"
 
@@ -55,7 +54,7 @@ func getServiceQueries(serviceID, serviceName string, count int) []*rtav1.QueryD
 			ServiceName:            serviceName,
 			QueryId:                fmt.Sprintf("static-query-%d", i),
 			QueryText:              `{ find: "mycollection", filter: { status: "active" } }`,
-			QueryExecutionDuration: durationpb.New(15),
+			QueryExecutionDuration: durationpb.New(time.Duration(15 * i)),
 			QueryCollectTime:       timestamppb.Now(),
 			QueryRawJson:           `{ find: "mycollection", filter: { status: "active" } }`,
 			ClientAddress:          "127.0.0.1:5060",
@@ -548,18 +547,13 @@ func TestSearchQueries(t *testing.T) {
 		assert.NotNil(t, resp)
 		require.Len(t, resp.Queries, 2)
 
-		queryIDs := make([]string, len(resp.Queries))
-		for i, q := range resp.Queries {
-			queryIDs[i] = q.QueryId
-		}
+		assert.Equal(t, "static-query-1", resp.Queries[0].QueryId)
+		assert.Equal(t, service1.ServiceID, resp.Queries[0].ServiceId)
+		assert.Equal(t, service1.ServiceName, resp.Queries[0].ServiceName)
 
-		assert.Contains(t, queryIDs, "static-query-0")
-		assert.Contains(t, queryIDs, "static-query-1")
-
-		for i := range resp.Queries {
-			assert.Equal(t, service1.ServiceID, resp.Queries[i].ServiceId)
-			assert.Equal(t, service1.ServiceName, resp.Queries[i].ServiceName)
-		}
+		assert.Equal(t, "static-query-0", resp.Queries[1].QueryId)
+		assert.Equal(t, service1.ServiceID, resp.Queries[1].ServiceId)
+		assert.Equal(t, service1.ServiceName, resp.Queries[1].ServiceName)
 	})
 
 	t.Run("search all queries for service2", func(t *testing.T) {
@@ -587,24 +581,17 @@ func TestSearchQueries(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 		require.Len(t, resp.Queries, 3)
-		assert.True(t, slices.ContainsFunc(resp.Queries, func(q *rtav1.QueryData) bool {
-			return q.QueryId == "static-query-0" &&
-				q.ServiceId == service1.ServiceID &&
-				q.ServiceName == service1.ServiceName
-		}),
-		)
-		assert.True(t, slices.ContainsFunc(resp.Queries, func(q *rtav1.QueryData) bool {
-			return q.QueryId == "static-query-1" &&
-				q.ServiceId == service1.ServiceID &&
-				q.ServiceName == service1.ServiceName
-		}),
-		)
-		assert.True(t, slices.ContainsFunc(resp.Queries, func(q *rtav1.QueryData) bool {
-			return q.QueryId == "static-query-0" &&
-				q.ServiceId == service2.ServiceID &&
-				q.ServiceName == service2.ServiceName
-		}),
-		)
+		assert.Equal(t, "static-query-1", resp.Queries[0].QueryId)
+		assert.Equal(t, service1.ServiceID, resp.Queries[0].ServiceId)
+		assert.Equal(t, service1.ServiceName, resp.Queries[0].ServiceName)
+
+		assert.Equal(t, "static-query-0", resp.Queries[1].QueryId)
+		assert.Equal(t, service1.ServiceID, resp.Queries[1].ServiceId)
+		assert.Equal(t, service1.ServiceName, resp.Queries[1].ServiceName)
+
+		assert.Equal(t, "static-query-0", resp.Queries[2].QueryId)
+		assert.Equal(t, service2.ServiceID, resp.Queries[2].ServiceId)
+		assert.Equal(t, service2.ServiceName, resp.Queries[2].ServiceName)
 	})
 
 	t.Run("search all queries for absent service", func(t *testing.T) {
