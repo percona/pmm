@@ -339,9 +339,9 @@ telemetry:
     summary: "Monitored Valkey/Redis services version and info"
     data:
       - metric_name: "valkey_version"
-        label: "version"   
+        label: "valkey_version"   
       - metric_name: "redis_version"
-        label: "version"
+        label: "redis_version"
       - metric_name: "valkey_redis_service_type"
         label: "service_type"
       - metric_name: "valkey_redis_role"
