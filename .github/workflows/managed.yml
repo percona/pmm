@@ -49,7 +49,7 @@ jobs:
             ~/go-build-cache
             ~/go-mod-cache
           key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-              
+          restore-keys: ${{ runner.os }}-go-
 
       - name: Launch PMM Server
         run: |
@@ -84,7 +84,7 @@ jobs:
         run: docker exec -i -u root pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Rebuild the binaries
-        run: docker exec -i -u root pmm-server make run-managed-ci run-agent run-vmproxy run-qan
+        run: docker exec -i -u root pmm-server make run-managed-ci run-agent-ci run-vmproxy-ci run-qan-ci
 
       - name: Check the status of components
         continue-on-error: true

@@ -1521,7 +1521,7 @@ ListServicesOKBodyServicesItems0AgentsItems0RtaOptions RTAOptions holds Real-Tim
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0RtaOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0RtaOptions struct {
-	// Query collect interval (default 1s is set by server).
+	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
 

@@ -21,10 +21,11 @@ import (
 	"strings"
 	"time"
 
+	"google.golang.org/protobuf/types/known/durationpb"
+
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
 )
@@ -200,10 +201,17 @@ func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent,
 func rtaMongoDBAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 
+	apiRTAOptions := &inventoryv1.RTAOptions{}
+	if agent.RTAOptions.CollectInterval != nil {
+		apiRTAOptions.CollectInterval = durationpb.New(*agent.RTAOptions.CollectInterval)
+	}
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
-		Type:       inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
-		Dsn:        agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
-		RtaOptions: services.ToAPIRTAOptions(&agent.RTAOptions),
+		Type:        inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
+		Dsn:         agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		RtaOptions:  apiRTAOptions,
+		ServiceId:   service.ServiceID,
+		ServiceName: service.ServiceName,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

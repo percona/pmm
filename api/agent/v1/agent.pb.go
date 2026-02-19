@@ -3781,7 +3781,13 @@ type SetStateRequest_BuiltinAgent struct {
 	// Environment variables to be passed to the built-in agent.
 	Env map[string]string `protobuf:"bytes,10,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Real-Time Analytics options.
-	RtaOptions    *v1.RTAOptions `protobuf:"bytes,11,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
+	RtaOptions *v1.RTAOptions `protobuf:"bytes,11,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
+	// Service identifier of the service where the agent connects to.
+	// Currently used by Real-Time Analytics built-in agent only.
+	ServiceId string `protobuf:"bytes,12,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Service name of the service where the agent connects to.
+	// Currently used by Real-Time Analytics built-in agent only.
+	ServiceName   string `protobuf:"bytes,13,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3891,6 +3897,20 @@ func (x *SetStateRequest_BuiltinAgent) GetRtaOptions() *v1.RTAOptions {
 		return x.RtaOptions
 	}
 	return nil
+}
+
+func (x *SetStateRequest_BuiltinAgent) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *SetStateRequest_BuiltinAgent) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
 }
 
 // MySQLExplainParams describes MySQL EXPLAIN action parameters.
@@ -6634,8 +6654,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"listenPort\x12*\n" +
 	"\x11process_exec_path\x18\x04 \x01(\tR\x0fprocessExecPath\x12\x18\n" +
 	"\aversion\x18\x05 \x01(\tR\aversion\"\x16\n" +
-	"\x14StateChangedResponse\"\xf9\n" +
-	"\n" +
+	"\x14StateChangedResponse\"\xbb\v\n" +
 	"\x0fSetStateRequest\x12V\n" +
 	"\x0fagent_processes\x18\x01 \x03(\v2-.agent.v1.SetStateRequest.AgentProcessesEntryR\x0eagentProcesses\x12S\n" +
 	"\x0ebuiltin_agents\x18\x02 \x03(\v2,.agent.v1.SetStateRequest.BuiltinAgentsEntryR\rbuiltinAgents\x1a\xa8\x03\n" +
@@ -6654,7 +6673,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +
 	"\x13AgentProcessesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
-	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1a\xb8\x04\n" +
+	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1a\xfa\x04\n" +
 	"\fBuiltinAgent\x12+\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12\x10\n" +
 	"\x03dsn\x18\x02 \x01(\tR\x03dsn\x12(\n" +
@@ -6669,7 +6688,10 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x03env\x18\n" +
 	" \x03(\v2/.agent.v1.SetStateRequest.BuiltinAgent.EnvEntryR\x03env\x129\n" +
 	"\vrta_options\x18\v \x01(\v2\x18.inventory.v1.RTAOptionsR\n" +
-	"rtaOptions\x1a6\n" +
+	"rtaOptions\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\f \x01(\tR\tserviceId\x12!\n" +
+	"\fservice_name\x18\r \x01(\tR\vserviceName\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ah\n" +

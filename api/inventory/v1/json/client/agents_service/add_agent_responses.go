@@ -6641,7 +6641,7 @@ AddAgentOKBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Analyti
 swagger:model AddAgentOKBodyRtaMongodbAgentRtaOptions
 */
 type AddAgentOKBodyRtaMongodbAgentRtaOptions struct {
-	// Query collect interval (default 1s is set by server).
+	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
 
@@ -9131,7 +9131,7 @@ AddAgentParamsBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Ana
 swagger:model AddAgentParamsBodyRtaMongodbAgentRtaOptions
 */
 type AddAgentParamsBodyRtaMongodbAgentRtaOptions struct {
-	// Query collect interval (default 1s is set by server).
+	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
 

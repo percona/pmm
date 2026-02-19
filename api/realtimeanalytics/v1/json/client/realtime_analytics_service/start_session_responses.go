@@ -573,6 +573,9 @@ type StartSessionOKBodySession struct {
 	// Format: date-time
 	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 
+	// Query collect interval.
+	CollectInterval string `json:"collect_interval,omitempty"`
+
 	// Status represents actual Real-Time Analytics session status.
 	//
 	//  - SESSION_STATUS_ERROR: Session encountered an error.

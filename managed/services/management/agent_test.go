@@ -347,7 +347,7 @@ func TestAgentService(t *testing.T) {
 					Username:      "test-user",
 					IsPasswordSet: true,
 					RtaOptions: &inventoryv1.RTAOptions{
-						CollectInterval: durationpb.New(1 * time.Second),
+						CollectInterval: durationpb.New(2 * time.Second),
 					},
 					MongoDbOptions: &agentv1.UniversalAgent_MongoDBOptions{},
 				},

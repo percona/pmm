@@ -379,7 +379,7 @@
                         "type": "object",
                         "properties": {
                           "collect_interval": {
-                            "description": "Query collect interval (default 1s is set by server).",
+                            "description": "Query collect interval (default 2s is set by server).",
                             "type": "string",
                             "x-order": 0
                           }
@@ -1933,7 +1933,7 @@
                               "type": "object",
                               "properties": {
                                 "collect_interval": {
-                                  "description": "Query collect interval (default 1s is set by server).",
+                                  "description": "Query collect interval (default 2s is set by server).",
                                   "type": "string",
                                   "x-order": 0
                                 }
@@ -4753,7 +4753,7 @@
                           "type": "object",
                           "properties": {
                             "collect_interval": {
-                              "description": "Query collect interval (default 1s is set by server).",
+                              "description": "Query collect interval (default 2s is set by server).",
                               "type": "string",
                               "x-order": 0
                             }

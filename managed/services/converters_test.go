@@ -58,6 +58,7 @@ func TestToAPIAgent(t *testing.T) {
 		q     *reform.Querier
 		agent *models.Agent
 	}
+
 	tests := []struct {
 		name    string
 		args    args

@@ -27,6 +27,7 @@ const (
 type CollectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// List of Real-Time Analytics query data points.
+	// All queries in a single CollectRequest are expected to have the same service_id and service_name.
 	Queries       []*QueryData `protobuf:"bytes,1,rep,name=queries,proto3" json:"queries,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

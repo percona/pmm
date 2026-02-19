@@ -573,10 +573,10 @@ SearchQueriesOKBodyQueriesItems0 QueryData represents a single Real-Time Analyti
 swagger:model SearchQueriesOKBodyQueriesItems0
 */
 type SearchQueriesOKBodyQueriesItems0 struct {
-	// Service identifier that reported the query.
+	// PMM Service identifier that reported the query.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Service name that reported the query.
+	// PMM Service name that reported the query.
 	ServiceName string `json:"service_name,omitempty"`
 
 	// Unique identifier for the query.
@@ -585,24 +585,18 @@ type SearchQueriesOKBodyQueriesItems0 struct {
 	// The text of the query.
 	QueryText string `json:"query_text,omitempty"`
 
-	// Current state of the query (e.g., running, completed).
-	State string `json:"state,omitempty"`
+	// Raw JSON representation of the query.
+	QueryRawJSON string `json:"query_raw_json,omitempty"`
 
-	// Current execution time in seconds.
-	ExecutionDuration string `json:"execution_duration,omitempty"`
-
-	// Number of rows examined by the query.
-	RowsExamined string `json:"rows_examined,omitempty"`
-
-	// Number of rows sent by the query.
-	RowsSent string `json:"rows_sent,omitempty"`
+	// Current query current execution time.
+	QueryExecutionDuration string `json:"query_execution_duration,omitempty"`
 
 	// Timestamp when the query data was collected by Real-Time Analytics agent.
 	// Format: date-time
-	CollectTime strfmt.DateTime `json:"collect_time,omitempty"`
+	QueryCollectTime strfmt.DateTime `json:"query_collect_time,omitempty"`
 
-	// Raw JSON representation of the query.
-	RawQueryJSON string `json:"raw_query_json,omitempty"`
+	// Client address (host:port).
+	ClientAddress string `json:"client_address,omitempty"`
 
 	// mongo db payload
 	MongoDBPayload *SearchQueriesOKBodyQueriesItems0MongoDBPayload `json:"mongo_db_payload,omitempty"`
@@ -612,7 +606,7 @@ type SearchQueriesOKBodyQueriesItems0 struct {
 func (o *SearchQueriesOKBodyQueriesItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateCollectTime(formats); err != nil {
+	if err := o.validateQueryCollectTime(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -626,12 +620,12 @@ func (o *SearchQueriesOKBodyQueriesItems0) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-func (o *SearchQueriesOKBodyQueriesItems0) validateCollectTime(formats strfmt.Registry) error {
-	if swag.IsZero(o.CollectTime) { // not required
+func (o *SearchQueriesOKBodyQueriesItems0) validateQueryCollectTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.QueryCollectTime) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("collect_time", "body", "date-time", o.CollectTime.String(), formats); err != nil {
+	if err := validate.FormatOf("query_collect_time", "body", "date-time", o.QueryCollectTime.String(), formats); err != nil {
 		return err
 	}
 
@@ -722,21 +716,55 @@ SearchQueriesOKBodyQueriesItems0MongoDBPayload QueryMongoDBData holds MongoDB-sp
 swagger:model SearchQueriesOKBodyQueriesItems0MongoDBPayload
 */
 type SearchQueriesOKBodyQueriesItems0MongoDBPayload struct {
-	// Operation ID of the query.
-	Opid string `json:"opid,omitempty"`
+	// MongoDB instance address(host:port) that processing the query.
+	DBInstanceAddress string `json:"db_instance_address,omitempty"`
 
-	// Client address.
-	Client string `json:"client,omitempty"`
+	// Client application name from the MongoDB query.
+	ClientAppName string `json:"client_app_name,omitempty"`
 
-	// Indicates if the query is waiting for a lock.
-	WaitingForLock bool `json:"waiting_for_lock,omitempty"`
+	// Database name.
+	DatabaseName string `json:"database_name,omitempty"`
+
+	// Collection name.
+	Collection string `json:"collection,omitempty"`
+
+	// Query operation ("find", "aggregate", "update", etc).
+	Operation string `json:"operation,omitempty"`
+
+	// The start time of the operation.
+	// Format: date-time
+	OperationStartTime strfmt.DateTime `json:"operation_start_time,omitempty"`
+
+	// MongoDB user name associated with the query.
+	Username string `json:"username,omitempty"`
 
 	// Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
-	IndexUtilized string `json:"index_utilized,omitempty"`
+	PlanSummary string `json:"plan_summary,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0 mongo DB payload
 func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateOperationStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) validateOperationStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.OperationStartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("mongo_db_payload"+"."+"operation_start_time", "body", "date-time", o.OperationStartTime.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -31,6 +31,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
@@ -653,6 +654,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		params := &mongorta.Params{
 			DSN:             dsn,
 			AgentID:         agentID,
+			ServiceID:       builtinAgent.ServiceId,
+			ServiceName:     builtinAgent.ServiceName,
 			CollectInterval: builtinAgent.RtaOptions.GetCollectInterval().AsDuration(),
 		}
 		agent, err = mongorta.New(params, l)
@@ -672,6 +675,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
 	go func() {
+		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
+
 		for change := range agent.Changes() {
 			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				s.storeLastStatus(agentID, change.Status)
@@ -687,8 +692,22 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 					MetricsBucket: change.MetricsBucket,
 				}
 			}
-			if change.RTAQueriesBucket != nil {
+
+			if len(change.RTAQueriesBucket) != 0 {
+				// It may appear that buckets in channel are not in order of their collection.
+				// This may happen because of some bucket is huge and takes a lot of time to process,
+				// so the next one is already collected and sent to channel.
+				// We check that collect time of the next bucket is not earlier than the prev one.
+				// See MongoDBRTA.collectCurrentOps() for details.
+				currentBucketCollectTime := change.RTAQueriesBucket[0].QueryCollectTime.AsTime()
+				if rtaBucketLastCollectTime.After(currentBucketCollectTime) {
+					continue
+				}
+
 				l.Infof("Sending %d RTA queries buckets.", len(change.RTAQueriesBucket))
+
+				rtaBucketLastCollectTime = currentBucketCollectTime
+
 				s.rtaRequests <- &rtav1.CollectRequest{
 					Queries: change.RTAQueriesBucket,
 				}

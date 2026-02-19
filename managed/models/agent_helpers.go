@@ -190,6 +190,7 @@ func RTAOptionsFromRequest(params RTAOptionsParams) *RTAOptions {
 	if params.GetCollectInterval() != nil {
 		rtaOptions.CollectInterval = pointer.To(params.GetCollectInterval().AsDuration())
 	}
+
 	return rtaOptions
 }
 
@@ -272,6 +273,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		args = append(args, NomadAgentType)
 		idx++
 	}
+
 	if filters.Disabled != nil {
 		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
 		args = append(args, pointer.Get(filters.Disabled))
@@ -961,7 +963,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	// For the time being only RTA MangoDB Agent has RTA options.
 	case RTAMongoDBAgentType:
 		row.RTAOptions = RTAOptions{
-			CollectInterval: pointer.To(1 * time.Second), // default value
+			// default value
+			CollectInterval: pointer.To(2 * time.Second), //nolint:mnd
 		}
 		// RTA options
 		row.RTAOptions.Merge(&params.RTAOptions)

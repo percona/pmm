@@ -35,12 +35,12 @@ func TestStore(t *testing.T) {
 
 		queries := []*rtav1.QueryData{
 			{
-				ServiceId:         "service1",
-				ServiceName:       "test-mongodb",
-				QueryId:           "q1",
-				QueryText:         `{"find": "users"}`,
-				ExecutionDuration: durationpb.New(10 * time.Second),
-				CollectTime:       timestamppb.Now(),
+				ServiceId:              "service1",
+				ServiceName:            "test-mongodb",
+				QueryId:                "q1",
+				QueryText:              `{"find": "users"}`,
+				QueryExecutionDuration: durationpb.New(10 * time.Second),
+				QueryCollectTime:       timestamppb.Now(),
 			},
 		}
 
@@ -57,18 +57,21 @@ func TestStore(t *testing.T) {
 
 		// Write to multiple services concurrently to test sharding
 		var wg sync.WaitGroup
+
 		numServices := 100
 
 		for i := range numServices {
 			wg.Add(1)
+
 			go func(idx int) {
 				defer wg.Done()
+
 				serviceID := fmt.Sprintf("service%d", idx)
 				queries := []*rtav1.QueryData{
 					{
-						QueryId:     fmt.Sprintf("q%d", idx),
-						ServiceId:   serviceID,
-						CollectTime: timestamppb.Now(),
+						QueryId:          fmt.Sprintf("q%d", idx),
+						ServiceId:        serviceID,
+						QueryCollectTime: timestamppb.Now(),
 					},
 				}
 				store.Set(serviceID, queries)
@@ -79,15 +82,17 @@ func TestStore(t *testing.T) {
 
 		// Verify all services are present
 		stats := store.Stats()
-		assert.Equal(t, numServices, len(stats), "Should have all services")
+		assert.Len(t, stats, numServices, "Should have all services")
 
 		// Verify shards are being used (buckets should be distributed)
 		usedShards := 0
-		for i := 0; i < numShards; i++ {
+
+		for i := range numShards {
 			if len(store.shards[i].buckets) != 0 {
 				usedShards++
 			}
 		}
+
 		assert.Greater(t, usedShards, 1, "Should use multiple shards")
 	})
 
@@ -96,14 +101,14 @@ func TestStore(t *testing.T) {
 
 		// Set queries for different services and clusters
 		store.Set("s1", []*rtav1.QueryData{
-			{QueryId: "q1", ServiceId: "s1", CollectTime: timestamppb.Now()},
-			{QueryId: "q2", ServiceId: "s1", CollectTime: timestamppb.Now()},
+			{QueryId: "q1", ServiceId: "s1", QueryCollectTime: timestamppb.Now()},
+			{QueryId: "q2", ServiceId: "s1", QueryCollectTime: timestamppb.Now()},
 		})
 		store.Set("s2", []*rtav1.QueryData{
-			{QueryId: "q3", ServiceId: "s2", CollectTime: timestamppb.Now()},
+			{QueryId: "q3", ServiceId: "s2", QueryCollectTime: timestamppb.Now()},
 		})
 		store.Set("s3", []*rtav1.QueryData{
-			{QueryId: "q4", ServiceId: "s3", CollectTime: timestamppb.Now()},
+			{QueryId: "q4", ServiceId: "s3", QueryCollectTime: timestamppb.Now()},
 		})
 
 		t.Run("get by service", func(t *testing.T) {
@@ -131,8 +136,8 @@ func TestStore(t *testing.T) {
 
 		// Set some queries
 		queries := []*rtav1.QueryData{
-			{QueryId: "q1", ServiceId: "service1", CollectTime: timestamppb.Now()},
-			{QueryId: "q2", ServiceId: "service1", CollectTime: timestamppb.Now()},
+			{QueryId: "q1", ServiceId: "service1", QueryCollectTime: timestamppb.Now()},
+			{QueryId: "q2", ServiceId: "service1", QueryCollectTime: timestamppb.Now()},
 		}
 		store.Set("service1", queries)
 
@@ -150,7 +155,7 @@ func TestStore(t *testing.T) {
 
 		// Set queries that will expire
 		store.Set("service1", []*rtav1.QueryData{
-			{QueryId: "q1", ServiceId: "service1", CollectTime: timestamppb.Now()},
+			{QueryId: "q1", ServiceId: "service1", QueryCollectTime: timestamppb.Now()},
 		})
 
 		// Wait for service1 bucket to expire
@@ -158,7 +163,7 @@ func TestStore(t *testing.T) {
 
 		// Set fresh queries for service2
 		store.Set("service2", []*rtav1.QueryData{
-			{QueryId: "q2", ServiceId: "service2", CollectTime: timestamppb.Now()},
+			{QueryId: "q2", ServiceId: "service2", QueryCollectTime: timestamppb.Now()},
 		})
 
 		// Run cleanup
@@ -176,8 +181,8 @@ func TestStore(t *testing.T) {
 	t.Run("Clear", func(t *testing.T) {
 		store := NewStore()
 
-		store.Set("service1", []*rtav1.QueryData{{QueryId: "q1", ServiceId: "service1", CollectTime: timestamppb.Now()}})
-		store.Set("service2", []*rtav1.QueryData{{QueryId: "q2", ServiceId: "service2", CollectTime: timestamppb.Now()}})
+		store.Set("service1", []*rtav1.QueryData{{QueryId: "q1", ServiceId: "service1", QueryCollectTime: timestamppb.Now()}})
+		store.Set("service2", []*rtav1.QueryData{{QueryId: "q2", ServiceId: "service2", QueryCollectTime: timestamppb.Now()}})
 
 		store.Clear("service1")
 
@@ -197,11 +202,11 @@ func TestStore(t *testing.T) {
 		store := NewStore()
 
 		store.Set("s1", []*rtav1.QueryData{
-			{QueryId: "q1", ServiceId: "s1", CollectTime: timestamppb.Now()},
-			{QueryId: "q2", ServiceId: "s1", CollectTime: timestamppb.Now()},
+			{QueryId: "q1", ServiceId: "s1", QueryCollectTime: timestamppb.Now()},
+			{QueryId: "q2", ServiceId: "s1", QueryCollectTime: timestamppb.Now()},
 		})
 		store.Set("s2", []*rtav1.QueryData{
-			{QueryId: "q3", ServiceId: "s2", CollectTime: timestamppb.Now()},
+			{QueryId: "q3", ServiceId: "s2", QueryCollectTime: timestamppb.Now()},
 		})
 
 		stats := store.Stats()
@@ -219,7 +224,7 @@ func TestStore(t *testing.T) {
 
 		// Set queries that will expire
 		store.Set("service1", []*rtav1.QueryData{
-			{QueryId: "q1", ServiceId: "service1", CollectTime: timestamppb.Now()},
+			{QueryId: "q1", ServiceId: "service1", QueryCollectTime: timestamppb.Now()},
 		})
 
 		// Wait for bucket to expire
@@ -235,17 +240,19 @@ func TestStore(t *testing.T) {
 
 	t.Run("ThreadSafety", func(t *testing.T) {
 		store := NewStore()
+
 		var wg sync.WaitGroup
 
 		// Concurrent writes
 		for i := range 100 {
 			idx := i
+
 			wg.Go(func() {
 				queries := []*rtav1.QueryData{
 					{
-						QueryId:     string(rune('a' + idx%26)),
-						ServiceId:   fmt.Sprintf("service%d", idx%10),
-						CollectTime: timestamppb.Now(),
+						QueryId:          string(rune('a' + idx%26)),
+						ServiceId:        fmt.Sprintf("service%d", idx%10),
+						QueryCollectTime: timestamppb.Now(),
 					},
 				}
 				store.Set(fmt.Sprintf("service%d", idx%10), queries)

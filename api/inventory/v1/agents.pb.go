@@ -2246,7 +2246,7 @@ func (x *QANMongoDBMongologAgent) GetLogLevel() LogLevel {
 // RTAOptions holds Real-Time Query Analytics agent options.
 type RTAOptions struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Query collect interval (default 1s is set by server).
+	// Query collect interval (default 2s is set by server).
 	CollectInterval *durationpb.Duration `protobuf:"bytes,1,opt,name=collect_interval,json=collectInterval,proto3" json:"collect_interval,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -9643,10 +9643,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"R\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"^\n" +
 	"\n" +
-	"RTAOptions\x12D\n" +
-	"\x10collect_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x0fcollectInterval\"\x99\x04\n" +
+	"RTAOptions\x12P\n" +
+	"\x10collect_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationB\n" +
+	"\xfaB\a\xaa\x01\x042\x02\b\x01R\x0fcollectInterval\"\x99\x04\n" +
 	"\x0fRTAMongoDBAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +

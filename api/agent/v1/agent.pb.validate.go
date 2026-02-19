@@ -8299,6 +8299,10 @@ func (m *SetStateRequest_BuiltinAgent) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ServiceId
+
+	// no validation rules for ServiceName
+
 	if len(errors) > 0 {
 		return SetStateRequest_BuiltinAgentMultiError(errors)
 	}
