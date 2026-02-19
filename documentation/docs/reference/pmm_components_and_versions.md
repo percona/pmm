@@ -4,8 +4,8 @@ The following table lists all the PMM client/server components and their version
 
 | PMM client/server component | Version  | Documentation |Location on GitHub|
 |-----------------------------|----------|---------------|------------------|
-| Grafana  | 11.6.3*  | [Grafana documentation](https://grafana.com/docs/grafana/latest/)|[Github Grafana](https://github.com/percona-platform/grafana)|
-| VictoriaMetrics| 1.134.0  | [VictoriaMetrics documentation](https://docs.victoriametrics.com/)|[Github VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics)    |
+| Grafana  | 11.6.4*  | [Grafana documentation](https://grafana.com/docs/grafana/latest/)|[Github Grafana](https://github.com/percona-platform/grafana)|
+| VictoriaMetrics| 1.114.0  | [VictoriaMetrics documentation](https://docs.victoriametrics.com/)|[Github VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics)    |
 | Nginx    | 1.20.1   | [Nginx documentation](http://nginx.org/en/docs/)|[Github Nginx](https://github.com/nginx/nginx)                                                    |
 | Percona Distribution for PostgreSQL  | 14.5     | [Percona Distribution for PostgreSQL 14 documentation](https://www.percona.com/doc/postgresql/LATEST/index.html)|              |
 | Clickhouse| 25.3.6.56 |[ClickHouse documentation](https://clickhouse.com/docs/en/)|[Github ClickHouse](https://github.com/ClickHouse/ClickHouse)|
