@@ -548,12 +548,12 @@ func TestSearchQueries(t *testing.T) {
 		require.Len(t, resp.Queries, 2)
 
 		assert.Equal(t, "static-query-1", resp.Queries[0].QueryId)
-		assert.Equal(t, "static-query-0", resp.Queries[1].QueryId)
+		assert.Equal(t, service1.ServiceID, resp.Queries[0].ServiceId)
+		assert.Equal(t, service1.ServiceName, resp.Queries[0].ServiceName)
 
-		for i := range resp.Queries {
-			assert.Equal(t, service1.ServiceID, resp.Queries[i].ServiceId)
-			assert.Equal(t, service1.ServiceName, resp.Queries[i].ServiceName)
-		}
+		assert.Equal(t, "static-query-0", resp.Queries[1].QueryId)
+		assert.Equal(t, service1.ServiceID, resp.Queries[1].ServiceId)
+		assert.Equal(t, service1.ServiceName, resp.Queries[1].ServiceName)
 	})
 
 	t.Run("search all queries for service2", func(t *testing.T) {
@@ -582,16 +582,16 @@ func TestSearchQueries(t *testing.T) {
 		assert.NotNil(t, resp)
 		require.Len(t, resp.Queries, 3)
 		assert.Equal(t, "static-query-1", resp.Queries[0].QueryId)
-		assert.Equal(t, resp.Queries[0].ServiceId, service1.ServiceID)
-		assert.Equal(t, resp.Queries[0].ServiceName, service1.ServiceName)
+		assert.Equal(t, service1.ServiceID, resp.Queries[0].ServiceId)
+		assert.Equal(t, service1.ServiceName, resp.Queries[0].ServiceName)
 
 		assert.Equal(t, "static-query-0", resp.Queries[1].QueryId)
-		assert.Equal(t, resp.Queries[1].ServiceId, service1.ServiceID)
-		assert.Equal(t, resp.Queries[1].ServiceName, service1.ServiceName)
+		assert.Equal(t, service1.ServiceID, resp.Queries[1].ServiceId)
+		assert.Equal(t, service1.ServiceName, resp.Queries[1].ServiceName)
 
 		assert.Equal(t, "static-query-0", resp.Queries[2].QueryId)
-		assert.Equal(t, resp.Queries[2].ServiceId, service2.ServiceID)
-		assert.Equal(t, resp.Queries[2].ServiceName, service2.ServiceName)
+		assert.Equal(t, service2.ServiceID, resp.Queries[2].ServiceId)
+		assert.Equal(t, service2.ServiceName, resp.Queries[2].ServiceName)
 	})
 
 	t.Run("search all queries for absent service", func(t *testing.T) {
