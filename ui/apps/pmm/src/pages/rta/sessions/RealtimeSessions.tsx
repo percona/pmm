@@ -10,10 +10,12 @@ import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import { DOCS_URLS } from 'lib/constants';
 import { RealtimePage } from '../components/rta-page';
 import { createRealtimeOverviewUrl } from 'utils/link.utils';
+import { useUser } from 'contexts/user';
 
 const RealtimeSessionsPage: FC = () => {
   const [searchParams] = useSearchParams();
   const serviceIds = searchParams.getAll('serviceIds');
+  const { user } = useUser();
 
   return (
     <RealtimePage>
@@ -45,7 +47,11 @@ const RealtimeSessionsPage: FC = () => {
             },
           }}
         >
-          <Typography variant="body2">{Messages.pageDescription}</Typography>
+          <Typography variant="body2">
+            {user?.isEditor
+              ? Messages.pageDescription
+              : Messages.pageDescriptionViewer}
+          </Typography>
           <Stack direction="row" justifyContent="flex-start" gap={2}>
             <Link
               variant="body2"
