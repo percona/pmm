@@ -2866,6 +2866,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Create monitoring role">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimum-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimum privileges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-backup-management-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full backup management privileges
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -15950,6 +15978,34 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Create monitoring role">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimum-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimum privileges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-backup-management-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full backup management privileges
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -16084,15 +16140,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li>Query collection method: profiler or diagnostic log.</li>
 </ul>
 <h3 id="create-monitoring-role">Create monitoring role<a class="headerlink" href="#create-monitoring-role" title="Permanent link">&para;</a></h3>
-<p>After connecting to your MongoDB instance, create custom role with the privileges required for metric collection, working with Query Analytics (QAN) and optionally creating/restoring backups:</p>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Important</p>
-<p>Values for username (<code>user</code>) and password (<code>pwd</code>) are examples. Replace them before using these code snippets.</p>
-</div>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Minimum privileges</label><label for="__tabbed_1_2">Full backup management privileges</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>This role grants the essential minimum privileges needed for monitoring and QAN:
+<p>After connecting to your MongoDB instance, create a custom role with the privileges required for metric collection, working with Query Analytics (QAN) and optionally creating/restoring backups:</p>
+<h4 id="minimum-privileges">Minimum privileges<a class="headerlink" href="#minimum-privileges" title="Permanent link">&para;</a></h4>
+<p>This role grants the essential minimum privileges needed for monitoring and QAN:</p>
 <div class="highlight"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createRole</span><span class="p">({</span>
 <span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmmMonitor&quot;</span><span class="p">,</span>
 <span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
@@ -16111,10 +16161,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <span class="p">],</span>
 <span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span>
 <span class="p">})</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p>If you plan to use PMM&rsquo;s backup features, create a role with full backup management privileges:</p>
+</code></pre></div>
+<h4 id="full-backup-management-privileges">Full backup management privileges<a class="headerlink" href="#full-backup-management-privileges" title="Permanent link">&para;</a></h4>
+<p>If you plan to use PMM&rsquo;s backup features, also create a role with full backup management privileges:</p>
 <div class="highlight"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createRole</span><span class="p">({</span>
 <span class="w">    </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pbmAnyAction&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
@@ -16126,12 +16175,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <span class="w">    </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="p">});</span>
 </code></pre></div>
-</div>
-</div>
-</div>
 <h3 id="create-user-and-assign-created-role">Create user and assign created role<a class="headerlink" href="#create-user-and-assign-created-role" title="Permanent link">&para;</a></h3>
-<p>After creating the role, create the PMM user and assign role based on your MongoDB version and requirements:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:4"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">MongoDB 8.0+ (Standard)</label><label for="__tabbed_2_2">MongoDB 8.0+ (With backups)</label><label for="__tabbed_2_3">MongoDB &lt;8.0 (Standard)</label><label for="__tabbed_2_4">MongoDB &lt;8.0 (With backups)</label></div>
+<p>After creating the custom roles, create the PMM user and assign the roles based on your MongoDB version and requirements:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">MongoDB 8.0+ (Standard)</label><label for="__tabbed_1_2">MongoDB 8.0+ (With backups)</label><label for="__tabbed_1_3">MongoDB &lt;8.0 (Standard)</label><label for="__tabbed_1_4">MongoDB &lt;8.0 (With backups)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the <code>directShardOperations</code> role to collect complete metrics from all cluster components:</p>
@@ -16256,7 +16302,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </tr>
 </tbody>
 </table>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">MongoDB Profiler (Default)</label><label for="__tabbed_3_2">Diagnostic Log (Recommended for scale)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">MongoDB Profiler (Default)</label><label for="__tabbed_2_2">Diagnostic Log (Recommended for scale)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Choose this standard method for simple setups with fewer than 100 databases, remote MongoDB instances, or when you need real-time query collection. </p>
@@ -16269,7 +16315,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li>Immediate data availability after profiling is enabled </li>
 </ul>
 <p>To enable the MongoDB Profiler, choose one of the following methods:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">In MongoDB configuration file (Recommended)</label><label for="__tabbed_4_2">On CLI</label><label for="__tabbed_4_3">In MongoDB shell (temporary)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">In MongoDB configuration file (Recommended)</label><label for="__tabbed_3_2">On CLI</label><label for="__tabbed_3_3">In MongoDB shell (temporary)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p class="power-number">This method ensures your settings persist across server restarts and system reboots. It&rsquo;s the recommended approach for production environments:</p>
@@ -16338,7 +16384,7 @@ These settings control the following:</p>
 <ol>
 <li>
 <p>Choose one of the following methods to configure MongoDB to log slow operations to the diagnostic log file:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Config file (recommended)</label><label for="__tabbed_5_2">Command-line flags</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Config file (recommended)</label><label for="__tabbed_4_2">Command-line flags</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Edit your MongoDB configuration file (<code>mongod.conf</code>):</p>
@@ -16437,11 +16483,11 @@ endscript
 <p class="admonition-title">Important</p>
 <p>To monitor MongoDB sharded clusters, PMM requires access to all cluster components. Make sure to add all config servers, all shards, and at least one or two mongos routers. Otherwise, PMM will not be able to correctly collect metrics and populate dashboards.</p>
 </div>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Via CLI</label><label for="__tabbed_6_2">Via web UI</label><label for="__tabbed_6_3">With environment variables</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Via CLI</label><label for="__tabbed_5_2">Via web UI</label><label for="__tabbed_5_3">With environment variables</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Use <code>pmm-admin</code> to add the database server as a service using one of these example commands:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="7:5"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><input id="__tabbed_7_3" name="__tabbed_7" type="radio" /><input id="__tabbed_7_4" name="__tabbed_7" type="radio" /><input id="__tabbed_7_5" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Standalone MongoDB instance</label><label for="__tabbed_7_2">Replica Set or Sharded cluster component</label><label for="__tabbed_7_3">Ignoring insecure server certificate</label><label for="__tabbed_7_4">With mongolog query source</label><label for="__tabbed_7_5">SSL/TLS secured MongoDB</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:5"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><input id="__tabbed_6_4" name="__tabbed_6" type="radio" /><input id="__tabbed_6_5" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Standalone MongoDB instance</label><label for="__tabbed_6_2">Replica Set or Sharded cluster component</label><label for="__tabbed_6_3">Ignoring insecure server certificate</label><label for="__tabbed_6_4">With mongolog query source</label><label for="__tabbed_6_5">SSL/TLS secured MongoDB</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
@@ -16458,7 +16504,7 @@ endscript
 --password<span class="o">=</span>your_secure_password<span class="w"> </span><span class="se">\</span>
 --host<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span><span class="se">\</span>
 --port<span class="o">=</span><span class="m">27017</span><span class="w"> </span><span class="se">\ </span><span class="w">       </span>
---cluster<span class="o">=</span>my_cluster_name<span class="w"> </span><span class="se">\</span>
+--cluster<span class="o">=</span>my_cluster_or_rs_name<span class="w"> </span><span class="se">\</span>
 --enable-all-collectors<span class="w">        </span>
 </code></pre></div>
 </div>
@@ -16468,7 +16514,7 @@ endscript
 --password<span class="o">=</span>your_secure_password<span class="w"> </span><span class="se">\</span>
 --host<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span><span class="se">\</span>
 --port<span class="o">=</span><span class="m">27017</span><span class="w"> </span><span class="se">\ </span><span class="w">       </span>
---cluster<span class="o">=</span>my_cluster_name<span class="w"> </span><span class="se">\</span>
+--cluster<span class="o">=</span>my_cluster_or_rs_name<span class="w"> </span><span class="se">\</span>
 --enable-all-collectors<span class="w"> </span><span class="se">\ </span><span class="w">     </span>
 --tls-skip-verify<span class="w">        </span>
 </code></pre></div>
@@ -16479,7 +16525,7 @@ endscript
 --password<span class="o">=</span>your_secure_password<span class="w"> </span><span class="se">\</span>
 --host<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span><span class="se">\</span>
 --port<span class="o">=</span><span class="m">27017</span><span class="w"> </span><span class="se">\ </span><span class="w">       </span>
---cluster<span class="o">=</span>my_cluster_name<span class="w"> </span><span class="se">\</span>
+--cluster<span class="o">=</span>my_cluster_or_rs_name<span class="w"> </span><span class="se">\</span>
 --enable-all-collectors<span class="w"> </span><span class="se">\ </span><span class="w">     </span>
 --query-source<span class="o">=</span>mongolog<span class="w">         </span>
 </code></pre></div>
@@ -16496,7 +16542,7 @@ endscript
 --tls-ca-file<span class="o">=</span>/path/to/ca.pem<span class="w"> </span><span class="se">\</span>
 --authentication-mechanism<span class="o">=</span>MONGODB-X509<span class="w"> </span><span class="se">\</span>
 --authentication-database<span class="o">=</span><span class="nv">$external</span><span class="w"> </span><span class="se">\</span>
---cluster<span class="o">=</span>my_cluster_name<span class="w"> </span><span class="se">\</span>
+--cluster<span class="o">=</span>my_cluster_or_rs_name<span class="w"> </span><span class="se">\</span>
 --enable-all-collectors<span class="w">        </span>
 </code></pre></div>
 </div>
@@ -16506,7 +16552,7 @@ endscript
 <div class="admonition hint alert alert-success">
 <p class="admonition-title">Tips</p>
 <ul>
-<li>When adding nodes to a sharded cluster, ensure to add each node using the same <code>--cluster mycluster</code> option. This allows the <a href="../../../reference/dashboards/dashboard-mongodb-cluster-summary.html">MongoDB Cluster Summary</a> dashboard to populate correctly. </li>
+<li>When adding members of a replica set or sharded cluster, ensure to add each node using the same <code>--cluster my_cluster_or_rs_name</code>. This allows the <a href="../../../reference/dashboards/dashboard-mongodb-cluster-summary.html">MongoDB Cluster Summary</a> and <a href="../../../reference/dashboards/dashboard-mongodb-replset-summary.html">MongoDB ReplSetSummary</a> dashboards to populate correctly. </li>
 <li>PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the <a href="../../../use/commands/pmm-admin.html#advanced-options">advanced options</a> section if you want to modify this behaviour. </li>
 <li>When running mongos routers in containers, specify the <code>diagnosticDataCollectionDirectoryPath</code> to ensure that pmm-agent can properly capture mongos metrics. For example: <code>mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/</code></li>
 </ul>
@@ -16546,7 +16592,7 @@ endscript
 <ol>
 <li>
 <p>Check service registration:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">Via command line</label><label for="__tabbed_8_2">Via web UI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Via command line</label><label for="__tabbed_7_2">Via web UI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Look for your service in the output of this command:</p>
@@ -16588,7 +16634,7 @@ Look for <code>mongodb_mongolog_agent</code> - it should show the agent is runni
 </ol>
 <h2 id="remove-mongodb-service">Remove MongoDB service<a class="headerlink" href="#remove-mongodb-service" title="Permanent link">&para;</a></h2>
 <p>If you need to remove MongoDB service from PMM, follow these steps:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="9:2"><input checked="checked" id="__tabbed_9_1" name="__tabbed_9" type="radio" /><input id="__tabbed_9_2" name="__tabbed_9" type="radio" /><div class="tabbed-labels"><label for="__tabbed_9_1">Via command line</label><label for="__tabbed_9_2">Via web UI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">Via command line</label><label for="__tabbed_8_2">Via web UI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Replace <code>SERVICE_NAME</code> with the name you used when adding the service. You can list all services with <code>pmm-admin</code>:</p>
@@ -16632,7 +16678,7 @@ Look for <code>mongodb_mongolog_agent</code> - it should show the agent is runni
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 20, 2026 16:48:12 UTC">February 20, 2026</span>
   </span>
 
     
