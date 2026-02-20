@@ -112,7 +112,7 @@ To test expressions for custom templates:
 1. On the main menu in PMM, choose **Explore > Metrics**.
 2. Enter your expression in the **Metrics** field and click **Run query**.
 
-For example, to check the CPU usage, Go to **Explore > PromSQL builder** and run the query expression below:
+For example, to check the CPU usage, Go to **Explore > PromQL builder** and run the query expression below:
 ```
 (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100
 ```
