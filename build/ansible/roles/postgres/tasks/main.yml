@@ -103,7 +103,7 @@
   postgresql_user:
     db: pmm-managed
     name: pmm-managed
-    password: pmm-managed
+    password: "md5da757ec3e22c6d86a2bb8e70307fa937"
     priv: "ALL"
     expires: infinity
     state: present
