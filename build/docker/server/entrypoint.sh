@@ -98,7 +98,7 @@ if [ ! -f "$DIST_FILE" ]; then
     
     # Generate a random password for postgres superuser
     declare POSTGRES_PASSWORD
-    POSTGRES_PASSWORD=$(openssl rand -hex 12)
+    POSTGRES_PASSWORD=$(openssl rand -hex 16)
     
     # Store the password securely with restricted permissions
     declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
@@ -109,21 +109,7 @@ if [ ! -f "$DIST_FILE" ]; then
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=scram-sha-256 --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
     
     # Configure pg_hba.conf for proper authentication
-    cat > /srv/postgres14/pg_hba.conf << 'EOF'
-# TYPE  DATABASE        USER            ADDRESS                 METHOD
-
-# Local connections with password (support both md5 for backward compatibility and scram-sha-256)
-local   all             all                                     md5
-local   all             all                                     scram-sha-256
-
-# IPv4 local connections with password
-host    all             all             127.0.0.1/32            md5
-host    all             all             127.0.0.1/32            scram-sha-256
-
-# IPv6 local connections with password
-host    all             all             ::1/128                 md5
-host    all             all             ::1/128                 scram-sha-256
-EOF
+    install -p -m 664 -o "$CURRENT_UID" -g "$CURRENT_GID" /opt/ansible/roles/postgres/files/pg_hba.conf /srv/postgres14/pg_hba.conf
 
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14

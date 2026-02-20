@@ -1360,25 +1360,24 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 	return nil
 }
 
-// initWithRoot tries to create given user and database under default postgres role.
+// initWithRoot tries to create the user and the database.
 func initWithRoot(params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
 
 	// Read postgres password from the secure file
-	passwordFile := "/srv/.postgres_password"
+	passwordFile := "/srv/.postgres_password" //nolint:gosec
 	passwordBytes, err := os.ReadFile(passwordFile)
 	if err != nil {
 		return errors.Wrapf(err, "failed to read postgres password from %s", passwordFile)
 	}
-	postgresPassword := string(passwordBytes)
 
 	// we use postgres user for creating database
 	db, err := OpenDB(SetupDBParams{
 		Address:  params.Address,
 		Username: "postgres",
-		Password: postgresPassword,
+		Password: string(passwordBytes),
 	})
 	if err != nil {
 		return errors.WithStack(err)
