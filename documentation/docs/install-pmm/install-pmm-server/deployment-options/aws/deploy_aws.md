@@ -65,15 +65,13 @@ Once your instance status shows "Running" and passes all status checks in the AW
 
 3. Change the default credentials then use the new ones to log in to the PMM Server home page. You will reuse these credentials when configuring PMM Clients on other hosts.
 
-    ![PMM Home Dashboard](../../../../images/PMM_Home_Dashboard.png)
-
 ## Configure PMM Server and IP settings
 After initial access, configure your PMM Server's security groups and IP addressing.
 
 ### SSH access
 For SSH access instructions, see [Connecting to Your Linux Instance Using SSH](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html).
 
-Replace the user name `ec2-user` with `admin`. You can also add SSH keys later through the **PMM Configuration > Settings > SSH Key** page.
+Replace the user name `ec2-user` with `admin`. You can also add SSH keys later through the **Configuration > Settings > SSH Key** page.
 
 ## Next steps
 
