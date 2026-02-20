@@ -72,6 +72,7 @@ jobs:
                 - 443:8443
               volumes:
                 - pmm-data:/srv
+                - ./managed/testdata/checks:/srv/checks
           EOF
 
           # Run it and wait until it's healthy
@@ -80,6 +81,7 @@ jobs:
       - name: Build the test image
         shell: bash
         run: |
+          echo "Make sure to set the context to the root of the repository."
           docker buildx build -f api-tests/Dockerfile -t percona/pmm-api-tests .
 
       - name: Run compose up for test DBs
