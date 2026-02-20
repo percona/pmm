@@ -20,8 +20,9 @@ These ports must be accessible for basic PMM functionality:
 
 | PMM component | TCP port      | Direction     | Description
 |---------------|---------------|---------------|------------------------------------------------------------------------------------------
-| PMM Server    |   80          | both          | HTTP server, used for gRPC over HTTP and web interface (**insecure**, use with caution).
 | PMM Server    |  443          | both          | HTTPS server, used for gRPC over HTTPS and web interface (secure, use of SSL certificates is highly encouraged).
+
+It must be noted that some systems may disallow the use of ports below 1024 for non-root processes. If you encounter issues with PMM Server binding to port 443, consider using a higher port (e.g., 8443) and configuring your firewall to redirect traffic from port 443 to the chosen port.
 
 ### Internal component ports 
 These ports are used for communication between PMM components:
