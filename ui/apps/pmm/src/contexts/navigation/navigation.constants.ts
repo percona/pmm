@@ -440,8 +440,8 @@ export const NAV_EXPLORE_METRICS: NavItem = {
 };
 
 export const NAV_EXPLORE_BUILDER: NavItem = {
-  id: 'explore-promsql-builder',
-  text: 'PromSQL builder',
+  id: 'explore-promql-builder',
+  text: 'PromQL builder',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
 };
 
