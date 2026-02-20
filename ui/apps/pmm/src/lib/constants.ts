@@ -42,6 +42,7 @@ export const ALL_SERVICE_TYPES = [
   ServiceType.mysql,
   ServiceType.posgresql,
   ServiceType.proxysql,
+  ServiceType.valkey,
 ];
 
 // 5 seconds
