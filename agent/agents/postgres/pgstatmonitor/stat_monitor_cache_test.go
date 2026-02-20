@@ -32,8 +32,8 @@ func TestPGStatMonitorStructs(t *testing.T) {
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
-	if !supportedVersion(engineVersion) || !extensionExists(db) {
+	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
+	if !supportedVersion(majorVersion) || !extensionExists(db) {
 		t.Skip()
 	}
 
