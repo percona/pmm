@@ -23,6 +23,8 @@ import {
   UserOrg,
 } from 'types/user.types';
 
+export const USER_PREFERENCES_QUERY_KEY = ['user:preferences'];
+
 export const useCurrentUser = (
   options?: Partial<UseQueryOptions<GetUserResponse>>
 ) =>
@@ -84,7 +86,7 @@ export const useUpdatePreferences = (
   options?: Partial<UseMutationOptions<void, ApiError, UpdatePreferencesBody>>
 ) =>
   useMutation({
-    mutationKey: ['user:preferences'],
+    mutationKey: USER_PREFERENCES_QUERY_KEY,
     mutationFn: (preferences: Partial<UpdatePreferencesBody>) =>
       updatePreferences(preferences),
     ...options,

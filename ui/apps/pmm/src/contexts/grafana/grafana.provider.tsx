@@ -19,7 +19,8 @@ import { getLocationUrl } from './grafana.utils';
 import messenger from 'lib/messenger';
 import { useSettings } from 'hooks/api/useSettings';
 import { useServiceTypes } from 'hooks/api/useServices';
-import { useUser } from 'contexts/user';
+import { useQueryClient } from '@tanstack/react-query';
+import { USER_PREFERENCES_QUERY_KEY } from 'hooks/api/useUser';
 
 /** Guard DOM usage. */
 const isBrowser = () =>
@@ -36,7 +37,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
   const navigate = useNavigate();
-  const { refetchUserPreferences } = useUser();
+  const queryClient = useQueryClient();
 
   const { refetch: refetchSettings } = useSettings({
     enabled: false,
@@ -125,7 +126,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     messenger.addListener({
       type: 'TIMEZONE_CHANGED',
       onMessage: () => {
-        refetchUserPreferences();
+        queryClient.invalidateQueries({ queryKey: USER_PREFERENCES_QUERY_KEY });
       },
     });
 
