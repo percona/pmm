@@ -108,9 +108,6 @@ if [ ! -f "$DIST_FILE" ]; then
     # Initialize database with password authentication
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
     
-    # Configure pg_hba.conf for proper authentication
-    install -p -m 664 -o "$CURRENT_UID" -g "$CURRENT_GID" /opt/ansible/roles/postgres/files/pg_hba.conf /srv/postgres14/pg_hba.conf
-
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
     PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
