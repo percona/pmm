@@ -1215,8 +1215,8 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)  //nolint:mnd
+	db.SetMaxOpenConns(10) //nolint:mnd
 
 	return db, nil
 }
@@ -1257,8 +1257,12 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
 	errCV := checkVersion(ctx, db)
-	if pErr, ok := errCV.(*pq.Error); ok && pErr.Code == "28000" { //nolint:errorlint
-		// invalid_authorization_specification, see https://www.postgresql.org/docs/current/errcodes-appendix.html
+	var pErr *pq.Error
+	if errors.As(errCV, &pErr) && (pErr.Code == "28000" || pErr.Code == "28P01") { //nolint:errorlint
+		// 28000: invalid_authorization_specification (role does not exist, e.g. with trust auth)
+		// 28P01: invalid_password - with password-based auth (md5/scram-sha-256), PostgreSQL returns this
+		//        even when the role doesn't exist at all, to prevent user enumeration.
+		// See https://www.postgresql.org/docs/current/errcodes-appendix.html
 		if err := initWithRoot(params); err != nil {
 			return nil, errors.Wrapf(err, "couldn't connect to database with provided credentials. Tried to create user and database. Error: %s", errCV)
 		}

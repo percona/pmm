@@ -14,6 +14,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package models contains nomad structs and helpers.
+
 package models
 
 import "time"

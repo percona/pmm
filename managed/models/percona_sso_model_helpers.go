@@ -118,7 +118,7 @@ func (s *PerconaSSODetails) isAccessTokenExpired() bool {
 		return true
 	}
 
-	return time.Now().After(s.AccessToken.ExpiresAt.Add(-time.Minute * 5))
+	return time.Now().After(s.AccessToken.ExpiresAt.Add(-time.Minute * 5)) //nolint:mnd
 }
 
 // DeletePerconaSSODetails removes all stored DeletePerconaSSODetails.
