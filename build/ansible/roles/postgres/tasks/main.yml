@@ -58,7 +58,7 @@
     mode: 0600
 
 - name: Initialize Postgres database with password authentication
-  command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=md5 --auth-local=md5 --username=postgres --pwfile=/srv/.postgres_password
+  command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
   become: true
   become_user: pmm
   become_method: su
