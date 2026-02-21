@@ -48,6 +48,7 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
         isLoading:
           userQuery.isLoading || orgsQuery.isLoading || userInfoQuery.isLoading,
         user,
+        refetchUserPreferences: preferencesQuery.refetch,
       }}
     >
       {children}

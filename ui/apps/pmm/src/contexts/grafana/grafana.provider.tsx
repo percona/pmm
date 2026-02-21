@@ -19,6 +19,7 @@ import { getLocationUrl } from './grafana.utils';
 import messenger from 'lib/messenger';
 import { useSettings } from 'hooks/api/useSettings';
 import { useServiceTypes } from 'hooks/api/useServices';
+import { useUser } from 'contexts/user';
 
 /** Guard DOM usage. */
 const isBrowser = () =>
@@ -35,6 +36,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
   const navigate = useNavigate();
+  const { refetchUserPreferences } = useUser();
 
   const { refetch: refetchSettings } = useSettings({
     enabled: false,
@@ -118,6 +120,13 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     messenger.addListener({
       type: 'SERVICE_DELETED',
       onMessage: () => refetchServiceTypes(),
+    });
+
+    messenger.addListener({
+      type: 'TIMEZONE_CHANGED',
+      onMessage: () => {
+        refetchUserPreferences();
+      },
     });
 
     // Cleanup once provider unmounts

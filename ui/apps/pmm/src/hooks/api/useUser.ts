@@ -68,6 +68,15 @@ export const useUserPreferences = (
   useQuery({
     queryKey: ['user:preferences'],
     queryFn: () => getUserPreferences(),
+    select: (data) => {
+      return {
+        ...data,
+        timezone:
+          data.timezone === 'browser'
+            ? Intl.DateTimeFormat().resolvedOptions().timeZone
+            : data.timezone,
+      };
+    },
     ...options,
   });
 
