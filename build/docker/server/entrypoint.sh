@@ -106,7 +106,7 @@ if [ ! -f "$DIST_FILE" ]; then
     chmod 600 "$POSTGRES_PASSWORD_FILE"
     
     # Initialize database with password authentication
-    /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=scram-sha-256 --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
+    /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=md5 --auth-local=md5 --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
     
     # Configure pg_hba.conf for proper authentication
     install -p -m 664 -o "$CURRENT_UID" -g "$CURRENT_GID" /opt/ansible/roles/postgres/files/pg_hba.conf /srv/postgres14/pg_hba.conf
