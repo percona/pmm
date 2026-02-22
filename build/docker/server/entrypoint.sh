@@ -3,6 +3,8 @@ set -o errexit
 
 declare PMM_DISTRIBUTION_METHOD="${PMM_DISTRIBUTION_METHOD:-docker}"
 declare CURRENT_GID CURRENT_UID CURRENT_USER
+declare POSTGRES_DATA_DIR="/srv/postgres14"
+declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
 
 # Get current user info - handle cases where user doesn't exist in passwd
 CURRENT_UID=$(id -u)
@@ -94,7 +96,7 @@ if [ ! -f "$DIST_FILE" ]; then
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
 
     echo "Initializing Postgres..."
-    install -d -m 750 /srv/postgres14
+    install -d -m 750 "$POSTGRES_DATA_DIR"
     
     # Generate a random password for postgres superuser
     declare POSTGRES_PASSWORD
@@ -106,22 +108,28 @@ if [ ! -f "$DIST_FILE" ]; then
     chmod 600 "$POSTGRES_PASSWORD_FILE"
     
     # Initialize database with password authentication
-    /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
+    /usr/pgsql-14/bin/initdb -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
     
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
-    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+    /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR"
     PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-    /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+    /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
     
     # Clean up password from environment
     unset POSTGRES_PASSWORD
 fi
 
+if [ -f "/opt/ansible/roles/postgres/files/postgres-migration" ]; then
+    bash /opt/ansible/roles/postgres/files/postgres-migration
+else
+    echo "Warning: postgres migration script not found. Skipping runtime migration." >&2
+fi
+
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
 
-# Ensure /srv/postgres14 has the correct permissions
-chmod 750 /srv/postgres14 || true
+# Ensure POSTGRES_DATA_DIR has the correct permissions
+chmod 750 "$POSTGRES_DATA_DIR" || true
 
 echo "Checking nginx configuration..."
 if ! nginx -t -e /dev/stdout; then
