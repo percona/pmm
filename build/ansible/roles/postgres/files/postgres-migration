@@ -21,7 +21,7 @@ ensure_postgres_password() {
 
     local started=0
     if ! /usr/pgsql-14/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR"
+        /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
         started=1
     fi
 

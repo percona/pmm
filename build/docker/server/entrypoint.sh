@@ -111,7 +111,7 @@ if [ ! -f "$DIST_FILE" ]; then
     /usr/pgsql-14/bin/initdb -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
     
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
-    /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR"
+    /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
     PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
     /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
     
