@@ -13,14 +13,16 @@ import {
   GRAFANA_SUB_PATH,
   PMM_UI_GRAFANA_PATH,
   PMM_UI_HELP_PATH,
+  PMM_UI_PATH,
 } from 'lib/constants';
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
-import { isFirstLogin, updateIsFirstLogin } from 'lib/utils/login';
+import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
 import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+
 
 export const initialize = () => {
   // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
@@ -32,7 +34,7 @@ export const initialize = () => {
     if (isFirstLogin() && isHomePath) {
       updateIsFirstLogin();
 
-      window.location.replace(PMM_UI_HELP_PATH);
+      window.location.replace(isUserLoggedIn() ? PMM_UI_HELP_PATH : PMM_UI_PATH);
     } else {
       // redirect user to the new UI
       window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_GRAFANA_PATH));
