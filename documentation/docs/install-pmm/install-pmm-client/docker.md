@@ -44,7 +44,7 @@ Follow these steps to deploy PMM Client using Docker:
     docker pull percona/pmm-client:3
     ```
 
-2. Start the PMM Client container and configure the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server. Replace `X.X.X.X` with the external IP address of your PMM Server and update `PMM_AGENT_SERVER_PASSWORD` value if you changed the default PMM Server `admin` password during setup:
+2. Start the PMM Client container and configure the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server. Replace `X.X.X.X` with the external IP address of your PMM Server:
    
     === "Using Service accounts (Recommended)"
         [Service accounts](../../api/authentication.md) provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.
@@ -76,6 +76,7 @@ Follow these steps to deploy PMM Client using Docker:
              -e PMM_AGENT_SETUP=1 \
              -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
              -e PMM_AGENT_SETUP_FORCE=1 \
+             -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
              percona/pmm-client:3
             ```
     
@@ -86,7 +87,8 @@ Follow these steps to deploy PMM Client using Docker:
             - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
             - `service_token` - Use this exact string as the username (not a placeholder!)
             - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
-            - `PMM_AGENT_SERVER_INSECURE_TLS` - Skip certificate validation (remove for production with valid certificates)   
+            - `PMM_AGENT_SERVER_INSECURE_TLS` - Skip certificate validation (remove for production with valid certificates)
+            - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
     
     === "Standard authentication (Not recommended)"
         This method exposes credentials in command history, process lists, and logs! Use only for testing or migration scenarios:
@@ -103,15 +105,18 @@ Follow these steps to deploy PMM Client using Docker:
          -e PMM_AGENT_SETUP=1 \
          -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
          -e PMM_AGENT_SETUP_FORCE=1 \
+         -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
          percona/pmm-client:3
         ```
     
         **Parameters explained:**
-           - `PMM_AGENT_SETUP_NODE_NAME` - (Optional) Descriptive name for the node
-           - `PMM_AGENT_SETUP_NODE_TYPE` - (Optional) Node type: generic, container, etc.
-           - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
-           - `admin`/`admin` - Default PMM Server username and password (change this immediately after first login)
-    
+   
+       - `PMM_AGENT_SETUP_NODE_NAME` - (Optional) Descriptive name for the node
+       - `PMM_AGENT_SETUP_NODE_TYPE` - (Optional) Node type: generic, container, etc.
+       - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
+       - `admin`/`admin` - Default PMM Server username and password (change this immediately after first login)
+       - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
+
         To migrate to [service accounts](../../api/authentication.md):
         {.power-number}
     
@@ -120,12 +125,15 @@ Follow these steps to deploy PMM Client using Docker:
         3. Gradually migrate all nodes to token authentication.
         4. Change the admin password from default.
         5. Consider restricting or disabling direct admin account usage for node registration.
-    
-        !!! hint alert-success "Important"
-             - Do not use the `docker --detach` option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.
-             - You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
-             - If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
 
+    !!! danger alert alert-danger "Danger"
+        `pmm-agent.yaml` contains sensitive credentials and should not be shared.
+       
+    !!! hint alert-success "Important"
+         - Do not use the `docker --detach` option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.
+         - You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
+         - If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
+    
 ## Verify the connection
 
 Check that PMM Client is properly connected and registered. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
@@ -145,14 +153,11 @@ To confirm your node is being monitored:
 
   3. Modify the time range to view the relevant data for your selected node.
 
-!!! danger alert alert-danger "Danger"
-    `pmm-agent.yaml` contains sensitive credentials and should not be shared.
-
 ## Add monitoring services
 
-After installing PMM Client, you can add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin.md) command. 
+After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin.md) command. 
 
-When running PMM Client in Docker, put any `pmm-admin` commands in a script and provide the location via the `PMM_AGENT_PRERUN_SCRIPT` argument. Example:
+When running PMM Client in Docker, you can put `pmm-admin` commands in a script and provide the location via the `PMM_AGENT_PRERUN_SCRIPT` argument. The `pmm-agent` will run those commands after registering with the PMM Server. Example:
 
 ```bash
  docker run \
