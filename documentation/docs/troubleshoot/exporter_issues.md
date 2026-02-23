@@ -13,10 +13,10 @@ The `pprof` endpoints use basic authentication:
 - **username:** `pmm`
 - **password:** The exporter's `agent_id` (default), or your custom password if configured
 
-To collect a profile, you need the exporter's `agent_id` and listening port:
+To collect a profile, you need the exporter's password and listening port:
 {.power-number}
 
-1. Find the exporter's `agent_id` and listening port:
+1. Find the exporter's listening port and `agent_id` (used as the default password):
 ```bash
     pmm-admin list
 ```
@@ -24,13 +24,13 @@ To collect a profile, you need the exporter's `agent_id` and listening port:
 2. From the PMM Client host, collect the profile:
 ```bash
     # Heap (memory) profile
-    curl -su pmm:<agent_id> http://127.0.0.1:<port>/debug/pprof/heap > heap.pprof
+    curl -su pmm:<password> http://127.0.0.1:<port>/debug/pprof/heap > heap.pprof
 
     # CPU profile (60 seconds)
-    curl -su pmm:<agent_id> "http://127.0.0.1:<port>/debug/pprof/profile?seconds=60" > cpu.pprof
+    curl -su pmm:<password> "http://127.0.0.1:<port>/debug/pprof/profile?seconds=60" > cpu.pprof
 ```
 
-    Replace `<agent_id>` and `<port>` with values from `pmm-admin list`.
+    Replace `<password>` with the `agent_id` or your custom password, and `<port>` with the listening port.
 
 ### Analyze the profile
 
@@ -39,9 +39,9 @@ To collect a profile, you need the exporter's `agent_id` and listening port:
 
 === "Using Go locally"
     If Go is installed, run the following command to open an interactive web interface for exploring the profile:
-
+    
     ```bash
-    go tool pprof -http=:8080 heap.pprof
+        go tool pprof -http=:8080 heap.pprof
     ```
 
 ### Available profiles
