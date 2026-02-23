@@ -14580,14 +14580,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-PBM-details.md" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-backup-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    None
+    MongoDB Backup Details dashboard
   
 
     
@@ -16131,7 +16131,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <h2 id="quick-requirements-checklist">Quick requirements checklist<a class="headerlink" href="#quick-requirements-checklist" title="Permanent link">&para;</a></h2>
 <p>✓ <strong>Hardware</strong>: CPU with SSE4.2 support, 4+ cores, 8+ GB RAM, 100+ GB storage<br />
 ✓ <strong>OS</strong>: Modern 64-bit Linux or container platform (Docker/Podman/Kubernetes)<br />
-✓ <strong>Network</strong>: Ports 80/443 accessible to PMM Clients and users<br />
+✓ <strong>Network</strong>: Port 443 (or 8443 for non-privileged environments) accessible to PMM Clients and users
 ✓ <strong>Container runtime</strong>: Docker 17.03+ or Podman (for containerized deployments)<br />
 ✓ <strong>Storage</strong>: Persistent storage solution for data retention  </p>
 <h2 id="system-requirements">System requirements<a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h2>
@@ -16194,19 +16194,13 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <tbody>
 <tr>
 <td>Users &gt; PMM Server</td>
-<td>443 (HTTPS)</td>
-<td>Web interface access</td>
+<td>443 or 8443</td>
+<td>Web interface access. Use port 8443 if your environment restricts privileged ports (&lt;1024).</td>
 <td>Essential</td>
 </tr>
 <tr>
-<td>Users &gt; PMM Server</td>
-<td>80 (HTTP)</td>
-<td>Web interface (insecure)</td>
-<td>Optional</td>
-</tr>
-<tr>
 <td>PMM Clients &gt; PMM Server</td>
-<td>443/80</td>
+<td>443 or 8443</td>
 <td>Metrics reporting</td>
 <td>Essential</td>
 </tr>
@@ -16393,7 +16387,7 @@ systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 23, 2026 11:08:06 UTC">February 23, 2026</span>
   </span>
 
     

@@ -14486,14 +14486,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-PBM-details.md" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-backup-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    None
+    MongoDB Backup Details dashboard
   
 
     
@@ -15942,19 +15942,21 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p>Before installing PMM, ensure your network configuration allows the necessary connections between PMM components. Here are the required ports and connectivity settings.</p>
 <p>For guidance on selecting the best deployment method based on these requirements, see the <a href="choose-deployment.html">choosing your PMM deployment strategy</a>.</p>
 <h2 id="system-requirements">System requirements<a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h2>
-<p>For detailed system specifications, see <a href="hardware_and_system.html">Hardware and system requirements</a>
-Key requirements at a glance:</p>
-<p>Compatible with both x86_64 and ARM64 architectures
-Requires 100 MB storage for installation plus caching space
-Supports modern 64-bit Linux distributions.</p>
+<p>For detailed system specifications, see <a href="hardware_and_system.html">Hardware and system requirements</a></p>
+<p>Key requirements at a glance:</p>
+<ul>
+<li>Compatible with both x86_64 and ARM64 architectures</li>
+<li>Requires 100 MB storage for installation plus caching space</li>
+<li>Supports modern 64-bit Linux distributions.</li>
+</ul>
 <p>This is a list of ports used by the various components of PMM. For PMM to work correctly, your system&rsquo;s firewall should allow TCP traffic on these ports (UDP is not needed).</p>
 <h3 id="essential-ports">Essential ports<a class="headerlink" href="#essential-ports" title="Permanent link">&para;</a></h3>
-<p>These ports must be accessible for basic PMM functionality:</p>
+<p>These are the host ports that must be accessible for basic PMM functionality:</p>
 <table>
 <thead>
 <tr>
 <th>PMM component</th>
-<th>TCP port</th>
+<th>Host port</th>
 <th>Direction</th>
 <th>Description</th>
 </tr>
@@ -15962,18 +15964,16 @@ Supports modern 64-bit Linux distributions.</p>
 <tbody>
 <tr>
 <td>PMM Server</td>
-<td>80</td>
-<td>both</td>
-<td>HTTP server, used for gRPC over HTTP and web interface (<strong>insecure</strong>, use with caution).</td>
-</tr>
-<tr>
-<td>PMM Server</td>
-<td>443</td>
-<td>both</td>
-<td>HTTPS server, used for gRPC over HTTPS and web interface (secure, use of SSL certificates is highly encouraged).</td>
+<td>443 or 8443</td>
+<td>in</td>
+<td>HTTPS server for web interface and gRPC communication between PMM Client and PMM Server. Use of SSL certificates is highly encouraged.</td>
 </tr>
 </tbody>
 </table>
+<p><strong>Container port mapping</strong></p>
+<p>PMM Server containers listen on port 8443 internally. </p>
+<p>When running PMM in Docker or Podman, map the container port to a host port using <code>-p 443:8443</code>. </p>
+<p>If privileged ports (&lt;1024) are not allowed in your environment, use:<code>-p 8443:8443</code> instead.</p>
 <h3 id="internal-component-ports">Internal component ports<a class="headerlink" href="#internal-component-ports" title="Permanent link">&para;</a></h3>
 <p>These ports are used for communication between PMM components:</p>
 <table>
@@ -16032,7 +16032,7 @@ Supports modern 64-bit Linux distributions.</p>
 <li>Minimum allocation: Allow at least one port per monitored service/exporter</li>
 </ul>
 <p>For example, to set a custom port range for 50 services:
-    <div class="highlight"><pre><span></span><code>pmm-agent<span class="w"> </span>--ports-min<span class="o">=</span><span class="m">9001</span><span class="w"> </span>--ports-max<span class="o">=</span><span class="m">9050</span>
+<div class="highlight"><pre><span></span><code>pmm-agent<span class="w"> </span>--ports-min<span class="o">=</span><span class="m">9001</span><span class="w"> </span>--ports-max<span class="o">=</span><span class="m">9050</span>
 </code></pre></div></p>
 <p>Learn more about available settings for <code>pmm-agent</code> in <a href="../../use/commands/pmm-agent.html">Percona PMM-Agent documentation</a>.</p>
 <h2 id="network-configuration-for-locked-down-environments">Network configuration for locked-down environments<a class="headerlink" href="#network-configuration-for-locked-down-environments" title="Permanent link">&para;</a></h2>
@@ -16063,7 +16063,7 @@ Supports modern 64-bit Linux distributions.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 3, 2025 10:33:16 UTC">November 3, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 23, 2026 11:08:06 UTC">February 23, 2026</span>
   </span>
 
     
