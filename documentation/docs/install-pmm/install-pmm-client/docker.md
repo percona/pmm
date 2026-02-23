@@ -47,6 +47,7 @@ Follow these steps to deploy PMM Client using Docker:
 2. Start the PMM Client container and configure the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server. Replace `X.X.X.X` with the external IP address of your PMM Server:
    
     === "Using Service accounts (Recommended)"
+   
         [Service accounts](../../api/authentication.md) provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.
     
         To register with service accounts, create a service account then generate an authentication token that you can use to register the PMM Client:
@@ -91,6 +92,7 @@ Follow these steps to deploy PMM Client using Docker:
             - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
     
     === "Standard authentication (Not recommended)"
+   
         This method exposes credentials in command history, process lists, and logs! Use only for testing or migration scenarios:
     
         ```sh
@@ -111,11 +113,11 @@ Follow these steps to deploy PMM Client using Docker:
     
         **Parameters explained:**
    
-       - `PMM_AGENT_SETUP_NODE_NAME` - (Optional) Descriptive name for the node
-       - `PMM_AGENT_SETUP_NODE_TYPE` - (Optional) Node type: generic, container, etc.
-       - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
-       - `admin`/`admin` - Default PMM Server username and password (change this immediately after first login)
-       - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
+        - `PMM_AGENT_SETUP_NODE_NAME` - (Optional) Descriptive name for the node
+        - `PMM_AGENT_SETUP_NODE_TYPE` - (Optional) Node type: generic, container, etc.
+        - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
+        - `admin`/`admin` - Default PMM Server username and password (change this immediately after first login)
+        - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
 
         To migrate to [service accounts](../../api/authentication.md):
         {.power-number}
@@ -127,9 +129,11 @@ Follow these steps to deploy PMM Client using Docker:
         5. Consider restricting or disabling direct admin account usage for node registration.
 
     !!! danger alert alert-danger "Danger"
+   
         `pmm-agent.yaml` contains sensitive credentials and should not be shared.
        
     !!! hint alert-success "Important"
+   
          - Do not use the `docker --detach` option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.
          - You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
          - If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
