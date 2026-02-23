@@ -1258,13 +1258,13 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
 	errCV := checkVersion(ctx, db)
 	var pErr *pq.Error
-	if errors.As(errCV, &pErr) && (pErr.Code == "28000" || pErr.Code == "28P01") { //nolint:errorlint
+	if errors.As(errCV, &pErr) && (pErr.Code == "28000" || pErr.Code == "28P01") {
 		// 28000: invalid_authorization_specification (role does not exist, e.g. with trust auth)
 		// 28P01: invalid_password - with password-based auth (md5/scram-sha-256), PostgreSQL returns this
 		//        even when the role doesn't exist at all, to prevent user enumeration.
 		// See https://www.postgresql.org/docs/current/errcodes-appendix.html
 		if err := initWithRoot(params); err != nil {
-			return nil, errors.Wrapf(err, "couldn't connect to database with provided credentials. Tried to create user and database. Error: %s", errCV)
+			return nil, err
 		}
 		errCV = checkVersion(ctx, db)
 	}
@@ -1384,38 +1384,38 @@ func initWithRoot(params SetupDBParams) error {
 		Password: string(passwordBytes),
 	})
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to open the database: %w", err)
 	}
 	defer db.Close() //nolint:errcheck
 
 	var countDatabases int
 	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countDatabases == 0 {
 		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
 	}
 
 	var countRoles int
 	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countRoles == 0 {
 		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
 
 		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
 	}
 	return nil

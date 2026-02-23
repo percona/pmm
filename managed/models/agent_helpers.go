@@ -346,7 +346,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 	default:
 		return nil, status.Error(codes.FailedPrecondition, "Unsupported service.")
 	}
-	p := strings.Join(q.Placeholders(2, len(agentTypes)), ", ")
+	p := strings.Join(q.Placeholders(2, len(agentTypes)), ", ") //nolint:mnd
 	tail := fmt.Sprintf("WHERE service_id = $1 AND agent_type IN (%s) ORDER BY agent_id", p)
 
 	args := make([]interface{}, len(agentTypes)+1)
