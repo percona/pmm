@@ -1370,7 +1370,7 @@ func initWithRoot(params SetupDBParams) error {
 	passwordFile := "/srv/.postgres_password" //nolint:gosec
 	passwordBytes, err := os.ReadFile(passwordFile)
 	if err != nil {
-		return errors.Wrapf(err, "failed to read postgres password from %s", passwordFile)
+		return fmt.Errorf("failed to read postgres password from %s: %w", passwordFile, err)
 	}
 
 	// we use postgres user for creating database

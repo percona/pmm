@@ -103,7 +103,6 @@ if [ ! -f "$DIST_FILE" ]; then
     POSTGRES_PASSWORD=$(openssl rand -hex 16)
     
     # Store the password securely with restricted permissions
-    declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
     echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
     chmod 600 "$POSTGRES_PASSWORD_FILE"
     
