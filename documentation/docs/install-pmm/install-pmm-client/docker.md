@@ -48,9 +48,8 @@ To deploy and register PMM Client using Docker:
 
 2. Start the PMM Client container and resister it with PMM Server using the [pmm-agent](../../use/commands/pmm-agent.md) Setup mode. Replace `X.X.X.X` with the external IP address of your PMM Server:
 
-  !!! hint alert-success "Important"
+    !!! hint alert-success "Important"
         Do not use the `--detach` option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.
-
    
     === "Using Service accounts (Recommended)"
    
