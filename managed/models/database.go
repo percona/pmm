@@ -12,11 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Package models provides the data models for the managed package.
-//
 
-// Package models provides functionality for handling database models and related tasks.
-//
 //nolint:lll
 package models
 

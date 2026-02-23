@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package models contains generated Reform records and helpers.
-//
 // Common order of helpers:
 //   - unexported validators (checkXXX);
 //   - FindAllXXX;
@@ -24,6 +22,7 @@
 //   - ChangeXXX;
 //   - RemoveXXX.
 
+// Package models provides the data models and helpers for the managed package.
 package models
 
 import (
