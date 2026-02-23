@@ -29,13 +29,15 @@ Complete these essential steps before installation:
 
 ## Installation and setup
 
-Register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.
+Set up PMM Client by deploying it as a Docker container and registering it with PMM Server.
 
-Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the node: secure service account tokens and standard username/password credentials.
+### Deploy and register PMM Client
 
-### Deploy PMM Client 
+Deploy and register PMM Client to start monitoring your node. 
 
-Follow these steps to deploy PMM Client using Docker:
+Registration gives PMM Server permission to collect metrics from your infrastructure and display them in monitoring dashboards. PMM supports two authentication methods: service account tokens (recommended) and username/password credentials. 
+
+To deploy and register PMM Client using Docker:
 {.power-number}
 
 1. Pull the PMM Client Docker image:
@@ -44,7 +46,11 @@ Follow these steps to deploy PMM Client using Docker:
     docker pull percona/pmm-client:3
     ```
 
-2. Start the PMM Client container and configure the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server. Replace `X.X.X.X` with the external IP address of your PMM Server:
+2. Start the PMM Client container and resister it with PMM Server using the [pmm-agent](../../use/commands/pmm-agent.md) Setup mode. Replace `X.X.X.X` with the external IP address of your PMM Server:
+
+  !!! hint alert-success "Important"
+        Do not use the `--detach` option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.
+
    
     === "Using Service accounts (Recommended)"
    
@@ -90,6 +96,9 @@ Follow these steps to deploy PMM Client using Docker:
             - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
             - `PMM_AGENT_SERVER_INSECURE_TLS` - Skip certificate validation (remove for production with valid certificates)
             - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
+
+            You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
+
     
     === "Standard authentication (Not recommended)"
    
@@ -118,6 +127,8 @@ Follow these steps to deploy PMM Client using Docker:
         - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
         - `admin`/`admin` - Default PMM Server username and password (change this immediately after first login)
         - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
+        
+        You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
 
         To migrate to [service accounts](../../api/authentication.md):
         {.power-number}
@@ -128,26 +139,19 @@ Follow these steps to deploy PMM Client using Docker:
         4. Change the admin password from default.
         5. Consider restricting or disabling direct admin account usage for node registration.
 
-    !!! danger alert alert-danger "Danger"
-   
-        `pmm-agent.yaml` contains sensitive credentials and should not be shared.
-       
-    !!! hint alert-success "Important"
-   
-         - Do not use the `docker --detach` option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.
-         - You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
-         - If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
+If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
     
 ## Verify the connection
 
-Check that PMM Client is properly connected and registered. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
+Run the following command to check that PMM Client is properly connected and registered:
 
 ```bash
 docker exec -t pmm-client pmm-admin status
 ```
 
-### View your monitored node
+If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface.
 
+### View your monitored node
 To confirm your node is being monitored:
 {.power-number}
 
@@ -161,7 +165,7 @@ To confirm your node is being monitored:
 
 After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin.md) command. 
 
-When running PMM Client in Docker, you can put `pmm-admin` commands in a script and provide the location via the `PMM_AGENT_PRERUN_SCRIPT` argument. The `pmm-agent` will run those commands after registering with the PMM Server. Example:
+When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to pass a script containing `pmm-admin` commands. The `pmm-agent` runs the script automatically after registering with PMM Server. For example:
 
 ```bash
  docker run \
@@ -175,12 +179,12 @@ When running PMM Client in Docker, you can put `pmm-admin` commands in a script 
  -e PMM_AGENT_SETUP=1 \
  -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
  -e PMM_AGENT_SETUP_FORCE=1 \
- -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh
+ -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
  percona/pmm-client:3
 ```
 
-!!! hint alert alert-success "Tips for Docker configuration"
+## Tips for Docker configuration
 
-    - Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](../../troubleshoot/checklist.md).
-    - If you need assistance with PMM Client, run: `docker run --rm percona/pmm-client:3 --help`.
+- Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](../../troubleshoot/checklist.md).
+- If you need assistance with PMM Client, run: `docker run --rm percona/pmm-client:3 --help`.
 
