@@ -7,7 +7,13 @@ If a PMM exporter (such as `mysqld_exporter`, `postgres_exporter`, or `mongodb_e
 PMM exporters expose `/debug/pprof/` endpoints for performance profiling. Use these to generate diagnostic data for analysis or to share with Percona Support.
 
 ### Collect profiling data
-To collect a profile, you need the exporter's `agent_id` and listening port.
+
+The `pprof` endpoints use basic authentication:
+
+- **username:** `pmm`
+- **password:** The exporter's `agent_id` (default), or your custom password if configured
+
+To collect a profile, you need the exporter's `agent_id` and listening port:
 {.power-number}
 
 1. Find the exporter's `agent_id` and listening port:
@@ -29,11 +35,11 @@ To collect a profile, you need the exporter's `agent_id` and listening port.
 ### Analyze the profile
 
 === "Online visualization"
-
     Upload the `.pprof` file to [pprof.me](https://pprof.me) to explore it interactively using flame graphs and call trees.
 
 === "Using Go locally"
     If Go is installed, run the following command to open an interactive web interface for exploring the profile:
+
     ```bash
     go tool pprof -http=:8080 heap.pprof
     ```
