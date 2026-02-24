@@ -1,8 +1,10 @@
 ---
 title: Logs
 slug: pmm-server-logs
-categorySlug: pmm-server-maintenance
-parentDocSlug: pmm-server-troubleshooting
+category:
+  uri: pmm-server-maintenance
+parent:
+  uri: pmm-server-troubleshooting
 ---
 Download the logs and components configuration to troubleshoot any issues with the PMM Server.
 

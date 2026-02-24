@@ -34,7 +34,11 @@
     "esbuild": "~0.25.0",
     "cross-spawn": "~7.0.5",
     "brace-expansion": "~1.1.12",
-    "nanoid": "~3.3.8"
+    "nanoid": "~3.3.8",
+    "@remix-run/router": "1.23.2",
+    "react-router-dom": "6.30.2",
+    "react-router": "6.30.2",
+    "lodash": ">=4.17.23"
   },
   "prettier": "@percona/prettier-config"
 }
