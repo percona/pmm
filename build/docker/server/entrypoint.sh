@@ -118,11 +118,7 @@ if [ ! -f "$DIST_FILE" ]; then
     unset POSTGRES_PASSWORD
 fi
 
-if [ -f "/opt/ansible/roles/postgres/files/postgres-migration" ]; then
-    bash /opt/ansible/roles/postgres/files/postgres-migration
-else
-    echo "Warning: postgres migration script not found. Skipping runtime migration." >&2
-fi
+bash /opt/ansible/roles/postgres/files/postgres-migration
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
