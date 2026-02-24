@@ -11,9 +11,15 @@ interface Props {
   queries: QueryData[];
   onQuerySelected: (query: QueryData, idx: number) => void;
   actions?: MaterialReactTableProps<QueryData>['renderTopToolbarCustomActions'];
+  onRowHover?: () => void;
 }
 
-const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
+const OverviewTable: FC<Props> = ({
+  queries,
+  onQuerySelected,
+  actions,
+  onRowHover,
+}) => (
   <RealtimeTableWrapper>
     <Table
       tableName="realtime-overview-table"
@@ -69,6 +75,9 @@ const OverviewTable: FC<Props> = ({ queries, onQuerySelected, actions }) => (
 
           return valueSeconds >= minSeconds && valueSeconds <= maxSeconds;
         },
+      }}
+      muiTableBodyRowProps={{
+        onMouseEnter: onRowHover,
       }}
     />
   </RealtimeTableWrapper>
