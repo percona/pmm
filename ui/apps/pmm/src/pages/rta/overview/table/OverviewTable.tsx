@@ -76,9 +76,10 @@ const OverviewTable: FC<Props> = ({
           return valueSeconds >= minSeconds && valueSeconds <= maxSeconds;
         },
       }}
-      muiTableBodyRowProps={{
+      muiTableBodyRowProps={({ row }) => ({
         onMouseEnter: onRowHover,
-      }}
+        'data-testid': `query-${row.original.queryId}-row`,
+      })}
     />
   </RealtimeTableWrapper>
 );

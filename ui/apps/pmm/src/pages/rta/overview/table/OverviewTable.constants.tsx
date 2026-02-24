@@ -13,14 +13,26 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     accessorKey: 'queryText',
     filterFn: 'contains',
     Cell: ({ row }) => <QueryCell query={row.original.queryText} />,
+    // @ts-expect-error - muiTableBodyCellProps is not typed correctly
+    muiTableBodyCellProps: ({ row }) => ({
+      'data-testid': `query-${row.original.queryId}-query-text-cell`,
+    }),
   },
   {
     header: Messages.columns.host,
     accessorKey: 'serviceName',
+    // @ts-expect-error - muiTableBodyCellProps is not typed correctly
+    muiTableBodyCellProps: ({ row }) => ({
+      'data-testid': `query-${row.original.queryId}-host-cell`,
+    }),
   },
   {
     header: Messages.columns.operationId,
     accessorKey: 'queryId',
+    // @ts-expect-error - muiTableBodyCellProps is not typed correctly
+    muiTableBodyCellProps: ({ row }) => ({
+      'data-testid': `query-${row.original.queryId}-operation-id-cell`,
+    }),
   },
   {
     size: 150,
@@ -41,5 +53,9 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
       ) : (
         <UnavailableText />
       ),
+    // @ts-expect-error - muiTableBodyCellProps is not typed correctly
+    muiTableBodyCellProps: ({ row }) => ({
+      'data-testid': `query-${row.original.queryId}-elapsed-time-cell`,
+    }),
   },
 ];
