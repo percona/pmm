@@ -1,8 +1,10 @@
 ---
 title: Restore from a backup
 slug: restorebackup
-excerpt: This endpoint allows to restore a database from a previously made backup.
-categorySlug: backup-api
+content:
+  excerpt: This endpoint allows to restore a database from a previously made backup.
+category:
+  uri: backup-api
 ---
 
 PMM can restore a service (database) from a backup.

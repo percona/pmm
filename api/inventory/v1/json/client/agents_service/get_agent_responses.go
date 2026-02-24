@@ -1860,6 +1860,18 @@ type GetAgentOKBodyExternalExporter struct {
 	// Skip TLS certificate and hostname verification.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *GetAgentOKBodyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -1868,6 +1880,10 @@ type GetAgentOKBodyExternalExporter struct {
 func (o *GetAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
@@ -1875,6 +1891,66 @@ func (o *GetAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var getAgentOkBodyExternalExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyExternalExporterTypeStatusPropEnum = append(getAgentOkBodyExternalExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyExternalExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	GetAgentOKBodyExternalExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// GetAgentOKBodyExternalExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyExternalExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// GetAgentOKBodyExternalExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	GetAgentOKBodyExternalExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// GetAgentOKBodyExternalExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyExternalExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// GetAgentOKBodyExternalExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyExternalExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// GetAgentOKBodyExternalExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyExternalExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// GetAgentOKBodyExternalExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyExternalExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// GetAgentOKBodyExternalExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyExternalExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyExternalExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyExternalExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyExternalExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"external_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 

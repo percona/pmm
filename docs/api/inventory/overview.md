@@ -1,9 +1,11 @@
 ---
 title: Overview
 slug: pmm-inventory
-categorySlug: inventory-api
-hidden: 0
-order: 0
+category:
+  uri: inventory-api
+privacy:
+  view: public
+position: 0
 ---
 
 This section guides you on how to add, update, or remove services, nodes, and agents.

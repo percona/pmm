@@ -18,9 +18,9 @@ package checks
 import (
 	"sync"
 
-	"github.com/percona/saas/pkg/check"
 	prom "github.com/prometheus/client_golang/prometheus"
 
+	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services"
 )
 

@@ -2,9 +2,8 @@
 services:
   pmm-server:
     image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
-    container_name: pmm-agent_pmm-server
+    container_name: pmm-server
     ports:
-      - 127.0.0.1:80:8080
       - 127.0.0.1:443:8443
     environment:
       - PMM_DEBUG=1
@@ -19,6 +18,7 @@ services:
   test_db:
     image: aleksi/test_db:1.1.0
     container_name: pmm-agent_test_db
+    platform: linux/amd64
     volumes:
       - test_db_mysql:/test_db/mysql/world:ro
       - test_db_postgres:/test_db/postgresql/world:ro
