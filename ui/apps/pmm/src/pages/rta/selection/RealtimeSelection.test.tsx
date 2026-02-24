@@ -6,7 +6,6 @@ import {
   within,
 } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { User } from 'types/user.types';
 import { RealtimeSelection } from './RealtimeSelection';
 import { Messages } from './RealtimeSelection.messages';
 import * as servicesApi from 'api/services';
@@ -46,7 +45,7 @@ const setupMocks = () => {
   vi.mocked(realtimeApi.getRunningSessions).mockResolvedValue([]);
 };
 
-const renderComponent = (user?: User) =>
+const renderComponent = (user = TEST_USER_ADMIN) =>
   render(
     wrapWithQueryProvider(
       wrapWithRouter(
@@ -65,7 +64,7 @@ describe('RealtimeSelection', () => {
 
   describe('Rendering', () => {
     it('renders title and description', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         expect(screen.getByText(Messages.title)).toBeInTheDocument();
@@ -74,7 +73,7 @@ describe('RealtimeSelection', () => {
     });
 
     it('renders search input', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         expect(
@@ -84,7 +83,7 @@ describe('RealtimeSelection', () => {
     });
 
     it('renders start button', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         expect(
@@ -96,7 +95,7 @@ describe('RealtimeSelection', () => {
     });
 
     it('renders footer links', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         expect(screen.getByText(Messages.documentation)).toBeInTheDocument();
@@ -105,7 +104,7 @@ describe('RealtimeSelection', () => {
     });
 
     it('renders MongoDB only message', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         expect(screen.getByText(Messages.mongoOnly)).toBeInTheDocument();
@@ -124,20 +123,18 @@ describe('RealtimeSelection', () => {
       });
     });
 
-    it('enables autocomplete for editor users but button stays disabled without selection', async () => {
+    it('shows empty state for editor users when no running agents', async () => {
+      // Editors without running agents see empty state, not the selection form
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        const button = screen.getByRole('button', {
-          name: new RegExp(Messages.startButton, 'i'),
-        });
-
-        expect(button).toBeDisabled();
+        // Viewer should see empty state, not the form
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
       });
     });
 
     it('enables autocomplete for admin users but button stays disabled without selection', async () => {
-      renderComponent(TEST_USER_ADMIN);
+      renderComponent();
 
       await waitFor(() => {
         const button = screen.getByRole('button', {
@@ -151,7 +148,7 @@ describe('RealtimeSelection', () => {
 
   describe('Service Selection', () => {
     it('disables start button when no services selected', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         const button = screen.getByRole('button', {
@@ -163,7 +160,7 @@ describe('RealtimeSelection', () => {
     });
 
     it('has autocomplete dropdown button', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         const openButton = screen.getByRole('button', { name: /open/i });
@@ -173,7 +170,7 @@ describe('RealtimeSelection', () => {
     });
 
     it('autocomplete starts closed', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         const autocomplete = screen.getByRole('combobox');
@@ -185,7 +182,7 @@ describe('RealtimeSelection', () => {
 
   describe('Form Submission', () => {
     it('keeps button disabled when no services selected', async () => {
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       await waitFor(() => {
         const button = screen.getByRole('button', {
@@ -204,7 +201,7 @@ describe('RealtimeSelection', () => {
         services: [TEST_MANAGED_SERVICE_MONGO],
       });
 
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       // Select a service from the dropdown
       const serviceInput = await screen.findByTitle('Open');
@@ -233,7 +230,7 @@ describe('RealtimeSelection', () => {
         () => new Promise(() => {})
       );
 
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
@@ -246,7 +243,7 @@ describe('RealtimeSelection', () => {
       );
       vi.mocked(realtimeApi.getRunningSessions).mockResolvedValueOnce([]);
 
-      renderComponent(TEST_USER_EDITOR);
+      renderComponent();
 
       // When API fails, component should still render (not stuck in loading)
       await waitFor(

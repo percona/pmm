@@ -25,6 +25,7 @@ import { useManagedServices } from './useServices';
 import { useMemo } from 'react';
 import { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
+import { useUser } from 'contexts/user';
 
 const KEYS = {
   LIST_SESSIONS: 'rta:list-sessions',
@@ -118,10 +119,13 @@ export const useStopSessions = (
  * Hook to get MongoDB services that don't have running RTA agents
  */
 export const useAvailableServices = () => {
+  const { user } = useUser();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
   const { data: services, isLoading: isLoadingServices } = useManagedServices({
     serviceType: ServiceType.mongodb,
+  }, {
+    enabled: user?.isPMMAdmin,
   });
 
   const availableServices = useMemo<ManagedService[]>(() => {
