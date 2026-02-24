@@ -463,6 +463,7 @@ nav:
       - troubleshoot/checklist.md
       - troubleshoot/upgrade_issues.md
       - troubleshoot/config_issues.md
+      - troubleshoot/exporter_issues.md
       - troubleshoot/alerting_issues.md
       - troubleshoot/qan_issues.md
       - troubleshoot/plugin_issues.md
