@@ -1,13 +1,14 @@
 import Grid from '@mui/material/Grid';
 import { FC } from 'react';
-import { format } from 'date-fns';
+import { format, formatDuration } from 'date-fns';
+import { tz } from "@date-fns/tz";
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from 'types/rta.types';
 import DetailsMetric from './DetailsMetric';
 import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';
-import formatDuration from 'date-fns/formatDuration';
 import { TIME_FORMAT } from 'lib/constants';
+import { useUser } from 'contexts/user';
 
 type Props = {
   queryData: QueryData;
@@ -39,6 +40,9 @@ const QueryAndDetails: FC<Props> = ({
     },
   },
 }) => {
+  const { user } = useUser();
+  const timezone = user?.preferences?.timezone || 'UTC';
+
   const formattedQueryExecutionDuration = queryExecutionDurationMs
     ? formatDuration(
         {
@@ -174,7 +178,9 @@ const QueryAndDetails: FC<Props> = ({
           <GridItem>
             <DetailsMetric title={Messages.titles.operationStartTime}>
               <BigNumberMetric
-                mainText={format(new Date(operationStartTime), TIME_FORMAT)}
+                mainText={
+                  format((new Date(operationStartTime)), TIME_FORMAT, { in: tz(timezone) })
+                }
                 size="small"
                 dataTestId="operation-start-time-value"
               />
@@ -183,7 +189,7 @@ const QueryAndDetails: FC<Props> = ({
           <GridItem>
             <DetailsMetric title={Messages.titles.dataCaptureTime}>
               <BigNumberMetric
-                mainText={format(new Date(queryCollectTime), TIME_FORMAT)}
+                mainText={format(new Date(queryCollectTime), TIME_FORMAT, { in: tz(timezone) })}
                 size="small"
                 dataTestId="data-capture-time-value"
               />

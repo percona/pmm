@@ -272,6 +272,17 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 		})
 	}
 
+	for _, a := range agentsRes.Payload.RtaMongodbAgent {
+		agentsList = append(agentsList, listResultAgent{
+			AgentType:  types.AgentTypeRTAMongoDBAgent,
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  a.ServiceID,
+			Status:     getAgentStatus(a.Status),
+			Disabled:   a.Disabled,
+		})
+	}
+
 	return &listAgentsResult{
 		Agents: agentsList,
 	}, nil
