@@ -16,7 +16,7 @@ The `pprof` endpoints use basic authentication:
 To collect a profile, you need the exporter's password and listening port:
 {.power-number}
 
-1. Find the exporter's listening port and `agent_id` (used as the default password):
+1. Find the exporter's listening port and password (`agent_id` or your custom password, if set up):
 ```bash
     pmm-admin list
 ```
