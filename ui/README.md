@@ -30,6 +30,11 @@ This repo uses the following stack across its packages:
 
 ## Install dependencies
 
+Before installing dependencies, make sure to be logged in to Github Packages, as `@percona/percona-ui` lives as a Github Package due to (hopefully temporary) problems with NPM registry authentication, thus needing for users to be authenticated in order to install it:
+
+- Create a Personal Access Token on Github;
+- Add it as a newline to existing `.npmrc`, as so: `//npm.pkg.github.com/:_authToken=${GITHUB_AUTH_TOKEN}`
+
 ```bash
 make setup
 ```
