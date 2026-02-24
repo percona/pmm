@@ -4,7 +4,6 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
 
 Using the Docker container approach offers several advantages:
 
-- no need to install PMM Client directly on your host system
 - consistent environment across different operating systems
 - simplified setup and configuration process
 - automatic architecture detection (x86_64/ARM64)
@@ -24,8 +23,6 @@ Complete these essential steps before installation:
 4. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
 
 5. [Create database monitoring users](prerequisites.md#database-monitoring-requirements) with appropriate permissions for the databases you plan to monitor.
-
-6. Check that you have root or sudo privileges to install PMM Client. Alternatively, use [binary installation](binary_package.md) for non-root environments.
 
 ## Installation and setup
 
@@ -138,6 +135,8 @@ To deploy and register PMM Client using Docker:
         4. Change the admin password from default.
         5. Consider restricting or disabling direct admin account usage for node registration.
 
+!!! hint alert-success "Important"
+
 If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
     
 ## Verify the connection
@@ -184,6 +183,6 @@ When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to
 
 ## Tips for Docker configuration
 
-- Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](../../troubleshoot/checklist.md).
+- Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see the [troubleshooting checklist](../../troubleshoot/checklist.md).
 - If you need assistance with PMM Client, run: `docker run --rm percona/pmm-client:3 --help`.
 
