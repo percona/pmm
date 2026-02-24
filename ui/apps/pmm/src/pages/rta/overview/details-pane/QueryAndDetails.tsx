@@ -41,13 +41,13 @@ const QueryAndDetails: FC<Props> = ({
 }) => {
   const formattedQueryExecutionDuration = queryExecutionDurationMs
     ? formatDuration(
-      {
-        seconds: queryExecutionDurationMs,
-      },
-      {
-        format: ['seconds'],
-      }
-    )
+        {
+          seconds: queryExecutionDurationMs,
+        },
+        {
+          format: ['seconds'],
+        }
+      )
     : '';
 
   const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration
@@ -60,7 +60,10 @@ const QueryAndDetails: FC<Props> = ({
         <Grid container spacing={3}>
           <GridItem>
             <DetailsMetric title={Messages.titles.operationId}>
-              <BigNumberMetric mainText={queryId} />
+              <BigNumberMetric
+                mainText={queryId}
+                dataTestId="operation-id-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
@@ -76,58 +79,96 @@ const QueryAndDetails: FC<Props> = ({
                     ? formattedQueryExecutionDurationParts[1]
                     : undefined
                 }
+                dataTestId="elapsed-time-value"
               />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.dbInstanceAddress}>
-              <BigNumberMetric mainText={dbInstanceAddress} size="small" />
+              <BigNumberMetric
+                mainText={dbInstanceAddress}
+                size="small"
+                dataTestId="db-instance-address-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.clientAddress}>
-              <BigNumberMetric mainText={clientAddress} size="small" />
+              <BigNumberMetric
+                mainText={clientAddress}
+                size="small"
+                dataTestId="client-address-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.databaseName}>
-              <BigNumberMetric mainText={databaseName} size="small" />
+              <BigNumberMetric
+                mainText={databaseName}
+                size="small"
+                dataTestId="database-name-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.service}>
-              <BigNumberMetric mainText={serviceName} size="small" />
+              <BigNumberMetric
+                mainText={serviceName}
+                size="small"
+                dataTestId="service-name-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.username}>
-              <BigNumberMetric mainText={username} size="small" />
+              <BigNumberMetric
+                mainText={username}
+                size="small"
+                dataTestId="username-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.collection}>
-              <BigNumberMetric mainText={collection} size="small" />
+              <BigNumberMetric
+                mainText={collection}
+                size="small"
+                dataTestId="collection-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.operation}>
-              <BigNumberMetric mainText={operation} size="small" />
+              <BigNumberMetric
+                mainText={operation}
+                size="small"
+                dataTestId="operation-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.planSummary}>
-              <BigNumberMetric mainText={planSummary.replace(/,/g, ',\n')} props={{
-                mainText: {
-                  overflow: 'visible',
-                  textOverflow: 'clip',
-                  whiteSpace: 'pre',
-                }
-              }} size="small" />
+              <BigNumberMetric
+                mainText={planSummary.replace(/,/g, ',\n')}
+                props={{
+                  mainText: {
+                    overflow: 'visible',
+                    textOverflow: 'clip',
+                    whiteSpace: 'pre',
+                  },
+                }}
+                size="small"
+                dataTestId="plan-summary-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
             <DetailsMetric title={Messages.titles.clientAppName}>
-              <BigNumberMetric mainText={clientAppName} size="small" />
+              <BigNumberMetric
+                mainText={clientAppName}
+                size="small"
+                dataTestId="client-app-name-value"
+              />
             </DetailsMetric>
           </GridItem>
           <GridItem>
@@ -135,6 +176,7 @@ const QueryAndDetails: FC<Props> = ({
               <BigNumberMetric
                 mainText={format(new Date(operationStartTime), TIME_FORMAT)}
                 size="small"
+                dataTestId="operation-start-time-value"
               />
             </DetailsMetric>
           </GridItem>
@@ -143,6 +185,7 @@ const QueryAndDetails: FC<Props> = ({
               <BigNumberMetric
                 mainText={format(new Date(queryCollectTime), TIME_FORMAT)}
                 size="small"
+                dataTestId="data-capture-time-value"
               />
             </DetailsMetric>
           </GridItem>

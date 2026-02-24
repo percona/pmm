@@ -123,6 +123,7 @@ const DetailsPane: FC<Props> = ({
                 showCopyButton
                 showLineNumbers
                 maxHeight="80vh"
+                data-testid="query-raw-data"
               />
             )}
           </CardContent>
