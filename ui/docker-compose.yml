@@ -14,7 +14,7 @@ services:
       # - pmm-data:/srv
 
       # Uncomment to use custom (FE) grafana code
-      - '../../grafana/public:/usr/share/grafana/public'
+      # - '../../grafana/public:/usr/share/grafana/public'
 
       # PMM compat plugin
       - ./apps/pmm-compat/dist:/srv/grafana/plugins/pmm-compat
