@@ -21,7 +21,8 @@ import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
-import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent } from 'lib/events';
+import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+
 
 export const initialize = () => {
   // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
@@ -166,6 +167,12 @@ export const initialize = () => {
   getAppEvents().subscribe(ServiceDeletedEvent, () => {
     messenger.sendMessage({
       type: 'SERVICE_DELETED',
+    });
+  });
+
+  getAppEvents().subscribe(TimeZoneUpdatedEvent, () => {
+    messenger.sendMessage({
+      type: 'TIMEZONE_CHANGED',
     });
   });
 };
