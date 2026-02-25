@@ -105,6 +105,7 @@ Multiple code generation tools are used:
 - Prefer modern Go idioms (context, error wrapping)
 - Prefer modern slice helpers (e.g., `slices.Contains`), range loops
 - Use `any` instead of `interface{}`
+- Prefer `len(varN) != 0` over `len(varN) > 0` for non-empty checks
 
 ### Don't
 - Don't use `gorm` or other ORMs - only `reform`
