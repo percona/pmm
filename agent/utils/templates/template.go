@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package templates contain all logic related to template rendering.
+// Package templates contains all logic related to template rendering.
 package templates
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"text/template"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -47,10 +47,10 @@ func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map
 
 	var buf bytes.Buffer
 	if _, err := t.Parse(text); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	if err := t.Execute(&buf, templateParams); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return buf.Bytes(), nil
 }
@@ -63,10 +63,10 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 	}
 
 	if err := os.RemoveAll(tr.TempDir); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
-	if err := os.MkdirAll(tr.TempDir, 0o700); err != nil {
-		return nil, errors.WithStack(err)
+	if err := os.MkdirAll(tr.TempDir, 0o700); err != nil { //nolint:mnd
+		return nil, err
 	}
 
 	textFiles := make(map[string]string, len(tr.TextFiles)) // template name => full file path
@@ -74,7 +74,7 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 	for name := range tr.TextFiles {
 		// avoid /, .., ., \, and other special symbols
 		if !textFileRE.MatchString(name) {
-			return nil, errors.Errorf("invalid text file name %q", name)
+			return nil, fmt.Errorf("invalid text file name %q", name)
 		}
 
 		path := filepath.Join(tr.TempDir, name)
@@ -89,8 +89,8 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 		}
 
 		path := filepath.Join(tr.TempDir, name)
-		if err = os.WriteFile(path, b, 0o600); err != nil {
-			return nil, errors.WithStack(err)
+		if err = os.WriteFile(path, b, 0o600); err != nil { //nolint:mnd
+			return nil, err
 		}
 	}
 	return templateParams, nil
