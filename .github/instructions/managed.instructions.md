@@ -1,3 +1,6 @@
+---
+applyTo: managed/**
+---
 # pmm-managed Development Guidelines
 
 **pmm-managed** manages the configuration of [PMM](https://docs.percona.com/percona-monitoring-and-management/3/) server components (VictoriaMetrics, Grafana, QAN, etc.) and exposes an API for interacting with them. The API is also consumed by [pmm-admin tool](https://github.com/percona/pmm/tree/main/admin).
@@ -105,7 +108,6 @@ Multiple code generation tools are used:
 - Prefer modern Go idioms (context, error wrapping)
 - Prefer modern slice helpers (e.g., `slices.Contains`), range loops
 - Use `any` instead of `interface{}`
-- Prefer `len(varN) != 0` over `len(varN) > 0` for non-empty checks
 
 ### Don't
 - Don't use `gorm` or other ORMs - only `reform`
