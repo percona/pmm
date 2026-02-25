@@ -9,6 +9,7 @@ import { diffFromNow, formatDuration } from 'utils/datetime.utils';
 import { Messages } from './SessionStatus.messages';
 import { getSessionStatusText } from 'utils/status.utils';
 import { SessionRow } from '../SessionsTable.types';
+import { useLiveTimestamp } from 'hooks/useLiveTimestamp';
 
 interface Props {
   session: SessionRow;
@@ -17,6 +18,7 @@ interface Props {
 const SessionStatus: FC<Props> = ({ session }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
+  useLiveTimestamp(30_000);
 
   if (session.status === RealtimeSessionStatus.running) {
     return Messages.runningFor(formatDuration(diffFromNow(session.startTime)));

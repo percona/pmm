@@ -20,6 +20,7 @@ import { ModalType, SessionRow } from './SessionsTable.types';
 import { enqueueSnackbar } from 'notistack';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { useUser } from 'contexts/user';
+import { Navigate } from 'react-router-dom';
 
 const SessionsTable: FC = () => {
   const { user } = useUser();
@@ -104,6 +105,10 @@ const SessionsTable: FC = () => {
 
   if (isLoading) {
     return <Skeleton variant="rounded" height="100%" />;
+  }
+
+  if (sessions.length === 0) {
+    return <Navigate to="/rta/selection" />;
   }
 
   return (

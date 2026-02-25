@@ -8,7 +8,7 @@ import UnavailableText from 'components/unavailable-text';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
-    size: 400,
+    size: 500,
     header: Messages.columns.queryText,
     accessorKey: 'queryText',
     filterFn: 'contains',
@@ -27,8 +27,10 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     }),
   },
   {
+    size: 150,
     header: Messages.columns.operationId,
     accessorKey: 'queryId',
+    enableColumnFilter: false,
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
       'data-testid': `query-${row.original.queryId}-operation-id-cell`,
@@ -40,6 +42,9 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     accessorKey: 'queryExecutionDurationMs',
     filterVariant: 'range',
     filterFn: 'timeRangeFilterFn',
+    muiTableHeadCellFilterTextFieldProps: {
+      inputProps: { step: 0.25, type: 'number' },
+    },
     Cell: ({ cell }) =>
       cell.getValue() ? (
         `${formatDuration(
