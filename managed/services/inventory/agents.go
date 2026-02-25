@@ -1769,8 +1769,8 @@ func convertLogLevel(logLevel *inventoryv1.LogLevel) *string {
 	if logLevel != nil {
 		// Convert from "LOG_LEVEL_DEBUG" to "debug"
 		fullName := logLevel.String()
-		if strings.HasPrefix(fullName, "LOG_LEVEL_") {
-			simplified := strings.ToLower(strings.TrimPrefix(fullName, "LOG_LEVEL_"))
+		if after, ok := strings.CutPrefix(fullName, "LOG_LEVEL_"); ok {
+			simplified := strings.ToLower(after)
 			return &simplified
 		}
 
