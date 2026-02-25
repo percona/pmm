@@ -115,7 +115,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					Username:     "username",
 					PMMAgentID:   pmmAgentID,
 					Disabled:     true,
-					Status:       &AgentStatusUnknown,
+					Status:       &AgentStatusDone,
 					CustomLabels: map[string]string{},
 					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},

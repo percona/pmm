@@ -547,7 +547,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			LogLevel:                    pointer.ToString("LOG_LEVEL_ERROR"),
 			PushMetricsEnabled:          true,
 			Disabled:                    true, // agent was disabled
-			Status:                      &AgentStatusUnknown,
+			Status:                      &AgentStatusDone,
 			CustomLabels: map[string]string{
 				"environment": "production",
 				"team":        "platform",
@@ -572,7 +572,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			LogLevel:                    pointer.ToString("LOG_LEVEL_ERROR"),
 			PushMetricsEnabled:          true,
 			Disabled:                    true, // agent was disabled
-			Status:                      &AgentStatusUnknown,
+			Status:                      &AgentStatusDone,
 			CustomLabels: map[string]string{
 				"environment": "production",
 				"team":        "platform",

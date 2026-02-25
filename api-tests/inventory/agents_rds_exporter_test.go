@@ -543,7 +543,7 @@ func TestRDSExporter(t *testing.T) {
 			EnhancedMetricsDisabled: true,
 			PushMetricsEnabled:      true,
 			Disabled:                true, // agent was disabled
-			Status:                  &AgentStatusUnknown,
+			Status:                  &AgentStatusDone,
 			CustomLabels: map[string]string{
 				"environment": "production",
 				"version":     "2.0",
@@ -570,7 +570,7 @@ func TestRDSExporter(t *testing.T) {
 			EnhancedMetricsDisabled: true,
 			PushMetricsEnabled:      true,
 			Disabled:                true,
-			Status:                  &AgentStatusUnknown,
+			Status:                  &AgentStatusDone,
 			CustomLabels: map[string]string{
 				"environment": "production",
 				"version":     "2.0",

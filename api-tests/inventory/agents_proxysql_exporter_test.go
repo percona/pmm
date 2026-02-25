@@ -637,7 +637,7 @@ func TestProxySQLExporter(t *testing.T) {
 			PushMetricsEnabled: true,
 			DisabledCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
 			Disabled:           true, // agent was disabled
-			Status:             &AgentStatusUnknown,
+			Status:             &AgentStatusDone,
 			CustomLabels: map[string]string{
 				"environment": "production",
 				"version":     "2.0",
@@ -663,7 +663,7 @@ func TestProxySQLExporter(t *testing.T) {
 			PushMetricsEnabled: true,
 			DisabledCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
 			Disabled:           true,
-			Status:             &AgentStatusUnknown,
+			Status:             &AgentStatusDone,
 			CustomLabels: map[string]string{
 				"environment": "production",
 				"version":     "2.0",

@@ -690,6 +690,7 @@ func TestExternalExporter(t *testing.T) {
 			ListenPort:         8080,
 			Disabled:           true, // agent was disabled
 			PushMetricsEnabled: true,
+			Status:             &AgentStatusDone,
 			CustomLabels: map[string]string{
 				"environment": "production",
 				"version":     "2.0",
@@ -716,6 +717,7 @@ func TestExternalExporter(t *testing.T) {
 			ListenPort:         8080,
 			Disabled:           true,
 			PushMetricsEnabled: true,
+			Status:             &AgentStatusDone,
 			CustomLabels: map[string]string{
 				"environment": "production",
 				"version":     "2.0",
