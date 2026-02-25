@@ -48,7 +48,7 @@ const RealtimeSessionsPage: FC = () => {
           }}
         >
           <Typography variant="body2">
-            {user?.isEditor
+            {user?.isPMMAdmin
               ? Messages.pageDescription
               : Messages.pageDescriptionViewer}
           </Typography>

@@ -51,8 +51,7 @@ export const RealtimeSelection: FC = () => {
     );
   }
 
-  // Admin and Editors are both editors
-  if (!user?.isEditor) {
+  if (!user?.isPMMAdmin) {
     return <RealtimeSelectionViewerEmptyState />;
   }
 

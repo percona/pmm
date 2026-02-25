@@ -53,9 +53,10 @@ const OverviewTable: FC<Props> = ({
         timeRangeFilterFn: (row, id, filterValue) =>
           filterElapsedTime(row as MRT_Row<QueryData>, id, filterValue),
       }}
-      muiTableBodyRowProps={{
+      muiTableBodyRowProps={({ row }) => ({
         onMouseEnter: onRowHover,
-      }}
+        'data-testid': `query-${row.original.queryId}-row`,
+      })}
     />
   </RealtimeTableWrapper>
 );
