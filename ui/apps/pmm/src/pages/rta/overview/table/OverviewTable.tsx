@@ -1,3 +1,4 @@
+import { type MRT_Row } from 'material-react-table';
 import { MaterialReactTableProps } from 'material-react-table';
 import { Table } from '@percona/ui-lib';
 import { FC } from 'react';
@@ -6,6 +7,7 @@ import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
+import { filterElapsedTime } from './OverviewTable.utils';
 
 interface Props {
   queries: QueryData[];
@@ -48,33 +50,8 @@ const OverviewTable: FC<Props> = ({
       renderTopToolbarCustomActions={actions}
       filterFns={{
         // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds
-        timeRangeFilterFn: (row, id, filterValue) => {
-          const [min, max] = filterValue;
-          if (
-            min === '' ||
-            max === '' ||
-            min === null ||
-            max === null ||
-            min === undefined ||
-            max === undefined
-          ) {
-            return true;
-          }
-
-          if (Number.isNaN(min) || Number.isNaN(max)) {
-            return false;
-          }
-
-          const minSeconds = parseFloat(min);
-          const maxSeconds = parseFloat(max);
-
-          const valueSeconds = row.getValue<number>(id);
-          if (valueSeconds === null || valueSeconds === undefined) {
-            return false;
-          }
-
-          return valueSeconds >= minSeconds && valueSeconds <= maxSeconds;
-        },
+        timeRangeFilterFn: (row, id, filterValue) =>
+          filterElapsedTime(row as MRT_Row<QueryData>, id, filterValue),
       }}
       muiTableBodyRowProps={{
         onMouseEnter: onRowHover,
