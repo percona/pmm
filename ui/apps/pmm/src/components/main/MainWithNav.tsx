@@ -15,7 +15,7 @@ export const MainWithNav = () => {
   // We hide the sidebar in headless browser to avoid the navigation to be shown on rendering server
   // Checking the NODE_ENV to avoid the sidebar vanishing when running tests (e.g. Playwright)
   const isHeadlessBrowser = useMemo(() => {
-    return (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production') && window.navigator.userAgent.includes('Headless');
+    return ['development', 'production'].includes(process.env.NODE_ENV) && window.navigator.userAgent.includes('Headless');
   }, []);
 
   if (!isReady) {
