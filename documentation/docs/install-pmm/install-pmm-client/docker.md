@@ -79,8 +79,8 @@ To deploy and register PMM Client using Docker:
             -e PMM_AGENT_SETUP=1 \
             -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
             -e PMM_AGENT_SETUP_FORCE=1 \
-            -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
             -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
+            -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
             percona/pmm-client:3
             ```
     
@@ -112,8 +112,8 @@ To deploy and register PMM Client using Docker:
         -e PMM_AGENT_SETUP=1 \
         -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
         -e PMM_AGENT_SETUP_FORCE=1 \
-        -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
         -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
+        -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
         percona/pmm-client:3
         ```
     
@@ -177,8 +177,8 @@ When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to
  -e PMM_AGENT_SETUP=1 \
  -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
  -e PMM_AGENT_SETUP_FORCE=1 \
- -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
  -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
+ -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
  percona/pmm-client:3
 ```
 
