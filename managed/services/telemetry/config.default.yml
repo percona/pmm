@@ -1051,7 +1051,7 @@ telemetry:
     summary: "Real-Time Analytics collect interval (sec)"
     transform:
       type: JSON
-      metric: "rta_agent_collect_interval_sec"
+      metric: "rta_agent_collect_interval"
     data:
       - metric_name: "agent_type"
         column: "agent_type"
