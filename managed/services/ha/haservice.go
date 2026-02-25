@@ -593,8 +593,8 @@ func (s *Service) Params() *models.HAParams {
 	return s.params
 }
 
-// HAMetrics holds HA-related Prometheus metric values for this node.
-type HAMetrics struct {
+// Metrics holds HA-related Prometheus metric values for this node.
+type Metrics struct {
 	// Enabled indicates whether HA mode is active.
 	Enabled bool
 	// IsLeader is true when this node currently holds the Raft leader lease.
@@ -607,15 +607,15 @@ type HAMetrics struct {
 	IsVoter bool
 }
 
-// GetHAMetrics returns current HA Raft metrics for this node. The returned
+// GetMetrics returns current HA Raft metrics for this node. The returned
 // values are intended to be exposed as Prometheus gauges so that VictoriaMetrics
 // can evaluate cluster-health alerting rules such as PMMHALeaderMissing,
 // PMMHASplitBrain, PMMHALeaderFlapping and PMMHAQuorumAtRisk.
 //
 // When HA is disabled, Enabled is false and all other fields are zero values.
-func (s *Service) GetHAMetrics() HAMetrics {
+func (s *Service) GetMetrics() Metrics {
 	if !s.params.Enabled {
-		return HAMetrics{Enabled: false}
+		return Metrics{Enabled: false}
 	}
 
 	s.rw.RLock()
@@ -624,7 +624,7 @@ func (s *Service) GetHAMetrics() HAMetrics {
 
 	if raftNode == nil {
 		// HA enabled but Raft not yet initialised (early startup).
-		return HAMetrics{Enabled: true}
+		return Metrics{Enabled: true}
 	}
 
 	isLeader := raftNode.State() == raft.Leader
@@ -648,7 +648,7 @@ func (s *Service) GetHAMetrics() HAMetrics {
 		}
 	}
 
-	return HAMetrics{
+	return Metrics{
 		Enabled:  true,
 		IsLeader: isLeader,
 		RaftTerm: term,
