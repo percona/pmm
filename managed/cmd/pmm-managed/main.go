@@ -894,6 +894,9 @@ func main() { //nolint:maintidx,cyclop
 	inventoryMetricsCollector := inventory.NewInventoryMetricsCollector(inventoryMetrics)
 	prom.MustRegister(inventoryMetricsCollector)
 
+	haMetricsCollector := ha.NewHAMetricsCollector(haService)
+	prom.MustRegister(haMetricsCollector)
+
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
