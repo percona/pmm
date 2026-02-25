@@ -68,19 +68,20 @@ To deploy and register PMM Client using Docker:
         11. Run the container using the token:
     
             ```bash
-             docker run \
-             --name pmm-client \
-             -e PMM_AGENT_SETUP_NODE_NAME=my_node_name \
-             -e PMM_AGENT_SETUP_NODE_TYPE=container \
-             -e PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443 \
-             -e PMM_AGENT_SERVER_USERNAME=service_token \
-             -e PMM_AGENT_SERVER_PASSWORD=YOUR_GLSA_TOKEN \
-             -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
-             -e PMM_AGENT_SETUP=1 \
-             -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-             -e PMM_AGENT_SETUP_FORCE=1 \
-             -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
-             percona/pmm-client:3
+            docker run \
+            --name pmm-client \
+            -e PMM_AGENT_SETUP_NODE_NAME=my_node_name \
+            -e PMM_AGENT_SETUP_NODE_TYPE=container \
+            -e PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443 \
+            -e PMM_AGENT_SERVER_USERNAME=service_token \
+            -e PMM_AGENT_SERVER_PASSWORD=YOUR_GLSA_TOKEN \
+            -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
+            -e PMM_AGENT_SETUP=1 \
+            -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
+            -e PMM_AGENT_SETUP_FORCE=1 \
+            -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
+            -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
+            percona/pmm-client:3
             ```
     
             **Parameters explained:**
@@ -91,29 +92,29 @@ To deploy and register PMM Client using Docker:
             - `service_token` - Use this exact string as the username (not a placeholder!)
             - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
             - `PMM_AGENT_SERVER_INSECURE_TLS` - Skip certificate validation (remove for production with valid certificates)
-            - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
+            - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) Path to a script inside the container that runs after registration. Mount your script using `-v ./your-script.sh:/opt/percona/pmm-prerun.sh`. See [Monitoring services](#add-monitoring-services). 
 
             You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
-
     
     === "Standard authentication (Not recommended)"
    
         This method exposes credentials in command history, process lists, and logs! Use only for testing or migration scenarios:
     
         ```sh
-         docker run \
-         --name pmm-client \
-         -e PMM_AGENT_SETUP_NODE_NAME=my_node_name \
-         -e PMM_AGENT_SETUP_NODE_TYPE=container \
-         -e PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443 \
-         -e PMM_AGENT_SERVER_USERNAME=admin \
-         -e PMM_AGENT_SERVER_PASSWORD=admin \
-         -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
-         -e PMM_AGENT_SETUP=1 \
-         -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-         -e PMM_AGENT_SETUP_FORCE=1 \
-         -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
-         percona/pmm-client:3
+        docker run \
+        --name pmm-client \
+        -e PMM_AGENT_SETUP_NODE_NAME=my_node_name \
+        -e PMM_AGENT_SETUP_NODE_TYPE=container \
+        -e PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443 \
+        -e PMM_AGENT_SERVER_USERNAME=admin \
+        -e PMM_AGENT_SERVER_PASSWORD=admin \
+        -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
+        -e PMM_AGENT_SETUP=1 \
+        -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
+        -e PMM_AGENT_SETUP_FORCE=1 \
+        -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
+        -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
+        percona/pmm-client:3
         ```
     
         **Parameters explained:**
@@ -177,6 +178,7 @@ When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to
  -e PMM_AGENT_SETUP=1 \
  -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
  -e PMM_AGENT_SETUP_FORCE=1 \
+ -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
  -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
  percona/pmm-client:3
 ```
