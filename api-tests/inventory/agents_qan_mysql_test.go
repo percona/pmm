@@ -88,8 +88,9 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					ExtraDsnParams: map[string]string{},
+					Status:         &AgentStatusUnknown,
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -110,14 +111,15 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentOKBodyQANMysqlPerfschemaAgent{
-					AgentID:      agentID,
-					ServiceID:    serviceID,
-					Username:     "username",
-					PMMAgentID:   pmmAgentID,
-					Disabled:     true,
-					Status:       &AgentStatusDone,
-					CustomLabels: map[string]string{},
-					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					AgentID:        agentID,
+					ServiceID:      serviceID,
+					Username:       "username",
+					PMMAgentID:     pmmAgentID,
+					Disabled:       true,
+					Status:         &AgentStatusDone,
+					CustomLabels:   map[string]string{},
+					ExtraDsnParams: map[string]string{},
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -149,8 +151,9 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					ExtraDsnParams: map[string]string{},
+					Status:         &AgentStatusDone,
+					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -400,8 +403,9 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 				"version":     "2.0",
 				"team":        "backend",
 			},
-			Status:   &AgentStatusUnknown,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			ExtraDsnParams: map[string]string{},
+			Status:         &AgentStatusDone,
+			LogLevel:       pointer.ToString("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedAgent, changeQANAgentOK.Payload.QANMysqlPerfschemaAgent)
@@ -429,8 +433,9 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 				"version":     "2.0",
 				"team":        "backend",
 			},
-			Status:   &AgentStatusUnknown,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			ExtraDsnParams: map[string]string{},
+			Status:         &AgentStatusDone,
+			LogLevel:       pointer.ToString("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.QANMysqlPerfschemaAgent)
