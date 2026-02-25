@@ -43,7 +43,7 @@ To deploy and register PMM Client using Docker:
     docker pull percona/pmm-client:3
     ```
 
-2. Start the PMM Client container and resister it with PMM Server using the [pmm-agent](../../use/commands/pmm-agent.md) Setup mode. Replace `X.X.X.X` with the external IP address of your PMM Server:
+2. Start the PMM Client container and register it with PMM Server using the [pmm-agent](../../use/commands/pmm-agent.md) Setup mode. Replace `X.X.X.X` with the external IP address of your PMM Server:
 
     !!! hint alert-success "Important"
         Do not use the `--detach` option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.
@@ -185,5 +185,4 @@ When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to
 ## Tips for Docker configuration
 
 - Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see the [troubleshooting checklist](../../troubleshoot/checklist.md).
-- If you need assistance with PMM Client, run: `docker run --rm percona/pmm-client:3 --help`.
-
+- To view available pmm-agent command-line options, run: `docker run --rm percona/pmm-client:3 --help`
