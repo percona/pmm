@@ -6,7 +6,7 @@ Before installing PMM Client, ensure your environment meets these requirements.
 
 ✓ **Hardware**: 64-bit system (x86_64 or ARM64) with at least 100 MB storage  
 ✓ **OS**: Modern 64-bit Linux (Debian, Ubuntu, RHEL, Oracle Linux, Amazon Linux 2023)  
-✓ **Network**: Connectivity to PMM Server (ports 80/443)  
+✓ **Network**: Connectivity to PMM Server (port 443)  
 ✓ **Software**: curl, gnupg, sudo, wget  
 ✓ **Database**: Appropriate monitoring user credentials  
 
@@ -29,7 +29,7 @@ PMM Client requires these network connections:
 
 | Connection | Port | Purpose |
 |------------|------|---------|
-| PMM Client > PMM Server | 443 (or 80) | Metrics reporting and management |
+| PMM Client > PMM Server | 443 | Metrics reporting and management. Use port 8443 if your environment restricts privileged ports (<1024).  |
 | PMM Client > Database instances | Varies by DB type | Collection of monitoring data |
 
 For a complete list of ports and detailed network configuration options, see [Network and firewall requirements](../plan-pmm-installation/network_and_firewall.md).

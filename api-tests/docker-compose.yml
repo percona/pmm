@@ -18,6 +18,7 @@ services:
   test_db:
     image: aleksi/test_db:1.1.0
     container_name: pmm-agent_test_db
+    platform: linux/amd64
     volumes:
       - test_db_mysql:/test_db/mysql/world:ro
       - test_db_postgres:/test_db/postgresql/world:ro
