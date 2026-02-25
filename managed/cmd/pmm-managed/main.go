@@ -39,7 +39,6 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
@@ -67,9 +66,9 @@ import (
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	backupv1 "github.com/percona/pmm/api/backup/v1"
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
+	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	platformv1 "github.com/percona/pmm/api/platform/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -197,36 +196,37 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 }
 
 type gRPCServerDeps struct {
-	db                   *reform.DB
-	ha                   *ha.Service
-	checksService        *checks.Service
-	config               *config.Config
-	agentsRegistry       *agents.Registry
-	handler              *agents.Handler
-	actions              *agents.ActionsService
-	agentService         *agents.AgentService
-	jobsService          *agents.JobsService
-	connectionCheck      *agents.ConnectionChecker
-	serviceInfoBroker    *agents.ServiceInfoBroker
-	agentsStateUpdater   *agents.StateUpdater
-	grafanaClient        *grafana.Client
-	templatesService     *alerting.Service
-	backupService        *backup.Service
-	dumpService          *dump.Service
-	compatibilityService *backup.CompatibilityService
-	backupRemovalService *backup.RemovalService
-	pbmPITRService       *backup.PBMPITRService
-	vmClient             *metrics.Client
-	minioClient          *minio.Client
-	settings             *models.Settings
-	platformClient       *platformClient.Client
-	schedulerService     *scheduler.Service
-	supervisord          *supervisord.Service
-	server               *server.Server
-	uieventsService      *uievents.Service
-	versionCache         *versioncache.Service
-	vmdb                 *victoriametrics.Service
-	vmalert              *vmalert.Service
+	db                        *reform.DB
+	ha                        *ha.Service
+	checksService             *checks.Service
+	config                    *config.Config
+	agentsRegistry            *agents.Registry
+	handler                   *agents.Handler
+	actions                   *agents.ActionsService
+	agentService              *agents.AgentService
+	jobsService               *agents.JobsService
+	connectionCheck           *agents.ConnectionChecker
+	serviceInfoBroker         *agents.ServiceInfoBroker
+	agentsStateUpdater        *agents.StateUpdater
+	externalExporterStatusSvc *agents.ExternalExporterStatusService
+	grafanaClient             *grafana.Client
+	templatesService          *alerting.Service
+	backupService             *backup.Service
+	dumpService               *dump.Service
+	compatibilityService      *backup.CompatibilityService
+	backupRemovalService      *backup.RemovalService
+	pbmPITRService            *backup.PBMPITRService
+	vmClient                  *metrics.Client
+	minioClient               *minio.Client
+	settings                  *models.Settings
+	platformClient            *platformClient.Client
+	schedulerService          *scheduler.Service
+	supervisord               *supervisord.Service
+	server                    *server.Server
+	uieventsService           *uievents.Service
+	versionCache              *versioncache.Service
+	vmdb                      *victoriametrics.Service
+	vmalert                   *vmalert.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -236,14 +236,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
-	grpcMetrics := grpc_prometheus.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
 	prom.MustRegister(grpcMetrics)
 
 	gRPCServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			interceptors.Unary(grpcMetrics.UnaryServerInterceptor()),
+			interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor()),
 			interceptors.UnaryServiceEnabledInterceptor(),
 			grpc_validator.UnaryServerInterceptor())),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
@@ -297,6 +297,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
+
+	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
@@ -359,36 +361,47 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
 	}
 
-	// TODO switch from RegisterXXXHandlerFromEndpoint to RegisterXXXHandler to avoid extra dials
-	// (even if they dial to localhost)
-	// https://jira.percona.com/browse/PMM-4326
-	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
+	// Create a shared gRPC connection for handlers that use Register*Handler
+	sharedConn, err := grpc.NewClient(gRPCAddr, opts...)
+	if err != nil {
+		l.Panic(err)
+	}
+	go func() {
+		<-ctx.Done()
+		if err := sharedConn.Close(); err != nil {
+			l.Errorf("Failed to close the shared gRPC connection: %s", err)
+		}
+	}()
+
+	// Register services using Register*Handler
+	type registrar func(context.Context, *grpc_gateway.ServeMux, *grpc.ClientConn) error
 	for _, r := range []registrar{
-		serverv1.RegisterServerServiceHandlerFromEndpoint,
+		serverv1.RegisterServerServiceHandler,
 
-		inventoryv1.RegisterNodesServiceHandlerFromEndpoint,
-		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,
-		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
+		inventoryv1.RegisterNodesServiceHandler,
+		inventoryv1.RegisterServicesServiceHandler,
+		inventoryv1.RegisterAgentsServiceHandler,
 
-		managementv1.RegisterManagementServiceHandlerFromEndpoint,
-		actionsv1.RegisterActionsServiceHandlerFromEndpoint,
-		advisorsv1.RegisterAdvisorServiceHandlerFromEndpoint,
-		accesscontrolv1.RegisterAccessControlServiceHandlerFromEndpoint,
+		managementv1.RegisterManagementServiceHandler,
+		actionsv1.RegisterActionsServiceHandler,
+		advisorsv1.RegisterAdvisorServiceHandler,
+		accesscontrolv1.RegisterAccessControlServiceHandler,
 
-		alertingv1.RegisterAlertingServiceHandlerFromEndpoint,
+		alertingv1.RegisterAlertingServiceHandler,
 
-		backupv1.RegisterBackupServiceHandlerFromEndpoint,
-		backupv1.RegisterLocationsServiceHandlerFromEndpoint,
-		backupv1.RegisterRestoreServiceHandlerFromEndpoint,
+		backupv1.RegisterBackupServiceHandler,
+		backupv1.RegisterLocationsServiceHandler,
+		backupv1.RegisterRestoreServiceHandler,
 
-		dumpv1beta1.RegisterDumpServiceHandlerFromEndpoint,
+		dumpv1beta1.RegisterDumpServiceHandler,
 
-		platformv1.RegisterPlatformServiceHandlerFromEndpoint,
-		uieventsv1.RegisterUIEventsServiceHandlerFromEndpoint,
+		uieventsv1.RegisterUIEventsServiceHandler,
 
-		userv1.RegisterUserServiceHandlerFromEndpoint,
+		userv1.RegisterUserServiceHandler,
+
+		hav1beta1.RegisterHAServiceHandler,
 	} {
-		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
+		if err := r(ctx, proxyMux, sharedConn); err != nil {
 			l.Panic(err)
 		}
 	}
@@ -526,7 +539,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 
 	deps.l.Infof("Checking VictoriaMetrics...")
 	if err = deps.vmdb.IsReady(ctx); err != nil {
-		deps.l.Warnf("VictoriaMetrics problem: %+v.", err)
+		deps.l.Warnf("Failed to check VictoriaMetrics readiness: %+v.", err)
 		return false
 	}
 	deps.vmdb.RequestConfigurationUpdate()
@@ -586,6 +599,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 		l.Infof("Migrating database...")
 		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
+			l.Infof("Database migration completed.")
 			return
 		}
 
@@ -661,30 +675,27 @@ func main() { //nolint:maintidx,cyclop
 		String()
 
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
-		Envar("PMM_TEST_HA_ENABLE").
-		Bool()
-	haBootstrap := kingpin.Flag("ha-bootstrap", "Bootstrap HA cluster").
-		Envar("PMM_TEST_HA_BOOTSTRAP").
+		Envar("PMM_HA_ENABLE").
 		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
-		Envar("PMM_TEST_HA_NODE_ID").
+		Envar("PMM_HA_NODE_ID").
 		String()
 	haAdvertiseAddress := kingpin.Flag("ha-advertise-address", "HA Advertise address").
-		Envar("PMM_TEST_HA_ADVERTISE_ADDRESS").
+		Envar("PMM_HA_ADVERTISE_ADDRESS").
 		String()
 	haPeers := kingpin.Flag("ha-peers", "HA Peers").
-		Envar("PMM_TEST_HA_PEERS").
+		Envar("PMM_HA_PEERS").
 		String()
 	haRaftPort := kingpin.Flag("ha-raft-port", "HA raft port").
-		Envar("PMM_TEST_HA_RAFT_PORT").
+		Envar("PMM_HA_RAFT_PORT").
 		Default("9760").
 		Int()
 	haGossipPort := kingpin.Flag("ha-gossip-port", "HA gossip port").
-		Envar("PMM_TEST_HA_GOSSIP_PORT").
+		Envar("PMM_HA_GOSSIP_PORT").
 		Default("9761").
 		Int()
 	haGrafanaGossipPort := kingpin.Flag("ha-grafana-gossip-port", "HA Grafana gossip port").
-		Envar("PMM_TEST_HA_GRAFANA_GOSSIP_PORT").
+		Envar("PMM_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
 
@@ -700,6 +711,32 @@ func main() { //nolint:maintidx,cyclop
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
+
+	// Nomad garbage collection flags
+	nomadGCIntervalF := kingpin.Flag("nomad-gc-interval", "Interval at which Nomad attempts to garbage collect terminal allocation directories.").
+		Default("1m").
+		Envar("PMM_NOMAD_GC_INTERVAL").
+		Duration()
+	nomadGCDiskUsageThresholdF := kingpin.Flag("nomad-gc-disk-usage-threshold",
+		"Disk usage percent which Nomad tries to maintain by garbage collecting terminal allocations.").
+		Default("80").
+		Envar("PMM_NOMAD_GC_DISK_USAGE_THRESHOLD").
+		Int()
+	nomadGCInodeUsageThresholdF := kingpin.Flag("nomad-gc-inode-usage-threshold",
+		"Inode usage percent which Nomad tries to maintain by garbage collecting terminal allocations.").
+		Default("70").
+		Envar("PMM_NOMAD_GC_INODE_USAGE_THRESHOLD").
+		Int()
+	nomadGCMaxAllocsF := kingpin.Flag("nomad-gc-max-allocs",
+		"Maximum number of allocations which a client will track before triggering a garbage collection of terminal allocations.").
+		Default("50").
+		Envar("PMM_NOMAD_GC_MAX_ALLOCS").
+		Int()
+	nomadGCParallelDestroysF := kingpin.Flag("nomad-gc-parallel-destroys",
+		"Maximum number of parallel destroys allowed by the garbage collector.").
+		Default("2").
+		Envar("PMM_NOMAD_GC_PARALLEL_DESTROYS").
+		Int()
 
 	kingpin.Parse()
 
@@ -727,7 +764,6 @@ func main() { //nolint:maintidx,cyclop
 	}
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
-		Bootstrap:         *haBootstrap,
 		NodeID:            *haNodeID,
 		AdvertiseAddress:  *haAdvertiseAddress,
 		Nodes:             nodes,
@@ -796,6 +832,8 @@ func main() { //nolint:maintidx,cyclop
 		SSLCAPath:   *postgresSSLCAPathF,
 		SSLKeyPath:  *postgresSSLKeyPathF,
 		SSLCertPath: *postgresSSLCertPathF,
+		HANodeID:    *haNodeID,
+		HAPeers:     nodes,
 	}
 
 	sqlDB, err := models.OpenDB(setupParams)
@@ -804,29 +842,30 @@ func main() { //nolint:maintidx,cyclop
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	if haService.Bootstrap() {
-		migrateDB(ctx, sqlDB, setupParams)
+	if *haEnabled {
+		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
 	}
+
+	migrateDB(ctx, sqlDB, setupParams)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	if haService.Bootstrap() {
-		// Generate unique PMM Server ID if it's not already set.
-		err = models.SetPMMServerID(db)
-		if err != nil {
-			l.Panicf("failed to set PMM Server ID")
-		}
+	// Generate unique PMM Server ID if it's not already.
+	err = models.SetPMMServerID(db)
+	if err != nil {
+		l.Panicf("failed to set PMM Server ID")
 	}
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
+
 	vmalert, err := vmalert.NewVMAlert(externalRules, *victoriaMetricsVMAlertURLF)
 	if err != nil {
 		l.Panicf("VictoriaMetrics VMAlert service problem: %+v", err)
@@ -837,12 +876,14 @@ func main() { //nolint:maintidx,cyclop
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db, vmParams)
+	agentsRegistry := agents.NewRegistry(db, vmParams, haService)
 
-	// TODO remove once PMM cluster will be Active-Active
-	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
-		agentsRegistry.KickAll(ctx)
-	}))
+	// TODO remove once PMM cluster is Active-Active
+	// TODO kick non-pmm-server agents only
+	// haService.AddLeaderService(ha.NewStandardService(
+	// 	"agentsRegistry",
+	// 	func(_ context.Context) error { return nil },
+	// 	func() { agentsRegistry.KickAll(ctx) }))
 
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
@@ -877,27 +918,20 @@ func main() { //nolint:maintidx,cyclop
 			HAParams: haParams,
 		})
 
-	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
-		err := supervisord.StartSupervisedService("pmm-agent")
-		if err != nil {
-			l.Warnf("couldn't start pmm-agent: %q", err)
-		}
-		return err
-	}, func() {
-		err := supervisord.StopSupervisedService("pmm-agent")
-		if err != nil {
-			l.Warnf("couldn't stop pmm-agent: %q", err)
-		}
-	}))
+	// Keep the agent always running, even on follower nodes.
+	err = supervisord.StartSupervisedService("pmm-agent")
+	if err != nil {
+		l.Warnf("Could not start pmm-agent: %s", err)
+	}
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
 		l.Fatal(err)
 	}
 
-	platformClient, err := platformClient.NewClient(db, platformAddress)
+	platformClient, err := platformClient.NewClient(platformAddress)
 	if err != nil {
-		l.Fatalf("Could not create Percona Portal client: %s", err)
+		l.Fatalf("Could not create telemetry client: %s", err)
 	}
 
 	uieventsService := uievents.New()
@@ -915,7 +949,15 @@ func main() { //nolint:maintidx,cyclop
 
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
-	nomad, err := nomad.New(db)
+
+	nomadClientConfig := &models.NomadClient{
+		GCInterval:            *nomadGCIntervalF,
+		GCDiskUsageThreshold:  *nomadGCDiskUsageThresholdF,
+		GCInodeUsageThreshold: *nomadGCInodeUsageThresholdF,
+		GCMaxAllocs:           *nomadGCMaxAllocsF,
+		GCParallelDestroys:    *nomadGCParallelDestroysF,
+	}
+	nomad, err := nomad.New(db, nomadClientConfig)
 	if err != nil {
 		l.Fatalf("Could not create Nomad client: %s", err)
 	}
@@ -935,6 +977,7 @@ func main() { //nolint:maintidx,cyclop
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
+	externalExporterStatusSvc := agents.NewExternalExporterStatusService(db, v1.NewAPI(vmClient))
 
 	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
@@ -976,6 +1019,7 @@ func main() { //nolint:maintidx,cyclop
 		Dus:                  dus,
 		HAService:            haService,
 		Nomad:                nomad,
+		QANClient:            qanClient,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1048,22 +1092,22 @@ func main() { //nolint:maintidx,cyclop
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		authServer.Run(ctx)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		vmalert.Run(ctx)
-	}()
+	})
+
+	wg.Go(func() {
+		vmdb.Run(ctx)
+	})
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		vmdb.Run(ctx)
+		externalExporterStatusSvc.Run(ctx)
 	}()
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
@@ -1071,17 +1115,13 @@ func main() { //nolint:maintidx,cyclop
 		return nil
 	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		supervisord.Run(ctx)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		updater.Run(ctx)
-	}()
+	})
 
 	wg.Add(1)
 	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
@@ -1100,58 +1140,53 @@ func main() { //nolint:maintidx,cyclop
 		return nil
 	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
-				actions:              actionsService,
-				agentService:         agentService,
-				agentsRegistry:       agentsRegistry,
-				agentsStateUpdater:   agentsStateUpdater,
-				backupRemovalService: backupRemovalService,
-				backupService:        backupService,
-				checksService:        checksService,
-				compatibilityService: compatibilityService,
-				config:               &cfg.Config,
-				connectionCheck:      connectionCheck,
-				db:                   db,
-				dumpService:          dumpService,
-				grafanaClient:        grafanaClient,
-				handler:              agentsHandler,
-				ha:                   haService,
-				jobsService:          jobsService,
-				minioClient:          minioClient,
-				pbmPITRService:       pbmPITRService,
-				platformClient:       platformClient,
-				schedulerService:     schedulerService,
-				server:               server,
-				serviceInfoBroker:    serviceInfoBroker,
-				settings:             settings,
-				supervisord:          supervisord,
-				templatesService:     alertingService,
-				uieventsService:      uieventsService,
-				versionCache:         versionCache,
-				vmalert:              vmalert,
-				vmClient:             &vmClient,
-				vmdb:                 vmdb,
+				actions:                   actionsService,
+				agentService:              agentService,
+				agentsRegistry:            agentsRegistry,
+				agentsStateUpdater:        agentsStateUpdater,
+				externalExporterStatusSvc: externalExporterStatusSvc,
+				backupRemovalService:      backupRemovalService,
+				backupService:             backupService,
+				checksService:             checksService,
+				compatibilityService:      compatibilityService,
+				config:                    &cfg.Config,
+				connectionCheck:           connectionCheck,
+				db:                        db,
+				dumpService:               dumpService,
+				grafanaClient:             grafanaClient,
+				handler:                   agentsHandler,
+				ha:                        haService,
+				jobsService:               jobsService,
+				minioClient:               minioClient,
+				pbmPITRService:            pbmPITRService,
+				platformClient:            platformClient,
+				schedulerService:          schedulerService,
+				server:                    server,
+				serviceInfoBroker:         serviceInfoBroker,
+				settings:                  settings,
+				supervisord:               supervisord,
+				templatesService:          alertingService,
+				uieventsService:           uieventsService,
+				versionCache:              versionCache,
+				vmalert:                   vmalert,
+				vmClient:                  &vmClient,
+				vmdb:                      vmdb,
 			})
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:       logs,
 			authServer: authServer,
 		})
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runDebugServer(ctx)
-	}()
+	})
 
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)

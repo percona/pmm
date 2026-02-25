@@ -31,7 +31,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	gapi "github.com/grafana/grafana-api-golang-client"
-	"github.com/percona/saas/pkg/alert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -40,6 +39,7 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
 	alerting "github.com/percona/pmm/api/alerting/v1/json/client/alerting_service"
+	"github.com/percona/pmm/managed/pi/alert"
 )
 
 // Note: Even though the Alerting service checks for alerting enabled or disabled before returning results
@@ -47,7 +47,7 @@ import (
 // PMM_ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
 	t.Parallel()
-	const foldersAPI = "http://127.0.0.1/graph/api/folders"
+	const foldersAPI = "https://127.0.0.1/graph/api/folders"
 	client := alertingClient.Default.AlertingService
 
 	// Create grafana folder for test alert rules

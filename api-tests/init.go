@@ -42,8 +42,8 @@ import (
 	backupsClient "github.com/percona/pmm/api/backup/v1/json/client"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	platformClient "github.com/percona/pmm/api/platform/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	userClient "github.com/percona/pmm/api/user/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -199,10 +199,10 @@ func init() {
 	managementClient.Default = managementClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
 	backupsClient.Default = backupsClient.New(transport, nil)
-	platformClient.Default = platformClient.New(transport, nil)
 	alertingClient.Default = alertingClient.New(transport, nil)
 	advisorClient.Default = advisorClient.New(transport, nil)
 	actionsClient.Default = actionsClient.New(transport, nil)
+	userClient.Default = userClient.New(transport, nil)
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.ServerService.Readiness(nil)

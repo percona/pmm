@@ -6,7 +6,7 @@ Before installing PMM Server, ensure your environment meets these requirements.
 
 ✓ **Hardware**: CPU with SSE4.2 support, 4+ cores, 8+ GB RAM, 100+ GB storage  
 ✓ **OS**: Modern 64-bit Linux or container platform (Docker/Podman/Kubernetes)  
-✓ **Network**: Ports 80/443 accessible to PMM Clients and users  
+✓ **Network**: Port 443 (or 8443 for non-privileged environments) accessible to PMM Clients and users
 ✓ **Container runtime**: Docker 17.03+ or Podman (for containerized deployments)  
 ✓ **Storage**: Persistent storage solution for data retention  
 
@@ -60,9 +60,8 @@ PMM Server requires these network connections:
 
 | Connection | Port | Purpose | Required |
 |------------|------|---------|----------|
-| Users > PMM Server | 443 (HTTPS) | Web interface access | Essential |
-| Users > PMM Server | 80 (HTTP) | Web interface (insecure) | Optional |
-| PMM Clients > PMM Server | 443/80 | Metrics reporting | Essential |
+| Users > PMM Server | 443 or 8443 | Web interface access. Use port 8443 if your environment restricts privileged ports (<1024). | Essential |
+| PMM Clients > PMM Server | 443 or 8443 | Metrics reporting | Essential |
 | PMM Server > Internet | 443 | Updates, telemetry | Optional |
 
 For complete port specifications, see [Network and firewall requirements](../plan-pmm-installation/network_and_firewall.md).
@@ -148,14 +147,13 @@ Choose your deployment method and ensure it meets these specific requirements:
 === ":material-harddisk: Virtual Appliance (OVA)"
     **Hypervisor compatibility:**
 
-    - VMware ESXi 6.0+, Workstation 12.0+, Fusion 10.0+
-    - VirtualBox 6.0+
+    - VirtualBox 7.0+
     
     **VM specifications (default):**
 
-    - OS: Oracle Linux 9.3
-    - CPU: 1 (adjustable after deployment)
-    - Memory: 4096 MB (adjustable after deployment)
+    - OS: Oracle Linux 9.6 (64-bit)
+    - CPU: 2 (adjustable after deployment)
+    - Memory: 8 GB (adjustable after deployment)
     - Disk 1: 40 GB (system)
     - Disk 2: 400 GB (data)
     
@@ -212,9 +210,9 @@ After confirming your environment meets these prerequisites:
 1. [Choose your deployment method](../plan-pmm-installation/choose-deployment.md) based on your infrastructure
 2. Install PMM Server  using your selected method:
 
-   - [Docker installation](../install-pmm-server/deployment-options/docker/index.md)
-   - [Podman installation](../install-pmm-server/deployment-options/podman/index.md)
-   - [Kubernetes/Helm installation](../install-pmm-server/deployment-options/helm/index.md)
-   - [Virtual Appliance deployment](../install-pmm-server/deployment-options/virtual/index.md)
+    - [Docker installation](../install-pmm-server/deployment-options/docker/index.md)
+    - [Podman installation](../install-pmm-server/deployment-options/podman/index.md)
+    - [Kubernetes/Helm installation](../install-pmm-server/deployment-options/helm/index.md)
+    - [Virtual Appliance deployment](../install-pmm-server/deployment-options/virtual/index.md)
 3. [Configure security settings](../../admin/security/index.md) for production use
 4. [Install PMM Clients](../install-pmm-client/index.md) on systems you want to monitor

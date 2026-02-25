@@ -27,17 +27,24 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"go.yaml.in/yaml/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/utils/encryption"
+	"github.com/percona/pmm/managed/utils/env"
 )
 
 const (
@@ -58,6 +65,8 @@ const (
 	VerifyCaSSLMode string = "verify-ca"
 	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
+	// DefaultSnoozeDuration represents duration for which an update is snoozed (default = 7 days).
+	DefaultSnoozeDuration time.Duration = 7 * 24 * time.Hour
 )
 
 // DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
@@ -1146,7 +1155,27 @@ var databaseSchema = [][]string{
 		`UPDATE agents SET valkey_options = '{}'::jsonb`,
 	},
 	112: {
-		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' AND pmm_agent_id = 'pmm-server'`,
+		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatements-agent' AND service_id = (SELECT service_id FROM services WHERE service_name = 'pmm-server-postgresql' LIMIT 1);`,
+	},
+	113: {
+		// Reset product tour for new navigation
+		`UPDATE user_flags SET tour_done = false;
+
+		ALTER TABLE user_flags
+			ADD COLUMN snoozed_at TIMESTAMP,
+			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0;
+
+		UPDATE settings
+			SET settings = settings || '{"updates": {"snooze_duration": ` + strconv.FormatInt(DefaultSnoozeDuration.Nanoseconds(), 10) + `}}'
+			WHERE settings->'updates' IS NULL
+			OR settings->'updates'->'snooze_duration' IS NULL`,
+	},
+	114: {
+		`ALTER TABLE agents ADD COLUMN environment_variables TEXT`,
+	},
+	115: {
+		`ALTER TABLE agents ADD COLUMN is_connected BOOLEAN NOT NULL DEFAULT false`,
+		`ALTER TABLE nodes ADD COLUMN is_pmm_server_node BOOLEAN NOT NULL DEFAULT false`,
 	},
 }
 
@@ -1213,6 +1242,8 @@ type SetupDBParams struct {
 	SSLCAPath        string
 	SSLKeyPath       string
 	SSLCertPath      string
+	HANodeID         string
+	HAPeers          []string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
 }
@@ -1429,7 +1460,11 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		err = setupPMMServerAgents(tx.Querier, params)
+		if params.HANodeID != "" {
+			err = setupPMMServerHAAgents(tx.Querier, params)
+		} else {
+			err = setupPMMServerAgents(tx.Querier, params)
+		}
 		if err != nil {
 			return err
 		}
@@ -1438,11 +1473,101 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
+type agentConfig struct {
+	ID string `yaml:"id"`
+}
+
+func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
+	agentID := uuid.New().String()
+	nodeID := uuid.New().String()
+
+	// create PMM Server Node and associated Agents in HA mode
+	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
+
+	file, err := os.Open(AgentConfigFilePath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	var agentConfig agentConfig
+	err = yaml.NewDecoder(file).Decode(&agentConfig)
+	if err != nil {
+		return fmt.Errorf("could not parse agent config file %s: %w", AgentConfigFilePath, err)
+	}
+
+	if agentConfig.ID == "" {
+		return fmt.Errorf("the agent ID is empty in config file %s", AgentConfigFilePath)
+	}
+
+	if agentConfig.ID != PMMServerAgentID {
+		// check if the agent with such ID already exists
+		agent, err := FindAgentByID(q, agentConfig.ID)
+		if err == nil {
+			logrus.Infof("PMM Agent with ID %s already exists, skipping creation", agentConfig.ID)
+			PMMServerAgentID = agentConfig.ID
+			PMMServerNodeID = pointer.Get(agent.RunsOnNodeID)
+			return nil
+		}
+	}
+
+	args := []string{
+		"setup",
+		"--config-file", AgentConfigFilePath,
+		"--server-address", "127.0.0.1:8443",
+		"--id", agentID,
+		"--skip-registration",
+		"--server-insecure-tls",
+	}
+	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
+	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error setting up pmm-agent: %w: %s", err, output)
+	}
+
+	labels := map[string]string{
+		"cluster":     "pmm",
+		"environment": "pmm",
+	}
+
+	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
+		NodeName:        params.HANodeID,
+		Address:         "127.0.0.1",
+		CustomLabels:    labels,
+		IsPMMServerNode: true,
+	})
+	if err != nil {
+		logrus.Errorf("Failed to create a node with ID %s: %s", nodeID, err)
+		return err
+	}
+
+	agent, err := createPMMAgentWithID(q, agentID, node.NodeID, labels)
+	if err != nil {
+		return err
+	}
+
+	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
+		return err
+	}
+
+	// set PMMServerAgentID and PMMServerNodeID to generated values in HA setup
+	PMMServerAgentID = agent.AgentID
+	logrus.Infof("Set PMMServerAgentID to: %s", PMMServerAgentID)
+	PMMServerNodeID = node.NodeID
+	logrus.Infof("Set PMMServerNodeID to: %s", PMMServerNodeID)
+
+	return nil
+}
+
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
-		NodeName: "pmm-server",
-		Address:  "127.0.0.1",
+		NodeName:        "pmm-server",
+		Address:         "127.0.0.1",
+		IsPMMServerNode: true,
 	})
 	if err != nil {
 		if status.Code(err) == codes.AlreadyExists {
@@ -1451,25 +1576,29 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		}
 		return err
 	}
+
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
 	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
+
 	address, port, err := parsePGAddress(params.Address)
 	if err != nil {
 		return err
 	}
 	if params.Address != DefaultPostgreSQLAddr {
-		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
+		node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
 			NodeName: PMMServerPostgreSQLNodeName,
 			Address:  address,
-		}); err != nil {
+		})
+		if err != nil {
 			return err
 		}
 	} else {
-		params.Name = "" // using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		// Using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		params.Name = ""
 	}
 
 	// create PostgreSQL Service and associated Agents
@@ -1518,7 +1647,9 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	// PMM-6659: QAN's PgStatMonitorAgent agent running on PMM Server is disabled by default.
-	ap.Disabled = true
+	// It can be enabled by setting PMM_ENABLE_INTERNAL_PG_QAN=1
+	// We rely on just the environment variable here since we run this set up before loading the server settings.
+	ap.Disabled = !env.GetBool(env.EnableInternalPgQAN)
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
@@ -1530,7 +1661,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 // parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
 func parsePGAddress(address string) (string, uint16, error) {
 	if !strings.Contains(address, ":") {
-		return address, 5432, nil
+		return address, 5432, nil //nolint:mnd
 	}
 	address, portStr, err := net.SplitHostPort(address)
 	if err != nil {

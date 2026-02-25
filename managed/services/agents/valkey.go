@@ -33,6 +33,8 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 	tdp := exporter.TemplateDelimiters(service)
 	args := []string{
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
+		"--include-config-metrics",
+		"--include-system-metrics",
 	}
 
 	if exporter.ExporterOptions.MetricsPath != "" {

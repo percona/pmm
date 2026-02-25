@@ -20,8 +20,6 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -29,6 +27,8 @@ import (
 
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 )
 

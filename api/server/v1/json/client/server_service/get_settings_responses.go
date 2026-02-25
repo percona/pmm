@@ -705,7 +705,7 @@ type GetSettingsOKBodySettings struct {
 	// True if Advisor is enabled.
 	AdvisorEnabled bool `json:"advisor_enabled,omitempty"`
 
-	// Percona Platform user's email, if this PMM instance is linked to the Platform.
+	// platform email
 	PlatformEmail string `json:"platform_email,omitempty"`
 
 	// True if Alerting is enabled.
@@ -731,6 +731,12 @@ type GetSettingsOKBodySettings struct {
 
 	// Default Access Control role ID for new users.
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
+
+	// True if Query Analytics for PMM's internal PG database is enabled.
+	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// Duration for which an update is snoozed
+	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

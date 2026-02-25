@@ -5149,6 +5149,145 @@
         }
       }
     },
+    "/v1/ha/nodes": {
+      "get": {
+        "description": "Returns a list of all nodes in the High Availability cluster with their current status and roles.",
+        "tags": [
+          "HAService"
+        ],
+        "summary": "List HA Nodes",
+        "operationId": "ListNodesMixin11",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "description": "List of nodes in the HA cluster.",
+                  "type": "array",
+                  "items": {
+                    "description": "HANode represents a single node in the HA cluster.",
+                    "type": "object",
+                    "properties": {
+                      "node_name": {
+                        "description": "Human-readable name of the node.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "role": {
+                        "description": "NodeRole represents the role of a node in the HA cluster.",
+                        "type": "string",
+                        "default": "NODE_ROLE_UNSPECIFIED",
+                        "enum": [
+                          "NODE_ROLE_UNSPECIFIED",
+                          "NODE_ROLE_LEADER",
+                          "NODE_ROLE_FOLLOWER"
+                        ],
+                        "x-order": 1
+                      },
+                      "status": {
+                        "description": "Current status of the node from MemberList.",
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ha/status": {
+      "get": {
+        "description": "Returns whether High Availability mode is enabled or disabled.",
+        "tags": [
+          "HAService"
+        ],
+        "summary": "HA Status",
+        "operationId": "Status",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "Status of HA mode: \"Enabled\" or \"Disabled\".",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/agents": {
       "get": {
         "description": "Returns a list of all Agents.",
@@ -5735,6 +5874,14 @@
                           }
                         },
                         "x-order": 18
+                      },
+                      "environment_variable_names": {
+                        "description": "Environment variable names passed to the exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 19
                       }
                     }
                   },
@@ -6770,6 +6917,22 @@
                         "description": "Skip TLS certificate and hostname verification.",
                         "type": "boolean",
                         "x-order": 12
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 13
                       }
                     }
                   },
@@ -7552,10 +7715,18 @@
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
                     },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 20
+                    },
                     "enable_all_collectors": {
                       "description": "Enable all collectors.",
                       "type": "boolean",
-                      "x-order": 20
+                      "x-order": 21
                     }
                   },
                   "x-order": 3
@@ -9134,6 +9305,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -9503,6 +9682,22 @@
                       "description": "Skip TLS certificate and hostname verification.",
                       "type": "boolean",
                       "x-order": 12
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 6
@@ -11072,6 +11267,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 4
@@ -12080,6 +12283,22 @@
                       "description": "Skip TLS certificate and hostname verification.",
                       "type": "boolean",
                       "x-order": 12
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 13
@@ -14883,6 +15102,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 2
@@ -15252,6 +15479,22 @@
                       "description": "Skip TLS certificate and hostname verification.",
                       "type": "boolean",
                       "x-order": 12
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 5
@@ -16560,6 +16803,11 @@
                           "type": "string"
                         },
                         "x-order": 8
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
@@ -16623,6 +16871,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 10
                       }
                     }
                   },
@@ -17109,6 +17362,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -17169,6 +17427,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -17424,6 +17687,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -17484,6 +17752,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -18163,6 +18436,17 @@
                         "description": "Group name of external service.",
                         "type": "string",
                         "x-order": 7
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "port": {
+                        "description": "Access port.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 9
                       }
                     }
                   },
@@ -19044,6 +19328,17 @@
                       "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
                     }
                   },
                   "x-order": 5
@@ -19548,6 +19843,17 @@
                       "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
                     }
                   },
                   "x-order": 5
@@ -20094,6 +20400,17 @@
                       "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
                     }
                   },
                   "x-order": 5
@@ -21104,6 +21421,11 @@
                         "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                         "type": "string",
                         "x-order": 17
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 18
                       }
                     }
                   },
@@ -21327,6 +21649,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -21387,6 +21714,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -21646,6 +21978,11 @@
                       "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                       "type": "string",
                       "x-order": 17
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -22823,6 +23160,14 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 33
                     }
                   },
                   "x-order": 1
@@ -24776,6 +25121,14 @@
                             }
                           },
                           "x-order": 18
+                        },
+                        "environment_variable_names": {
+                          "description": "Environment variable names passed to the exporter.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 19
                         }
                       },
                       "x-order": 1
@@ -25739,6 +26092,22 @@
                           "description": "Skip TLS certificate and hostname verification.",
                           "type": "boolean",
                           "x-order": 12
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 13
                         }
                       },
                       "x-order": 1
@@ -25795,6 +26164,17 @@
                           "description": "Group name of external service.",
                           "type": "string",
                           "x-order": 7
+                        },
+                        "address": {
+                          "description": "Access address (DNS name or IP).",
+                          "type": "string",
+                          "x-order": 8
+                        },
+                        "port": {
+                          "description": "Access port.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 9
                         }
                       },
                       "x-order": 0
@@ -25888,6 +26268,22 @@
                           "description": "Skip TLS certificate and hostname verification.",
                           "type": "boolean",
                           "x-order": 12
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 13
                         }
                       },
                       "x-order": 1
@@ -27545,546 +27941,19 @@
         }
       }
     },
-    "/v1/platform/contact": {
+    "/v1/qan/health": {
       "get": {
-        "description": "Fetch the contact details of the customer success employee handling the Percona customer account.",
+        "description": "Returns readiness of QAN API2 service.",
         "tags": [
-          "PlatformService"
+          "QANService"
         ],
-        "summary": "Get Contact Information",
-        "operationId": "GetContactInformation",
+        "summary": "Health Check",
+        "operationId": "HealthCheck",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "customer_success": {
-                  "description": "CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.",
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "email": {
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 0
-                },
-                "new_ticket_url": {
-                  "description": "URL to open a new support ticket.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/organization/entitlements": {
-      "get": {
-        "description": "Fetch entitlements available to the Portal organization that the PMM server is connected to.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Search Organization Entitlements",
-        "operationId": "SearchOrganizationEntitlements",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "entitlements": {
-                  "type": "array",
-                  "items": {
-                    "description": "OrganizationEntitlement contains information about Organization entitlement.",
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "description": "Entitlement number.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "name": {
-                        "description": "Entitlement name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "summary": {
-                        "description": "Entitlement short summary.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "tier": {
-                        "description": "Entitlement tier.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 3
-                      },
-                      "total_units": {
-                        "description": "Total units covered by this entitlement.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 4
-                      },
-                      "unlimited_units": {
-                        "description": "Flag indicates that unlimited units are covered.",
-                        "type": "boolean",
-                        "x-nullable": true,
-                        "x-order": 5
-                      },
-                      "support_level": {
-                        "description": "Support level covered by this entitlement.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 6
-                      },
-                      "software_families": {
-                        "description": "Percona product families covered by this entitlement.",
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 7
-                      },
-                      "start_date": {
-                        "description": "Entitlement start data.\nNote: only date is used here but not time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 8
-                      },
-                      "end_date": {
-                        "description": "Entitlement end date.\nNote: only date is used here but not time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
-                      },
-                      "platform": {
-                        "description": "Platform indicates platform specific entitlements.",
-                        "type": "object",
-                        "properties": {
-                          "security_advisor": {
-                            "description": "Flag indicates that security advisors are covered by this entitlement.",
-                            "type": "string",
-                            "x-nullable": true,
-                            "x-order": 0
-                          },
-                          "config_advisor": {
-                            "description": "Flag indicates that config advisors are covered by this entitlement.",
-                            "type": "string",
-                            "x-nullable": true,
-                            "x-order": 1
-                          }
-                        },
-                        "x-order": 10
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/organization/tickets": {
-      "get": {
-        "description": "Fetch support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Search Organization Tickets",
-        "operationId": "SearchOrganizationTickets",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "tickets": {
-                  "description": "Support tickets belonging to the Percona Portal Organization.",
-                  "type": "array",
-                  "items": {
-                    "description": "OrganizationTicket contains information about the support ticket.",
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "description": "Ticket number.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "short_description": {
-                        "description": "Ticket short description.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "priority": {
-                        "description": "Ticket priority.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "state": {
-                        "description": "Ticket state.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "create_time": {
-                        "description": "Ticket creation time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 4
-                      },
-                      "department": {
-                        "description": "Department.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "requester": {
-                        "description": "Ticket requester.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "task_type": {
-                        "description": "Task type.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "url": {
-                        "description": "Ticket url.",
-                        "type": "string",
-                        "x-order": 8
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/server": {
-      "get": {
-        "description": "Return PMM server ID and name.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Get Server Info",
-        "operationId": "ServerInfo",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_server_name": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_server_id": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "pmm_server_telemetry_id": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "connected_to_portal": {
-                  "type": "boolean",
-                  "x-order": 3
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/user": {
-      "get": {
-        "description": "Check if the current user is logged in with their Percona Account.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Get User Status",
-        "operationId": "UserStatus",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "is_platform_user": {
-                  "type": "boolean",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform:connect": {
-      "post": {
-        "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Connect PMM Server",
-        "operationId": "Connect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "server_name": {
-                  "description": "User defined human readable PMM Server Name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "personal_access_token": {
-                  "description": "Personal Access Token that the user obtains from Percona Portal.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform:disconnect": {
-      "post": {
-        "description": "Disconnect a PMM server from the organization created on Percona Portal.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Disconnect PMM Server",
-        "operationId": "Disconnect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "force": {
-                  "type": "boolean",
-                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
+              "description": "HealthCheckResponse is empty, based on returned error qan-api2 is ready or not.",
               "type": "object"
             }
           },
@@ -28967,11 +28836,29 @@
                               "format": "float",
                               "x-order": 74
                             },
+                            "m_wal_buffers_full_sum_per_sec": {
+                              "description": "Total number of times WAL buffers become full.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 75
+                            },
+                            "m_parallel_workers_to_launch_sum_per_sec": {
+                              "description": "Total number of parallel workers to launch.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 76
+                            },
+                            "m_parallel_workers_launched_sum_per_sec": {
+                              "description": "Total number of parallel workers launched.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 77
+                            },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 75
+                              "x-order": 78
                             }
                           }
                         },
@@ -30341,11 +30228,29 @@
                         "format": "float",
                         "x-order": 74
                       },
+                      "m_wal_buffers_full_sum_per_sec": {
+                        "description": "Total number of times WAL buffers become full.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 75
+                      },
+                      "m_parallel_workers_to_launch_sum_per_sec": {
+                        "description": "Total number of parallel workers to launch.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 76
+                      },
+                      "m_parallel_workers_launched_sum_per_sec": {
+                        "description": "Total number of parallel workers launched.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 77
+                      },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 75
+                        "x-order": 78
                       }
                     }
                   },
@@ -30720,7 +30625,6 @@
                       "x-order": 6
                     },
                     "platform_email": {
-                      "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 7
                     },
@@ -30789,6 +30693,16 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "enable_internal_pg_qan": {
+                      "description": "True if Query Analytics for PMM's internal PG database is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
+                    },
+                    "update_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -30960,6 +30874,17 @@
                   "title": "Enable Access Control",
                   "x-nullable": true,
                   "x-order": 12
+                },
+                "enable_internal_pg_qan": {
+                  "description": "Enable Query Analytics for PMM's internal PG database.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 13
+                },
+                "update_snooze_duration": {
+                  "description": "A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -31028,7 +30953,6 @@
                       "x-order": 6
                     },
                     "platform_email": {
-                      "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 7
                     },
@@ -31097,6 +31021,16 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 16
+                    },
+                    "enable_internal_pg_qan": {
+                      "description": "True if Query Analytics for PMM's internal PG database is enabled.",
+                      "type": "boolean",
+                      "x-order": 17
+                    },
+                    "update_snooze_duration": {
+                      "type": "string",
+                      "title": "Duration for which an update is snoozed",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -31882,6 +31816,18 @@
                   "type": "string",
                   "title": "Snoozed PMM version update",
                   "x-order": 3
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of last snooze",
+                  "x-order": 4
+                },
+                "snooze_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "Number of times the update was snoozed",
+                  "x-order": 5
                 }
               }
             }
@@ -31982,6 +31928,18 @@
                   "type": "string",
                   "title": "Snooze update alert for a PMM version",
                   "x-order": 3
+                },
+                "snoozed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of last snooze",
+                  "x-order": 4
+                },
+                "snooze_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "Number of times the update was snoozed",
+                  "x-order": 5
                 }
               }
             }
@@ -32078,7 +32036,7 @@
       "name": "QANService"
     },
     {
-      "name": "PlatformService"
+      "name": "HAService"
     }
   ],
   "x-readme": {

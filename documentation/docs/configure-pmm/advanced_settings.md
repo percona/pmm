@@ -55,14 +55,27 @@ See [Working with Advisor checks](../advisors/advisors.md).
 
 Enables [Percona Alerting](../alert/index.md) and reveals the **Percona templated alerts** option on the **Alerting** page.
 
+## QAN for PMM Server
+
+By default, Query Analytics (QAN) does not display queries from PMM Server's internal PostgreSQL database, keeping your dashboards focused on monitored databases rather than PMM's operational activity.
+
+Enable this setting to troubleshoot PMM Server performance issues, monitor resource usage in [High Availability (HA) deployments](../install-pmm/HA.md), or verify that applications aren't misusing the default `postgres` database.
+
+When enabled, open **Query Analytics (QAN)** from the main menu, then filter by the `pmm-server-postgresql` service to view PMM Server queries. 
+
+You'll see queries related to PMM's inventory, settings, advisor checks, alerts, backups, and authentication. These queries are typically lightweight so any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
+
+!!! warning
+    The default `postgres` database should only be used by PMM's internal operations. Applications should always use dedicated databases.
+
 ## Backup Management
 
 Enables [Backup Management](../backup/index.md) option and reveals the **Backup** page from where you can:
 
-- Create and restore MongoDB and MySQL backups
-- Automate backup scheduling
-- Set retention policies
-- Monitor your backup and restore activity
+- create and restore MongoDB and MySQL backups
+- automate backup scheduling
+- set retention policies
+- monitor your backup and restore activity
 
 ## Public Address
 

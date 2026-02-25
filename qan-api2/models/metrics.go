@@ -310,6 +310,13 @@ SUM(m_wal_fpi_cnt) AS m_wal_fpi_cnt,
 
 SUM(m_wal_bytes_sum) as m_wal_bytes_sum,
 SUM(m_wal_bytes_cnt) as m_wal_bytes_cnt,
+SUM(m_wal_buffers_full_sum) as m_wal_buffers_full_sum,
+SUM(m_wal_buffers_full_cnt) as m_wal_buffers_full_cnt,
+
+SUM(m_parallel_workers_to_launch_sum) as m_parallel_workers_to_launch_sum,
+SUM(m_parallel_workers_to_launch_cnt) as m_parallel_workers_to_launch_cnt,
+SUM(m_parallel_workers_launched_sum) as m_parallel_workers_launched_sum,
+SUM(m_parallel_workers_launched_cnt) as m_parallel_workers_launched_cnt,
 
 SUM(m_plan_time_cnt) AS m_plan_time_cnt,
 SUM(m_plan_time_sum) AS m_plan_time_sum,
@@ -447,6 +454,9 @@ if(SUM(m_plans_calls_cnt) == 0, NaN, SUM(m_plans_calls_sum) / time_frame) AS m_p
 if(SUM(m_wal_records_cnt) == 0, NaN, SUM(m_wal_records_sum) / time_frame) AS m_wal_records_sum_per_sec,
 if(SUM(m_wal_fpi_cnt) == 0, NaN, SUM(m_wal_fpi_sum) / time_frame) AS m_wal_fpi_sum_per_sec,
 if(SUM(m_wal_bytes_cnt) == 0, NaN, SUM(m_wal_bytes_sum) / time_frame) AS m_wal_bytes_sum_per_sec,
+if(SUM(m_wal_buffers_full_cnt) == 0, NaN, SUM(m_wal_buffers_full_sum) / time_frame) AS m_wal_buffers_full_sum_per_sec,
+if(SUM(m_parallel_workers_to_launch_cnt) == 0, NaN, SUM(m_parallel_workers_to_launch_sum) / time_frame) AS m_parallel_workers_to_launch_sum_per_sec,
+if(SUM(m_parallel_workers_launched_cnt) == 0, NaN, SUM(m_parallel_workers_launched_sum) / time_frame) AS m_parallel_workers_launched_sum_per_sec,
 if(SUM(m_plan_time_cnt) == 0, NaN, SUM(m_plan_time_sum) / time_frame) AS m_plan_time_sum_per_sec,
 if(SUM(m_docs_examined_cnt) == 0, NaN, SUM(m_docs_examined_sum) / time_frame) AS m_docs_examined_sum_per_sec,
 if(SUM(m_keys_examined_cnt) == 0, NaN, SUM(m_keys_examined_sum) / time_frame) AS m_keys_examined_sum_per_sec,

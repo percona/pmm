@@ -40,29 +40,31 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 	switch node.NodeType {
 	case models.GenericNodeType:
 		return &inventoryv1.GenericNode{
-			NodeId:       node.NodeID,
-			NodeName:     node.NodeName,
-			MachineId:    pointer.GetString(node.MachineID),
-			Distro:       node.Distro,
-			NodeModel:    node.NodeModel,
-			Region:       pointer.GetString(node.Region),
-			Az:           node.AZ,
-			CustomLabels: labels,
-			Address:      node.Address,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			MachineId:       pointer.GetString(node.MachineID),
+			Distro:          node.Distro,
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			Az:              node.AZ,
+			CustomLabels:    labels,
+			Address:         node.Address,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}, nil
 
 	case models.ContainerNodeType:
 		return &inventoryv1.ContainerNode{
-			NodeId:        node.NodeID,
-			NodeName:      node.NodeName,
-			MachineId:     pointer.GetString(node.MachineID),
-			ContainerId:   pointer.GetString(node.ContainerID),
-			ContainerName: pointer.GetString(node.ContainerName),
-			NodeModel:     node.NodeModel,
-			Region:        pointer.GetString(node.Region),
-			Az:            node.AZ,
-			CustomLabels:  labels,
-			Address:       node.Address,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			MachineId:       pointer.GetString(node.MachineID),
+			ContainerId:     pointer.GetString(node.ContainerID),
+			ContainerName:   pointer.GetString(node.ContainerName),
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			Az:              node.AZ,
+			CustomLabels:    labels,
+			Address:         node.Address,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}, nil
 
 	case models.RemoteNodeType:
@@ -195,6 +197,16 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 		}, nil
 
 	case models.ExternalServiceType:
+		var address string
+		if service.Address != nil {
+			address = *service.Address
+		}
+
+		var port uint32
+		if service.Port != nil {
+			port = uint32(*service.Port)
+		}
+
 		return &inventoryv1.ExternalService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
@@ -204,6 +216,8 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 			ReplicationSet: service.ReplicationSet,
 			CustomLabels:   labels,
 			Group:          service.ExternalGroup,
+			Address:        address,
+			Port:           port,
 		}, nil
 
 	default:
@@ -501,6 +515,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:    processExecPath,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			TlsSkipVerify:      agent.TLSSkipVerify,
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 		}, nil
 
 	case models.AzureDatabaseExporterType:

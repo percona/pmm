@@ -97,7 +97,7 @@ Displays the five MongoDB collections with the highest read rates. It shows the 
 
 The bar gauge visualization helps quickly identify which collections are experiencing the most read activity, useful for performance monitoring and resource planning. Data is updated regularly to reflect recent changes in read patterns.
 
-### Query execution times
+### Operations Latency
 
 Shows the average time taken for MongoDB to execute read, write, and other operations. It displays latency in microseconds over time, helping you spot performance trends or issues across different operation types. 
 

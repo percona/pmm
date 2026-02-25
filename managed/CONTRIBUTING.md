@@ -107,7 +107,7 @@ Changes to Advisors will be most visible in the list of all advisors by categori
 
 ``advisors.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L6
 
-### Advisor Checks
+### Advisor checks
 
 Advisor checks are organized into categories by topic and can be viewed in the [Advisor Insight](https://pmmdemo.percona.com/graph/advisors/configuration). Each check provides detailed information and recommendations. To see these details, expand an Advisor to open its **Insights** section:
 

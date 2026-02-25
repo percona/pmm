@@ -18,6 +18,7 @@ package inventory
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -29,6 +30,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -351,21 +353,23 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 	var agent *inventoryv1.MongoDBExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:     p.PmmAgentId,
-			ServiceID:      p.ServiceId,
-			Username:       p.Username,
-			Password:       p.Password,
-			AgentPassword:  p.AgentPassword,
-			CustomLabels:   p.CustomLabels,
-			TLS:            p.Tls,
-			TLSSkipVerify:  p.TlsSkipVerify,
-			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
+			PMMAgentID:               p.PmmAgentId,
+			ServiceID:                p.ServiceId,
+			Username:                 p.Username,
+			Password:                 p.Password,
+			AgentPassword:            p.AgentPassword,
+			CustomLabels:             p.CustomLabels,
+			EnvironmentVariableNames: p.GetEnvironmentVariableNames(),
+			TLS:                      p.Tls,
+			TLSSkipVerify:            p.TlsSkipVerify,
+			MongoDBOptions:           models.MongoDBOptionsFromRequest(p),
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 			},
 			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
+
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, params)
 		if err != nil {
 			return err
@@ -1299,6 +1303,21 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
+	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
+	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
+	if exists && envVar != "" {
+		a, err := models.FindAgentByID(as.db.Querier, agentID)
+		if err != nil {
+			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
+		}
+		if pointer.GetString(a.PMMAgentID) == models.PMMServerAgentID {
+			return nil, status.Errorf(
+				codes.FailedPrecondition,
+				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
+				envVar)
+		}
+	}
+
 	if err != nil {
 		return nil, err
 	}

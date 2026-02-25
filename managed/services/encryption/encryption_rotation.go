@@ -111,7 +111,7 @@ func pmmServerStatus(status string) bool {
 }
 
 func pmmServerStatusWithRetries(status string) bool {
-	for i := 0; i < retries; i++ {
+	for range retries {
 		if !pmmServerStatus(status) {
 			logrus.Infoln("Retry...")
 			time.Sleep(interval)

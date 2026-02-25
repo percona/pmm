@@ -530,7 +530,7 @@ func TestService_GetLabels(t *testing.T) {
 		fields{rm: rm, mm: mm},
 		request,
 		nil,
-		fmt.Errorf("error in selecting object details labels:cannot select object details labels"),
+		fmt.Errorf("error in selecting object details labels: cannot select object details labels"),
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
@@ -540,6 +540,6 @@ func TestService_GetLabels(t *testing.T) {
 		}
 		_, err := s.GetLabels(context.TODO(), tt.in)
 		// errors start with same text.
-		require.Regexp(t, "^error in selecting object details labels:cannot select object details labels.*", err.Error())
+		require.Regexp(t, "^error in selecting object details labels: cannot select object details labels.*", err.Error())
 	})
 }

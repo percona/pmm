@@ -30,8 +30,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/saas/pkg/alert"
-	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -43,6 +41,8 @@ import (
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
 )
@@ -409,7 +409,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to parse rule template: %v.", err)
 	}
 
@@ -462,7 +462,7 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), parseParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
 	}
 

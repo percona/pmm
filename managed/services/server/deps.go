@@ -87,6 +87,7 @@ type telemetryService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type agentsStateUpdater interface {
 	UpdateAgentsState(ctx context.Context) error
+	RequestStateUpdate(ctx context.Context, pmmAgentID string)
 }
 
 // templatesService is a subset of methods of alerting.Service used by this package.
@@ -99,6 +100,7 @@ type templatesService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type haService interface {
 	IsLeader() bool
+	Params() *models.HAParams
 }
 
 // victoriaMetricsParams is a subset of methods of models.VMParams used by this package.

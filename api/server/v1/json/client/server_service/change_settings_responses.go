@@ -222,6 +222,12 @@ type ChangeSettingsBody struct {
 	// Enable Access Control
 	EnableAccessControl *bool `json:"enable_access_control,omitempty"`
 
+	// Enable Query Analytics for PMM's internal PG database.
+	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -953,7 +959,7 @@ type ChangeSettingsOKBodySettings struct {
 	// True if Advisor is enabled.
 	AdvisorEnabled bool `json:"advisor_enabled,omitempty"`
 
-	// Percona Platform user's email, if this PMM instance is linked to the Platform.
+	// platform email
 	PlatformEmail string `json:"platform_email,omitempty"`
 
 	// True if Alerting is enabled.
@@ -979,6 +985,12 @@ type ChangeSettingsOKBodySettings struct {
 
 	// Default Access Control role ID for new users.
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
+
+	// True if Query Analytics for PMM's internal PG database is enabled.
+	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// Duration for which an update is snoozed
+	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
