@@ -137,8 +137,7 @@ To deploy and register PMM Client using Docker:
         5. Consider restricting or disabling direct admin account usage for node registration.
 
 !!! hint alert-success "Important"
-
-If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
+    If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
     
 ## Verify the connection
 
