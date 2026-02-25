@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2670,21 +2670,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#deploy-pmm-client" class="md-nav__link">
+  <a href="#deploy-and-register-pmm-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Deploy PMM Client
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#register-the-node" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Register the node
+        Deploy and register PMM Client
       
     </span>
   </a>
@@ -2705,18 +2694,7 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#add-monitoring-services" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Add monitoring services
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Add monitoring services">
+    <nav class="md-nav" aria-label="Verify the connection">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2732,6 +2710,28 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-monitoring-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add monitoring services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-for-docker-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips for Docker configuration
+      
+    </span>
+  </a>
   
 </li>
       
@@ -15907,21 +15907,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#deploy-pmm-client" class="md-nav__link">
+  <a href="#deploy-and-register-pmm-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Deploy PMM Client
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#register-the-node" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Register the node
+        Deploy and register PMM Client
       
     </span>
   </a>
@@ -15942,18 +15931,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#add-monitoring-services" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Add monitoring services
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Add monitoring services">
+    <nav class="md-nav" aria-label="Verify the connection">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -15969,6 +15947,28 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-monitoring-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add monitoring services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-for-docker-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips for Docker configuration
+      
+    </span>
+  </a>
   
 </li>
       
@@ -16000,7 +16000,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p>The <a href="https://hub.docker.com/r/percona/pmm-client/tags/">PMM Client Docker image</a> provides a convenient way to run PMM Client as a pre-configured container without installing software directly on your host system.</p>
 <p>Using the Docker container approach offers several advantages:</p>
 <ul>
-<li>no need to install PMM Client directly on your host system</li>
 <li>consistent environment across different operating systems</li>
 <li>simplified setup and configuration process</li>
 <li>automatic architecture detection (x86_64/ARM64)</li>
@@ -16024,13 +16023,13 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li>
 <p><a href="prerequisites.html#database-monitoring-requirements">Create database monitoring users</a> with appropriate permissions for the databases you plan to monitor.</p>
 </li>
-<li>
-<p>Check that you have root or sudo privileges to install PMM Client. Alternatively, use <a href="binary_package.html">binary installation</a> for non-root environments.</p>
-</li>
 </ol>
 <h2 id="installation-and-setup">Installation and setup<a class="headerlink" href="#installation-and-setup" title="Permanent link">&para;</a></h2>
-<h3 id="deploy-pmm-client">Deploy PMM Client<a class="headerlink" href="#deploy-pmm-client" title="Permanent link">&para;</a></h3>
-<p class="power-number">Follow these steps to deploy PMM Client using Docker:</p>
+<p>Set up PMM Client by deploying it as a Docker container and registering it with PMM Server.</p>
+<h3 id="deploy-and-register-pmm-client">Deploy and register PMM Client<a class="headerlink" href="#deploy-and-register-pmm-client" title="Permanent link">&para;</a></h3>
+<p>Deploy and register PMM Client to start monitoring your node. </p>
+<p>Registration gives PMM Server permission to collect metrics from your infrastructure and display them in monitoring dashboards. PMM supports two authentication methods: service account tokens (recommended) and username/password credentials. </p>
+<p class="power-number">To deploy and register PMM Client using Docker:</p>
 <ol>
 <li>
 <p>Pull the PMM Client Docker image:</p>
@@ -16038,48 +16037,11 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </code></pre></div>
 </li>
 <li>
-<p>Create a persistent Docker volume to store PMM Client data between container restarts:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>pmm-client-data
-</code></pre></div>
-</li>
-<li>
-<p>Start the PMM Client container and configure the <a href="../../use/commands/pmm-agent.html">pmm-agent</a> in Setup mode to connect to PMM Server. Replace <code>X.X.X.X</code> with the IP address of your PMM Server and update <code>PMM_AGENT_SERVER_PASSWORD</code> value if you changed the default <code>admin</code> password during setup:</p>
-<div class="highlight"><pre><span></span><code><span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_ADDRESS</span><span class="o">=</span>X.X.X.X:443<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_INSECURE_TLS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_FORCE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>-v<span class="w"> </span>pmm-client-data:/usr/local/percona/pmm/tmp<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>percona/pmm-client:3
-</code></pre></div>
+<p>Start the PMM Client container and register it with PMM Server using the <a href="../../use/commands/pmm-agent.html">pmm-agent</a> Setup mode. Replace <code>X.X.X.X</code> with the external IP address of your PMM Server:</p>
 <div class="admonition hint alert-success">
 <p class="admonition-title">Important</p>
-<ul>
-<li>Do not use the <code>docker --detach</code> option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.</li>
-<li>You can find a complete list of compatible environment variables <a href="../../use/commands/pmm-agent.html">here</a>.</li>
-<li>If you get <code>Failed to register pmm-agent on PMM Server: connection refused</code>, this typically means that the IP address is incorrect or the PMM Server is unreachable.</li>
-</ul>
+<p>Do not use the <code>--detach</code> option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.</p>
 </div>
-</li>
-<li>
-<p>Start the <a href="../../use/commands/pmm-agent.html">pmm-agent</a> in normal mode:</p>
-</li>
-</ol>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--detach<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-v<span class="w"> </span>pmm-client-data:/usr/local/percona/pmm/tmp<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>percona/pmm-client:3
-</code></pre></div>
-<h3 id="register-the-node">Register the node<a class="headerlink" href="#register-the-node" title="Permanent link">&para;</a></h3>
-<p>After installing PMM Client, register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.</p>
-<p>Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the node: secure service account tokens and standard username/password credentials.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Using Service accounts (Recommended)</label><label for="__tabbed_1_2">Standard authentication (Not recommended)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -16097,51 +16059,62 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li>Click <strong>Generate Token</strong>.</li>
 <li><strong>Save your token immediately</strong>. It starts with <code>glsa_</code> and won&rsquo;t be shown again!</li>
 <li>
-<p>Register using the token:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--server-url<span class="o">=</span>https://service_token:YOUR_GLSA_TOKEN@YOUR_PMM_SERVER:443<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="o">[</span>NODE_ADDRESS<span class="o">]</span><span class="w"> </span><span class="o">[</span>NODE_TYPE<span class="o">]</span><span class="w"> </span><span class="o">[</span>NODE_NAME<span class="o">]</span>
+<p>Run the container using the token:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_NODE_NAME</span><span class="o">=</span>my_node_name<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_NODE_TYPE</span><span class="o">=</span>container<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_ADDRESS</span><span class="o">=</span>X.X.X.X:443<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>service_token<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>YOUR_GLSA_TOKEN<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_INSECURE_TLS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_FORCE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_PRERUN_SCRIPT</span><span class="o">=</span>/opt/percona/pmm-prerun.sh<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>./pmm-prerun.sh:/opt/percona/pmm-prerun.sh<span class="w"> </span><span class="se">\</span>
+percona/pmm-client:3
 </code></pre></div>
 <p><strong>Parameters explained:</strong></p>
 <ul>
-<li><code>--server-insecure-tls</code> - Skip certificate validation (remove for production with valid certificates)</li>
-<li><code>YOUR_PMM_SERVER</code> - Your PMM Server&rsquo;s IP address or hostname</li>
+<li><code>PMM_AGENT_SETUP_NODE_NAME</code> - (Optional) Descriptive name for the node</li>
+<li><code>PMM_AGENT_SETUP_NODE_TYPE</code> - (Optional) Node type: generic, container, etc.</li>
+<li><code>PMM_AGENT_SERVER_ADDRESS</code> - Your PMM Server’s IP address or hostname</li>
 <li><code>service_token</code> - Use this exact string as the username (not a placeholder!)</li>
 <li><code>YOUR_GLSA_TOKEN</code> - The token you copied (starts with <code>glsa_</code>)</li>
-<li><code>[NODE_ADDRESS]</code> - (Optional) IP address of the node being registered</li>
-<li><code>[NODE_TYPE]</code> - (Optional) Node type: <code>generic</code>, <code>container</code>, etc.</li>
-<li><code>[NODE_NAME]</code> - (Optional) Descriptive name for the node</li>
+<li><code>PMM_AGENT_SERVER_INSECURE_TLS</code> - Skip certificate validation (remove for production with valid certificates)</li>
+<li><code>PMM_AGENT_PRERUN_SCRIPT</code> - (Optional) Path to a script inside the container that runs after registration. Mount your script using <code>-v ./your-script.sh:/opt/percona/pmm-prerun.sh</code>. See <a href="#add-monitoring-services">Monitoring services</a>. </li>
 </ul>
-<details class="example">
-<summary>Full example with node details</summary>
-<p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--server-url<span class="o">=</span>https://service_token:glsa_aBc123XyZ456...@192.168.33.14:443<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>prod-db01
-</code></pre></div>
-This registers node <code>192.168.33.23</code> with type <code>generic</code> and name <code>prod-db01</code>.</p>
-</details>
+<p>You can find a complete list of compatible environment variables <a href="../../use/commands/pmm-agent.html">here</a>.</p>
 </li>
 </ol>
 </div>
 <div class="tabbed-block">
 <p>This method exposes credentials in command history, process lists, and logs! Use only for testing or migration scenarios:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
---server-url<span class="o">=</span>https://admin:admin@YOUR_PMM_SERVER:443
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_NODE_NAME</span><span class="o">=</span>my_node_name<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_NODE_TYPE</span><span class="o">=</span>container<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_ADDRESS</span><span class="o">=</span>X.X.X.X:443<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_INSECURE_TLS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_FORCE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">PMM_AGENT_PRERUN_SCRIPT</span><span class="o">=</span>/opt/percona/pmm-prerun.sh<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>./pmm-prerun.sh:/opt/percona/pmm-prerun.sh<span class="w"> </span><span class="se">\</span>
+percona/pmm-client:3
 </code></pre></div>
 <p><strong>Parameters explained:</strong></p>
 <ul>
-<li><code>YOUR_PMM_SERVER</code>- Your PMM Server&rsquo;s IP address or hostname</li>
-<li><code>443</code> - Default HTTPS port</li>
-<li><code>admin</code>/<code>admin</code> - Default PMM username and password (change this immediately after first login)</li>
+<li><code>PMM_AGENT_SETUP_NODE_NAME</code> - (Optional) Descriptive name for the node</li>
+<li><code>PMM_AGENT_SETUP_NODE_TYPE</code> - (Optional) Node type: generic, container, etc.</li>
+<li><code>PMM_AGENT_SERVER_ADDRESS</code> - Your PMM Server’s IP address or hostname</li>
+<li><code>admin</code>/<code>admin</code> - Default PMM Server username and password (change this immediately after first login)</li>
+<li><code>PMM_AGENT_PRERUN_SCRIPT</code> - (Optional) See <a href="#add-monitoring-services">Monitoring services</a></li>
 </ul>
-<details class="example">
-<summary>Registration with node details</summary>
-<p>Register a node with IP address <code>192.168.33.23</code>, type <code>generic</code>, and name <code>mynode</code>:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
---server-url<span class="o">=</span>https://admin:admin@192.168.33.14:443<span class="w"> </span><span class="se">\</span>
-<span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>mynode
-</code></pre></div>
-</details>
+<p>You can find a complete list of compatible environment variables <a href="../../use/commands/pmm-agent.html">here</a>.</p>
 <p class="power-number">To migrate to <a href="../../api/authentication.html">service accounts</a>:</p>
 <ol>
 <li>Create service accounts while still using standard authentication.</li>
@@ -16150,32 +16123,20 @@ This registers node <code>192.168.33.23</code> with type <code>generic</code> an
 <li>Change the admin password from default.</li>
 <li>Consider restricting or disabling direct admin account usage for node registration.</li>
 </ol>
-<div class="admonition info">
-<p class="admonition-title">HTTPS requirement</p>
-<p>PMM requires HTTPS connections (port <code>443</code> by default). HTTP URLs automatically redirect to HTTPS. For connection errors, verify:</p>
-<ul>
-<li>Port <code>443</code> is accessible</li>
-<li>Firewall rules allow HTTPS traffic</li>
-<li>TLS certificates are valid (or use <code>--server-insecure-tls</code>)</li>
-</ul>
 </div>
 </div>
 </div>
+</li>
+</ol>
+<div class="admonition hint alert-success">
+<p class="admonition-title">Important</p>
+<p>If you get <code>Failed to register pmm-agent on PMM Server: connection refused</code>, this typically means that the IP address is incorrect or the PMM Server is unreachable.</p>
 </div>
 <h2 id="verify-the-connection">Verify the connection<a class="headerlink" href="#verify-the-connection" title="Permanent link">&para;</a></h2>
-<p>Check that PMM Client is properly connected and registered. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:</p>
+<p>Run the following command to check that PMM Client is properly connected and registered:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>status
 </code></pre></div>
-<h2 id="add-monitoring-services">Add monitoring services<a class="headerlink" href="#add-monitoring-services" title="Permanent link">&para;</a></h2>
-<p>After installing PMM Client, you can add database services to monitor with <a href="../../use/commands/pmm-admin.html"><code>pmm-admin</code></a>. </p>
-<p>When running PMM in Docker, prefix all pmm-admin commands with <code>docker exec pmm-client</code>.</p>
-<div class="admonition hint alert alert-success">
-<p class="admonition-title">Tips for Docker configuration</p>
-<ul>
-<li>Ensure your host&rsquo;s firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the <a href="../../troubleshoot/checklist.html">troubleshooting checklist</a>.</li>
-<li>If you need assistance with PMM Client, run: <code>docker run --rm percona/pmm-client:3 --help</code>.</li>
-</ul>
-</div>
+<p>If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface.</p>
 <h3 id="view-your-monitored-node">View your monitored node<a class="headerlink" href="#view-your-monitored-node" title="Permanent link">&para;</a></h3>
 <p class="power-number">To confirm your node is being monitored:</p>
 <ol>
@@ -16189,10 +16150,29 @@ This registers node <code>192.168.33.23</code> with type <code>generic</code> an
 <p>Modify the time range to view the relevant data for your selected node.</p>
 </li>
 </ol>
-<div class="admonition danger alert alert-danger">
-<p class="admonition-title">Danger</p>
-<p><code>pmm-agent.yaml</code> contains sensitive credentials and should not be shared.</p>
-</div>
+<h2 id="add-monitoring-services">Add monitoring services<a class="headerlink" href="#add-monitoring-services" title="Permanent link">&para;</a></h2>
+<p>After installing PMM Client, you add database services to monitor with the <a href="../../use/commands/pmm-admin.html"><code>pmm-admin</code></a> command. </p>
+<p>When running PMM Client in Docker, use the <code>PMM_AGENT_PRERUN_SCRIPT</code> argument to pass a script containing any required <code>pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]</code> commands. The <code>pmm-agent</code> runs the script automatically after registering with PMM Server. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_NODE_NAME</span><span class="o">=</span>my_node_name<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_NODE_TYPE</span><span class="o">=</span>container<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_ADDRESS</span><span class="o">=</span>X.X.X.X:443<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>service_token<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>YOUR_GLSA_TOKEN<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_INSECURE_TLS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP_FORCE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_PRERUN_SCRIPT</span><span class="o">=</span>/opt/percona/pmm-prerun.sh<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-v<span class="w"> </span>./pmm-prerun.sh:/opt/percona/pmm-prerun.sh<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>percona/pmm-client:3
+</code></pre></div>
+<h2 id="tips-for-docker-configuration">Tips for Docker configuration<a class="headerlink" href="#tips-for-docker-configuration" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Ensure your host&rsquo;s firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see the <a href="../../troubleshoot/checklist.html">troubleshooting checklist</a>.</li>
+<li>To view available pmm-agent command-line options, run: <code>docker run --rm percona/pmm-client:3 --help</code></li>
+</ul>
 
 
 
@@ -16215,7 +16195,7 @@ This registers node <code>192.168.33.23</code> with type <code>generic</code> an
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 8, 2025 11:41:40 UTC">September 8, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 25, 2026 13:46:46 UTC">February 25, 2026</span>
   </span>
 
     
