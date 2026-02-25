@@ -18,6 +18,9 @@ services:
 
       # PMM compat plugin
       - ./apps/pmm-compat/dist:/srv/grafana/plugins/pmm-compat
+
+      # PMM UI (only useful if testing rendering server, for example. Othwewise, just stick with the vite dev server)
+      # - ./apps/pmm/dist:/usr/share/pmm-ui
     environment:
       - PMM_DEBUG=1
       - GF_DEFAULT_APP_MODE=development
