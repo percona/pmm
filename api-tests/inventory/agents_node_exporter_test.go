@@ -541,7 +541,7 @@ func TestNodeExporter(t *testing.T) {
 			DisabledCollectors: []string{"cpu", "diskstats", "loadavg"},
 			ExposeExporter:     true,
 			Disabled:           true, // agent was disabled
-			Status:             &AgentStatusUnknown,
+			Status:             &AgentStatusDone,
 			MetricsResolutions: &agents.ChangeAgentOKBodyNodeExporterMetricsResolutions{
 				Hr: "5s",
 				Mr: "30s",
@@ -571,7 +571,7 @@ func TestNodeExporter(t *testing.T) {
 			DisabledCollectors: []string{"cpu", "diskstats", "loadavg"},
 			ExposeExporter:     true,
 			Disabled:           true,
-			Status:             &AgentStatusUnknown,
+			Status:             &AgentStatusDone,
 			MetricsResolutions: &agents.GetAgentOKBodyNodeExporterMetricsResolutions{
 				Hr: "5s",
 				Mr: "30s",

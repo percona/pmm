@@ -89,6 +89,7 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 						"new_label": "QANMysqlSlowlogAgent",
 					},
 					Status:             &AgentStatusUnknown,
+					ExtraDsnParams:     map[string]string{},
 					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 					MaxSlowlogFileSize: "0",
 				},
@@ -116,8 +117,9 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 					Username:           "username",
 					PMMAgentID:         pmmAgentID,
 					Disabled:           true,
-					Status:             &AgentStatusUnknown,
+					Status:             &AgentStatusDone,
 					CustomLabels:       map[string]string{},
+					ExtraDsnParams:     map[string]string{},
 					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 					MaxSlowlogFileSize: "0",
 				},
@@ -411,8 +413,9 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 				"version":     "2.0",
 				"team":        "backend",
 			},
-			Status:   &AgentStatusUnknown,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			ExtraDsnParams: map[string]string{},
+			Status:         &AgentStatusDone,
+			LogLevel:       pointer.ToString("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedAgent, changeQANAgentOK.Payload.QANMysqlSlowlogAgent)
@@ -441,8 +444,9 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 				"version":     "2.0",
 				"team":        "backend",
 			},
-			Status:   &AgentStatusUnknown,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			Status:         &AgentStatusDone,
+			ExtraDsnParams: map[string]string{},
+			LogLevel:       pointer.ToString("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.QANMysqlSlowlogAgent)

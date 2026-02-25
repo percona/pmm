@@ -115,7 +115,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					Username:     "username",
 					PMMAgentID:   pmmAgentID,
 					Disabled:     true,
-					Status:       &AgentStatusUnknown,
+					Status:       &AgentStatusDone,
 					CustomLabels: map[string]string{},
 					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
@@ -149,7 +149,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMongodbProfilerAgent",
 					},
-					Status:   &AgentStatusUnknown,
+					Status:   &AgentStatusDone,
 					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
@@ -397,7 +397,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 				"version":     "2.0",
 				"team":        "backend",
 			},
-			Status:   &AgentStatusUnknown,
+			Status:   &AgentStatusDone,
 			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
 		}
 
@@ -424,7 +424,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 				"version":     "2.0",
 				"team":        "backend",
 			},
-			Status:   &AgentStatusUnknown,
+			Status:   &AgentStatusDone,
 			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
 		}
 
