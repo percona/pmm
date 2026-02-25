@@ -7,10 +7,16 @@ import { useGrafana } from 'contexts/grafana';
 import { UpdateModal } from 'components/main/update-modal';
 import { DelayedRender } from 'components/delayed-render';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
+import { useMemo } from 'react';
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
   const { isOnGrafanaPage, isFullScreen } = useGrafana();
+  // We hide the sidebar in headless browser to avoid the navigation to be shown on rendering server
+  // Checking the NODE_ENV to avoid the sidebar vanishing when running tests (e.g. Playwright)
+  const isHeadlessBrowser = useMemo(() => {
+    return (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production') && window.navigator.userAgent.includes('Headless');
+  }, []);
 
   if (!isReady) {
     return (
@@ -31,7 +37,7 @@ export const MainWithNav = () => {
     <Stack direction="row" flex={1}>
       {!isFullScreen && (
         <>
-          <Sidebar />
+          {!isHeadlessBrowser && <Sidebar />}
           <Stack flex={isOnGrafanaPage ? 0 : 1} direction="column">
             <Outlet />
           </Stack>
