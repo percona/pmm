@@ -30,6 +30,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -358,7 +359,14 @@ func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, 
 			return models.AssignDefaultRole(tx, userID)
 		})
 		if err != nil {
-			return nil, err
+			// Handle race condition: if another concurrent request already assigned the default role,
+			// we'll get a duplicate key error. In this case, just go fetch the roles.
+			var pgErr *pq.Error
+			if errors.As(err, &pgErr) && pgErr.Code == "23505" && pgErr.Constraint == "user_roles_pkey" {
+				s.l.Debugf("Default role already assigned to user ID %d by another request", userID)
+			} else {
+				return nil, err
+			}
 		}
 
 		// Reload roles
