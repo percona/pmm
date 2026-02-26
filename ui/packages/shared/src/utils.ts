@@ -3,7 +3,7 @@
  * Unless in development or production environment, which might happen when running tests (e.g. Playwright).
  */
 export const isHeadlessBrowser = (): boolean => {
-  if (typeof navigator === 'undefined' || typeof window === 'undefined') {
+  if (navigator === undefined || window === undefined) {
     return false;
   }
   // Common headless/automated browser signals
