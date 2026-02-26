@@ -6,6 +6,7 @@ import {
   HistoryAction,
   LocationChangeMessage,
   ColorMode,
+  isHeadlessBrowser,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
@@ -19,7 +20,6 @@ import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
-import { isHeadlessBrowser } from '@pmm/shared';
 import { documentTitleObserver } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
 import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent } from 'lib/events';
