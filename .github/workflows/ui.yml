@@ -26,7 +26,6 @@ on:
 
 permissions:
   contents: read
-  packages: read
 
 jobs:
   ci:
@@ -43,13 +42,10 @@ jobs:
 
       - name: Setup nodejs
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           node-version-file: ui/.nvmrc
           cache: yarn
           cache-dependency-path: ui/yarn.lock
-          registry-url: https://npm.pkg.github.com
 
       - name: Run lint
         run: make lint
