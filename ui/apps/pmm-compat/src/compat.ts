@@ -19,11 +19,17 @@ import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
+import { isHeadlessBrowser } from '@pmm/shared';
 import { documentTitleObserver } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
 import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent } from 'lib/events';
 
 export const initialize = () => {
+  // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
+  if (isHeadlessBrowser()) {
+    return;
+  }
+
   // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
     const isHomePath =
