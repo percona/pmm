@@ -2,10 +2,10 @@
 .PHONY: default init release gen test clean all
 default: help
 
-help:                 ## Display this help message
-	@echo "Please use \`make <target>\` where <target> is one of:"
-	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+.PHONY: help
+help: ## Display this help message.
+	@echo "Please use \`make <target>\` where <target> is one of:\n"
+	@awk 'BEGIN {FS = ":.*##"; } /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-17s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 	@echo
 	@echo Check the docker-compose.yml file to see which environment variables are available.
 
@@ -49,9 +49,10 @@ test-common:          ## Run tests from API (and other shared) packages only (i.
 api-test:             ## Run API tests on dev env.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
 
+GOLANG_CI_LINT_RUN_OPTS ?=
 check:                ## Run required checkers and linters
 	bin/buf lint -v api
-	LOG_LEVEL=error bin/golangci-lint run
+	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base v3 HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
 	bin/go-sumtype ./...
 	bin/go-consistent -pedantic -exclude "tests|api/agent" ./...
 
@@ -59,7 +60,6 @@ check-license:        ## Run license header checks against source files
 	bin/license-eye -c .licenserc.yaml header check
 
 check-all: check-license check    ## Run golangci linter to check for changes against main
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=v3
 
 FILES = $(shell find . -type f -name '*.go')
 
@@ -71,3 +71,7 @@ format:               ## Format source code
 
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
+
+.PHONY: prepare-pr
+GOLANG_CI_LINT_RUN_OPTS=--fix
+prepare-pr: gen check-all
