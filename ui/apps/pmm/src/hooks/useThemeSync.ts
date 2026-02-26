@@ -41,6 +41,7 @@ export const useThemeSync = () => {
     }
 
     if (error) {
+      // eslint-disable-next-line no-console
       console.error('[useThemeSync] Failed to load user preferences:', error);
       return;
     }
@@ -53,6 +54,7 @@ export const useThemeSync = () => {
         syncedRef.current = true;
       })
       .catch((err: unknown) => {
+        // eslint-disable-next-line no-console
         console.error('[useThemeSync] Failed to apply theme:', err);
       });
   }, [preferences, isLoading, error, setFromGrafana, auth.isLoggedIn]);

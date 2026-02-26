@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import NavItemIcon from "./NavItemIcon";
-import { memo } from "react";
+import { render, screen } from '@testing-library/react';
+import NavItemIcon from './NavItemIcon';
+import { memo } from 'react';
 
 const TestIcon = () => <div>icon</div>;
 const TestMemoizedIcon = memo(TestIcon);

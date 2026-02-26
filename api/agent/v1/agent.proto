@@ -84,6 +84,14 @@ message SetStateRequest {
     bool tls_skip_verify = 9;
     // Environment variables to be passed to the built-in agent.
     map<string, string> env = 10;
+    // Real-Time Analytics options.
+    inventory.v1.RTAOptions rta_options = 11;
+    // Service identifier of the service where the agent connects to.
+    // Currently used by Real-Time Analytics built-in agent only.
+    string service_id = 12;
+    // Service name of the service where the agent connects to.
+    // Currently used by Real-Time Analytics built-in agent only.
+    string service_name = 13;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
