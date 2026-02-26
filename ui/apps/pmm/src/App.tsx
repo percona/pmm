@@ -1,5 +1,5 @@
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import router from './router';
@@ -32,6 +32,8 @@ const App = () => (
           info: NotistackMuiSnackbar,
           warning: NotistackMuiSnackbar,
         }}
+        // Render the snackbar on the right side of the screen to not interfere with navigation
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />

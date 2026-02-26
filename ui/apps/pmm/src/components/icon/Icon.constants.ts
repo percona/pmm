@@ -37,11 +37,23 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'my-organization': () => import('icons/my-organization.svg?react'),
   memory: () => import('icons/memory.svg?react'),
   network: () => import('icons/network.svg?react'),
+  'real-time-database-off': () =>
+    import('icons/real-time-database-off.svg?react'),
   cluster: () => import('icons/cluster.svg?react'),
   'status-at-risk': () => import('icons/status-at-risk.svg?react'),
   'status-down': () => import('icons/status-down.svg?react'),
   'status-updating': () => import('icons/status-updating.svg?react'),
   'arrow-link': () => import('icons/arrow-link.svg?react'),
+  'bottom-panel-close': () => import('icons/bottom-panel-close.svg?react'),
+  'collapse-content': () => import('icons/collapse-content.svg?react'),
+  'expand-content': () => import('icons/expand-content.svg?react'),
+  'dynamic-feed': () => import('icons/dynamic-feed.svg?react'),
+  'bottom-panel-open': () => import('icons/bottom-panel-open.svg?react'),
+  'electric-bolt': () => import('icons/electric-bolt.svg?react'),
+  'electric-bolt-off': () => import('icons/electric-bolt-off.svg?react'),
+  'play-arrow': () => import('icons/play-arrow.svg?react'),
+  pause: () => import('icons/pause.svg?react'),
+  refresh: () => import('icons/refresh.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<
@@ -51,4 +63,5 @@ export const VIEWBOX_MAP: Partial<
   'knowledge-base': '0 0 28 28',
   'pmm-rounded': '0 0 160 160',
   'pmm-titled': '0 0 363 128',
+  'real-time-database-off': '0 0 192 192',
 };

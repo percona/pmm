@@ -21,6 +21,7 @@ gen:            ## Generate PMM API
 		dump/v1beta1 \
 		accesscontrol/v1beta1 \
 		qan/v1 \
+		realtimeanalytics/v1 \
 		platform/v1 \
 		ha/v1beta1"; \
 	for API in $$SPECS; do \
@@ -37,6 +38,7 @@ gen:            ## Generate PMM API
 			--additional-initialism=pxc \
 			--additional-initialism=pt \
 			--additional-initialism=qan \
+			--additional-initialism=realtimeanalytics \
 			--additional-initialism=rds \
 			--additional-initialism=sql \
 			--additional-initialism=ha ; \
@@ -55,6 +57,7 @@ gen:            ## Generate PMM API
 		advisors/v1/json/v1.json \
 		backup/v1/json/v1.json \
 		qan/v1/json/v1.json \
+		realtimeanalytics/v1/json/v1.json \
 		ha/v1beta1/json/v1beta1.json
 	../bin/swagger validate swagger/swagger.json
 
@@ -76,6 +79,7 @@ gen:            ## Generate PMM API
 		dump/v1beta1/json/v1beta1.json \
 		accesscontrol/v1beta1/json/v1beta1.json \
 		qan/v1/json/v1.json \
+		realtimeanalytics/v1/json/v1.json \
 		ha/v1beta1/json/v1beta1.json
 
 	../bin/swagger validate swagger/swagger-dev.json
@@ -121,6 +125,7 @@ clean: clean-swagger  ## Remove generated files
 		dump/v1beta1 \
 		accesscontrol/v1beta1 \
 		qan/v1 \
+		realtimeanalytics/v1 \
 		platform/v1 \
 		ha/v1beta1"; \
 	for API in $$SPECS; do \
