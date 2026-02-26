@@ -1002,7 +1002,7 @@ telemetry:
       INNER JOIN
         services s ON a.service_id = s.service_id
       WHERE
-        a.agent_type in ('rta-mongodb-agent')
+        a.agent_type = 'rta-mongodb-agent'
         AND a.created_at >= now() -  interval '1 day'
       GROUP BY
         agent_type, db_version;
@@ -1015,17 +1015,17 @@ telemetry:
         column: "agent_type"
       - metric_name: "db_version"
         column: "db_version"
-      - metric_name: "count"
+      - metric_name: "agent_count"
         column: "agent_count"
 
   - id: RTASessionDuration
     source: PMMDB_SELECT
     query: >
       agent_type,
-      EXTRACT(SECOND FROM updated_at  - created_at)::int  AS session_duration_sec
+      EXTRACT(SECOND FROM updated_at  - created_at)::int  AS duration_sec
       FROM agents
       WHERE
-        agent_type in ('rta-mongodb-agent')
+        agent_type = 'rta-mongodb-agent'
         AND EXTRACT(SECOND FROM updated_at  - created_at)::int > 0
         AND created_at >= now() -  interval '1 day';
     summary: "Real-Time Analytics session durations for last day"
@@ -1036,7 +1036,7 @@ telemetry:
       - metric_name: "agent_type"
         column: "agent_type"
       - metric_name: "duration_sec"
-        column: "session_duration_sec"
+        column: "duration_sec"
 
   - id: RTAAgentCollectInterval
     source: PMMDB_SELECT
@@ -1045,7 +1045,7 @@ telemetry:
       ((rta_options->'collect_interval')::numeric / 1000000000)::int as collect_interval_sec
       FROM agents
       WHERE
-        agent_type in ('rta-mongodb-agent')
+        agent_type = 'rta-mongodb-agent'
         AND rta_options->'collect_interval' != 'null'
         AND created_at >= now() -  interval '1 day';
     summary: "Real-Time Analytics collect interval (sec)"
