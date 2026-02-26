@@ -153,6 +153,7 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlSlowlogAgent",
 					},
+					ExtraDsnParams:     map[string]string{},
 					Status:             &AgentStatusDone,
 					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 					MaxSlowlogFileSize: "0",
