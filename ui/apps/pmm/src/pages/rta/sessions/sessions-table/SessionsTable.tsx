@@ -20,6 +20,7 @@ import { ModalType, SessionRow } from './SessionsTable.types';
 import { enqueueSnackbar } from 'notistack';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { useUser } from 'contexts/user';
+import { Navigate } from 'react-router-dom';
 
 const SessionsTable: FC = () => {
   const { user } = useUser();
@@ -106,6 +107,10 @@ const SessionsTable: FC = () => {
     return <Skeleton variant="rounded" height="100%" />;
   }
 
+  if (sessions.length === 0) {
+    return <Navigate to="/rta/selection" />;
+  }
+
   return (
     <RealtimeTableWrapper>
       <Table
@@ -121,7 +126,7 @@ const SessionsTable: FC = () => {
             'mrt-row-expand',
             'mrt-row-select',
             ...SESSIONS_TABLE_COLUMNS.map((column) => column.accessorKey || ''),
-            'mrt-row-actions',
+            ...(user?.isPMMAdmin ? ['mrt-row-actions'] : []),
           ],
         }}
         state={{
@@ -141,9 +146,9 @@ const SessionsTable: FC = () => {
         enableSubRowSelection
         enableExpanding
         enableExpandAll
-        enableRowActions
+        enableRowActions={user?.isPMMAdmin}
         renderRowActions={({ row }) =>
-          user?.isEditor && (
+          user?.isPMMAdmin && (
             <Button
               color="inherit"
               size="small"
@@ -174,12 +179,12 @@ const SessionsTable: FC = () => {
             // vertically center the buttons
             [`& > .${boxClasses.root}`]: {
               alignItems: 'center',
-              flexDirection: user?.isEditor ? 'row-reverse' : undefined,
+              flexDirection: user?.isPMMAdmin ? 'row-reverse' : undefined,
             },
           },
         }}
         renderTopToolbarCustomActions={() =>
-          user?.isEditor && (
+          user?.isPMMAdmin && (
             <Stack direction="row" alignItems="center" gap={2}>
               {selectedSessions.length > 0 && (
                 <Stack direction="row" alignItems="center" gap={2}>

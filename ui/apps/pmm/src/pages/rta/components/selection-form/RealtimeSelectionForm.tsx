@@ -47,7 +47,7 @@ const RealtimeSelectionForm: FC<Props> = ({ onSuccess }) => {
         size="large"
         onClick={handleStart}
         disabled={
-          serviceIds.length === 0 || startSessions.isPending || !user?.isEditor
+          serviceIds.length === 0 || startSessions.isPending || !user?.isPMMAdmin
         }
         sx={{
           borderRadius: 999,

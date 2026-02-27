@@ -83,7 +83,6 @@ const RealtimeOverviewPage: FC = () => {
       <OverviewTable
         queries={queries || []}
         onQuerySelected={handleQueryChange}
-        onRowHover={() => setFetching(false)}
         actions={() => (
           <Stack
             direction="row"
