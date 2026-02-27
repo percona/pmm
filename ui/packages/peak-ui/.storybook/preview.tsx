@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import type { Preview } from "@storybook/react";
 import { CssBaseline, createTheme, ThemeProvider } from "@mui/material";
 import { getThemeOptions } from "../src/design";
+import peakDesign from "./peak-design";
 
 const preview: Preview = {
   decorators: [
@@ -15,14 +16,21 @@ const preview: Preview = {
         [mode, themeName]
       );
 
-      document.body.style.backgroundColor = theme.palette.background.default;
+      const bgColor = theme.palette.background.default;
+      document.body.style.backgroundColor = bgColor;
 
-      return (
+      const content = (
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Story />
         </ThemeProvider>
       );
+
+      if (context.viewMode === 'docs') {
+        return <div style={{ backgroundColor: bgColor, padding: '2rem' }}>{content}</div>;
+      }
+
+      return content;
     },
   ],
   globalTypes: {
@@ -31,10 +39,10 @@ const preview: Preview = {
       description: "Color mode",
       defaultValue: "light",
       toolbar: {
-        icon: "circlehollow",
+        icon: "sun",
         items: [
-          { value: "light", icon: "circlehollow", title: "light" },
-          { value: "dark", icon: "circle", title: "dark" },
+          { value: "light", icon: "sun", title: "Light mode" },
+          { value: "dark", icon: "moon", title: "Dark mode" },
         ],
         showName: true,
         dynamicTitle: true,
@@ -42,13 +50,13 @@ const preview: Preview = {
     },
     theme: {
       name: "theme",
-      description: "Theme",
+      description: "GUI theme",
       defaultValue: "base",
       toolbar: {
-        icon: "palette",
+        icon: "circlehollow",
         items: [
-          { value: "base", icon: "palette", title: "Base Theme" },
-          { value: "pmm", icon: "palette", title: "PMM Theme" },
+          { value: "base", icon: "circlehollow", title: "Base theme" },
+          { value: "pmm", icon: "hearthollow", title: "PMM theme" },
         ],
         showName: true,
         dynamicTitle: true,
@@ -63,10 +71,20 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    docs: {
+      theme: peakDesign,
+      codePanel: true,
+    },
     options: {
       storySort: {
         order: ['Foundations', '*'],
       },
+    },
+    backgrounds: {
+      disable: true,
+      grid: {
+        disable: true,
+      }
     },
   },
 };
