@@ -84,7 +84,7 @@ const preview: Preview = {
       disable: true,
       grid: {
         disable: true,
-      }
+      },
     },
   },
 };
