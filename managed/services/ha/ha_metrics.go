@@ -90,7 +90,7 @@ func (c *HAMetricsCollector) Describe(ch chan<- *prom.Desc) {
 // No metrics are emitted when HA mode is disabled so that standalone PMM
 // deployments do not trigger HA-specific alerting rules.
 func (c *HAMetricsCollector) Collect(ch chan<- prom.Metric) {
-	m := c.haService.GetHAMetrics()
+	m := c.haService.GetMetrics()
 	if !m.Enabled {
 		return
 	}
