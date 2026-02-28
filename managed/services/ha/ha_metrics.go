@@ -15,9 +15,7 @@
 
 package ha
 
-import (
-	prom "github.com/prometheus/client_golang/prometheus"
-)
+import prom "github.com/prometheus/client_golang/prometheus"
 
 const (
 	haPrometheusNamespace = "pmm"
@@ -58,16 +56,14 @@ func NewHAMetricsCollector(haService *Service) *HAMetricsCollector {
 				"Value is 1 for the leader and 0 for followers. "+
 				"Use sum(pmm_ha_leader_status) to detect split-brain (>1) or a missing leader (==0).",
 			[]string{"node_id"},
-			nil,
-		),
+			nil),
 		mRaftTerm: prom.NewDesc(
 			prom.BuildFQName(haPrometheusNamespace, haPrometheusSubsystem, "raft_term"),
 			"The current Raft consensus term number as seen by this node. "+
 				"Rapid increases indicate leader instability or frequent elections (leader flapping). "+
 				"Use changes(pmm_ha_raft_term[10m]) > 5 to fire the PMMHALeaderFlapping alert.",
 			[]string{"node_id"},
-			nil,
-		),
+			nil),
 		mUp: prom.NewDesc(
 			prom.BuildFQName(haPrometheusNamespace, haPrometheusSubsystem, "up"),
 			"Reports that this PMM node is up and participating in the cluster. "+
@@ -75,8 +71,7 @@ func NewHAMetricsCollector(haService *Service) *HAMetricsCollector {
 				"in elections, 'nonvoter' nodes only replicate logs. "+
 				"Use count(pmm_ha_up{role=\"voter\"}) to evaluate quorum health.",
 			[]string{"node_id", "role"},
-			nil,
-		),
+			nil),
 	}
 }
 
