@@ -17,9 +17,8 @@ if [ -z "${DOCKER_CLIENT_TAG}" ]; then
     DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${full_pmm_version}
 fi
 
-docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
-             --build-arg VERSION=$(cat VERSION) \
-             --build-arg RELEASE=$(date +%s) \
+docker build --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%S')"\
+             --build-arg VERSION="$(cat VERSION)" \
              -f ${DOCKER_FILE_LOCATION}/${docker_file} \
              -t ${DOCKER_CLIENT_TAG} \
              ${DOCKER_FILE_LOCATION}
@@ -28,10 +27,6 @@ if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_client_tag_file})
     echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
     docker push ${DOCKER_CLIENT_TAG}
-fi
-if [ -n "${SAVE_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_client_tarball})
-    docker save ${DOCKER_CLIENT_TAG} | xz > ${docker_client_tarball}
 fi
 
 # vim: expandtab shiftwidth=4 tabstop=4
