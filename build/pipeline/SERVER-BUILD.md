@@ -4,7 +4,7 @@
 Simplify the build pipeline by eliminating RPM packaging for all server components using Docker multi-stage builds. Build Go binaries in golang:latest, Node.js artifacts in node:latest, then copy to Oracle Linux runtime with exact same paths as RPM specs defined.
 
 ## Steps
-1. Add multi-architecture build support — Update Makefile, Makefile, Makefile, and Makefile to accept GOARCH parameter (defaulting to amd64). Ensure all release targets use GOOS=linux GOARCH=${GOARCH} for cross-compilation. Configure Docker buildx in build/bin/build-server-docker with --platform linux/amd64,linux/arm64 and enable BuildKit (DOCKER_BUILDKIT=1).
+1. Add multi-architecture build support — Update all Makefiles to accept GOARCH parameter (defaulting to amd64). Ensure all release targets use GOOS=linux GOARCH=${GOARCH} for cross-compilation. Configure Docker buildx in build/bin/build-server-docker with --platform linux/amd64,linux/arm64 and enable BuildKit (DOCKER_BUILDKIT=1).
 
 2. Create multi-stage Dockerfile — Restructure build/docker/Dockerfile.el9 with build stages: (1) golang:latest AS go-builder for pmm-managed, qan-api2, vmproxy, pmm-dump, VictoriaMetrics, and Grafana Go binaries using cache mounts --mount=type=cache,target=/go/pkg/mod, (2) node:latest AS node-builder for Grafana UI and PMM UI builds using cache mounts --mount=type=cache,target=/root/.npm, (3) node:latest AS dashboards-builder for percona-dashboards, (4) oraclelinux:9-slim AS runtime copies all artifacts with precise ownership and permissions.
 

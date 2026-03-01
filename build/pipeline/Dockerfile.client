@@ -4,7 +4,7 @@ ARG VERSION
 ARG RELEASE
 ARG BUILD_DATE
 
-RUN --mount=type=cache,target=/var/cache/yum \
+RUN --mount=type=cache,target=/var/cache/dnf \
     microdnf install -y shadow-utils jq \
     && curl -o /tmp/percona-release.rpm https://repo.percona.com/yum/percona-release-latest.noarch.rpm \
     && rpm -i /tmp/percona-release.rpm \
