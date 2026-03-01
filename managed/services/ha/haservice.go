@@ -639,7 +639,8 @@ func (s *Service) GetMetrics() Metrics {
 	// Determine whether this node is configured as a Raft voter.
 	isVoter := false
 	configFuture := raftNode.GetConfiguration()
-	if err := configFuture.Error(); err == nil {
+	err := configFuture.Error()
+	if err == nil {
 		for _, server := range configFuture.Configuration().Servers {
 			if server.ID == raft.ServerID(s.params.NodeID) {
 				isVoter = server.Suffrage == raft.Voter
