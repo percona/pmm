@@ -1177,6 +1177,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ADD COLUMN is_connected BOOLEAN NOT NULL DEFAULT false`,
 		`ALTER TABLE nodes ADD COLUMN is_pmm_server_node BOOLEAN NOT NULL DEFAULT false`,
 	},
+	126: {
+		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
+		`UPDATE agents SET rta_options = '{}'::jsonb`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

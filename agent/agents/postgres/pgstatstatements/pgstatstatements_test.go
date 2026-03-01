@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -112,7 +113,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 	// Need to detect vendor because result for mSharedBlksReadSum are different for different images for postgres.
 	mSharedBlksHitSum := float32(33)
-	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
+	isPercona := strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab")
+	if isPercona {
 		mSharedBlksHitSum = 32
 	}
 	truncatedMSharedBlksHitSum := mSharedBlksHitSum
@@ -164,8 +166,12 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN ($1 /*, ... */)"
 		truncatedMSharedBlksHitSum = float32(8)
 		isTruncated = false
-		switch minorVersion {
-		case "2":
+
+		minor, err := strconv.ParseInt(minorVersion, 10, 64) // just to make sure minor version is parsable
+		require.NoError(t, err)
+
+		switch {
+		case minor >= 2 && !isPercona || minor >= 3 && isPercona:
 			digests = map[string]string{
 				selectAllCities:     "-7353212999726668504",
 				selectAllCitiesLong: "954639919948531541",

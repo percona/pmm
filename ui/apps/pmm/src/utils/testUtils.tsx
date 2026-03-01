@@ -8,6 +8,7 @@ import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
 import { SettingsContext } from 'contexts/settings';
 import { FrontendSettings, Settings } from 'types/settings.types';
 import { GrafanaContext, GrafanaContextProps } from 'contexts/grafana';
+import { SnackbarProvider, SnackbarProviderProps } from 'notistack';
 
 export const wrapWithUpdatesProvider = (
   children: ReactElement,
@@ -152,3 +153,8 @@ export const wrapWithGrafana = (
     {children}
   </GrafanaContext.Provider>
 );
+
+export const wrapWithSnackbarProvider = (
+  children: ReactElement,
+  props?: Partial<SnackbarProviderProps>
+) => <SnackbarProvider {...props}>{children}</SnackbarProvider>;
