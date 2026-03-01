@@ -81,5 +81,6 @@ You can choose from the following Agent types:
 - qan_mongodb_profiler_agent
 - qan_postgresql_pgstatements_agent
 - qan_postgresql_pgstatmonitor_agent
+- rta_mongodb_agent
 
 To get the authentication token, check [Authentication](ref:authentication).

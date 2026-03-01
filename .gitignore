@@ -47,6 +47,9 @@ ci.yml
 encryption.key
 
 /tmp/
+settings.json
+GEMINI.md
+RTA-Jira-Tasks-Summary.md
 
 # PMM Demo backups (it would increase repository size significantly)
 dev/clickhouse-backups/
