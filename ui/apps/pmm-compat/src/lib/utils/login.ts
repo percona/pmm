@@ -7,3 +7,7 @@ export const updateIsFirstLogin = () => {
   const userId = window.grafanaBootData?.user?.id;
   localStorage.setItem(`pmm-ui.first-login.user-${userId}`, 'false');
 };
+
+export const isUserLoggedIn = () => {
+  return window.grafanaBootData?.user?.isSignedIn === true;
+};

@@ -117,7 +117,7 @@ To create a new notification policy:
 1. Go to <i class="uil uil-bell"></i> **Alerting > Notification policies** tab.
 ![!](../images/alerting-new-notification-policy.png)
 
-2. Click **New nested policy**.
+2. Click **New child policy**.
 3. The **Matching labels** section defines the rules for matching alert labels. The matching label is a combination of label name, operator and label value, where the label name is any valid label in your environment. For example:  `node_name`, `cluster`, etc.
 A policy will match an alert if the alert’s labels match all the matching labels specified on the policy. If there are no matchers, **the policy will handle all the alert instances**. For example, you could add a **node_name=pmm-server** matcher to send out notifications only for this node.
 4. Select an existing contact point for the policy.

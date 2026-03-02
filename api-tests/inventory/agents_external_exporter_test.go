@@ -77,6 +77,7 @@ func TestExternalExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_for_external_exporter": "external_exporter",
 				},
+				Status: pointer.ToString(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 	})
@@ -138,6 +139,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_external_exporter": "external_exporter",
 				},
 				TLSSkipVerify: true,
+				Status:        pointer.ToString(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 
@@ -166,6 +168,7 @@ func TestExternalExporter(t *testing.T) {
 				Disabled:      true,
 				CustomLabels:  map[string]string{},
 				TLSSkipVerify: true,
+				Status:        pointer.ToString(AgentStatusDone),
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -199,6 +202,7 @@ func TestExternalExporter(t *testing.T) {
 					"new_label": "external_exporter",
 				},
 				TLSSkipVerify: true,
+				Status:        pointer.ToString(AgentStatusDone),
 			},
 		}, changeExternalExporterOK.Payload)
 	})
@@ -397,6 +401,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: true,
+				Status:             pointer.ToString(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 
@@ -424,6 +429,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: false,
+				Status:             pointer.ToString(AgentStatusUnknown),
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -450,6 +456,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: true,
+				Status:             pointer.ToString(AgentStatusUnknown),
 			},
 		}, changeExternalExporterOK.Payload)
 	})

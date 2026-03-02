@@ -23,6 +23,7 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
   const newOptions: ThemeOptions = {
     palette: {
       mode,
+      surfaces: peakTheme.surfaces,
       ...(mode === 'light'
         ? {
             primary: {
@@ -30,6 +31,10 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
               dark: peakTheme.primary.pmm.dark,
               light: peakTheme.primary.pmm.light,
               contrastText: peakTheme.primary.pmm.contrast,
+            },
+            warning: {
+              main: peakTheme.warning.surface,
+              contrastText: peakTheme.text.primary,
             },
             action: {
               hover: 'rgba(220, 63, 0, 0.04)',
@@ -53,7 +58,7 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
             },
             warning: {
               main: peakTheme.warning.main,
-              contrastText: peakTheme.warning.dark,
+              contrastText: peakTheme.warning.contrast,
             },
             action: {
               hover: 'rgba(245, 106, 51, 0.08)',
@@ -137,7 +142,7 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
             borderStyle: 'solid',
             borderRadius: 5,
             borderColor: theme.palette.divider,
-            backgroundColor: theme.palette.surfaces?.low,
+            backgroundColor: theme.palette.surfaces?.elevation0,
           }),
           bar: {
             borderRadius: 5,
@@ -171,9 +176,13 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
       },
       MuiBadge: {
         styleOverrides: {
-          colorWarning: {
+          colorWarning: ({ theme }) => ({
             backgroundColor: peakTheme.warning.light,
-          },
+            color:
+              theme.palette.mode === 'light'
+                ? theme.palette.common.white
+                : peakTheme.warning.contrast,
+          }),
         },
       },
       MuiCard: {
@@ -240,6 +249,28 @@ const perconaThemeOptions = (mode: ColorMode): ThemeOptions => {
           arrow: () => ({
             color: peakTheme.neutral.primary.main,
           }),
+        },
+      },
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: peakTheme.text.sky,
+            textDecorationColor: peakTheme.text.sky,
+          },
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            paddingBottom: 0,
+          },
+        },
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            paddingTop: 0,
+          },
         },
       },
     },

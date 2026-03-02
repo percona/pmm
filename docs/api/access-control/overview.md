@@ -1,8 +1,10 @@
 ---
 title: Overview
 slug: access-control
-categorySlug: access-control-api
-hidden: 0
+category:
+  uri: access-control-api
+privacy:
+  view: public
 ---
 
 Access Control in PMM can be used to restrict access to individual metrics.  

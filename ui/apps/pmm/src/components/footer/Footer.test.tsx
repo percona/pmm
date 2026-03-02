@@ -17,7 +17,7 @@ describe('Footer', () => {
   it('shows  correct checked date', () => {
     render(wrapWithUpdatesProvider(<Footer />));
 
-    expect('Checked on: 2024/07/30');
+    expect('Last checked: 2024/07/30');
   });
 
   it('shows in progress message', () => {

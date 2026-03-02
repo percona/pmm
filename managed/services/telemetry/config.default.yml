@@ -332,6 +332,20 @@ telemetry:
     data:
       - metric_name: "proxysql_version"
         label: "version"
+    
+  - id: ValkeyRedisDBVersion
+    source: VM
+    query: redis_instance_info
+    summary: "Monitored Valkey/Redis services version and info"
+    data:
+      - metric_name: "valkey_version"
+        label: "valkey_version"   
+      - metric_name: "redis_version"
+        label: "redis_version"
+      - metric_name: "valkey_redis_service_type"
+        label: "service_type"
+      - metric_name: "valkey_redis_role"
+        label: "role"
 
   #
   - id: GrafanaStatTotalUsers
