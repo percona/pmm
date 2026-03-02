@@ -17,7 +17,7 @@ if [ -z "${DOCKER_CLIENT_TAG}" ]; then
     DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${full_pmm_version}
 fi
 
-docker build --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%S')"\
+docker build --build-arg BUILD_DATE="$(date -u +'%Y-%m-%d %H:%M:%S+00:00')"\
              --build-arg VERSION="$(cat VERSION)" \
              -f ${DOCKER_FILE_LOCATION}/${docker_file} \
              -t ${DOCKER_CLIENT_TAG} \
