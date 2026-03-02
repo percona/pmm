@@ -28,6 +28,8 @@ import (
 )
 
 func TestListResultString(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name       string
 		listResult listResult
@@ -78,10 +80,30 @@ Agent type               Status         Metrics Mode        Agent ID            
 external-exporter        Running                            8b732ac3-8256-40b0-a98b-0fd5fa9a1149        8ff49c41-80a1-4030-bc02-cd76e3b0b84a        8080
 `),
 		},
+		{
+			name: "rta_agent",
+			listResult: listResult{
+				Services: []listResultService{
+					{ServiceType: types.ServiceTypeMongoDBService, ServiceID: "4ff49c41-80a1-4030-bc02-cd76e3b0b123", ServiceName: "mongodb-service"},
+				},
+				Agents: []listResultAgent{
+					{AgentType: types.AgentTypeRTAMongoDBAgent, AgentID: "8b732ac3-8256-40b0-a98b-0fd5fa9a1142", ServiceID: "4ff49c41-80a1-4030-bc02-cd76e3b0b123", Status: "RUNNING"},
+				},
+			},
+			expected: strings.TrimSpace(`
+Service type        Service name           Address and port        Service ID
+MongoDB             mongodb-service                                4ff49c41-80a1-4030-bc02-cd76e3b0b123
+
+Agent type               Status         Metrics Mode        Agent ID                                    Service ID                                  Port
+rta_mongodb_agent        Running                            8b732ac3-8256-40b0-a98b-0fd5fa9a1142        4ff49c41-80a1-4030-bc02-cd76e3b0b123        0
+`),
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			actual := strings.TrimSpace(tt.listResult.String())
 			assert.Equal(t, tt.expected, actual)
 		})
@@ -146,6 +168,14 @@ func TestListJSONOutput(t *testing.T) {
 						Port:        6379,
 					},
 				},
+				Mongodb: []*services_service.ListServicesOKBodyMongodbItems0{
+					{
+						ServiceID:   "b9983cb2-7705-4fdc-9df6-9ec4e9f33261",
+						ServiceName: "mongodb-service",
+						Address:     "127.0.0.1",
+						Port:        27017,
+					},
+				},
 			},
 		}
 		agents := &agents_service.ListAgentsOK{
@@ -177,6 +207,14 @@ func TestListJSONOutput(t *testing.T) {
 						ListenPort:         6379,
 					},
 				},
+				RtaMongodbAgent: []*agents_service.ListAgentsOKBodyRtaMongodbAgentItems0{
+					{
+						AgentID:    "8b732ac3-8256-40b0-a98b-0fd5fa9a1456",
+						PMMAgentID: "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
+						ServiceID:  "b9983cb2-7705-4fdc-9df6-9ec4e9f33261",
+						Status:     pointer.ToString("RUNNING"),
+					},
+				},
 			},
 		}
 		result := listResult{
@@ -194,6 +232,13 @@ func TestListJSONOutput(t *testing.T) {
 					"service_id": "4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 					"service_name": "mysql-service",
 					"address_port": "127.0.0.1:3306",
+					"external_group": ""
+				},
+				{
+					"service_type": "SERVICE_TYPE_MONGODB_SERVICE",
+					"service_id": "b9983cb2-7705-4fdc-9df6-9ec4e9f33261",
+					"service_name": "mongodb-service",
+					"address_port": "127.0.0.1:27017",
 					"external_group": ""
 				},
 				{
@@ -230,6 +275,14 @@ func TestListJSONOutput(t *testing.T) {
 					"disabled": false,
 					"push_metrics_enabled": "pull",
 					"port": 6379
+				},
+				{
+					"agent_type": "AGENT_TYPE_RTA_MONGODB_AGENT",
+					"agent_id": "8b732ac3-8256-40b0-a98b-0fd5fa9a1456",
+					"service_id": "b9983cb2-7705-4fdc-9df6-9ec4e9f33261",
+					"status": "RUNNING",
+					"disabled": false,
+					"push_metrics_enabled": ""
 				}
 			]
 		}
@@ -405,19 +458,18 @@ func TestAgentsList(t *testing.T) {
 						ListenPort: 4646,
 					},
 				},
+				RtaMongodbAgent: []*agents_service.ListAgentsOKBodyRtaMongodbAgentItems0{
+					{
+						AgentID:    "rta-mongodb-id",
+						PMMAgentID: pmmAgentID,
+						ServiceID:  "mongodb-service-id",
+						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					},
+				},
 			},
 		}
 
 		result := agentsList(agentsRes, nodeID)
-
-		// Should have 15 agents total
-		assert.Len(t, result, 15)
-
-		// Verify each agent type is present
-		agentTypes := make(map[string]bool)
-		for _, agent := range result {
-			agentTypes[agent.AgentType] = true
-		}
 
 		expectedTypes := []string{
 			types.AgentTypePMMAgent,
@@ -435,6 +487,16 @@ func TestAgentsList(t *testing.T) {
 			types.AgentTypeExternalExporter,
 			types.AgentTypeVMAgent,
 			types.AgentTypeNomadAgent,
+			types.AgentTypeRTAMongoDBAgent,
+		}
+
+		// Should have 16 agents total
+		assert.Len(t, result, len(expectedTypes))
+
+		// Verify each agent type is present
+		agentTypes := make(map[string]bool)
+		for _, agent := range result {
+			agentTypes[agent.AgentType] = true
 		}
 
 		for _, expectedType := range expectedTypes {
@@ -934,6 +996,32 @@ func TestNomadAgents(t *testing.T) {
 	assert.Equal(t, types.AgentTypeNomadAgent, result[0].AgentType)
 	assert.Empty(t, result[0].MetricsMode) // Nomad agents don't have metrics mode
 	assert.Empty(t, result[0].ServiceID)   // Nomad agents don't have service ID
+}
+
+func TestRtaMongodbAgents(t *testing.T) {
+	t.Parallel()
+
+	pmmAgentIDs := map[string]struct{}{
+		"pmm-agent-1": {},
+	}
+
+	agentsRes := &agents_service.ListAgentsOK{
+		Payload: &agents_service.ListAgentsOKBody{
+			RtaMongodbAgent: []*agents_service.ListAgentsOKBodyRtaMongodbAgentItems0{
+				{
+					AgentID:    "rta-mongodb-1",
+					PMMAgentID: "pmm-agent-1",
+					ServiceID:  "mongodb-service-1",
+					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+				},
+			},
+		},
+	}
+
+	result := rtaMongodbAgents(agentsRes, pmmAgentIDs)
+
+	assert.Len(t, result, 1)
+	assert.Equal(t, types.AgentTypeRTAMongoDBAgent, result[0].AgentType)
 }
 
 func TestGetStatus(t *testing.T) {

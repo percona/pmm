@@ -62,6 +62,7 @@ export const useColorMode = () => {
       try {
         await updatePreferences({ theme: next });
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.warn('[useColorMode] Failed to persist theme:', err);
       }
     }
@@ -74,6 +75,7 @@ export const useColorMode = () => {
           payload: { mode: next },
         });
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.warn('[useSetTheme] Failed to send CHANGE_THEME message:', err);
       }
     }
