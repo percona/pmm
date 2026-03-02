@@ -44,7 +44,7 @@ export const ReleaseNotes: FC<ReleaseNotesProps> = ({ content }) => {
             p: 2,
             margin: -2,
             mb: 1,
-            backgroundColor: theme.palette.surfaces?.low,
+            backgroundColor: theme.palette.surfaces?.elevation0,
             gap: 2,
             display: 'flex',
           },

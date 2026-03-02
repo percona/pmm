@@ -48,11 +48,13 @@ export interface UserOrg {
 export interface GetPreferenceResponse {
   theme?: ColorMode;
   homeDashboardUID?: string;
+  timezone?: string;
 }
 
 export interface UpdatePreferencesBody {
   theme?: ColorMode;
   homeDashboardUID?: string;
+  timezone?: string;
 }
 
 export type UserPreferences = GetPreferenceResponse;
