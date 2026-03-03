@@ -35,6 +35,7 @@ func TestParseArray(t *testing.T) {
 			name: "valid array with documents",
 			json: `{"arr": [{"name": "test", "value": 42}, {"name": "test2", "value": 100}]}`,
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "name")
 				require.Contains(t, result, "test")
@@ -46,6 +47,7 @@ func TestParseArray(t *testing.T) {
 			name: "array with single document",
 			json: `{"arr": [{"field": "value"}]}`,
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "field")
 				require.Contains(t, result, "value")
@@ -55,6 +57,7 @@ func TestParseArray(t *testing.T) {
 			name: "empty array",
 			json: `{"arr": []}`,
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				// Empty array falls through to doc.String() which returns "[]"
 				require.Equal(t, "[]", result)
 			},
@@ -63,6 +66,7 @@ func TestParseArray(t *testing.T) {
 			name: "array with non-document values (strings, numbers)",
 			json: `{"arr": ["string", 123, true]}`,
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				// Non-document values won't unmarshal to maps, so we get doc.String()
 				require.NotEmpty(t, result)
 			},
@@ -107,6 +111,7 @@ func TestParseArray_InvalidInput(t *testing.T) {
 			name: "not an array (string value)",
 			json: `{"field": "not an array"}`,
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				// Should return doc.String() since it's not an array
 				require.NotEmpty(t, result)
 			},
@@ -115,6 +120,7 @@ func TestParseArray_InvalidInput(t *testing.T) {
 			name: "not an array (document value)",
 			json: `{"field": {"nested": "doc"}}`,
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				// Should return doc.String() since it's not an array
 				require.NotEmpty(t, result)
 			},
@@ -158,6 +164,7 @@ func TestParseRawValue(t *testing.T) {
 			json:  `{}`,
 			field: "missing",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.Empty(t, result)
 			},
 		},
@@ -166,6 +173,7 @@ func TestParseRawValue(t *testing.T) {
 			json:  `{"value": "test string"}`,
 			field: "value",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "test string")
 			},
@@ -175,6 +183,7 @@ func TestParseRawValue(t *testing.T) {
 			json:  `{"number": 42}`,
 			field: "number",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "42")
 			},
@@ -184,6 +193,7 @@ func TestParseRawValue(t *testing.T) {
 			json:  `{"flag": true}`,
 			field: "flag",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "true")
 			},
@@ -225,6 +235,7 @@ func TestParseOption(t *testing.T) {
 			json: `{"ordered": true, "maxTimeMS": 1000}`,
 			key:  "ordered",
 			validate: func(t *testing.T, result any) {
+				t.Helper()
 				require.NotNil(t, result)
 				require.Equal(t, true, result)
 			},
@@ -234,6 +245,7 @@ func TestParseOption(t *testing.T) {
 			json: `{"ordered": true}`,
 			key:  "missing",
 			validate: func(t *testing.T, result any) {
+				t.Helper()
 				require.Nil(t, result)
 			},
 		},
@@ -242,6 +254,7 @@ func TestParseOption(t *testing.T) {
 			json: `{"maxTimeMS": 5000}`,
 			key:  "maxTimeMS",
 			validate: func(t *testing.T, result any) {
+				t.Helper()
 				require.NotNil(t, result)
 				require.Equal(t, int32(5000), result)
 			},
@@ -282,6 +295,7 @@ func TestParseOptions(t *testing.T) {
 			json: `{"ordered": true, "maxTimeMS": 1000}`,
 			keys: []string{"ordered", "maxTimeMS"},
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "ordered")
 				require.Contains(t, result, "maxTimeMS")
@@ -292,6 +306,7 @@ func TestParseOptions(t *testing.T) {
 			json: `{"ordered": true}`,
 			keys: []string{"ordered", "missing"},
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "ordered")
 				require.NotContains(t, result, "missing")
@@ -302,6 +317,7 @@ func TestParseOptions(t *testing.T) {
 			json: `{"other": "value"}`,
 			keys: []string{"missing1", "missing2"},
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.Empty(t, result)
 			},
 		},
@@ -310,6 +326,7 @@ func TestParseOptions(t *testing.T) {
 			json: `{"field": "value"}`,
 			keys: []string{},
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.Empty(t, result)
 			},
 		},
@@ -349,6 +366,7 @@ func TestParseEmbeddedDocument(t *testing.T) {
 			json:  `{"doc": {"name": "test", "value": 42}}`,
 			field: "doc",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "name")
 				require.Contains(t, result, "test")
@@ -361,6 +379,7 @@ func TestParseEmbeddedDocument(t *testing.T) {
 			json:  `{"doc": {"outer": {"inner": "value"}}}`,
 			field: "doc",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "outer")
 				require.Contains(t, result, "inner")
@@ -371,6 +390,7 @@ func TestParseEmbeddedDocument(t *testing.T) {
 			json:  `{"doc": {}}`,
 			field: "doc",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 			},
 		},
@@ -413,6 +433,7 @@ func TestParseDocument(t *testing.T) {
 			json: `{"doc": {"name": "test", "value": 42}}`,
 			key:  "doc",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "name")
 				require.Contains(t, result, "test")
@@ -423,6 +444,7 @@ func TestParseDocument(t *testing.T) {
 			json: `{"arr": [{"item": 1}, {"item": 2}]}`,
 			key:  "arr",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "item")
 			},
@@ -432,6 +454,7 @@ func TestParseDocument(t *testing.T) {
 			json: `{"text": "value"}`,
 			key:  "text",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.NotEmpty(t, result)
 				require.Contains(t, result, "value")
 			},
@@ -441,6 +464,7 @@ func TestParseDocument(t *testing.T) {
 			json: `{"other": "value"}`,
 			key:  "missing",
 			validate: func(t *testing.T, result string) {
+				t.Helper()
 				require.Empty(t, result)
 			},
 		},
