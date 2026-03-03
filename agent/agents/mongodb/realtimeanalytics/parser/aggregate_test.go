@@ -19,7 +19,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsonrw"
 )
 
 var dataAggregate = []byte(`
@@ -146,20 +147,22 @@ var dataAggregate = []byte(`
 `)
 
 func parseBsonRaw(data []byte) bson.Raw {
-	vr, err := bson.NewExtJSONValueReader(bytes.NewReader(data), true)
-	if err != nil {
-		panic(err)
-	}
-
-	decoder := bson.NewDecoder(vr)
-
 	var raw bson.Raw
 
-	err = decoder.Decode(&raw)
+	vr, err := bsonrw.NewExtJSONValueReader(bytes.NewReader(data), true)
 	if err != nil {
 		panic(err)
 	}
 
+	dec, err := bson.NewDecoder(vr)
+	if err != nil {
+		panic(err)
+	}
+
+	err = dec.Decode(&raw)
+	if err != nil {
+		panic(err)
+	}
 	return raw
 }
 

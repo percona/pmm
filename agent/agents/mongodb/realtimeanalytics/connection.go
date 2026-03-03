@@ -16,12 +16,12 @@ package realtimeanalytics
 
 import (
 	"context"
-	"net/url"
 	"time"
 
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
-	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
 const (
@@ -29,11 +29,14 @@ const (
 	mgoConnectTimeout = 5 * time.Second
 	// Timeout for MongoDB queries.
 	mgoQueryTimeout = 5 * time.Second
+	// Timeout for MongoDB session socket.
+	mgoTimeoutSessionSocket = 5 * time.Second
 )
 
 // createSession creates new MongoDB client and checks connection to MongoDB by pinging it.
 func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Client, error) {
-	opts, err := clientOptionsForDSN(dsn)
+	// if dsn is incorrect we should exit immediately as this is not gonna correct itself
+	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -43,10 +46,11 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 		SetReadPreference(readpref.Nearest()).
 		SetTimeout(mgoQueryTimeout).
 		SetConnectTimeout(mgoConnectTimeout).
+		SetSocketTimeout(mgoTimeoutSessionSocket).
 		SetCompressors([]string{"snappy", "zlib", "zstd"}).
 		SetAppName("rta-mongodb-" + agentID)
 
-	client, err := mongo.Connect(opts)
+	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -57,32 +61,4 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 	}
 
 	return client, nil
-}
-
-// ClientOptionsForDSN applies URI to Client.
-func clientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
-	clientOptions := options.Client().ApplyURI(dsn)
-
-	e := clientOptions.Validate()
-	if e != nil {
-		return nil, e
-	}
-
-	// Workaround for PMM-9320
-	// if username or password is set, need to replace it with correctly parsed credentials.
-	parsedDsn, err := url.Parse(dsn)
-	if err != nil {
-		// for non-URI, do nothing (PMM-10265)
-		return clientOptions, nil //nolint:nilerr
-	}
-
-	username := parsedDsn.User.Username()
-
-	password, _ := parsedDsn.User.Password()
-	if username != "" || password != "" {
-		clientOptions.Auth.Username = username
-		clientOptions.Auth.Password = password
-	}
-
-	return clientOptions, nil
 }
