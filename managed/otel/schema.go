@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package otel contains helpers for managing the ClickHouse schema used by OTEL logs.
 package otel
 
 import (
@@ -29,7 +30,7 @@ import (
 const defaultClickhouseAddr = "127.0.0.1:9000"
 
 // EnsureOtelSchema creates the ClickHouse database `otel` and table `otel.logs` if they do not exist.
-// clickhouseAddr should be "host:port" (e.g. "127.0.0.1:9000"). retentionDays is used for the TTL of otel.logs.
+// ClickhouseAddr should be "host:port" (e.g. "127.0.0.1:9000"). RetentionDays is used for the TTL of otel.logs.
 func EnsureOtelSchema(ctx context.Context, clickhouseAddr string, retentionDays int) error {
 	if retentionDays <= 0 {
 		retentionDays = 7

@@ -205,6 +205,7 @@ func main() {
 	}
 
 	status = 0
+
 	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" { //nolint:nestif
 		l.Info("Starting pmm-agent for prerun...")
 		agent := commandPmmAgent([]string{"run"})

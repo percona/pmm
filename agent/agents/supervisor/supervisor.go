@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -795,7 +796,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		}
 		templateParams["server_otlp_url"] = fmt.Sprintf("%s://%s/otlp", scheme, cfg.Server.Address)
 		templateParams["server_auth_b64"] = base64.StdEncoding.EncodeToString([]byte(cfg.Server.Username + ":" + cfg.Server.Password))
-		templateParams["server_insecure"] = fmt.Sprintf("%t", cfg.Server.InsecureTLS)
+		templateParams["server_insecure"] = strconv.FormatBool(cfg.Server.InsecureTLS)
 		processParams.Path = cfg.Paths.OtelCollector
 	default:
 		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive

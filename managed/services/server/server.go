@@ -43,8 +43,8 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/otel"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/otel"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"

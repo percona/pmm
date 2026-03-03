@@ -57,6 +57,7 @@ func TestSettings(t *testing.T) {
 			EncryptedItems: actual.EncryptedItems,
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
+		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
 		assert.Equal(t, expected, actual)
 	})
 
@@ -81,6 +82,7 @@ func TestSettings(t *testing.T) {
 			},
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
+		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
 		assert.Equal(t, expected, s)
 	})
 
