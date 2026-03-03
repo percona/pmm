@@ -44,6 +44,7 @@ import (
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/otel"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
@@ -807,6 +808,9 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	}
 	if err := s.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
 		return errors.Wrap(err, "failed to update supervisord configuration")
+	}
+	if settings.IsOtelCollectorEnabled() {
+		otel.EnsureOtelSchemaFromEnv(ctx, settings.GetOtelLogsRetentionDays())
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()

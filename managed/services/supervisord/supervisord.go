@@ -252,6 +252,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
+		"OtelCollectorEnabled":         settings.IsOtelCollectorEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
@@ -402,6 +403,13 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 		}
 
 		if tmpl.Name() == "nomad-server" && !settings.IsNomadEnabled() {
+			e := os.Remove(filepath.Join(s.configDir, tmpl.Name()+".ini"))
+			if e != nil && !errors.Is(e, fs.ErrNotExist) {
+				s.l.Warnf("Failed to remove %s config when disabled: %s.", tmpl.Name(), e)
+			}
+			continue
+		}
+		if tmpl.Name() == "otel-collector" && !settings.IsOtelCollectorEnabled() {
 			e := os.Remove(filepath.Join(s.configDir, tmpl.Name()+".ini"))
 			if e != nil && !errors.Is(e, fs.ErrNotExist) {
 				s.l.Warnf("Failed to remove %s config when disabled: %s.", tmpl.Name(), e)
@@ -611,6 +619,22 @@ startsecs = 1
 stopsignal = INT
 stopwaitsecs = 300
 stdout_logfile = /srv/logs/nomad-server.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "otel-collector"}}
+[program:otel-collector]
+priority = 6
+command = /usr/local/percona/pmm/tools/otelcol-contrib --config=/etc/otelcol/config.yaml
+autorestart = true
+autostart = {{ .OtelCollectorEnabled }}
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 60
+stdout_logfile = /srv/logs/otel-collector.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
