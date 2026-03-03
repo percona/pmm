@@ -164,6 +164,10 @@ jobs:
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: ${{ runner.os }}-go-modules-
 
+      - name: Setup Kerberos client libraries
+        working-directory: ${{ github.workspace }}/.devcontainer
+        run: ./setup.py
+
       - name: Download Go modules
         run: go mod download -x
 
