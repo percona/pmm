@@ -202,6 +202,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 			agentProcesses[row.AgentID] = params
 
+		case models.OtelCollectorType:
+			agentProcesses[row.AgentID] = otelCollectorConfig(row)
+
 		case models.NodeExporterType:
 			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
 			if err != nil {
