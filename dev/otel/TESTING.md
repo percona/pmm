@@ -1,0 +1,52 @@
+# Testing OTEL Phase 1
+
+## Prerequisites
+
+1. Run **make gen** from the repo root so that generated API types (e.g. `AddAgentParamsBodyOtelCollector`, `AddAgentOKBodyOtelCollector`, inventory v1 agents.pb.go) exist.
+2. Build and run PMM server and pmm-agent (e.g. from source or use a dev setup).
+3. Ensure the server has **OTEL enabled** in settings (`Otel.CollectorEnabled` = true) and optional **Otel.LogsRetentionDays**.
+4. Ensure the server’s **otel-collector** (supervisord) and **nginx** `/otlp/` location are deployed (e.g. via Ansible or your deployment).
+5. Ship or symlink **otelcol-contrib** at the path configured in pmm-agent (default `tools/otelcol-contrib` under PathsBase).
+
+## 1. Add OTEL collector from the agent host
+
+From the machine where pmm-agent runs:
+
+```bash
+# Use local pmm-agent (default)
+pmm-admin add otel
+
+# With log files (e.g. MySQL error log)
+pmm-admin add otel --log-file-paths=/var/log/mysql/error.log
+
+# With custom labels
+pmm-admin add otel --custom-labels=env=prod,team=db
+```
+
+Check that the agent is listed and the collector process is running (e.g. `pmm-admin list` or Inventory API).
+
+## 2. Send logs via OTLP (optional)
+
+If you have an OTLP client or another collector that can send to the PMM server:
+
+- Endpoint: `https://<pmm-server>/otlp/` (HTTP OTLP). Use the same credentials as for the PMM API.
+- The server’s nginx proxies `/otlp/` to the otel-collector; auth_request applies.
+
+## 3. Verify data in ClickHouse
+
+- Connect to ClickHouse (e.g. `clickhouse-client` or Grafana).
+- Database `otel` and table `otel.logs` should exist (created automatically when OTEL is enabled).
+- Example query:
+  ```sql
+  SELECT Timestamp, ServiceName, Body FROM otel.logs ORDER BY Timestamp DESC LIMIT 10;
+  ```
+
+## 4. Grafana
+
+- The **ClickHouse-OTEL** datasource (if provisioned) uses the same ClickHouse with default database `otel` for building dashboards over `otel.logs`.
+
+## Troubleshooting
+
+- **Collector not starting**: Check pmm-agent logs and that `otelcol-contrib` exists at the path in config (e.g. `tools/otelcol-contrib`).
+- **No logs in ClickHouse**: Ensure the server’s otel-collector is running and writing to ClickHouse; check server logs and that `PMM_CLICKHOUSE_*` env is set for the collector.
+- **Auth errors on /otlp/**: Use valid PMM API credentials (e.g. the same used by pmm-agent).
