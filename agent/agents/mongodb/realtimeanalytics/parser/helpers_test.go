@@ -55,8 +55,8 @@ func TestParseArray(t *testing.T) {
 			name: "empty array",
 			json: `{"arr": []}`,
 			validate: func(t *testing.T, result string) {
-				// Empty array returns empty string since len(array) == 0
-				require.Empty(t, result)
+				// Empty array falls through to doc.String() which returns "[]"
+				require.Equal(t, "[]", result)
 			},
 		},
 		{
