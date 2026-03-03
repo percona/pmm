@@ -43,7 +43,7 @@ func TestParseCurrentOp(t *testing.T) {
 	}{
 		{
 			name: "valid commandAggregate",
-			raw:  parseBsonRaw(dataAggregate),
+			raw:  parseBsonRaw(t, dataAggregate),
 			wantQData: &rtav1.QueryData{
 				QueryId:       "1626132511",
 				QueryText:     "admin.$cmd.aggregate([\n    {\n        \"$currentOp\": {\n            \"allUsers\": true,\n            \"idleConnections\": false,\n            \"idleCursors\": false,\n            \"idleSessions\": false\n        }\n    },\n    {\n        \"$match\": {\n            \"$and\": [\n                {\n                    \"appName\": {\n                        \"$not\": {\n                            \"$regex\": \"^(rta-mongodb-.*$)\"\n                        }\n                    }\n                },\n                {\n                    \"desc\": {\n                        \"$nin\": [\n                            \"Checkpointer\",\n                            \"JournalFlusher\"\n                        ]\n                    }\n                },\n                {\n                    \"active\": true\n                }\n            ]\n        }\n    }\n], {\"cursor\":[]})",
@@ -64,7 +64,7 @@ func TestParseCurrentOp(t *testing.T) {
 		},
 		{
 			name: "valid command",
-			raw:  parseBsonRaw(dataCommand),
+			raw:  parseBsonRaw(t, dataCommand),
 			wantQData: &rtav1.QueryData{
 				QueryId:       "1488428356",
 				QueryText:     "db.runCommand({\n    \"$db\": \"admin\",\n    \"hello\": 1,\n    \"maxAwaitTimeMS\": 10000,\n    \"topologyVersion\": {\n        \"counter\": {\n            \"high\": 0,\n            \"low\": 0,\n            \"unsigned\": false\n        },\n        \"processId\": {}\n    }\n})",
@@ -83,7 +83,7 @@ func TestParseCurrentOp(t *testing.T) {
 		},
 		{
 			name: "valid commandDelete",
-			raw:  parseBsonRaw(dataDelete),
+			raw:  parseBsonRaw(t, dataDelete),
 			wantQData: &rtav1.QueryData{
 				QueryId:       "606573938",
 				QueryText:     "db.flights.deleteOne({\n    \"_id\": \"val-918\"\n}, {\"writeConcern\":[{\"Key\":\"w\",\"Value\":2},{\"Key\":\"j\",\"Value\":true},{\"Key\":\"wtimeout\",\"Value\":5000}]})",
@@ -105,7 +105,7 @@ func TestParseCurrentOp(t *testing.T) {
 		},
 		{
 			name: "valid commandFind",
-			raw:  parseBsonRaw(dataFind),
+			raw:  parseBsonRaw(t, dataFind),
 			wantQData: &rtav1.QueryData{
 				QueryId:       "-2024364589",
 				QueryText:     "db.flights.find({\n    \"flight_id\": 880\n}, {\n    \"_id\": 0,\n    \"destination\": 1,\n    \"flight_id\": 1,\n    \"gate\": 1,\n    \"origin\": 1\n}, {\"limit\":[{\"Key\":\"low\",\"Value\":5},{\"Key\":\"high\",\"Value\":0},{\"Key\":\"unsigned\",\"Value\":false}]}).limit([\n    {\n        \"Key\": \"low\",\n        \"Value\": 5\n    },\n    {\n        \"Key\": \"high\",\n        \"Value\": 0\n    },\n    {\n        \"Key\": \"unsigned\",\n        \"Value\": false\n    }\n]).batchSize(1)",
@@ -125,7 +125,7 @@ func TestParseCurrentOp(t *testing.T) {
 		},
 		{
 			name: "valid commandInsert",
-			raw:  parseBsonRaw(dataInsert),
+			raw:  parseBsonRaw(t, dataInsert),
 			wantQData: &rtav1.QueryData{
 				QueryId:       "1991397463",
 				QueryText:     "db.runCommand({\n    \"$db\": \"airline\",\n    \"insert\": \"flights\",\n    \"lsid\": {\n        \"id\": {}\n    },\n    \"ordered\": true,\n    \"writeConcern\": {\n        \"j\": true,\n        \"w\": 2,\n        \"wtimeout\": 5000\n    }\n})",
@@ -144,7 +144,7 @@ func TestParseCurrentOp(t *testing.T) {
 		},
 		{
 			name: "valid commandUpdate",
-			raw:  parseBsonRaw(dataUpdate),
+			raw:  parseBsonRaw(t, dataUpdate),
 			wantQData: &rtav1.QueryData{
 				QueryId:       "-941663415",
 				QueryText:     "db.flights.update({\n    \"_id\": \"val-669\"\n}, {\n    \"$set\": {\n        \"duration_minutes\": 216\n    }\n}, {\"multi\":false,\"upsert\":false})",
@@ -175,7 +175,7 @@ func TestParseCurrentOp(t *testing.T) {
 }
 
 func Benchmark_ParseCurrentOp_Aggregate(b *testing.B) {
-	raw := parseBsonRaw(dataAggregate)
+	raw := parseBsonRaw(b, dataAggregate)
 
 	for b.Loop() {
 		_ = ParseCurrentOp(raw)
@@ -183,7 +183,7 @@ func Benchmark_ParseCurrentOp_Aggregate(b *testing.B) {
 }
 
 func Benchmark_ParseCurrentOp_Command(b *testing.B) {
-	raw := parseBsonRaw(dataCommand)
+	raw := parseBsonRaw(b, dataCommand)
 
 	for b.Loop() {
 		_ = ParseCurrentOp(raw)
@@ -191,7 +191,7 @@ func Benchmark_ParseCurrentOp_Command(b *testing.B) {
 }
 
 func Benchmark_ParseCurrentOp_Delete(b *testing.B) {
-	raw := parseBsonRaw(dataDelete)
+	raw := parseBsonRaw(b, dataDelete)
 
 	for b.Loop() {
 		_ = ParseCurrentOp(raw)
@@ -199,7 +199,7 @@ func Benchmark_ParseCurrentOp_Delete(b *testing.B) {
 }
 
 func Benchmark_ParseCurrentOp_Find(b *testing.B) {
-	raw := parseBsonRaw(dataFind)
+	raw := parseBsonRaw(b, dataFind)
 
 	for b.Loop() {
 		_ = ParseCurrentOp(raw)
@@ -207,7 +207,7 @@ func Benchmark_ParseCurrentOp_Find(b *testing.B) {
 }
 
 func Benchmark_ParseCurrentOp_Insert(b *testing.B) {
-	raw := parseBsonRaw(dataInsert)
+	raw := parseBsonRaw(b, dataInsert)
 
 	for b.Loop() {
 		_ = ParseCurrentOp(raw)
@@ -215,7 +215,7 @@ func Benchmark_ParseCurrentOp_Insert(b *testing.B) {
 }
 
 func Benchmark_ParseCurrentOp_Update(b *testing.B) {
-	raw := parseBsonRaw(dataUpdate)
+	raw := parseBsonRaw(b, dataUpdate)
 
 	for b.Loop() {
 		_ = ParseCurrentOp(raw)

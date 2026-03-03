@@ -146,30 +146,26 @@ var dataAggregate = []byte(`
   }
 `)
 
-func parseBsonRaw(data []byte) bson.Raw {
+func parseBsonRaw(tb testing.TB, data []byte) bson.Raw {
+	tb.Helper()
 	var raw bson.Raw
 
 	vr, err := bsonrw.NewExtJSONValueReader(bytes.NewReader(data), true)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(tb, err)
 
 	dec, err := bson.NewDecoder(vr)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(tb, err)
 
 	err = dec.Decode(&raw)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(tb, err)
+
 	return raw
 }
 
 func Test_parseCommandAggregate(t *testing.T) {
 	t.Parallel()
 
-	raw := parseBsonRaw(dataAggregate)
+	raw := parseBsonRaw(t, dataAggregate)
 	commandRaw, ok := raw.Lookup("command").DocumentOK()
 	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
@@ -182,7 +178,7 @@ func Test_parseCommandAggregate(t *testing.T) {
 }
 
 func Benchmark_ParseCommandAggregate(b *testing.B) {
-	raw := parseBsonRaw(dataAggregate)
+	raw := parseBsonRaw(b, dataAggregate)
 	commandRaw, _ := raw.Lookup("command").DocumentOK()
 	ns, _ := raw.Lookup("ns").StringValueOK()
 
