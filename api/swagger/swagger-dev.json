@@ -5336,7 +5336,8 @@
               "AGENT_TYPE_RDS_EXPORTER",
               "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
               "AGENT_TYPE_NOMAD_AGENT",
-              "AGENT_TYPE_RTA_MONGODB_AGENT"
+              "AGENT_TYPE_RTA_MONGODB_AGENT",
+              "AGENT_TYPE_OTEL_COLLECTOR"
             ],
             "type": "string",
             "default": "AGENT_TYPE_UNSPECIFIED",
@@ -7450,6 +7451,55 @@
                     }
                   },
                   "x-order": 18
+                },
+                "otel_collector": {
+                  "type": "array",
+                  "items": {
+                    "description": "OtelCollector runs on the same node as pmm-agent and collects logs (and later traces, profiles) for OTEL.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "custom_labels": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 3
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 4
+                      },
+                      "process_exec_path": {
+                        "type": "string",
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 19
                 }
               }
             }
@@ -9006,6 +9056,30 @@
                     }
                   },
                   "x-order": 16
+                },
+                "otel_collector": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 1
+                    },
+                    "log_file_paths": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 17
                 }
               }
             }
@@ -10967,6 +11041,52 @@
                     }
                   },
                   "x-order": 16
+                },
+                "otel_collector": {
+                  "description": "OtelCollector runs on the same node as pmm-agent and collects logs (and later traces, profiles) for OTEL.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "custom_labels": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 4
+                    },
+                    "process_exec_path": {
+                      "type": "string",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 17
                 }
               }
             }
@@ -13070,6 +13190,52 @@
                     }
                   },
                   "x-order": 18
+                },
+                "otel_collector": {
+                  "description": "OtelCollector runs on the same node as pmm-agent and collects logs (and later traces, profiles) for OTEL.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "custom_labels": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 4
+                    },
+                    "process_exec_path": {
+                      "type": "string",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 19
                 }
               }
             }

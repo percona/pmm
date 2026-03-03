@@ -177,7 +177,7 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		// skip it, fix later if needed.
 	case *inventoryv1.NomadAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_NomadAgent{NomadAgent: agent}
-		case *inventoryv1.RTAMongoDBAgent:
+	case *inventoryv1.RTAMongoDBAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_RtaMongodbAgent{RtaMongodbAgent: agent}
 	case *inventoryv1.OtelCollector:
 		res.Agent = &inventoryv1.GetAgentResponse_OtelCollector{OtelCollector: agent}

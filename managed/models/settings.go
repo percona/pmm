@@ -97,8 +97,8 @@ type Settings struct {
 
 	// Otel collector on server (receives OTLP from agents); log retention for otel.logs in ClickHouse.
 	Otel struct {
-		CollectorEnabled   *bool `json:"collector_enabled"`
-		LogsRetentionDays  *int  `json:"logs_retention_days"`
+		CollectorEnabled  *bool `json:"collector_enabled"`
+		LogsRetentionDays *int  `json:"logs_retention_days"`
 	} `json:"otel"`
 
 	Alerting struct {

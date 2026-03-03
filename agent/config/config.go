@@ -102,8 +102,8 @@ type Paths struct {
 	AzureExporter    string `yaml:"azure_exporter"`
 	ValkeyExporter   string `yaml:"valkey_exporter"`
 
-	VMAgent      string `yaml:"vmagent"`
-	Nomad        string `yaml:"nomad"`
+	VMAgent       string `yaml:"vmagent"`
+	Nomad         string `yaml:"nomad"`
 	OtelCollector string `yaml:"otel_collector"`
 
 	TempDir      string `yaml:"tempdir"`
