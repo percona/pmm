@@ -33,6 +33,8 @@ const (
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
 	InternalPgQANEnabledDefault        = false
+	OtelCollectorEnabledDefault        = false
+	OtelLogsRetentionDaysDefault       = 7
 	awsPartitionID                     = "aws"
 )
 
@@ -92,6 +94,12 @@ type Settings struct {
 	Nomad struct {
 		Enabled *bool `json:"enabled"`
 	}
+
+	// Otel collector on server (receives OTLP from agents); log retention for otel.logs in ClickHouse.
+	Otel struct {
+		CollectorEnabled   *bool `json:"collector_enabled"`
+		LogsRetentionDays  *int  `json:"logs_retention_days"`
+	} `json:"otel"`
 
 	Alerting struct {
 		Enabled *bool `json:"enabled"`
@@ -191,6 +199,22 @@ func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 	return VictoriaMetricsCacheEnabledDefault
 }
 
+// IsOtelCollectorEnabled returns true if the OTEL collector on the server is enabled.
+func (s *Settings) IsOtelCollectorEnabled() bool {
+	if s.Otel.CollectorEnabled != nil {
+		return *s.Otel.CollectorEnabled
+	}
+	return OtelCollectorEnabledDefault
+}
+
+// GetOtelLogsRetentionDays returns the TTL in days for otel.logs in ClickHouse.
+func (s *Settings) GetOtelLogsRetentionDays() int {
+	if s.Otel.LogsRetentionDays != nil && *s.Otel.LogsRetentionDays > 0 {
+		return *s.Otel.LogsRetentionDays
+	}
+	return OtelLogsRetentionDaysDefault
+}
+
 // AdvisorsRunIntervals represents intervals between Advisors checks.
 type AdvisorsRunIntervals struct {
 	StandardInterval time.Duration `json:"standard_interval"`
@@ -235,5 +259,9 @@ func (s *Settings) fillDefaults() {
 
 	if s.Updates.SnoozeDuration == 0 {
 		s.Updates.SnoozeDuration = DefaultSnoozeDuration
+	}
+
+	if s.Otel.LogsRetentionDays == nil || (s.Otel.LogsRetentionDays != nil && *s.Otel.LogsRetentionDays <= 0) {
+		s.Otel.LogsRetentionDays = pointer.ToInt(OtelLogsRetentionDaysDefault)
 	}
 }

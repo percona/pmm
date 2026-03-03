@@ -19,6 +19,7 @@ package inventory
 import (
 	"context"
 	"os"
+	"strings"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -1521,6 +1522,47 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 	}
 
 	return res, e
+}
+
+// AddOtelCollector adds an OTEL Collector agent (log collection; extensible for traces, profiles later).
+func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.AddOtelCollectorParams) (*inventoryv1.AddAgentResponse, error) {
+	customLabels := make(map[string]string)
+	if p.CustomLabels != nil {
+		for k, v := range p.CustomLabels {
+			customLabels[k] = v
+		}
+	}
+	if len(p.LogFilePaths) > 0 {
+		customLabels["log_file_paths"] = strings.Join(p.LogFilePaths, ",")
+	}
+
+	var agent *inventoryv1.OtelCollector
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:   p.PmmAgentId,
+			CustomLabels: customLabels,
+		}
+		row, err := models.CreateAgent(tx.Querier, models.OtelCollectorType, params)
+		if err != nil {
+			return err
+		}
+		aa, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		agent = aa.(*inventoryv1.OtelCollector) //nolint:forcetypeassert
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_OtelCollector{
+			OtelCollector: agent,
+		},
+	}
+	return res, nil
 }
 
 // ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.
