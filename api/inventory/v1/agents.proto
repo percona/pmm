@@ -33,6 +33,7 @@ enum AgentType {
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
   AGENT_TYPE_RTA_MONGODB_AGENT = 19;
+  AGENT_TYPE_OTEL_COLLECTOR = 20;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -95,6 +96,16 @@ message NomadAgent {
   string process_exec_path = 11;
   // Listen port for scraping metrics.
   uint32 listen_port = 12;
+}
+
+// OtelCollector runs on the same node as pmm-agent and collects logs (and later traces, profiles) for OTEL.
+message OtelCollector {
+  string agent_id = 1;
+  string pmm_agent_id = 2;
+  bool disabled = 3;
+  map<string, string> custom_labels = 4;
+  AgentStatus status = 10;
+  string process_exec_path = 11;
 }
 
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
@@ -794,6 +805,7 @@ message ListAgentsResponse {
   repeated NomadAgent nomad_agent = 16;
   repeated ValkeyExporter valkey_exporter = 17;
   repeated RTAMongoDBAgent rta_mongodb_agent = 19;
+  repeated OtelCollector otel_collector = 20;
 }
 
 // Get
@@ -824,6 +836,7 @@ message GetAgentResponse {
     NomadAgent nomad_agent = 16;
     ValkeyExporter valkey_exporter = 17;
     RTAMongoDBAgent rta_mongodb_agent = 19;
+    OtelCollector otel_collector = 20;
   }
 }
 
@@ -864,6 +877,7 @@ message AddAgentRequest {
     AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
     AddValkeyExporterParams valkey_exporter = 15;
     AddRTAMongoDBAgentParams rta_mongodb_agent = 17;
+    AddOtelCollectorParams otel_collector = 18;
   }
 }
 
@@ -886,6 +900,7 @@ message AddAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
     ValkeyExporter valkey_exporter = 15;
     RTAMongoDBAgent rta_mongodb_agent = 17;
+    OtelCollector otel_collector = 18;
   }
 }
 
@@ -1675,6 +1690,12 @@ message AddRTAMongoDBAgentParams {
 
   // Real-Time Analytics options.
   RTAOptions rta_options = 15;
+}
+
+message AddOtelCollectorParams {
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
+  map<string, string> custom_labels = 2;
+  repeated string log_file_paths = 3;
 }
 
 message ChangeRTAMongoDBAgentParams {
