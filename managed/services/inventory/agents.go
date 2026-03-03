@@ -1532,7 +1532,7 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 			customLabels[k] = v
 		}
 	}
-	if len(p.LogFilePaths) > 0 {
+	if len(p.LogFilePaths) != 0 {
 		customLabels["log_file_paths"] = strings.Join(p.LogFilePaths, ",")
 	}
 

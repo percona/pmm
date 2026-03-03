@@ -60,7 +60,7 @@ func otelCollectorConfig(row *models.Agent) *agentv1.SetStateRequest_AgentProces
 				quoted = append(quoted, fmt.Sprintf("%q", p))
 			}
 		}
-		if len(quoted) > 0 {
+		if len(quoted) != 0 {
 			configYaml += fmt.Sprintf("  filelog/custom:\n    include: [%s]\n    start_at: end\n", strings.Join(quoted, ", "))
 		}
 	}
