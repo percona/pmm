@@ -541,8 +541,7 @@ func loadFromFile(path string, enc *Encryption) (*Config, error) {
 		return nil, err
 	}
 
-	encryptionEnabled := enc != nil && len(enc.KeyFile) != 0 && len(b) != 0
-	if encryptionEnabled {
+	if enc != nil && len(enc.KeyFile) != 0 && len(b) != 0 {
 		b, err = enc.Decrypt(b)
 		if err != nil {
 			return nil, err
@@ -553,6 +552,7 @@ func loadFromFile(path string, enc *Encryption) (*Config, error) {
 	if err = yaml.Unmarshal(b, cfg); err != nil { //nolint:musttag // false positive
 		return nil, err
 	}
+
 	return cfg, nil
 }
 
@@ -568,17 +568,17 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	if comment != "" {
 		res = []byte("# " + comment + "\n")
 	}
+
 	res = append(res, "---\n"...)
 	res = append(res, b...)
-	encryptionEnabled := cfg != nil && len(cfg.Encryption.KeyFile) > 0
-	if encryptionEnabled {
+	if cfg != nil && len(cfg.Encryption.KeyFile) != 0 {
 		res, err = cfg.Encryption.Encrypt(res)
 		if err != nil {
 			return err
 		}
 	}
 
-	return os.WriteFile(path, res, 0o640) //nolint:gosec
+	return os.WriteFile(path, res, 0o640) //nolint:gosec,mnd
 }
 
 // IsWritable checks if specified path is writable.
@@ -591,5 +591,6 @@ func IsWritable(path string) error {
 		}
 		return err
 	}
+
 	return unix.Access(path, unix.W_OK)
 }
