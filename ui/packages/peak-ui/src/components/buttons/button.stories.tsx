@@ -10,9 +10,6 @@ const meta = {
   parameters: {
     layout: 'centered',
     docs: {
-      source: {
-        code: null,
-      },
       page: () => (
         <>
           <DocBlock.Title />
