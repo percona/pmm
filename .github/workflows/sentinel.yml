@@ -1,0 +1,26 @@
+name: Run Sentinel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download logs.zip
+        run: |
+          curl -u admin:admin -k -o logs.zip https://127.0.0.1/logs.zip
+      - name: Unzip logs.zip to data/
+        run: |
+          rm -rf data
+          unzip logs.zip -d data
+          rm logs.zip
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - name: Run sentinel
+        run: go run sentinel/main.go data
+      - name: Clean up data folder
+        run: rm -rf data
