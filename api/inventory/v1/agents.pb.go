@@ -10423,10 +10423,8 @@ type AddRTAMongoDBAgentParams struct {
 	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
 	// for details.
 	AuthenticationMechanism string `protobuf:"bytes,13,opt,name=authentication_mechanism,json=authenticationMechanism,proto3" json:"authentication_mechanism,omitempty"`
-	// Authentication database.
-	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
 	// Real-Time Analytics options.
-	RtaOptions    *RTAOptions `protobuf:"bytes,15,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
+	RtaOptions    *RTAOptions `protobuf:"bytes,14,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10552,13 +10550,6 @@ func (x *AddRTAMongoDBAgentParams) GetAuthenticationMechanism() string {
 	return ""
 }
 
-func (x *AddRTAMongoDBAgentParams) GetAuthenticationDatabase() string {
-	if x != nil {
-		return x.AuthenticationDatabase
-	}
-	return ""
-}
-
 func (x *AddRTAMongoDBAgentParams) GetRtaOptions() *RTAOptions {
 	if x != nil {
 		return x.RtaOptions
@@ -10572,8 +10563,26 @@ type ChangeRTAMongoDBAgentParams struct {
 	Enable *bool `protobuf:"varint,1,opt,name=enable,proto3,oneof" json:"enable,omitempty"`
 	// Replace all custom user-assigned labels.
 	CustomLabels *common.StringMap `protobuf:"bytes,2,opt,name=custom_labels,json=customLabels,proto3,oneof" json:"custom_labels,omitempty"`
+	// Log level for exporter.
+	LogLevel *LogLevel `protobuf:"varint,3,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// MongoDB username for getting profile data.
+	Username *string `protobuf:"bytes,4,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	// MongoDB password for getting profile data.
+	Password *string `protobuf:"bytes,5,opt,name=password,proto3,oneof" json:"password,omitempty"`
+	// Use TLS for database connections.
+	Tls *bool `protobuf:"varint,6,opt,name=tls,proto3,oneof" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify *bool `protobuf:"varint,7,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
+	// Client certificate and key.
+	TlsCertificateKey *string `protobuf:"bytes,8,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3,oneof" json:"tls_certificate_key,omitempty"`
+	// Password for decrypting tls_certificate_key.
+	TlsCertificateKeyFilePassword *string `protobuf:"bytes,9,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3,oneof" json:"tls_certificate_key_file_password,omitempty"`
+	// Certificate Authority certificate chain.
+	TlsCa *string `protobuf:"bytes,10,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
+	// Authentication mechanism.
+	AuthenticationMechanism *string `protobuf:"bytes,11,opt,name=authentication_mechanism,json=authenticationMechanism,proto3,oneof" json:"authentication_mechanism,omitempty"`
 	// Real-Time Analytics options.
-	RtaOptions    *RTAOptions `protobuf:"bytes,3,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
+	RtaOptions    *RTAOptions `protobuf:"bytes,12,opt,name=rta_options,json=rtaOptions,proto3,oneof" json:"rta_options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10620,6 +10629,69 @@ func (x *ChangeRTAMongoDBAgentParams) GetCustomLabels() *common.StringMap {
 		return x.CustomLabels
 	}
 	return nil
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetLogLevel() LogLevel {
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
+	}
+	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetPassword() string {
+	if x != nil && x.Password != nil {
+		return *x.Password
+	}
+	return ""
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetTls() bool {
+	if x != nil && x.Tls != nil {
+		return *x.Tls
+	}
+	return false
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetTlsSkipVerify() bool {
+	if x != nil && x.TlsSkipVerify != nil {
+		return *x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetTlsCertificateKey() string {
+	if x != nil && x.TlsCertificateKey != nil {
+		return *x.TlsCertificateKey
+	}
+	return ""
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetTlsCertificateKeyFilePassword() string {
+	if x != nil && x.TlsCertificateKeyFilePassword != nil {
+		return *x.TlsCertificateKeyFilePassword
+	}
+	return ""
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetTlsCa() string {
+	if x != nil && x.TlsCa != nil {
+		return *x.TlsCa
+	}
+	return ""
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetAuthenticationMechanism() string {
+	if x != nil && x.AuthenticationMechanism != nil {
+		return *x.AuthenticationMechanism
+	}
+	return ""
 }
 
 func (x *ChangeRTAMongoDBAgentParams) GetRtaOptions() *RTAOptions {
@@ -12071,7 +12143,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\x12\n" +
 	"\x10_expose_exporterB\f\n" +
 	"\n" +
-	"_log_level\"\xa8\x06\n" +
+	"_log_level\"\xef\x05\n" +
 	"\x18AddRTAMongoDBAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12088,20 +12160,41 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x01(\tR\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
 	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x122\n" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheck\x129\n" +
-	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x127\n" +
-	"\x17authentication_database\x18\x0e \x01(\tR\x16authenticationDatabase\x129\n" +
-	"\vrta_options\x18\x0f \x01(\v2\x18.inventory.v1.RTAOptionsR\n" +
+	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x129\n" +
+	"\vrta_options\x18\x0e \x01(\v2\x18.inventory.v1.RTAOptionsR\n" +
 	"rtaOptions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcf\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xae\x06\n" +
 	"\x1bChangeRTAMongoDBAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
-	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x129\n" +
-	"\vrta_options\x18\x03 \x01(\v2\x18.inventory.v1.RTAOptionsR\n" +
-	"rtaOptionsB\t\n" +
+	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x128\n" +
+	"\tlog_level\x18\x03 \x01(\x0e2\x16.inventory.v1.LogLevelH\x02R\blogLevel\x88\x01\x01\x12\x1f\n" +
+	"\busername\x18\x04 \x01(\tH\x03R\busername\x88\x01\x01\x12\x1f\n" +
+	"\bpassword\x18\x05 \x01(\tH\x04R\bpassword\x88\x01\x01\x12\x15\n" +
+	"\x03tls\x18\x06 \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
+	"\x0ftls_skip_verify\x18\a \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x123\n" +
+	"\x13tls_certificate_key\x18\b \x01(\tH\aR\x11tlsCertificateKey\x88\x01\x01\x12M\n" +
+	"!tls_certificate_key_file_password\x18\t \x01(\tH\bR\x1dtlsCertificateKeyFilePassword\x88\x01\x01\x12\x1a\n" +
+	"\x06tls_ca\x18\n" +
+	" \x01(\tH\tR\x05tlsCa\x88\x01\x01\x12>\n" +
+	"\x18authentication_mechanism\x18\v \x01(\tH\n" +
+	"R\x17authenticationMechanism\x88\x01\x01\x12>\n" +
+	"\vrta_options\x18\f \x01(\v2\x18.inventory.v1.RTAOptionsH\vR\n" +
+	"rtaOptions\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
-	"\x0e_custom_labels\"N\n" +
+	"\x0e_custom_labelsB\f\n" +
+	"\n" +
+	"_log_levelB\v\n" +
+	"\t_usernameB\v\n" +
+	"\t_passwordB\x06\n" +
+	"\x04_tlsB\x12\n" +
+	"\x10_tls_skip_verifyB\x16\n" +
+	"\x14_tls_certificate_keyB$\n" +
+	"\"_tls_certificate_key_file_passwordB\t\n" +
+	"\a_tls_caB\x1b\n" +
+	"\x19_authentication_mechanismB\x0e\n" +
+	"\f_rta_options\"N\n" +
 	"\x12RemoveAgentRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aagentId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"\x15\n" +
@@ -12524,24 +12617,25 @@ var file_inventory_v1_agents_proto_depIdxs = []int32{
 	109, // 250: inventory.v1.AddRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
 	14,  // 251: inventory.v1.AddRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
 	112, // 252: inventory.v1.ChangeRTAMongoDBAgentParams.custom_labels:type_name -> common.StringMap
-	14,  // 253: inventory.v1.ChangeRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
-	22,  // 254: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
-	24,  // 255: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
-	26,  // 256: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
-	28,  // 257: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
-	30,  // 258: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
-	66,  // 259: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
-	23,  // 260: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
-	25,  // 261: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
-	27,  // 262: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
-	29,  // 263: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
-	31,  // 264: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
-	67,  // 265: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
-	260, // [260:266] is the sub-list for method output_type
-	254, // [254:260] is the sub-list for method input_type
-	254, // [254:254] is the sub-list for extension type_name
-	254, // [254:254] is the sub-list for extension extendee
-	0,   // [0:254] is the sub-list for field type_name
+	109, // 253: inventory.v1.ChangeRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	14,  // 254: inventory.v1.ChangeRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
+	22,  // 255: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
+	24,  // 256: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
+	26,  // 257: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
+	28,  // 258: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
+	30,  // 259: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
+	66,  // 260: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
+	23,  // 261: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
+	25,  // 262: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
+	27,  // 263: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
+	29,  // 264: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
+	31,  // 265: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
+	67,  // 266: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
+	261, // [261:267] is the sub-list for method output_type
+	255, // [255:261] is the sub-list for method input_type
+	255, // [255:255] is the sub-list for extension type_name
+	255, // [255:255] is the sub-list for extension extendee
+	0,   // [0:255] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_agents_proto_init() }

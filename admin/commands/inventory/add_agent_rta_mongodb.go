@@ -32,10 +32,10 @@ Username              : {{ .Agent.Username }}
 TLS enabled           : {{ .Agent.TLS }}
 Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 
-Status                : {{ .Agent.Status }}
 Disabled              : {{ .Agent.Disabled }}
-Custom labels         : {{ .Agent.CustomLabels }}
+Custom labels         : {{ formatCustomLabels .Agent.CustomLabels }}
 Collect interval      : {{ .Agent.RtaOptions.CollectInterval }}
+Log level             : {{ formatLogLevel .Agent.LogLevel }}
 `)
 
 type addAgentRTAMongoDBAgentResult struct {

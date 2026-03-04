@@ -116,6 +116,7 @@ type ChangeAgentCommand struct {
 	QANMongoDBProfilerAgent         ChangeAgentQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Change QAN MongoDB profiler agent configuration (only passed flags will be changed)"`                 //nolint:lll
 	QANPostgreSQLPgStatementsAgent  ChangeAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Change QAN PostgreSQL pgstatements agent configuration (only passed flags will be changed)"`   //nolint:lll
 	QANPostgreSQLPgStatMonitorAgent ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Change QAN PostgreSQL pgstatmonitor agent configuration (only passed flags will be changed)"` //nolint:lll
+	RTAMongoDBAgent                 ChangeAgentRTAMongoDBAgentCommand                 `cmd:"" name:"rta-mongodb-agent" help:"Change Real-Time Analytics MongoDB agent configuration (only passed flags will be changed)"`                   //nolint:lll
 }
 
 // formatTypeValue checks acceptable type value and variations contains input and returns type value.

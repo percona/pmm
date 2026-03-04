@@ -14077,8 +14077,6 @@ func (m *AddRTAMongoDBAgentParams) validate(all bool) error {
 
 	// no validation rules for AuthenticationMechanism
 
-	// no validation rules for AuthenticationDatabase
-
 	if all {
 		switch v := interface{}(m.GetRtaOptions()).(type) {
 		case interface{ ValidateAll() error }:
@@ -14210,35 +14208,6 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetRtaOptions()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
-					field:  "RtaOptions",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
-					field:  "RtaOptions",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeRTAMongoDBAgentParamsValidationError{
-				field:  "RtaOptions",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -14267,6 +14236,73 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeRTAMongoDBAgentParamsValidationError{
 					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.RtaOptions != nil {
+		if all {
+			switch v := interface{}(m.GetRtaOptions()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

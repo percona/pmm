@@ -8971,9 +8971,6 @@ type AddAgentParamsBodyRtaMongodbAgent struct {
 	// for details.
 	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 
-	// Authentication database.
-	AuthenticationDatabase string `json:"authentication_database,omitempty"`
-
 	// rta options
 	RtaOptions *AddAgentParamsBodyRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
 }

@@ -11710,6 +11710,36 @@ type ChangeAgentParamsBodyRtaMongodbAgent struct {
 	// Enable this Agent. Agents are enabled by default when they get added.
 	Enable *bool `json:"enable,omitempty"`
 
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// MongoDB username for getting profile data.
+	Username *string `json:"username,omitempty"`
+
+	// MongoDB password for getting profile data.
+	Password *string `json:"password,omitempty"`
+
+	// Use TLS for database connections.
+	TLS *bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify *bool `json:"tls_skip_verify,omitempty"`
+
+	// Client certificate and key.
+	TLSCertificateKey *string `json:"tls_certificate_key,omitempty"`
+
+	// Password for decrypting tls_certificate_key.
+	TLSCertificateKeyFilePassword *string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa *string `json:"tls_ca,omitempty"`
+
+	// Authentication mechanism.
+	AuthenticationMechanism *string `json:"authentication_mechanism,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -11720,6 +11750,10 @@ type ChangeAgentParamsBodyRtaMongodbAgent struct {
 // Validate validates this change agent params body rta mongodb agent
 func (o *ChangeAgentParamsBodyRtaMongodbAgent) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateCustomLabels(formats); err != nil {
 		res = append(res, err)
@@ -11732,6 +11766,60 @@ func (o *ChangeAgentParamsBodyRtaMongodbAgent) Validate(formats strfmt.Registry)
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var changeAgentParamsBodyRtaMongodbAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentParamsBodyRtaMongodbAgentTypeLogLevelPropEnum = append(changeAgentParamsBodyRtaMongodbAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeAgentParamsBodyRtaMongodbAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentParamsBodyRtaMongodbAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"rta_mongodb_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 

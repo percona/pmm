@@ -1732,6 +1732,14 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.AddRTAMongoDBAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.RTAMongoDBAgent
 
+	// Set MongoDBOptions
+	mdbOptions := models.MongoDBOptions{}
+
+	mdbOptions.TLSCertificateKey = p.GetTlsCertificateKey()
+	mdbOptions.TLSCertificateKeyFilePassword = p.GetTlsCertificateKeyFilePassword()
+	mdbOptions.TLSCa = p.GetTlsCa()
+	mdbOptions.AuthenticationMechanism = p.GetAuthenticationMechanism()
+
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:     p.PmmAgentId,
@@ -1741,7 +1749,7 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 			CustomLabels:   p.CustomLabels,
 			TLS:            p.Tls,
 			TLSSkipVerify:  p.TlsSkipVerify,
-			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
+			MongoDBOptions: mdbOptions,
 			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 
@@ -1903,7 +1911,7 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 }
 
 // Helper function to execute agent change and build response.
-func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
+func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) {
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

@@ -1972,11 +1972,8 @@ message AddRTAMongoDBAgentParams {
   // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
   // for details.
   string authentication_mechanism = 13;
-  // Authentication database.
-  string authentication_database = 14;
-
   // Real-Time Analytics options.
-  RTAOptions rta_options = 15;
+  RTAOptions rta_options = 14;
 }
 
 message ChangeRTAMongoDBAgentParams {
@@ -1984,8 +1981,26 @@ message ChangeRTAMongoDBAgentParams {
   optional bool enable = 1;
   // Replace all custom user-assigned labels.
   optional common.StringMap custom_labels = 2;
+  // Log level for exporter.
+  optional LogLevel log_level = 3;
+  // MongoDB username for getting profile data.
+  optional string username = 4;
+  // MongoDB password for getting profile data.
+  optional string password = 5;
+  // Use TLS for database connections.
+  optional bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 7;
+  // Client certificate and key.
+  optional string tls_certificate_key = 8;
+  // Password for decrypting tls_certificate_key.
+  optional string tls_certificate_key_file_password = 9;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 10;
+  // Authentication mechanism.
+  optional string authentication_mechanism = 11;
   // Real-Time Analytics options.
-  RTAOptions rta_options = 3;
+  optional RTAOptions rta_options = 12;
 }
 
 // Remove

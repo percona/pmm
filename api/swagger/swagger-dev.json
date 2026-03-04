@@ -9007,11 +9007,6 @@
                       "type": "string",
                       "x-order": 12
                     },
-                    "authentication_database": {
-                      "description": "Authentication database.",
-                      "type": "string",
-                      "x-order": 13
-                    },
                     "rta_options": {
                       "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                       "type": "object",
@@ -9022,7 +9017,7 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 14
+                      "x-order": 13
                     }
                   },
                   "x-order": 16
@@ -15069,6 +15064,70 @@
                       "x-nullable": true,
                       "x-order": 1
                     },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 2
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profile data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "password": {
+                      "description": "MongoDB password for getting profile data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
                     "rta_options": {
                       "description": "RTAOptions holds Real-Time Query Analytics agent options.",
                       "type": "object",
@@ -15079,7 +15138,8 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 2
+                      "x-nullable": true,
+                      "x-order": 11
                     }
                   },
                   "x-order": 16
