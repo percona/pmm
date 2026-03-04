@@ -66,9 +66,9 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
           borderWidth: 1,
           borderStyle: 'solid',
           borderColor: theme.palette.divider,
-          borderRadius: theme.shape.borderRadius / 2,
+          borderRadius: Number(theme.shape.borderRadius) / 2,
         }),
-        backgroundColor: theme.palette.surfaces?.elevation1 || 'transparent',
+        backgroundColor: theme.palette.surfaces?.high || 'transparent',
         position: 'relative',
       }}
     >
