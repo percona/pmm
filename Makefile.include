@@ -78,3 +78,4 @@ serve:                ## Serve API documentation with nginx
 .PHONY: prepare-pr
 GOLANG_CI_LINT_RUN_OPTS=--fix
 prepare-pr: gen check-all
+	go mod tidy

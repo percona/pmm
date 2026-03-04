@@ -153,7 +153,7 @@ var dataUpdate = []byte(`
 func Test_parseCommandUpdate(t *testing.T) {
 	t.Parallel()
 
-	raw := parseBsonRaw(dataUpdate)
+	raw := parseBsonRaw(t, dataUpdate)
 	commandRaw, ok := raw.Lookup("command").DocumentOK()
 	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
@@ -166,7 +166,7 @@ func Test_parseCommandUpdate(t *testing.T) {
 }
 
 func Benchmark_ParseCommandUpdate(b *testing.B) {
-	raw := parseBsonRaw(dataUpdate)
+	raw := parseBsonRaw(b, dataUpdate)
 	commandRaw, _ := raw.Lookup("command").DocumentOK()
 	ns, _ := raw.Lookup("ns").StringValueOK()
 
