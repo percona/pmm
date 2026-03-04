@@ -5,7 +5,7 @@ import { deepmerge } from "@mui/utils";
 import { iconButtonClasses } from "@mui/material/IconButton";
 import { listItemIconClasses } from "@mui/material/ListItemIcon";
 import { listItemButtonClasses } from "@mui/material/ListItemButton";
-import baseThemeOptions, { 
+import baseThemeOptions, {
   primitives,
   semanticTokensLight,
   semanticTokensDark,
@@ -42,10 +42,11 @@ const pmmTokensDark = { ...semanticTokensDark };
 const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
   const tokens = mode === "light" ? pmmTokensLight : pmmTokensDark;
   const primary = mode === "light" ? pmmPrimaryLight : pmmPrimaryDark;
-  
+
   const newOptions: ThemeOptions = {
     palette: {
       mode,
+      surfaces: tokens.surfaces,
       primary,
     },
     components: {
@@ -116,7 +117,7 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
             borderStyle: "solid",
             borderRadius: 5,
             borderColor: theme.palette.divider,
-            backgroundColor: theme.palette.surfaces?.low,
+            backgroundColor: tokens.surfaces.elevation0,
           }),
           bar: {
             borderRadius: 5,
@@ -150,9 +151,10 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiBadge: {
         styleOverrides: {
-          colorWarning: {
+          colorWarning: ({ theme }) => ({
             backgroundColor: tokens.warning.light,
-          },
+            color: theme.palette.mode === "light" ? theme.palette.common.white : tokens.warning.contrastText,
+          })
         },
       },
       MuiCard: {
@@ -213,7 +215,7 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
             ...theme.typography.helperText,
             p: 6,
             boxShadow: theme.shadows[8],
-            color: tokens.neutral.contrastText,
+            color: primary.contrastText,
             backgroundColor: tokens.neutral.main,
           }),
           arrow: () => ({
@@ -221,6 +223,28 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: tokens.text.sky,
+            textDecorationColor: tokens.text.sky,
+          }
+        }
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            paddingBottom: 0,
+          }
+        }
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            paddingTop: 0,
+          }
+        }
+      }
     },
   };
 
