@@ -30,6 +30,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -41,6 +42,7 @@ import (
 const (
 	connectionEndpointV2 = "/agent.Agent/Connect"
 	connectionEndpoint   = "/agent.v1.AgentService/Connect"
+	rtaCollectEndpoint   = "/realtimeanalytics.v1.CollectorService/Collect"
 )
 
 // rules maps original URL prefix to minimal required role.
@@ -108,6 +110,13 @@ var rules = map[string]role{
 	"/v1/readyz":  none,   // redirects to /v1/server/readyz
 	"/v1/version": viewer, // redirects to /v1/server/version
 	"/logs.zip":   admin,  // redirects to /v1/server/logs.zip
+
+	// Real-Time Analytics endpoints.
+	rtaCollectEndpoint:                     admin,
+	"/v1/realtimeanalytics/sessions:start": admin,
+	"/v1/realtimeanalytics/sessions:stop":  admin,
+	"/v1/realtimeanalytics/sessions":       viewer,
+	"/v1/realtimeanalytics/queries:search": viewer,
 
 	// "/auth_request"  has auth_request disabled in nginx config
 
@@ -350,7 +359,14 @@ func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, 
 			return models.AssignDefaultRole(tx, userID)
 		})
 		if err != nil {
-			return nil, err
+			// Handle race condition: if another concurrent request already assigned the default role,
+			// we'll get a duplicate key error. In this case, just go fetch the roles.
+			var pgErr *pq.Error
+			if errors.As(err, &pgErr) && pgErr.Code == "23505" && pgErr.Constraint == "user_roles_pkey" {
+				s.l.Debugf("Default role already assigned to user ID %d by another request", userID)
+			} else {
+				return nil, err
+			}
 		}
 
 		// Reload roles
@@ -432,7 +448,8 @@ func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
 	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" && path == connectionEndpoint {
+	if ip == "127.0.0.1" &&
+		(path == connectionEndpoint || path == rtaCollectEndpoint) {
 		return true
 	}
 
@@ -480,9 +497,16 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 
 	var user *authUser
 	if isLocalAgentConnection(req) {
-		user = &authUser{
-			role:   rules[connectionEndpoint],
-			userID: 0,
+		if req.Header.Get("X-Original-Uri") == connectionEndpoint {
+			user = &authUser{
+				role:   rules[connectionEndpoint],
+				userID: 0,
+			}
+		} else {
+			user = &authUser{
+				role:   rules[rtaCollectEndpoint],
+				userID: 0,
+			}
 		}
 	} else {
 		var authErr *authError

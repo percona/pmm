@@ -244,7 +244,7 @@ func FormatLogLevel(logLevel string) string {
 }
 
 // FormatCustomLabels formats custom labels for display in a user-friendly way.
-func FormatCustomLabels(labels interface{}) string {
+func FormatCustomLabels(labels any) string {
 	if labels == nil {
 		return "(none)"
 	}

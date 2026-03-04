@@ -23,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -181,6 +182,13 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	ua.QueryExamplesDisabled = agent.QANOptions.QueryExamplesDisabled
 	ua.CommentsParsingDisabled = agent.QANOptions.CommentsParsingDisabled
 
+	// RTA options
+	if !agent.RTAOptions.IsEmpty() {
+		ua.RtaOptions = &inventoryv1.RTAOptions{
+			CollectInterval: durationpb.New(pointer.Get(agent.RTAOptions.CollectInterval)),
+		}
+	}
+
 	switch agent.AgentType {
 	case models.AzureDatabaseExporterType:
 		ua.AzureOptions = &managementv1.UniversalAgent_AzureOptions{
@@ -190,7 +198,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			SubscriptionId:    agent.AzureOptions.SubscriptionID,
 			ResourceGroup:     agent.AzureOptions.ResourceGroup,
 		}
-	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType:
+	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType, models.RTAMongoDBAgentType:
 		ua.MongoDbOptions = &managementv1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,

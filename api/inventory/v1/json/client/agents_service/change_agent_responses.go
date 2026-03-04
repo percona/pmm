@@ -238,6 +238,9 @@ type ChangeAgentBody struct {
 	// rds exporter
 	RDSExporter *ChangeAgentParamsBodyRDSExporter `json:"rds_exporter,omitempty"`
 
+	// rta mongodb agent
+	RtaMongodbAgent *ChangeAgentParamsBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
+
 	// valkey exporter
 	ValkeyExporter *ChangeAgentParamsBodyValkeyExporter `json:"valkey_exporter,omitempty"`
 }
@@ -303,6 +306,10 @@ func (o *ChangeAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRDSExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaMongodbAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -661,6 +668,29 @@ func (o *ChangeAgentBody) validateRDSExporter(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ChangeAgentBody) validateRtaMongodbAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaMongodbAgent) { // not required
+		return nil
+	}
+
+	if o.RtaMongodbAgent != nil {
+		if err := o.RtaMongodbAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mongodb_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mongodb_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -745,6 +775,10 @@ func (o *ChangeAgentBody) ContextValidate(ctx context.Context, formats strfmt.Re
 	}
 
 	if err := o.contextValidateRDSExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1118,6 +1152,30 @@ func (o *ChangeAgentBody) contextValidateRDSExporter(ctx context.Context, format
 	return nil
 }
 
+func (o *ChangeAgentBody) contextValidateRtaMongodbAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaMongodbAgent != nil {
+
+		if swag.IsZero(o.RtaMongodbAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaMongodbAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mongodb_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mongodb_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentBody) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ValkeyExporter != nil {
 
@@ -1438,6 +1496,9 @@ type ChangeAgentOKBody struct {
 	// rds exporter
 	RDSExporter *ChangeAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 
+	// rta mongodb agent
+	RtaMongodbAgent *ChangeAgentOKBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
+
 	// valkey exporter
 	ValkeyExporter *ChangeAgentOKBodyValkeyExporter `json:"valkey_exporter,omitempty"`
 }
@@ -1503,6 +1564,10 @@ func (o *ChangeAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRDSExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaMongodbAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1861,6 +1926,29 @@ func (o *ChangeAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ChangeAgentOKBody) validateRtaMongodbAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaMongodbAgent) { // not required
+		return nil
+	}
+
+	if o.RtaMongodbAgent != nil {
+		if err := o.RtaMongodbAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentOKBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -1945,6 +2033,10 @@ func (o *ChangeAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := o.contextValidateRDSExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2309,6 +2401,30 @@ func (o *ChangeAgentOKBody) contextValidateRDSExporter(ctx context.Context, form
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "rds_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentOKBody) contextValidateRtaMongodbAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaMongodbAgent != nil {
+
+		if swag.IsZero(o.RtaMongodbAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaMongodbAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent")
 			}
 
 			return err
@@ -6328,6 +6444,309 @@ func (o *ChangeAgentOKBodyRDSExporterMetricsResolutions) MarshalBinary() ([]byte
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyRDSExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.
+swagger:model ChangeAgentOKBodyRtaMongodbAgent
+*/
+type ChangeAgentOKBodyRtaMongodbAgent struct {
+	// Unique agent identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// rta options
+	RtaOptions *ChangeAgentOKBodyRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this change agent OK body rta mongodb agent
+func (o *ChangeAgentOKBodyRtaMongodbAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var changeAgentOkBodyRtaMongodbAgentTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyRtaMongodbAgentTypeStatusPropEnum = append(changeAgentOkBodyRtaMongodbAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeAgentOKBodyRtaMongodbAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyRtaMongodbAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyRtaMongodbAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRtaMongodbAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("changeAgentOk"+"."+"rta_mongodb_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeAgentOkBodyRtaMongodbAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyRtaMongodbAgentTypeLogLevelPropEnum = append(changeAgentOkBodyRtaMongodbAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeAgentOKBodyRtaMongodbAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyRtaMongodbAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyRtaMongodbAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRtaMongodbAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeAgentOk"+"."+"rta_mongodb_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRtaMongodbAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body rta mongodb agent based on the context it is used
+func (o *ChangeAgentOKBodyRtaMongodbAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRtaMongodbAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRtaMongodbAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRtaMongodbAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyRtaMongodbAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model ChangeAgentOKBodyRtaMongodbAgentRtaOptions
+*/
+type ChangeAgentOKBodyRtaMongodbAgentRtaOptions struct {
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this change agent OK body rta mongodb agent rta options
+func (o *ChangeAgentOKBodyRtaMongodbAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body rta mongodb agent rta options based on context it is used
+func (o *ChangeAgentOKBodyRtaMongodbAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRtaMongodbAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyRtaMongodbAgentRtaOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -11276,6 +11695,243 @@ func (o *ChangeAgentParamsBodyRDSExporterMetricsResolutions) MarshalBinary() ([]
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyRDSExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyRtaMongodbAgent change agent params body rta mongodb agent
+swagger:model ChangeAgentParamsBodyRtaMongodbAgent
+*/
+type ChangeAgentParamsBodyRtaMongodbAgent struct {
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels `json:"custom_labels,omitempty"`
+
+	// rta options
+	RtaOptions *ChangeAgentParamsBodyRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this change agent params body rta mongodb agent
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mongodb_agent" + "." + "custom_labels")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mongodb_agent" + "." + "custom_labels")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body rta mongodb agent based on the context it is used
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mongodb_agent" + "." + "custom_labels")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mongodb_agent" + "." + "custom_labels")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMongodbAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyRtaMongodbAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyRtaMongodbAgentCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyRtaMongodbAgentCustomLabels
+*/
+type ChangeAgentParamsBodyRtaMongodbAgentCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body rta mongodb agent custom labels
+func (o *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body rta mongodb agent custom labels based on context it is used
+func (o *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyRtaMongodbAgentCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model ChangeAgentParamsBodyRtaMongodbAgentRtaOptions
+*/
+type ChangeAgentParamsBodyRtaMongodbAgentRtaOptions struct {
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this change agent params body rta mongodb agent rta options
+func (o *ChangeAgentParamsBodyRtaMongodbAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body rta mongodb agent rta options based on context it is used
+func (o *ChangeAgentParamsBodyRtaMongodbAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMongodbAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyRtaMongodbAgentRtaOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
