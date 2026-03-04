@@ -100,7 +100,7 @@ var dataInsert = []byte(`
 func Test_parseCommandInsert(t *testing.T) {
 	t.Parallel()
 
-	raw := parseBsonRaw(dataInsert)
+	raw := parseBsonRaw(t, dataInsert)
 	commandRaw, ok := raw.Lookup("command").DocumentOK()
 	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
@@ -110,7 +110,7 @@ func Test_parseCommandInsert(t *testing.T) {
 }
 
 func Benchmark_ParseCommandInsert(b *testing.B) {
-	raw := parseBsonRaw(dataInsert)
+	raw := parseBsonRaw(b, dataInsert)
 	commandRaw, _ := raw.Lookup("command").DocumentOK()
 
 	for b.Loop() {
