@@ -11,12 +11,17 @@ export default defineConfig({
     dedupe: [
       'react',
       'react-dom',
+      '@emotion/react',
+      '@emotion/styled',
+      '@mui/material',
+      '@mui/system',
+      '@mui/styled-engine',
     ],
   },
   optimizeDeps: {
     // Uncomment when using yarn link for @percona/percona-ui locally
-    // exclude: ['@percona/percona-ui'],
-    force: true
+    //exclude: ['@percona/percona-ui'],
+    force: true,
   },
   server: {
     watch: {

@@ -15,7 +15,7 @@ type Props = {
 };
 
 const GridItem = ({ children }: { children: React.ReactNode }) => (
-  <Grid item xs={6} sx={{ '& > *': { height: '100%' } }}>
+  <Grid size={{ xs: 6 }} sx={{ '& > *': { height: '100%' } }}>
     {children}
   </Grid>
 );
@@ -45,13 +45,13 @@ const QueryAndDetails: FC<Props> = ({
 
   const formattedQueryExecutionDuration = queryExecutionDurationMs
     ? formatDuration(
-        {
-          seconds: queryExecutionDurationMs,
-        },
-        {
-          format: ['seconds'],
-        }
-      )
+      {
+        seconds: queryExecutionDurationMs,
+      },
+      {
+        format: ['seconds'],
+      }
+    )
     : '';
 
   const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration
@@ -60,7 +60,7 @@ const QueryAndDetails: FC<Props> = ({
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Grid container spacing={3}>
           <GridItem>
             <DetailsMetric title={Messages.titles.operationId}>
@@ -198,9 +198,7 @@ const QueryAndDetails: FC<Props> = ({
         </Grid>
       </Grid>
       <Grid
-        item
-        xs={12}
-        md={6}
+        size={{ xs: 12, md: 6 }}
         sx={{
           maxHeight: '70vh',
           overflow: 'auto',
