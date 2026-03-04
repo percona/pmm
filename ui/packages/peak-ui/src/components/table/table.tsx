@@ -52,7 +52,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     initialState,
     emptyState,
     enableRowHoverAction = false,
-    rowHoverAction = () => {},
+    rowHoverAction = () => { },
     muiTableBodyRowProps,
     ...rest
   } = props;
@@ -181,13 +181,6 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
         },
         ...muiTopToolbarRestProps,
       }}
-      renderToolbarInternalActions={({ table }) => (
-        <Box className="percona-table-internal-actions">
-          <MRT_ToggleGlobalFilterButton table={table} />
-          <MRT_ToggleFiltersButton table={table} />
-          <MRT_ShowHideColumnsButton table={table} />
-        </Box>
-      )}
       displayColumnDefOptions={{
         'mrt-row-actions': {
           size: 30,
@@ -219,7 +212,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               ...// @ts-ignore
               // prettier-ignore
               displayColumnDefOptions?.['mrt-row-actions']
-              // @ts-ignore
+                // @ts-ignore
                 ?.muiTableHeadCellProps?.sx,
             },
             ...displayColumnDefOptions?.['mrt-row-actions']
@@ -254,7 +247,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               ...// @ts-ignore
               // prettier-ignore
               displayColumnDefOptions?.['mrt-row-expand']?.muiTableHeadCellProps
-              // @ts-ignore
+                // @ts-ignore
                 ?.sx,
             },
             ...displayColumnDefOptions?.['mrt-row-expand']
@@ -319,8 +312,8 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           sx: {
             ...(!isDetailPanel &&
               enableRowHoverAction && {
-                cursor: 'pointer', // you might want to change the cursor too when adding an onClick
-              }),
+              cursor: 'pointer', // you might want to change the cursor too when adding an onClick
+            }),
             ...sx,
           },
           ...restOfProps,
