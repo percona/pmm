@@ -20,6 +20,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/url"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2" // register ClickHouse driver
 	"github.com/sirupsen/logrus"
@@ -27,15 +28,18 @@ import (
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 
-const defaultClickhouseAddr = "127.0.0.1:9000"
+const (
+	defaultClickhouseAddr     = "127.0.0.1:9000"
+	defaultClickhouseUser     = "default"
+	defaultClickhousePassword = "clickhouse"
+)
 
 // EnsureOtelSchema creates the ClickHouse database `otel` and table `otel.logs` if they do not exist.
-// ClickhouseAddr should be "host:port" (e.g. "127.0.0.1:9000"). RetentionDays is used for the TTL of otel.logs.
-func EnsureOtelSchema(ctx context.Context, clickhouseAddr string, retentionDays int) error {
+// DSN must be a ClickHouse connection string (e.g. "tcp://user:password@host:port/default"). RetentionDays is used for the TTL of otel.logs.
+func EnsureOtelSchema(ctx context.Context, dsn string, retentionDays int) error {
 	if retentionDays <= 0 {
 		retentionDays = 7
 	}
-	dsn := fmt.Sprintf("tcp://%s/default", clickhouseAddr)
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
 		return fmt.Errorf("open clickhouse: %w", err)
@@ -84,11 +88,19 @@ SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, retentionDays)
 	return nil
 }
 
-// EnsureOtelSchemaFromEnv creates the OTEL schema using PMM_CLICKHOUSE_ADDR env and settings retention.
-// Safe to call when OTEL is disabled (no-op). Logs errors but does not fail the caller.
+// EnsureOtelSchemaFromEnv creates the OTEL schema using PMM ClickHouse env vars (same as pmm-managed main).
+// Uses PMM_CLICKHOUSE_ADDR, PMM_CLICKHOUSE_USER, PMM_CLICKHOUSE_PASSWORD. Safe to call when OTEL is disabled (no-op). Logs errors but does not fail the caller.
 func EnsureOtelSchemaFromEnv(ctx context.Context, retentionDays int) {
 	addr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	if err := EnsureOtelSchema(ctx, addr, retentionDays); err != nil {
+	username := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	password := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	chURI := url.URL{
+		Scheme: "tcp",
+		User:   url.UserPassword(username, password),
+		Host:   addr,
+		Path:   "/default",
+	}
+	if err := EnsureOtelSchema(ctx, chURI.String(), retentionDays); err != nil {
 		logrus.WithError(err).Warn("Failed to ensure OTEL ClickHouse schema")
 	}
 }
