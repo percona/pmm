@@ -119,3 +119,15 @@ jobs:
               docker exec pmm-server supervisorctl tail $service || true
             fi
           done
+
+      - name: Download logs.zip from PMM server
+        run: |
+          curl -k -u admin:admin -o logs.zip https://127.0.0.1/logs.zip
+          unzip logs.zip -d sentinel/data
+          rm logs.zip
+
+      - name: Run Sentinel
+        run: go run sentinel/main.go sentinel/data
+
+      - name: Clean up Sentinel data
+        run: rm -rf sentinel/data
