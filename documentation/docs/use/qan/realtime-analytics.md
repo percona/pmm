@@ -3,17 +3,18 @@
 !!! warning "Technical Preview"
     This feature is not production-ready. Use for testing and feedback only.
 
-Real-Time Query Analytics (RTA) shows you what's happening on your MongoDB databases right now.
+Real-Time Query Analytics (RTA) shows you what's happening on your databases right now.
 
-While Query Analytics (QAN) stores queries after they complete for performance review and optimization, Real-Time Analytics shows queries as they execute. This means that when your database is struggling, you can immediately see what's causing the problem.
+While [Query Analytics (QAN)](../qan/index.md) stores queries after they complete for performance review and optimization, Real-Time Analytics shows queries as they execute. This means that when your database is struggling, you can immediately see what's causing the problem.
 
 With a live stream updated every 1-2 seconds, RTA lets you spot long-running queries, identify lock contention, and investigate problematic operations as they happen.
 
-MySQL and PostgreSQL support is planned for future releases.
+Currently, RTA only supports MongoDB databases. MySQL and PostgreSQL support is planned for future releases.
 
 ## How it works
 
-RTA creates a dedicated agent that queries MongoDB's `currentOp()` at regular intervals (default: every 2 seconds). The data flows from the agent to PMM Server, where it's stored briefly in memory and streamed to the UI.
+RTA creates a dedicated agent that queries MongoDB's `currentOp()` at regular intervals. By default, this is every 2 seconds. The data flows from the agent to PMM Server, where it's stored briefly in memory and streamed on the **Query Analytics (QAN) > Real-time** page. 
+
 
 RTA data is not persisted. It exists only in memory for approximately 30 seconds. When you open the Real-Time view, you see what's happening now—there's no history to scroll back through.
 
