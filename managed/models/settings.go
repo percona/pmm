@@ -33,7 +33,7 @@ const (
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
 	InternalPgQANEnabledDefault        = false
-	OtelCollectorEnabledDefault        = false
+	OtelCollectorEnabledDefault        = true
 	OtelLogsRetentionDaysDefault       = 7
 	awsPartitionID                     = "aws"
 )

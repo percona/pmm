@@ -1526,6 +1526,9 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 
 // AddOtelCollector adds an OTEL Collector agent (log collection; extensible for traces, profiles later).
 func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.AddOtelCollectorParams) (*inventoryv1.AddAgentResponse, error) {
+	if p == nil {
+		return nil, status.Error(codes.InvalidArgument, "params are required")
+	}
 	customLabels := make(map[string]string)
 	if p.CustomLabels != nil {
 		for k, v := range p.CustomLabels {

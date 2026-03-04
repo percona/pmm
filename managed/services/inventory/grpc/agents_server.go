@@ -238,7 +238,11 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 	case *inventoryv1.AddAgentRequest_RtaMongodbAgent:
 		return s.s.AddRTAMongoDBAgent(ctx, req.GetRtaMongodbAgent())
 	case *inventoryv1.AddAgentRequest_OtelCollector:
-		return s.s.AddOtelCollector(ctx, req.GetOtelCollector())
+		params := req.GetOtelCollector()
+		if params == nil {
+			return nil, status.Error(codes.InvalidArgument, "otel_collector params are required")
+		}
+		return s.s.AddOtelCollector(ctx, params)
 	default:
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
