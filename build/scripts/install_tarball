@@ -107,6 +107,7 @@ else
     echo "Config file was created!"
   else
     echo "Failed to create config file!"
+    exit 1
   fi
 fi
 
