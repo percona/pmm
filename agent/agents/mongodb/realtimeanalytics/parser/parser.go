@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -67,7 +67,7 @@ func parseGenericFields(raw bson.Raw, q *rtav1.QueryData) {
 
 	q.ClientAddress, _ = raw.Lookup("client").StringValueOK()
 
-	var m any
+	var m map[string]any
 
 	err := bson.Unmarshal(raw, &m)
 	if err == nil {
@@ -109,8 +109,11 @@ func parseMongoFields(raw bson.Raw, q *rtav1.QueryData) {
 	}
 	// parse username from effectiveUsers array
 	if effectiveUsers, ok := raw.Lookup("effectiveUsers").ArrayOK(); ok {
-		if eud, ok := effectiveUsers.Index(0).DocumentOK(); ok {
-			p.MongoDbPayload.Username, _ = eud.Lookup("user").StringValueOK()
+		euv, err := effectiveUsers.Index(0).ValueErr()
+		if err == nil {
+			if eud, ok := euv.DocumentOK(); ok {
+				p.MongoDbPayload.Username, _ = eud.Lookup("user").StringValueOK()
+			}
 		}
 	}
 
