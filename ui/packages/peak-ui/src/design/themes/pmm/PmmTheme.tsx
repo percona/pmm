@@ -244,6 +244,13 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
             paddingTop: 0,
           }
         }
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundColor: tokens.surfaces.elevation0,
+          }
+        }
       }
     },
   };
