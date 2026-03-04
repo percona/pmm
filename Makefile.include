@@ -5,7 +5,7 @@ default: help
 help:                 ## Display this help message
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
-  @echo
+	@echo
 	@echo Check the docker-compose.yml file to see which environment variables are available.
 
 init:                 ## Install tools

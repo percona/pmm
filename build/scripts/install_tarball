@@ -21,7 +21,7 @@ for arg in "$@"
 do
     case "$arg" in
         "-u") UPDATE=1 ;;
-        "-help") usage ;;
+        "-help") usage; exit 0 ;;
         *) echo "Invalid option:$arg"; usage; exit 1;;
     esac
 done
@@ -48,7 +48,7 @@ mkdir -p "${PMM_DIR}" || true
 if [ -w "${PMM_DIR}" ]; then
     echo "Installing into $(realpath "${PMM_DIR}")..."
 else
-    echo -e "Cannot write to ${PMM_DIR}. \nPlease make sure the user $(id -un) has permissions to write to this directory\n\n"
+    echo -e "Error: cannot write to ${PMM_DIR}. \nPlease make sure the user $(id -un) has permissions to write to this directory\n\n"
     usage
     exit 1
 fi
