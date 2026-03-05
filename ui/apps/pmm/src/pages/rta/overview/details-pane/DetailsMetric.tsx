@@ -2,7 +2,8 @@ import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import { FC } from 'react';
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Tooltip from '@mui/material/Tooltip';
 
@@ -16,13 +17,19 @@ const DetailsMetric: FC<Props> = ({ title, subtitle, tooltip, children }) => {
   return (
     <Stack>
       <span>
-        <Stack direction="row" alignItems="center" gap={1}>
+        <Stack direction="row" alignItems="center" gap={0.5}>
           <Typography variant="body1" fontFamily="Poppins" fontWeight="600">
             {title}
           </Typography>
           {tooltip && (
             <Tooltip title={tooltip} arrow>
-              <InfoOutlinedIcon sx={{ color: 'text.secondary' }} />
+              <IconButton
+                size="small"
+                sx={{ color: 'text.secondary' }}
+                aria-label={tooltip}
+              >
+                <InfoOutlinedIcon />
+              </IconButton>
             </Tooltip>
           )}
         </Stack>

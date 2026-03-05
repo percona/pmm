@@ -35,6 +35,7 @@ export const QanHeaderActions: FC = () => {
         <IconButton
           data-testid="qan-header-actions-copy-button"
           onClick={handleCopy}
+          aria-label="Share session settings"
         >
           <ShareOutlinedIcon />
         </IconButton>
