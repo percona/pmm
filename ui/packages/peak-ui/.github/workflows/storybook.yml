@@ -39,7 +39,7 @@ jobs:
           pnpm install
       - name: Build Storybook
         run: |
-          pnpm storybook:build
+          pnpm storybook:build --base /percona-ui/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:

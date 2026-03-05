@@ -4,8 +4,8 @@ export default create({
   base: "light",
 
   brandTitle: "Percona's Peak Design Storybook",
-  brandUrl: "/",
-  brandImage: "/logo-peak_design.svg",
+  brandUrl: "./",
+  brandImage: "./logo-peak_design.svg",
   brandTarget: "_self",
 
   fontBase: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
