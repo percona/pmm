@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { UpdateLogContentProps } from './UpdateLogContent.types';
 import { Typography } from '@mui/material';
-import { PEAK_DARK_THEME } from '@pmm/shared';
 
 export const UpdateLogContent: FC<UpdateLogContentProps> = ({ content }) => (
   <Typography
@@ -23,7 +22,7 @@ export const UpdateLogContent: FC<UpdateLogContentProps> = ({ content }) => (
         p: 1,
         ...theme.applyStyles('dark', {
           color: theme.palette.common.white,
-          backgroundColor: PEAK_DARK_THEME.surfaces.elevation0,
+          backgroundColor: theme.palette.surfaces?.low,
         }),
       }),
     ]}
