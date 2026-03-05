@@ -183,7 +183,13 @@ main() {
         fi
         otelcol_extract_dir=$(mktemp -d)
         tar -xzf "${otelcol_tarball}" -C "${otelcol_extract_dir}"
-        cp "${otelcol_extract_dir}/otelcol-contrib_${otelcol_contrib_version}_${otelcol_arch}/otelcol-contrib" "${binary_dir}/bin/otelcol-contrib"
+        otelcol_binary=$(find "${otelcol_extract_dir}" -name 'otelcol-contrib' -type f | head -1)
+        if [ -z "${otelcol_binary}" ] || [ ! -f "${otelcol_binary}" ]; then
+            echo "Could not find otelcol-contrib binary inside ${otelcol_tarball}"
+            rm -rf "${otelcol_extract_dir}"
+            exit 1
+        fi
+        cp "${otelcol_binary}" "${binary_dir}/bin/otelcol-contrib"
         chmod 0755 "${binary_dir}/bin/otelcol-contrib"
         rm -rf "${otelcol_extract_dir}"
     fi
