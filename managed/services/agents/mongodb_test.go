@@ -17,10 +17,12 @@ package agents
 
 import (
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/durationpb"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -786,4 +788,57 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		requireNoDuplicateFlags(t, actual.Args)
 		require.Equal(t, expected, actual)
 	})
+}
+
+func Test_rtaMongoDBAgentConfig(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name            string
+		service         *models.Service
+		agent           *models.Agent
+		pmmAgentVersion *version.Parsed
+		want            *agentv1.SetStateRequest_BuiltinAgent
+	}{
+		{
+			name: "3.7.0",
+			service: &models.Service{
+				ServiceID:   "service-id-1",
+				ServiceName: "mongodb-service-1",
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(27017),
+			},
+			agent: &models.Agent{
+				AgentID:   "agent-id-1",
+				AgentType: models.RTAMongoDBAgentType,
+				Username:  pointer.ToString("username"),
+				Password:  pointer.ToString("password"),
+				RTAOptions: models.RTAOptions{
+					CollectInterval: pointer.ToDuration(2 * time.Second),
+				},
+			},
+			pmmAgentVersion: version.MustParse("3.7.0"),
+			want: &agentv1.SetStateRequest_BuiltinAgent{
+				Type: inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
+				Dsn:  "mongodb://username:password@127.0.0.1:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+				RtaOptions: &inventoryv1.RTAOptions{
+					CollectInterval: durationpb.New(2 * time.Second),
+				},
+				ServiceId:   "service-id-1",
+				ServiceName: "mongodb-service-1",
+				TextFiles: &agentv1.TextFiles{
+					TemplateLeftDelim:  "{{",
+					TemplateRightDelim: "}}",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, rtaMongoDBAgentConfig(tt.service, tt.agent, tt.pmmAgentVersion))
+		})
+	}
 }

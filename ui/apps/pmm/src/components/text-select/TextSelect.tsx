@@ -17,10 +17,15 @@ export const TextSelect = <T,>({
   label,
   options,
   onChange,
+  disabled,
+  disabledValue,
+  startIcon,
+  'data-testid-button': dataTestIdButton,
 }: TextSelectProps<T>) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const selected = options.find((option) => option.value === value);
+  const valueLabel = disabled ? disabledValue : selected?.label;
 
   const handleOpen = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -41,9 +46,11 @@ export const TextSelect = <T,>({
         variant="text"
         onClick={handleOpen}
         endIcon={open ? <ArrowDropUp /> : <ArrowDropDown />}
-        data-testid="text-select-button"
+        data-testid={dataTestIdButton || 'text-select-button'}
+        disabled={disabled}
+        startIcon={startIcon}
       >
-        {label || Messages.label}: {selected?.label || Messages.empty}
+        {label || Messages.label}: {valueLabel || Messages.empty}
       </Button>
       <Menu
         open={open}

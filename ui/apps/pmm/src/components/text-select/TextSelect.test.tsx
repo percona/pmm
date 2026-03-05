@@ -90,4 +90,46 @@ describe('TextSelect', () => {
 
     expect(onChangeMock).toHaveBeenCalledWith('three');
   });
+
+  it('disables the button when disabled is true', () => {
+    render(
+      <TextSelect
+        value="one"
+        options={OPTIONS}
+        onChange={onChangeMock}
+        disabled
+      />
+    );
+
+    expect(screen.getByTestId('text-select-button')).toBeDisabled();
+  });
+
+  it('shows disabled value when disabled is true', () => {
+    render(
+      <TextSelect
+        value="one"
+        options={OPTIONS}
+        onChange={onChangeMock}
+        disabled
+        disabledValue="OFF"
+      />
+    );
+
+    expect(screen.getByTestId('text-select-button')).toHaveTextContent('OFF');
+  });
+
+  it('shows start icon when startIcon is provided', () => {
+    render(
+      <TextSelect
+        value="one"
+        options={OPTIONS}
+        onChange={onChangeMock}
+        startIcon={<div data-testid="start-icon" />}
+      />
+    );
+
+    expect(screen.getByTestId('text-select-button')).toContainElement(
+      screen.getByTestId('start-icon')
+    );
+  });
 });
