@@ -39,7 +39,7 @@ func TestBuildOtelCollectorConfigYAML(t *testing.T) {
 	require.Contains(t, yaml, "endpoint: 0.0.0.0:4317")
 	require.Contains(t, yaml, "endpoint: 0.0.0.0:4318")
 
-	// Filelog receivers (PoC-aligned)
+	// Filelog receivers (nginx.log: logfmt access only)
 	require.Contains(t, yaml, "filelog/nginx_access:")
 	require.Contains(t, yaml, "filelog/nginx_error:")
 	require.Contains(t, yaml, "filelog/grafana:")
@@ -64,7 +64,7 @@ func TestBuildOtelCollectorConfigYAML(t *testing.T) {
 	require.Contains(t, yaml, "database: otel")
 	require.Contains(t, yaml, "logs_table_name: logs")
 	require.Contains(t, yaml, "create_schema: false")
-	require.Contains(t, yaml, "ttl: 7d")
+	require.Contains(t, yaml, "ttl: 168h")
 	require.Contains(t, yaml, "username: 'default'")
 	require.Contains(t, yaml, "password: 'clickhouse'")
 
@@ -82,7 +82,7 @@ func TestBuildOtelCollectorConfigYAML_CustomParams(t *testing.T) {
 	require.Contains(t, yaml, "endpoint: tcp://ch-host:9000")
 	require.Contains(t, yaml, "username: 'myuser'")
 	require.Contains(t, yaml, "password: 'mypass'")
-	require.Contains(t, yaml, "ttl: 14d")
+	require.Contains(t, yaml, "ttl: 336h")
 }
 
 func TestBuildOtelCollectorConfigYAML_Defaults(t *testing.T) {
@@ -92,7 +92,7 @@ func TestBuildOtelCollectorConfigYAML_Defaults(t *testing.T) {
 
 	require.Contains(t, yaml, "endpoint: tcp://127.0.0.1:9000")
 	require.Contains(t, yaml, "username: 'default'")
-	require.Contains(t, yaml, "ttl: 7d")
+	require.Contains(t, yaml, "ttl: 168h")
 }
 
 func TestQuoteYAMLString(t *testing.T) {

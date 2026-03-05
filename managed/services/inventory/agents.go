@@ -18,6 +18,7 @@ package inventory
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"strings"
 
@@ -1524,6 +1525,12 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 	return res, e
 }
 
+// logSourceEntry is the shape stored in custom_labels["log_sources"] JSON.
+type logSourceEntry struct {
+	Path   string `json:"path"`
+	Preset string `json:"preset"`
+}
+
 // AddOtelCollector adds an OTEL Collector agent (log collection; extensible for traces, profiles later).
 func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.AddOtelCollectorParams) (*inventoryv1.AddAgentResponse, error) {
 	if p == nil {
@@ -1535,13 +1542,93 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 			customLabels[k] = v
 		}
 	}
+
+	var logSources []logSourceEntry
+	if len(p.LogSources) != 0 {
+		for _, ls := range p.LogSources {
+			if ls == nil || ls.Path == "" {
+				continue
+			}
+			preset := ls.Preset
+			if preset == "" {
+				preset = "raw"
+			}
+			logSources = append(logSources, logSourceEntry{Path: ls.Path, Preset: preset})
+		}
+	} else if len(p.LogFilePaths) != 0 {
+		for _, path := range p.LogFilePaths {
+			if path != "" {
+				logSources = append(logSources, logSourceEntry{Path: strings.TrimSpace(path), Preset: "raw"})
+			}
+		}
+	}
+	if len(logSources) != 0 {
+		// Validate preset names and store log_sources JSON.
+		var agent *inventoryv1.OtelCollector
+		e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			q := tx.Querier
+			for _, ls := range logSources {
+				if ls.Preset == "raw" {
+					continue
+				}
+				preset, err := models.FindLogParserPresetByName(q, ls.Preset)
+				if err != nil {
+					return err
+				}
+				if preset == nil {
+					return status.Errorf(codes.InvalidArgument, "unknown log parser preset %q", ls.Preset)
+				}
+			}
+			raw, err := json.Marshal(logSources)
+			if err != nil {
+				return err
+			}
+			customLabels["log_sources"] = string(raw)
+			pmmAgent, err := models.FindAgentByID(q, p.PmmAgentId)
+			if err != nil {
+				return err
+			}
+			nodeID := ""
+			if pmmAgent.RunsOnNodeID != nil {
+				nodeID = *pmmAgent.RunsOnNodeID
+			}
+			params := &models.CreateAgentParams{
+				PMMAgentID:   p.PmmAgentId,
+				NodeID:       nodeID,
+				CustomLabels: customLabels,
+			}
+			row, err := models.CreateAgent(q, models.OtelCollectorType, params)
+			if err != nil {
+				return err
+			}
+			aa, err := services.ToAPIAgent(q, row)
+			if err != nil {
+				return err
+			}
+			agent = aa.(*inventoryv1.OtelCollector) //nolint:forcetypeassert
+			return nil
+		})
+		if e != nil {
+			return nil, e
+		}
+		as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+		res := &inventoryv1.AddAgentResponse{
+			Agent: &inventoryv1.AddAgentResponse_OtelCollector{
+				OtelCollector: agent,
+			},
+		}
+		return res, nil
+	}
+
+	// No log sources: keep legacy log_file_paths behavior for backward compat (empty collector).
 	if len(p.LogFilePaths) != 0 {
 		customLabels["log_file_paths"] = strings.Join(p.LogFilePaths, ",")
 	}
 
 	var agent *inventoryv1.OtelCollector
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		pmmAgent, err := models.FindAgentByID(tx.Querier, p.PmmAgentId)
+		q := tx.Querier
+		pmmAgent, err := models.FindAgentByID(q, p.PmmAgentId)
 		if err != nil {
 			return err
 		}
@@ -1554,11 +1641,11 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 			NodeID:       nodeID,
 			CustomLabels: customLabels,
 		}
-		row, err := models.CreateAgent(tx.Querier, models.OtelCollectorType, params)
+		row, err := models.CreateAgent(q, models.OtelCollectorType, params)
 		if err != nil {
 			return err
 		}
-		aa, err := services.ToAPIAgent(tx.Querier, row)
+		aa, err := services.ToAPIAgent(q, row)
 		if err != nil {
 			return err
 		}

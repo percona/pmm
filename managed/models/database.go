@@ -1181,6 +1181,46 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
 		`UPDATE agents SET rta_options = '{}'::jsonb`,
 	},
+	127: {
+		`CREATE TABLE log_parser_presets (
+			id VARCHAR NOT NULL,
+			name VARCHAR NOT NULL,
+			description TEXT,
+			operator_yaml TEXT NOT NULL,
+			built_in BOOLEAN NOT NULL DEFAULT false,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			PRIMARY KEY (id),
+			UNIQUE (name)
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'00000000-0000-4000-8000-000000000001',
+			'mysql_error',
+			'MySQL 8 error log format (timestamp thread_id [Subsystem] [CODE] [Component] message)',
+			$yaml$    - type: regex_parser
+      regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (?P<thread_id>\d+) \[(?P<subsystem>[^\]]+)\] \[(?P<code>[^\]]+)\] \[(?P<component>[^\]]+)\] (?P<message>.*)$'
+      parse_from: body
+      parse_to: attributes
+    - type: time_parser
+      parse_from: attributes.timestamp
+      layout: '2006-01-02T15:04:05.000000000Z'
+      layout_type: gotime
+    - type: severity_parser
+      parse_from: attributes.subsystem
+      preset: none
+      mapping:
+        System: info
+        Warning: warn
+        Error: error
+    - type: move
+      from: attributes.message
+      to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

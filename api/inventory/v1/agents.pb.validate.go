@@ -13876,6 +13876,118 @@ var _ interface {
 	ErrorName() string
 } = AddRTAMongoDBAgentParamsValidationError{}
 
+// Validate checks the field values on LogSource with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *LogSource) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LogSource with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in LogSourceMultiError, or nil
+// if none found.
+func (m *LogSource) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LogSource) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPath()) < 1 {
+		err := LogSourceValidationError{
+			field:  "Path",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Preset
+
+	if len(errors) > 0 {
+		return LogSourceMultiError(errors)
+	}
+
+	return nil
+}
+
+// LogSourceMultiError is an error wrapping multiple validation errors returned
+// by LogSource.ValidateAll() if the designated constraints aren't met.
+type LogSourceMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LogSourceMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LogSourceMultiError) AllErrors() []error { return m }
+
+// LogSourceValidationError is the validation error returned by
+// LogSource.Validate if the designated constraints aren't met.
+type LogSourceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LogSourceValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LogSourceValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LogSourceValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LogSourceValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LogSourceValidationError) ErrorName() string { return "LogSourceValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LogSourceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLogSource.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LogSourceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LogSourceValidationError{}
+
 // Validate checks the field values on AddOtelCollectorParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -13910,6 +14022,40 @@ func (m *AddOtelCollectorParams) validate(all bool) error {
 	}
 
 	// no validation rules for CustomLabels
+
+	for idx, item := range m.GetLogSources() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddOtelCollectorParamsValidationError{
+						field:  fmt.Sprintf("LogSources[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddOtelCollectorParamsValidationError{
+						field:  fmt.Sprintf("LogSources[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddOtelCollectorParamsValidationError{
+					field:  fmt.Sprintf("LogSources[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
 
 	if len(errors) > 0 {
 		return AddOtelCollectorParamsMultiError(errors)

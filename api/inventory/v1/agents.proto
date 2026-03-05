@@ -1692,10 +1692,17 @@ message AddRTAMongoDBAgentParams {
   RTAOptions rta_options = 15;
 }
 
+// LogSource binds a log file path to a parser preset (e.g. mysql_error or raw for no parsing).
+message LogSource {
+  string path = 1 [(validate.rules).string.min_len = 1];
+  string preset = 2; // Preset name from log_parser_presets table, or "raw" for no operators.
+}
+
 message AddOtelCollectorParams {
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   map<string, string> custom_labels = 2;
-  repeated string log_file_paths = 3;
+  repeated string log_file_paths = 3; // Deprecated: use log_sources for per-path preset. If log_sources is empty, these are used with preset "raw".
+  repeated LogSource log_sources = 4;
 }
 
 message ChangeRTAMongoDBAgentParams {

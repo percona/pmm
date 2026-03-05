@@ -7831,17 +7831,94 @@ type AddAgentParamsBodyOtelCollector struct {
 	// custom labels
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// log file paths
+	// Deprecated: use log_sources for per-path preset. If log_sources is empty, these are used with preset "raw".
 	LogFilePaths []string `json:"log_file_paths"`
+
+	// log sources
+	LogSources []*AddAgentParamsBodyOtelCollectorLogSourcesItems0 `json:"log_sources"`
 }
 
 // Validate validates this add agent params body otel collector
 func (o *AddAgentParamsBodyOtelCollector) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogSources(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this add agent params body otel collector based on context it is used
+func (o *AddAgentParamsBodyOtelCollector) validateLogSources(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogSources) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.LogSources); i++ {
+		if swag.IsZero(o.LogSources[i]) { // not required
+			continue
+		}
+
+		if o.LogSources[i] != nil {
+			if err := o.LogSources[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("body" + "." + "otel_collector" + "." + "log_sources" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("body" + "." + "otel_collector" + "." + "log_sources" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add agent params body otel collector based on the context it is used
 func (o *AddAgentParamsBodyOtelCollector) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLogSources(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyOtelCollector) contextValidateLogSources(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.LogSources); i++ {
+		if o.LogSources[i] != nil {
+
+			if swag.IsZero(o.LogSources[i]) { // not required
+				return nil
+			}
+
+			if err := o.LogSources[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("body" + "." + "otel_collector" + "." + "log_sources" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("body" + "." + "otel_collector" + "." + "log_sources" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -7856,6 +7933,46 @@ func (o *AddAgentParamsBodyOtelCollector) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddAgentParamsBodyOtelCollector) UnmarshalBinary(b []byte) error {
 	var res AddAgentParamsBodyOtelCollector
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyOtelCollectorLogSourcesItems0 LogSource binds a log file path to a parser preset (e.g. mysql_error or raw for no parsing).
+swagger:model AddAgentParamsBodyOtelCollectorLogSourcesItems0
+*/
+type AddAgentParamsBodyOtelCollectorLogSourcesItems0 struct {
+	// path
+	Path string `json:"path,omitempty"`
+
+	// Preset name from log_parser_presets table, or "raw" for no operators.
+	Preset string `json:"preset,omitempty"`
+}
+
+// Validate validates this add agent params body otel collector log sources items0
+func (o *AddAgentParamsBodyOtelCollectorLogSourcesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add agent params body otel collector log sources items0 based on context it is used
+func (o *AddAgentParamsBodyOtelCollectorLogSourcesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyOtelCollectorLogSourcesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyOtelCollectorLogSourcesItems0) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyOtelCollectorLogSourcesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -35,7 +35,8 @@ func buildOtelCollectorConfigYAML(endpoint, username, password string, retention
 		retentionDays = 7
 	}
 	chEndpoint := "tcp://" + endpoint
-	ttl := fmt.Sprintf("%dd", retentionDays)
+	// Exporter ttl uses Go time.Duration: only ns, us, ms, s, m, h are valid (no "d" for days).
+	ttl := fmt.Sprintf("%dh", retentionDays*24)
 
 	// YAML structure aligned with PoC PR #4230 (dev/otel/config.yml): OTLP + filelog receivers,
 	// memory_limiter, transform, batch processors, clickhouse exporter. Log paths match PMM server layout.
@@ -47,18 +48,19 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+  # nginx.log: we only parse logfmt access lines (time="...", host=..., status=...) for now.
+  # Nginx internal lines (e.g. 2026/03/05 [warn] ..., nginx: [alert] ...) in the same file are not parsed.
   filelog/nginx_access:
     include: [/srv/logs/nginx.log]
     operators:
-      - type: json_parser
+      - type: key_value_parser
         parse_from: body
         parse_to: attributes
-      - type: move
-        from: attributes.timestamp
-        to: attributes.temp_timestamp
+        pair_delimiter: " "
+        key_value_delimiter: "="
       - type: time_parser
-        parse_from: attributes.temp_timestamp
-        layout: '2006-01-02T15:04:05-07:00'
+        parse_from: attributes.time
+        layout: '2006-01-02T15:04:05Z07:00'
         layout_type: gotime
       - type: add
         field: attributes.level
@@ -105,6 +107,7 @@ receivers:
         parse_from: attributes.t
         layout: '2006-01-02T15:04:05.000000000Z07:00'
         layout_type: gotime
+        on_error: drop
       - type: severity_parser
         parse_from: attributes.level
         preset: none
@@ -139,9 +142,6 @@ receivers:
           error: error
           fatal: fatal
           panic: fatal
-      - type: move
-        from: attributes.msg
-        to: body
   filelog/pmm_agent:
     include: [/srv/logs/pmm-agent.log]
     operators:
@@ -165,20 +165,17 @@ receivers:
           error: error
           fatal: fatal
           panic: fatal
-      - type: move
-        from: attributes.msg
-        to: body
   filelog/postgres:
     include: [/srv/logs/postgresql14.log]
-    start_at: beginning
+    start_at: end
     operators:
       - type: regex_parser
-        regex: '^time="(?P<timestamp>[^\"]+)" process=(?P<pid>\d+) lineno=(?P<lineno>\d+) transaction=(?P<transaction>\w+) db=(?P<db>[^ ]*) user=(?P<user>[^ ]*) app=(?P<app>[^ ]*) client=(?P<client>[^ ]*) (?P<level>\w+): (?P<message>.*)$'
+        regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+) UTC \[(?P<pid>\d+)\] (?P<level>\w+):\s*(?P<message>.*)$'
         parse_from: body
         parse_to: attributes
       - type: time_parser
         parse_from: attributes.timestamp
-        layout: '2006-01-02 15:04:05.000 MST'
+        layout: '2006-01-02 15:04:05.000 UTC'
         layout_type: gotime
       - type: severity_parser
         parse_from: attributes.level
@@ -193,6 +190,7 @@ receivers:
           fatal: fatal
           panic: fatal
           LOG: info
+          STATEMENT: info
       - type: move
         from: attributes.message
         to: body

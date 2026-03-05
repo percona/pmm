@@ -15,6 +15,8 @@
 package management
 
 import (
+	"strings"
+
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -41,9 +43,11 @@ func (res *addOtelResult) String() string {
 
 // AddOtelCommand is used by Kong for CLI flags and commands.
 type AddOtelCommand struct {
-	PMMAgentID   string            `help:"Node ID where pmm-agent runs (default is autodetected)"`
-	LogFilePaths []string          `name:"log-file-paths" help:"Comma-separated list of log file paths to collect (e.g. /var/log/mysql/error.log)"`
-	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	PMMAgentID    string            `help:"Node ID where pmm-agent runs (default is autodetected)"`
+	LogFilePaths  []string          `name:"log-file-paths" help:"Comma-separated list of log file paths to collect (e.g. /var/log/mysql/error.log). Used with --parser-preset or as raw if --log-sources not set."`
+	LogSources    string            `name:"log-sources" help:"Comma-separated path:preset pairs (e.g. /var/log/mysql/error.log:mysql_error,/other.log:raw). Preset 'raw' means no parsing. Overrides --log-file-paths and --parser-preset."`
+	ParserPreset  string            `name:"parser-preset" help:"Parser preset for all paths from --log-file-paths (e.g. mysql_error). Ignored if --log-sources is set."`
+	CustomLabels  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
 // RunCmd runs the command for AddOtelCommand.
@@ -59,13 +63,52 @@ func (cmd *AddOtelCommand) RunCmd() (commands.Result, error) {
 
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
+	body := &agents.AddAgentParamsBodyOtelCollector{
+		PMMAgentID:   pmmAgentID,
+		CustomLabels: customLabels,
+	}
+	if cmd.LogSources != "" {
+		// Parse path:preset pairs.
+		for _, pair := range strings.Split(cmd.LogSources, ",") {
+			pair = strings.TrimSpace(pair)
+			if pair == "" {
+				continue
+			}
+			path := pair
+			preset := "raw"
+			if idx := strings.Index(pair, ":"); idx >= 0 {
+				path = strings.TrimSpace(pair[:idx])
+				preset = strings.TrimSpace(pair[idx+1:])
+				if preset == "" {
+					preset = "raw"
+				}
+			}
+			if path != "" {
+				body.LogSources = append(body.LogSources, &agents.AddAgentParamsBodyOtelCollectorLogSourcesItems0{
+					Path:   path,
+					Preset: preset,
+				})
+			}
+		}
+	} else if len(cmd.LogFilePaths) != 0 {
+		if cmd.ParserPreset != "" {
+			for _, p := range cmd.LogFilePaths {
+				p = strings.TrimSpace(p)
+				if p != "" {
+					body.LogSources = append(body.LogSources, &agents.AddAgentParamsBodyOtelCollectorLogSourcesItems0{
+						Path:   p,
+						Preset: cmd.ParserPreset,
+					})
+				}
+			}
+		} else {
+			body.LogFilePaths = cmd.LogFilePaths
+		}
+	}
+
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
-			OtelCollector: &agents.AddAgentParamsBodyOtelCollector{
-				PMMAgentID:   pmmAgentID,
-				CustomLabels: customLabels,
-				LogFilePaths: cmd.LogFilePaths,
-			},
+			OtelCollector: body,
 		},
 		Context: commands.Ctx,
 	}
