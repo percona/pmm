@@ -111,6 +111,14 @@
         group: root
         mode: 0775
 
+    - name: Create '/srv/otelcol' directory for otel-collector config
+      file:
+        path: /srv/otelcol
+        state: directory
+        owner: pmm
+        group: root
+        mode: 0775
+
     - name: Set ownership for Grafana plugins directory
       file:
         path: /srv/grafana/plugins

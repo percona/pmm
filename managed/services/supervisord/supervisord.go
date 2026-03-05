@@ -49,8 +49,8 @@ const (
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
 	defaultClickhousePassword           = "clickhouse"
-	otelCollectorConfigPath             = "/etc/otelcol/config.yaml"
-	otelCollectorConfigDir              = "/etc/otelcol"
+	otelCollectorConfigPath             = "/srv/otelcol/config.yaml"
+	otelCollectorConfigDir              = "/srv/otelcol"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -440,7 +440,7 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 	return err
 }
 
-// writeOtelCollectorConfig writes the server-side otel-collector YAML config to /etc/otelcol/config.yaml
+// writeOtelCollectorConfig writes the server-side otel-collector YAML config to /srv/otelcol/config.yaml
 // so otelcol-contrib can start (OTLP receiver + filelog receivers for nginx, grafana, pmm-managed, pmm-agent, postgres).
 func (s *Service) writeOtelCollectorConfig(settings *models.Settings) error {
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
@@ -677,7 +677,7 @@ redirect_stderr = true
 {{define "otel-collector"}}
 [program:otel-collector]
 priority = 6
-command = /usr/local/percona/pmm/tools/otelcol-contrib --config=/etc/otelcol/config.yaml
+command = /usr/local/percona/pmm/tools/otelcol-contrib --config=/srv/otelcol/config.yaml
 autorestart = true
 autostart = {{ .OtelCollectorEnabled }}
 startretries = 10
