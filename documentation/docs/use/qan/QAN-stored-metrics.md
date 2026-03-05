@@ -68,7 +68,7 @@ When enabled, you'll see queries related to PMM's internal operations—inventor
 
 ## See also
 
-- [Real-Time Query Analytics](realtime-analytics.md)
+- [Real-Time Query Analytics](../qan/QAN-realtime-analytics.md)
 - [Filters panel](panels/filters.md)
 - [Overview panel](panels/overview.md)
 - [Details panel](panels/details.md)
