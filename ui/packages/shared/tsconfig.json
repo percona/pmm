@@ -1,5 +1,29 @@
 {
-  "extends": "@percona/tsconfig/react-library.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "declarationDir": "typings",
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSources": false,
+    "isolatedModules": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "lib": [
+      "esnext",
+      "DOM",
+      "dom.Iterable"
+    ],
+    "module": "ESNext",
+    "target": "es6"
+  },
   "include": [
     "src"
   ],
@@ -7,9 +31,5 @@
     "dist",
     "build",
     "node_modules"
-  ],
-  "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "typings"
-  }
+  ]
 }

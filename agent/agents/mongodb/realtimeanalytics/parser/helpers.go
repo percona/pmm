@@ -17,7 +17,7 @@ package parser
 import (
 	"encoding/json"
 
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func parseRawValue(rawValue bson.RawValue) string {
@@ -73,13 +73,64 @@ func parseOptions(commandRaw bson.Raw, keys []string) string {
 
 func parseDocument(commandRaw bson.Raw, key string) string {
 	if doc := commandRaw.Lookup(key); !doc.IsZero() {
-		var m any
-
-		err := bson.UnmarshalValue(doc.Type, doc.Value, &m)
-		if err == nil {
+		switch doc.Type {
+		case bson.TypeEmbeddedDocument:
+			return parseEmbeddedDocument(doc)
+		case bson.TypeArray:
+			return parseArray(doc)
+		default:
 			return parseRawValue(doc)
 		}
 	}
 
 	return ""
+}
+
+func parseEmbeddedDocument(doc bson.RawValue) string {
+	var m map[string]any
+
+	err := bson.UnmarshalValue(doc.Type, doc.Value, &m)
+	if err == nil {
+		jsonValue, err := json.MarshalIndent(m, "", "    ")
+		if err == nil {
+			return string(jsonValue)
+		}
+	}
+
+	return ""
+}
+
+func parseArray(doc bson.RawValue) string {
+	a, ok := doc.ArrayOK()
+	if !ok {
+		return doc.String()
+	}
+
+	values, errVal := a.Values()
+	if errVal != nil {
+		return doc.String()
+	}
+
+	var (
+		array []any
+		err   error
+	)
+
+	for _, val := range values {
+		var m map[string]any
+
+		err = bson.UnmarshalValue(val.Type, val.Value, &m)
+		if err == nil {
+			array = append(array, m)
+		}
+	}
+
+	if len(array) != 0 {
+		jsonValue, jsonErr := json.MarshalIndent(array, "", "    ")
+		if jsonErr == nil {
+			return string(jsonValue)
+		}
+	}
+
+	return doc.String()
 }
