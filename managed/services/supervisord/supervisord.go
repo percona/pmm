@@ -49,6 +49,8 @@ const (
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
 	defaultClickhousePassword           = "clickhouse"
+	otelCollectorConfigPath             = "/etc/otelcol/config.yaml"
+	otelCollectorConfigDir              = "/etc/otelcol"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -414,6 +416,7 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 			if e != nil && !errors.Is(e, fs.ErrNotExist) {
 				s.l.Warnf("Failed to remove %s config when disabled: %s.", tmpl.Name(), e)
 			}
+			_ = os.Remove(otelCollectorConfigPath)
 			continue
 		}
 
@@ -428,8 +431,55 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 			err = e
 			continue
 		}
+		if tmpl.Name() == "otel-collector" && settings.IsOtelCollectorEnabled() {
+			if e := s.writeOtelCollectorConfig(settings); e != nil {
+				s.l.Warnf("Failed to write otel-collector config: %s.", e)
+			}
+		}
 	}
 	return err
+}
+
+// writeOtelCollectorConfig writes the server-side otel-collector YAML config to /etc/otelcol/config.yaml
+// so otelcol-contrib can start (OTLP receiver + filelog receivers for nginx, grafana, pmm-managed, pmm-agent, postgres).
+func (s *Service) writeOtelCollectorConfig(settings *models.Settings) error {
+	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	retentionDays := settings.GetOtelLogsRetentionDays()
+	yamlContent := buildOtelCollectorConfigYAML(clickhouseAddr, clickhouseUser, clickhousePassword, retentionDays)
+
+	if err := os.MkdirAll(otelCollectorConfigDir, 0o755); err != nil {
+		return errors.WithStack(err)
+	}
+
+	dir := filepath.Dir(otelCollectorConfigPath)
+	tmpFile, err := os.CreateTemp(dir, ".otelcol-config-*.yaml")
+	if err != nil {
+		return errors.Wrapf(err, "create temp file in %s", dir)
+	}
+	tmpPath := tmpFile.Name()
+	defer func() { _ = os.Remove(tmpPath) }()
+
+	if _, err = tmpFile.WriteString(yamlContent); err != nil {
+		_ = tmpFile.Close()
+		return errors.WithStack(err)
+	}
+	if err = tmpFile.Sync(); err != nil {
+		_ = tmpFile.Close()
+		return errors.WithStack(err)
+	}
+	if err = tmpFile.Chmod(0o644); err != nil {
+		_ = tmpFile.Close()
+		return errors.WithStack(err)
+	}
+	if err = tmpFile.Close(); err != nil {
+		return errors.WithStack(err)
+	}
+	if err = os.Rename(tmpPath, otelCollectorConfigPath); err != nil {
+		return errors.Wrapf(err, "rename %s to %s", tmpPath, otelCollectorConfigPath)
+	}
+	return nil
 }
 
 // StartSupervisedService starts given service.
