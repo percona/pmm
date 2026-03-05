@@ -6,7 +6,7 @@
 2. Build and run PMM server and pmm-agent (e.g. from source or use a dev setup).
 3. Ensure the server has **OTEL enabled** in settings (`Otel.CollectorEnabled` = true) and optional **Otel.LogsRetentionDays**.
 4. Ensure the server’s **otel-collector** (supervisord) and **nginx** `/otlp/` location are deployed (e.g. via Ansible or your deployment).
-5. Ship or symlink **otelcol-contrib** at the path configured in pmm-agent (default `tools/otelcol-contrib` under PathsBase).
+5. **otelcol-contrib** is included in pmm-client and pmm-server packages/tarballs; when using a dev build, ensure the client tarball was built with the OTEL download step so `tools/otelcol-contrib` exists.
 
 ## 1. Add OTEL collector from the agent host
 
@@ -47,6 +47,6 @@ If you have an OTLP client or another collector that can send to the PMM server:
 
 ## Troubleshooting
 
-- **Collector not starting**: Check pmm-agent logs and that `otelcol-contrib` exists at the path in config (e.g. `tools/otelcol-contrib`).
+- **Collector not starting**: Check pmm-agent logs and that `otelcol-contrib` exists at the path in config (e.g. `tools/otelcol-contrib`). It is shipped with pmm-client and pmm-server; for custom builds, the build-client-binary script downloads it from OpenTelemetry releases.
 - **No logs in ClickHouse**: Ensure the server’s otel-collector is running and writing to ClickHouse; check server logs and that `PMM_CLICKHOUSE_*` env is set for the collector.
 - **Auth errors on /otlp/**: Use valid PMM API credentials (e.g. the same used by pmm-agent).

@@ -71,3 +71,6 @@ vmagent_commit_hash=8fb6f74a739dc9d433274906fd69d1b2edca6951
 redis_exporter_commit_hash=3980c9100940be154765f115e3a3079ff75b08ea
 # https://github.com/hashicorp/nomad/releases/tag/v1.11.1
 nomad_commit_hash=5b76eb0535615e32faf4daee479f7155ea16ec0d
+# OpenTelemetry Collector Contrib (prebuilt binary for OTEL log collection)
+# https://github.com/open-telemetry/opentelemetry-collector-releases/releases
+otelcol_contrib_version=0.147.0

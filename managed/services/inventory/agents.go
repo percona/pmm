@@ -1541,8 +1541,17 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 
 	var agent *inventoryv1.OtelCollector
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		pmmAgent, err := models.FindAgentByID(tx.Querier, p.PmmAgentId)
+		if err != nil {
+			return err
+		}
+		nodeID := ""
+		if pmmAgent.RunsOnNodeID != nil {
+			nodeID = *pmmAgent.RunsOnNodeID
+		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:   p.PmmAgentId,
+			NodeID:       nodeID,
 			CustomLabels: customLabels,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.OtelCollectorType, params)
