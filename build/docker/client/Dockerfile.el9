@@ -25,10 +25,7 @@ RUN groupadd -g 1002 pmm-agent && \
             -c "PMM Client User" pmm-agent
 
 ADD pmm-client.tar.gz /tmp/
-RUN cd /tmp/pmm-client* \
-    && env PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
-    && cd /tmp \
-    && rm -rf /tmp/pmm-client*
+RUN env PMM_USER=pmm-agent PMM_GROUP=root /tmp/pmm-client*/install_tarball
 
 FROM redhat/ubi9-micro AS micro
 
@@ -39,7 +36,7 @@ COPY --from=micro / /
 COPY LICENSE /licenses/
 COPY --from=builder --chown=0:0 /etc/passwd /etc/group /etc/
 
-# Install jq along with its dependencies
+# Install tools and perl
 COPY --from=builder --chown=0:0 \
   /usr/bin/jq \
   /usr/bin/tar \
@@ -47,29 +44,17 @@ COPY --from=builder --chown=0:0 \
   /usr/bin/sed \
   /usr/bin/grep \
   /usr/bin/awk \
+  /usr/bin/mysql* \
+  /usr/bin/perl* \
   /usr/bin/
 
 COPY --from=builder --chown=0:0 \
   /usr/lib64/libjq.so.1 \
   /usr/lib64/libonig.so.5 \
-  /usr/lib64/
-
-# Install perl along with its dependencies
-COPY --from=builder --chown=0:0 \
-  /usr/bin/mysql* \
-  /usr/bin/perl* \
-  /usr/bin/
-COPY --from=builder --chown=0:0 /usr/lib64/*perl* /usr/lib64/
-COPY --from=builder --chown=0:0 /usr/share/perl5 /usr/share/perl5
-COPY --from=builder --chown=0:0 \
+  /usr/lib64/*perl* \
   /usr/lib64/libcrypt.so* \
   /usr/lib64/libstdc++.so* \
   /usr/lib64/libreadline.so* \
-  /usr/lib64/
-COPY --from=builder --chown=0:0 /etc/ld.so.conf.d/mysql-*.conf /etc/ld.so.conf.d
-
-# Install dependencies of curl
-COPY --from=builder --chown=0:0 \
   /usr/lib64/libkeyutils.so* \
   /usr/lib64/libz.so* \
   /usr/lib64/libkrb5support.so* \
@@ -82,15 +67,14 @@ COPY --from=builder --chown=0:0 \
   /usr/lib64/libcurl.so* \
   /usr/lib64/libnghttp2.so* \
   /usr/lib64/libresolv.so* \
-  /usr/lib64/
-
-# Install dependencies of grep and awk
-COPY --from=builder --chown=0:0 \
   /lib64/libpcre.so.1 \
   /lib64/libsigsegv.so.2 \
   /lib64/libgmp.so.10 \
   /lib64/libmpfr.so.6 \
   /usr/lib64/
+
+COPY --from=builder --chown=0:0 /usr/share/perl5 /usr/share/perl5
+COPY --from=builder --chown=0:0 /etc/ld.so.conf.d/mysql-*.conf /etc/ld.so.conf.d
 
 # Install pmm-client
 RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
@@ -98,14 +82,23 @@ COPY --from=builder /usr/local/percona/pmm /usr/local/percona/pmm/
 
 ARG VERSION
 ARG BUILD_DATE
+ARG RELEASE=$(date +%s)
 
+# Satisfy as well https://docs.redhat.com/en-us/documentation/red_hat_software_certification/2026/pdf/red_hat_openshift_software_certification_policy_guide/Red_Hat_Software_Certification-2026-Red_Hat_OpenShift_Software_Certification_Policy_Guide-en-US.pdf
 LABEL org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.licenses=Apache-2.0 \
     org.opencontainers.image.title="Percona Monitoring and Management Client" \
     org.opencontainers.image.vendor="Percona, LLC" \
     org.opencontainers.image.version=${VERSION} \
     org.opencontainers.image.description="The client image for Percona Monitoring and Management" \
-    org.opencontainers.image.url="https://docs.percona.com/percona-monitoring-and-management"
+    org.opencontainers.image.url="https://docs.percona.com/percona-monitoring-and-management" \
+    name="percona/pmm-client" \
+    summary="Percona Monitoring and Management Client" \
+    description="The client image for Percona Monitoring and Management" \
+    vendor="Percona, LLC" \
+    maintainer="Percona, LLC" \
+    version=${VERSION} \
+    release=${RELEASE}
 
 USER pmm-agent
 WORKDIR /usr/local/percona/pmm/
