@@ -53,8 +53,6 @@ var bcEncoding = base64.NewEncoding(alphabet)
 
 // magicCipherData is an IV for the 64 Blowfish encryption calls in
 // bcrypt(). It's the string "OrpheanBeholderScryDoubt" in big-endian bytes.
-//
-//nolint:go-consistent
 var magicCipherData = []byte{
 	0x4F, 0x72, 0x70, 0x68,
 	0x65, 0x61, 0x6E, 0x42,
