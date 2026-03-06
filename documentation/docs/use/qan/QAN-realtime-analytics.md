@@ -1,7 +1,7 @@
-# Real-Time Query Analytics for MongoDB
+# Real-time Query Analytics for MongoDB
 
 !!! warning "Technical Preview – MongoDB only"
-    This feature is not production-ready. Use for testing and feedback only. MySQL and PostgreSQL support is planned for future releases.
+    RTA is not ready for production environments yet. Use for testing and feedback only. MySQL and PostgreSQL support is planned for future releases.
 
 While [Query Analytics (QAN) Stored metrics](../qan/index.md) captures queries after they complete so you can optimize past performance, Real-Time Query Analytics (RTA) shows queries as they execute so when your database is struggling, you can spot problematic operations right away and take action before they impact users. 
 
@@ -24,7 +24,7 @@ To start monitoring a MongoDB service:
 
 The live operations table appears and begins updating automatically. 
 
-## Explore the Real-Time view
+## Explore the Real-time view
 
 ### Filter by service
 
@@ -62,7 +62,7 @@ To identify operations that are taking too long:
 1. Click the **Elapsed time** column header to sort by duration, longest first.
 2. Click an operation to open the **Details** tab, then check **Plan summary** for `COLLSCAN`. This means the query scanned the entire collection—often a sign that an index is missing.
 
-Repeated slow queries on the same collection often indicate it needs better indexing.
+    Repeated slow queries on the same collection often indicate it needs better indexing.
 
 ### Trace an operation to its source
 
@@ -73,7 +73,7 @@ When you spot a problematic operation:
 2. Check **Client app name**, **User name**, and **Client address** to identify which application or server sent the query.
 3. Check **Database name** and **Collection** to see which part of your database is affected. 
 
-If the same collection appears repeatedly in slow operations, it may be a hotspot that needs optimization.
+    If the same collection appears repeatedly in slow operations, it may be a hotspot that needs optimization.
 
 ### Understand workload patterns
 
@@ -100,6 +100,8 @@ Use the timestamps in the **Details** tab to connect slow operations with other 
 Compare these with deployment times, traffic spikes, or alerts to understand what triggered the problem.
 
 ### Stop a problematic operation
+!!! caution
+    Killing operations can leave data in an inconsistent state. Use carefully, especially for Write operations.
 
 If you need to kill a long-running operation:
 {.power-number}
@@ -108,11 +110,8 @@ If you need to kill a long-running operation:
 2. Copy the **Operation ID** value.
 3. Connect to your MongoDB instance and run:
 ```javascript
-    db.killOp(<operation_id>)
+db.killOp(<operation_id>)
 ```
-
-!!! caution
-    Killing operations can leave data in an inconsistent state. Use carefully, especially for Write operations.
 
 ### View raw data
 
