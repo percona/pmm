@@ -12,6 +12,7 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import AdrePage from 'pages/adre/AdrePage';
 
 const router = createBrowserRouter(
   [
@@ -38,6 +39,10 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'adre',
+              element: <AdrePage />,
             },
             {
               path: 'rta',

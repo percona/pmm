@@ -19,6 +19,7 @@ import { useColorMode } from 'hooks/theme';
 import { ALL_SERVICE_TYPES, INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
 import {
+  NAV_ADRE,
   NAV_BACKUPS,
   NAV_DIVIDERS,
   NAV_HELP,
@@ -70,6 +71,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     items.push(NAV_QAN);
 
     if (user && settings) {
+      items.push(NAV_ADRE);
 
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(addExplore(settings.frontend));

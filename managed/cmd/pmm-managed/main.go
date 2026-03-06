@@ -77,6 +77,7 @@ import (
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/adre"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
 	"github.com/percona/pmm/managed/services/alerting"
@@ -198,6 +199,24 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 			l.Errorf("%+v", err)
 		}
 	})
+}
+
+func addAdreHandlers(mux *http.ServeMux, db reform.DBTX, vmalertURL string) {
+	h := adre.NewHandlers(db, vmalertURL)
+	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			h.GetSettings(w, r)
+		case http.MethodPost:
+			h.PostSettings(w, r)
+		default:
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	mux.HandleFunc("/v1/adre/models", h.GetModels)
+	mux.HandleFunc("/v1/adre/chat", h.PostChat)
+	mux.HandleFunc("/v1/adre/alerts", h.GetAlerts)
+	mux.HandleFunc("/v1/adre/investigate", h.PostInvestigate)
 }
 
 type gRPCServerDeps struct {
@@ -343,8 +362,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs       *server.Logs
-	authServer *grafana.AuthServer
+	logs         *server.Logs
+	authServer   *grafana.AuthServer
+	db           reform.DBTX
+	vmalertURL   string
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -424,6 +445,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
+	addAdreHandlers(mux, deps.db, deps.vmalertURL)
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 
@@ -1186,8 +1208,10 @@ func main() { //nolint:maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:       logs,
-			authServer: authServer,
+			logs:         logs,
+			authServer:   authServer,
+			db:           db,
+			vmalertURL:   *victoriaMetricsVMAlertURLF,
 		})
 	})
 

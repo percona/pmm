@@ -6,6 +6,7 @@ import { GrafanaPage } from 'pages/grafana';
 import { useGrafana } from 'contexts/grafana';
 import { UpdateModal } from 'components/main/update-modal';
 import { DelayedRender } from 'components/delayed-render';
+import { AdreChatWidget } from 'components/adre/AdreChatWidget';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
 import Header from './header/Header';
 
@@ -39,6 +40,7 @@ export const MainWithNav = () => {
       <DelayedRender delay={SHOW_UPDATE_INFO_DELAY_MS}>
         <UpdateModal />
       </DelayedRender>
+      <AdreChatWidget />
     </Stack>
   );
 };

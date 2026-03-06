@@ -396,6 +396,13 @@ export const NAV_RTA: NavItem = {
   url: `${PMM_NEW_NAV_PATH}/rta/selection`,
 };
 
+export const NAV_ADRE: NavItem = {
+  id: 'adre',
+  icon: 'intelligence',
+  text: 'Autonomous Database Reliability Engineer',
+  url: `${PMM_NEW_NAV_PATH}/adre`,
+};
+
 //
 // All Dashbaords
 //
