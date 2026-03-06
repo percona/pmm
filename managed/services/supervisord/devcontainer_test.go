@@ -74,7 +74,7 @@ func TestDevContainer(t *testing.T) {
 		require.NoError(t, err)
 		assert.False(t, changed)
 
-		err = s.UpdateConfiguration(settings, nil)
+		err = s.UpdateConfiguration(settings, nil, nil)
 		require.NoError(t, err)
 	})
 }

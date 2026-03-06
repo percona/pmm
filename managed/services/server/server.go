@@ -790,68 +790,6 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 	return newAgent.Disabled, nil
 }
 
-// defaultServerOtelLogSources are the default log_sources for the server's OTEL collector (pmm-agent on server).
-var defaultServerOtelLogSources = []struct{ path, preset string }{
-	{"/srv/logs/nginx.log", "nginx_access"},
-	{"/srv/logs/nginx-error.log", "nginx_error"},
-	{"/srv/logs/grafana.log", "grafana"},
-	{"/srv/logs/pmm-managed.log", "pmm_managed"},
-	{"/srv/logs/pmm-agent.log", "pmm_agent"},
-	{"/srv/logs/postgresql14.log", "postgres"},
-}
-
-// ensureServerOtelCollectorAgent creates an OTEL collector agent on the server node with default log_sources if one does not exist (idempotent).
-func (s *Server) ensureServerOtelCollectorAgent(ctx context.Context) error {
-	var created bool
-	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		q := tx.Querier
-		agents, err := models.FindAgents(q, models.AgentFilters{
-			PMMAgentID: models.PMMServerAgentID,
-			AgentType:  pointer.To(models.OtelCollectorType),
-		})
-		if err != nil {
-			return err
-		}
-		if len(agents) != 0 {
-			return nil
-		}
-		pmmAgent, err := models.FindAgentByID(q, models.PMMServerAgentID)
-		if err != nil {
-			return err
-		}
-		nodeID := ""
-		if pmmAgent.RunsOnNodeID != nil {
-			nodeID = *pmmAgent.RunsOnNodeID
-		}
-		logSources := make([]map[string]string, 0, len(defaultServerOtelLogSources))
-		for _, ls := range defaultServerOtelLogSources {
-			logSources = append(logSources, map[string]string{"path": ls.path, "preset": ls.preset})
-		}
-		raw, err := json.Marshal(logSources)
-		if err != nil {
-			return err
-		}
-		customLabels := map[string]string{"log_sources": string(raw)}
-		params := &models.CreateAgentParams{
-			PMMAgentID:   models.PMMServerAgentID,
-			NodeID:       nodeID,
-			CustomLabels: customLabels,
-		}
-		if _, err = models.CreateAgent(q, models.OtelCollectorType, params); err != nil {
-			return err
-		}
-		created = true
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-	if created {
-		s.agentsState.RequestStateUpdate(ctx, models.PMMServerAgentID)
-	}
-	return nil
-}
-
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
@@ -868,14 +806,38 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	if err := s.nomad.UpdateConfiguration(settings); err != nil {
 		return errors.Wrap(err, "failed to update nomad configuration")
 	}
-	if err := s.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
+	var otelContent *string
+	if settings.IsOtelCollectorEnabled() {
+		clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", "127.0.0.1:9000")
+		clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", "default")
+		clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", "clickhouse")
+		retentionDays := settings.GetOtelLogsRetentionDays()
+		const otelConfigRetryAttempts = 5
+		backoffs := []time.Duration{2 * time.Second, 4 * time.Second, 6 * time.Second, 8 * time.Second}
+		var content string
+		var buildErr error
+		for attempt := 0; attempt < otelConfigRetryAttempts; attempt++ {
+			if attempt > 0 {
+				time.Sleep(backoffs[attempt-1])
+			}
+			content, buildErr = otel.BuildServerOtelConfigYAML(s.db.Querier, clickhouseAddr, clickhouseUser, clickhousePassword, retentionDays)
+			if buildErr == nil {
+				otelContent = &content
+				break
+			}
+			if attempt == otelConfigRetryAttempts-1 {
+				s.l.Warnf("Failed to build server OTEL config after %d attempts (DB may not be ready): %s; using receiver-only config.", otelConfigRetryAttempts, buildErr)
+				// otelContent stays nil so supervisord writes receiver-only
+				break
+			}
+			s.l.Debugf("Build server OTEL config attempt %d failed: %s; retrying.", attempt+1, buildErr)
+		}
+	}
+	if err := s.supervisord.UpdateConfiguration(settings, ssoDetails, otelContent); err != nil {
 		return errors.Wrap(err, "failed to update supervisord configuration")
 	}
 	if settings.IsOtelCollectorEnabled() {
 		otel.EnsureOtelSchemaFromEnv(ctx, settings.GetOtelLogsRetentionDays())
-		if err := s.ensureServerOtelCollectorAgent(ctx); err != nil {
-			s.l.Warnf("Failed to ensure server OTEL collector agent: %s.", err)
-		}
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()

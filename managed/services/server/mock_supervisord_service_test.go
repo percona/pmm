@@ -13,17 +13,17 @@ type mockSupervisordService struct {
 	mock.Mock
 }
 
-// UpdateConfiguration provides a mock function with given fields: settings, ssoDetails
-func (_m *mockSupervisordService) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
-	ret := _m.Called(settings, ssoDetails)
+// UpdateConfiguration provides a mock function with given fields: settings, ssoDetails, otelConfigContent
+func (_m *mockSupervisordService) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails, otelConfigContent *string) error {
+	ret := _m.Called(settings, ssoDetails, otelConfigContent)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateConfiguration")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Settings, *models.PerconaSSODetails) error); ok {
-		r0 = rf(settings, ssoDetails)
+	if rf, ok := ret.Get(0).(func(*models.Settings, *models.PerconaSSODetails, *string) error); ok {
+		r0 = rf(settings, ssoDetails, otelConfigContent)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -548,7 +548,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	if err != nil && !errors.Is(err, models.ErrNotConnectedToPortal) {
 		deps.l.Warnf("Failed to get Percona SSO Details: %s.", err)
 	}
-	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
+	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails, nil); err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}

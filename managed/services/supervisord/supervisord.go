@@ -375,7 +375,9 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 }
 
 // UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
-func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
+// When otelConfigContent is not nil and OTEL is enabled, that content is written to the otel-collector config file;
+// when nil, receiver-only YAML is built internally (e.g. for main.go before server is up).
+func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails, otelConfigContent *string) error {
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
 		return nil
@@ -432,22 +434,29 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 			continue
 		}
 		if tmpl.Name() == "otel-collector" && settings.IsOtelCollectorEnabled() {
-			if e := s.writeOtelCollectorConfig(settings); e != nil {
+			if e := s.writeOtelCollectorConfig(settings, otelConfigContent); e != nil {
 				s.l.Warnf("Failed to write otel-collector config: %s.", e)
+			} else if e := s.RestartSupervisedService("otel-collector"); e != nil {
+				s.l.Warnf("Failed to restart otel-collector: %s.", e)
 			}
 		}
 	}
 	return err
 }
 
-// writeOtelCollectorConfig writes the server-side otel-collector YAML config to /srv/otelcol/config.yaml
-// (receiver only: OTLP for agents; log collection is done by pmm-agent with DB-driven presets).
-func (s *Service) writeOtelCollectorConfig(settings *models.Settings) error {
-	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
-	retentionDays := settings.GetOtelLogsRetentionDays()
-	yamlContent := buildOtelCollectorConfigYAML(clickhouseAddr, clickhouseUser, clickhousePassword, retentionDays)
+// writeOtelCollectorConfig writes the server-side otel-collector YAML config to /srv/otelcol/config.yaml.
+// When content is not nil it is written as-is; otherwise receiver-only YAML is built (for main.go / fallback).
+func (s *Service) writeOtelCollectorConfig(settings *models.Settings, content *string) error {
+	var yamlContent string
+	if content != nil && *content != "" {
+		yamlContent = *content
+	} else {
+		clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+		clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+		clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+		retentionDays := settings.GetOtelLogsRetentionDays()
+		yamlContent = buildOtelCollectorConfigYAML(clickhouseAddr, clickhouseUser, clickhousePassword, retentionDays)
+	}
 
 	if err := os.MkdirAll(otelCollectorConfigDir, 0o755); err != nil {
 		return errors.WithStack(err)
@@ -491,6 +500,12 @@ func (s *Service) StartSupervisedService(serviceName string) error {
 // StopSupervisedService stops given service.
 func (s *Service) StopSupervisedService(serviceName string) error {
 	_, err := s.supervisorctl("stop", serviceName)
+	return err
+}
+
+// RestartSupervisedService restarts given service so it picks up config changes.
+func (s *Service) RestartSupervisedService(serviceName string) error {
+	_, err := s.supervisorctl("restart", serviceName)
 	return err
 }
 
@@ -679,7 +694,7 @@ redirect_stderr = true
 priority = 6
 command = /usr/local/percona/pmm/tools/otelcol-contrib --config=/srv/otelcol/config.yaml
 autorestart = true
-autostart = {{ .OtelCollectorEnabled }}
+autostart = false
 startretries = 10
 startsecs = 1
 stopsignal = INT

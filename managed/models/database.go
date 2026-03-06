@@ -1400,6 +1400,95 @@ $yaml$,
 			NOW()
 		)`,
 	},
+	129: {
+		// Additional PMM server log presets: clickhouse, otel-collector, supervisord.
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'clickhouse_server',
+			'clickhouse_server',
+			'ClickHouse server log (timestamp [pid] {} <Level> message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}\.\d+) .*? <(?P<level>\w+)> (?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006.01.02 15:04:05.000000'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    Trace: debug
+    Debug: debug
+    Information: info
+    Warning: warn
+    Error: error
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'otel_collector',
+			'otel_collector',
+			'OTEL Collector log (tab-separated: timestamp, level, message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>[\d\-T:Z\.]+)\t(?P<level>\w+)\t(?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02T15:04:05.000Z'
+  layout_type: gotime
+  on_error: drop
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    warn: warn
+    error: error
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'supervisord',
+			'supervisord',
+			'Supervisord log (timestamp,ms LEVEL message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d+) (?P<level>\w+) (?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02 15:04:05,000'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    INFO: info
+    WARN: warn
+    ERROR: error
+    CRIT: fatal
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
