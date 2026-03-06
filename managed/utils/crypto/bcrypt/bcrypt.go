@@ -144,7 +144,6 @@ func bcrypt(password []byte, cost int, salt []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	//nolint:intrange // explicit stepping over block offsets is intentional
 	for i := 0; i < 24; i += 8 {
 		for range 64 {
 			c.Encrypt(cipherData[i:i+8], cipherData[i:i+8])
@@ -198,7 +197,6 @@ func base64Encode(src []byte) []byte {
 func base64Decode(src []byte) ([]byte, error) {
 	numOfEquals := (base64Pad - (len(src) % base64Pad)) % base64Pad
 	if numOfEquals > 0 {
-		//nolint:intrange // small loop for padding bytes is intentional
 		for range numOfEquals {
 			src = append(src, '=')
 		}
