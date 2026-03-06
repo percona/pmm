@@ -44,6 +44,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/version"
 )
 
 func getServiceQueries(serviceID, serviceName string, count int) []*rtav1.QueryData {
@@ -171,6 +172,10 @@ func TestStartSession(t *testing.T) {
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
+	pmmAgent.Version = pointer.To("3.7.0")
+	err = db.Update(pmmAgent)
+	require.NoError(t, err)
+
 	// Create MongoDB service with QAN agent (needed for credentials)
 	service1, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb-1",
@@ -216,7 +221,6 @@ func TestStartSession(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, agents, 1)
 		assert.False(t, agents[0].Disabled)
-		// assert.NotNil(t, agents[0].RTAOptions.EnabledAt)
 	})
 
 	t.Run("idempotent start session", func(t *testing.T) {
@@ -326,6 +330,48 @@ func TestStartSession(t *testing.T) {
 		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
 		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s of type %s doesn't have agents to retrieve credentials and pmm-agent ID",
 			service3.ServiceID, service3.ServiceType))
+	})
+
+	t.Run("pmm-agent doesn't support RTA", func(t *testing.T) {
+		// Create test data
+		nodeOld, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-2",
+		})
+		require.NoError(t, err)
+
+		pmmAgentOld, err := models.CreatePMMAgent(db.Querier, nodeOld.NodeID, nil)
+		require.NoError(t, err)
+
+		pmmAgentOld.Version = pointer.To("3.6.0")
+		err = db.Update(pmmAgentOld)
+		require.NoError(t, err)
+
+		// Create MongoDB service with QAN agent (needed for credentials)
+		serviceOld, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongodb-old",
+			NodeID:      nodeOld.NodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+			Cluster:     "cluster-2",
+		})
+		require.NoError(t, err)
+
+		// Create QAN agent to provide credentials
+		_, err = models.CreateAgent(db.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgentOld.AgentID,
+			ServiceID:  serviceOld.ServiceID,
+			Username:   "qan-user",
+			Password:   "qan-pass",
+		})
+		require.NoError(t, err)
+
+		_, err = svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+			ServiceId: serviceOld.ServiceID,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
+		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s has pmm-agent with version not supporting Real-Time Analytics. Minimum required version is %s",
+			serviceOld.ServiceID, (*version.MongoDBRtaAgentSupportVersion).String()))
 	})
 }
 

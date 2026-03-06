@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
 // Service provides API for managing Real-Time Analytics.
@@ -213,6 +214,33 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			return status.Errorf(codes.FailedPrecondition,
 				"Existing %s agent for service %s has no pmm-agent ID",
 				service.ServiceType, service.ServiceID)
+		}
+
+		// Check that a corresponding pmm-agent has version supporting RTA.
+		pmmAgent, err := models.FindAgentByID(tx.Querier, *existingAgent.PMMAgentID)
+		if err != nil {
+			return err
+		}
+
+		// Get agent version
+		if pmmAgent.Version == nil {
+			return status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has no version specified.", *existingAgent.PMMAgentID)
+		}
+
+		var (
+			pmmAgentVersion *version.Parsed
+			versionParseErr error
+		)
+
+		pmmAgentVersion, versionParseErr = version.Parse(*pmmAgent.Version)
+		if versionParseErr != nil {
+			return status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", *existingAgent.PMMAgentID)
+		}
+
+		if !pmmAgentVersion.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion) {
+			return status.Errorf(codes.FailedPrecondition,
+				"Service %s has pmm-agent with version not supporting Real-Time Analytics. Minimum required version is %s",
+				service.ServiceID, (*version.MongoDBRtaAgentSupportVersion).String())
 		}
 
 		// Create the RTA agent with credentials and pmm-agent ID from existing agent for the requested service.
