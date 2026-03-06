@@ -21,6 +21,9 @@ import (
 	"fmt"
 
 	upstream "golang.org/x/crypto/bcrypt"
+	// blowfish is used by the bcrypt algorithm. Keep usage despite staticcheck
+	// deprecation as bcrypt intentionally relies on Blowfish.
+	//nolint:staticcheck // SA1019: using blowfish intentionally for bcrypt
 	"golang.org/x/crypto/blowfish"
 )
 
@@ -41,6 +44,10 @@ const (
 	maxCryptedHashSize = 23
 	encodedSaltSize    = 22
 	encodedHashSize    = 31
+	// encodedHashArraySize is the buffer size used when composing the final hash string
+	encodedHashArraySize = 60
+	// base64Pad defines standard base64 padding width
+	base64Pad = 4
 )
 
 var bcEncoding = base64.NewEncoding(alphabet)
@@ -65,7 +72,7 @@ type hashed struct {
 }
 
 func (p *hashed) Hash() []byte {
-	arr := make([]byte, 60)
+	arr := make([]byte, encodedHashArraySize)
 	arr[0] = '$'
 	arr[1] = p.major
 	n := 2
@@ -75,8 +82,9 @@ func (p *hashed) Hash() []byte {
 	}
 	arr[n] = '$'
 	n++
-	copy(arr[n:], []byte(fmt.Sprintf("%02d", p.cost)))
-	n += 2
+	costStr := fmt.Sprintf("%02d", p.cost)
+	copy(arr[n:], costStr)
+	n += len(costStr)
 	arr[n] = '$'
 	n++
 	copy(arr[n:], p.salt)
@@ -131,11 +139,14 @@ func bcrypt(password []byte, cost int, salt []byte) ([]byte, error) {
 	cipherData := make([]byte, len(magicCipherData))
 	copy(cipherData, magicCipherData)
 
-	c, err := expensiveBlowfishSetup(password, uint32(cost), salt)
+	// expensiveBlowfishSetup accepts int cost to avoid unnecessary conversions
+	c, err := expensiveBlowfishSetup(password, cost, salt)
 	if err != nil {
 		return nil, err
 	}
 
+	// iterate over 3 8-byte blocks
+	//nolint:intrange // explicit stepping over block offsets is intentional
 	for i := 0; i < 24; i += 8 {
 		for j := 0; j < 64; j++ {
 			c.Encrypt(cipherData[i:i+8], cipherData[i:i+8])
@@ -148,7 +159,7 @@ func bcrypt(password []byte, cost int, salt []byte) ([]byte, error) {
 	return hsh, nil
 }
 
-func expensiveBlowfishSetup(key []byte, cost uint32, salt []byte) (*blowfish.Cipher, error) {
+func expensiveBlowfishSetup(key []byte, cost int, salt []byte) (*blowfish.Cipher, error) {
 	csalt, err := base64Decode(salt)
 	if err != nil {
 		return nil, err
@@ -157,16 +168,18 @@ func expensiveBlowfishSetup(key []byte, cost uint32, salt []byte) (*blowfish.Cip
 	// Bug compatibility with C bcrypt implementations. They use the trailing
 	// NULL in the key string during expansion.
 	// We copy the key to prevent changing the underlying array.
-	ckey := append(key[:len(key):len(key)], 0)
+	ckey := make([]byte, len(key)+1)
+	copy(ckey, key)
+	ckey[len(key)] = 0
 
 	c, err := blowfish.NewSaltedCipher(ckey, csalt)
 	if err != nil {
 		return nil, err
 	}
 
-	var i, rounds uint64
-	rounds = 1 << cost
-	for i = 0; i < rounds; i++ {
+	// rounds = 2^cost
+	rounds := uint64(1) << uint64(cost)
+	for i := uint64(0); i < rounds; i++ {
 		blowfish.ExpandKey(ckey, c)
 		blowfish.ExpandKey(csalt, c)
 	}
@@ -178,16 +191,19 @@ func base64Encode(src []byte) []byte {
 	n := bcEncoding.EncodedLen(len(src))
 	dst := make([]byte, n)
 	bcEncoding.Encode(dst, src)
-	for dst[n-1] == '=' {
+	// strip padding '=' bytes
+	for n > 0 && dst[n-1] == '=' {
 		n--
 	}
 	return dst[:n]
 }
 
 func base64Decode(src []byte) ([]byte, error) {
-	numOfEquals := 4 - (len(src) % 4)
-	for i := 0; i < numOfEquals; i++ {
-		src = append(src, '=')
+	numOfEquals := (base64Pad - (len(src) % base64Pad)) % base64Pad
+	if numOfEquals > 0 {
+		for i := 0; i < numOfEquals; i++ {
+			src = append(src, '=')
+		}
 	}
 
 	dst := make([]byte, bcEncoding.DecodedLen(len(src)))
