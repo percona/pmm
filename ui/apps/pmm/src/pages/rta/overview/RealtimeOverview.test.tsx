@@ -340,6 +340,8 @@ describe('RealtimeOverview', () => {
   });
 
   it('redirects to selection page if no sessions are found', async () => {
+    getRunningSessions.mockResolvedValue([]);
+
     renderComponent({
       initialEntry: '/rta/overview',
     });
