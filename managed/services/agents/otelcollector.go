@@ -22,6 +22,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/AlekSi/pointer"
+
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -73,10 +75,47 @@ func sanitizePresetName(name string) string {
 	return regexp.MustCompile(`[^a-zA-Z0-9_]+`).ReplaceAllString(name, "_")
 }
 
+// otelResourceAttributes returns resource attributes (agent_id, node_id, service_name, etc.) for the OTEL collector
+// so that logs in ClickHouse can be correlated with the same labels as VictoriaMetrics.
+// If node or service lookup fails, returns agent-only labels so logs still have at least agent_id and agent_type.
+func otelResourceAttributes(row *models.Agent, q *reform.Querier) (map[string]string, error) {
+	var node *models.Node
+	var service *models.Service
+
+	if nodeID := pointer.GetString(row.NodeID); nodeID != "" {
+		n, err := models.FindNodeByID(q, nodeID)
+		if err == nil {
+			node = n
+		}
+	}
+
+	if serviceID := pointer.GetString(row.ServiceID); serviceID != "" {
+		s, err := models.FindServiceByID(q, serviceID)
+		if err == nil {
+			service = s
+		}
+	}
+
+	labels, err := models.MergeLabels(node, service, row)
+	if err != nil {
+		return nil, err
+	}
+
+	// Match scrape config: instance = agent_id for filtering/grouping.
+	labels["instance"] = row.AgentID
+
+	return labels, nil
+}
+
 // otelCollectorConfig returns desired configuration of otel-collector process for log collection (OTLP to PMM Server).
 func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetStateRequest_AgentProcess {
 	args := []string{
 		"--config={{ .TextFiles.otelconfig }}",
+	}
+
+	resourceAttrs, err := otelResourceAttributes(row, q)
+	if err != nil {
+		resourceAttrs = nil
 	}
 
 	sources, err := getLogSourcesFromAgent(row)
@@ -89,7 +128,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-` + baseOtelConfigYaml([]string{"otlp"})
+` + baseOtelConfigYaml([]string{"otlp"}, resourceAttrs)
 		tdp := models.TemplateDelimsPair()
 		return &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_OTEL_COLLECTOR,
@@ -158,7 +197,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 	}
 	sort.Strings(receivers)
 	receivers = append(receivers, "otlp")
-	configYaml += baseOtelConfigYaml(receivers)
+	configYaml += baseOtelConfigYaml(receivers, resourceAttrs)
 
 	tdp := models.TemplateDelimsPair()
 	return &agentv1.SetStateRequest_AgentProcess{
@@ -172,17 +211,68 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 	}
 }
 
+// quoteYAMLAttrValue returns a YAML-safe quoted value for resource processor attributes.
+func quoteYAMLAttrValue(v string) string {
+	if v == "" {
+		return `""`
+	}
+	// Use double quotes and escape backslash and double quote.
+	var b strings.Builder
+	b.WriteByte('"')
+	for _, r := range v {
+		switch r {
+		case '\\':
+			b.WriteString(`\\`)
+		case '"':
+			b.WriteString(`\"`)
+		default:
+			b.WriteRune(r)
+		}
+	}
+	b.WriteByte('"')
+	return b.String()
+}
+
 // baseOtelConfigYaml returns processors, exporters, and service.pipelines with the given receivers.
-func baseOtelConfigYaml(receivers []string) string {
+// If resourceAttrs is non-nil and non-empty, a resource processor is added to set PMM context (agent_id, node_id, etc.)
+// so logs in ClickHouse match VictoriaMetrics labels.
+func baseOtelConfigYaml(receivers []string, resourceAttrs map[string]string) string {
 	receiversYaml := "[" + strings.Join(receivers, ", ") + "]"
-	return `processors:
-  memory_limiter:
+
+	processorsBlock := `  memory_limiter:
     check_interval: 1s
     limit_mib: 128
   batch:
     timeout: 2s
     send_batch_size: 10000
+`
+	pipelineProcessors := "[memory_limiter, batch]"
 
+	if len(resourceAttrs) != 0 {
+		// Resource processor adds agent_id, node_id, service_name, etc. to every log record.
+		processorsBlock = `  resource/add_pmm_context:
+    attributes:
+`
+		keys := make([]string, 0, len(resourceAttrs))
+		for k := range resourceAttrs {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			processorsBlock += fmt.Sprintf("      - key: %s\n        value: %s\n        action: upsert\n", k, quoteYAMLAttrValue(resourceAttrs[k]))
+		}
+		processorsBlock += `  memory_limiter:
+    check_interval: 1s
+    limit_mib: 128
+  batch:
+    timeout: 2s
+    send_batch_size: 10000
+`
+		pipelineProcessors = "[resource/add_pmm_context, memory_limiter, batch]"
+	}
+
+	return `processors:
+` + processorsBlock + `
 exporters:
   otlp_http:
     endpoint: '{{ .server_otlp_url }}'
@@ -195,7 +285,7 @@ service:
   pipelines:
     logs:
       receivers: ` + receiversYaml + `
-      processors: [memory_limiter, batch]
+      processors: ` + pipelineProcessors + `
       exporters: [otlp_http]
 `
 }

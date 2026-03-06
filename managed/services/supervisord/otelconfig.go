@@ -204,6 +204,7 @@ processors:
       - set(log.attributes["log_file"], log.attributes["log.file.name"]) where log.attributes["log.file.name"] != nil
       - delete_key(log.attributes, "log.file.name") where log.attributes["log.file.name"] != nil
       - delete_key(log.attributes, "level") where log.attributes["level"] != nil
+      - set(resource.attributes["pmm_source"], "pmm-server") where log.attributes["log_file"] != nil
       - set(resource.attributes["service.name"], "nginx") where log.attributes["log_file"] == "nginx.log" or log.attributes["log_file"] == "nginx-access.log"
       - set(resource.attributes["service.version"], "1.20.1") where log.attributes["log_file"] == "nginx.log" or log.attributes["log_file"] == "nginx-access.log"
       - set(resource.attributes["service.name"], "grafana") where log.attributes["log_file"] == "grafana.log"
