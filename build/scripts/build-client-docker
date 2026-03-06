@@ -5,11 +5,6 @@ set -o xtrace
 
 . $(dirname $0)/vars
 
-if [ -f "${docker_client_tarball}" ]; then
-    echo skip docker build
-    exit 0
-fi
-
 DOCKER_FILE_LOCATION=tmp/source/pmm/build/docker/client # relative to `root_dir`
 cp "${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz" "${root_dir}/${DOCKER_FILE_LOCATION}/pmm-client.tar.gz"
 
@@ -19,14 +14,16 @@ fi
 
 docker build --build-arg BUILD_DATE="$(date -u +'%Y-%m-%d %H:%M:%S+00:00')"\
              --build-arg VERSION="$(<<< VERSION)" \
-             -f ${DOCKER_FILE_LOCATION}/${docker_file} \
-             -t ${DOCKER_CLIENT_TAG} \
+             -f "${DOCKER_FILE_LOCATION}/${docker_file}" \
+             -t "${DOCKER_CLIENT_TAG}" \
              ${DOCKER_FILE_LOCATION}
 
 if [ -n "${PUSH_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_client_tag_file})
-    echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
-    docker push ${DOCKER_CLIENT_TAG}
+    mkdir -p "$(dirname ${docker_client_tag_file})"
+    echo "${DOCKER_CLIENT_TAG}" > "${docker_client_tag_file}"
+    docker push "${DOCKER_CLIENT_TAG}"
 fi
+
+rm "${root_dir}/${DOCKER_FILE_LOCATION}/pmm-client.tar.gz"
 
 # vim: expandtab shiftwidth=4 tabstop=4
