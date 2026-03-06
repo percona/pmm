@@ -1026,7 +1026,7 @@ telemetry:
       FROM agents
       WHERE
         agent_type = 'rta-mongodb-agent'
-        AND EXTRACT(SECOND FROM updated_at  - created_at)::int > 0
+        AND EXTRACT(EPOCH FROM updated_at  - created_at)::int > 0
         AND created_at >= now() -  interval '1 day';
     summary: "Real-Time Analytics session durations for last day"
     transform:
