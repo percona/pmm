@@ -40,9 +40,9 @@ Stored metrics supports MySQL, MongoDB, and PostgreSQL with the following requir
 
 The Stored metrics view contains three panels:
 
-- [Filters panel](panels/filters.md) — narrow results by database, service, or query type
-- [Overview panel](panels/overview.md) — see query metrics and trends
-- [Details panel](panels/details.md) — examine individual query performance
+- [Filters panel](panels/filters.md): narrow results by database, service, or query type
+- [Overview panel](panels/overview.md): see query metrics and trends
+- [Details panel](panels/details.md): examine individual query performance
 
 ## Data collection
 
@@ -68,7 +68,7 @@ When enabled, you'll see queries related to PMM's internal operations—inventor
 
 ## See also
 
-- [Real-Time Query Analytics](../qan/QAN-realtime-analytics.md)
+- [Real-time Query Analytics](../qan/QAN-realtime-analytics.md)
 - [Filters panel](panels/filters.md)
 - [Overview panel](panels/overview.md)
 - [Details panel](panels/details.md)
