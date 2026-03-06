@@ -25,13 +25,14 @@ import (
 )
 
 const (
+	// MaxSaltSize is the maximum salt length bcrypt supports. Exported for callers.
+	// Must be aligned with maxSaltSize in upstream package (bcrypt/bcrypt.go).
+	MaxSaltSize = 16
+
 	alphabet = "./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
 	majorVersion = '2'
 	minorVersion = 'a'
-
-	// MaxSaltSize is the maximum salt length bcrypt supports. Exported for callers.
-	MaxSaltSize = 16
 
 	MinCost     int = 4  // the minimum allowable cost as passed in to GenerateFromPassword
 	MaxCost     int = 31 // the maximum allowable cost as passed in to GenerateFromPassword
