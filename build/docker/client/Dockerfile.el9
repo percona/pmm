@@ -4,7 +4,7 @@ RUN dnf install -y shadow-utils jq tar https://repo.percona.com/yum/percona-rele
     && percona-release enable ps-80 \
     && dnf install -y percona-server-client
 
-# Install required dependencies into the installation root
+# Install required dependencies
 RUN dnf install -y \
     perl-core \
     perl-DBD-MySQL \
@@ -25,7 +25,8 @@ RUN groupadd -g 1002 pmm-agent && \
             -c "PMM Client User" pmm-agent
 
 ADD pmm-client.tar.gz /tmp/
-RUN env PMM_USER=pmm-agent PMM_GROUP=root /tmp/pmm-client*/install_tarball
+
+RUN PMM_USER=pmm-agent PMM_GROUP=root /tmp/pmm-client*/install_tarball
 
 FROM redhat/ubi9-micro AS micro
 
