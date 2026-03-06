@@ -253,9 +253,10 @@ nav:
                 - Overview panel: use/qan/panels/overview.md
                 - Filters panel: use/qan/panels/filters.md
                 - Details panel: use/qan/panels/details.md
+            - use/qan/mysql.md
+            - use/qan/qan_mongo.md
           - Real-time analytics: use/qan/QAN-realtime-analytics.md           
-          - use/qan/mysql.md
-          - use/qan/qan_mongo.md
+
 
       - Percona Advisors:
           - Advisor details: advisors/advisors.md
