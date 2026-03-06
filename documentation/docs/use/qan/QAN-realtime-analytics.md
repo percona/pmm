@@ -44,10 +44,9 @@ While paused, the display stops updating but the RTA agent continues collecting 
 
 ### Share your view
 
-Click the **Share** icon to copy a link to this RTA session. The link keeps your filters, refresh interval, and pause state. 
+Click the **Share** icon to copy a link to your clipboard. The link preserves your selected cluster or service filter.
 
-When others open it, they see live operations using your settings. The actual data isn’t shared since it updates continuously.
-
+When someone opens your link, they see live data with your filters applied—not the exact operations you were viewing, since RTA data updates continuously.
 ### View all sessions
 
 Click **All sessions** to see and manage all running RTA sessions. From here you can stop individual sessions or stop all sessions at once.
@@ -155,7 +154,10 @@ Check the **Raw data** tab to see exactly what MongoDB returned.
 
 ### Session won't start
 
-RTA copies credentials from the existing MongoDB exporter. If no exporter is configured for the service, the session cannot start.
+RTA requires PMM Client 3.7.0 or later and a configured MongoDB exporter. If either is missing, the session won't start.
+
+To check your client version, run `pmm-admin status` on the monitored host. 
+To verify the exporter, go to **PMM Inventory > Services**, select your MongoDB service, and check that the MongoDB exporter shows **Running**.
 
 ## See also
 
