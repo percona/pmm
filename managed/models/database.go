@@ -1203,7 +1203,7 @@ var databaseSchema = [][]string{
       parse_to: attributes
     - type: time_parser
       parse_from: attributes.timestamp
-      layout: '2006-01-02T15:04:05.000000000Z'
+      layout: '2006-01-02T15:04:05.000000Z'
       layout_type: gotime
     - type: severity_parser
       parse_from: attributes.subsystem

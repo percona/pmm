@@ -98,6 +98,8 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
+	"/otlp": viewer, // OTLP ingest from pmm-agent (logs/traces); viewer is enough for push
+
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
 	"/nomad":           admin,

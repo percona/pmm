@@ -184,7 +184,7 @@ func baseOtelConfigYaml(receivers []string) string {
     send_batch_size: 10000
 
 exporters:
-  otlp:
+  otlp_http:
     endpoint: '{{ .server_otlp_url }}'
     headers:
       "Authorization": "Basic {{ .server_auth_b64 }}"
@@ -196,6 +196,6 @@ service:
     logs:
       receivers: ` + receiversYaml + `
       processors: [memory_limiter, batch]
-      exporters: [otlp]
+      exporters: [otlp_http]
 `
 }
