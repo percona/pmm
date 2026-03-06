@@ -37,7 +37,7 @@ const (
 
 	// MinCost is the minimum allowable cost as passed in to GenerateFromPassword.
 	MinCost int = 4
-	// MaxCost is the maximum allowable cost as passed in to GenerateFromPassword
+	// MaxCost is the maximum allowable cost as passed in to GenerateFromPassword.
 	MaxCost int = 31
 	// DefaultCost is the cost that will actually be set if a cost below MinCost is passed into GenerateFromPassword.
 	DefaultCost int = 10
@@ -175,7 +175,7 @@ func expensiveBlowfishSetup(key []byte, cost int, salt []byte) (*blowfish.Cipher
 		return nil, err
 	}
 
-	rounds := uint64(1) << uint64(cost)
+	rounds := uint64(1) << uint(cost)
 	for range rounds {
 		blowfish.ExpandKey(ckey, c)
 		blowfish.ExpandKey(csalt, c)
