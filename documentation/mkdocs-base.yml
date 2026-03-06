@@ -250,9 +250,9 @@ nav:
           - Stored metrics: 
             - use/qan/QAN-stored-metrics.md
             - Panels on QAN dashboard:
-                - use/qan/panels/overview.md
-                - use/qan/panels/filters.md
-                - use/qan/panels/details.md
+                - Overview panel: use/qan/panels/overview.md
+                - Filters panel: use/qan/panels/filters.md
+                - Details panel: use/qan/panels/details.md
           - Real-time analytics: use/qan/QAN-realtime-analytics.md           
           - use/qan/mysql.md
           - use/qan/qan_mongo.md
