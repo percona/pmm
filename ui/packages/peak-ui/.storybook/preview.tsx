@@ -77,7 +77,18 @@ const preview: Preview = {
     },
     options: {
       storySort: {
-        order: ['Introduction', 'Foundations', '*'],
+        order: [
+          'Introduction',
+          'Foundations', [
+            'Colors', [
+              'Primitives',
+              'Primary'
+            ],
+            'Typography',
+            'Icons'
+          ],
+          '*'
+        ],
       },
     },
     backgrounds: {

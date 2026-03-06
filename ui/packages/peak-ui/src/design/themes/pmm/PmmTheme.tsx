@@ -12,7 +12,7 @@ import baseThemeOptions, {
 } from "../base";
 
 // PMM Primary color tokens
-const pmmPrimaryLight = {
+export const pmmPrimaryLight = {
   main: primitives.brand.fire[600],
   dark: primitives.brand.fire[700],
   light: primitives.brand.fire[500],
@@ -23,7 +23,7 @@ const pmmPrimaryLight = {
   focusVisible: "rgba(242, 69, 0, 0.3)",
   outlinedBorder: "rgba(242, 69, 0, 0.5)",
 };
-const pmmPrimaryDark = {
+export const pmmPrimaryDark = {
   main: primitives.brand.fire[200],
   dark: primitives.brand.fire[300],
   light: primitives.brand.fire[100],

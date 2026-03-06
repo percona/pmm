@@ -1,0 +1,129 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/blocks';
+import { defaultPrimaryLight, defaultPrimaryDark } from '../../design/themes/base';
+import { pmmPrimaryLight, pmmPrimaryDark } from '../../design/themes/pmm';
+
+<Meta title="Foundations/Colors/Primary" />
+
+# Primary
+
+We want to use these primary colors (`primary` token) as accent colors when designing specific UIs. They should align with the app brand style so they can stand out but also give a sense of orientation to the user, to help distinguish where to go and locate the correct context.
+
+## Neutral
+
+These colors are primarily used as a base for the accent function. It helps to soften the overall look when combined with the app's primary colors. Additionally, it is very useful for creating components, and for serving as a fallback when the accent color isn't displayed.
+
+### Light mode
+
+<div className="light-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Core"
+      subtitle="For static element backgrounds and text."
+      colors={{
+        light: defaultPrimaryLight.light,
+        main: defaultPrimaryLight.main,
+        dark: defaultPrimaryLight.dark,
+        contrastText: defaultPrimaryLight.contrastText,
+      }}
+    />
+    <ColorItem
+      title="States overlays"
+      subtitle="For interactive elements and highlights."
+      colors={{
+        hover: defaultPrimaryLight.hover,
+        selected: defaultPrimaryLight.selected,
+        focus: defaultPrimaryLight.focus,
+        focusVisible: defaultPrimaryLight.focusVisible,
+        outlinedBorder: defaultPrimaryLight.outlinedBorder,
+      }}
+    />
+  </ColorPalette>
+</div>
+
+### Dark mode
+
+<div className="dark-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Core"
+      subtitle="For static element backgrounds and text."
+      colors={{
+        light: defaultPrimaryDark.light,
+        main: defaultPrimaryDark.main,
+        dark: defaultPrimaryDark.dark,
+        contrastText: defaultPrimaryDark.contrastText,
+      }}
+    />
+    <ColorItem
+      title="States overlays"
+      subtitle="For interactive elements and highlights."
+      colors={{
+        hover: defaultPrimaryDark.hover,
+        selected: defaultPrimaryDark.selected,
+        focus: defaultPrimaryDark.focus,
+        focusVisible: defaultPrimaryDark.focusVisible,
+        outlinedBorder: defaultPrimaryDark.outlinedBorder,
+      }}
+    />
+  </ColorPalette>
+</div>
+
+## PMM
+
+The accent colors for Percona Monitoring and Management (PMM).
+
+### Light mode
+
+<div className="light-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Core"
+      subtitle="For static element backgrounds and text."
+      colors={{
+        light: pmmPrimaryLight.light,
+        main: pmmPrimaryLight.main,
+        dark: pmmPrimaryLight.dark,
+        contrastText: pmmPrimaryLight.contrastText,
+      }}
+    />
+    <ColorItem
+      title="States"
+      subtitle="For interactive elements and highlights."
+      colors={{
+        hover: pmmPrimaryLight.hover,
+        selected: pmmPrimaryLight.selected,
+        focus: pmmPrimaryLight.focus,
+        focusVisible: pmmPrimaryLight.focusVisible,
+        outlinedBorder: pmmPrimaryLight.outlinedBorder,
+      }}
+    />
+  </ColorPalette>
+</div>
+
+### Dark mode
+
+<div className="dark-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Core"
+      subtitle="For static element backgrounds and text."
+      colors={{
+        light: pmmPrimaryDark.light,
+        main: pmmPrimaryDark.main,
+        dark: pmmPrimaryDark.dark,
+        contrastText: pmmPrimaryDark.contrastText,
+      }}
+    />
+    <ColorItem
+      title="States"
+      subtitle="For interactive elements and highlights."
+      colors={{
+        hover: pmmPrimaryDark.hover,
+        selected: pmmPrimaryDark.selected,
+        focus: pmmPrimaryDark.focus,
+        focusVisible: pmmPrimaryDark.focusVisible,
+        outlinedBorder: pmmPrimaryDark.outlinedBorder,
+      }}
+    />
+  </ColorPalette>
+</div>
