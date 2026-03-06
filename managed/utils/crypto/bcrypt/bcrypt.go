@@ -174,7 +174,7 @@ func expensiveBlowfishSetup(key []byte, cost int, salt []byte) (*blowfish.Cipher
 		return nil, err
 	}
 
-	rounds := uint64(1) << int(cost)
+	rounds := uint64(1) << uint64(cost) //nolint:gosec
 	for range rounds {
 		blowfish.ExpandKey(ckey, c)
 		blowfish.ExpandKey(csalt, c)
