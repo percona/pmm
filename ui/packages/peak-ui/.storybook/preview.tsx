@@ -82,7 +82,8 @@ const preview: Preview = {
           'Foundations', [
             'Colors', [
               'Primitives',
-              'Primary'
+              'Primary',
+              'Structural'
             ],
             'Typography',
             'Icons'

@@ -255,6 +255,7 @@ export type Primitives = typeof primitives;
 
 // Semantic color tokens - Light mode
 export const semanticTokensLight = {
+  // Structural UI (light mode)
   surfaces: {
     elevation0: primitives.brand.stone[50],
     elevation1: primitives.base.white,
@@ -279,6 +280,7 @@ export const semanticTokensLight = {
     disabled: "rgba(44, 50, 62, 0.12)",
     focus: "rgba(44, 50, 62, 0.12)",
   },
+  // Semantic (light mode)
   error: {
     main: primitives.extra.red[600],
     light: primitives.extra.red[500],
@@ -314,6 +316,7 @@ export const semanticTokensLight = {
     contrastText: primitives.brand.stone[800],
     surface: "rgba(44, 50, 62, 0.12)", // Same as action.focus
   },
+  // Charts (light mode)
   charts: {
     stone: primitives.brand.stone[400],
     lavender: primitives.brand.lavender[500],
@@ -327,6 +330,7 @@ export const semanticTokensLight = {
 
 // Semantic color tokens — Dark mode
 export const semanticTokensDark = {
+  // Structural UI (dark mode)
   surfaces: {
     elevation0: primitives.brand.stone[800],
     elevation1: primitives.brand.stone[900],
@@ -351,6 +355,7 @@ export const semanticTokensDark = {
     disabled: "rgba(240, 241, 244, 0.15)",
     focus: "rgba(240, 241, 244, 0.15)",
   },
+  // Semantic (dark mode)
   error: {
     main: primitives.extra.red[300],
     light: primitives.extra.red[200],
@@ -386,6 +391,7 @@ export const semanticTokensDark = {
     contrastText: primitives.brand.stone[50],
     surface: "rgba(240, 241, 244, 0.15)",  // Same as action.focus
   },
+  // Charts (dark mode)
   charts: {
     stone: primitives.brand.stone[200],
     lavender: primitives.brand.lavender[200],
