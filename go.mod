@@ -6,8 +6,6 @@ replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.0.0-2026010
 
 replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a
 
-replace golang.org/x/crypto => github.com/Percona-Lab/crypto v0.0.0-20251219125031-82d8ba2cda22
-
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0

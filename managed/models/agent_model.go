@@ -31,8 +31,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/version"
