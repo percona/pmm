@@ -53,6 +53,8 @@ var bcEncoding = base64.NewEncoding(alphabet)
 
 // magicCipherData is an IV for the 64 Blowfish encryption calls in
 // bcrypt(). It's the string "OrpheanBeholderScryDoubt" in big-endian bytes.
+//
+//nolint:go-consistent
 var magicCipherData = []byte{
 	0x4f, 0x72, 0x70, 0x68,
 	0x65, 0x61, 0x6e, 0x42,
@@ -109,7 +111,7 @@ func newFromPasswordAndSalt(password []byte, cost int, salt []byte) (*hashed, er
 	if cost < upstream.MinCost {
 		cost = upstream.DefaultCost
 	}
-	p := new(hashed)
+	p := new(hashed) //nolint:go-consistent
 	p.major = majorVersion
 	p.minor = minorVersion
 
