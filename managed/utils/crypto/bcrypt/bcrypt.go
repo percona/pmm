@@ -21,8 +21,6 @@ import (
 	"fmt"
 
 	upstream "golang.org/x/crypto/bcrypt"
-	// blowfish is used by the bcrypt algorithm. Keep usage despite staticcheck
-	// deprecation as bcrypt intentionally relies on Blowfish.
 	//nolint:staticcheck // SA1019: using blowfish intentionally for bcrypt
 	"golang.org/x/crypto/blowfish"
 )
@@ -44,13 +42,11 @@ const (
 	// DefaultCost is the cost that will actually be set if a cost below MinCost is passed into GenerateFromPassword.
 	DefaultCost int = 10
 
-	maxCryptedHashSize = 23
-	encodedSaltSize    = 22
-	encodedHashSize    = 31
-	// encodedHashArraySize is the buffer size used when composing the final hash string
+	maxCryptedHashSize   = 23
+	encodedSaltSize      = 22
+	encodedHashSize      = 31
 	encodedHashArraySize = 60
-	// base64Pad defines standard base64 padding width
-	base64Pad = 4
+	base64Pad            = 4
 )
 
 var bcEncoding = base64.NewEncoding(alphabet)
@@ -143,16 +139,14 @@ func bcrypt(password []byte, cost int, salt []byte) ([]byte, error) {
 	cipherData := make([]byte, len(magicCipherData))
 	copy(cipherData, magicCipherData)
 
-	// expensiveBlowfishSetup accepts int cost to avoid unnecessary conversions
 	c, err := expensiveBlowfishSetup(password, cost, salt)
 	if err != nil {
 		return nil, err
 	}
 
-	// iterate over 3 8-byte blocks
 	//nolint:intrange // explicit stepping over block offsets is intentional
 	for i := 0; i < 24; i += 8 {
-		for j := 0; j < 64; j++ {
+		for range 64 {
 			c.Encrypt(cipherData[i:i+8], cipherData[i:i+8])
 		}
 	}
@@ -181,9 +175,8 @@ func expensiveBlowfishSetup(key []byte, cost int, salt []byte) (*blowfish.Cipher
 		return nil, err
 	}
 
-	// rounds = 2^cost
 	rounds := uint64(1) << uint64(cost)
-	for i := uint64(0); i < rounds; i++ {
+	for range rounds {
 		blowfish.ExpandKey(ckey, c)
 		blowfish.ExpandKey(csalt, c)
 	}
@@ -195,7 +188,7 @@ func base64Encode(src []byte) []byte {
 	n := bcEncoding.EncodedLen(len(src))
 	dst := make([]byte, n)
 	bcEncoding.Encode(dst, src)
-	// strip padding '=' bytes
+
 	for n > 0 && dst[n-1] == '=' {
 		n--
 	}
@@ -206,7 +199,7 @@ func base64Decode(src []byte) ([]byte, error) {
 	numOfEquals := (base64Pad - (len(src) % base64Pad)) % base64Pad
 	if numOfEquals > 0 {
 		//nolint:intrange // small loop for padding bytes is intentional
-		for i := 0; i < numOfEquals; i++ {
+		for range numOfEquals {
 			src = append(src, '=')
 		}
 	}
