@@ -37,9 +37,12 @@ const (
 	majorVersion = '2'
 	minorVersion = 'a'
 
-	MinCost     int = 4  // the minimum allowable cost as passed in to GenerateFromPassword
-	MaxCost     int = 31 // the maximum allowable cost as passed in to GenerateFromPassword
-	DefaultCost int = 10 // the cost that will actually be set if a cost below MinCost is passed into GenerateFromPassword
+	// MinCost is the minimum allowable cost as passed in to GenerateFromPassword.
+	MinCost int = 4
+	// MaxCost is the maximum allowable cost as passed in to GenerateFromPassword
+	MaxCost int = 31
+	// DefaultCost is the cost that will actually be set if a cost below MinCost is passed into GenerateFromPassword.
+	DefaultCost int = 10
 
 	maxCryptedHashSize = 23
 	encodedSaltSize    = 22
@@ -76,6 +79,7 @@ func (p *hashed) Hash() []byte {
 	arr[0] = '$'
 	arr[1] = p.major
 	n := 2
+
 	if p.minor != 0 {
 		arr[2] = p.minor
 		n = 3
@@ -201,6 +205,7 @@ func base64Encode(src []byte) []byte {
 func base64Decode(src []byte) ([]byte, error) {
 	numOfEquals := (base64Pad - (len(src) % base64Pad)) % base64Pad
 	if numOfEquals > 0 {
+		//nolint:intrange // small loop for padding bytes is intentional
 		for i := 0; i < numOfEquals; i++ {
 			src = append(src, '=')
 		}
