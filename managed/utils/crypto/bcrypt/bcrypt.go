@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package bcrypt provides a our bcrypt implementation changes compared to upstream.
+// Package bcrypt provides our bcrypt implementation changes compared to upstream.
 package bcrypt
 
 import (
