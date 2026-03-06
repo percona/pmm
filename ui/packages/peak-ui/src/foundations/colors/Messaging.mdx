@@ -1,0 +1,67 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/blocks';
+import { semanticTokensLight, semanticTokensDark } from '../../design/themes/base';
+
+<Meta title="Foundations/Colors/Messaging" />
+
+# Messaging
+
+Colors that communicate a feeling and emphasize the messages’ tone.
+
+### Light mode
+
+<div className="light-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Success"
+      subtitle='Use for positive confirmations, successfully completed tasks, and safe actions. (e.g., "Database backup complete")'
+      colors={semanticTokensLight.success}
+    />
+    <ColorItem
+      title="Informative"
+      subtitle='Use for neutral guidance, helpful tips, and non-critical system updates. (e.g., "A new version of PMM is available")'
+      colors={semanticTokensLight.informative}
+    />
+    <ColorItem
+      title="Warning"
+      subtitle='Use to advise caution, highlight potential issues, or precede actions that might have unintended consequences. (e.g., "Approaching storage limit")'
+      colors={semanticTokensLight.warning}
+    />
+    <ColorItem
+      title="Error"
+      subtitle='Use for destructive actions, system failures, blocking issues, or critical alerts that require immediate attention. (e.g., "Connection to server failed")'
+      colors={semanticTokensLight.error}
+    />
+    <ColorItem
+      title="Neutral"
+      subtitle='Use for standard system feedback, secondary information, or blank states that do not carry emotional weight. (e.g., "No data available for this timeframe")'
+      colors={semanticTokensLight.neutral}
+    />
+  </ColorPalette>
+</div>
+
+### Dark mode
+
+<div className="dark-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Success"
+      colors={semanticTokensDark.success}
+    />
+    <ColorItem
+      title="Informative"
+      colors={semanticTokensDark.informative}
+    />
+    <ColorItem
+      title="Warning"
+      colors={semanticTokensDark.warning}
+    />
+    <ColorItem
+      title="Error"
+      colors={semanticTokensDark.error}
+    />
+    <ColorItem
+      title="Neutral"
+      colors={semanticTokensDark.neutral}
+    />
+  </ColorPalette>
+</div>

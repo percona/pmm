@@ -1,0 +1,30 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/blocks';
+import { semanticTokensLight, semanticTokensDark } from '../../design/themes/base';
+
+<Meta title="Foundations/Colors/Charts" />
+
+# Charts
+
+Colors that are meant to be used on charts and other similar infographics. It’s a bit more brand agnostic, even though it consumes from the brand palette. It’s meant to be more discernible and to help read that type of graphics we see on charts and infographics.
+
+### Light mode
+
+<div className="light-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Default palette"
+      colors={semanticTokensLight.charts}
+    />
+  </ColorPalette>
+</div>
+
+### Dark mode
+
+<div className="dark-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Default palette"
+      colors={semanticTokensDark.charts}
+    />
+  </ColorPalette>
+</div>

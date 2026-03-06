@@ -270,9 +270,9 @@ export const semanticTokensLight = {
     aqua: primitives.brand.aqua[700],
   },
   lines: {
+    contour: "rgba(0, 0, 0, 0.06)",
     divider: "rgba(44, 50, 62, 0.25)",
     dividerStrong: "rgba(44, 50, 62, 0.5)",
-    contour: "rgba(0, 0, 0, 0.06)",
     dividerStronger: "#2C323E",
   },
   action: {
@@ -282,49 +282,49 @@ export const semanticTokensLight = {
   },
   // Semantic (light mode)
   error: {
-    main: primitives.extra.red[600],
     light: primitives.extra.red[500],
+    main: primitives.extra.red[600],
     dark: primitives.extra.red[700],
-    contrastText: primitives.extra.red[700],
     surface: primitives.extra.red[50],
+    contrastText: primitives.extra.red[700],
   },
   success: {
-    main: primitives.extra.green[600],
     light: primitives.extra.green[500],
+    main: primitives.extra.green[600],
     dark: primitives.extra.green[700],
-    contrastText: primitives.extra.green[700],
     surface: primitives.extra.green[50],
+    contrastText: primitives.extra.green[700],
   },
   informative: {
-    main: primitives.brand.sky[700],
     light: primitives.brand.sky[600],
+    main: primitives.brand.sky[700],
     dark: primitives.brand.sky[800],
-    contrastText: primitives.brand.sky[800],
     surface: primitives.brand.sky[50],
+    contrastText: primitives.brand.sky[800],
   },
   warning: {
-    main: primitives.extra.yellow[800],
     light: primitives.brand.sunrise[700],
+    main: primitives.extra.yellow[800],
     dark: primitives.brand.sunrise[900],
-    contrastText: primitives.brand.sunrise[900],
     surface: primitives.extra.yellow[100],
+    contrastText: primitives.brand.sunrise[900],
   },
   neutral: {
-    main: primitives.brand.stone[800],
     light: primitives.brand.stone[700],
+    main: primitives.brand.stone[800],
     dark: primitives.brand.stone[900],
-    contrastText: primitives.brand.stone[800],
     surface: "rgba(44, 50, 62, 0.12)", // Same as action.focus
+    contrastText: primitives.brand.stone[800],
   },
   // Charts (light mode)
   charts: {
     stone: primitives.brand.stone[400],
-    lavender: primitives.brand.lavender[500],
     sky: primitives.brand.sky[500],
     aqua: primitives.brand.aqua[600],
     sunrise: primitives.brand.sunrise[500],
     sunset: primitives.brand.sunset[400],
     red: primitives.extra.red[400],
+    lavender: primitives.brand.lavender[500],
   }
 };
 
@@ -345,9 +345,9 @@ export const semanticTokensDark = {
     aqua: primitives.brand.aqua[300],
   },
   lines: {
+    contour: "rgba(255, 255, 255, 0.08)",
     divider: "rgba(255, 255, 255, 0.25)",
     dividerStrong: "rgba(255, 255, 255, 0.5)",
-    contour: "rgba(255, 255, 255, 0.08)",
     dividerStronger: "#FFFFFF",
   },
   action: {
@@ -357,49 +357,49 @@ export const semanticTokensDark = {
   },
   // Semantic (dark mode)
   error: {
-    main: primitives.extra.red[300],
     light: primitives.extra.red[200],
+    main: primitives.extra.red[300],
     dark: primitives.extra.red[400],
-    contrastText: primitives.base.white,
     surface: primitives.extra.red[400],
+    contrastText: primitives.base.white,
   },
   success: {
-    main: primitives.extra.green[400],
     light: primitives.extra.green[300],
+    main: primitives.extra.green[400],
     dark: primitives.extra.green[500],
-    contrastText: primitives.base.white,
     surface: primitives.extra.green[500],
+    contrastText: primitives.base.white,
   },
   informative: {
-    main: primitives.brand.sky[500],
     light: primitives.brand.sky[400],
+    main: primitives.brand.sky[500],
     dark: primitives.brand.sky[600],
-    contrastText: primitives.base.white,
     surface: primitives.brand.sky[600],
+    contrastText: primitives.base.white,
   },
   warning: {
-    main: primitives.extra.yellow[200],
     light: primitives.extra.yellow[100],
+    main: primitives.extra.yellow[200],
     dark: primitives.extra.yellow[300],
-    contrastText: primitives.brand.sunrise[900],
     surface: primitives.extra.yellow[300],
+    contrastText: primitives.brand.sunrise[900],
   },
   neutral: {
-    main: primitives.brand.stone[50],
     light: primitives.base.white,
+    main: primitives.brand.stone[50],
     dark: primitives.brand.stone[100],
-    contrastText: primitives.brand.stone[50],
     surface: "rgba(240, 241, 244, 0.15)",  // Same as action.focus
+    contrastText: primitives.brand.stone[50],
   },
   // Charts (dark mode)
   charts: {
     stone: primitives.brand.stone[200],
-    lavender: primitives.brand.lavender[200],
     sky: primitives.brand.sky[200],
     aqua: primitives.brand.aqua[300],
     sunrise: primitives.brand.sunrise[300],
     sunset: primitives.brand.sunset[200],
     red: primitives.extra.red[200],
+    lavender: primitives.brand.lavender[200],
   }
 };
 
