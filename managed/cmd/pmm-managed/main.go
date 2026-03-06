@@ -520,10 +520,7 @@ type setupDeps struct {
 
 // setup performs setup tasks that depend on database.
 func setup(ctx context.Context, deps *setupDeps) bool {
-	l := reform.NewPrintfLogger(deps.l.Debugf)
-	db := reform.NewDB(deps.sqlDB, postgresql.Dialect, l)
-
-	// log and ignore validation errors; fail on other errors
+	// log and ignore validation errors; fail on critical errors
 	deps.l.Infof("Updating settings...")
 	env := os.Environ()
 	sort.Strings(env)
@@ -539,16 +536,10 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 
 	deps.l.Infof("Updating supervisord configuration...")
-	settings, err := models.GetSettings(db.Querier)
-	if err != nil {
-		deps.l.Warnf("Failed to get settings: %s.", err)
-		return false
-	}
-	ssoDetails, err := models.GetPerconaSSODetails(ctx, db.Querier)
-	if err != nil && !errors.Is(err, models.ErrNotConnectedToPortal) {
-		deps.l.Warnf("Failed to get Percona SSO Details: %s.", err)
-	}
-	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails, nil); err != nil {
+	// Use server.UpdateConfigurations so OTEL config is built with BuildServerOtelConfigYAML (filelog + presets).
+	// Direct supervisord.UpdateConfiguration(..., nil) would write receiver-only OTEL config.
+	var err error
+	if err = deps.server.UpdateConfigurations(ctx); err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}

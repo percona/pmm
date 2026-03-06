@@ -17,6 +17,7 @@ package otel
 
 import (
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -119,7 +120,9 @@ func BuildServerOtelConfigYAML(q *reform.Querier, endpoint, username, password s
 			logrus.WithField("preset", src.Preset).Debugf("Skipping server log source %q: preset not found", src.Path)
 			continue
 		}
-		receiverID := "filelog/server_" + sanitizePresetName(src.Preset)
+		// Use path-derived ID to avoid duplicate YAML keys when multiple sources share the same preset (e.g. pmm_agent for pmm-agent.log, qan-api2.log, vmproxy.log).
+		stem := strings.TrimSuffix(filepath.Base(src.Path), filepath.Ext(src.Path))
+		receiverID := "filelog/server_" + sanitizePresetName(stem)
 		filelogReceivers = append(filelogReceivers, receiverID)
 		receiversYaml.WriteString("  " + receiverID + ":\n")
 		receiversYaml.WriteString("    include: [" + fmt.Sprintf("%q", src.Path) + "]\n")
