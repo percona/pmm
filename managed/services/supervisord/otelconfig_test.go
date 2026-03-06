@@ -34,30 +34,17 @@ func TestBuildOtelCollectorConfigYAML(t *testing.T) {
 	require.Contains(t, yaml, "exporters:")
 	require.Contains(t, yaml, "service:")
 
-	// OTLP receiver
+	// OTLP receiver only (no filelog; server log collection is done by pmm-agent with DB presets)
 	require.Contains(t, yaml, "otlp:")
 	require.Contains(t, yaml, "endpoint: 0.0.0.0:4317")
 	require.Contains(t, yaml, "endpoint: 0.0.0.0:4318")
+	require.NotContains(t, yaml, "filelog/")
 
-	// Filelog receivers (nginx.log: logfmt access only)
-	require.Contains(t, yaml, "filelog/nginx_access:")
-	require.Contains(t, yaml, "filelog/nginx_error:")
-	require.Contains(t, yaml, "filelog/grafana:")
-	require.Contains(t, yaml, "filelog/pmm_managed:")
-	require.Contains(t, yaml, "filelog/pmm_agent:")
-	require.Contains(t, yaml, "filelog/postgres:")
-
-	// Log paths
-	require.Contains(t, yaml, "/srv/logs/nginx.log")
-	require.Contains(t, yaml, "/srv/logs/grafana.log")
-	require.Contains(t, yaml, "/srv/logs/pmm-managed.log")
-	require.Contains(t, yaml, "/srv/logs/pmm-agent.log")
-	require.Contains(t, yaml, "/srv/logs/postgresql14.log")
-
-	// Processors
+	// Processors: memory_limiter, transform (pmm_source from node_name), batch
 	require.Contains(t, yaml, "memory_limiter:")
 	require.Contains(t, yaml, "transform:")
 	require.Contains(t, yaml, "batch:")
+	require.Contains(t, yaml, `set(resource.attributes["pmm_source"], resource.attributes["node_name"])`)
 
 	// ClickHouse exporter with substituted values
 	require.Contains(t, yaml, "endpoint: tcp://127.0.0.1:9000")
@@ -68,8 +55,8 @@ func TestBuildOtelCollectorConfigYAML(t *testing.T) {
 	require.Contains(t, yaml, "username: 'default'")
 	require.Contains(t, yaml, "password: 'clickhouse'")
 
-	// Pipeline
-	require.Contains(t, yaml, "receivers: [otlp, filelog/nginx_access, filelog/nginx_error, filelog/grafana, filelog/pmm_managed, filelog/pmm_agent, filelog/postgres]")
+	// Pipeline: receiver-only
+	require.Contains(t, yaml, "receivers: [otlp]")
 	require.Contains(t, yaml, "processors: [memory_limiter, transform, batch]")
 	require.Contains(t, yaml, "exporters: [clickhouse]")
 }

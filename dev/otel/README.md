@@ -4,17 +4,15 @@ Phase 1 adds **log collection** via an OTEL collector: agents send logs to the P
 
 ## Architecture
 
-- **pmm-agent** runs an `otelcol-contrib` process (same node as other exporters). It collects:
-  - OTLP (gRPC/HTTP) for push-based log ingestion
-  - Optional **filelog** for user-specified log files (e.g. database error logs), with **per-path parser presets**
-- Logs are sent to the **PMM server** OTLP endpoint (`/otlp/`), protected by existing auth (auth_request).
-- The **server** runs its own otel-collector (supervisord) to receive and forward to ClickHouse.
-- **ClickHouse**: database `otel`, table `otel.logs` with configurable TTL (retention). Schema is created automatically when OTEL is enabled in settings.
+- **Server supervisord OTEL** = **receiver only**: OTLP receiver (for all agents) → transform (sets `pmm_source` from `node_name`) → batch → ClickHouse. No filelog on the server; all log collection uses the same pipeline below.
+- **All log collection** (including server logs) is done by **pmm-agent** (pmm-client) using **filelog** receivers and **parser presets** from the DB. On the server host there are two processes: (1) supervisord `otel-collector` (receiver only), (2) pmm-agent’s OTEL collector (filelog for server logs, e.g. nginx, grafana, pmm-managed, postgres), which sends OTLP to localhost. Remote nodes run only the pmm-agent OTEL collector and send to the server.
+- **Presets** live in the `log_parser_presets` table (PostgreSQL). The server’s default log_sources (nginx, grafana, etc.) are created in **UpdateConfigurations** when OTEL is enabled (idempotent: create OTEL collector agent on the server node only if missing).
+- **ClickHouse**: database `otel`, table `otel.logs` with configurable TTL (retention). Schema is created automatically when OTEL is enabled.
 
 ## Enabling OTEL
 
-1. **Server**: Enable the OTEL collector and set log retention in PMM settings (e.g. Settings API or UI). This turns on the supervisord `otel-collector` program and ensures the `otel` ClickHouse schema exists.
-2. **Agent**: On a host with pmm-agent, run:
+1. **Server**: Enable the OTEL collector and set log retention in PMM settings. This starts the supervisord `otel-collector` (receiver), ensures the `otel` ClickHouse schema exists, and ensures the **server node** has an OTEL collector agent with default log_sources (nginx, grafana, pmm-managed, pmm-agent, postgres) so server logs are collected by pmm-agent on the server.
+2. **Agent** (any node, including the server): Run `pmm-admin add otel` with log paths and presets. Example:
    ```bash
    # Raw logs (no parsing):
    pmm-admin add otel --log-file-paths=/path/to/app.log
@@ -25,50 +23,44 @@ Phase 1 adds **log collection** via an OTEL collector: agents send logs to the P
    # Per-path preset (path:preset pairs):
    pmm-admin add otel --log-sources=/var/log/mysql/error.log:mysql_error,/var/log/app.log:raw
    ```
-   If no log paths or log-sources are given, only OTLP receivers are configured (no file tailing).
+   Run `pmm-admin add otel --help` to see all available presets. If no log paths or log-sources are given, only OTLP receivers are configured (no file tailing).
 
-## Log parser presets (client-side)
+## Log parser presets
 
-To parse log files (e.g. MySQL error log) instead of sending raw lines, each path can be bound to a **preset**. Presets define the OTEL filelog operator chain (regex, time, severity, etc.).
+Presets define the OTEL filelog operator chain (regex, time, severity, etc.) and are stored in `log_parser_presets`. Each path can be bound to a preset (or `raw` for no parsing).
 
-- **Storage**: Presets are stored in the `log_parser_presets` table (PostgreSQL). Each row has: `id`, `name`, `description`, `operator_yaml` (YAML fragment for the filelog `operators:` block), `built_in`, timestamps.
-- **Built-in preset**: `mysql_error` — MySQL 8 error log format (`timestamp thread_id [Subsystem] [CODE] [Component] message`). Seeded in migration 127.
-- **`raw`**: No preset (no operators); log lines are sent as-is.
-- **API**: Add/change OTEL collector with `log_sources`: list of `{ path, preset }`. The server validates preset names against `log_parser_presets` and stores `log_sources` as JSON in the agent’s `custom_labels`. Config generator groups paths by preset and emits one filelog receiver per preset with the corresponding operators.
+- **Built-in presets**: `mysql_error`, `nginx_access`, `nginx_error`, `grafana`, `pmm_managed`, `pmm_agent`, `postgres`, `raw`. Listed in `pmm-admin add otel --help`.
+- **Storage**: Table columns: `id`, `name`, `description`, `operator_yaml`, `built_in`, timestamps. The server validates preset names and stores `log_sources` as JSON in the agent’s `custom_labels`.
+- **API**: Add/change OTEL collector with `log_sources`: list of `{ path, preset }`. Config generator groups paths by preset and emits one filelog receiver per preset.
 
 ### Why we did this
 
-- **Per-path preset**: Different files can use different parsers (e.g. `mysql_error` for error.log, `raw` for access.log).
-- **DB-backed presets**: Enables future API/UI to add or edit presets without code changes; built-in presets are protected by `built_in` (no delete).
-- **Extensible**: Adding a new preset = new row in `log_parser_presets` (or a new migration for built-ins). Config generator already uses preset name → operator YAML; no extra code for new presets.
+- **Single model**: Server and remote nodes both use pmm-agent + DB presets; no hardcoded server-side filelog.
+- **Per-path preset**: Different files can use different parsers.
+- **Extensible**: New preset = new row in `log_parser_presets` (or a new migration for built-ins).
 
 ## Configuration
 
 - **Settings**: `Otel.CollectorEnabled`, `Otel.LogsRetentionDays` (default 7).
-- **Agent config**: Stored in the OTEL collector agent’s `custom_labels`:
-  - **Legacy**: `log_file_paths` = comma-separated paths (treated as preset `raw`).
-  - **Current**: `log_sources` = JSON array of `{"path":"...","preset":"..."}`. When present, it is used; otherwise `log_file_paths` is used as raw.
-
-## Server-side log parsing
-
-For `/srv/logs/nginx.log` we only parse **logfmt access lines**. The **filelog/nginx_access** receiver uses `key_value_parser`. Other line formats in the same file are not parsed for now.
+- **Agent config**: In the OTEL collector agent’s `custom_labels`: **Legacy** `log_file_paths` (treated as `raw`); **Current** `log_sources` = JSON array of `{"path":"...","preset":"..."}`.
 
 ## Implemented vs remaining
 
 ### Implemented
 
-- Server-side OTEL collector (supervisord), config generation, filelog receivers for nginx, grafana, pmm-managed, pmm-agent, postgres; ClickHouse exporter; configurable TTL.
-- Client-side OTEL collector (pmm-agent), config pushed from server; filelog receivers with per-preset operator YAML.
-- `log_parser_presets` table and migration 127 with seed preset `mysql_error`.
-- API: `LogSource` message, `log_sources` in `AddOtelCollectorParams`; validation and storage in custom_labels.
-- `pmm-admin add otel` with `--log-file-paths`, `--log-sources` (path:preset), and `--parser-preset`.
+- Server-side OTEL collector (supervisord): **receiver only** (OTLP → transform → batch → ClickHouse); configurable TTL.
+- Server log collection by pmm-agent on the server with default log_sources (nginx, grafana, pmm-managed, pmm-agent, postgres), created in UpdateConfigurations when OTEL is enabled.
+- Client-side OTEL collector (pmm-agent), config pushed from server; filelog receivers with per-preset operator YAML from `log_parser_presets`.
+- `log_parser_presets` table: migration 127 (`mysql_error`), migration 128 (server presets: `nginx_access`, `nginx_error`, `grafana`, `pmm_managed`, `pmm_agent`, `postgres`).
+- API: `LogSource`, `log_sources` in `AddOtelCollectorParams`; validation and storage in custom_labels.
+- `pmm-admin add otel` with `--log-file-paths`, `--log-sources`, `--parser-preset`; help lists all built-in presets.
 - Backward compatibility: agents with only `log_file_paths` still work (treated as raw).
 
 ### Still to implement (future)
 
-- **Preset management API**: ListLogParserPresets, AddLogParserPreset, UpdateLogParserPreset, DeleteLogParserPreset (forbid delete if `built_in`). Table and model already support it.
+- **Preset management API**: ListLogParserPresets, AddLogParserPreset, UpdateLogParserPreset, DeleteLogParserPreset (forbid delete if `built_in`).
 - **UI**: Add/edit presets; attach path+preset when adding OTEL collector.
-- **More built-in presets**: e.g. mysql_general, mongodb, orchestrator (add rows in a new migration with their operator YAML).
+- **More built-in presets**: e.g. mysql_general, mongodb, orchestrator.
 - **Traces, profiles, eBPF**: Same agent type and server pipeline can be extended later.
 
 ## See also

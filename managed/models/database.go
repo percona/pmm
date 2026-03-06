@@ -1221,6 +1221,185 @@ $yaml$,
 			NOW()
 		)`,
 	},
+	128: {
+		// Server log presets: used by pmm-agent on the server (and optionally elsewhere) for nginx, grafana, pmm-managed, pmm-agent, postgres.
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'nginx_access',
+			'nginx_access',
+			'Nginx access log (logfmt: time=..., host=..., status=...)',
+			$yaml$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.time
+  layout: '2006-01-02T15:04:05Z07:00'
+  layout_type: gotime
+- type: add
+  field: attributes.level
+  value: 'EXPR(int(attributes.status) >= 500 ? "error" : (int(attributes.status) >= 400 ? "warn" : "info"))'
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    info: info
+    warn: warn
+    error: error
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'nginx_error',
+			'nginx_error',
+			'Nginx error log (timestamp [level] pid#tid: message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<pid>\d+)#(?P<tid>\d+): (?P<message>.*?)(?:, client: (?P<client>[^,]+))?(?:, server: (?P<server>[^,]+))?(?:, request: "(?P<request>[^"]*)")?(?:, host: "(?P<host>[^"]*)")?.*'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006/01/02 15:04:05'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    notice: info
+    warn: warn
+    error: error
+    crit: fatal
+    alert: fatal
+    emerg: fatal
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'grafana',
+			'grafana',
+			'Grafana log (logfmt, time with 9 fractional digits)',
+			$yaml$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.t
+  layout: '2006-01-02T15:04:05.000000000Z07:00'
+  layout_type: gotime
+  on_error: drop
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    warn: warn
+    error: error
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'pmm_managed',
+			'pmm_managed',
+			'PMM-managed log (logfmt)',
+			$yaml$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.time
+  layout: '2006-01-02T15:04:05.000Z07:00'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'pmm_agent',
+			'pmm_agent',
+			'PMM-agent log (logfmt)',
+			$yaml$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.time
+  layout: '2006-01-02T15:04:05.000Z07:00'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'postgres',
+			'postgres',
+			'PostgreSQL log (timestamp UTC [pid] level: message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+) UTC \[(?P<pid>\d+)\] (?P<level>\w+):\s*(?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02 15:04:05.000 UTC'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    notice: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+    LOG: info
+    STATEMENT: info
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -441,7 +441,7 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 }
 
 // writeOtelCollectorConfig writes the server-side otel-collector YAML config to /srv/otelcol/config.yaml
-// so otelcol-contrib can start (OTLP receiver + filelog receivers for nginx, grafana, pmm-managed, pmm-agent, postgres).
+// (receiver only: OTLP for agents; log collection is done by pmm-agent with DB-driven presets).
 func (s *Service) writeOtelCollectorConfig(settings *models.Settings) error {
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
