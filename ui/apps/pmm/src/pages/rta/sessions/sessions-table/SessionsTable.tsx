@@ -4,7 +4,7 @@ import { FC, useMemo, useState } from 'react';
 import { Messages } from './SessionsTable.messages';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import { Table } from '@percona/ui-lib';
+import { Table } from '@percona/percona-ui';
 import { boxClasses, Skeleton, Typography } from '@mui/material';
 import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
 import { useRealtimeSessions, useStopSessions } from 'hooks/api/useRealtime';
