@@ -1022,7 +1022,7 @@ telemetry:
     source: PMMDB_SELECT
     query: >
       agent_type,
-      EXTRACT(SECOND FROM updated_at  - created_at)::int  AS duration_sec
+      EXTRACT(EPOCH FROM updated_at  - created_at)::int  AS duration_sec
       FROM agents
       WHERE
         agent_type = 'rta-mongodb-agent'
