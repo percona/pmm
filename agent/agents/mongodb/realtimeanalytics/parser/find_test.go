@@ -239,7 +239,7 @@ var dataFind = []byte(`
 func Test_parseCommandFind(t *testing.T) {
 	t.Parallel()
 
-	raw := parseBsonRaw(dataFind)
+	raw := parseBsonRaw(t, dataFind)
 	commandRaw, ok := raw.Lookup("command").DocumentOK()
 	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
@@ -249,7 +249,7 @@ func Test_parseCommandFind(t *testing.T) {
 }
 
 func Benchmark_ParseCommandFind(b *testing.B) {
-	raw := parseBsonRaw(dataFind)
+	raw := parseBsonRaw(b, dataFind)
 	commandRaw, _ := raw.Lookup("command").DocumentOK()
 
 	for b.Loop() {
