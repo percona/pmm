@@ -3,6 +3,7 @@ import Stack from '@mui/material/Stack';
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
@@ -79,29 +80,35 @@ const DetailsPane: FC<Props> = ({
             />
           </Tabs>
           <Stack gap={1} direction="row" alignItems="center">
-            <IconButton
-              data-testid="details-pane-prev-button"
-              aria-label={Messages.actions.previous}
-              onClick={onPrevious}
-              disabled={isFirstQuery}
-            >
-              <KeyboardArrowUpOutlinedIcon />
-            </IconButton>
-            <IconButton
-              data-testid="details-pane-next-button"
-              aria-label={Messages.actions.next}
-              onClick={onNext}
-              disabled={isLastQuery}
-            >
-              <KeyboardArrowDownOutlinedIcon />
-            </IconButton>
-            <IconButton
-              data-testid="details-pane-close-button"
-              aria-label={Messages.actions.close}
-              onClick={onClose}
-            >
-              <Icon name="bottom-panel-close" />
-            </IconButton>
+            <Tooltip title={Messages.tooltips.previous} arrow>
+              <IconButton
+                data-testid="details-pane-prev-button"
+                aria-label={Messages.actions.previous}
+                onClick={onPrevious}
+                disabled={isFirstQuery}
+              >
+                <KeyboardArrowUpOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={Messages.tooltips.next} arrow>
+              <IconButton
+                data-testid="details-pane-next-button"
+                aria-label={Messages.actions.next}
+                onClick={onNext}
+                disabled={isLastQuery}
+              >
+                <KeyboardArrowDownOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={Messages.tooltips.close} arrow>
+              <IconButton
+                data-testid="details-pane-close-button"
+                aria-label={Messages.actions.close}
+                onClick={onClose}
+              >
+                <Icon name="bottom-panel-close" />
+              </IconButton>
+            </Tooltip>
           </Stack>
         </Stack>
         {query ? (

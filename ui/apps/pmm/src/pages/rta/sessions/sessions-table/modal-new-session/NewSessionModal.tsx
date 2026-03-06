@@ -1,6 +1,6 @@
 import DialogContent from '@mui/material/DialogContent';
 import Typography from '@mui/material/Typography';
-import { Dialog, DialogTitle } from '@percona/ui-lib';
+import { Dialog, DialogTitle } from '@percona/percona-ui';
 import { FC } from 'react';
 import { Messages } from './NewSessionModal.messages';
 import Stack from '@mui/material/Stack';
