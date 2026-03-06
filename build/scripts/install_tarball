@@ -2,17 +2,17 @@
 
 set -eu
 
-# Usage instruction for the install_tarball script
+# Usage for the install_tarball script
 usage () {
     cat <<EOF
 Usage: $0 [OPTIONS]
-    The following options may be given :
-        -u                  Update PMM-Agent
+    The following options may be used:
+        -u                  Update pmm-agent
         -help)              This help
 Example:
-        For help command - $0 -help
-        To install PMM tarball - $0
-        To update the installed PMM tarball - $0 -u
+    For help command - $0 -help
+    To install PMM tarball - $0
+    To update the installed PMM tarball - $0 -u
 EOF
 }
 
@@ -22,7 +22,7 @@ do
     case "$arg" in
         "-u") UPDATE=1 ;;
         "-help") usage; exit 0 ;;
-        *) echo "Invalid option:$arg"; usage; exit 1;;
+        *) echo "Invalid option: $arg"; usage; exit 1;;
     esac
 done
 
@@ -78,7 +78,8 @@ ${INSTALL_COMMAND} -m 0755 queries-mr.yaml "${PMM_DIR}"/collectors/custom-querie
 ${INSTALL_COMMAND} -m 0755 queries-lr.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/low-resolution
 ${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution
 
-for FILE in $( ls ${PWD}/bin ); do
+for FILE in "${PWD}"/bin/*; do
+    FILE=$(basename "${FILE}")
     if [ "${FILE}" = "pmm-admin" ] || [ "${FILE}" = "pmm-agent" ] || [ "${FILE}" = "pmm-agent-entrypoint" ]; then
         ${INSTALL_COMMAND} -m 0755 "${PWD}/bin/${FILE}" "${PMM_DIR}"/bin
     elif [[ "${FILE}" =~ pt-summary|pt-mysql-summary|pt-pg-summary|pt-mongodb-summary|nomad ]]; then
