@@ -7,12 +7,9 @@ const buildHostUrl = () => {
   const iframe = document.getElementById(
     'grafana-iframe'
   ) as HTMLIFrameElement | null;
-  if (!iframe) {
-    throw new Error('Grafana iframe not found');
-  }
   // @ts-ignore
-  const config = iframe.contentWindow?.grafanaBootData;
-  return `${window.location.protocol}//${window.location.host}${config.settings.appSubUrl}`;
+  const config = iframe?.contentWindow?.grafanaBootData || {};
+  return `${window.location.protocol}//${window.location.host}${config.settings?.appSubUrl || ''}`;
 };
 
 const getRelativeURLPath = (url: string) => {
