@@ -103,6 +103,11 @@ type ChangeSettingsParams struct {
 
 	// Duration for which an update is snoozed
 	UpdateSnoozeDuration time.Duration
+
+	// EnableAdre enables the ADRE (HolmesGPT) integration.
+	EnableAdre *bool
+	// AdreURL is the HolmesGPT base URL (e.g. http://holmesgpt:8080).
+	AdreURL *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -245,6 +250,13 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EncryptedItems != nil {
 		settings.EncryptedItems = params.EncryptedItems
+	}
+
+	if params.EnableAdre != nil {
+		settings.Adre.Enabled = params.EnableAdre
+	}
+	if params.AdreURL != nil {
+		settings.Adre.URL = pointer.GetString(params.AdreURL)
 	}
 
 	err = SaveSettings(q, settings)

@@ -35,6 +35,7 @@ const (
 	InternalPgQANEnabledDefault        = false
 	OtelCollectorEnabledDefault        = true
 	OtelLogsRetentionDaysDefault       = 7
+	AdreEnabledDefault                 = false
 	awsPartitionID                     = "aws"
 )
 
@@ -100,6 +101,12 @@ type Settings struct {
 		CollectorEnabled  *bool `json:"collector_enabled"`
 		LogsRetentionDays *int  `json:"logs_retention_days"`
 	} `json:"otel"`
+
+	// Adre (Autonomous Database Reliability Engineer) / HolmesGPT integration.
+	Adre struct {
+		Enabled *bool  `json:"enabled"`
+		URL     string `json:"url"`
+	} `json:"adre"`
 
 	Alerting struct {
 		Enabled *bool `json:"enabled"`
@@ -215,6 +222,22 @@ func (s *Settings) GetOtelLogsRetentionDays() int {
 	return OtelLogsRetentionDaysDefault
 }
 
+// IsAdreEnabled returns true if ADRE (HolmesGPT) integration is enabled.
+func (s *Settings) IsAdreEnabled() bool {
+	if s.Adre.Enabled != nil {
+		return *s.Adre.Enabled
+	}
+	return AdreEnabledDefault
+}
+
+// GetAdreURL returns the HolmesGPT base URL, or empty if disabled or not set.
+func (s *Settings) GetAdreURL() string {
+	if !s.IsAdreEnabled() || s.Adre.URL == "" {
+		return ""
+	}
+	return s.Adre.URL
+}
+
 // AdvisorsRunIntervals represents intervals between Advisors checks.
 type AdvisorsRunIntervals struct {
 	StandardInterval time.Duration `json:"standard_interval"`
@@ -263,5 +286,9 @@ func (s *Settings) fillDefaults() {
 
 	if s.Otel.LogsRetentionDays == nil || (s.Otel.LogsRetentionDays != nil && *s.Otel.LogsRetentionDays <= 0) {
 		s.Otel.LogsRetentionDays = pointer.ToInt(OtelLogsRetentionDaysDefault)
+	}
+
+	if s.Adre.Enabled == nil {
+		s.Adre.Enabled = pointer.ToBool(AdreEnabledDefault)
 	}
 }
