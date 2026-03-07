@@ -5,6 +5,7 @@ import {
   Card,
   CardContent,
   FormControlLabel,
+  Link,
   Stack,
   Switch,
   TextField,
@@ -15,9 +16,14 @@ import { Page } from 'components/page';
 import { useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';
-import { Link } from '@mui/material';
 import { AdreChatPanel } from './components/AdreChatPanel';
 import { AdreAlertsPanel } from './components/AdreAlertsPanel';
+
+/** True when the error is an HTTP 403 (assumes axios-style error.response.status). */
+function isForbiddenError(err: unknown): boolean {
+  return typeof err === 'object' && err != null && 'response' in err &&
+    (err as { response?: { status?: number } }).response?.status === 403;
+}
 
 const AdrePage: FC = () => {
   const { user } = useUser();
@@ -34,8 +40,8 @@ const AdrePage: FC = () => {
 
   const isConfigured = settings?.enabled && !!settings?.url;
   const isAdmin = user?.isPMMAdmin ?? false;
-  const isForbidden = isError && typeof error === 'object' && error && 'response' in error &&
-    (error as { response?: { status?: number } }).response?.status === 403;
+  // Assumes axios-style error: error.response.status (from useQuery/useAdreSettings)
+  const isForbidden = isError && isForbiddenError(error);
 
   if (isLoading) {
     return (

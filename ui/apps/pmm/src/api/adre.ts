@@ -70,6 +70,7 @@ export const adreChatStream = async (
   body: AdreChatRequest,
   onChunk: (chunk: string) => void
 ): Promise<void> => {
+  // Relative URL: assumes same-origin or proxy so /v1/adre/chat is served by PMM backend
   const response = await fetch('/v1/adre/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -118,6 +119,7 @@ export const adreInvestigateStream = async (
   body: AdreInvestigateRequest,
   onChunk: (chunk: string) => void
 ): Promise<void> => {
+  // Same as chat: relative /v1/adre/investigate
   const response = await fetch('/v1/adre/investigate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -157,8 +159,12 @@ function extractTextFromSSEData(data: string): string {
   if (trimmed.startsWith('{')) {
     try {
       const o = JSON.parse(trimmed) as Record<string, unknown>;
-      const s = (o.text ?? o.delta ?? o.content ?? o.analysis) as string | undefined;
-      if (typeof s === 'string') return s;
+      const raw = o.text ?? o.delta ?? o.content ?? o.analysis;
+      if (typeof raw === 'string') return raw;
+      // delta may be an object with content (e.g. { content: "..." })
+      if (raw && typeof raw === 'object' && 'content' in raw && typeof (raw as { content: unknown }).content === 'string') {
+        return (raw as { content: string }).content;
+      }
     } catch {
       // not JSON or invalid
     }

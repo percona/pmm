@@ -20,6 +20,12 @@ interface AlertItem {
   [k: string]: unknown;
 }
 
+/** Unique key for an alert (fingerprint if set, else label+index). */
+function getAlertKey(a: AlertItem, index: number): string {
+  const fp = String(a.fingerprint ?? a.labels?.alertname ?? '');
+  return a.fingerprint ? fp : `${fp || 'alert'}-${index}`;
+}
+
 export const AdreAlertsPanel: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
@@ -52,17 +58,17 @@ export const AdreAlertsPanel: FC = () => {
     return () => { cancelled = true; };
   }, [enqueueSnackbar]);
 
-  const toggle = (fp: string) => {
+  const toggle = (key: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(fp)) next.delete(fp);
-      else next.add(fp);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   };
 
   const buildInvestigatePayload = (): { source: string; title: string; description: string; subject?: unknown } => {
-    const items = alerts.filter((a) => selected.has(String(a.fingerprint ?? a.labels?.alertname ?? '')));
+    const items = alerts.filter((a, i) => selected.has(getAlertKey(a, i)));
     if (items.length === 0) {
       return {
         source: 'prometheus',
@@ -116,16 +122,15 @@ export const AdreAlertsPanel: FC = () => {
             <FormGroup>
               <Box sx={{ maxHeight: 150, overflow: 'auto' }}>
                 {alerts.map((a, index) => {
-                  const fp = String(a.fingerprint ?? a.labels?.alertname ?? '');
-                  const key = a.fingerprint ? fp : `${fp || 'alert'}-${index}`;
-                  const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (fp || 'Alert');
+                  const key = getAlertKey(a, index);
+                  const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (a.fingerprint ? String(a.fingerprint) : key);
                   return (
                     <FormControlLabel
                       key={key}
                       control={
                         <Checkbox
-                          checked={selected.has(fp)}
-                          onChange={() => toggle(fp)}
+                          checked={selected.has(key)}
+                          onChange={() => toggle(key)}
                         />
                       }
                       label={label}

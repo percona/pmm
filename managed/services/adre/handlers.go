@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -56,8 +57,7 @@ func NewHandlers(db reform.DBTX, vmalertURL string) *Handlers {
 	}
 }
 
-// checkAdreEnabled returns (nil, nil) if ADRE is enabled and URL is set.
-// Otherwise returns an HTTP error response body and status code.
+// checkAdreEnabled returns (settings, true) if ADRE is enabled and URL is set; otherwise writes an error and returns (nil, false).
 func (h *Handlers) checkAdreEnabled(w http.ResponseWriter) (*models.Settings, bool) {
 	settings, err := models.GetSettings(h.db)
 	if err != nil {
@@ -96,9 +96,16 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		Enabled: settings.IsAdreEnabled(),
 		URL:     settings.GetAdreURL(),
 	}
+	body, err := json.Marshal(resp)
+	if err != nil {
+		h.l.Errorf("Marshal settings: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to encode response")
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		h.l.Errorf("Encode settings: %v", err)
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(body); err != nil {
+		h.l.Warnf("Write settings response: %v", err)
 	}
 }
 
@@ -116,12 +123,23 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
+	if body.Enabled == nil && body.URL == nil {
+		writeJSONError(w, http.StatusBadRequest, "No changes provided (set enabled and/or url)")
+		return
+	}
 	if body.URL != nil {
 		trimmed := strings.TrimSpace(*body.URL)
 		body.URL = &trimmed
-		if trimmed != "" && !strings.HasPrefix(trimmed, "http://") && !strings.HasPrefix(trimmed, "https://") {
-			writeJSONError(w, http.StatusBadRequest, "URL must start with http:// or https://")
-			return
+		if trimmed != "" {
+			if !strings.HasPrefix(trimmed, "http://") && !strings.HasPrefix(trimmed, "https://") {
+				writeJSONError(w, http.StatusBadRequest, "URL must start with http:// or https://")
+				return
+			}
+			parsed, err := url.Parse(trimmed)
+			if err != nil || parsed.Host == "" {
+				writeJSONError(w, http.StatusBadRequest, "URL must have a valid host")
+				return
+			}
 		}
 	}
 	params := &models.ChangeSettingsParams{
@@ -141,9 +159,16 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		Enabled: settings.IsAdreEnabled(),
 		URL:     settings.GetAdreURL(),
 	}
+	respBody, err := json.Marshal(resp)
+	if err != nil {
+		h.l.Errorf("Marshal settings: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to encode response")
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		h.l.Errorf("Encode settings: %v", err)
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(respBody); err != nil {
+		h.l.Warnf("Write settings response: %v", err)
 	}
 }
 
@@ -153,11 +178,10 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	_, ok := h.checkAdreEnabled(w)
+	settings, ok := h.checkAdreEnabled(w)
 	if !ok {
 		return
 	}
-	settings, _ := models.GetSettings(h.db)
 	client := NewClient(settings.GetAdreURL())
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
@@ -182,7 +206,7 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	_, ok := h.checkAdreEnabled(w)
+	settings, ok := h.checkAdreEnabled(w)
 	if !ok {
 		return
 	}
@@ -191,7 +215,6 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
-	settings, _ := models.GetSettings(h.db)
 	client := NewClient(settings.GetAdreURL())
 	if req.Stream {
 		ctx, cancel := context.WithTimeout(r.Context(), h.streamTimeout)
@@ -216,6 +239,7 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 			n, err := streamBody.Read(buf)
 			if n > 0 {
 				if _, werr := w.Write(buf[:n]); werr != nil {
+					h.l.Warnf("ChatStream write: %v", werr)
 					return
 				}
 				flusher.Flush()
@@ -284,7 +308,7 @@ func (h *Handlers) PostInvestigate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	_, ok := h.checkAdreEnabled(w)
+	settings, ok := h.checkAdreEnabled(w)
 	if !ok {
 		return
 	}
@@ -309,7 +333,6 @@ func (h *Handlers) PostInvestigate(w http.ResponseWriter, r *http.Request) {
 		Context:     body.Context,
 		Model:       body.Model,
 	}
-	settings, _ := models.GetSettings(h.db)
 	client := NewClient(settings.GetAdreURL())
 	if body.Stream {
 		ctx, cancel := context.WithTimeout(r.Context(), h.streamTimeout)
@@ -334,6 +357,7 @@ func (h *Handlers) PostInvestigate(w http.ResponseWriter, r *http.Request) {
 			n, err := streamBody.Read(buf)
 			if n > 0 {
 				if _, werr := w.Write(buf[:n]); werr != nil {
+					h.l.Warnf("InvestigateStream write: %v", werr)
 					return
 				}
 				flusher.Flush()
