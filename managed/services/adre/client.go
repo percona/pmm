@@ -154,7 +154,7 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadClose
 		return nil, err
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url("/api/stream/chat"), bytes.NewReader(body))
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url("/api/chat"), bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadClose
 	if resp.StatusCode != http.StatusOK {
 		respBody, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		return nil, fmt.Errorf("HolmesGPT /api/stream/chat: %s: %s", resp.Status, string(respBody))
+		return nil, fmt.Errorf("HolmesGPT /api/chat (stream): %s: %s", resp.Status, string(respBody))
 	}
 	return resp.Body, nil
 }
