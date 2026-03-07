@@ -1069,7 +1069,25 @@ func main() { //nolint:maintidx,cyclop
 		server:      server,
 		l:           logrus.WithField("component", "setup"),
 	}
-	if !setup(ctx, deps) {
+	if setup(ctx, deps) {
+		go func() {
+			const postSetupAttempts = 5
+			const postSetupDelay = 2 * time.Second
+			for i := 0; i < postSetupAttempts; i++ {
+				if ctx.Err() != nil {
+					return
+				}
+				if err := deps.server.UpdateConfigurations(ctx); err != nil {
+					deps.l.Warnf("Post-setup UpdateConfigurations attempt %d failed: %v", i+1, err)
+				}
+				if i < postSetupAttempts-1 {
+					sleepCtx, sleepCancel := context.WithTimeout(ctx, postSetupDelay)
+					<-sleepCtx.Done()
+					sleepCancel()
+				}
+			}
+		}()
+	} else {
 		go func() {
 			const delay = 2 * time.Second
 			for {

@@ -812,25 +812,12 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", "default")
 		clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", "clickhouse")
 		retentionDays := settings.GetOtelLogsRetentionDays()
-		const otelConfigRetryAttempts = 5
-		backoffs := []time.Duration{2 * time.Second, 4 * time.Second, 6 * time.Second, 8 * time.Second}
-		var content string
-		var buildErr error
-		for attempt := 0; attempt < otelConfigRetryAttempts; attempt++ {
-			if attempt > 0 {
-				time.Sleep(backoffs[attempt-1])
-			}
-			content, buildErr = otel.BuildServerOtelConfigYAML(s.db.Querier, clickhouseAddr, clickhouseUser, clickhousePassword, retentionDays)
-			if buildErr == nil {
-				otelContent = &content
-				break
-			}
-			if attempt == otelConfigRetryAttempts-1 {
-				s.l.Warnf("Failed to build server OTEL config after %d attempts (DB may not be ready): %s; using receiver-only config.", otelConfigRetryAttempts, buildErr)
-				// otelContent stays nil so supervisord writes receiver-only
-				break
-			}
-			s.l.Debugf("Build server OTEL config attempt %d failed: %s; retrying.", attempt+1, buildErr)
+		content, buildErr := otel.BuildServerOtelConfigYAML(s.db.Querier, clickhouseAddr, clickhouseUser, clickhousePassword, retentionDays)
+		if buildErr != nil {
+			s.l.Debugf("Build server OTEL config failed (DB may not be ready): %s; using receiver-only config.", buildErr)
+			// otelContent stays nil so supervisord writes receiver-only
+		} else {
+			otelContent = &content
 		}
 	}
 	if err := s.supervisord.UpdateConfiguration(settings, ssoDetails, otelContent); err != nil {
