@@ -4,8 +4,6 @@ import {
   updateAdreSettings,
   getAdreModels,
   type AdreSettings,
-  type AdreChatRequest,
-  type AdreInvestigateRequest,
 } from 'api/adre';
 
 export const ADRE_KEYS = {

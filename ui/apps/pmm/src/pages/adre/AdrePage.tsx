@@ -21,7 +21,7 @@ import { AdreAlertsPanel } from './components/AdreAlertsPanel';
 
 const AdrePage: FC = () => {
   const { user } = useUser();
-  const { data: settings, isLoading } = useAdreSettings();
+  const { data: settings, isLoading, isError, error } = useAdreSettings();
   const updateSettings = useUpdateAdreSettings();
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
@@ -34,11 +34,45 @@ const AdrePage: FC = () => {
 
   const isConfigured = settings?.enabled && !!settings?.url;
   const isAdmin = user?.isPMMAdmin ?? false;
+  const isForbidden = isError && typeof error === 'object' && error && 'response' in error &&
+    (error as { response?: { status?: number } }).response?.status === 403;
 
   if (isLoading) {
     return (
       <Page title="Autonomous Database Reliability Engineer">
         <Typography>Loading...</Typography>
+      </Page>
+    );
+  }
+
+  if (isError && !isForbidden) {
+    return (
+      <Page title="Autonomous Database Reliability Engineer">
+        <Card variant="outlined">
+          <CardContent>
+            <Alert severity="error">
+              Failed to load ADRE settings. Please try again later.
+            </Alert>
+          </CardContent>
+        </Card>
+      </Page>
+    );
+  }
+
+  if (isForbidden) {
+    return (
+      <Page title="Autonomous Database Reliability Engineer">
+        <Card variant="outlined">
+          <CardContent>
+            <Alert severity="info">
+              Contact an administrator to configure the Autonomous Database Reliability
+              Engineer (ADRE) in PMM Settings.
+            </Alert>
+            <Link href={PMM_SETTINGS_URL} sx={{ mt: 1, display: 'inline-block' }}>
+              Open PMM Settings
+            </Link>
+          </CardContent>
+        </Card>
       </Page>
     );
   }

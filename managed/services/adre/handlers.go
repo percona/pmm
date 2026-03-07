@@ -8,7 +8,7 @@
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Affero General Public License for the terms and conditions.
+// GNU Affero General Public License for more details.
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
@@ -115,6 +115,14 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
+	}
+	if body.URL != nil {
+		trimmed := strings.TrimSpace(*body.URL)
+		body.URL = &trimmed
+		if trimmed != "" && !strings.HasPrefix(trimmed, "http://") && !strings.HasPrefix(trimmed, "https://") {
+			writeJSONError(w, http.StatusBadRequest, "URL must start with http:// or https://")
+			return
+		}
 	}
 	params := &models.ChangeSettingsParams{
 		EnableAdre: body.Enabled,

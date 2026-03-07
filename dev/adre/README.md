@@ -38,8 +38,8 @@ PMM proxies requests to HolmesGPT. Endpoints (all require authentication):
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /v1/adre/settings | Get ADRE settings (admin) |
-| POST | /v1/adre/settings | Update ADRE settings (admin) |
+| GET | /v1/adre/settings | Get ADRE settings (viewer or admin) |
+| POST | /v1/adre/settings | Update ADRE settings (admin only in UI) |
 | GET | /v1/adre/models | List available models |
 | POST | /v1/adre/chat | Chat (non-streaming or streaming if `stream: true` in body) |
 | GET | /v1/adre/alerts | Firing alerts from Alertmanager |

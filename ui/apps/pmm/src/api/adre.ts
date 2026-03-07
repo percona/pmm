@@ -93,7 +93,10 @@ export const adreChatStream = async (
     for (const line of lines) {
       if (line.startsWith('data: ')) {
         const data = line.slice(6);
-        if (data !== '[DONE]' && data.trim()) onChunk(data);
+        if (data !== '[DONE]' && data.trim()) {
+          const text = extractTextFromSSEData(data);
+          if (text) onChunk(text);
+        }
       }
     }
   }
@@ -138,8 +141,27 @@ export const adreInvestigateStream = async (
     for (const line of lines) {
       if (line.startsWith('data: ')) {
         const data = line.slice(6);
-        if (data !== '[DONE]' && data.trim()) onChunk(data);
+        if (data !== '[DONE]' && data.trim()) {
+          const text = extractTextFromSSEData(data);
+          if (text) onChunk(text);
+        }
       }
     }
   }
 };
+
+/** Parses SSE data line; if JSON with text/delta/content/analysis, returns that string, else returns raw. */
+function extractTextFromSSEData(data: string): string {
+  const trimmed = data.trim();
+  if (!trimmed || trimmed === '[DONE]') return '';
+  if (trimmed.startsWith('{')) {
+    try {
+      const o = JSON.parse(trimmed) as Record<string, unknown>;
+      const s = (o.text ?? o.delta ?? o.content ?? o.analysis) as string | undefined;
+      if (typeof s === 'string') return s;
+    } catch {
+      // not JSON or invalid
+    }
+  }
+  return trimmed;
+}

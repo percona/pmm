@@ -121,7 +121,7 @@ var rules = map[string]role{
 	"/v1/realtimeanalytics/queries:search": viewer,
 
 	// ADRE (Autonomous Database Reliability Engineer) / HolmesGPT.
-	"/v1/adre/settings": admin,
+	"/v1/adre/settings": viewer,
 	"/v1/adre":          viewer,
 
 	// "/auth_request"  has auth_request disabled in nginx config

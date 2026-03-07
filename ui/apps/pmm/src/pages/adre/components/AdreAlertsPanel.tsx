@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { FC, useState, useEffect } from 'react';
-import { getAdreAlerts, adreInvestigate, adreInvestigateStream } from 'api/adre';
+import { getAdreAlerts, adreInvestigateStream } from 'api/adre';
 import { useSnackbar } from 'notistack';
 
 interface AlertItem {
@@ -32,7 +32,10 @@ export const AdreAlertsPanel: FC = () => {
     let cancelled = false;
     const load = async () => {
       try {
-        const data = (await getAdreAlerts()) as { data?: { alerts?: AlertItem[] }; status?: string };
+        const data = (await getAdreAlerts()) as {
+          data?: { alerts?: AlertItem[] };
+          alerts?: AlertItem[];
+        };
         const list = data?.data?.alerts ?? data?.alerts ?? [];
         const arr = Array.isArray(list) ? list : [];
         if (!cancelled) setAlerts(arr);
@@ -112,12 +115,13 @@ export const AdreAlertsPanel: FC = () => {
           ) : (
             <FormGroup>
               <Box sx={{ maxHeight: 150, overflow: 'auto' }}>
-                {alerts.map((a) => {
+                {alerts.map((a, index) => {
                   const fp = String(a.fingerprint ?? a.labels?.alertname ?? '');
-                  const label = a.labels?.alertname ?? a.annotations?.summary ?? fp || 'Alert';
+                  const key = a.fingerprint ? fp : `${fp || 'alert'}-${index}`;
+                  const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (fp || 'Alert');
                   return (
                     <FormControlLabel
-                      key={fp}
+                      key={key}
                       control={
                         <Checkbox
                           checked={selected.has(fp)}

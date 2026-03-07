@@ -10,13 +10,12 @@ import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 import { FC, useState, useCallback } from 'react';
-import { useAdreSettings, useAdreModels } from 'hooks/api/useAdre';
+import { useAdreSettings } from 'hooks/api/useAdre';
 import { adreChatStream } from 'api/adre';
 import { useSnackbar } from 'notistack';
 
 export const AdreChatWidget: FC = () => {
   const { data: settings } = useAdreSettings();
-  const { data: models = [] } = useAdreModels({ enabled: !!settings?.enabled && !!settings?.url });
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = useState(false);
   const [ask, setAsk] = useState('');

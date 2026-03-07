@@ -146,8 +146,9 @@ func (c *Client) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, err
 // ChatStream sends a chat request and returns the response body for streaming (SSE).
 // Caller must close the returned ReadCloser.
 func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadCloser, error) {
-	req.Stream = true
-	body, err := json.Marshal(req)
+	streamReq := *req
+	streamReq.Stream = true
+	body, err := json.Marshal(&streamReq)
 	if err != nil {
 		return nil, err
 	}
