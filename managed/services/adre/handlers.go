@@ -31,6 +31,11 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+// GrafanaAlertsFetcher fetches firing alerts from Grafana's Alertmanager API.
+type GrafanaAlertsFetcher interface {
+	GetAlertmanagerAlerts(ctx context.Context, authHeaders http.Header) ([]byte, error)
+}
+
 const (
 	adreDisabledMsg  = "ADRE is disabled. Enable it in Settings."
 	adreURLNotSetMsg = "HolmesGPT URL is not configured. Set it in Settings."
@@ -38,22 +43,21 @@ const (
 
 // Handlers provides HTTP handlers for the ADRE proxy API.
 type Handlers struct {
-	db           reform.DBTX
-	vmalertURL   string
-	reqTimeout   time.Duration
-	streamTimeout time.Duration
-	l            *logrus.Entry
+	db                 reform.DBTX
+	grafanaAlertsFetch GrafanaAlertsFetcher
+	reqTimeout         time.Duration
+	streamTimeout      time.Duration
+	l                  *logrus.Entry
 }
 
 // NewHandlers creates new ADRE HTTP handlers.
-func NewHandlers(db reform.DBTX, vmalertURL string) *Handlers {
-	vmalertURL = strings.TrimSuffix(vmalertURL, "/")
+func NewHandlers(db reform.DBTX, grafanaAlertsFetch GrafanaAlertsFetcher) *Handlers {
 	return &Handlers{
-		db:            db,
-		vmalertURL:    vmalertURL,
-		reqTimeout:    60 * time.Second,
-		streamTimeout: 5 * time.Minute,
-		l:             logrus.WithField("component", "adre-handlers"),
+		db:                 db,
+		grafanaAlertsFetch: grafanaAlertsFetch,
+		reqTimeout:         60 * time.Second,
+		streamTimeout:      5 * time.Minute,
+		l:                  logrus.WithField("component", "adre-handlers"),
 	}
 }
 
@@ -266,7 +270,7 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetAlerts handles GET /v1/adre/alerts — fetches firing alerts from VMAlert.
+// GetAlerts handles GET /v1/adre/alerts — fetches firing alerts from Grafana's Alertmanager API.
 func (h *Handlers) GetAlerts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -278,27 +282,36 @@ func (h *Handlers) GetAlerts(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, h.vmalertURL+"/api/v1/alerts", nil)
-	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
-		return
+	authHeaders := make(http.Header)
+	if v := r.Header.Get("Authorization"); v != "" {
+		authHeaders.Set("Authorization", v)
 	}
-	client := &http.Client{Timeout: h.reqTimeout}
-	resp, err := client.Do(req)
+	if v := r.Header.Get("Cookie"); v != "" {
+		authHeaders.Set("Cookie", v)
+	}
+	raw, err := h.grafanaAlertsFetch.GetAlertmanagerAlerts(ctx, authHeaders)
 	if err != nil {
-		h.l.Warnf("VMAlert alerts: %v", err)
+		h.l.Warnf("Grafana Alertmanager alerts: %v", err)
 		writeJSONError(w, http.StatusBadGateway, fmt.Sprintf("Failed to fetch alerts: %v", err))
 		return
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		writeJSONError(w, http.StatusBadGateway, fmt.Sprintf("VMAlert %s: %s", resp.Status, string(body)))
+	// Grafana returns an array; frontend expects data.alerts or data.data.alerts. Wrap as {"alerts": raw}.
+	var alerts json.RawMessage
+	if err := json.Unmarshal(raw, &alerts); err != nil {
+		h.l.Warnf("Parse alerts: %v", err)
+		writeJSONError(w, http.StatusBadGateway, "Invalid alerts response")
+		return
+	}
+	out := map[string]json.RawMessage{"alerts": alerts}
+	body, err := json.Marshal(out)
+	if err != nil {
+		h.l.Errorf("Marshal alerts: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to encode response")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := io.Copy(w, resp.Body); err != nil {
-		h.l.Errorf("Copy alerts: %v", err)
+	if _, err := w.Write(body); err != nil {
+		h.l.Errorf("Write alerts: %v", err)
 	}
 }
 

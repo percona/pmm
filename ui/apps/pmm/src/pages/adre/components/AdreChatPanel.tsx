@@ -11,43 +11,73 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { FC, useState, useCallback } from 'react';
+import { FC, useState, useCallback, useEffect } from 'react';
 import { useAdreModels } from 'hooks/api/useAdre';
-import { adreChat, adreChatStream } from 'api/adre';
+import { adreChatStream } from 'api/adre';
 import { useSnackbar } from 'notistack';
+
+const STORAGE_KEY = 'pmm-adre-chat';
+
+function loadFromStorage(): { response: string; history: unknown[] } {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as { response?: string; history?: unknown[] };
+      return {
+        response: typeof parsed.response === 'string' ? parsed.response : '',
+        history: Array.isArray(parsed.history) ? parsed.history : [],
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return { response: '', history: [] };
+}
+
+function saveToStorage(response: string, history: unknown[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ response, history }));
+  } catch {
+    // ignore
+  }
+}
 
 export const AdreChatPanel: FC = () => {
   const { data: models = [] } = useAdreModels();
   const { enqueueSnackbar } = useSnackbar();
   const [ask, setAsk] = useState('');
   const [model, setModel] = useState('');
-  const [stream, setStream] = useState(true);
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState(() => loadFromStorage().response);
   const [loading, setLoading] = useState(false);
-  const [history, setHistory] = useState<unknown[]>([]);
+  const [history, setHistory] = useState<unknown[]>(() => loadFromStorage().history);
+
+  useEffect(() => {
+    saveToStorage(response, history);
+  }, [response, history]);
 
   const handleSend = useCallback(async () => {
     if (!ask.trim()) return;
+    const userAsk = ask.trim();
     setLoading(true);
     setResponse('');
+    setAsk('');
     try {
       const req = {
-        ask: ask.trim(),
+        ask: userAsk,
         conversationHistory: history,
         model: model || undefined,
-        stream,
+        stream: true,
       };
-      if (stream) {
-        await adreChatStream(req, (chunk) => {
-          setResponse((prev) => prev + chunk);
-        });
-      } else {
-        const res = await adreChat(req);
-        setResponse(res.analysis);
-        if (res.conversationHistory?.length) {
-          setHistory(res.conversationHistory as unknown[]);
-        }
-      }
+      let fullResponse = '';
+      await adreChatStream(req, (chunk) => {
+        fullResponse += chunk;
+        setResponse(fullResponse);
+      });
+      setHistory((prev) => [
+        ...prev,
+        { role: 'user', content: userAsk },
+        { role: 'assistant', content: fullResponse },
+      ]);
     } catch (err) {
       enqueueSnackbar(
         err instanceof Error ? err.message : 'Chat request failed',
@@ -56,7 +86,7 @@ export const AdreChatPanel: FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [ask, history, model, stream, enqueueSnackbar]);
+  }, [ask, history, model, enqueueSnackbar]);
 
   return (
     <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -102,13 +132,6 @@ export const AdreChatPanel: FC = () => {
                 ))}
               </Select>
             </FormControl>
-            <Button
-              variant={stream ? 'contained' : 'outlined'}
-              size="small"
-              onClick={() => setStream(!stream)}
-            >
-              Stream
-            </Button>
           </Stack>
           <Stack direction="row" gap={1}>
             <TextField
@@ -118,6 +141,9 @@ export const AdreChatPanel: FC = () => {
               onChange={(e) => setAsk(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
               fullWidth
+              multiline
+              minRows={2}
+              maxRows={6}
             />
             <Button
               variant="contained"

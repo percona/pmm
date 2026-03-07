@@ -152,7 +152,7 @@ export const adreInvestigateStream = async (
   }
 };
 
-/** Parses SSE data line; if JSON with text/delta/content/analysis, returns that string, else returns raw. */
+/** Parses SSE data line; if JSON with text/delta/content/analysis, returns that string. Skips metadata-only events. */
 function extractTextFromSSEData(data: string): string {
   const trimmed = data.trim();
   if (!trimmed || trimmed === '[DONE]') return '';
@@ -165,6 +165,8 @@ function extractTextFromSSEData(data: string): string {
       if (raw && typeof raw === 'object' && 'content' in raw && typeof (raw as { content: unknown }).content === 'string') {
         return (raw as { content: string }).content;
       }
+      // Skip metadata-only events (e.g. { metadata: {...} }) - do not render raw JSON
+      return '';
     } catch {
       // not JSON or invalid
     }

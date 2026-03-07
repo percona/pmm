@@ -458,6 +458,17 @@ func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, forc
 	return warning, err
 }
 
+// GetAlertmanagerAlerts fetches firing alerts from Grafana's Alertmanager API.
+// authHeaders should contain Authorization and/or Cookie from the incoming request to forward user auth.
+func (c *Client) GetAlertmanagerAlerts(ctx context.Context, authHeaders http.Header) ([]byte, error) {
+	var raw json.RawMessage
+	err := c.do(ctx, http.MethodGet, "/api/alertmanager/grafana/api/v2/alerts", "active=true", authHeaders, nil, &raw)
+	if err != nil {
+		return nil, err
+	}
+	return raw, nil
+}
+
 // CreateAlertRule creates Grafana alert rule.
 func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)

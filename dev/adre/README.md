@@ -42,5 +42,5 @@ PMM proxies requests to HolmesGPT. Endpoints (all require authentication):
 | POST | /v1/adre/settings | Update ADRE settings (admin only in UI) |
 | GET | /v1/adre/models | List available models |
 | POST | /v1/adre/chat | Chat (non-streaming or streaming if `stream: true` in body) |
-| GET | /v1/adre/alerts | Firing alerts from VMAlert/Alertmanager (requires ADRE enabled) |
+| GET | /v1/adre/alerts | Firing alerts from Grafana Alertmanager (requires ADRE enabled) |
 | POST | /v1/adre/investigate | Investigate alerts (supports streaming) |

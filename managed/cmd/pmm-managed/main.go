@@ -201,8 +201,8 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	})
 }
 
-func addAdreHandlers(mux *http.ServeMux, db reform.DBTX, vmalertURL string) {
-	h := adre.NewHandlers(db, vmalertURL)
+func addAdreHandlers(mux *http.ServeMux, db reform.DBTX, grafanaAlertsFetch adre.GrafanaAlertsFetcher) {
+	h := adre.NewHandlers(db, grafanaAlertsFetch)
 	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -362,10 +362,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs         *server.Logs
-	authServer   *grafana.AuthServer
-	db           reform.DBTX
-	vmalertURL   string
+	logs           *server.Logs
+	authServer     *grafana.AuthServer
+	db             reform.DBTX
+	grafanaClient  *grafana.Client
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -445,7 +445,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
-	addAdreHandlers(mux, deps.db, deps.vmalertURL)
+	addAdreHandlers(mux, deps.db, deps.grafanaClient)
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 
@@ -1206,12 +1206,12 @@ func main() { //nolint:maintidx,cyclop
 			})
 	})
 
-	wg.Go(func() {
+		wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:         logs,
-			authServer:   authServer,
-			db:           db,
-			vmalertURL:   *victoriaMetricsVMAlertURLF,
+			logs:          logs,
+			authServer:    authServer,
+			db:            db,
+			grafanaClient: grafanaClient,
 		})
 	})
 
