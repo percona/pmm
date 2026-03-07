@@ -3,7 +3,7 @@
 !!! warning "Technical Preview – MongoDB only"
     RTA is not ready for production environments yet. Use for testing and feedback only. MySQL and PostgreSQL support is planned for future releases.
 
-While [Query Analytics (QAN) Stored metrics](../qan/index.md) captures queries after they complete so you can optimize past performance, Real-time Query Analytics (RTA) shows queries as they execute so when your database is struggling, you can spot problematic operations right away and take action before they impact users. 
+While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) captures queries after they complete so you can optimize past performance, Real-time Query Analytics (RTA) shows queries as they execute so when your database is struggling, you can spot problematic operations right away and take action before they impact users. 
 
 RTA data is for live troubleshooting so it only stays on the screen for about 30 seconds and then disappears. Use the **Pause** button to freeze the view when you spot something worth investigating.
 
