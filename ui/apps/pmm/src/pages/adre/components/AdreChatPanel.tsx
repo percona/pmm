@@ -117,7 +117,10 @@ export const AdreChatPanel: FC = () => {
     try {
       const req = {
         ask: userAsk,
-        conversationHistory: history,
+        conversationHistory: [
+          { role: 'system', content: 'You are a helpful AI ops assistant for Percona Monitoring and Management (PMM).' },
+          ...history.map((m: ChatMessage) => ({ role: m.role, content: m.content })),
+        ],
         model: model || undefined,
         stream: true,
       };

@@ -150,9 +150,17 @@ const AdrePage: FC = () => {
           color: 'common.white',
           flex: 1,
           minHeight: 0,
-          py: 2,
-          px: 2,
-          borderRadius: 1,
+          m: -2,
+          mt: -3,
+          mb: -3,
+          p: 3,
+          '& .MuiCard-root': {
+            bgcolor: '#000',
+            borderColor: 'rgba(255,255,255,0.12)',
+            color: 'common.white',
+          },
+          '& .MuiCardContent-root': { bgcolor: 'transparent' },
+          '& #messages-container': { bgcolor: '#0a0a0a' },
         }}
       >
         <Stack direction="column" gap={2} sx={{ height: '100%', minHeight: 0 }}>
