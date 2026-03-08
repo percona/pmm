@@ -66,11 +66,13 @@ export const adreChat = async (
   return res.data;
 };
 
+/** Callback for adreChatStream: receives content chunks and/or reasoning chunks. */
+export type AdreChatStreamCallback = (content?: string, reasoning?: string) => void;
+
 export const adreChatStream = async (
   body: AdreChatRequest,
-  onChunk: (chunk: string) => void
+  onChunk: AdreChatStreamCallback
 ): Promise<void> => {
-  // Relative URL: assumes same-origin or proxy so /v1/adre/chat is served by PMM backend
   const response = await fetch('/v1/adre/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -95,8 +97,9 @@ export const adreChatStream = async (
       if (line.startsWith('data: ')) {
         const data = line.slice(6);
         if (data !== '[DONE]' && data.trim()) {
-          const text = extractTextFromSSEData(data);
-          if (text) onChunk(text);
+          const parsed = parseSSEData(data);
+          if (parsed.content) onChunk(parsed.content);
+          if (parsed.reasoning) onChunk(undefined, parsed.reasoning);
         }
       }
     }
@@ -144,32 +147,37 @@ export const adreInvestigateStream = async (
       if (line.startsWith('data: ')) {
         const data = line.slice(6);
         if (data !== '[DONE]' && data.trim()) {
-          const text = extractTextFromSSEData(data);
-          if (text) onChunk(text);
+          const parsed = parseSSEData(data);
+          if (parsed.content) onChunk(parsed.content);
         }
       }
     }
   }
 };
 
-/** Parses SSE data line; if JSON with text/delta/content/analysis, returns that string. Skips metadata-only events. */
-function extractTextFromSSEData(data: string): string {
+/** Parses SSE data; returns content and/or reasoning from common Holmes/LLM stream fields. */
+function parseSSEData(data: string): { content?: string; reasoning?: string } {
   const trimmed = data.trim();
-  if (!trimmed || trimmed === '[DONE]') return '';
+  if (!trimmed || trimmed === '[DONE]') return {};
   if (trimmed.startsWith('{')) {
     try {
       const o = JSON.parse(trimmed) as Record<string, unknown>;
-      const raw = o.text ?? o.delta ?? o.content ?? o.analysis;
-      if (typeof raw === 'string') return raw;
-      // delta may be an object with content (e.g. { content: "..." })
-      if (raw && typeof raw === 'object' && 'content' in raw && typeof (raw as { content: unknown }).content === 'string') {
-        return (raw as { content: string }).content;
-      }
-      // Skip metadata-only events (e.g. { metadata: {...} }) - do not render raw JSON
-      return '';
+      const contentRaw = o.text ?? o.delta ?? o.content ?? o.analysis;
+      const content = stringFromValue(contentRaw);
+      const reasoningRaw = o.reasoning ?? o.thinking ?? o.thought;
+      const reasoning = stringFromValue(reasoningRaw);
+      return { ...(content && { content }), ...(reasoning && { reasoning }) };
     } catch {
       // not JSON or invalid
     }
   }
-  return trimmed;
+  return { content: trimmed };
+}
+
+function stringFromValue(v: unknown): string | undefined {
+  if (typeof v === 'string') return v;
+  if (v && typeof v === 'object' && 'content' in v && typeof (v as { content: unknown }).content === 'string') {
+    return (v as { content: string }).content;
+  }
+  return undefined;
 }
