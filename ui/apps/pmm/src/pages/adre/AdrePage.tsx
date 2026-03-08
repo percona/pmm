@@ -144,7 +144,18 @@ const AdrePage: FC = () => {
 
   return (
     <Page title="Autonomous Database Reliability Engineer">
-      <Stack direction="column" gap={2} sx={{ height: '100%', minHeight: 0 }}>
+      <Box
+        sx={{
+          bgcolor: '#000',
+          color: 'common.white',
+          flex: 1,
+          minHeight: 0,
+          py: 2,
+          px: 2,
+          borderRadius: 1,
+        }}
+      >
+        <Stack direction="column" gap={2} sx={{ height: '100%', minHeight: 0 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} gap={2} sx={{ flex: 1, minHeight: 0 }}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <AdreChatPanel />
@@ -154,6 +165,7 @@ const AdrePage: FC = () => {
           </Box>
         </Stack>
       </Stack>
+      </Box>
     </Page>
   );
 };
