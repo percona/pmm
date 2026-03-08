@@ -67,22 +67,32 @@ export const AdreAlertsPanel: FC = () => {
     });
   };
 
-  const buildInvestigatePayload = (): { source: string; title: string; description: string; subject?: unknown } => {
+  const buildInvestigatePayload = (): {
+    source: string;
+    title: string;
+    description: string;
+    subject?: Record<string, unknown>;
+    context?: Record<string, unknown>;
+  } => {
     const items = alerts.filter((a, i) => selected.has(getAlertKey(a, i)));
     if (items.length === 0) {
       return {
         source: 'prometheus',
         title: 'No alerts selected',
         description: 'Select one or more alerts to investigate.',
+        subject: {},
+        context: {},
       };
     }
     const titles = items.map((a) => a.labels?.alertname ?? a.annotations?.summary ?? 'Alert').filter(Boolean);
     const descs = items.map((a) => a.annotations?.description ?? a.annotations?.summary ?? JSON.stringify(a.labels ?? {})).filter(Boolean);
+    const alertsPayload = items.map((a) => ({ labels: a.labels, annotations: a.annotations }));
     return {
       source: 'prometheus',
       title: titles[0] ?? 'Alerts',
       description: descs.join('\n\n') || JSON.stringify(items),
-      subject: items.map((a) => ({ labels: a.labels, annotations: a.annotations })),
+      subject: { alerts: alertsPayload },
+      context: { source: 'prometheus', alertCount: items.length },
     };
   };
 
