@@ -52,6 +52,7 @@ import (
 	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
+
 	// Installing the gzip encoding registers it as an available compressor.
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	_ "google.golang.org/grpc/encoding/gzip"
@@ -544,11 +545,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		deps.l.Warnf("Failed to get settings: %s.", err)
 		return false
 	}
-	ssoDetails, err := models.GetPerconaSSODetails(ctx, db.Querier)
-	if err != nil && !errors.Is(err, models.ErrNotConnectedToPortal) {
-		deps.l.Warnf("Failed to get Percona SSO Details: %s.", err)
-	}
-	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
+	if err = deps.supervisord.UpdateConfiguration(settings); err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}
