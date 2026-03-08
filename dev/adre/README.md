@@ -11,6 +11,7 @@ ADRE integrates [HolmesGPT](https://holmesgpt.dev) with PMM to provide AI-assist
 
 1. Enable ADRE in **PMM Settings** (Configuration → Settings → Advanced) or on the ADRE page (admin only)
 2. Set the **HolmesGPT base URL** (e.g. `http://holmesgpt:8080`)
+3. If HolmesGPT requires authentication, include credentials in the URL: `http://user:password@holmesgpt:5050` or `http://:api-key@holmesgpt:5050` (API key as password)
 
 HolmesGPT and PMM must be able to communicate. If using Docker, ensure they share a network or that HolmesGPT is reachable from the PMM host.
 

@@ -19,6 +19,7 @@ package adre
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -39,19 +40,40 @@ const (
 // Client is an HTTP client for the HolmesGPT API.
 type Client struct {
 	baseURL    string
+	authHeader string // "Authorization: Basic xxx" or "Authorization: Bearer xxx", empty if no auth
 	httpClient *http.Client
 	l          *logrus.Entry
 }
 
 // NewClient creates a new HolmesGPT API client.
+// baseURL may include credentials for Basic Auth: http://user:password@host:port
 func NewClient(baseURL string) *Client {
 	baseURL = strings.TrimSuffix(baseURL, "/")
+	authHeader := ""
+	if u, err := url.Parse(baseURL); err == nil && u.User != nil {
+		password, hasPass := u.User.Password()
+		if hasPass {
+			user := u.User.Username()
+			authHeader = "Basic " + base64.StdEncoding.EncodeToString([]byte(user+":"+password))
+			// Strip credentials from baseURL for logging/requests (we add auth via header)
+			u.User = nil
+			baseURL = u.String()
+		}
+	}
 	return &Client{
-		baseURL: baseURL,
+		baseURL:    baseURL,
+		authHeader: authHeader,
 		httpClient: &http.Client{
 			Timeout: defaultTimeout,
 		},
 		l: logrus.WithField("component", "adre"),
+	}
+}
+
+// setAuth adds Authorization header to the request if client has auth configured.
+func (c *Client) setAuth(req *http.Request) {
+	if c.authHeader != "" {
+		req.Header.Set("Authorization", c.authHeader)
 	}
 }
 
@@ -72,6 +94,7 @@ func (c *Client) Models(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 	req.Header.Set("Accept", "application/json")
+	c.setAuth(req)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -124,6 +147,7 @@ func (c *Client) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, err
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Accept", "application/json")
+	c.setAuth(httpReq)
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
@@ -160,6 +184,7 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadClose
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Accept", "text/event-stream")
+	c.setAuth(httpReq)
 
 	client := *c.httpClient
 	client.Timeout = streamTimeout
@@ -185,6 +210,7 @@ type InvestigateRequest struct {
 	Context          interface{} `json:"context,omitempty"`
 	IncludeToolCalls bool        `json:"include_tool_calls,omitempty"`
 	Model            string      `json:"model,omitempty"`
+	Stream           bool        `json:"stream,omitempty"`
 }
 
 // InvestigateResponse is the response from POST /api/investigate.
@@ -208,6 +234,7 @@ func (c *Client) Investigate(ctx context.Context, req *InvestigateRequest) (*Inv
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Accept", "application/json")
+	c.setAuth(httpReq)
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
@@ -228,19 +255,23 @@ func (c *Client) Investigate(ctx context.Context, req *InvestigateRequest) (*Inv
 }
 
 // InvestigateStream sends an investigate request and returns the response body for streaming (SSE).
+// Uses /api/investigate with stream: true (same pattern as ChatStream).
 // Caller must close the returned ReadCloser.
 func (c *Client) InvestigateStream(ctx context.Context, req *InvestigateRequest) (io.ReadCloser, error) {
-	body, err := json.Marshal(req)
+	streamReq := *req
+	streamReq.Stream = true
+	body, err := json.Marshal(&streamReq)
 	if err != nil {
 		return nil, err
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url("/api/stream/investigate"), bytes.NewReader(body))
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url("/api/investigate"), bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Accept", "text/event-stream")
+	c.setAuth(httpReq)
 
 	client := *c.httpClient
 	client.Timeout = streamTimeout
@@ -252,7 +283,7 @@ func (c *Client) InvestigateStream(ctx context.Context, req *InvestigateRequest)
 	if resp.StatusCode != http.StatusOK {
 		respBody, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		return nil, fmt.Errorf("HolmesGPT /api/stream/investigate: %s: %s", resp.Status, string(respBody))
+		return nil, fmt.Errorf("HolmesGPT /api/investigate (stream): %s: %s", resp.Status, string(respBody))
 	}
 	return resp.Body, nil
 }
