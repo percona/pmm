@@ -542,7 +542,6 @@ command =
         {{- if .PMMServerHost}}
         cfg:default.server.domain="{{ .PMMServerHost }}"
         {{- end}}
-
 environment =
     PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
     PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
