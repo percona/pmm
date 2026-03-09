@@ -36,6 +36,7 @@ const (
 	OtelCollectorEnabledDefault        = true
 	OtelLogsRetentionDaysDefault       = 7
 	AdreEnabledDefault                 = false
+	AdrePromptMaxBytes                 = 2048
 	awsPartitionID                     = "aws"
 )
 
@@ -104,8 +105,11 @@ type Settings struct {
 
 	// Adre (Autonomous Database Reliability Engineer) / HolmesGPT integration.
 	Adre struct {
-		Enabled *bool  `json:"enabled"`
-		URL     string `json:"url"`
+		Enabled              *bool  `json:"enabled"`
+		URL                  string `json:"url"`
+		ChatPrompt           string `json:"chat_prompt"`
+		InvestigationPrompt  string `json:"investigation_prompt"`
+		DefaultChatMode      string `json:"default_chat_mode"`
 	} `json:"adre"`
 
 	Alerting struct {
@@ -290,5 +294,8 @@ func (s *Settings) fillDefaults() {
 
 	if s.Adre.Enabled == nil {
 		s.Adre.Enabled = pointer.ToBool(AdreEnabledDefault)
+	}
+	if s.Adre.DefaultChatMode == "" {
+		s.Adre.DefaultChatMode = "chat"
 	}
 }

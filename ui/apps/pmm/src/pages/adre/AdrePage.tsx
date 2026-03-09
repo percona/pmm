@@ -4,8 +4,13 @@ import {
   Button,
   Card,
   CardContent,
+  Collapse,
+  FormControl,
   FormControlLabel,
+  InputLabel,
   Link,
+  MenuItem,
+  Select,
   Stack,
   Switch,
   TextField,
@@ -25,18 +30,29 @@ function isForbiddenError(err: unknown): boolean {
     (err as { response?: { status?: number } }).response?.status === 403;
 }
 
+const ADRE_PROMPT_MAX_LENGTH = 2048;
+
 const AdrePage: FC = () => {
   const { user } = useUser();
   const { data: settings, isLoading, isError, error } = useAdreSettings();
   const updateSettings = useUpdateAdreSettings();
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
+  const [localChatPrompt, setLocalChatPrompt] = useState(settings?.chatPrompt ?? '');
+  const [localInvestigationPrompt, setLocalInvestigationPrompt] = useState(settings?.investigationPrompt ?? '');
+  const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'chat' | 'investigation'>(
+    settings?.defaultChatMode === 'investigation' ? 'investigation' : 'chat'
+  );
+  const [promptsSectionOpen, setPromptsSectionOpen] = useState(false);
   useEffect(() => {
     if (settings) {
       setLocalEnabled(settings.enabled);
       setLocalUrl(settings.url);
+      setLocalChatPrompt(settings.chatPrompt ?? '');
+      setLocalInvestigationPrompt(settings.investigationPrompt ?? '');
+      setLocalDefaultChatMode(settings.defaultChatMode === 'investigation' ? 'investigation' : 'chat');
     }
-  }, [settings?.enabled, settings?.url]);
+  }, [settings?.enabled, settings?.url, settings?.chatPrompt, settings?.investigationPrompt, settings?.defaultChatMode]);
 
   const isConfigured = settings?.enabled && !!settings?.url;
   const isAdmin = user?.isPMMAdmin ?? false;
@@ -142,6 +158,23 @@ const AdrePage: FC = () => {
     );
   }
 
+  const handleSavePrompts = () => {
+    if (new Blob([localChatPrompt]).size > ADRE_PROMPT_MAX_LENGTH) {
+      return;
+    }
+    if (new Blob([localInvestigationPrompt]).size > ADRE_PROMPT_MAX_LENGTH) {
+      return;
+    }
+    updateSettings.mutate({
+      chatPrompt: localChatPrompt,
+      investigationPrompt: localInvestigationPrompt,
+      defaultChatMode: localDefaultChatMode,
+    });
+  };
+
+  const chatPromptOver = new Blob([localChatPrompt]).size > ADRE_PROMPT_MAX_LENGTH;
+  const investigationPromptOver = new Blob([localInvestigationPrompt]).size > ADRE_PROMPT_MAX_LENGTH;
+
   return (
     <Page title="Autonomous Database Reliability Engineer">
       <Box
@@ -164,6 +197,68 @@ const AdrePage: FC = () => {
         }}
       >
         <Stack direction="column" gap={2} sx={{ height: '100%', minHeight: 0 }}>
+          {isAdmin && (
+            <Card variant="outlined">
+              <CardContent>
+                <Button
+                  onClick={() => setPromptsSectionOpen((o) => !o)}
+                  sx={{ justifyContent: 'flex-start', textTransform: 'none', width: '100%' }}
+                >
+                  {promptsSectionOpen ? '▼' : '▶'} ADRE behavior (prompts and default mode)
+                </Button>
+                <Collapse in={promptsSectionOpen}>
+                  <Stack gap={2} sx={{ mt: 2, maxWidth: 720 }}>
+                    <TextField
+                      label="Chat prompt (fast mode)"
+                      placeholder="Leave empty to use built-in default. Max 2048 characters."
+                      value={localChatPrompt}
+                      onChange={(e) => setLocalChatPrompt(e.target.value)}
+                      multiline
+                      minRows={4}
+                      maxRows={12}
+                      size="small"
+                      fullWidth
+                      error={chatPromptOver}
+                      helperText={chatPromptOver ? `Max ${ADRE_PROMPT_MAX_LENGTH} characters` : undefined}
+                      inputProps={{ maxLength: ADRE_PROMPT_MAX_LENGTH }}
+                    />
+                    <TextField
+                      label="Investigation prompt"
+                      placeholder="Leave empty to use built-in default. Max 2048 characters."
+                      value={localInvestigationPrompt}
+                      onChange={(e) => setLocalInvestigationPrompt(e.target.value)}
+                      multiline
+                      minRows={4}
+                      maxRows={12}
+                      size="small"
+                      fullWidth
+                      error={investigationPromptOver}
+                      helperText={investigationPromptOver ? `Max ${ADRE_PROMPT_MAX_LENGTH} characters` : undefined}
+                      inputProps={{ maxLength: ADRE_PROMPT_MAX_LENGTH }}
+                    />
+                    <FormControl size="small" sx={{ minWidth: 200 }}>
+                      <InputLabel>Default chat mode</InputLabel>
+                      <Select
+                        value={localDefaultChatMode}
+                        label="Default chat mode"
+                        onChange={(e) => setLocalDefaultChatMode(e.target.value as 'chat' | 'investigation')}
+                      >
+                        <MenuItem value="chat">Chat (fast)</MenuItem>
+                        <MenuItem value="investigation">Investigation</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <Button
+                      variant="contained"
+                      onClick={handleSavePrompts}
+                      disabled={updateSettings.isPending || chatPromptOver || investigationPromptOver}
+                    >
+                      Save
+                    </Button>
+                  </Stack>
+                </Collapse>
+              </CardContent>
+            </Card>
+          )}
         <Stack direction={{ xs: 'column', md: 'row' }} gap={2} sx={{ flex: 1, minHeight: 0 }}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <AdreChatPanel />

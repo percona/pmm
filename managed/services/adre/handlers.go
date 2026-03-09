@@ -94,11 +94,20 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := struct {
-		Enabled bool   `json:"enabled"`
-		URL     string `json:"url"`
+		Enabled             bool   `json:"enabled"`
+		URL                 string `json:"url"`
+		ChatPrompt          string `json:"chat_prompt"`
+		InvestigationPrompt string `json:"investigation_prompt"`
+		DefaultChatMode     string `json:"default_chat_mode"`
 	}{
-		Enabled: settings.IsAdreEnabled(),
-		URL:     settings.GetAdreURL(),
+		Enabled:             settings.IsAdreEnabled(),
+		URL:                 settings.GetAdreURL(),
+		ChatPrompt:          settings.Adre.ChatPrompt,
+		InvestigationPrompt: settings.Adre.InvestigationPrompt,
+		DefaultChatMode:     settings.Adre.DefaultChatMode,
+	}
+	if resp.DefaultChatMode == "" {
+		resp.DefaultChatMode = "chat"
 	}
 	body, err := json.Marshal(resp)
 	if err != nil {
@@ -120,15 +129,20 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		Enabled *bool  `json:"enabled"`
-		URL     *string `json:"url"`
+		Enabled             *bool   `json:"enabled"`
+		URL                 *string `json:"url"`
+		ChatPrompt          *string `json:"chat_prompt"`
+		InvestigationPrompt *string `json:"investigation_prompt"`
+		DefaultChatMode     *string `json:"default_chat_mode"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
-	if body.Enabled == nil && body.URL == nil {
-		writeJSONError(w, http.StatusBadRequest, "No changes provided (set enabled and/or url)")
+	hasChange := body.Enabled != nil || body.URL != nil || body.ChatPrompt != nil ||
+		body.InvestigationPrompt != nil || body.DefaultChatMode != nil
+	if !hasChange {
+		writeJSONError(w, http.StatusBadRequest, "No changes provided (set enabled, url, chat_prompt, investigation_prompt, and/or default_chat_mode)")
 		return
 	}
 	if body.URL != nil {
@@ -146,9 +160,28 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	if body.ChatPrompt != nil && len(*body.ChatPrompt) > models.AdrePromptMaxBytes {
+		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("chat_prompt: max %d bytes", models.AdrePromptMaxBytes))
+		return
+	}
+	if body.InvestigationPrompt != nil && len(*body.InvestigationPrompt) > models.AdrePromptMaxBytes {
+		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("investigation_prompt: max %d bytes", models.AdrePromptMaxBytes))
+		return
+	}
+	if body.DefaultChatMode != nil {
+		mode := strings.TrimSpace(*body.DefaultChatMode)
+		if mode != "chat" && mode != "investigation" {
+			writeJSONError(w, http.StatusBadRequest, "default_chat_mode: must be \"chat\" or \"investigation\"")
+			return
+		}
+		body.DefaultChatMode = &mode
+	}
 	params := &models.ChangeSettingsParams{
-		EnableAdre: body.Enabled,
-		AdreURL:    body.URL,
+		EnableAdre:             body.Enabled,
+		AdreURL:                body.URL,
+		AdreChatPrompt:         body.ChatPrompt,
+		AdreInvestigationPrompt: body.InvestigationPrompt,
+		AdreDefaultChatMode:    body.DefaultChatMode,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -157,11 +190,20 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	settings, _ := models.GetSettings(h.db)
 	resp := struct {
-		Enabled bool   `json:"enabled"`
-		URL     string `json:"url"`
+		Enabled             bool   `json:"enabled"`
+		URL                 string `json:"url"`
+		ChatPrompt          string `json:"chat_prompt"`
+		InvestigationPrompt string `json:"investigation_prompt"`
+		DefaultChatMode     string `json:"default_chat_mode"`
 	}{
-		Enabled: settings.IsAdreEnabled(),
-		URL:     settings.GetAdreURL(),
+		Enabled:             settings.IsAdreEnabled(),
+		URL:                 settings.GetAdreURL(),
+		ChatPrompt:          settings.Adre.ChatPrompt,
+		InvestigationPrompt: settings.Adre.InvestigationPrompt,
+		DefaultChatMode:     settings.Adre.DefaultChatMode,
+	}
+	if resp.DefaultChatMode == "" {
+		resp.DefaultChatMode = "chat"
 	}
 	respBody, err := json.Marshal(resp)
 	if err != nil {
@@ -204,6 +246,26 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// chatRequestBody is the incoming POST /v1/adre/chat body. Mode is used only server-side to pick the prompt; it is not sent to Holmes.
+type chatRequestBody struct {
+	ChatRequest
+	Mode *string `json:"mode,omitempty"`
+}
+
+// resolveChatPrompt returns the additional_system_prompt for chat from settings and mode. Empty settings value uses built-in default.
+func resolveChatPrompt(settings *models.Settings, mode string) string {
+	if mode == "investigation" {
+		if settings.Adre.InvestigationPrompt != "" {
+			return settings.Adre.InvestigationPrompt
+		}
+		return DefaultInvestigationPrompt
+	}
+	if settings.Adre.ChatPrompt != "" {
+		return settings.Adre.ChatPrompt
+	}
+	return DefaultChatPrompt
+}
+
 // PostChat handles POST /v1/adre/chat. If body has "stream": true, streams the response.
 func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -214,16 +276,26 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	var req ChatRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	var body chatRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
+	mode := "chat"
+	if body.Mode != nil && (*body.Mode == "chat" || *body.Mode == "investigation") {
+		mode = *body.Mode
+	} else if settings.Adre.DefaultChatMode == "investigation" {
+		mode = "investigation"
+	} else {
+		mode = "chat"
+	}
+	req := &body.ChatRequest
+	req.AdditionalSystemPrompt = resolveChatPrompt(settings, mode)
 	client := NewClient(settings.GetAdreURL())
 	if req.Stream {
 		ctx, cancel := context.WithTimeout(r.Context(), h.streamTimeout)
 		defer cancel()
-		streamBody, err := client.ChatStream(ctx, &req)
+		streamBody, err := client.ChatStream(ctx, req)
 		if err != nil {
 			h.l.Warnf("HolmesGPT ChatStream: %v", err)
 			writeJSONError(w, http.StatusBadGateway, err.Error())
@@ -258,7 +330,7 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
-	resp, err := client.Chat(ctx, &req)
+	resp, err := client.Chat(ctx, req)
 	if err != nil {
 		h.l.Warnf("HolmesGPT Chat: %v", err)
 		writeJSONError(w, http.StatusBadGateway, err.Error())
@@ -338,13 +410,18 @@ func (h *Handlers) PostInvestigate(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
+	investigationPrompt := settings.Adre.InvestigationPrompt
+	if investigationPrompt == "" {
+		investigationPrompt = DefaultInvestigationPrompt
+	}
 	req := &InvestigateRequest{
-		Source:      body.Source,
-		Title:       body.Title,
-		Description: body.Description,
-		Subject:     body.Subject,
-		Context:     body.Context,
-		Model:       body.Model,
+		Source:                 body.Source,
+		Title:                  body.Title,
+		Description:            body.Description,
+		Subject:                body.Subject,
+		Context:                body.Context,
+		Model:                  body.Model,
+		AdditionalSystemPrompt: investigationPrompt,
 	}
 	client := NewClient(settings.GetAdreURL())
 	if body.Stream {

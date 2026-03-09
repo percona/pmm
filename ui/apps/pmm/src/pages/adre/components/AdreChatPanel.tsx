@@ -10,6 +10,8 @@ import {
   MenuItem,
   Select,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup,
   TextField,
   Typography,
 } from '@mui/material';
@@ -19,7 +21,7 @@ import { FC, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { useAdreModels } from 'hooks/api/useAdre';
+import { useAdreModels, useAdreSettings } from 'hooks/api/useAdre';
 import { adreChatStream } from 'api/adre';
 import { useSnackbar } from 'notistack';
 import { CodeBlock } from 'pages/updates/change-log/code-block';
@@ -80,9 +82,11 @@ function formatTimestamp(ts: number): string {
 
 export const AdreChatPanel: FC = () => {
   const { data: models = [] } = useAdreModels();
+  const { data: settings } = useAdreSettings();
   const { enqueueSnackbar } = useSnackbar();
   const [ask, setAsk] = useState('');
   const [model, setModel] = useState('');
+  const [mode, setMode] = useState<'chat' | 'investigation'>('chat');
   const [response, setResponse] = useState(() => loadFromStorage().response);
   const [reasoning, setReasoning] = useState(() => loadFromStorage().reasoning);
   const [loading, setLoading] = useState(false);
@@ -91,6 +95,14 @@ export const AdreChatPanel: FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const streamStartTimeRef = useRef<number | null>(null);
+
+  const defaultModeSyncedRef = useRef(false);
+  useEffect(() => {
+    if (!defaultModeSyncedRef.current && (settings?.defaultChatMode === 'investigation' || settings?.defaultChatMode === 'chat')) {
+      defaultModeSyncedRef.current = true;
+      setMode(settings.defaultChatMode);
+    }
+  }, [settings?.defaultChatMode]);
 
   useEffect(() => {
     saveToStorage(response, reasoning, history);
@@ -123,6 +135,7 @@ export const AdreChatPanel: FC = () => {
         ],
         model: model || undefined,
         stream: true,
+        mode,
       };
       let fullResponse = '';
       let fullReasoning = '';
@@ -149,7 +162,7 @@ export const AdreChatPanel: FC = () => {
       setLoading(false);
       streamStartTimeRef.current = null;
     }
-  }, [ask, history, model, enqueueSnackbar]);
+  }, [ask, history, model, mode, enqueueSnackbar]);
 
   const allMessages: (ChatMessage & { streaming?: boolean })[] = [
     ...history,
@@ -169,9 +182,23 @@ export const AdreChatPanel: FC = () => {
   return (
     <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <Typography variant="h6" gutterBottom>
-          Chat
-        </Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+          <Typography variant="h6">Chat</Typography>
+          <ToggleButtonGroup
+            value={mode}
+            exclusive
+            onChange={(_, v) => v != null && setMode(v)}
+            size="small"
+            sx={{ '& .MuiToggleButton-root': { py: 0.25, px: 1 } }}
+          >
+            <ToggleButton value="chat" aria-label="Chat (fast)">
+              Chat (fast)
+            </ToggleButton>
+            <ToggleButton value="investigation" aria-label="Investigation">
+              Investigation
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
         <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
           <Box
             ref={containerRef}

@@ -108,6 +108,12 @@ type ChangeSettingsParams struct {
 	EnableAdre *bool
 	// AdreURL is the HolmesGPT base URL (e.g. http://holmesgpt:8080).
 	AdreURL *string
+	// AdreChatPrompt is the system prompt for chat (fast) mode. Max 2048 bytes.
+	AdreChatPrompt *string
+	// AdreInvestigationPrompt is the system prompt for investigation mode. Max 2048 bytes.
+	AdreInvestigationPrompt *string
+	// AdreDefaultChatMode is the default mode when UI does not send one: "chat" or "investigation".
+	AdreDefaultChatMode *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -258,6 +264,15 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.AdreURL != nil {
 		settings.Adre.URL = pointer.GetString(params.AdreURL)
 	}
+	if params.AdreChatPrompt != nil {
+		settings.Adre.ChatPrompt = pointer.GetString(params.AdreChatPrompt)
+	}
+	if params.AdreInvestigationPrompt != nil {
+		settings.Adre.InvestigationPrompt = pointer.GetString(params.AdreInvestigationPrompt)
+	}
+	if params.AdreDefaultChatMode != nil {
+		settings.Adre.DefaultChatMode = pointer.GetString(params.AdreDefaultChatMode)
+	}
 
 	err = SaveSettings(q, settings)
 	if err != nil {
@@ -334,6 +349,19 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 
 	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
 		return err
+	}
+
+	if params.AdreChatPrompt != nil && len(*params.AdreChatPrompt) > AdrePromptMaxBytes {
+		return errors.Errorf("chat_prompt: max %d bytes", AdrePromptMaxBytes)
+	}
+	if params.AdreInvestigationPrompt != nil && len(*params.AdreInvestigationPrompt) > AdrePromptMaxBytes {
+		return errors.Errorf("investigation_prompt: max %d bytes", AdrePromptMaxBytes)
+	}
+	if params.AdreDefaultChatMode != nil {
+		mode := *params.AdreDefaultChatMode
+		if mode != "chat" && mode != "investigation" {
+			return errors.New("default_chat_mode: must be \"chat\" or \"investigation\"")
+		}
 	}
 
 	return nil

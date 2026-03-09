@@ -3,6 +3,9 @@ import { api } from './api';
 export interface AdreSettings {
   enabled: boolean;
   url: string;
+  chatPrompt?: string;
+  investigationPrompt?: string;
+  defaultChatMode?: 'chat' | 'investigation';
 }
 
 export interface AdreModelsResponse {
@@ -14,7 +17,8 @@ export interface AdreChatRequest {
   conversationHistory?: unknown[];
   model?: string;
   stream?: boolean;
-  additionalSystemPrompt?: string;
+  /** Server resolves prompt from mode; client must not send additionalSystemPrompt. */
+  mode?: 'chat' | 'investigation';
   pageContext?: unknown;
 }
 

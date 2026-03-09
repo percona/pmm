@@ -202,15 +202,17 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadClose
 }
 
 // InvestigateRequest is the request body for POST /api/investigate.
+// AdditionalSystemPrompt is sent if Holmes API supports it for investigation.
 type InvestigateRequest struct {
-	Source           string      `json:"source"`
-	Title            string      `json:"title"`
-	Description      string      `json:"description"`
-	Subject          interface{} `json:"subject,omitempty"`
-	Context          interface{} `json:"context,omitempty"`
-	IncludeToolCalls bool        `json:"include_tool_calls,omitempty"`
-	Model            string      `json:"model,omitempty"`
-	Stream           bool        `json:"stream,omitempty"`
+	Source                  string      `json:"source"`
+	Title                   string      `json:"title"`
+	Description             string      `json:"description"`
+	Subject                 interface{} `json:"subject,omitempty"`
+	Context                 interface{} `json:"context,omitempty"`
+	IncludeToolCalls        bool        `json:"include_tool_calls,omitempty"`
+	Model                   string      `json:"model,omitempty"`
+	Stream                  bool        `json:"stream,omitempty"`
+	AdditionalSystemPrompt  string      `json:"additional_system_prompt,omitempty"`
 }
 
 // InvestigateResponse is the response from POST /api/investigate.
