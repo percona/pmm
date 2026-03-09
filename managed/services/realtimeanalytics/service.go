@@ -66,6 +66,85 @@ func NewService(db *reform.DB, registry agentsRegistry, stateUpdater agentsState
 	}
 }
 
+// ListServices returns a list of Services that support Real-Time Analytics filtered by type (gRPC handler).
+func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest) (*rtav1.ListServicesResponse, error) {
+	var serviceList []*models.Service
+
+	requestedFilterModelServiceType := services.ProtoToModelServiceType(req.GetServiceType())
+	if requestedFilterModelServiceType != nil {
+		// Request is filtered by service type - validate that the service type
+		// is supported for RTA and apply the filter.
+		_, err := getRTAAgentTypeForServiceType(*requestedFilterModelServiceType)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument,
+				"Service type %s does not support Real-Time Analytics", *requestedFilterModelServiceType)
+		}
+
+		// Lookup for services of the requested type.
+		serviceList, err = models.FindServices(s.db.Querier, models.ServiceFilters{
+			ServiceType: requestedFilterModelServiceType,
+		})
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// No service type filter specified - return all services that support RTA.
+		// For the time being we only support MongoDB, so we can just filter by service type here.
+		for _, modelServiceType := range services.ServiceTypes {
+			_, err := getRTAAgentTypeForServiceType(modelServiceType)
+			if err != nil {
+				// Service type is not supported for RTA - skip it.
+				continue
+			}
+
+			tmpServiceList, err := models.FindServices(s.db.Querier, models.ServiceFilters{
+				ServiceType: &modelServiceType,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			serviceList = append(serviceList, tmpServiceList...)
+		}
+	}
+
+	var (
+		apiSvc inventoryv1.Service
+		svcErr error
+	)
+
+	res := &rtav1.ListServicesResponse{}
+
+	for _, svc := range serviceList {
+		// Check that service has pmm-agent with version supporting RTA.
+		pmmAgent, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to find pmm-agent for service with ID %s: %w", svc.ServiceID, err)
+		}
+
+		rtaFeatureSupported, err := isPmmAgentVersionSupported(*pmmAgent[0])
+		if err != nil || !rtaFeatureSupported {
+			continue // skip services with unsupported pmm-agent version
+		}
+
+		// Convert service to API format to be returned in the response.
+		apiSvc, svcErr = services.ToAPIService(svc)
+		if svcErr != nil {
+			return nil, fmt.Errorf("failed to convert service with ID %s to API format: %w", svc.ServiceID, svcErr)
+		}
+
+		switch apiSvc := apiSvc.(type) {
+		case *inventoryv1.MongoDBService:
+			res.Mongodb = append(res.Mongodb, apiSvc)
+		// Add other service types once RTA is supported for them
+		default:
+			return nil, fmt.Errorf("unhandled inventory Service type %T", apiSvc)
+		}
+	}
+
+	return res, nil
+}
+
 // ListSessions returns the list of currently running Real-Time Analytics Sessions (gRPC handler).
 func (s *Service) ListSessions(_ context.Context, req *rtav1.ListSessionsRequest) (*rtav1.ListSessionsResponse, error) {
 	response := &rtav1.ListSessionsResponse{
@@ -222,25 +301,14 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			return err
 		}
 
-		// Get agent version
-		if pmmAgent.Version == nil {
-			return status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has no version specified.", *existingAgent.PMMAgentID)
+		rtaFeatureSupported, err := isPmmAgentVersionSupported(*pmmAgent)
+		if err != nil {
+			return err
 		}
 
-		var (
-			pmmAgentVersion *version.Parsed
-			versionParseErr error
-		)
-
-		pmmAgentVersion, versionParseErr = version.Parse(*pmmAgent.Version)
-		if versionParseErr != nil {
-			return status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", *existingAgent.PMMAgentID)
-		}
-
-		if !pmmAgentVersion.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion) {
+		if !rtaFeatureSupported {
 			return status.Errorf(codes.FailedPrecondition,
-				"Service %s has pmm-agent with version not supporting Real-Time Analytics. Minimum required version is %s",
-				service.ServiceID, (*version.MongoDBRtaAgentSupportVersion).String())
+				"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
 		}
 
 		// Create the RTA agent with credentials and pmm-agent ID from existing agent for the requested service.
@@ -502,6 +570,26 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	default:
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}
+}
+
+// isPmmAgentVersionSupported checks if the pmm-agent has version supporting RTA and returns an error if not.
+func isPmmAgentVersionSupported(pmmAgent models.Agent) (bool, error) {
+	// Get agent version
+	if pmmAgent.Version == nil {
+		return false, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has no version specified.", pmmAgent.AgentID)
+	}
+
+	var (
+		pmmAgentVersion *version.Parsed
+		versionParseErr error
+	)
+
+	pmmAgentVersion, versionParseErr = version.Parse(*pmmAgent.Version)
+	if versionParseErr != nil {
+		return false, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", pmmAgent.AgentID)
+	}
+
+	return pmmAgentVersion.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion), nil
 }
 
 // check interfaces.

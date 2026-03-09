@@ -44,7 +44,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/testdb"
-	"github.com/percona/pmm/version"
 )
 
 func getServiceQueries(serviceID, serviceName string, count int) []*rtav1.QueryData {
@@ -75,6 +74,125 @@ func getServiceQueries(serviceID, serviceName string, count int) []*rtav1.QueryD
 	}
 
 	return data
+}
+
+func TestListServices(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	// Create test node and mongodbService
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "test-node",
+	})
+	require.NoError(t, err)
+
+	mongodbService, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "test-mongodb",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(27017),
+		Cluster:     "test-cluster",
+	})
+	require.NoError(t, err)
+
+	_, err = models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "test-mysql",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(27017),
+	})
+	require.NoError(t, err)
+
+	_, err = models.AddNewService(db.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "test-external",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(27017),
+	})
+	require.NoError(t, err)
+
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+
+	pmmAgent.Version = pointer.To("3.7.0")
+	err = db.Update(pmmAgent)
+	require.NoError(t, err)
+
+	_, err = models.CreateAgent(db.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
+		PMMAgentID: pmmAgent.AgentID,
+		ServiceID:  mongodbService.ServiceID,
+		Username:   "qan-user",
+		Password:   "qan-pass",
+	})
+	require.NoError(t, err)
+
+	registry := newMockAgentsRegistry(t)
+	stateUpdater := newMockAgentsStateUpdater(t)
+	store := NewStore()
+	svc := NewService(db, registry, stateUpdater, store)
+
+	t.Run("list all supported services", func(t *testing.T) {
+		resp, err := svc.ListServices(context.Background(), &rtav1.ListServicesRequest{})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Len(t, resp.Mongodb, 1)
+		assert.Equal(t, mongodbService.ServiceID, resp.Mongodb[0].ServiceId)
+	})
+
+	t.Run("filter by supported mongodbService type", func(t *testing.T) {
+		resp, err := svc.ListServices(context.Background(), &rtav1.ListServicesRequest{
+			ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Len(t, resp.Mongodb, 1)
+		assert.Equal(t, mongodbService.ServiceID, resp.Mongodb[0].ServiceId)
+	})
+
+	t.Run("filter by unsupported mongodbService type", func(t *testing.T) {
+		_, err := svc.ListServices(context.Background(), &rtav1.ListServicesRequest{
+			ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
+		})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "does not support Real-Time Analytics")
+	})
+
+	t.Run("skip mongodbService with unsupported pmm-agent version", func(t *testing.T) {
+		// Create mongodbService with old agent version
+		node2, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-2",
+		})
+		require.NoError(t, err)
+		service2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongodb-old",
+			NodeID:      node2.NodeID,
+			Address:     pointer.ToString("127.0.0.2"),
+			Port:        pointer.ToUint16(27017),
+			Cluster:     "cluster-2",
+		})
+		require.NoError(t, err)
+		pmmAgent2, err := models.CreatePMMAgent(db.Querier, node2.NodeID, nil)
+		require.NoError(t, err)
+
+		pmmAgent2.Version = pointer.To("3.6.0")
+		err = db.Update(pmmAgent2)
+		require.NoError(t, err)
+
+		_, err = models.CreateAgent(db.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgent2.AgentID,
+			ServiceID:  service2.ServiceID,
+			Username:   "qan-user",
+			Password:   "qan-pass",
+		})
+		require.NoError(t, err)
+
+		resp, err := svc.ListServices(context.Background(), &rtav1.ListServicesRequest{})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		// Only the first mongodbService should be listed
+		require.Len(t, resp.Mongodb, 1)
+		assert.Equal(t, mongodbService.ServiceID, resp.Mongodb[0].ServiceId)
+	})
 }
 
 func TestListSessions(t *testing.T) {
@@ -370,8 +488,8 @@ func TestStartSession(t *testing.T) {
 		})
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
-		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s has pmm-agent with version not supporting Real-Time Analytics. Minimum required version is %s",
-			serviceOld.ServiceID, (*version.MongoDBRtaAgentSupportVersion).String()))
+		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s has pmm-agent with version not supporting Real-Time Analytics.",
+			serviceOld.ServiceID))
 	})
 }
 
