@@ -21,7 +21,7 @@ import {
   QueryData,
   RawQueryData,
 } from 'types/rta.types';
-import { ManagedService } from 'types/services.types';
+import { VersionedService } from 'types/services.types';
 import { useMemo } from 'react';
 import { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
@@ -128,7 +128,7 @@ export const useAvailableServices = () => {
     enabled: user?.isPMMAdmin,
   });
 
-  const availableServices = useMemo<ManagedService[]>(() => {
+  const availableServices = useMemo<VersionedService[]>(() => {
     const runningServiceIds = (sessions || []).map(
       (session) => session.serviceId
     );

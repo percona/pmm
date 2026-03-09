@@ -1,4 +1,4 @@
-import { ManagedService } from './services.types';
+import { VersionedService } from './services.types';
 
 export enum RealtimeSessionStatus {
   unspecified = 'SESSION_STATUS_UNSPECIFIED',
@@ -69,5 +69,5 @@ export interface QueryMongoDBData {
 
 // TODO: Add other service types when available
 export interface AvailableServicesResponse {
-  mongodb?: ManagedService[];
+  mongodb?: VersionedService[];
 }
