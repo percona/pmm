@@ -28,8 +28,6 @@ This repo uses the following stack across its packages:
 - Vite for development (https://vitejs.dev/);
 - Vitest for unit tests (https://vitest.dev/);
 
-## Install dependencies
-
 ```bash
 make setup
 ```
