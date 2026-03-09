@@ -150,6 +150,7 @@ curl -X POST "https://your-pmm-server/v1/realtime/change" \
 #### Service-level configuration
 
 When enabling RTA for a specific service:
+
 - RTA starts immediately for that service only
 - Other services in the same cluster are not affected
 - Configuration persists across PMM Server restarts
@@ -157,6 +158,7 @@ When enabling RTA for a specific service:
 #### Cluster-level configuration
 
 When enabling RTA for a cluster:
+
 - RTA is enabled for **all services** currently in that cluster
 - Services added to the cluster later will **not** automatically have RTA enabled
 - You must enable RTA for new services individually or run this command again
@@ -164,11 +166,13 @@ When enabling RTA for a cluster:
 #### Performance impact
 
 Enabling RTA has a performance impact on both MongoDB and PMM:
+
 - MongoDB profiling overhead (minimal for most workloads)
 - Additional network traffic between MongoDB and PMM
 - Increased storage usage for real-time data in PMM
 
 We recommend:
+
 - Enabling RTA selectively for services that need active monitoring
 - Disabling RTA during non-critical periods if resources are constrained
 - Monitoring PMM Server resource usage when RTA is enabled on multiple services
@@ -178,11 +182,13 @@ We recommend:
 #### Configuration doesn't apply
 
 **Possible causes:**
+
 - Service or cluster doesn't exist in PMM inventory
 - Typographical error in service_id or cluster name
 - PMM agent not connected to the service
 
 **Solutions:**
+
 1. Verify service_id using [List services](ref:listservices) endpoint
 2. Check cluster name matches exactly (case-sensitive)
 3. Confirm PMM agent is running and connected: `pmm-admin status`
@@ -190,11 +196,13 @@ We recommend:
 #### RTA not showing data after enabling
 
 **Possible causes:**
+
 - MongoDB profiler not enabled
 - No active queries on the database
 - PMM agent connection issues
 
 **Solutions:**
+
 1. Check MongoDB profiling level: `db.getProfilingLevel()`
 2. Verify there's actual query traffic on the database
 3. Check PMM agent logs for connection errors

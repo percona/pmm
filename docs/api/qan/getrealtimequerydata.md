@@ -141,11 +141,13 @@ curl -X GET "https://your-pmm-server/v1/realtime/query-data?service=mongodb-prod
 #### No queries returned
 
 **Possible causes:**
+
 - RTA is not enabled for the service or cluster
 - No queries are currently executing
 - Service is not actively monitored by PMM
 
 **Solutions:**
+
 1. Verify RTA is enabled using `POST /v1/realtime/change`
 2. Check that the service exists in PMM inventory
 3. Confirm the service has active database traffic
@@ -153,10 +155,12 @@ curl -X GET "https://your-pmm-server/v1/realtime/query-data?service=mongodb-prod
 #### Incomplete query data
 
 **Possible causes:**
+
 - MongoDB profiler not configured correctly
 - Insufficient permissions for PMM monitoring user
 
 **Solutions:**
+
 1. Verify MongoDB profiling level is set to 1 or 2
 2. Check PMM agent has necessary MongoDB permissions
 3. Review PMM agent logs for connection issues
