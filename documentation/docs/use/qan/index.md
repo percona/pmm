@@ -1,16 +1,18 @@
 # About Query Analytics
 
-Query Analytics helps you find and fix slow queries. Use it to identify performance bottlenecks, understand query patterns, and track optimization progress.
+Query Analytics (QAN) helps you find and fix slow queries. Use it to identify performance bottlenecks, understand query patterns, and track optimization progress.
 
 ![!image](../../images/PMM_Query_Analytics.jpg)
 
-## Stored metrics vs. Real-time
+## Stored metrics and Real-time QAN
 
 Query Analytics offers two ways to analyze queries:
 
-- **Stored metrics**: Review completed queries to find patterns, identify slow queries, and track optimization over time. Supports MySQL, PostgreSQL, and MongoDB.
+**Choose Real-time when:** You need to identify and stop problematic operations during an active incident.
 
-- **Real-time**: See queries as they execute to troubleshoot problems as they happen. Supports MongoDB only (Technical Preview).
+**Choose Stored metrics when:** You want to analyze query performance over time, compare before/after optimization, or identify recurring performance patterns.
+
+### Real-time vs. Stored metrics capabilities
 
 | Feature | Real-time Analytics (RTA) | Stored metrics (QAN) |
 |---------|---------------------------|------------------------|
