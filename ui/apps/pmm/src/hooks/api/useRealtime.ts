@@ -34,6 +34,7 @@ const KEYS = {
   STOP_SESSION: 'rta:stop-session',
   STOP_SESSIONS: 'rta:stop-sessions',
   SEARCH_QUERIES: 'rta:search-queries',
+  AVAILABLE_SERVICES: 'rta:available-services',
 };
 
 export const useRealtimeSessions = (
@@ -123,7 +124,8 @@ export const useAvailableServices = () => {
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
   const { data: services = [], isLoading: isLoadingServices } = useQuery({
-    queryKey: ['rta:available-services'],
+    // Use orgRole to cache available services for different roles and avoid data leakage
+    queryKey: [KEYS.AVAILABLE_SERVICES, user?.orgRole],
     queryFn: () => getAvailableServices(),
     enabled: user?.isPMMAdmin,
   });
