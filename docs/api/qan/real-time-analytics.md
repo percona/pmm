@@ -12,15 +12,15 @@ Real-time Analytics (RTA) provides live visibility into currently executing quer
 
 Use the RTA API to:
 
-- Monitor currently executing queries in real-time
-- Identify long-running or problematic queries as they happen
-- Enable or disable real-time monitoring for specific services or clusters
-- Integrate live query monitoring into custom dashboards
-- Automate real-time monitoring configuration
+- monitor currently executing queries in real-time
+- identify long-running or problematic queries as they happen
+- enable or disable real-time monitoring for specific services or clusters
+- integrate live query monitoring into custom dashboards
+- automate real-time monitoring configuration
 
 **Base URL:** `https://your-pmm-server/v1/realtime`
 
-**Authentication:** All endpoints require Bearer token authentication. See [Authentication](ref:authentication).
+**Authentication:** All endpoints require [Bearer token authentication](ref:authentication#bearer-authentication).
 
 ## Real-time vs. stored metrics
 
@@ -34,8 +34,8 @@ Use the RTA API to:
 
 ## Available endpoints
 
-- [Get real-time query data](ref:getrealtimequerydata) - Retrieve currently executing queries
-- [Change real-time analytics configuration](ref:changerealtimeconfig) - Enable/disable RTA for services or clusters
+- [Get real-time query data](ref:getrealtimequerydata): Retrieve currently executing queries
+- [Change real-time analytics configuration](ref:changerealtimeconfig): Enable/disable RTA for services or clusters
 
 ## Common use cases
 
@@ -73,7 +73,7 @@ curl -X GET "https://your-pmm-server/v1/realtime/query-data" \
   -H "Content-Type: application/json"
 ```
 
-For details about creating and managing service account tokens, see [Authentication with service accounts](https://docs.percona.com/percona-monitoring-and-management/3/api/authentication.html).
+For details about creating and managing service account tokens, see [Authentication with service accounts](https://docs.percona.com/percona-monitoring-and-management/3/api/authentication.html)
 
 ## Best practices
 
@@ -81,41 +81,40 @@ For details about creating and managing service account tokens, see [Authenticat
 
 To minimize server load and improve response times:
 
-- **Use appropriate time ranges**: Limit your queries to the smallest time window that meets your needs
-- **Implement pagination**: Use offset and limit parameters for large result sets
-- **Cache filter results**: The available filters change infrequently, so cache GetFilters responses
-- **Avoid duplicate requests**: Ensure your application logic triggers API calls only once per user action
+- **Use appropriate time ranges**: limit your queries to the smallest time window that meets your needs
+- **Implement pagination**: use offset and limit parameters for large result sets
+- **Cache filter results**: the available filters change infrequently, so cache GetFilters responses
+- **Avoid duplicate requests**: ensure your application logic triggers API calls only once per user action
 
 ### Efficient polling
 
 When integrating RTA into dashboards or monitoring tools:
 
-- Poll at reasonable intervals (5-10 seconds minimum)
-- Use service or cluster filters to reduce response size
-- Implement exponential backoff if the API is unavailable
-- Cache configuration state to avoid unnecessary `change` calls
+- poll at reasonable intervals (5-10 seconds minimum)
+- use service or cluster filters to reduce response size
+- implement exponential backoff if the API is unavailable
+- cache configuration state to avoid unnecessary `change` calls
 
 ### Resource considerations
 
-Real-time monitoring has a performance impact:
+Real-time monitoring adds overhead to both MongoDB and PMM Server. To minimize performance impact, enable RTA selectively:
 
-- Enable RTA only for services that need active monitoring
-- Disable RTA during maintenance windows if not needed
-- Monitor PMM Server resource usage when RTA is enabled on many services
+- enable RTA only for services that need active monitoring
+- disable RTA during maintenance windows if not needed
+- monitor PMM Server resource usage when RTA is enabled on many services
 
 ## Troubleshooting
 
 ### Duplicate requests
 
-When opening or refreshing QAN, you may see the same API requests (`getFilters` and `getMetrics`) triggered multiple times simultaneously, causing unnecessary server load and slower response times.
+When opening or refreshing QAN, you may see the same API requests (`getFilters` and `getMetrics`) triggered multiple times simultaneously, which causes unnecessary server load and slower response times.
 
 **Cause:** Page refresh or navigation triggers may fire API calls multiple times
 
-**Solution:** Implement request deduplication in your client code:
-
-- Use request cancellation tokens
-- Debounce rapid successive calls
-- Track in-flight requests to prevent duplicates
+**Solution:** Make sure your code doesn't send the same request twice:
+- cancel pending requests
+- wait briefly after user actions
+- tracking requests that are already running
 
 ### Empty results
 

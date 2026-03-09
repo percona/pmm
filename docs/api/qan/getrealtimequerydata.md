@@ -15,12 +15,12 @@ Retrieves a list of currently executing queries on your monitored MongoDB servic
 
 ### Query parameters
 
+Both `cluster` and `service` are optional. If neither is specified, the endpoint returns data for all monitored services with RTA enabled.
+
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `cluster` | string | No | Filter results to a specific MongoDB cluster |
 | `service` | string | No | Filter results to a specific MongoDB service |
-
-**Note:** Both `cluster` and `service` are optional. If neither is specified, the endpoint returns data for all monitored services with RTA enabled.
 
 ### Response
 ```json
