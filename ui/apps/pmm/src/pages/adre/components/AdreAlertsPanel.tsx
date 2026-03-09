@@ -4,11 +4,16 @@ import {
   Card,
   CardContent,
   Checkbox,
+  CircularProgress,
+  Collapse,
   FormControlLabel,
   FormGroup,
+  IconButton,
   Stack,
   Typography,
 } from '@mui/material';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import { FC, useState, useEffect } from 'react';
 import { getAdreAlerts, adreInvestigateStream } from 'api/adre';
 import { useSnackbar } from 'notistack';
@@ -31,8 +36,10 @@ export const AdreAlertsPanel: FC = () => {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [result, setResult] = useState('');
+  const [reasoning, setReasoning] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingAlerts, setLoadingAlerts] = useState(true);
+  const [reasoningExpanded, setReasoningExpanded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,10 +107,14 @@ export const AdreAlertsPanel: FC = () => {
     const payload = buildInvestigatePayload();
     setLoading(true);
     setResult('');
+    setReasoning('');
     try {
       await adreInvestigateStream(
         { ...payload, stream: true },
-        (chunk) => setResult((prev) => prev + chunk)
+        (contentChunk, reasoningChunk) => {
+          if (contentChunk) setResult((prev) => prev + contentChunk);
+          if (reasoningChunk) setReasoning((prev) => prev + reasoningChunk);
+        }
       );
     } catch (err) {
       enqueueSnackbar(
@@ -157,21 +168,62 @@ export const AdreAlertsPanel: FC = () => {
           >
             Investigate
           </Button>
-          {result && (
+          {(loading || result || reasoning) && (
             <Box
               sx={{
                 flex: 1,
                 minHeight: 100,
-                maxHeight: 200,
+                maxHeight: 250,
                 overflow: 'auto',
                 p: 1,
                 bgcolor: 'action.hover',
                 borderRadius: 1,
               }}
             >
-              <Typography component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
-                {result}
-              </Typography>
+              {loading && (
+                <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1 }}>
+                  <CircularProgress size={16} />
+                  <Typography variant="body2" color="text.secondary">
+                    {result ? 'Streaming...' : 'Investigating...'}
+                  </Typography>
+                </Stack>
+              )}
+              {reasoning && (
+                <>
+                  <IconButton
+                    size="small"
+                    onClick={() => setReasoningExpanded((p) => !p)}
+                    sx={{ p: 0, mr: 0.5 }}
+                  >
+                    {reasoningExpanded ? <ExpandLess /> : <ExpandMore />}
+                  </IconButton>
+                  <Typography
+                    component="span"
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => setReasoningExpanded((p) => !p)}
+                  >
+                    Reasoning
+                  </Typography>
+                  <Collapse in={reasoningExpanded}>
+                    <Typography
+                      component="pre"
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ whiteSpace: 'pre-wrap', fontStyle: 'italic', mt: 0.5 }}
+                    >
+                      {reasoning}
+                    </Typography>
+                  </Collapse>
+                  {result && <Box sx={{ mt: 1 }} />}
+                </>
+              )}
+              {result && (
+                <Typography component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                  {result}
+                </Typography>
+              )}
             </Box>
           )}
         </Stack>

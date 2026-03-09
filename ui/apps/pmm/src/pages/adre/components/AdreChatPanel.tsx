@@ -73,6 +73,26 @@ function saveToStorage(response: string, reasoning: string, history: ChatMessage
   }
 }
 
+/** Persists the assistant message to localStorage when stream completes. Runs outside React state so it works even if the component unmounts during streaming. */
+function persistAssistantToHistory(
+  userContent: string,
+  assistantContent: string,
+  assistantReasoning: string
+): void {
+  const { history } = loadFromStorage();
+  const last = history[history.length - 1];
+  const hasUserMsg = last?.role === 'user' && last?.content === userContent;
+  const toAppend: ChatMessage[] = hasUserMsg
+    ? [{ role: 'assistant', content: assistantContent, timestamp: Date.now(), reasoning: assistantReasoning || undefined }]
+    : [
+        { role: 'user', content: userContent, timestamp: Date.now() },
+        { role: 'assistant', content: assistantContent, timestamp: Date.now(), reasoning: assistantReasoning || undefined },
+      ];
+  const updatedHistory = [...history, ...toAppend];
+  const windowed = getWindowedHistory(updatedHistory);
+  saveToStorage('', '', windowed);
+}
+
 /** Returns history limited to last 24h from the newest message, capped at CHAT_HISTORY_MAX_MESSAGES. */
 function getWindowedHistory(history: ChatMessage[]): ChatMessage[] {
   if (history.length === 0) return [];
@@ -143,7 +163,7 @@ export const AdreChatPanel: FC = () => {
       const windowed = getWindowedHistory(history);
       const req = {
         ask: userAsk,
-        conversationHistory: [
+        conversation_history: [
           { role: 'system', content: 'You are a helpful AI ops assistant for Percona Monitoring and Management (PMM).' },
           ...windowed.map((m: ChatMessage) => ({ role: m.role, content: m.content })),
           { role: 'user', content: userAsk },
@@ -160,6 +180,7 @@ export const AdreChatPanel: FC = () => {
         setReasoning(fullReasoning);
         setResponse(fullResponse);
       });
+      persistAssistantToHistory(userAsk, fullResponse, fullReasoning);
       setHistory((prev: ChatMessage[]) => [
         ...prev,
         {

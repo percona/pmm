@@ -93,18 +93,30 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
 		return
 	}
+	chatPromptDisplay := settings.Adre.ChatPrompt
+	if chatPromptDisplay == "" {
+		chatPromptDisplay = DefaultChatPrompt
+	}
+	investigationPromptDisplay := settings.Adre.InvestigationPrompt
+	if investigationPromptDisplay == "" {
+		investigationPromptDisplay = DefaultInvestigationPrompt
+	}
 	resp := struct {
-		Enabled             bool   `json:"enabled"`
-		URL                 string `json:"url"`
-		ChatPrompt          string `json:"chat_prompt"`
-		InvestigationPrompt string `json:"investigation_prompt"`
-		DefaultChatMode     string `json:"default_chat_mode"`
+		Enabled                    bool   `json:"enabled"`
+		URL                        string `json:"url"`
+		ChatPrompt                 string `json:"chat_prompt"`
+		InvestigationPrompt        string `json:"investigation_prompt"`
+		ChatPromptDisplay          string `json:"chat_prompt_display"`
+		InvestigationPromptDisplay string `json:"investigation_prompt_display"`
+		DefaultChatMode            string `json:"default_chat_mode"`
 	}{
-		Enabled:             settings.IsAdreEnabled(),
-		URL:                 settings.GetAdreURL(),
-		ChatPrompt:          settings.Adre.ChatPrompt,
-		InvestigationPrompt: settings.Adre.InvestigationPrompt,
-		DefaultChatMode:     settings.Adre.DefaultChatMode,
+		Enabled:                    settings.IsAdreEnabled(),
+		URL:                        settings.GetAdreURL(),
+		ChatPrompt:                 settings.Adre.ChatPrompt,
+		InvestigationPrompt:        settings.Adre.InvestigationPrompt,
+		ChatPromptDisplay:          chatPromptDisplay,
+		InvestigationPromptDisplay: investigationPromptDisplay,
+		DefaultChatMode:            settings.Adre.DefaultChatMode,
 	}
 	if resp.DefaultChatMode == "" {
 		resp.DefaultChatMode = "chat"
@@ -189,18 +201,30 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	settings, _ := models.GetSettings(h.db)
+	chatPromptDisplay := settings.Adre.ChatPrompt
+	if chatPromptDisplay == "" {
+		chatPromptDisplay = DefaultChatPrompt
+	}
+	investigationPromptDisplay := settings.Adre.InvestigationPrompt
+	if investigationPromptDisplay == "" {
+		investigationPromptDisplay = DefaultInvestigationPrompt
+	}
 	resp := struct {
-		Enabled             bool   `json:"enabled"`
-		URL                 string `json:"url"`
-		ChatPrompt          string `json:"chat_prompt"`
-		InvestigationPrompt string `json:"investigation_prompt"`
-		DefaultChatMode     string `json:"default_chat_mode"`
+		Enabled                    bool   `json:"enabled"`
+		URL                        string `json:"url"`
+		ChatPrompt                 string `json:"chat_prompt"`
+		InvestigationPrompt        string `json:"investigation_prompt"`
+		ChatPromptDisplay          string `json:"chat_prompt_display"`
+		InvestigationPromptDisplay string `json:"investigation_prompt_display"`
+		DefaultChatMode            string `json:"default_chat_mode"`
 	}{
-		Enabled:             settings.IsAdreEnabled(),
-		URL:                 settings.GetAdreURL(),
-		ChatPrompt:          settings.Adre.ChatPrompt,
-		InvestigationPrompt: settings.Adre.InvestigationPrompt,
-		DefaultChatMode:     settings.Adre.DefaultChatMode,
+		Enabled:                    settings.IsAdreEnabled(),
+		URL:                        settings.GetAdreURL(),
+		ChatPrompt:                 settings.Adre.ChatPrompt,
+		InvestigationPrompt:        settings.Adre.InvestigationPrompt,
+		ChatPromptDisplay:          chatPromptDisplay,
+		InvestigationPromptDisplay: investigationPromptDisplay,
+		DefaultChatMode:            settings.Adre.DefaultChatMode,
 	}
 	if resp.DefaultChatMode == "" {
 		resp.DefaultChatMode = "chat"

@@ -14,7 +14,7 @@ export interface AdreModelsResponse {
 
 export interface AdreChatRequest {
   ask: string;
-  conversationHistory?: unknown[];
+  conversation_history?: unknown[];
   model?: string;
   stream?: boolean;
   /** Server resolves prompt from mode; client must not send additionalSystemPrompt. */
@@ -122,11 +122,13 @@ export const adreInvestigate = async (
   return res.data;
 };
 
+/** Callback for adreInvestigateStream: receives content chunks and/or reasoning chunks. */
+export type AdreInvestigateStreamCallback = (content?: string, reasoning?: string) => void;
+
 export const adreInvestigateStream = async (
   body: AdreInvestigateRequest,
-  onChunk: (chunk: string) => void
+  onChunk: AdreInvestigateStreamCallback
 ): Promise<void> => {
-  // Same as chat: relative /v1/adre/investigate
   const response = await fetch('/v1/adre/investigate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -153,6 +155,7 @@ export const adreInvestigateStream = async (
         if (data !== '[DONE]' && data.trim()) {
           const parsed = parseSSEData(data);
           if (parsed.content) onChunk(parsed.content);
+          if (parsed.reasoning) onChunk(undefined, parsed.reasoning);
         }
       }
     }
@@ -166,7 +169,8 @@ function parseSSEData(data: string): { content?: string; reasoning?: string } {
   if (trimmed.startsWith('{')) {
     try {
       const o = JSON.parse(trimmed) as Record<string, unknown>;
-      const contentRaw = o.text ?? o.delta ?? o.content ?? o.analysis;
+      const contentRaw =
+        o.text ?? o.delta ?? o.content ?? o.analysis ?? flattenInstructions(o.instructions) ?? flattenSections(o.sections);
       const content = stringFromValue(contentRaw);
       const reasoningRaw = o.reasoning ?? o.thinking ?? o.thought;
       const reasoning = stringFromValue(reasoningRaw);
@@ -176,6 +180,31 @@ function parseSSEData(data: string): { content?: string; reasoning?: string } {
     }
   }
   return { content: trimmed };
+}
+
+function flattenInstructions(v: unknown): string | undefined {
+  if (!Array.isArray(v) || v.length === 0) return undefined;
+  const parts = v.map((item) => {
+    if (typeof item === 'string') return item;
+    if (item && typeof item === 'object') {
+      const o = item as Record<string, unknown>;
+      if (typeof o.content === 'string') return o.content;
+      if (typeof o.text === 'string') return o.text;
+    }
+    return undefined;
+  });
+  const filtered = parts.filter((p): p is string => p != null && p !== '');
+  return filtered.length > 0 ? filtered.join('\n') : undefined;
+}
+
+function flattenSections(v: unknown): string | undefined {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+  const sections = v as Record<string, unknown>;
+  const parts: string[] = [];
+  for (const [key, val] of Object.entries(sections)) {
+    if (typeof val === 'string' && val) parts.push(`## ${key}\n${val}`);
+  }
+  return parts.length > 0 ? parts.join('\n\n') : undefined;
 }
 
 function stringFromValue(v: unknown): string | undefined {
