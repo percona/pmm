@@ -54,5 +54,5 @@ export const getAvailableServices = async (): Promise<
   const res = await api.get<AvailableServicesResponse>(
     '/realtimeanalytics/services'
   );
-  return (res.data || {}).mongodb || [];
+  return res.data.mongodb;
 };
