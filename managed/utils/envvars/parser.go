@@ -67,6 +67,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
+//   - PMM_ADRE_URL sets the HolmesGPT (ADRE) base URL at startup and enables ADRE (e.g. http://holmesgpt:8080).
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
@@ -221,6 +222,25 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 			}
+
+		case pkgenv.AdreURL:
+			trimmed := strings.TrimSpace(v)
+			if trimmed == "" {
+				envSettings.AdreURL = pointer.ToString("")
+				envSettings.EnableAdre = pointer.ToBool(false)
+				continue
+			}
+			parsed, err := url.Parse(trimmed)
+			if err != nil || parsed.Host == "" {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", trimmed, k))
+				continue
+			}
+			if parsed.Scheme != "http" && parsed.Scheme != "https" {
+				errs = append(errs, fmt.Errorf("environment variable %q must use http or https scheme", k))
+				continue
+			}
+			envSettings.AdreURL = pointer.ToString(trimmed)
+			envSettings.EnableAdre = pointer.ToBool(true)
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue

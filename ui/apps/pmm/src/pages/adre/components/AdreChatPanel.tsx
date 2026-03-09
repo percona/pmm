@@ -27,6 +27,8 @@ import { useSnackbar } from 'notistack';
 import { CodeBlock } from 'pages/updates/change-log/code-block';
 
 const STORAGE_KEY = 'pmm-adre-chat';
+const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
+const CHAT_HISTORY_MAX_MESSAGES = 300;
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -44,12 +46,13 @@ function loadFromStorage(): { response: string; reasoning: string; history: Chat
         reasoning?: string;
         history?: unknown[];
       };
-      const history = Array.isArray(parsed.history)
+      const rawHistory = Array.isArray(parsed.history)
         ? (parsed.history as ChatMessage[]).filter(
             (m): m is ChatMessage =>
               m && typeof m === 'object' && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string'
           )
         : [];
+      const history = getWindowedHistory(rawHistory);
       return {
         response: typeof parsed.response === 'string' ? parsed.response : '',
         reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
@@ -68,6 +71,16 @@ function saveToStorage(response: string, reasoning: string, history: ChatMessage
   } catch {
     // ignore
   }
+}
+
+/** Returns history limited to last 24h from the newest message, capped at CHAT_HISTORY_MAX_MESSAGES. */
+function getWindowedHistory(history: ChatMessage[]): ChatMessage[] {
+  if (history.length === 0) return [];
+  const newestTs = Math.max(...history.map((m) => m.timestamp ?? 0));
+  const cutoff = newestTs - CHAT_HISTORY_WINDOW_MS;
+  const windowed = history.filter((m) => (m.timestamp ?? 0) >= cutoff);
+  if (windowed.length <= CHAT_HISTORY_MAX_MESSAGES) return windowed;
+  return windowed.slice(-CHAT_HISTORY_MAX_MESSAGES);
 }
 
 function formatTimestamp(ts: number): string {
@@ -127,11 +140,13 @@ export const AdreChatPanel: FC = () => {
     const userTimestamp = Date.now();
     setHistory((prev: ChatMessage[]) => [...prev, { role: 'user', content: userAsk, timestamp: userTimestamp }]);
     try {
+      const windowed = getWindowedHistory(history);
       const req = {
         ask: userAsk,
         conversationHistory: [
           { role: 'system', content: 'You are a helpful AI ops assistant for Percona Monitoring and Management (PMM).' },
-          ...history.map((m: ChatMessage) => ({ role: m.role, content: m.content })),
+          ...windowed.map((m: ChatMessage) => ({ role: m.role, content: m.content })),
+          { role: 'user', content: userAsk },
         ],
         model: model || undefined,
         stream: true,

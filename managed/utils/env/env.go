@@ -46,6 +46,9 @@ const (
 
 	// ClickHouseNodes is used to store the ClickHouse nodes.
 	ClickHouseNodes = "PMM_CLICKHOUSE_NODES"
+
+	// AdreURL is the HolmesGPT (ADRE) base URL, applied at startup to settings.
+	AdreURL = "PMM_ADRE_URL"
 )
 
 // GetBool returns the boolean value of the environment variable.
