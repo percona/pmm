@@ -18,8 +18,9 @@ package bcrypt_test
 import (
 	"testing"
 
-	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
 )
 
 // Verify that the generated hashes match the expected values.
