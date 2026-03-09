@@ -159,7 +159,6 @@ const AdrePage: FC = () => {
             <AdreAlertsPanel />
           </Box>
         </Stack>
-      </Stack>
       </Box>
     </Page>
   );
