@@ -1,4 +1,5 @@
 import {
+  AvailableServicesResponse,
   ListRunningSessionsResponse,
   RealtimeSession,
   SearchQueriesPayload,
@@ -45,4 +46,13 @@ export const searchQueries = async (
     payload
   );
   return res.data;
+};
+
+export const getAvailableServices = async (): Promise<
+  AvailableServicesResponse['mongodb']
+> => {
+  const res = await api.get<AvailableServicesResponse>(
+    '/realtimeanalytics/services'
+  );
+  return (res.data || {}).mongodb || [];
 };

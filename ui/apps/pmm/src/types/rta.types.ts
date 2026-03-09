@@ -1,3 +1,5 @@
+import { ManagedService } from './services.types';
+
 export enum RealtimeSessionStatus {
   unspecified = 'SESSION_STATUS_UNSPECIFIED',
   running = 'SESSION_STATUS_RUNNING',
@@ -63,4 +65,9 @@ export interface QueryMongoDBData {
   operation: string;
   username: string;
   collection?: string;
+}
+
+// TODO: Add other service types when available
+export interface AvailableServicesResponse {
+  mongodb?: ManagedService[];
 }

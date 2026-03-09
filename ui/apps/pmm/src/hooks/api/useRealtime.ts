@@ -6,6 +6,7 @@ import {
   UseQueryOptions,
 } from '@tanstack/react-query';
 import {
+  getAvailableServices,
   getRunningSessions,
   searchQueries,
   startSession,
@@ -20,8 +21,7 @@ import {
   QueryData,
   RawQueryData,
 } from 'types/rta.types';
-import { ManagedService, ServiceType } from 'types/services.types';
-import { useManagedServices } from './useServices';
+import { ManagedService } from 'types/services.types';
 import { useMemo } from 'react';
 import { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
@@ -122,23 +122,19 @@ export const useAvailableServices = () => {
   const { user } = useUser();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
-  const { data: services, isLoading: isLoadingServices } = useManagedServices({
-    serviceType: ServiceType.mongodb,
-  }, {
+  const { data: services = [], isLoading: isLoadingServices } = useQuery({
+    queryKey: ['rta:available-services'],
+    queryFn: () => getAvailableServices(),
     enabled: user?.isPMMAdmin,
   });
 
   const availableServices = useMemo<ManagedService[]>(() => {
-    if (!services?.services) {
-      return [];
-    }
-
     const runningServiceIds = (sessions || []).map(
       (session) => session.serviceId
     );
 
     // Filter out services that already have running RTA agents
-    return services.services.filter(
+    return services.filter(
       (service) => !runningServiceIds.includes(service.serviceId)
     );
   }, [services, sessions]);
@@ -146,7 +142,7 @@ export const useAvailableServices = () => {
   return {
     availableServices,
     isLoading: isLoadingSessions || isLoadingServices,
-    services: services?.services || [],
+    services,
     sessions: sessions || [],
   };
 };
