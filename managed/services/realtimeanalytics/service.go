@@ -108,11 +108,6 @@ func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest
 		}
 	}
 
-	var (
-		apiSvc inventoryv1.Service
-		svcErr error
-	)
-
 	res := &rtav1.ListServicesResponse{}
 
 	for _, svc := range serviceList {
@@ -128,7 +123,7 @@ func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest
 		}
 
 		// Convert service to API format to be returned in the response.
-		apiSvc, svcErr = services.ToAPIService(svc)
+		apiSvc, svcErr := services.ToAPIService(svc)
 		if svcErr != nil {
 			return nil, fmt.Errorf("failed to convert service with ID %s to API format: %w", svc.ServiceID, svcErr)
 		}
@@ -579,12 +574,7 @@ func isPmmAgentVersionSupported(pmmAgent models.Agent) (bool, error) {
 		return false, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has no version specified.", pmmAgent.AgentID)
 	}
 
-	var (
-		pmmAgentVersion *version.Parsed
-		versionParseErr error
-	)
-
-	pmmAgentVersion, versionParseErr = version.Parse(*pmmAgent.Version)
+	pmmAgentVersion, versionParseErr := version.Parse(*pmmAgent.Version)
 	if versionParseErr != nil {
 		return false, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", pmmAgent.AgentID)
 	}
