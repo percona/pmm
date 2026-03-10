@@ -73,10 +73,31 @@ export const adreChat = async (
 /** Callback for adreChatStream: receives content chunks and/or reasoning chunks. */
 export type AdreChatStreamCallback = (content?: string, reasoning?: string) => void;
 
+/** Progress event when HolmesGPT starts or finishes a tool call (SSE events start_tool_calling, tool_calling_result). */
+export interface AdreStreamProgressEvent {
+  type: 'start_tool' | 'tool_result';
+  id: string;
+  toolName: string;
+  description?: string;
+  /** Present when type is 'tool_result'. */
+  result?: { status?: string; error?: string | null; data?: unknown };
+}
+
+export interface AdreChatStreamOptions {
+  onChunk: AdreChatStreamCallback;
+  onProgress?: (event: AdreStreamProgressEvent) => void;
+}
+
 export const adreChatStream = async (
   body: AdreChatRequest,
-  onChunk: AdreChatStreamCallback
+  onChunkOrOptions: AdreChatStreamCallback | AdreChatStreamOptions
 ): Promise<void> => {
+  const onChunk: AdreChatStreamCallback =
+    typeof onChunkOrOptions === 'function'
+      ? onChunkOrOptions
+      : onChunkOrOptions.onChunk;
+  const onProgress = typeof onChunkOrOptions === 'function' ? undefined : onChunkOrOptions.onProgress;
+
   const response = await fetch('/v1/adre/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -91,6 +112,7 @@ export const adreChatStream = async (
   if (!reader) throw new Error('No response body');
   const decoder = new TextDecoder();
   let buffer = '';
+  let lastEvent = '';
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -98,14 +120,51 @@ export const adreChatStream = async (
     const lines = buffer.split('\n');
     buffer = lines.pop() || '';
     for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6);
-        if (data !== '[DONE]' && data.trim()) {
-          const parsed = parseSSEData(data);
-          if (parsed.content) onChunk(parsed.content);
-          if (parsed.reasoning) onChunk(undefined, parsed.reasoning);
-        }
+      if (line.startsWith('event: ')) {
+        lastEvent = line.slice(7).trim();
+        continue;
       }
+      if (!line.startsWith('data: ')) continue;
+      const data = line.slice(6);
+      if (!data.trim() || data.trim() === '[DONE]') continue;
+      const trimmed = data.trim();
+      if (lastEvent === 'start_tool_calling' && trimmed.startsWith('{')) {
+        try {
+          const o = JSON.parse(trimmed) as Record<string, unknown>;
+          const id = typeof o.id === 'string' ? o.id : '';
+          const toolName = typeof o.tool_name === 'string' ? o.tool_name : '';
+          onProgress?.({
+            type: 'start_tool',
+            id,
+            toolName,
+            description: typeof o.description === 'string' ? o.description : undefined,
+          });
+        } catch {
+          // ignore parse errors
+        }
+        continue;
+      }
+      if (lastEvent === 'tool_calling_result' && trimmed.startsWith('{')) {
+        try {
+          const o = JSON.parse(trimmed) as Record<string, unknown>;
+          const toolCallId = typeof o.tool_call_id === 'string' ? o.tool_call_id : '';
+          const name = typeof o.name === 'string' ? o.name : '';
+          const result = o.result && typeof o.result === 'object' ? (o.result as AdreStreamProgressEvent['result']) : undefined;
+          onProgress?.({
+            type: 'tool_result',
+            id: toolCallId,
+            toolName: name,
+            description: typeof o.description === 'string' ? o.description : undefined,
+            result,
+          });
+        } catch {
+          // ignore parse errors
+        }
+        continue;
+      }
+      const parsed = parseSSEData(trimmed);
+      if (parsed.content) onChunk(parsed.content);
+      if (parsed.reasoning) onChunk(undefined, parsed.reasoning);
     }
   }
 };

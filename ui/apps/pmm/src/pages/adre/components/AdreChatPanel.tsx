@@ -22,7 +22,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useAdreModels, useAdreSettings } from 'hooks/api/useAdre';
-import { adreChatStream } from 'api/adre';
+import { adreChatStream, type AdreStreamProgressEvent } from 'api/adre';
 import { useSnackbar } from 'notistack';
 import { CodeBlock } from 'pages/updates/change-log/code-block';
 
@@ -123,6 +123,7 @@ export const AdreChatPanel: FC = () => {
   const [response, setResponse] = useState(() => loadFromStorage().response);
   const [reasoning, setReasoning] = useState(() => loadFromStorage().reasoning);
   const [loading, setLoading] = useState(false);
+  const [progressSteps, setProgressSteps] = useState<Array<{ id: string; toolName: string; description?: string; status: 'running' | 'done' }>>([]);
   const [history, setHistory] = useState<ChatMessage[]>(() => loadFromStorage().history);
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -155,6 +156,7 @@ export const AdreChatPanel: FC = () => {
     setLoading(true);
     setResponse('');
     setReasoning('');
+    setProgressSteps([]);
     streamStartTimeRef.current = Date.now();
     setAsk('');
     const userTimestamp = Date.now();
@@ -174,11 +176,23 @@ export const AdreChatPanel: FC = () => {
       };
       let fullResponse = '';
       let fullReasoning = '';
-      await adreChatStream(req, (contentChunk, reasoningChunk) => {
-        if (contentChunk) fullResponse += contentChunk;
-        if (reasoningChunk) fullReasoning += reasoningChunk;
-        setReasoning(fullReasoning);
-        setResponse(fullResponse);
+      const handleProgress = (event: AdreStreamProgressEvent) => {
+        if (event.type === 'start_tool') {
+          setProgressSteps((prev) => [...prev, { id: event.id, toolName: event.toolName, description: event.description, status: 'running' }]);
+        } else {
+          setProgressSteps((prev) =>
+            prev.map((s) => (s.id === event.id ? { ...s, status: 'done' as const } : s))
+          );
+        }
+      };
+      await adreChatStream(req, {
+        onChunk: (contentChunk, reasoningChunk) => {
+          if (contentChunk) fullResponse += contentChunk;
+          if (reasoningChunk) fullReasoning += reasoningChunk;
+          setReasoning(fullReasoning);
+          setResponse(fullResponse);
+        },
+        onProgress: handleProgress,
       });
       persistAssistantToHistory(userAsk, fullResponse, fullReasoning);
       setHistory((prev: ChatMessage[]) => [
@@ -196,6 +210,7 @@ export const AdreChatPanel: FC = () => {
       enqueueSnackbar(err instanceof Error ? err.message : 'Chat request failed', { variant: 'error' });
     } finally {
       setLoading(false);
+      setProgressSteps([]);
       streamStartTimeRef.current = null;
     }
   }, [ask, history, model, mode, enqueueSnackbar]);
@@ -332,6 +347,38 @@ export const AdreChatPanel: FC = () => {
                             {(msg.content ?? response) && <Box sx={{ mt: 1 }} />}
                           </>
                         )}
+                        {progressSteps.length > 0 && (
+                          <Box sx={{ mb: 1 }}>
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                              Progress
+                            </Typography>
+                            <Stack component="ul" sx={{ m: 0, pl: 2.5, listStyle: 'none' }}>
+                              {progressSteps.map((step) => (
+                                <Box
+                                  component="li"
+                                  key={step.id}
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 0.5,
+                                    py: 0.25,
+                                    fontSize: '0.8125rem',
+                                    color: step.status === 'done' ? 'text.secondary' : 'text.primary',
+                                  }}
+                                >
+                                  <Typography component="span" variant="body2" color="inherit">
+                                    {step.status === 'running' ? '⟳' : '✓'} {step.toolName}
+                                  </Typography>
+                                  {step.description && (
+                                    <Typography component="span" variant="caption" color="text.secondary" sx={{ flex: 1 }}>
+                                      — {step.description.length > 60 ? `${step.description.slice(0, 60)}…` : step.description}
+                                    </Typography>
+                                  )}
+                                </Box>
+                              ))}
+                            </Stack>
+                          </Box>
+                        )}
                         {(msg.content || response || '').trim() ? (
                           <Markdown
                             remarkPlugins={[remarkGfm]}
@@ -346,7 +393,7 @@ export const AdreChatPanel: FC = () => {
                           </Markdown>
                         ) : msg.streaming && loading && !response ? (
                           <Typography color="text.secondary" variant="body2">
-                            Typing...
+                            {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
                           </Typography>
                         ) : null}
                       </Box>

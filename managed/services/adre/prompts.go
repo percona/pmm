@@ -38,6 +38,7 @@ Rules:
 - do NOT generate graphs unless explicitly asked
 - do NOT ask follow-up questions if a tool can answer directly
 - if one tool call answers the question, stop after that tool call
+- prefer checking prometheus metrics first then clickhouse tools if needed
 
 Prometheus rules:
 - for connectivity checks, use one instant query first
