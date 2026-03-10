@@ -1,57 +1,32 @@
 import * as TypographyStories from './Typography.stories.tsx';
-import { Meta, Title, Subheading, Canvas } from '@storybook/blocks';
+import { Meta, Title, Canvas } from '@storybook/blocks';
 
-<Meta title="Typography/Docs" of={TypographyStories} />
+<Meta of={TypographyStories} />
 
-<Title />
+# Typography
 
-# Heading
+Typography in Peak Design is based on [MUI Typography](https://mui.com/material-ui/react-typography/) with the Percona branding applied.
 
-    <Subheading>H1</Subheading>
-    <Canvas of={TypographyStories.H1} />
-    <Subheading>H2</Subheading>
-    <Canvas of={TypographyStories.H2} />
-    <Subheading>H3</Subheading>
-    <Canvas of={TypographyStories.H3} />
-    <Subheading>H4</Subheading>
-    <Canvas of={TypographyStories.H4} />
-    <Subheading>H5</Subheading>
-    <Canvas of={TypographyStories.H5} />
-    <Subheading>H6</Subheading>
-    <Canvas of={TypographyStories.H6} />
+## Headings
 
-# Titling
+These styles establish a clear visual hierarchy and set the tone across the product. Each level, ranging from `h1` to `h6`, has distinct sizes and weights for a consistent structure.
 
-    <Subheading>Subhead 1</Subheading>
-    <Canvas of={TypographyStories.Subhead1} />
-    <Subheading>Subhead 2</Subheading>
-    <Canvas of={TypographyStories.Subhead2} />
-    <Subheading>Overline</Subheading>
-    <Canvas of={TypographyStories.Overline} />
-    <Subheading>Section Heading</Subheading>
-    <Canvas of={TypographyStories.SectionHeading} />
+<Canvas of={TypographyStories.HeadingsShowcase} sourceState="none" />
 
-# Body
+## Titling
 
-    <Subheading>Body 1</Subheading>
-    <Canvas of={TypographyStories.Body1} />
-    <Subheading>Body 2</Subheading>
-    <Canvas of={TypographyStories.Body2} />
-    <Subheading>Caption</Subheading>
-    <Canvas of={TypographyStories.Caption} />
+Complementary styles for titling and subheadings used to support document composition using the heading styles.
 
-# Actions
+<Canvas of={TypographyStories.TitlingShowcase} sourceState="none" />
 
-    <Subheading>Button</Subheading>
-    <Canvas of={TypographyStories.Button} />
-    <Subheading>Menu Text</Subheading>
-    <Canvas of={TypographyStories.MenuText} />
+## Body styles
 
-# Inputs
+These styles are used for the main body text of the product. They are designed to be easy to read and follow, and are used for paragraphs, lists, and other block-level content.
 
-    <Subheading>Input Text</Subheading>
-    <Canvas of={TypographyStories.InputText} />
-    <Subheading>Input Label</Subheading>
-    <Canvas of={TypographyStories.InputLabel} />
-    <Subheading>Helper Text</Subheading>
-    <Canvas of={TypographyStories.HelperText} />
+<Canvas of={TypographyStories.BodyShowcase} sourceState="none" />
+
+## Component text styles
+
+Text styles used within interactive components like buttons, menus, and form elements. They are stored in the library to lock the style and extend the consistency across components. More styles may be added in the future as needed in GUI development.
+
+<Canvas of={TypographyStories.ComponentStylesShowcase} sourceState="none" />
