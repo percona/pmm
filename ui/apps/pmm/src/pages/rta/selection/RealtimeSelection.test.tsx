@@ -8,7 +8,6 @@ import {
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RealtimeSelection } from './RealtimeSelection';
 import { Messages } from './RealtimeSelection.messages';
-import * as servicesApi from 'api/services';
 import * as realtimeApi from 'api/rta';
 import {
   wrapWithQueryProvider,
@@ -17,7 +16,7 @@ import {
   wrapWithUserProvider,
 } from 'utils/testUtils';
 import {
-  TEST_MANAGED_SERVICE_MONGO,
+  TEST_VERSIONED_MONGO_SERVICE,
   TEST_REAL_TIME_SESSION,
   TEST_USER_ADMIN,
   TEST_USER_EDITOR,
@@ -39,10 +38,10 @@ vi.mock('react-router-dom', async () => {
 });
 
 const setupMocks = () => {
-  vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
-    services: [],
-  });
   vi.mocked(realtimeApi.getRunningSessions).mockResolvedValue([]);
+  vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+    mongodb: [],
+  });
 };
 
 const renderComponent = (user = TEST_USER_ADMIN) =>
@@ -197,8 +196,8 @@ describe('RealtimeSelection', () => {
       vi.mocked(realtimeApi.startSession).mockResolvedValue({
         session: TEST_REAL_TIME_SESSION,
       });
-      vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
-        services: [TEST_MANAGED_SERVICE_MONGO],
+      vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+        mongodb: [TEST_VERSIONED_MONGO_SERVICE],
       });
 
       renderComponent();
@@ -209,7 +208,7 @@ describe('RealtimeSelection', () => {
 
       const listbox = await screen.findByRole('listbox');
       const option = within(listbox).getByText(
-        TEST_MANAGED_SERVICE_MONGO.serviceName
+        TEST_VERSIONED_MONGO_SERVICE.serviceName
       );
       fireEvent.click(option);
 
@@ -226,8 +225,8 @@ describe('RealtimeSelection', () => {
 
   describe('Loading States', () => {
     it('shows loading indicator while fetching services', () => {
-      vi.mocked(servicesApi.listManagedServices).mockImplementation(
-        () => new Promise(() => {})
+      vi.mocked(realtimeApi.getAvailableServices).mockImplementation(
+        () => new Promise(() => { })
       );
 
       renderComponent();
@@ -238,7 +237,7 @@ describe('RealtimeSelection', () => {
 
   describe('Error Handling', () => {
     it('renders form even when service fetch fails', async () => {
-      vi.mocked(servicesApi.listManagedServices).mockRejectedValueOnce(
+      vi.mocked(realtimeApi.getAvailableServices).mockRejectedValueOnce(
         new Error('Failed to fetch services')
       );
       vi.mocked(realtimeApi.getRunningSessions).mockResolvedValueOnce([]);
