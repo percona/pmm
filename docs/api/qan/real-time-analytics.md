@@ -12,127 +12,101 @@ Real-time Analytics (RTA) provides live visibility into currently executing quer
 
 Use the RTA API to:
 
-- monitor currently executing queries in real-time
-- identify long-running or problematic queries as they happen
-- enable or disable real-time monitoring for specific services or clusters
+- start and stop real-time monitoring sessions for MongoDB services
+- search currently executing queries in active sessions
+- list all active monitoring sessions
 - integrate live query monitoring into custom dashboards
-- automate real-time monitoring configuration
+- automate session management
 
-**Base URL:** `https://your-pmm-server/v1/realtime`
+**Base URL:** `https://your-pmm-server/v1/realtimeanalytics`
 
 **Authentication:** All endpoints require [Bearer token authentication](ref:authentication#bearer-authentication).
 
 ## Real-time vs. stored metrics
 
-| Feature | Real-time Analytics (RTA) | Query Analytics  |
+| QAN feature | Real-time Analytics (RTA) | Stored metrics  |
 |---------|---------------------------|------------------------|
 | **Data type** | Currently executing queries | Historical query performance |
-| **Time range** | Current moment only | Any past time range |
+| **Time range** | Live data (updates every 1-5 seconds) | Historical data (configurable retention) |
 | **Use case** | Identify active issues now | Analyze trends and patterns |
-| **Database support** | MongoDB | MySQL, PostgreSQL, MongoDB |
-| **Refresh rate** | Live updates | Historical snapshots |
+| **Database support** | MongoDB (Technical Preview) | MySQL, PostgreSQL, MongoDB |
+| **Data retention** | Ephemeral (not stored) | Persistent (stored for analysis) |
 
 ## Available endpoints
 
-- [Get real-time query data](ref:getrealtimequerydata): Retrieve currently executing queries
-- [Change real-time analytics configuration](ref:changerealtimeconfig): Enable/disable RTA for services or clusters
+- [Search real-time analytics queries](ref:search-rta-queries): retrieve currently executing queries from active sessions
+- [Manage real-time analytics sessions](ref:manage-rta-sessions): start, stop, and list real-time monitoring sessions for MongoDB services
 
 ## Common use cases
 
-### Monitor active database load
+### Monitor active database operations
 
-Use RTA to see what queries are currently running and identify potential performance bottlenecks in real-time:
+When your database is experiencing performance issues, use RTA to see exactly what queries are running and identify bottlenecks in real-time:
 
-1. Call `GET /v1/realtime/query-data` to retrieve active queries
-2. Filter by `cluster` or `service` to focus on specific instances
-3. Identify long-running queries that may be impacting performance
+1. Start a session with `POST /v1/realtimeanalytics/sessions:start`
+2. Search active queries with `POST /v1/realtimeanalytics/queries:search`
+3. Filter results by service to focus on specific instances
 
-### Enable RTA for a new service
+### Automated session management
 
-When adding a new MongoDB service to monitoring, enable RTA to get immediate visibility:
+Integrate RTA into your monitoring workflows to automatically enable real-time monitoring during peak hours or when alerts trigger:
 
-1. Add the MongoDB service to PMM inventory
-2. Call `POST /v1/realtime/change` with `service_id` and `enabled: true`
-3. Verify RTA is active by calling `GET /v1/realtime/query-data`
+1. List existing sessions with `GET /v1/realtimeanalytics/sessions`
+2. Start monitoring when needed with `POST /v1/realtimeanalytics/sessions:start`
+3. Stop monitoring when done with `POST /v1/realtimeanalytics/sessions:stop`
 
 ### Cluster-wide monitoring
 
-Enable RTA across an entire MongoDB cluster for comprehensive visibility:
+Get comprehensive visibility across your entire MongoDB cluster by monitoring all replica set members simultaneously:
 
-1. Call `POST /v1/realtime/change` with `cluster` name and `enabled: true`
-2. All services in the cluster will have RTA enabled
-3. Use `GET /v1/realtime/query-data?cluster=<name>` to see cluster-wide activity
+1. Start sessions for each service in the cluster
+2. Use the cluster filter in list sessions to view cluster status
+3. Search queries across all cluster services
 
 ## Authentication
 
 All RTA endpoints require authentication using service account tokens. Include your token in the request header:
 
-```sh
-curl -X GET "https://your-pmm-server/v1/realtime/query-data" \
+```bash
+curl -X POST "https://your-pmm-server/v1/realtimeanalytics/sessions:start" \
   -H "Authorization: Bearer YOUR_SERVICE_TOKEN" \
-  -H "Content-Type: application/json"
+  -H "Content-Type: application/json" \
+  -d '{"service_id": "your-service-id"}'
 ```
 
-For details about creating and managing service account tokens, see [Authentication with service accounts](https://docs.percona.com/percona-monitoring-and-management/3/api/authentication.html)
+For details about creating and managing service account tokens, see [Authentication with service accounts](https://docs.percona.com/percona-monitoring-and-management/3/api/authentication.html).
 
 ## Best practices
 
-### Request optimization
+### Session management and resource considerations
 
-To minimize server load and improve response times:
+Real-time monitoring adds overhead to both MongoDB and PMM Server. Manage sessions carefully to minimize performance impact:
 
-- **Use appropriate time ranges**: limit your queries to the smallest time window that meets your needs
-- **Implement pagination**: use offset and limit parameters for large result sets
-- **Cache filter results**: the available filters change infrequently, so cache GetFilters responses
-- **Avoid duplicate requests**: ensure your application logic triggers API calls only once per user action
+- start sessions only when actively troubleshooting or for services that need active monitoring
+- stop sessions when monitoring is no longer needed or during maintenance windows
+- use list sessions to track which services are being monitored
+- monitor session status regularly to detect errors or failures
+- monitor PMM Server resource usage when multiple sessions are active
 
-### Efficient polling
+### Query search optimization
 
-When integrating RTA into dashboards or monitoring tools:
+To minimize server load and improve response times when searching for active queries, follow these guidelines.
 
-- poll at reasonable intervals (5-10 seconds minimum)
-- use service or cluster filters to reduce response size
-- implement exponential backoff if the API is unavailable
-- cache configuration state to avoid unnecessary `change` calls
+- Use `service_ids` filter to limit results to specific services
+- Use `limit` parameter to control result set size
+- Poll at reasonable intervals (5-10 seconds minimum)
 
-### Resource considerations
+## Session status values
 
-Real-time monitoring adds overhead to both MongoDB and PMM Server. To minimize performance impact, enable RTA selectively:
+Each RTA session has a status that indicates whether it's actively collecting data, has encountered an error, or has been stopped:
 
-- enable RTA only for services that need active monitoring
-- disable RTA during maintenance windows if not needed
-- monitor PMM Server resource usage when RTA is enabled on many services
-
-## Troubleshooting
-
-### Duplicate requests
-
-When opening or refreshing QAN, you may see the same API requests (`getFilters` and `getMetrics`) triggered multiple times simultaneously, which causes unnecessary server load and slower response times.
-
-**Cause:** Page refresh or navigation triggers may fire API calls multiple times
-
-**Solution:** Make sure your code doesn't send the same request twice:
-- cancel pending requests
-- wait briefly after user actions
-- tracking requests that are already running
-
-### Empty results
-
-The API returns an empty result set even though you expect to see query data.
-
-**Possible causes:**
-
-- No query data available for the specified time range
-- Filters too restrictive
-- Selected service has no QAN data collection enabled
-
-**Solution:**
-
-- Verify QAN is enabled for your monitored services
-- Check time range covers period with actual query activity
-- Review filter criteria for typos or invalid values
+| Status | Description |
+|--------|-------------|
+| `SESSION_STATUS_RUNNING` | Session is actively collecting data |
+| `SESSION_STATUS_ERROR` | Session encountered an error |
+| `SESSION_STATUS_DOWN` | Session has been stopped or disabled |
 
 ## Related resources
 
-- [Query Analytics user documentation](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics.html)
+- [Real-time Analytics user documentation](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics.html)
 - [Complete PMM API documentation](https://percona-pmm.readme.io/reference/introduction)
