@@ -6,11 +6,12 @@ export const isHeadlessBrowser = (): boolean => {
   if (navigator === undefined || window === undefined) {
     return false;
   }
+
+  if (navigator.webdriver) {
+    return false;
+  }
   // Common headless/automated browser signals
-  if (
-    /HeadlessChrome|Headless/i.test(navigator.userAgent) &&
-    ['development', 'production'].includes(process.env.NODE_ENV || '')
-  ) {
+  if (/HeadlessChrome|Headless/i.test(navigator.userAgent)) {
     return true;
   }
 
