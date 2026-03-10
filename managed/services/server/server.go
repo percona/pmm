@@ -473,7 +473,6 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
-// While platform is no longer supported, the connectedToPlatform parameter is kept for compatibility.
 func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan bool) *serverv1.Settings {
 	res := &serverv1.Settings{
 		UpdatesEnabled:   settings.IsUpdatesEnabled(),
@@ -498,7 +497,6 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 
 		AlertingEnabled:         settings.IsAlertingEnabled(),
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
-		ConnectedToPlatform:     false,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
