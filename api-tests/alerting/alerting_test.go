@@ -47,7 +47,7 @@ import (
 // PMM_ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
 	t.Parallel()
-	const foldersAPI = "http://127.0.0.1/graph/api/folders"
+	const foldersAPI = "https://127.0.0.1/graph/api/folders"
 	client := alertingClient.Default.AlertingService
 
 	// Create grafana folder for test alert rules

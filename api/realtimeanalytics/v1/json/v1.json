@@ -1,0 +1,498 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Real-Time Analytics API",
+    "version": "v1"
+  },
+  "paths": {
+    "/v1/realtimeanalytics/queries:search": {
+      "post": {
+        "description": "Returns list of currently running Database queries in a particular services",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "List Running Database Queries in a particular services",
+        "operationId": "SearchQueries",
+        "parameters": [
+          {
+            "description": "SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.",
+              "type": "object",
+              "properties": {
+                "service_ids": {
+                  "description": "Optional filter by Service identifiers.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "limit": {
+                  "description": "Optional limit the number of queries in response.",
+                  "type": "string",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "SearchQueriesResponse returns the list of currently active Real-Time Analytics session Queries.",
+              "type": "object",
+              "properties": {
+                "queries": {
+                  "description": "List of active Real-Time Analytics session Queries.",
+                  "type": "array",
+                  "items": {
+                    "description": "QueryData represents a single Real-Time Analytics query data point.\nIt includes general query information and a payload for database-specific details.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "PMM Service identifier that reported the query.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "PMM Service name that reported the query.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "query_id": {
+                        "description": "Unique identifier for the query.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "query_text": {
+                        "description": "The text of the query.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "query_raw_json": {
+                        "description": "Raw JSON representation of the query.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "query_execution_duration": {
+                        "description": "Current query current execution time.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "query_collect_time": {
+                        "description": "Timestamp when the query data was collected by Real-Time Analytics agent.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 6
+                      },
+                      "client_address": {
+                        "description": "Client address (host:port).",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "mongo_db_payload": {
+                        "description": "QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.",
+                        "type": "object",
+                        "properties": {
+                          "db_instance_address": {
+                            "description": "MongoDB instance address(host:port) that processing the query.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "client_app_name": {
+                            "description": "Client application name from the MongoDB query.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "database_name": {
+                            "description": "Database name.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "collection": {
+                            "description": "Collection name.",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "operation": {
+                            "description": "Query operation (\"find\", \"aggregate\", \"update\", etc).",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "operation_start_time": {
+                            "description": "The start time of the operation.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 5
+                          },
+                          "username": {
+                            "description": "MongoDB user name associated with the query.",
+                            "type": "string",
+                            "x-order": 6
+                          },
+                          "plan_summary": {
+                            "description": "Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.",
+                            "type": "string",
+                            "x-order": 7
+                          }
+                        },
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/sessions": {
+      "get": {
+        "description": "Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "List Running Real-Time Analytics Sessions",
+        "operationId": "ListSessions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional filter by cluster name.",
+            "name": "cluster_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListSessionsResponse returns the list of currently active Real-Time Analytics Sessions.",
+              "type": "object",
+              "properties": {
+                "sessions": {
+                  "description": "List of active Real-Time Analytics Sessions.",
+                  "type": "array",
+                  "items": {
+                    "description": "Session represents an active Real-Time Analytics session.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Service identifier that has enabled Real-Time Analytics session.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "cluster_name": {
+                        "description": "Cluster name the service belongs to.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "start_time": {
+                        "description": "Timestamp when the Real-Time Analytics session started.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 3
+                      },
+                      "collect_interval": {
+                        "description": "Query collect interval.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "status": {
+                        "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled.",
+                        "type": "string",
+                        "default": "SESSION_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "SESSION_STATUS_UNSPECIFIED",
+                          "SESSION_STATUS_ERROR",
+                          "SESSION_STATUS_RUNNING",
+                          "SESSION_STATUS_DOWN"
+                        ],
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/sessions:start": {
+      "post": {
+        "description": "Start Real-Time Analytics session for a specified service.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "Start Real-Time Analytics session",
+        "operationId": "StartSession",
+        "parameters": [
+          {
+            "description": "StartSessionRequest contains parameters for starting Real-Time Analytics session.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "StartSessionRequest contains parameters for starting Real-Time Analytics session.",
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Required service identifier the Real-Time Analytics session shall be started for.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "StartSessionResponse is the response for starting Real-Time Analytics session.",
+              "type": "object",
+              "properties": {
+                "session": {
+                  "description": "Session represents an active Real-Time Analytics session.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Service identifier that has enabled Real-Time Analytics session.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Service name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "cluster_name": {
+                      "description": "Cluster name the service belongs to.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "start_time": {
+                      "description": "Timestamp when the Real-Time Analytics session started.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 3
+                    },
+                    "collect_interval": {
+                      "description": "Query collect interval.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled.",
+                      "type": "string",
+                      "default": "SESSION_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "SESSION_STATUS_UNSPECIFIED",
+                        "SESSION_STATUS_ERROR",
+                        "SESSION_STATUS_RUNNING",
+                        "SESSION_STATUS_DOWN"
+                      ],
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/sessions:stop": {
+      "post": {
+        "description": "Stop Real-Time Analytics session for a specified service.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "Stop Real-Time Analytics session",
+        "operationId": "StopSession",
+        "parameters": [
+          {
+            "description": "StopSessionRequest contains parameters for stopping Real-Time Analytics session.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "StopSessionRequest contains parameters for stopping Real-Time Analytics session.",
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Required service identifier the Real-Time Analytics session shall be stopped for.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "StopSessionResponse is the response for stopping Real-Time Analytics session.\n\nEmpty response for now.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "RealtimeAnalyticsService"
+    }
+  ]
+}

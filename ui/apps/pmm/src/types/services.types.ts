@@ -9,6 +9,24 @@ export enum ServiceType {
   external = 'SERVICE_TYPE_EXTERNAL_SERVICE',
 }
 
+// Service types returned by /v1/management/services API (lowercase format)
+export enum ManagedServiceType {
+  mysql = 'mysql',
+  mongodb = 'mongodb',
+  postgresql = 'postgresql',
+  proxysql = 'proxysql',
+  haproxy = 'haproxy',
+  valkey = 'valkey',
+  external = 'external',
+}
+
+export enum ServiceStatus {
+  unspecified = 'STATUS_UNSPECIFIED',
+  up = 'STATUS_UP',
+  down = 'STATUS_DOWN',
+  unknown = 'STATUS_UNKNOWN',
+}
+
 export interface ListTypesResponse {
   serviceTypes: ServiceType[];
 }
@@ -52,14 +70,40 @@ export interface ExternalService extends BaseService {
 
 export interface ValkeyService extends VersionedService {}
 
+// Service from /v1/management/services API
+export interface ManagedService {
+  serviceId: string;
+  serviceType: string;
+  serviceName: string;
+  databaseName: string;
+  nodeId: string;
+  nodeName: string;
+  environment: string;
+  cluster: string;
+  replicationSet: string;
+  customLabels: Record<string, string>;
+  externalGroup: string;
+  address: string;
+  port: number;
+  socket: string;
+  version: string;
+  status?: ServiceStatus;
+}
+
+// Response from /v1/management/services API
+export interface ManagedServicesResponse {
+  services: ManagedService[];
+}
+
+// Response from /v1/inventory/services API
 export interface ListServicesResponse {
-  mysql: MySqlService[];
-  mongodb: VersionedService[];
-  postgresql: PostgreSqlService[];
-  proxysql: ProxySqlService[];
-  haproxy: HaProxyService[];
-  external: ExternalService[];
-  valkey: ValkeyService[];
+  mysql?: MySqlService[];
+  mongodb?: VersionedService[];
+  postgresql?: PostgreSqlService[];
+  proxysql?: ProxySqlService[];
+  haproxy?: HaProxyService[];
+  external?: ExternalService[];
+  valkey?: ValkeyService[];
 }
 
 export interface ListServicesParams {
