@@ -6,7 +6,6 @@ import {
   HistoryAction,
   LocationChangeMessage,
   ColorMode,
-  isHeadlessBrowser,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
@@ -26,11 +25,6 @@ import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneU
 
 
 export const initialize = () => {
-  // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
-  if (isHeadlessBrowser()) {
-    return;
-  }
-
   // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
     const isHomePath =
