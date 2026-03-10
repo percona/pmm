@@ -544,7 +544,8 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		deps.l.Warnf("Failed to get settings: %s.", err)
 		return false
 	}
-	if err = deps.supervisord.UpdateConfiguration(settings); err != nil {
+	err = deps.supervisord.UpdateConfiguration(settings)
+	if err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}
