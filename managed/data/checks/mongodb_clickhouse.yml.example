@@ -19,7 +19,7 @@ checks:
               results.append({
                   "summary": "PMM QAN not enabled on MongoDB instance",
                   "description": "PMM QAN is not enabled for this service",
-                  "read_more_url": "https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mongodb.html#set-profiling-in-the-configuration-file",
+                  "read_more_url": "https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mongodb.html",
                   "severity": "warning",
                   "labels": {},
               })
