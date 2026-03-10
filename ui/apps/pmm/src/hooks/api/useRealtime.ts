@@ -21,7 +21,7 @@ import {
   QueryData,
   RawQueryData,
 } from 'types/rta.types';
-import { VersionedService } from 'types/services.types';
+import { ServiceType, VersionedService } from 'types/services.types';
 import { useMemo } from 'react';
 import { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
@@ -119,15 +119,16 @@ export const useStopSessions = (
 /**
  * Hook to get MongoDB services that don't have running RTA agents
  */
-export const useAvailableServices = () => {
+export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
   const { user } = useUser();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
-  const { data: services = [], isLoading: isLoadingServices } = useQuery({
-    queryKey: [KEYS.AVAILABLE_SERVICES],
-    queryFn: () => getAvailableServices(),
-    enabled: user?.isPMMAdmin,
-  });
+  const { data: services = { mongodb: [] }, isLoading: isLoadingServices } =
+    useQuery({
+      queryKey: [KEYS.AVAILABLE_SERVICES],
+      queryFn: () => getAvailableServices(serviceTypes),
+      enabled: user?.isPMMAdmin,
+    });
 
   const availableServices = useMemo<VersionedService[]>(() => {
     const runningServiceIds = (sessions || []).map(
@@ -135,9 +136,9 @@ export const useAvailableServices = () => {
     );
 
     // Filter out services that already have running RTA agents
-    return services.filter(
-      (service) => !runningServiceIds.includes(service.serviceId)
-    );
+    return Object.values(services)
+      .flat()
+      .filter((service) => !runningServiceIds.includes(service.serviceId));
   }, [services, sessions]);
 
   return {

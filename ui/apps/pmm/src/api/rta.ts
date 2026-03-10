@@ -10,6 +10,7 @@ import {
 } from 'types/rta.types';
 import { api } from './api';
 import { EmptyResponse } from 'types/util.types';
+import { ServiceType } from 'types/services.types';
 
 export const getRunningSessions = async (): Promise<RealtimeSession[]> => {
   const res = await api.get<ListRunningSessionsResponse>(
@@ -48,11 +49,12 @@ export const searchQueries = async (
   return res.data;
 };
 
-export const getAvailableServices = async (): Promise<
-  AvailableServicesResponse['mongodb']
-> => {
+export const getAvailableServices = async (
+  serviceTypes?: ServiceType[]
+): Promise<AvailableServicesResponse> => {
+  const params = serviceTypes ? `?service_types=${serviceTypes.join(',')}` : '';
   const res = await api.get<AvailableServicesResponse>(
-    '/realtimeanalytics/services'
+    `/realtimeanalytics/services${params}`
   );
-  return res.data.mongodb;
+  return res.data;
 };
