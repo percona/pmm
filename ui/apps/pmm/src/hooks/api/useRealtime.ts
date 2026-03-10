@@ -124,8 +124,7 @@ export const useAvailableServices = () => {
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
   const { data: services = [], isLoading: isLoadingServices } = useQuery({
-    // Use orgRole to cache available services for different roles and avoid data leakage
-    queryKey: [KEYS.AVAILABLE_SERVICES, user?.orgRole],
+    queryKey: [KEYS.AVAILABLE_SERVICES],
     queryFn: () => getAvailableServices(),
     enabled: user?.isPMMAdmin,
   });
