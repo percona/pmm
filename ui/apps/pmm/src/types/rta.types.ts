@@ -69,5 +69,5 @@ export interface QueryMongoDBData {
 
 // TODO: Add other service types when available
 export interface AvailableServicesResponse {
-  mongodb?: VersionedService[];
+  mongodb: VersionedService[];
 }
