@@ -5,7 +5,7 @@
 
 While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) captures queries after they complete so you can optimize past performance, Real-time Query Analytics (RTA) shows queries as they execute so when your database is struggling, you can spot problematic operations right away and take action before they impact users. 
 
-RTA data is for live troubleshooting so it only stays on the screen for about 30 seconds and then disappears. Use the **Pause** button to freeze the view when you spot something worth investigating.
+RTA displays live query data that updates every 1-5 seconds. Data is not stored so you only see currently executing operations. Use the **Pause** button to freeze the view for investigation.
 
 ## Before you start
 
@@ -28,9 +28,9 @@ The live operations table appears and begins updating automatically.
 
 ### Filter by service
 
-If you have multiple MongoDB services registered, click  **+ New session** to run sessions simultaneously. This is useful when you want to compare activity across replica set members, or to monitor several services during an incident.
+If you have multiple MongoDB services registered, click **+ New session** to run sessions simultaneously. This lets you monitor multiple replica set members at once or track several services during an incident.
 
-Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to compare activity across replica set members.
+Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to monitor activity across replica set members.
 
 ### Control the refresh rate
 
@@ -116,22 +116,20 @@ db.killOp(<operation_id>)
 
 The **Details** tab shows a reconstructed version of the query, which may differ slightly from what you originally sent. 
 
-For the exact response from MongoDB, click the **Raw data** tab.
-
-The raw data also includes additional information not shown in the **Details** tab, such as driver version, platform details, and the full command structure. 
-
-This can help identify issues caused by outdated drivers or specific client configurations.
+For the complete diagnostic information from MongoDB's currentOp command, click the **Raw data** tab.
+The raw data also includes additional information not shown in the **Details** tab, such as driver version, platform details, and the full command structure. This can help identify issues caused by outdated drivers or specific client configurations.
 
 ## Privacy considerations
 
 !!! caution "Sensitive data may be visible"
+
     RTA displays raw query data from MongoDB, which may include:
     
-    - values in insert or update statements
-    - filter criteria containing user data
-    - credentials passed in queries
+    - filter criteria and update values containing sensitive information
+    - user credentials passed in queries
+    - personal or confidential data used in query conditions
     
-    This data is visible to any PMM user who can access the QAN **Real-time** page. Consider your security requirements before enabling RTA in production environments.
+    This data is visible to any PMM user who can access the QAN Real-time page. Consider your security requirements before enabling RTA in production environments.
 
 RTA displays exactly what MongoDB returns and does not expose any additional information beyond what `db.currentOp()` provides.
 
@@ -139,8 +137,7 @@ RTA displays exactly what MongoDB returns and does not expose any additional inf
 
 ### No data appears
 
-- Check **PMM Inventory > Services** to verify the MongoDB exporter is running and the RTA session shows **Running**, not **Failing**.
-- Make sure your database has active queries. Operations that finish between collection intervals won't appear.
+In **PMM Inventory > Services**, verify the RTA agent is running and the session shows **Running** status. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
 
 ### Some fields show "Unavailable"
 

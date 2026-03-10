@@ -8,9 +8,9 @@ Query Analytics (QAN) helps you find and fix slow queries. Use it to identify pe
 
 Query Analytics offers two ways to analyze queries:
 
-**Choose Real-time when:** You need to identify and stop problematic operations during an active incident.
+- **Stored metrics**: Choose stored metrics when you want to  analyze completed queries to identify patterns, find slow queries, and track optimization progress over time. 
 
-**Choose Stored metrics when:** You want to analyze query performance over time, compare before/after optimization, or identify recurring performance patterns.
+- **Real-time**: Choose real-time when you need to identify problematic operations during an active incident.  
 
 ### Real-time vs. Stored metrics capabilities
 
@@ -18,12 +18,12 @@ Query Analytics offers two ways to analyze queries:
 |---------|---------------------------|------------------------|
 | **Data type** | Currently executing queries | Completed queries |
 | **Purpose** | Live troubleshooting | Performance optimization |
-| **Time range** | Current moment only (30-second display window) | Historical data (configurable retention) |
+| **Time range** | Live data (updates every 1-5 seconds) | Historical data (configurable retention) |
 | **Use case** | Spot problematic operations during incidents | Analyze trends and optimize past performance |
 | **Database support** | MongoDB (Technical Preview) | MySQL, PostgreSQL, MongoDB |
-| **Data retention** | Ephemeral (disappears after ~30 seconds) | Persistent (stored for analysis) |
+| **Data retention** | Temporary (refreshes with new data) | Persistent (stored for analysis) |
 | **Refresh rate** | Live updates (1-5 seconds, configurable) | Historical snapshots |
-| **Query details** | Raw operation data from `db.currentOp()` | Aggregated metrics and query fingerprints |
+| **Query details** | Raw operation data from `db.currentOp()` (no aggregation, grouping, or processing) | Aggregated metrics and query fingerprints |
 | **Best for** | "What's slowing down my database right now?" | "Which queries should I optimize?" |
 
 ## Label-based access control
