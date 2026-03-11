@@ -6,6 +6,7 @@ import {
   HistoryAction,
   LocationChangeMessage,
   ColorMode,
+  isHeadlessBrowser,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_LOCAL_STORAGE_KEY,
@@ -14,16 +15,23 @@ import {
   GRAFANA_SUB_PATH,
   PMM_UI_GRAFANA_PATH,
   PMM_UI_HELP_PATH,
+  PMM_UI_PATH,
 } from 'lib/constants';
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
-import { documentTitleObserver } from 'lib/utils/document';
-import { isFirstLogin, updateIsFirstLogin } from 'lib/utils/login';
-import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent } from 'lib/events';
+import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
+import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
+import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+
 
 export const initialize = () => {
+  // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
+  if (isHeadlessBrowser()) {
+    return;
+  }
+
   // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
     const isHomePath =
@@ -33,7 +41,7 @@ export const initialize = () => {
     if (isFirstLogin() && isHomePath) {
       updateIsFirstLogin();
 
-      window.location.replace(PMM_UI_HELP_PATH);
+      window.location.replace(isUserLoggedIn() ? PMM_UI_HELP_PATH : PMM_UI_PATH);
     } else {
       // redirect user to the new UI
       window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_GRAFANA_PATH));
@@ -62,6 +70,7 @@ export const initialize = () => {
   localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
   localStorage.setItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY, 'false');
 
+  updateBodyClassByLocation(window.location);
   applyCustomStyles();
   adjustToolbar();
 
@@ -128,6 +137,9 @@ export const initialize = () => {
     });
 
     prevLocation = location;
+
+    // Update body class for custom page styles
+    updateBodyClassByLocation(location);
   });
 
   // PMM → Grafana: expand dashboard URL with variables and echo back
@@ -163,6 +175,12 @@ export const initialize = () => {
   getAppEvents().subscribe(ServiceDeletedEvent, () => {
     messenger.sendMessage({
       type: 'SERVICE_DELETED',
+    });
+  });
+
+  getAppEvents().subscribe(TimeZoneUpdatedEvent, () => {
+    messenger.sendMessage({
+      type: 'TIMEZONE_CHANGED',
     });
   });
 };

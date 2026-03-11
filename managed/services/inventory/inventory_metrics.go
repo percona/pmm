@@ -71,7 +71,7 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
-			[]string{"agent_id", "agent_type", "service_id", "node_id", "node_name", "pmm_agent_id", "disabled", "version"},
+			[]string{"agent_id", "agent_type", "service_id", "service_name", "node_id", "node_name", "environment", "pmm_agent_id", "disabled", "version"},
 			nil),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
@@ -119,9 +119,19 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 			return err
 		}
 
+		dbServices, err := models.FindServices(tx.Querier, models.ServiceFilters{})
+		if err != nil {
+			return err
+		}
+
 		nodeMap := make(map[string]string, len(dbNodes))
 		for _, node := range dbNodes {
 			nodeMap[node.NodeID] = node.NodeName
+		}
+
+		serviceMap := make(map[string]*models.Service, len(dbServices))
+		for _, service := range dbServices {
+			serviceMap[service.ServiceID] = service
 		}
 
 		for _, agent := range dbAgents {
@@ -146,12 +156,23 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 			}
 
 			nodeName := nodeMap[runsOnNodeID]
+			serviceID := pointer.GetString(agent.ServiceID)
+			serviceName := ""
+			environment := ""
+
+			if service, ok := serviceMap[serviceID]; ok {
+				serviceName = service.ServiceName
+				environment = service.Environment
+			}
+
 			agentMetricLabels := []string{
 				agent.AgentID,
 				string(agent.AgentType),
-				pointer.GetString(agent.ServiceID),
+				serviceID,
+				serviceName,
 				runsOnNodeID,
 				nodeName,
+				environment,
 				pmmAgentID,
 				disabled,
 				pointer.GetString(agent.Version),

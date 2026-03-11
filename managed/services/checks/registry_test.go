@@ -18,11 +18,11 @@ package checks
 import (
 	"testing"
 
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 )
 

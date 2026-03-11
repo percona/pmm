@@ -13,13 +13,13 @@ import ListItem from '@mui/material/ListItem';
 import List from '@mui/material/List';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
-import NavItemIcon from './nav-item-icon/NavItemIcon';
 import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
+import NavItemIcon from './nav-item-icon/NavItemIcon';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import NavItemDot from './nav-item-dot/NavItemDot';
 import NavItemBadge from './nav-item-badge/NavItemBadge';
-import Box from '@mui/material/Box';
 
 const NavItem: FC<NavItemProps> = ({
   activeItem,
