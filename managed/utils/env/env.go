@@ -49,6 +49,11 @@ const (
 
 	// AdreURL is the HolmesGPT (ADRE) base URL, applied at startup to settings.
 	AdreURL = "PMM_ADRE_URL"
+
+	// Orchestrator LLM (e.g. Ollama) for Investigations.
+	OrchestratorLLMProvider = "PMM_ORCHESTRATOR_LLM_PROVIDER"
+	OrchestratorLLMURL      = "PMM_ORCHESTRATOR_LLM_URL"
+	OrchestratorLLMModel    = "PMM_ORCHESTRATOR_LLM_MODEL"
 )
 
 // GetBool returns the boolean value of the environment variable.

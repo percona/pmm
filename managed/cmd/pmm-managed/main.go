@@ -87,6 +87,7 @@ import (
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/ha"
+	"github.com/percona/pmm/managed/services/investigations"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/management"
@@ -217,6 +218,12 @@ func addAdreHandlers(mux *http.ServeMux, db reform.DBTX, grafanaAlertsFetch adre
 	mux.HandleFunc("/v1/adre/chat", h.PostChat)
 	mux.HandleFunc("/v1/adre/alerts", h.GetAlerts)
 	mux.HandleFunc("/v1/adre/investigate", h.PostInvestigate)
+}
+
+func addInvestigationsHandlers(mux *http.ServeMux, db *reform.DB) {
+	h := investigations.NewHandlers(db)
+	mux.Handle("/v1/investigations", h)
+	mux.Handle("/v1/investigations/", h)
 }
 
 type gRPCServerDeps struct {
@@ -362,10 +369,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs           *server.Logs
-	authServer     *grafana.AuthServer
-	db             reform.DBTX
-	grafanaClient  *grafana.Client
+	logs          *server.Logs
+	authServer    *grafana.AuthServer
+	db            *reform.DB
+	grafanaClient *grafana.Client
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -446,6 +453,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	addAdreHandlers(mux, deps.db, deps.grafanaClient)
+	addInvestigationsHandlers(mux, deps.db)
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 

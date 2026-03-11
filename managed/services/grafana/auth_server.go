@@ -124,6 +124,9 @@ var rules = map[string]role{
 	"/v1/adre/settings": viewer,
 	"/v1/adre":          viewer,
 
+	// Investigations (AI Investigations).
+	"/v1/investigations": viewer,
+
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code

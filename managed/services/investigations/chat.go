@@ -319,7 +319,11 @@ func executeTool(ctx context.Context, db *reform.DB, l *logrus.Entry, investigat
 		resp, err := client.Investigate(ctx, req)
 		if err != nil {
 			l.Warnf("HolmesGPT Investigate: %v", err)
-			return fmt.Sprintf(`{"error": "HolmesGPT request failed: %s"}`, err.Error())
+			out := map[string]string{"error": "HolmesGPT request failed: " + err.Error()}
+			if b, e := json.Marshal(out); e == nil {
+				return string(b)
+			}
+			return `{"error": "HolmesGPT request failed"}`
 		}
 		out := resp.Analysis
 		if len(resp.Sections) > 0 {

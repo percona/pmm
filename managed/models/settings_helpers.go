@@ -18,6 +18,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -114,6 +115,10 @@ type ChangeSettingsParams struct {
 	AdreInvestigationPrompt *string
 	// AdreDefaultChatMode is the default mode when UI does not send one: "chat" or "investigation".
 	AdreDefaultChatMode *string
+	// Orchestrator LLM for Investigations (Ollama by default).
+	OrchestratorLLMProvider *string
+	OrchestratorLLMURL      *string
+	OrchestratorLLMModel    *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -273,6 +278,15 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.AdreDefaultChatMode != nil {
 		settings.Adre.DefaultChatMode = pointer.GetString(params.AdreDefaultChatMode)
 	}
+	if params.OrchestratorLLMProvider != nil {
+		settings.Adre.OrchestratorLLMProvider = pointer.GetString(params.OrchestratorLLMProvider)
+	}
+	if params.OrchestratorLLMURL != nil {
+		settings.Adre.OrchestratorLLMURL = pointer.GetString(params.OrchestratorLLMURL)
+	}
+	if params.OrchestratorLLMModel != nil {
+		settings.Adre.OrchestratorLLMModel = pointer.GetString(params.OrchestratorLLMModel)
+	}
 
 	err = SaveSettings(q, settings)
 	if err != nil {
@@ -361,6 +375,15 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		mode := *params.AdreDefaultChatMode
 		if mode != "chat" && mode != "investigation" {
 			return errors.New("default_chat_mode: must be \"chat\" or \"investigation\"")
+		}
+	}
+	if params.OrchestratorLLMURL != nil && *params.OrchestratorLLMURL != "" {
+		parsed, err := url.Parse(*params.OrchestratorLLMURL)
+		if err != nil || parsed.Host == "" {
+			return errors.New("orchestrator_llm_url: must be a valid URL with host")
+		}
+		if parsed.Scheme != "http" && parsed.Scheme != "https" {
+			return errors.New("orchestrator_llm_url: scheme must be http or https")
 		}
 	}
 

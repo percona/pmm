@@ -105,11 +105,15 @@ type Settings struct {
 
 	// Adre (Autonomous Database Reliability Engineer) / HolmesGPT integration.
 	Adre struct {
-		Enabled              *bool  `json:"enabled"`
-		URL                  string `json:"url"`
-		ChatPrompt           string `json:"chat_prompt"`
-		InvestigationPrompt  string `json:"investigation_prompt"`
-		DefaultChatMode      string `json:"default_chat_mode"`
+		Enabled             *bool  `json:"enabled"`
+		URL                 string `json:"url"`
+		ChatPrompt          string `json:"chat_prompt"`
+		InvestigationPrompt string `json:"investigation_prompt"`
+		DefaultChatMode     string `json:"default_chat_mode"`
+		// Orchestrator LLM (e.g. Ollama) for Investigations chat and run-investigation flow.
+		OrchestratorLLMProvider string `json:"orchestrator_llm_provider"`
+		OrchestratorLLMURL      string `json:"orchestrator_llm_url"`
+		OrchestratorLLMModel    string `json:"orchestrator_llm_model"`
 	} `json:"adre"`
 
 	Alerting struct {
@@ -297,5 +301,14 @@ func (s *Settings) fillDefaults() {
 	}
 	if s.Adre.DefaultChatMode == "" {
 		s.Adre.DefaultChatMode = "chat"
+	}
+	if s.Adre.OrchestratorLLMProvider == "" {
+		s.Adre.OrchestratorLLMProvider = "ollama"
+	}
+	if s.Adre.OrchestratorLLMURL == "" {
+		s.Adre.OrchestratorLLMURL = "http://localhost:11434"
+	}
+	if s.Adre.OrchestratorLLMModel == "" {
+		s.Adre.OrchestratorLLMModel = "llama3.2"
 	}
 }

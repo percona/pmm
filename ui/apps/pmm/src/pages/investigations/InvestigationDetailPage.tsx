@@ -40,7 +40,7 @@ import { getInvestigationExportPdfUrl } from 'api/investigations';
 import type { InvestigationBlock } from 'api/investigations';
 import { BlockRenderer } from './components/BlockRenderer';
 
-const STATUS_OPTIONS = ['open', 'in_progress', 'resolved', 'archived'] as const;
+const STATUS_OPTIONS = ['open', 'in_progress', 'investigating', 'resolved', 'archived'] as const;
 
 const BlockWithActions: FC<{
   block: InvestigationBlock;
@@ -177,7 +177,7 @@ const InvestigationDetailPage: FC = () => {
           </IconButton>
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <Select
-              value={inv.status}
+              value={STATUS_OPTIONS.includes(inv.status as (typeof STATUS_OPTIONS)[number]) ? inv.status : 'open'}
               onChange={(e) =>
                 patchInv.mutate({ status: e.target.value as string })
               }
