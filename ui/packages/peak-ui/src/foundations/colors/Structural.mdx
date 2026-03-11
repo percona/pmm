@@ -1,0 +1,83 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/blocks';
+import { semanticTokensLight, semanticTokensDark } from '../../design/themes/base';
+
+<Meta title="Foundations/Colors/Structural UI" />
+
+# Structural UI
+
+These tokens form the architectural skeleton of our interface. They govern the backgrounds, typography hierarchy, borders, and interaction states that make up the vast majority of the application. They provide a cohesive, neutral canvas that allows our brand and feedback colors to stand out.
+
+### Light mode
+
+<div className="light-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Surfaces"
+      subtitle="Same as background and background overlays."
+      colors={semanticTokensLight.surfaces}
+    />
+    <ColorItem
+      title="Text (neutral)"
+      subtitle="Main text color tokens. May be applied to UI elements for consistency of readability."
+      colors={{
+        primary: semanticTokensLight.text.primary,
+        secondary: semanticTokensLight.text.secondary,
+        disabled: semanticTokensLight.text.disabled,
+      }}
+    />
+    <ColorItem
+      title="Text (colors)"
+      subtitle="Use these for links, other interactivity and syntax highlighting."
+      colors={{
+        sky: semanticTokensLight.text.sky,
+        lavender: semanticTokensLight.text.lavender,
+        aqua: semanticTokensLight.text.aqua,
+      }}
+    />
+    <ColorItem
+      title="Lines"
+      subtitle="Use them to create boundaries and help sort visual hierarchy."
+      colors={semanticTokensLight.lines}
+    />
+    <ColorItem
+      title="Action overlays"
+      subtitle="For states of actionable components, like buttons, form elements, etc."
+      colors={semanticTokensLight.action}
+    />
+  </ColorPalette>
+</div>
+
+### Dark mode
+
+<div className="dark-preview">
+  <ColorPalette>
+    <ColorItem
+      title="Surfaces"
+      colors={semanticTokensDark.surfaces}
+    />
+    <ColorItem
+      title="Text (neutral)"
+      colors={{
+        primary: semanticTokensDark.text.primary,
+        secondary: semanticTokensDark.text.secondary,
+        disabled: semanticTokensDark.text.disabled,
+      }}
+    />
+    <ColorItem
+      title="Text (colors)"
+      colors={{
+        sky: semanticTokensDark.text.sky,
+        lavender: semanticTokensDark.text.lavender,
+        aqua: semanticTokensDark.text.aqua,
+      }}
+    />
+    <ColorItem
+      title="Lines"
+      colors={semanticTokensDark.lines}
+    />
+    <ColorItem
+      title="Action overlays"
+      colors={semanticTokensDark.action}
+    />
+  </ColorPalette>
+</div>

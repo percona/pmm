@@ -72,6 +72,45 @@
     letter-spacing: 0.03rem;
   }
 
+  /* Dark mode preview wrapper for color docs */
+
+  .dark-preview,
+  .light-preview {
+    padding: 1rem;
+    border-radius: 13px;
+  }
+
+  .dark-preview + h2,
+  .light-preview + h2 {
+    margin-top: 4rem !important;
+  }
+
+  .dark-preview + h3,
+  .light-preview + h3 {
+    margin-top: 2rem !important;
+  }
+
+  .dark-preview {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .dark-preview,
+  .dark-preview * {
+    color: #FBFBFB !important;
+    background: #2C323E !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .light-preview {
+    border: 1px solid rgba(38, 85, 115, 0.2);
+  }
+
+  .light-preview,
+  .light-preview * {
+    background: #ffffff !important;
+    border-color: rgba(38, 85, 115, 0.2) !important;
+  }
+
   /* Inline story preview in a doc page */
 
   .sbdocs .docs-story > *:first-child {
