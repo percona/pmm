@@ -13,6 +13,8 @@ import { Redirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import AdrePage from 'pages/adre/AdrePage';
+import InvestigationsListPage from 'pages/investigations/InvestigationsListPage';
+import InvestigationDetailPage from 'pages/investigations/InvestigationDetailPage';
 
 const router = createBrowserRouter(
   [
@@ -43,6 +45,14 @@ const router = createBrowserRouter(
             {
               path: 'adre',
               element: <AdrePage />,
+            },
+            {
+              path: 'investigations',
+              element: <InvestigationsListPage />,
+            },
+            {
+              path: 'investigations/:id',
+              element: <InvestigationDetailPage />,
             },
             {
               path: 'rta',

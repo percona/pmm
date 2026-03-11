@@ -23,6 +23,7 @@ import {
   NAV_BACKUPS,
   NAV_DIVIDERS,
   NAV_HELP,
+  NAV_INVESTIGATIONS,
   NAV_INVENTORY,
   NAV_QAN,
   NAV_SIGN_IN,
@@ -72,6 +73,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     if (user && settings) {
       items.push(NAV_ADRE);
+      items.push(NAV_INVESTIGATIONS);
 
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(addExplore(settings.frontend));

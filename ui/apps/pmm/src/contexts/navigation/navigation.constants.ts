@@ -403,6 +403,14 @@ export const NAV_ADRE: NavItem = {
   url: `${PMM_NEW_NAV_PATH}/adre`,
 };
 
+export const NAV_INVESTIGATIONS: NavItem = {
+  id: 'investigations',
+  icon: 'intelligence',
+  text: 'Investigations',
+  url: `${PMM_NEW_NAV_PATH}/investigations`,
+  matches: [`${PMM_NEW_NAV_PATH}/investigations`, `${PMM_NEW_NAV_PATH}/investigations/*`],
+};
+
 //
 // All Dashbaords
 //
