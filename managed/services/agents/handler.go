@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"fmt"
 	"runtime/pprof"
 	"strings"
 	"time"
@@ -173,8 +174,10 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
 	var PMMAgentID string
+	var portsChanged bool
+	l := logger.Get(ctx).WithField("component", "agents/handler")
 
-	errTX := h.db.InTransaction(func(tx *reform.TX) error {
+	errTX := h.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var agentIDs []string
 		var err error
 		req.AgentId = strings.TrimPrefix(req.AgentId, "/agent_id/")
@@ -184,6 +187,11 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		}
 
 		for _, agentID := range agentIDs {
+			// Check if port changed before updating
+			if checkPortChanged(tx.Querier, agentID, req.ListenPort) {
+				portsChanged = true
+			}
+
 			err := updateAgentStatus(
 				ctx,
 				tx.Querier,
@@ -202,7 +210,18 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		return errTX
 	}
 
-	h.vmdb.RequestConfigurationUpdate()
+	// For port changes, force immediate synchronous config update to prevent
+	// VictoriaMetrics from scraping stale ports (PMM-14267)
+	if portsChanged {
+		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
+		if err := h.vmdb.ForceConfigurationUpdate(ctx); err != nil {
+			return fmt.Errorf("failed to force configuration update: %w", err)
+		}
+	} else {
+		// Normal async update
+		h.vmdb.RequestConfigurationUpdate()
+	}
+
 	agent, err := models.FindAgentByID(h.db.Querier, PMMAgentID)
 	if err != nil {
 		return err
@@ -213,6 +232,19 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 
 	h.state.RequestStateUpdate(ctx, *agent.PMMAgentID)
 	return nil
+}
+
+// checkPortChanged checks if the agent's listen port is changing.
+func checkPortChanged(q *reform.Querier, agentID string, newPort uint32) bool {
+	agent, err := models.FindAgentByID(q, agentID)
+	if err != nil {
+		// Can't determine, assume no change
+		return false
+	}
+	oldPort := pointer.GetUint16(agent.ListenPort)
+	newPort16 := uint16(newPort) //nolint:gosec
+	// Port changed if old port exists and is different from new port
+	return oldPort != 0 && oldPort != newPort16
 }
 
 func updateAgentStatus(
@@ -227,8 +259,7 @@ func updateAgentStatus(
 	l := logger.Get(ctx)
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
 
-	agent := &models.Agent{AgentID: agentID}
-	err := q.Reload(agent)
+	agent, err := models.FindAgentByID(q, agentID)
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
 	if errors.Is(err, reform.ErrNoRows) {

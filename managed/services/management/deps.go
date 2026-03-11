@@ -47,6 +47,9 @@ type agentsStateUpdater interface {
 // FIXME Rename to victoriaMetrics.Service, update tests.
 type prometheusService interface {
 	RequestConfigurationUpdate()
+	// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+	// bypassing the batch delay. Use this for critical updates like port changes.
+	ForceConfigurationUpdate(ctx context.Context) error
 }
 
 // checksService is a subset of methods of checks.Service used by this package.
