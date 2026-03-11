@@ -15,33 +15,48 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { FC } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
 import { useInvestigationsList, useCreateInvestigation } from 'hooks/api/useInvestigations';
+import { CreateInvestigationModal } from './CreateInvestigationModal';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
+import type { CreateInvestigationBody, Investigation, InvestigationListItem } from 'api/investigations';
+import { useSnackbar } from 'notistack';
 
 const InvestigationsListPage: FC = () => {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const [searchParams] = useSearchParams();
+  const [modalOpen, setModalOpen] = useState(false);
   const { data: list, isLoading, isError, error } = useInvestigationsList();
   const createMutation = useCreateInvestigation();
 
-  const handleCreate = () => {
+  const initialFromParams = useMemo(() => {
     const sourceType = searchParams.get('source_type') ?? undefined;
     const sourceRef = searchParams.get('source_ref') ?? undefined;
     const timeFrom = searchParams.get('time_from') ?? undefined;
     const timeTo = searchParams.get('time_to') ?? undefined;
     const title =
-      searchParams.get('title') ?? (sourceType ? `Investigation: ${sourceType}` : 'New investigation');
-    createMutation.mutate(
-      { title, sourceType, sourceRef, timeFrom, timeTo },
-      {
-        onSuccess: (inv) => {
-          navigate(`${PMM_NEW_NAV_PATH}/investigations/${inv.id}`);
-        },
-      }
-    );
+      searchParams.get('title') ?? (sourceType ? `Investigation: ${sourceType}` : undefined);
+    return { title, sourceType, sourceRef, timeFrom, timeTo };
+  }, [searchParams]);
+
+  const handleCreateClick = () => setModalOpen(true);
+
+  const handleSubmit = (body: CreateInvestigationBody) => {
+    createMutation.mutate(body, {
+      onSuccess: (inv: Investigation) => {
+        setModalOpen(false);
+        navigate(`${PMM_NEW_NAV_PATH}/investigations/${inv.id}`);
+      },
+      onError: (err: Error) => {
+        enqueueSnackbar(
+          err?.message ?? 'Failed to create investigation',
+          { variant: 'error' }
+        );
+      },
+    });
   };
 
   if (isLoading) {
@@ -78,7 +93,7 @@ const InvestigationsListPage: FC = () => {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={handleCreate}
+            onClick={handleCreateClick}
             disabled={createMutation.isPending}
           >
             New investigation
@@ -103,7 +118,7 @@ const InvestigationsListPage: FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {investigations.map((inv) => (
+                  {investigations.map((inv: InvestigationListItem) => (
                     <TableRow key={inv.id} hover>
                       <TableCell>{inv.title || inv.id}</TableCell>
                       <TableCell>
@@ -135,6 +150,13 @@ const InvestigationsListPage: FC = () => {
             )}
           </CardContent>
         </Card>
+      <CreateInvestigationModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleSubmit}
+        isPending={createMutation.isPending}
+        initial={initialFromParams}
+      />
     </Page>
   );
 };

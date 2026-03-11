@@ -4,19 +4,17 @@ import {
   Card,
   CardContent,
   Checkbox,
-  CircularProgress,
-  Collapse,
   FormControlLabel,
   FormGroup,
-  IconButton,
   Stack,
   Typography,
 } from '@mui/material';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
 import { FC, useState, useEffect } from 'react';
-import { getAdreAlerts, adreInvestigateStream } from 'api/adre';
+import { useNavigate } from 'react-router-dom';
+import { getAdreAlerts } from 'api/adre';
+import { useCreateInvestigation } from 'hooks/api/useInvestigations';
 import { useSnackbar } from 'notistack';
+import { PMM_NEW_NAV_PATH } from 'lib/constants';
 
 interface AlertItem {
   labels?: Record<string, string>;
@@ -32,14 +30,12 @@ function getAlertKey(a: AlertItem, index: number): string {
 }
 
 export const AdreAlertsPanel: FC = () => {
+  const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const createMutation = useCreateInvestigation();
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [result, setResult] = useState('');
-  const [reasoning, setReasoning] = useState('');
-  const [loading, setLoading] = useState(false);
   const [loadingAlerts, setLoadingAlerts] = useState(true);
-  const [reasoningExpanded, setReasoningExpanded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,63 +70,42 @@ export const AdreAlertsPanel: FC = () => {
     });
   };
 
-  const buildInvestigatePayload = (): {
-    source: string;
-    title: string;
-    description: string;
-    subject?: Record<string, unknown>;
-    context?: Record<string, unknown>;
-  } => {
+  const handleStartInvestigation = () => {
     const items = alerts.filter((a, i) => selected.has(getAlertKey(a, i)));
-    if (items.length === 0) {
-      return {
-        source: 'prometheus',
-        title: 'No alerts selected',
-        description: 'Select one or more alerts to investigate.',
-        subject: {},
-        context: {},
-      };
-    }
-    const titles = items.map((a) => a.labels?.alertname ?? a.annotations?.summary ?? 'Alert').filter(Boolean);
-    const descs = items.map((a) => a.annotations?.description ?? a.annotations?.summary ?? JSON.stringify(a.labels ?? {})).filter(Boolean);
-    const alertsPayload = items.map((a) => ({ labels: a.labels, annotations: a.annotations }));
-    return {
-      source: 'prometheus',
-      title: titles[0] ?? 'Alerts',
-      description: descs.join('\n\n') || JSON.stringify(items),
-      subject: { alerts: alertsPayload },
-      context: { source: 'prometheus', alertCount: items.length },
-    };
-  };
-
-  const handleInvestigate = async () => {
-    const payload = buildInvestigatePayload();
-    setLoading(true);
-    setResult('');
-    setReasoning('');
-    try {
-      await adreInvestigateStream(
-        { ...payload, stream: true },
-        (contentChunk, reasoningChunk) => {
-          if (contentChunk) setResult((prev) => prev + contentChunk);
-          if (reasoningChunk) setReasoning((prev) => prev + reasoningChunk);
-        }
-      );
-    } catch (err) {
-      enqueueSnackbar(
-        err instanceof Error ? err.message : 'Investigation failed',
-        { variant: 'error' }
-      );
-    } finally {
-      setLoading(false);
-    }
+    if (items.length === 0) return;
+    const titles = items
+      .map((a) => a.labels?.alertname ?? a.annotations?.summary ?? 'Alert')
+      .filter(Boolean);
+    const title = titles[0] ?? 'Alerts';
+    const sourceRef = items
+      .map((a) => a.fingerprint ?? getAlertKey(a, alerts.indexOf(a)))
+      .filter(Boolean)
+      .join(',');
+    createMutation.mutate(
+      {
+        title,
+        sourceType: 'alert',
+        sourceRef: sourceRef || undefined,
+      },
+      {
+        onSuccess: (inv) => {
+          navigate(`${PMM_NEW_NAV_PATH}/investigations/${inv.id}`);
+        },
+        onError: (err) => {
+          enqueueSnackbar(
+            err instanceof Error ? err.message : 'Failed to create investigation',
+            { variant: 'error' }
+          );
+        },
+      }
+    );
   };
 
   return (
     <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         <Typography variant="h6" gutterBottom>
-          Investigate current alerts
+          Firing alerts
         </Typography>
         <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
           {loadingAlerts ? (
@@ -163,69 +138,11 @@ export const AdreAlertsPanel: FC = () => {
           )}
           <Button
             variant="contained"
-            onClick={handleInvestigate}
-            disabled={loading || selected.size === 0}
+            onClick={handleStartInvestigation}
+            disabled={createMutation.isPending || selected.size === 0}
           >
-            Investigate
+            {createMutation.isPending ? 'Creating...' : 'Start investigation'}
           </Button>
-          {(loading || result || reasoning) && (
-            <Box
-              sx={{
-                flex: 1,
-                minHeight: 100,
-                maxHeight: 250,
-                overflow: 'auto',
-                p: 1,
-                bgcolor: 'action.hover',
-                borderRadius: 1,
-              }}
-            >
-              {loading && (
-                <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1 }}>
-                  <CircularProgress size={16} />
-                  <Typography variant="body2" color="text.secondary">
-                    {result ? 'Streaming...' : 'Investigating...'}
-                  </Typography>
-                </Stack>
-              )}
-              {reasoning && (
-                <>
-                  <IconButton
-                    size="small"
-                    onClick={() => setReasoningExpanded((p) => !p)}
-                    sx={{ p: 0, mr: 0.5 }}
-                  >
-                    {reasoningExpanded ? <ExpandLess /> : <ExpandMore />}
-                  </IconButton>
-                  <Typography
-                    component="span"
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => setReasoningExpanded((p) => !p)}
-                  >
-                    Reasoning
-                  </Typography>
-                  <Collapse in={reasoningExpanded}>
-                    <Typography
-                      component="pre"
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ whiteSpace: 'pre-wrap', fontStyle: 'italic', mt: 0.5 }}
-                    >
-                      {reasoning}
-                    </Typography>
-                  </Collapse>
-                  {result && <Box sx={{ mt: 1 }} />}
-                </>
-              )}
-              {result && (
-                <Typography component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
-                  {result}
-                </Typography>
-              )}
-            </Box>
-          )}
         </Stack>
       </CardContent>
     </Card>

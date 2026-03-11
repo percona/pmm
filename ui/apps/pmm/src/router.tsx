@@ -13,6 +13,7 @@ import { Redirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import AdrePage from 'pages/adre/AdrePage';
+import AdreSettingsPage from 'pages/configuration/AdreSettingsPage';
 import InvestigationsListPage from 'pages/investigations/InvestigationsListPage';
 import InvestigationDetailPage from 'pages/investigations/InvestigationDetailPage';
 
@@ -45,6 +46,10 @@ const router = createBrowserRouter(
             {
               path: 'adre',
               element: <AdrePage />,
+            },
+            {
+              path: 'configuration/ai-assistant',
+              element: <AdreSettingsPage />,
             },
             {
               path: 'investigations',

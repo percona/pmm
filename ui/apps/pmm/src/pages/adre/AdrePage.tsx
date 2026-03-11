@@ -152,10 +152,10 @@ const AdrePage: FC = () => {
         }}
       >
         <Stack direction={{ xs: 'column', md: 'row' }} gap={2} sx={{ flex: 1, minHeight: 0 }}>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box sx={{ flex: 2, minWidth: 0 }}>
             <AdreChatPanel />
           </Box>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box sx={{ flex: '0 0 280px', minWidth: 0 }}>
             <AdreAlertsPanel />
           </Box>
         </Stack>

@@ -31,7 +31,9 @@ export const AdreChatWidget: FC = () => {
     try {
       await adreChatStream(
         { ask: ask.trim(), stream: true },
-        (chunk) => setResponse((prev) => prev + chunk)
+        (contentChunk) => {
+          if (contentChunk) setResponse((prev) => prev + contentChunk);
+        }
       );
     } catch (err) {
       enqueueSnackbar(

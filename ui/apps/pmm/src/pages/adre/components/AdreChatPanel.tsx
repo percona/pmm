@@ -150,6 +150,13 @@ export const AdreChatPanel: FC = () => {
     scrollToBottom();
   }, [history.length, response, reasoning, scrollToBottom]);
 
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   const handleSend = useCallback(async () => {
     if (!ask.trim()) return;
     const userAsk = ask.trim();
@@ -256,8 +263,8 @@ export const AdreChatPanel: FC = () => {
             id="messages-container"
             sx={{
               flex: 1,
-              minHeight: 160,
-              maxHeight: 450,
+              minHeight: 280,
+              maxHeight: '70vh',
               overflow: 'auto',
               p: 2,
               display: 'flex',
