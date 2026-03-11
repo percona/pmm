@@ -52,6 +52,16 @@ export interface InvestigationComment {
   updatedAt: string;
 }
 
+export interface InvestigationMessage {
+  id: string;
+  investigationId: string;
+  role: string;
+  content: string;
+  toolName?: string;
+  toolResultJson?: Record<string, unknown>;
+  createdAt: string;
+}
+
 export interface CreateInvestigationBody {
   title: string;
   timeFrom?: string;
@@ -148,6 +158,17 @@ export const getInvestigationComments = async (
   return res.data;
 };
 
+export const getInvestigationMessages = async (
+  id: string,
+  params?: { limit?: number; offset?: number }
+): Promise<InvestigationMessage[]> => {
+  const res = await api.get<InvestigationMessage[]>(
+    `/investigations/${id}/messages`,
+    { params: params ?? {} }
+  );
+  return res.data;
+};
+
 export const postInvestigationComment = async (
   id: string,
   body: CreateCommentBody
@@ -156,5 +177,17 @@ export const postInvestigationComment = async (
     `/investigations/${id}/comments`,
     body
   );
+  return res.data;
+};
+
+export interface ChatResponse {
+  content: string;
+}
+
+export const postInvestigationChat = async (
+  id: string,
+  body: { message: string }
+): Promise<ChatResponse> => {
+  const res = await api.post<ChatResponse>(`/investigations/${id}/chat`, body);
   return res.data;
 };

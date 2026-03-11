@@ -5,7 +5,9 @@ import {
   createInvestigation,
   patchInvestigation,
   getInvestigationComments,
+  getInvestigationMessages,
   postInvestigationComment,
+  postInvestigationChat,
   type CreateInvestigationBody,
   type PatchInvestigationBody,
   type CreateCommentBody,
@@ -18,6 +20,8 @@ export const INVESTIGATIONS_KEYS = {
   detail: (id: string) => ['investigations', id] as const,
   comments: (id: string, blockId?: string) =>
     ['investigations', id, 'comments', blockId] as const,
+  messages: (id: string, params?: { limit?: number; offset?: number }) =>
+    ['investigations', id, 'messages', params] as const,
 };
 
 export const useInvestigationsList = (params?: {
@@ -75,6 +79,17 @@ export const useInvestigationComments = (
     enabled: (options?.enabled ?? true) && !!id,
   });
 
+export const useInvestigationMessages = (
+  id: string | undefined,
+  params?: { limit?: number; offset?: number },
+  options?: { enabled?: boolean }
+) =>
+  useQuery({
+    queryKey: INVESTIGATIONS_KEYS.messages(id ?? '', params),
+    queryFn: () => getInvestigationMessages(id!, params),
+    enabled: (options?.enabled ?? true) && !!id,
+  });
+
 export const usePostInvestigationComment = (investigationId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -83,6 +98,22 @@ export const usePostInvestigationComment = (investigationId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.comments(investigationId),
+      });
+    },
+  });
+};
+
+export const usePostInvestigationChat = (investigationId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (message: string) =>
+      postInvestigationChat(investigationId, { message }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.detail(investigationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.messages(investigationId),
       });
     },
   });

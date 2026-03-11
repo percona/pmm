@@ -20,7 +20,9 @@ import { Page } from 'components/page';
 import {
   useInvestigation,
   useInvestigationComments,
+  useInvestigationMessages,
   usePostInvestigationComment,
+  usePostInvestigationChat,
 } from 'hooks/api/useInvestigations';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { BlockRenderer } from './components/BlockRenderer';
@@ -30,8 +32,11 @@ const InvestigationDetailPage: FC = () => {
   const navigate = useNavigate();
   const { data: inv, isLoading, isError, error } = useInvestigation(id);
   const { data: comments = [] } = useInvestigationComments(id);
+  const { data: messages = [] } = useInvestigationMessages(id, { limit: 50 });
   const postComment = usePostInvestigationComment(id ?? '');
+  const postChat = usePostInvestigationChat(id ?? '');
   const [commentText, setCommentText] = useState('');
+  const [chatText, setChatText] = useState('');
   const [copyDone, setCopyDone] = useState(false);
 
   const handleCopyLink = () => {
@@ -50,6 +55,13 @@ const InvestigationDetailPage: FC = () => {
         onSuccess: () => setCommentText(''),
       }
     );
+  };
+
+  const handleSendChat = () => {
+    if (!chatText.trim() || !id) return;
+    postChat.mutate(chatText.trim(), {
+      onSuccess: () => setChatText(''),
+    });
   };
 
   if (isLoading || !id) {
@@ -235,6 +247,67 @@ const InvestigationDetailPage: FC = () => {
               disabled={!commentText.trim() || postComment.isPending}
             >
               Add comment
+            </Button>
+          </CardContent>
+        </Card>
+      </Stack>
+
+      <Divider sx={{ my: 3 }} />
+
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Chat
+      </Typography>
+      <Stack spacing={2}>
+        {messages.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">
+            No messages yet. Ask a question about this investigation.
+          </Typography>
+        ) : (
+          [...messages]
+            .filter((m) => m.role === 'user' || m.role === 'assistant')
+            .reverse()
+            .map((m) => (
+              <Card
+                key={m.id}
+                variant="outlined"
+                sx={{
+                  alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '85%',
+                  bgcolor: m.role === 'user' ? 'action.hover' : undefined,
+                }}
+              >
+                <CardContent>
+                  <Typography variant="caption" color="text.secondary">
+                    {m.role === 'user' ? 'You' : 'Assistant'}
+                    {' · '}
+                    {new Date(m.createdAt).toLocaleString()}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
+                    {m.content}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))
+        )}
+        <Card variant="outlined">
+          <CardContent>
+            <TextField
+              fullWidth
+              multiline
+              minRows={2}
+              placeholder="Ask about this investigation..."
+              value={chatText}
+              onChange={(e) => setChatText(e.target.value)}
+              size="small"
+            />
+            <Button
+              variant="contained"
+              size="small"
+              sx={{ mt: 1 }}
+              onClick={handleSendChat}
+              disabled={!chatText.trim() || postChat.isPending}
+            >
+              {postChat.isPending ? 'Sending…' : 'Send'}
             </Button>
           </CardContent>
         </Card>
