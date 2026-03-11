@@ -7,7 +7,27 @@ import svgr from 'vite-plugin-svgr';
 export default defineConfig({
   plugins: [tsconfigPaths({ root: '.' }), react(), svgr()],
   base: '/pmm-ui',
+  resolve: {
+    dedupe: [
+      'react',
+      'react-dom',
+      '@emotion/react',
+      '@emotion/styled',
+      '@mui/material',
+      '@mui/system',
+      '@mui/styled-engine',
+    ],
+  },
+  optimizeDeps: {
+    // Uncomment when using yarn link for @percona/percona-ui locally
+    //exclude: ['@percona/percona-ui'],
+    force: true,
+  },
   server: {
+    watch: {
+      // Watch the linked package for changes (negated pattern means "don't ignore")
+      ignored: ['!**/node_modules/@percona/percona-ui/**'],
+    },
     proxy: {
       '/v1': {
         target: '/',

@@ -804,6 +804,10 @@ func (m *ExternalService) validate(all bool) error {
 
 	// no validation rules for Group
 
+	// no validation rules for Address
+
+	// no validation rules for Port
+
 	if len(errors) > 0 {
 		return ExternalServiceMultiError(errors)
 	}

@@ -19,12 +19,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/percona/saas/pkg/check"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services"
 )
 

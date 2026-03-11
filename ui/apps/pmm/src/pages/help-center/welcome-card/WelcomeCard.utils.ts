@@ -23,5 +23,5 @@ export const shouldShowAddService = (
       keyof ListServicesResponse,
       number,
     ][]
-  ).every(([key, min]) => services[key].length < min);
+  ).every(([key, min]) => (services[key]?.length ?? 0) < min);
 };
