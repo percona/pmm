@@ -213,8 +213,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	// For port changes, force immediate synchronous config update to prevent
 	// VictoriaMetrics from scraping stale ports (PMM-14267)
 	if portsChanged {
-		// TODO: change to debug after PMM-14267 is resolved, but for now we want to have clear logs about port changes
-		l.Warn("Listen port changed, forcing immediate VictoriaMetrics configuration update")
+		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
 		if err := h.vmdb.ForceConfigurationUpdate(ctx); err != nil {
 			return fmt.Errorf("failed to force configuration update: %w", err)
 		}
