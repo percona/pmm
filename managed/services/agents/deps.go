@@ -35,6 +35,9 @@ import (
 // FIXME Rename to victoriaMetrics.Service, update tests.
 type prometheusService interface {
 	RequestConfigurationUpdate()
+	// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+	// bypassing the batch delay. Use this for critical updates like port changes.
+	ForceConfigurationUpdate(ctx context.Context) error
 	BuildScrapeConfigForVMAgent(ctx context.Context, pmmAgentID string) ([]byte, error)
 }
 

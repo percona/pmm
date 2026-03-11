@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.25.7
+go 1.25.8
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.0.0-20260107142235-15cbcf569b9f
 
@@ -9,7 +9,7 @@ replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0
-	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.14.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b
@@ -66,8 +66,8 @@ require (
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/crypto v0.48.0
-	golang.org/x/sync v0.19.0
-	golang.org/x/sys v0.41.0
+	golang.org/x/sync v0.20.0
+	golang.org/x/sys v0.42.0
 	golang.org/x/text v0.34.0
 	golang.org/x/tools v0.42.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260209200024-4cfbd4190f57
