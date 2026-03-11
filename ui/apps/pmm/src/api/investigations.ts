@@ -196,3 +196,9 @@ export const postInvestigationRun = async (id: string): Promise<ChatResponse> =>
   const res = await api.post<ChatResponse>(`/investigations/${id}/run`, {});
   return res.data;
 };
+
+/** URL for the PDF/print export page; open in a new window to print or save as PDF. */
+export const getInvestigationExportPdfUrl = (id: string): string => {
+  const base = typeof window !== 'undefined' ? window.location.origin : '';
+  return `${base}/v1/investigations/${id}/export/pdf`;
+};

@@ -137,6 +137,11 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				h.PostInvestigationRun(w, r, id)
 				return
 			}
+		case len(segments) == 3 && segments[1] == "export" && segments[2] == "pdf":
+			if r.Method == http.MethodGet {
+				h.GetInvestigationExportPDF(w, r, id)
+				return
+			}
 		}
 	}
 	writeJSONError(w, http.StatusNotFound, "Not Found")

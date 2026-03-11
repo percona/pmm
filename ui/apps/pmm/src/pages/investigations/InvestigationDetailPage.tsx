@@ -13,6 +13,7 @@ import {
   Typography,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { FC, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -23,8 +24,10 @@ import {
   useInvestigationMessages,
   usePostInvestigationComment,
   usePostInvestigationChat,
+  usePostInvestigationRun,
 } from 'hooks/api/useInvestigations';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
+import { getInvestigationExportPdfUrl } from 'api/investigations';
 import { BlockRenderer } from './components/BlockRenderer';
 
 const InvestigationDetailPage: FC = () => {
@@ -125,6 +128,13 @@ const InvestigationDetailPage: FC = () => {
             onClick={handleCopyLink}
           >
             {copyDone ? 'Copied!' : 'Copy link'}
+          </Button>
+          <Button
+            size="small"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={() => id && window.open(getInvestigationExportPdfUrl(id), '_blank', 'noopener,noreferrer')}
+          >
+            Export PDF
           </Button>
           <Button
             variant="contained"
