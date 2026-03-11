@@ -180,8 +180,8 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	errTX := h.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var agentIDs []string
 		var err error
-		sAgentId := strings.TrimPrefix(req.AgentId, "/agent_id/")
-		PMMAgentID, agentIDs, err = h.r.roster.get(sAgentId)
+		sAgentID := strings.TrimPrefix(req.AgentId, "/agent_id/")
+		PMMAgentID, agentIDs, err = h.r.roster.get(sAgentID)
 		if err != nil {
 			return err
 		}
@@ -287,8 +287,7 @@ func updateAgentStatus(
 		agent.Version = version
 	}
 
-	eAgent := models.EncryptAgent(*agent)
-	err = q.Update(&eAgent)
+	err = models.UpdateAgent(q, agent)
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
