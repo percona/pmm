@@ -102,4 +102,3 @@ describe('ThemeClass', () => {
     expect(document.body.classList.contains(DARK_THEME_CLASS)).toBe(false);
   });
 });
-

@@ -42,9 +42,17 @@ export const ALL_SERVICE_TYPES = [
   ServiceType.mysql,
   ServiceType.posgresql,
   ServiceType.proxysql,
+  ServiceType.valkey,
 ];
 
 // 5 seconds
 export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
 // 1 hour
 export const SHOW_UPDATE_MODAL_AFTER_MS = 60 * 60 * 1000;
+
+export const DOCS_URLS = {
+  qan: 'https://per.co.na/QAN',
+  forums: 'https://per.co.na/PMM3_forums',
+};
+
+export const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';

@@ -26,6 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/version"
@@ -177,6 +178,22 @@ func AzureOptionsFromRequest(params AzureOptionsParams) AzureOptions {
 	return AzureOptions{}
 }
 
+// RTAOptionsParams contains parameters for Real-Time Analytics Agent.
+type RTAOptionsParams interface {
+	GetCollectInterval() *durationpb.Duration
+}
+
+// RTAOptionsFromRequest creates RTAOptions object from request.
+func RTAOptionsFromRequest(params RTAOptionsParams) *RTAOptions {
+	rtaOptions := &RTAOptions{}
+
+	if params.GetCollectInterval() != nil {
+		rtaOptions.CollectInterval = pointer.To(params.GetCollectInterval().AsDuration())
+	}
+
+	return rtaOptions
+}
+
 func checkUniqueAgentID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Agent ID")
@@ -208,6 +225,8 @@ type AgentFilters struct {
 	AWSAccessKey string
 	// IgnoreNomad is used to ignore Nomad agents.
 	IgnoreNomad bool
+	// Disabled indicates whether to filter by disabled status.
+	Disabled *bool
 }
 
 // FindAgents returns Agents by filters.
@@ -252,6 +271,12 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.IgnoreNomad {
 		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
 		args = append(args, NomadAgentType)
+		idx++
+	}
+
+	if filters.Disabled != nil {
+		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
+		args = append(args, pointer.Get(filters.Disabled))
 	}
 
 	var whereClause string
@@ -340,6 +365,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 		agentTypes = []AgentType{
 			MongoDBExporterType,
 			QANMongoDBProfilerAgentType,
+			RTAMongoDBAgentType,
 		}
 	case ExternalServiceType, HAProxyServiceType, ProxySQLServiceType:
 		fallthrough
@@ -773,6 +799,7 @@ type CreateAgentParams struct {
 	Disabled                 bool
 	ExporterOptions          ExporterOptions
 	QANOptions               QANOptions
+	RTAOptions               RTAOptions
 	AWSOptions               AWSOptions
 	AzureOptions             AzureOptions
 	MongoDBOptions           MongoDBOptions
@@ -824,6 +851,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 			MongoDBServiceType,
 		},
 		QANMongoDBMongologAgentType: {
+			MongoDBServiceType,
+		},
+		RTAMongoDBAgentType: {
 			MongoDBServiceType,
 		},
 		PostgresExporterType: {
@@ -921,11 +951,25 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 		Disabled:          params.Disabled,
 	}
+
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 	if err := row.SetEnvironmentVariableNames(params.EnvironmentVariableNames); err != nil {
 		return nil, err
+	}
+
+	switch agentType {
+	// For the time being only RTA MangoDB Agent has RTA options.
+	case RTAMongoDBAgentType:
+		row.RTAOptions = RTAOptions{
+			// default value
+			CollectInterval: pointer.To(2 * time.Second), //nolint:mnd
+		}
+		// RTA options
+		row.RTAOptions.Merge(&params.RTAOptions)
+	default:
+		// do nothing
 	}
 
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
@@ -961,6 +1005,7 @@ type ChangeCommonAgentParams struct {
 	CustomLabels       *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
 	EnablePushMetrics  *bool
 	MetricsResolutions ChangeMetricsResolutionsParams
+	RTAOptions         *RTAOptions
 }
 
 // ChangeMetricsResolutionsParams contains metrics resolutions for change.
@@ -1020,11 +1065,16 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		row.ExporterOptions.MetricsResolutions = nil
 	}
 
+	// RTA options
+	row.RTAOptions.Merge(params.RTAOptions)
+
+	// need to encrypt Agent's sensitive data before update
+	row = pointer.To(EncryptAgent(*row))
 	if err = q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return row, nil
+	return pointer.To(DecryptAgent(*row)), nil
 }
 
 // RemoveAgent removes Agent by ID.

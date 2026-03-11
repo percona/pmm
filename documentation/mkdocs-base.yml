@@ -557,7 +557,7 @@ nav:
               - reference/dashboards/dashboard-mongodb-inmemory-details.md
               - reference/dashboards/dashboard-mongodb-mmapv1-details.md
               - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
-              - reference/dashboards/dashboard-mongodb-PBM-details.md
+              - reference/dashboards/dashboard-mongodb-backup-details.md
           - PostgreSQL dashboards:
               - reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.md
               - reference/dashboards/dashboard-postgresql-instance-summary.md
