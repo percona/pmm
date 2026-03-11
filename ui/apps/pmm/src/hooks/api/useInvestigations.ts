@@ -9,9 +9,12 @@ import {
   postInvestigationComment,
   postInvestigationChat,
   postInvestigationRun,
+  patchInvestigationBlock,
+  deleteInvestigationBlock,
   type CreateInvestigationBody,
   type PatchInvestigationBody,
   type CreateCommentBody,
+  type PatchBlockBody,
 } from 'api/investigations';
 
 export const INVESTIGATIONS_KEYS = {
@@ -130,6 +133,37 @@ export const usePostInvestigationRun = (investigationId: string) => {
       });
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.messages(investigationId),
+      });
+    },
+  });
+};
+
+export const usePatchInvestigationBlock = (investigationId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      blockId,
+      body,
+    }: {
+      blockId: string;
+      body: PatchBlockBody;
+    }) => patchInvestigationBlock(investigationId, blockId, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.detail(investigationId),
+      });
+    },
+  });
+};
+
+export const useDeleteInvestigationBlock = (investigationId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (blockId: string) =>
+      deleteInvestigationBlock(investigationId, blockId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.detail(investigationId),
       });
     },
   });

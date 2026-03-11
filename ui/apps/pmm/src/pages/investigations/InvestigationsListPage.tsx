@@ -16,19 +16,26 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
 import { useInvestigationsList, useCreateInvestigation } from 'hooks/api/useInvestigations';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 
 const InvestigationsListPage: FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { data: list, isLoading, isError, error } = useInvestigationsList();
   const createMutation = useCreateInvestigation();
 
   const handleCreate = () => {
+    const sourceType = searchParams.get('source_type') ?? undefined;
+    const sourceRef = searchParams.get('source_ref') ?? undefined;
+    const timeFrom = searchParams.get('time_from') ?? undefined;
+    const timeTo = searchParams.get('time_to') ?? undefined;
+    const title =
+      searchParams.get('title') ?? (sourceType ? `Investigation: ${sourceType}` : 'New investigation');
     createMutation.mutate(
-      { title: 'New investigation' },
+      { title, sourceType, sourceRef, timeFrom, timeTo },
       {
         onSuccess: (inv) => {
           navigate(`${PMM_NEW_NAV_PATH}/investigations/${inv.id}`);

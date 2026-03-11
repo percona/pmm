@@ -91,6 +91,14 @@ export interface CreateBlockBody {
   dataJson?: Record<string, unknown>;
 }
 
+export interface PatchBlockBody {
+  type?: string;
+  title?: string;
+  position?: number;
+  configJson?: Record<string, unknown>;
+  dataJson?: Record<string, unknown>;
+}
+
 export interface CreateCommentBody {
   content: string;
   blockId?: string | null;
@@ -145,6 +153,25 @@ export const postInvestigationBlock = async (
     body
   );
   return res.data;
+};
+
+export const patchInvestigationBlock = async (
+  investigationId: string,
+  blockId: string,
+  body: PatchBlockBody
+): Promise<InvestigationBlock> => {
+  const res = await api.patch<InvestigationBlock>(
+    `/investigations/${investigationId}/blocks/${blockId}`,
+    body
+  );
+  return res.data;
+};
+
+export const deleteInvestigationBlock = async (
+  investigationId: string,
+  blockId: string
+): Promise<void> => {
+  await api.delete(`/investigations/${investigationId}/blocks/${blockId}`);
 };
 
 export const getInvestigationComments = async (

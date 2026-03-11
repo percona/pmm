@@ -7,7 +7,10 @@ import {
   Chip,
   CircularProgress,
   Divider,
+  FormControl,
   IconButton,
+  MenuItem,
+  Select,
   Stack,
   TextField,
   Typography,
@@ -15,6 +18,9 @@ import {
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { FC, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Page } from 'components/page';
@@ -25,10 +31,59 @@ import {
   usePostInvestigationComment,
   usePostInvestigationChat,
   usePostInvestigationRun,
+  usePatchInvestigation,
+  usePatchInvestigationBlock,
+  useDeleteInvestigationBlock,
 } from 'hooks/api/useInvestigations';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { getInvestigationExportPdfUrl } from 'api/investigations';
+import type { InvestigationBlock } from 'api/investigations';
 import { BlockRenderer } from './components/BlockRenderer';
+
+const STATUS_OPTIONS = ['open', 'in_progress', 'resolved', 'archived'] as const;
+
+const BlockWithActions: FC<{
+  block: InvestigationBlock;
+  index: number;
+  total: number;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onDelete: () => void;
+  isPending: boolean;
+}> = ({ block, index, total, onMoveUp, onMoveDown, onDelete, isPending }) => (
+  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 2 }}>
+    <Stack direction="row" sx={{ mt: 1 }} spacing={0}>
+      <IconButton
+        size="small"
+        aria-label="Move block up"
+        onClick={onMoveUp}
+        disabled={index === 0 || isPending}
+      >
+        <ArrowUpwardIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
+        aria-label="Move block down"
+        onClick={onMoveDown}
+        disabled={index >= total - 1 || isPending}
+      >
+        <ArrowDownwardIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
+        aria-label="Delete block"
+        onClick={onDelete}
+        disabled={isPending}
+        color="error"
+      >
+        <DeleteOutlineIcon fontSize="small" />
+      </IconButton>
+    </Stack>
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      <BlockRenderer block={block} />
+    </Box>
+  </Box>
+);
 
 const InvestigationDetailPage: FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +94,9 @@ const InvestigationDetailPage: FC = () => {
   const postComment = usePostInvestigationComment(id ?? '');
   const postChat = usePostInvestigationChat(id ?? '');
   const postRun = usePostInvestigationRun(id ?? '');
+  const patchInv = usePatchInvestigation(id ?? '');
+  const patchBlock = usePatchInvestigationBlock(id ?? '');
+  const deleteBlock = useDeleteInvestigationBlock(id ?? '');
   const [commentText, setCommentText] = useState('');
   const [chatText, setChatText] = useState('');
   const [copyDone, setCopyDone] = useState(false);
@@ -117,7 +175,22 @@ const InvestigationDetailPage: FC = () => {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Chip label={inv.status} size="small" variant="outlined" />
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <Select
+              value={inv.status}
+              onChange={(e) =>
+                patchInv.mutate({ status: e.target.value as string })
+              }
+              displayEmpty
+              disabled={patchInv.isPending}
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <MenuItem key={s} value={s}>
+                  {s.replace('_', ' ')}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           {inv.severity && (
             <Chip label={inv.severity} size="small" variant="outlined" />
           )}
@@ -181,10 +254,47 @@ const InvestigationDetailPage: FC = () => {
           <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
             Report
           </Typography>
-          {inv.blocks
+          {[...inv.blocks]
             .sort((a, b) => a.position - b.position)
-            .map((block) => (
-              <BlockRenderer key={block.id} block={block} />
+            .map((block, index, sorted) => (
+              <BlockWithActions
+                key={block.id}
+                block={block}
+                index={index}
+                total={sorted.length}
+                onMoveUp={() => {
+                  if (index <= 0) return;
+                  const prev = sorted[index - 1];
+                  patchBlock.mutate(
+                    { blockId: block.id, body: { position: prev.position } },
+                    {
+                      onSuccess: () =>
+                        patchBlock.mutate({
+                          blockId: prev.id,
+                          body: { position: block.position },
+                        }),
+                    }
+                  );
+                }}
+                onMoveDown={() => {
+                  if (index >= sorted.length - 1) return;
+                  const next = sorted[index + 1];
+                  patchBlock.mutate(
+                    { blockId: block.id, body: { position: next.position } },
+                    {
+                      onSuccess: () =>
+                        patchBlock.mutate({
+                          blockId: next.id,
+                          body: { position: block.position },
+                        }),
+                    }
+                  );
+                }}
+                onDelete={() => deleteBlock.mutate(block.id)}
+                isPending={
+                  patchBlock.isPending || deleteBlock.isPending
+                }
+              />
             ))}
         </>
       )}
