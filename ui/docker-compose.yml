@@ -19,8 +19,6 @@ services:
       # PMM compat plugin
       - ./apps/pmm-compat/dist:/srv/grafana/plugins/pmm-compat
 
-      # PMM UI (only useful if testing rendering server, for example. Otherwise, just stick with the vite dev server)
-      # - ./apps/pmm/dist:/usr/share/pmm-ui
       # Uncomment to use custom (FE) Grafana dashboards
       # - ../../grafana-dashboards/pmm-app/dist:/srv/grafana/plugins/pmm-app
       # Mount repo so you can run the backend built from this codebase
