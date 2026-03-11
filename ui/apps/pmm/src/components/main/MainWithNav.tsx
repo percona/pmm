@@ -7,7 +7,6 @@ import { useGrafana } from 'contexts/grafana';
 import { UpdateModal } from 'components/main/update-modal';
 import { DelayedRender } from 'components/delayed-render';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
-import { isHeadlessBrowser } from '@pmm/shared';
 import Header from './header/Header';
 
 export const MainWithNav = () => {
@@ -31,7 +30,7 @@ export const MainWithNav = () => {
 
   return (
     <Stack direction="row" flex={1}>
-      {!isFullScreen && !isHeadlessBrowser() && <Sidebar />}
+      {!isFullScreen && <Sidebar />}
       <Stack flex={1} direction="column">
         {!isFullScreen && <Header />}
         <Outlet />
