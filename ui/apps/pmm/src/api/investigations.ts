@@ -191,3 +191,8 @@ export const postInvestigationChat = async (
   const res = await api.post<ChatResponse>(`/investigations/${id}/chat`, body);
   return res.data;
 };
+
+export const postInvestigationRun = async (id: string): Promise<ChatResponse> => {
+  const res = await api.post<ChatResponse>(`/investigations/${id}/run`, {});
+  return res.data;
+};

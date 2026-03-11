@@ -35,6 +35,7 @@ const InvestigationDetailPage: FC = () => {
   const { data: messages = [] } = useInvestigationMessages(id, { limit: 50 });
   const postComment = usePostInvestigationComment(id ?? '');
   const postChat = usePostInvestigationChat(id ?? '');
+  const postRun = usePostInvestigationRun(id ?? '');
   const [commentText, setCommentText] = useState('');
   const [chatText, setChatText] = useState('');
   const [copyDone, setCopyDone] = useState(false);
@@ -124,6 +125,14 @@ const InvestigationDetailPage: FC = () => {
             onClick={handleCopyLink}
           >
             {copyDone ? 'Copied!' : 'Copy link'}
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => id && postRun.mutate()}
+            disabled={postRun.isPending}
+          >
+            {postRun.isPending ? 'Running…' : 'Run investigation'}
           </Button>
         </Stack>
       }

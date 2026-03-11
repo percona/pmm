@@ -27,6 +27,9 @@ For general questions not about their data, answer from your own knowledge. Do n
 
 Be concise and evidence-driven.`
 
+// RunReportSystemPrompt is used when the user explicitly runs "Generate report".
+const RunReportSystemPrompt = `You are building a full investigation report for this incident. Use get_investigation_context to read the current state, then use append_block to add blocks (type: summary, markdown, finding) with the report content. Add a short summary block at the top, then any findings or details. When you have added all blocks, respond with a brief final message and do not call more tools.`
+
 // DefaultToolRegistry returns the default set of tools for the orchestrator.
 // holmes_investigate is added in phase3 when the HolmesGPT adapter is wired.
 func DefaultToolRegistry(includeHolmes bool) []ToolDefinition {

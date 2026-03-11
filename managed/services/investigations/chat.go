@@ -155,6 +155,95 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent})
 }
 
+// PostInvestigationRun handles POST /v1/investigations/:id/run. Runs the multi-turn orchestration loop to build the report.
+func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, id string) {
+	inv, err := models.GetInvestigationByID(h.db, id)
+	if err != nil || inv == nil {
+		if inv == nil {
+			writeJSONError(w, http.StatusNotFound, "Investigation not found")
+			return
+		}
+		writeJSONError(w, http.StatusInternalServerError, "Failed to get investigation")
+		return
+	}
+
+	settings, err := models.GetSettings(h.db)
+	if err != nil {
+		h.l.Errorf("GetSettings: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
+		return
+	}
+	if settings.Adre.OrchestratorLLMURL == "" {
+		writeJSONError(w, http.StatusBadRequest, "Orchestrator LLM is not configured. Set Orchestrator URL in Settings.")
+		return
+	}
+	provider := orchestrator.NewOllamaProvider(settings.Adre.OrchestratorLLMURL, settings.Adre.OrchestratorLLMModel)
+	tools := orchestrator.DefaultToolRegistry(false)
+
+	ctxStr := buildInvestigationContext(inv)
+	systemContent := orchestrator.RunReportSystemPrompt + "\n\nCurrent investigation context:\n" + ctxStr
+	messages := []orchestrator.Message{
+		{Role: "system", Content: systemContent},
+		{Role: "user", Content: "Generate the full investigation report based on the context above. Use get_investigation_context first, then append_block to add summary and finding blocks."},
+	}
+
+	// Persist the synthetic user message
+	userMsg := &models.InvestigationMessage{
+		ID:              models.NewInvestigationID(),
+		InvestigationID:  id,
+		Role:            "user",
+		Content:         "Generate the full investigation report.",
+	}
+	if err := models.CreateInvestigationMessage(h.db, userMsg); err != nil {
+		h.l.Warnf("CreateInvestigationMessage run user: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Minute)
+	defer cancel()
+
+	turn := 0
+	var lastContent string
+	for turn < chatMaxTurns {
+		turn++
+		result, err := provider.Complete(ctx, messages, tools)
+		if err != nil {
+			h.l.Errorf("Orchestrator Complete run: %v", err)
+			writeJSONError(w, http.StatusBadGateway, "Orchestrator failed: "+err.Error())
+			return
+		}
+		lastContent = result.Content
+
+		assistantMsg := &models.InvestigationMessage{
+			ID:              models.NewInvestigationID(),
+			InvestigationID:  id,
+			Role:            "assistant",
+			Content:         result.Content,
+		}
+		_ = models.CreateInvestigationMessage(h.db, assistantMsg)
+		messages = append(messages, orchestrator.Message{Role: "assistant", Content: result.Content})
+
+		if len(result.ToolCalls) == 0 {
+			break
+		}
+
+		for _, tc := range result.ToolCalls {
+			toolResult := executeTool(h.db, h.l, id, inv, tc)
+			messages = append(messages, orchestrator.Message{Role: "tool", Content: toolResult, Name: tc.Name})
+			toolMsg := &models.InvestigationMessage{
+				ID:              models.NewInvestigationID(),
+				InvestigationID: id,
+				Role:            "tool",
+				Content:         toolResult,
+				ToolName:        tc.Name,
+			}
+			_ = models.CreateInvestigationMessage(h.db, toolMsg)
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent})
+}
+
 func buildInvestigationContext(inv *models.Investigation) string {
 	return fmt.Sprintf("Title: %s\nStatus: %s\nTime range: %s — %s\nSummary: %s",
 		inv.Title, inv.Status,

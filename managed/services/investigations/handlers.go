@@ -132,6 +132,11 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				h.PostInvestigationChat(w, r, id)
 				return
 			}
+		case len(segments) == 2 && segments[1] == "run":
+			if r.Method == http.MethodPost {
+				h.PostInvestigationRun(w, r, id)
+				return
+			}
 		}
 	}
 	writeJSONError(w, http.StatusNotFound, "Not Found")

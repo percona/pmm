@@ -8,6 +8,7 @@ import {
   getInvestigationMessages,
   postInvestigationComment,
   postInvestigationChat,
+  postInvestigationRun,
   type CreateInvestigationBody,
   type PatchInvestigationBody,
   type CreateCommentBody,
@@ -108,6 +109,21 @@ export const usePostInvestigationChat = (investigationId: string) => {
   return useMutation({
     mutationFn: (message: string) =>
       postInvestigationChat(investigationId, { message }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.detail(investigationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.messages(investigationId),
+      });
+    },
+  });
+};
+
+export const usePostInvestigationRun = (investigationId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => postInvestigationRun(investigationId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.detail(investigationId),
