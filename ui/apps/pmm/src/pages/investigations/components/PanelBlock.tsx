@@ -4,7 +4,14 @@ import type { InvestigationBlock } from 'api/investigations';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
 export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
-  const config = (block.configJson || {}) as { dashboardUid?: string; panelId?: string; timeFrom?: string; timeTo?: string };
+  const config = (block.configJson || {}) as {
+    dashboardUid?: string;
+    panelId?: string;
+    dashboard_uid?: string;
+    panel_id?: string;
+    timeFrom?: string;
+    timeTo?: string;
+  };
   const dashboardUid = config.dashboardUid ?? config.dashboard_uid;
   const panelId = config.panelId ?? config.panel_id;
   const href = dashboardUid && panelId
