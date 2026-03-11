@@ -23,15 +23,12 @@ Returns currently executing queries from active Real-time Analytics sessions. Th
 
 ### Parameters
 
-Both parameters are optional. If neither is specified, the endpoint returns queries from all active sessions.
-
+At least one `service_id` must be specified. The `limit` parameter is optional.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `service_ids` | array of strings | No | Filter results to specific service identifiers |
+| `service_ids` | array of strings | Yes | Filter results to specific service identifiers (at least one required) |
 | `limit` | string (int64) | No | Maximum number of queries to return |
-
-Both parameters are optional. If neither is specified, the endpoint returns queries from all active sessions.
 
 ### Response
 ```json
@@ -86,15 +83,17 @@ Both parameters are optional. If neither is specified, the endpoint returns quer
 
 ### Examples
 
-#### Get all active queries
+#### Get queries for a specific service
 ```bash
 curl -X POST "https://your-pmm-server/v1/realtimeanalytics/queries:search" \
   -H "Authorization: Bearer glsa_xxxxx" \
   -H "Content-Type: application/json" \
-  -d '{}'
+  -d '{
+    "service_ids": ["7a3e9c44-12ab-4d3f-9e21-5c8d7b1a2e4f"]
+  }'
 ```
 
-#### Filter by specific services
+#### Filter by multiple services
 ```bash
 curl -X POST "https://your-pmm-server/v1/realtimeanalytics/queries:search" \
   -H "Authorization: Bearer glsa_xxxxx" \
@@ -113,6 +112,7 @@ curl -X POST "https://your-pmm-server/v1/realtimeanalytics/queries:search" \
   -H "Authorization: Bearer glsa_xxxxx" \
   -H "Content-Type: application/json" \
   -d '{
+    "service_ids": ["7a3e9c44-12ab-4d3f-9e21-5c8d7b1a2e4f"],
     "limit": "50"
   }'
 ```
@@ -150,12 +150,12 @@ The API returns an empty result set even though you expect to see query data. Th
 
 #### Empty mongo_db_payload
 
-Query data is returned but the MongoDB-specific payload is empty. This typically occurs when query data is not yet available or the MongoDB profiler is not configured correctly.
+Query data is returned but the MongoDB-specific payload is empty. This typically occurs when query data is not yet available from the collection cycle.
 
 **Solutions:**
 
-1. Wait for next data collection cycle
-2. Verify MongoDB profiling level is set to 1 or 2
-3. Check PMM agent logs for collection errors
+1. Wait for the next data collection cycle
+2. Check PMM agent logs for collection errors
+3. Verify the MongoDB user has the required permissions for `$currentOp`. See [MongoDB currentOp Access Control](https://www.mongodb.com/docs/manual/reference/operator/aggregation/currentOp/#access-control) for details.
 
 To get the authentication token, check [Authentication](ref:authentication).

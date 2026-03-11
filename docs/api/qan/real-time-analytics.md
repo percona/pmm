@@ -94,7 +94,7 @@ To minimize server load and improve response times when searching for active que
 
 - Use `service_ids` filter to limit results to specific services
 - Use `limit` parameter to control result set size
-- Poll at reasonable intervals (5-10 seconds minimum)
+- Match your polling interval to the session's collection interval (check `collect_interval` in the session response). Polling slower than the collection interval means you'll miss queries that start and finish between your requests.
 
 ## Session status values
 

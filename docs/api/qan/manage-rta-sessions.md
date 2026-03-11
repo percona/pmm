@@ -194,7 +194,7 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 }
 ```
 
-### Troubleshooting
+## Troubleshooting
 
 ### Session won't start
 
@@ -208,13 +208,13 @@ You're unable to start an RTA session for a MongoDB service. This typically happ
 
 ### Session shows ERROR status
 
-A session was started successfully but now shows ERROR status. This usually indicates that the MongoDB profiler is not enabled, the PMM agent connection was lost, or the MongoDB user has insufficient permissions.
+A session was started successfully but now shows ERROR status. This usually indicates that the PMM agent connection was lost or the MongoDB user has insufficient permissions.
 
 **Solutions:**
 
-1. Check MongoDB profiling: `db.getProfilingLevel()`
-2. Verify PMM agent status: `pmm-admin status`
-3. Check PMM agent logs for errors
-4. Confirm MongoDB user has required permissions
+1. Verify PMM agent status: `pmm-admin status`
+2. Check PMM agent logs for errors
+3. Verify network connectivity between PMM agent and MongoDB
+4. Confirm MongoDB user has the required permissions for `$currentOp`. See [MongoDB currentOp Access Control](https://www.mongodb.com/docs/manual/reference/operator/aggregation/currentOp/#access-control) for details.
 
 To get the authentication token, check [Authentication](ref:authentication).
