@@ -37,7 +37,7 @@ func TestCheckPortChanged(t *testing.T) {
 		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
 		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
 		"username", "password", "agent_password", "tls", "tls_skip_verify",
-		"log_level", "exporter_options", "qan_options",
+		"log_level", "exporter_options", "qan_options", "rta_options",
 		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
 	}
 
@@ -98,6 +98,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // log_level
 				`{}`,                        // exporter_options
 				`{}`,                        // qan_options
+				`{}`,                        // rta_options
 				`{}`,                        // aws_options
 				`{}`,                        // azure_options
 				`{}`,                        // mongo_options
@@ -149,6 +150,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // log_level
 				`{}`,                        // exporter_options
 				`{}`,                        // qan_options
+				`{}`,                        // rta_options
 				`{}`,                        // aws_options
 				`{}`,                        // azure_options
 				`{}`,                        // mongo_options
@@ -200,6 +202,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // log_level
 				`{}`,                        // exporter_options
 				`{}`,                        // qan_options
+				`{}`,                        // rta_options
 				`{}`,                        // aws_options
 				`{}`,                        // azure_options
 				`{}`,                        // mongo_options
@@ -251,6 +254,7 @@ func TestCheckPortChanged(t *testing.T) {
 				nil,                         // log_level
 				`{}`,                        // exporter_options
 				`{}`,                        // qan_options
+				`{}`,                        // rta_options
 				`{}`,                        // aws_options
 				`{}`,                        // azure_options
 				`{}`,                        // mongo_options
@@ -274,7 +278,7 @@ func TestCheckPortChanged(t *testing.T) {
 				time.Now(), time.Now(),
 				false, "", 42000, nil, nil, false,
 				nil, nil, nil, false, false, nil,
-				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
 			))
 
 		// Test with different port
