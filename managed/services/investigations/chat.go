@@ -27,6 +27,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/investigations/orchestrator"
+	"github.com/percona/pmm/managed/services/adre"
 )
 
 const chatMaxTurns = 5
@@ -65,7 +66,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		return
 	}
 	provider := orchestrator.NewOllamaProvider(settings.Adre.OrchestratorLLMURL, settings.Adre.OrchestratorLLMModel)
-	tools := orchestrator.DefaultToolRegistry(false) // no holmes_investigate until phase3
+	tools := orchestrator.DefaultToolRegistry(settings.IsAdreEnabled() && settings.GetAdreURL() != "")
 
 	// Load last messages (newest first from DB; we'll reverse for context)
 	msgs, err := models.GetInvestigationMessages(h.db, id, 20, 0)
@@ -136,7 +137,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 
 		// Execute tool calls and append tool messages
 		for _, tc := range result.ToolCalls {
-			toolResult := executeTool(h.db, h.l, id, inv, tc)
+			toolResult := executeTool(ctx, h.db, h.l, id, inv, tc, settings.GetAdreURL())
 			messages = append(messages, orchestrator.Message{Role: "tool", Content: toolResult, Name: tc.Name})
 			toolMsg := &models.InvestigationMessage{
 				ID:              models.NewInvestigationID(),
@@ -178,7 +179,7 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	provider := orchestrator.NewOllamaProvider(settings.Adre.OrchestratorLLMURL, settings.Adre.OrchestratorLLMModel)
-	tools := orchestrator.DefaultToolRegistry(false)
+	tools := orchestrator.DefaultToolRegistry(settings.IsAdreEnabled() && settings.GetAdreURL() != "")
 
 	ctxStr := buildInvestigationContext(inv)
 	systemContent := orchestrator.RunReportSystemPrompt + "\n\nCurrent investigation context:\n" + ctxStr
@@ -227,7 +228,7 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		}
 
 		for _, tc := range result.ToolCalls {
-			toolResult := executeTool(h.db, h.l, id, inv, tc)
+			toolResult := executeTool(ctx, h.db, h.l, id, inv, tc, settings.GetAdreURL())
 			messages = append(messages, orchestrator.Message{Role: "tool", Content: toolResult, Name: tc.Name})
 			toolMsg := &models.InvestigationMessage{
 				ID:              models.NewInvestigationID(),
@@ -251,7 +252,7 @@ func buildInvestigationContext(inv *models.Investigation) string {
 		inv.Summary)
 }
 
-func executeTool(db *reform.DB, l *logrus.Entry, investigationID string, inv *models.Investigation, tc orchestrator.ToolCall) string {
+func executeTool(ctx context.Context, db *reform.DB, l *logrus.Entry, investigationID string, inv *models.Investigation, tc orchestrator.ToolCall, adreURL string) string {
 	switch tc.Name {
 	case "get_investigation_context":
 		ctx := buildInvestigationContext(inv)
@@ -288,6 +289,45 @@ func executeTool(db *reform.DB, l *logrus.Entry, investigationID string, inv *mo
 			return `{"error": "failed to create block"}`
 		}
 		return fmt.Sprintf(`{"ok": true, "block_id": "%s"}`, block.ID)
+	case "holmes_investigate":
+		if adreURL == "" {
+			return `{"error": "HolmesGPT is not configured. Enable ADRE and set HolmesGPT URL in Settings."}`
+		}
+		var args struct {
+			Question string `json:"question"`
+		}
+		if err := json.Unmarshal([]byte(tc.Arguments), &args); err != nil {
+			l.Warnf("holmes_investigate unmarshal: %v", err)
+			return `{"error": "invalid arguments"}`
+		}
+		description := args.Question
+		if description == "" {
+			description = "Analyze this incident and provide findings."
+		}
+		req := &adre.InvestigateRequest{
+			Source:      "pmm-investigation",
+			Title:       inv.Title,
+			Description: description,
+			Context: map[string]interface{}{
+				"investigation_id": investigationID,
+				"time_from":       inv.TimeFrom.Format(time.RFC3339),
+				"time_to":         inv.TimeTo.Format(time.RFC3339),
+				"summary":         inv.Summary,
+			},
+		}
+		client := adre.NewClient(adreURL)
+		resp, err := client.Investigate(ctx, req)
+		if err != nil {
+			l.Warnf("HolmesGPT Investigate: %v", err)
+			return fmt.Sprintf(`{"error": "HolmesGPT request failed: %s"}`, err.Error())
+		}
+		out := resp.Analysis
+		if len(resp.Sections) > 0 {
+			for k, v := range resp.Sections {
+				out += "\n\n## " + k + "\n" + v
+			}
+		}
+		return out
 	default:
 		return fmt.Sprintf(`{"error": "unknown tool: %s"}`, tc.Name)
 	}
