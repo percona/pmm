@@ -256,7 +256,7 @@ func updateAgentStatus(
 	processExecPath *string,
 	version *string,
 ) error {
-	l := logger.Get(ctx).WithField("component", "handler")
+	l := logger.Get(ctx).WithField("component", "agents/handler")
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
 
 	agent, err := models.FindAgentByID(q, agentID)
