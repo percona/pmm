@@ -6,6 +6,7 @@ import {
   HistoryAction,
   LocationChangeMessage,
   ColorMode,
+  isRenderingServer,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
@@ -19,11 +20,16 @@ import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
-import { documentTitleObserver } from 'lib/utils/document';
+import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
-import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent } from 'lib/events';
+import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
 
 export const initialize = () => {
+  // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
+  if (isRenderingServer()) {
+    return;
+  }
+
   // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
     const isHomePath =
@@ -61,6 +67,7 @@ export const initialize = () => {
   // Ensure docked menu is closed in the iframe
   localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
 
+  updateBodyClassByLocation(window.location);
   applyCustomStyles();
   adjustToolbar();
 
@@ -127,6 +134,9 @@ export const initialize = () => {
     });
 
     prevLocation = location;
+
+    // Update body class for custom page styles
+    updateBodyClassByLocation(location);
   });
 
   // PMM → Grafana: expand dashboard URL with variables and echo back
@@ -162,6 +172,12 @@ export const initialize = () => {
   getAppEvents().subscribe(ServiceDeletedEvent, () => {
     messenger.sendMessage({
       type: 'SERVICE_DELETED',
+    });
+  });
+
+  getAppEvents().subscribe(TimeZoneUpdatedEvent, () => {
+    messenger.sendMessage({
+      type: 'TIMEZONE_CHANGED',
     });
   });
 };

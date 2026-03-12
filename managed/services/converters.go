@@ -571,9 +571,38 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}
 		return exporter, nil
 
+	case models.RTAMongoDBAgentType:
+		return &inventoryv1.RTAMongoDBAgent{
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Disabled:      agent.Disabled,
+			Status:        inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
+			LogLevel:      inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			RtaOptions:    ToAPIRTAOptions(&agent.RTAOptions),
+		}, nil
+
 	default:
 		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}
+}
+
+// ToAPIRTAOptions converts RTAOptions database model to API model.
+func ToAPIRTAOptions(rtaOptions *models.RTAOptions) *inventoryv1.RTAOptions {
+	if pointer.Get(rtaOptions).IsEmpty() {
+		return nil
+	}
+
+	apiRTAOptions := &inventoryv1.RTAOptions{}
+	if rtaOptions.CollectInterval != nil {
+		apiRTAOptions.CollectInterval = durationpb.New(*rtaOptions.CollectInterval)
+	}
+	// Add more fields here when RTAOptions gets extended.
+	return apiRTAOptions
 }
 
 // ConvertMetricsResolutions converts MetricsResolutions from model to API.
