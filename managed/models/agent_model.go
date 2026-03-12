@@ -843,19 +843,7 @@ func (s *Agent) EffectiveDialTimeout() time.Duration {
 			return *s.PostgreSQLOptions.Timeout
 		}
 	}
-	// General exporter option
-	if s.ExporterOptions.MetricsResolutions != nil { // just check ExporterOptions presence
-		if s.ExporterOptions.MetricsResolutions != nil && s.ExporterOptions.MetricsResolutions != nil {
-			// no-op, keep for readability
-		}
-	}
-	if s.ExporterOptions.MetricsPath != "" {
-		// fallback to ExporterOptions.Timeout if set via JSON
-		// Note: ExporterOptions.Timeout is a pointer
-	}
-	if s.ExporterOptions.MetricsScheme != "" {
-		// no-op
-	}
+
 	if s.ExporterOptions.MetricsPath == "" || true {
 		if s.ExporterOptions.Timeout != nil {
 			return *s.ExporterOptions.Timeout
