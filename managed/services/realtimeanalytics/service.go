@@ -26,6 +26,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
+	"golang.org/x/sync/singleflight"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -51,6 +53,7 @@ type Service struct {
 	registry     agentsRegistry
 	stateUpdater agentsStateUpdater
 	store        *Store
+	singleFlight *singleflight.Group
 
 	rtav1.UnimplementedRealtimeAnalyticsServiceServer
 	rtav1.UnimplementedCollectorServiceServer
@@ -63,12 +66,15 @@ func NewService(db *reform.DB, registry agentsRegistry, stateUpdater agentsState
 		registry:     registry,
 		stateUpdater: stateUpdater,
 		store:        store,
+		singleFlight: &singleflight.Group{},
 	}
 }
 
 // ListServices returns a list of Services that support Real-Time Analytics filtered by type (gRPC handler).
 func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest) (*rtav1.ListServicesResponse, error) {
 	var serviceList []*models.Service
+
+	singleFlightKey := "list_services_"
 
 	requestedFilterModelServiceType := services.ProtoToModelServiceType(req.GetServiceType())
 	if requestedFilterModelServiceType != nil {
@@ -87,6 +93,8 @@ func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest
 		if err != nil {
 			return nil, err
 		}
+
+		singleFlightKey += string(*requestedFilterModelServiceType)
 	} else {
 		// No service type filter specified - return all services that support RTA.
 		// For the time being we only support MongoDB, so we can just filter by service type here.
@@ -106,29 +114,73 @@ func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest
 
 			serviceList = append(serviceList, tmpServiceList...)
 		}
+
+		singleFlightKey += "all"
 	}
 
+	// Use singleflight to suppress multiple concurrent requests to fetch the same data.
+	fetchServices := func() (any, error) {
+		return s.fetchServices(serviceList)
+	}
+
+	sfResult, err, shared := s.singleFlight.Do(singleFlightKey, fetchServices)
+	if err != nil {
+		return nil, err
+	}
+
+	if !shared {
+		// Remove the result from singleflight cache to allow subsequent requests to fetch updated data.
+		s.singleFlight.Forget(singleFlightKey)
+	}
+
+	return sfResult.(*rtav1.ListServicesResponse), nil //nolint:forcetypeassert
+}
+
+// fetchServices fetches details for the provided list of services, checks if they have pmm-agents
+// with version supporting RTA and converts them to API format.
+func (s *Service) fetchServices(serviceList []*models.Service) (any, error) {
 	res := &rtav1.ListServicesResponse{}
 
-	for _, svc := range serviceList {
-		// Check that service has pmm-agent with version supporting RTA.
-		pmmAgent, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to find pmm-agent for service with ID %s: %w", svc.ServiceID, err)
+	g := errgroup.Group{}
+	g.SetLimit(100) //nolint:mnd
+
+	results := make([]*inventoryv1.Service, len(serviceList))
+	for i, svc := range serviceList {
+		g.Go(func() error {
+			// Check that service has pmm-agent with version supporting RTA.
+			pmmAgent, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
+			if err != nil {
+				return fmt.Errorf("failed to find pmm-agent for service with ID %s: %w", svc.ServiceID, err)
+			}
+
+			if !isPmmAgentSupportRta(pointer.Get(pointer.Get(pmmAgent[0]).Version)) {
+				// skip services with unsupported pmm-agent version
+				return nil
+			}
+
+			// Convert service to API format to be returned in the response.
+			apiSvc, svcErr := services.ToAPIService(svc)
+			if svcErr != nil {
+				return fmt.Errorf("failed to convert service with ID %s to API format: %w", svc.ServiceID, svcErr)
+			}
+
+			results[i] = &apiSvc
+
+			return nil
+		})
+	}
+
+	err := g.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, apiSvc := range results {
+		if apiSvc == nil {
+			continue
 		}
 
-		rtaFeatureSupported, err := isPmmAgentVersionSupported(*pmmAgent[0])
-		if err != nil || !rtaFeatureSupported {
-			continue // skip services with unsupported pmm-agent version
-		}
-
-		// Convert service to API format to be returned in the response.
-		apiSvc, svcErr := services.ToAPIService(svc)
-		if svcErr != nil {
-			return nil, fmt.Errorf("failed to convert service with ID %s to API format: %w", svc.ServiceID, svcErr)
-		}
-
-		switch apiSvc := apiSvc.(type) {
+		switch apiSvc := (*apiSvc).(type) {
 		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, apiSvc)
 		// Add other service types once RTA is supported for them
@@ -296,12 +348,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			return err
 		}
 
-		rtaFeatureSupported, err := isPmmAgentVersionSupported(*pmmAgent)
-		if err != nil {
-			return err
-		}
-
-		if !rtaFeatureSupported {
+		if !isPmmAgentSupportRta(pointer.Get(pointer.Get(pmmAgent).Version)) {
 			return status.Errorf(codes.FailedPrecondition,
 				"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
 		}
@@ -567,19 +614,14 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	}
 }
 
-// isPmmAgentVersionSupported checks if the pmm-agent has version supporting RTA and returns an error if not.
-func isPmmAgentVersionSupported(pmmAgent models.Agent) (bool, error) {
-	// Get agent version
-	if pmmAgent.Version == nil {
-		return false, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has no version specified.", pmmAgent.AgentID)
-	}
-
-	pmmAgentVersion, versionParseErr := version.Parse(*pmmAgent.Version)
+// isPmmAgentSupportRta checks if the pmm-agent has version supporting RTA and returns an error if not.
+func isPmmAgentSupportRta(pmmVersion string) bool {
+	pmmAgentVersion, versionParseErr := version.Parse(pmmVersion)
 	if versionParseErr != nil {
-		return false, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", pmmAgent.AgentID)
+		return false
 	}
 
-	return pmmAgentVersion.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion), nil
+	return pmmAgentVersion.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion)
 }
 
 // check interfaces.
