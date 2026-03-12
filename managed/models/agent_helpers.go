@@ -59,12 +59,21 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 			}
 		}
 	}
-	return MySQLOptions{
+	res := MySQLOptions{
 		TLSCa:          params.GetTlsCa(),
 		TLSCert:        params.GetTlsCert(),
 		TLSKey:         params.GetTlsKey(),
 		ExtraDSNParams: params.GetExtraDsnParams(),
-	}, nil
+	}
+
+	if t, ok := params.(interface{ GetTimeout() *durationpb.Duration }); ok {
+		if td := t.GetTimeout(); td != nil {
+			d := td.AsDuration()
+			res.Timeout = &d
+		}
+	}
+
+	return res, nil
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
@@ -91,6 +100,14 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOpti
 	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
 		res.AutoDiscoveryLimit = pointer.ToInt32(extendedOptions.GetAutoDiscoveryLimit())
 		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections()
+	}
+
+	// If request contains timeout, map it to internal representation.
+	if t, ok := params.(interface{ GetTimeout() *durationpb.Duration }); ok {
+		if td := t.GetTimeout(); td != nil {
+			d := td.AsDuration()
+			res.Timeout = &d
+		}
 	}
 
 	return res
@@ -141,6 +158,14 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
 
 	mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
 	mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
+
+	// Map timeout if present in request parameters.
+	if t, ok := params.(interface{ GetTimeout() *durationpb.Duration }); ok {
+		if td := t.GetTimeout(); td != nil {
+			d := td.AsDuration()
+			mdbOptions.Timeout = &d
+		}
+	}
 
 	// MongoDB exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(MongoDBExtendedOptionsParams); ok {

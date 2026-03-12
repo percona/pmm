@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"time"
 
 	"google.golang.org/protobuf/types/known/durationpb"
 
@@ -64,7 +63,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		return nil, err
 	}
 	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)),
+		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: exporter.EffectiveDialTimeout(), Database: database}, tdp, pmmAgentVersion)),
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -169,7 +168,7 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent,
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
-		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
 		TextFiles: &agentv1.TextFiles{
@@ -186,7 +185,7 @@ func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent,
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT,
-		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
 		TextFiles: &agentv1.TextFiles{
@@ -208,7 +207,7 @@ func rtaMongoDBAgentConfig(service *models.Service, agent *models.Agent, pmmAgen
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:        inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
-		Dsn:         agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		Dsn:         agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
 		RtaOptions:  apiRTAOptions,
 		ServiceId:   service.ServiceID,
 		ServiceName: service.ServiceName,

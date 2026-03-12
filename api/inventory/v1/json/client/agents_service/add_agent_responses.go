@@ -7103,6 +7103,9 @@ type AddAgentParamsBodyExternalExporter struct {
 
 	// Skip TLS certificate and hostname verification.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 }
 
 // Validate validates this add agent params body external exporter
@@ -7207,6 +7210,9 @@ type AddAgentParamsBodyMongodbExporter struct {
 	// Environment variable names to pass to the exporter.
 	// Values will be resolved from pmm-agent's environment when starting the exporter.
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 }
 
 // Validate validates this add agent params body mongodb exporter
@@ -7363,6 +7369,9 @@ type AddAgentParamsBodyMysqldExporter struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 }
 
 // Validate validates this add agent params body mysqld exporter
@@ -7675,6 +7684,9 @@ type AddAgentParamsBodyPostgresExporter struct {
 
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 }
 
 // Validate validates this add agent params body postgres exporter

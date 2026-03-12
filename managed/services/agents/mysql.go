@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"sort"
 	"text/template"
-	"time"
 
 	"github.com/AlekSi/pointer"
 
@@ -167,7 +166,7 @@ func mysqldExporterConfig(
 		}
 	} else {
 		env := []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: exporter.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		}
 		res.Env = env
@@ -185,7 +184,7 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent,
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
-		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
 		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
 		DisableQueryExamples:   agent.QANOptions.QueryExamplesDisabled,
 		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
@@ -204,7 +203,7 @@ func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent, pm
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
-		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
 		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
 		DisableQueryExamples:   agent.QANOptions.QueryExamplesDisabled,
 		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,

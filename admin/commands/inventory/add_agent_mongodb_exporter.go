@@ -65,6 +65,7 @@ type AddAgentMongodbExporterCommand struct {
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"` //nolint:lll
+	Timeout                       string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	flags.LogLevelFatalFlags
 }
@@ -98,6 +99,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 				TLSCa:                         tlsCa,
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
+				Timeout:                       cmd.Timeout,
 				PushMetrics:                   cmd.PushMetrics,
 				DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),

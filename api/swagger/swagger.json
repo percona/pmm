@@ -6727,6 +6727,11 @@
                         "type": "string"
                       },
                       "x-order": 17
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 2
@@ -6861,6 +6866,11 @@
                         "type": "string"
                       },
                       "x-order": 20
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 21
                     }
                   },
                   "x-order": 3
@@ -6975,6 +6985,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 17
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 4
@@ -7122,6 +7137,11 @@
                       "description": "Skip TLS certificate and hostname verification.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 6

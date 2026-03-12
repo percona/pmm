@@ -16,8 +16,6 @@
 package models
 
 import (
-	"time"
-
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -40,8 +38,7 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 	}
 
 	dsnParams := DSNParams{
-		Database:    db,
-		DialTimeout: time.Second,
+		Database: db,
 	}
 
 	if dsnParams.Database == "" {
@@ -89,6 +86,7 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		if len(fexp) == 1 {
 			agent := fexp[0]
 			pmmAgentVersion := ExtractPmmAgentVersionFromAgent(q, agent)
+			dsnParams.DialTimeout = agent.EffectiveDialTimeout()
 			return agent.DSN(svc, dsnParams, nil, pmmAgentVersion), agent, nil
 		}
 		if len(fexp) > 1 {

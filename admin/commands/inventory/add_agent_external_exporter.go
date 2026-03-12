@@ -59,6 +59,7 @@ type AddAgentExternalExporterCommand struct {
 	CustomLabels  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics   bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	TLSSkipVerify bool              `help:"Skip TLS certificate verification"`
+	Timeout       string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 }
 
 // RunCmd executes the AddAgentExternalExporterCommand and returns the result.
@@ -82,6 +83,7 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 				CustomLabels:  customLabels,
 				PushMetrics:   cmd.PushMetrics,
 				TLSSkipVerify: cmd.TLSSkipVerify,
+				Timeout:       cmd.Timeout,
 			},
 		},
 		Context: commands.Ctx,

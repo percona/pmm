@@ -1017,6 +1017,8 @@ message AddMySQLdExporterParams {
   bool expose_exporter = 17;
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 18;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 19;
 }
 
 message ChangeMySQLdExporterParams {
@@ -1079,6 +1081,8 @@ message AddMongoDBExporterParams {
   // Environment variable names to pass to the exporter.
   // Values will be resolved from pmm-agent's environment when starting the exporter.
   repeated string environment_variable_names = 21;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 22;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1131,6 +1135,8 @@ message AddPostgresExporterParams {
   bool expose_exporter = 17;
   // Maximum number of connections that exporter can open to the database instance.
   int32 max_exporter_connections = 18;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 19;
 }
 
 message ChangePostgresExporterParams {
@@ -1533,6 +1539,8 @@ message AddExternalExporterParams {
   bool push_metrics = 11;
   // Skip TLS certificate and hostname verification.
   bool tls_skip_verify = 12;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 13;
 }
 
 message ChangeExternalExporterParams {

@@ -66,6 +66,7 @@ type AddAgentPostgresExporterCommand struct {
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
 	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
+	Timeout             string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	flags.LogLevelNoFatalFlags
 }
@@ -109,6 +110,7 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
+				Timeout:             cmd.Timeout,
 
 				TLS:           cmd.TLS,
 				TLSSkipVerify: cmd.TLSSkipVerify,

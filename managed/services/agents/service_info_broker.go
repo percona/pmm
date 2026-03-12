@@ -56,7 +56,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
@@ -73,7 +73,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 		request = &agentv1.ServiceInfoRequest{
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
-			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
 				nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
@@ -86,7 +86,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
@@ -97,7 +97,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 	case models.ProxySQLServiceType:
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:
@@ -128,7 +128,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Tls:  agent.TLS,
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
-			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second},
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout()},
 				nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
