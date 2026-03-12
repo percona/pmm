@@ -13,6 +13,24 @@ type mockPrometheusService struct {
 	mock.Mock
 }
 
+// ForceConfigurationUpdate provides a mock function with given fields: ctx
+func (_m *mockPrometheusService) ForceConfigurationUpdate(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ForceConfigurationUpdate")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // IsReady provides a mock function with given fields: ctx
 func (_m *mockPrometheusService) IsReady(ctx context.Context) error {
 	ret := _m.Called(ctx)
