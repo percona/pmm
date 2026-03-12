@@ -5,13 +5,25 @@ export interface AdreSettings {
   url: string;
   chatPrompt?: string;
   investigationPrompt?: string;
+  /** Display value when chat_prompt is empty (built-in default). */
+  chatPromptDisplay?: string;
+  /** Display value when investigation_prompt is empty (built-in default). */
+  investigationPromptDisplay?: string;
   defaultChatMode?: 'chat' | 'investigation';
   /** Orchestrator (e.g. Ollama) URL for local LLM chat. */
   orchestratorLlmUrl?: string;
   /** Orchestrator model name. */
   orchestratorLlmModel?: string;
-  /** "holmesgpt" = chat goes to HolmesGPT; "orchestrator" = chat goes to local Ollama. */
-  chatBackend?: 'holmesgpt' | 'orchestrator';
+  /** "holmesgpt" = Holmes Agent (direct); "holmes_agent" = PMM Agent (Holmes with replace_system_prompt). */
+  chatBackend?: 'holmesgpt' | 'holmes_agent' | 'orchestrator';
+  /** Max messages sent to PMM Agent (5–100). Used when chatBackend is holmes_agent. */
+  chatHistoryLength?: number;
+  /** System prompt for PMM Agent when chatBackend is holmes_agent. Empty = use built-in default. */
+  agentPrompt?: string;
+  /** Display value when agent_prompt is empty (built-in default). */
+  agentPromptDisplay?: string;
+  /** Backend may return snake_case; frontend may use either. */
+  chat_history_length?: number;
 }
 
 export interface AdreModelsResponse {

@@ -14,9 +14,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, ChangeEvent } from 'react';
 import { Page } from 'components/page';
 import { useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
+import type { AdreSettings } from 'api/adre';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';
 
@@ -42,8 +43,20 @@ const AdreSettingsPage: FC = () => {
     settings?.orchestratorLlmModel ?? ''
   );
   const [localChatBackend, setLocalChatBackend] = useState<
-    'holmesgpt' | 'orchestrator'
-  >(settings?.chatBackend ?? 'holmesgpt');
+    'holmesgpt' | 'holmes_agent' | 'orchestrator'
+  >((settings?.chatBackend as 'holmesgpt' | 'holmes_agent' | 'orchestrator') ?? 'holmesgpt');
+  const [localChatHistoryLength, setLocalChatHistoryLength] = useState(
+    settings?.chatHistoryLength ?? settings?.chat_history_length ?? 20
+  );
+  const [localChatPrompt, setLocalChatPrompt] = useState(
+    settings?.chatPromptDisplay ?? settings?.chatPrompt ?? ''
+  );
+  const [localInvestigationPrompt, setLocalInvestigationPrompt] = useState(
+    settings?.investigationPromptDisplay ?? settings?.investigationPrompt ?? ''
+  );
+  const [localAgentPrompt, setLocalAgentPrompt] = useState(
+    settings?.agentPromptDisplay ?? settings?.agentPrompt ?? ''
+  );
 
   useEffect(() => {
     if (settings) {
@@ -51,7 +64,11 @@ const AdreSettingsPage: FC = () => {
       setLocalUrl(settings.url);
       setLocalOrchestratorUrl(settings.orchestratorLlmUrl ?? '');
       setLocalOrchestratorModel(settings.orchestratorLlmModel ?? '');
-      setLocalChatBackend(settings.chatBackend ?? 'holmesgpt');
+      setLocalChatBackend((settings.chatBackend as 'holmesgpt' | 'holmes_agent' | 'orchestrator') ?? 'holmesgpt');
+      setLocalChatHistoryLength(settings.chatHistoryLength ?? (settings as { chat_history_length?: number }).chat_history_length ?? 20);
+      setLocalChatPrompt(settings.chatPromptDisplay ?? settings.chatPrompt ?? '');
+      setLocalInvestigationPrompt(settings.investigationPromptDisplay ?? settings.investigationPrompt ?? '');
+      setLocalAgentPrompt(settings.agentPromptDisplay ?? settings.agentPrompt ?? '');
     }
   }, [
     settings?.enabled,
@@ -59,6 +76,13 @@ const AdreSettingsPage: FC = () => {
     settings?.orchestratorLlmUrl,
     settings?.orchestratorLlmModel,
     settings?.chatBackend,
+    settings?.chatHistoryLength,
+    settings?.chatPrompt,
+    settings?.chatPromptDisplay,
+    settings?.investigationPrompt,
+    settings?.investigationPromptDisplay,
+    settings?.agentPrompt,
+    settings?.agentPromptDisplay,
   ]);
 
   const isAdmin = user?.isPMMAdmin ?? false;
@@ -122,7 +146,7 @@ const AdreSettingsPage: FC = () => {
                   control={
                     <Switch
                       checked={localEnabled}
-                      onChange={(_, v) => setLocalEnabled(v)}
+                      onChange={(_, v: boolean) => setLocalEnabled(v)}
                     />
                   }
                   label="Enable ADRE"
@@ -131,7 +155,7 @@ const AdreSettingsPage: FC = () => {
                   label="HolmesGPT URL"
                   placeholder="http://holmesgpt:8080"
                   value={localUrl}
-                  onChange={(e) => setLocalUrl(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalUrl(e.target.value)}
                   size="small"
                   fullWidth
                 />
@@ -142,7 +166,7 @@ const AdreSettingsPage: FC = () => {
                   label="Orchestrator LLM URL"
                   placeholder="http://localhost:11434"
                   value={localOrchestratorUrl}
-                  onChange={(e) => setLocalOrchestratorUrl(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalOrchestratorUrl(e.target.value)}
                   size="small"
                   fullWidth
                 />
@@ -150,7 +174,7 @@ const AdreSettingsPage: FC = () => {
                   label="Orchestrator LLM model"
                   placeholder="llama3.2"
                   value={localOrchestratorModel}
-                  onChange={(e) => setLocalOrchestratorModel(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalOrchestratorModel(e.target.value)}
                   size="small"
                   fullWidth
                 />
@@ -160,23 +184,78 @@ const AdreSettingsPage: FC = () => {
                     value={localChatBackend}
                     label="Chat backend"
                     onChange={(e) =>
-                      setLocalChatBackend(e.target.value as 'holmesgpt' | 'orchestrator')
+                      setLocalChatBackend(e.target.value as 'holmesgpt' | 'holmes_agent' | 'orchestrator')
                     }
                   >
-                    <MenuItem value="holmesgpt">HolmesGPT (direct)</MenuItem>
+                    <MenuItem value="holmesgpt">Holmes Agent (direct)</MenuItem>
+                    <MenuItem value="holmes_agent">PMM Agent</MenuItem>
                     <MenuItem value="orchestrator">Local LLM (Ollama)</MenuItem>
                   </Select>
                 </FormControl>
+                {(localChatBackend === 'holmes_agent' || localChatBackend === 'orchestrator') && (
+                  <TextField
+                    label="Conversation history length"
+                    type="number"
+                    inputProps={{ min: 5, max: 100 }}
+                    value={localChatHistoryLength}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatHistoryLength(parseInt(e.target.value, 10) || 20)}
+                    size="small"
+                    fullWidth
+                    helperText="Max messages sent to PMM Agent (5–100)"
+                  />
+                )}
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
+                  Prompts for Holmes Agent
+                </Typography>
+                <TextField
+                  label="Chat prompt"
+                  placeholder="System prompt for Holmes Agent (chat mode)"
+                  value={localChatPrompt}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatPrompt(e.target.value)}
+                  size="small"
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  helperText="System prompt for Holmes Agent when talking in chat mode"
+                />
+                <TextField
+                  label="Investigation prompt"
+                  placeholder="System prompt for investigations"
+                  value={localInvestigationPrompt}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalInvestigationPrompt(e.target.value)}
+                  size="small"
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  helperText="System prompt for Holmes Agent in investigation mode"
+                />
+                {(localChatBackend === 'holmes_agent' || localChatBackend === 'orchestrator') && (
+                  <TextField
+                    label="Agent prompt (PMM Agent)"
+                    placeholder="System prompt for PMM Agent; empty = use built-in default"
+                    value={localAgentPrompt}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalAgentPrompt(e.target.value)}
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={3}
+                    helperText="System prompt when using PMM Agent; leave empty for default"
+                  />
+                )}
                 <Button
                   variant="contained"
                   onClick={() =>
                     updateSettings.mutate({
                       enabled: localEnabled,
                       url: localUrl,
-                      orchestratorLlmUrl: localOrchestratorUrl,
-                      orchestratorLlmModel: localOrchestratorModel,
-                      chatBackend: localChatBackend,
-                    })
+                      orchestrator_llm_url: localOrchestratorUrl,
+                      orchestrator_llm_model: localOrchestratorModel,
+                      chat_backend: localChatBackend,
+                      chat_history_length: localChatHistoryLength,
+                      chat_prompt: localChatPrompt || undefined,
+                      investigation_prompt: localInvestigationPrompt || undefined,
+                      agent_prompt: localAgentPrompt || undefined,
+                    } as Partial<AdreSettings> & Record<string, unknown>)
                   }
                   disabled={updateSettings.isPending}
                 >

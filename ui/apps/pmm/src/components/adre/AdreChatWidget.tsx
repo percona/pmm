@@ -22,12 +22,17 @@ export const AdreChatWidget: FC = () => {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const isPMMAgent = settings?.chatBackend === 'holmes_agent' && !!settings?.url;
   const isOrchestrator =
     settings?.chatBackend === 'orchestrator' && !!settings?.orchestratorLlmUrl;
   const isConfigured =
     settings?.enabled &&
     (!!settings?.url || isOrchestrator);
-  const chatViaLabel = isOrchestrator ? 'Chat via Local LLM' : 'Chat via HolmesGPT';
+  const chatViaLabel = isPMMAgent
+    ? 'Chat via PMM Agent'
+    : isOrchestrator
+      ? 'Chat via Local LLM'
+      : 'Chat via Holmes Agent';
 
   const handleSend = useCallback(async () => {
     if (!ask.trim() || !isConfigured) return;

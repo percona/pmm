@@ -101,6 +101,10 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 	if investigationPromptDisplay == "" {
 		investigationPromptDisplay = DefaultInvestigationPrompt
 	}
+	agentPromptDisplay := settings.Adre.AgentPrompt
+	if agentPromptDisplay == "" {
+		agentPromptDisplay = DefaultPMMAgentPrompt
+	}
 	resp := struct {
 		Enabled                    bool   `json:"enabled"`
 		URL                        string `json:"url"`
@@ -112,6 +116,9 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		OrchestratorLLMURL         string `json:"orchestrator_llm_url"`
 		OrchestratorLLMModel       string `json:"orchestrator_llm_model"`
 		ChatBackend                string `json:"chat_backend"`
+		ChatHistoryLength          int    `json:"chat_history_length"`
+		AgentPrompt                string `json:"agent_prompt"`
+		AgentPromptDisplay         string `json:"agent_prompt_display"`
 	}{
 		Enabled:                    settings.IsAdreEnabled(),
 		URL:                        settings.GetAdreURL(),
@@ -123,12 +130,18 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		OrchestratorLLMURL:         settings.Adre.OrchestratorLLMURL,
 		OrchestratorLLMModel:       settings.Adre.OrchestratorLLMModel,
 		ChatBackend:                settings.Adre.ChatBackend,
+		ChatHistoryLength:         settings.Adre.ChatHistoryLength,
+		AgentPrompt:                settings.Adre.AgentPrompt,
+		AgentPromptDisplay:         agentPromptDisplay,
 	}
 	if resp.DefaultChatMode == "" {
 		resp.DefaultChatMode = "chat"
 	}
 	if resp.ChatBackend == "" {
 		resp.ChatBackend = "holmesgpt"
+	}
+	if resp.ChatHistoryLength <= 0 {
+		resp.ChatHistoryLength = 20
 	}
 	body, err := json.Marshal(resp)
 	if err != nil {
@@ -158,6 +171,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		OrchestratorLLMURL  *string `json:"orchestrator_llm_url"`
 		OrchestratorLLMModel *string `json:"orchestrator_llm_model"`
 		ChatBackend         *string `json:"chat_backend"`
+		ChatHistoryLength   *int    `json:"chat_history_length"`
+		AgentPrompt         *string `json:"agent_prompt"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -165,9 +180,10 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	hasChange := body.Enabled != nil || body.URL != nil || body.ChatPrompt != nil ||
 		body.InvestigationPrompt != nil || body.DefaultChatMode != nil ||
-		body.OrchestratorLLMURL != nil || body.OrchestratorLLMModel != nil || body.ChatBackend != nil
+		body.OrchestratorLLMURL != nil || body.OrchestratorLLMModel != nil || body.ChatBackend != nil ||
+		body.ChatHistoryLength != nil || body.AgentPrompt != nil
 	if !hasChange {
-		writeJSONError(w, http.StatusBadRequest, "No changes provided (set enabled, url, chat_prompt, investigation_prompt, default_chat_mode, orchestrator_llm_url, orchestrator_llm_model, and/or chat_backend)")
+		writeJSONError(w, http.StatusBadRequest, "No changes provided (set enabled, url, chat_prompt, investigation_prompt, default_chat_mode, orchestrator_llm_url, orchestrator_llm_model, chat_backend, chat_history_length, and/or agent_prompt)")
 		return
 	}
 	if body.URL != nil {
@@ -218,11 +234,22 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	if body.ChatBackend != nil {
 		cb := strings.TrimSpace(*body.ChatBackend)
-		if cb != "holmesgpt" && cb != "orchestrator" {
-			writeJSONError(w, http.StatusBadRequest, "chat_backend: must be \"holmesgpt\" or \"orchestrator\"")
+		if cb != "holmesgpt" && cb != "orchestrator" && cb != "holmes_agent" {
+			writeJSONError(w, http.StatusBadRequest, "chat_backend: must be \"holmesgpt\", \"holmes_agent\", or \"orchestrator\"")
 			return
 		}
 		body.ChatBackend = &cb
+	}
+	if body.ChatHistoryLength != nil {
+		n := *body.ChatHistoryLength
+		if n < 5 || n > 100 {
+			writeJSONError(w, http.StatusBadRequest, "chat_history_length: must be between 5 and 100")
+			return
+		}
+	}
+	if body.AgentPrompt != nil && len(*body.AgentPrompt) > models.AdrePromptMaxBytes {
+		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("agent_prompt: max %d bytes", models.AdrePromptMaxBytes))
+		return
 	}
 	params := &models.ChangeSettingsParams{
 		EnableAdre:              body.Enabled,
@@ -233,6 +260,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		OrchestratorLLMURL:      body.OrchestratorLLMURL,
 		OrchestratorLLMModel:    body.OrchestratorLLMModel,
 		ChatBackend:             body.ChatBackend,
+		ChatHistoryLength:       body.ChatHistoryLength,
+		AgentPrompt:             body.AgentPrompt,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -248,6 +277,10 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	if investigationPromptDisplay == "" {
 		investigationPromptDisplay = DefaultInvestigationPrompt
 	}
+	agentPromptDisplayPost := settings.Adre.AgentPrompt
+	if agentPromptDisplayPost == "" {
+		agentPromptDisplayPost = DefaultPMMAgentPrompt
+	}
 	resp := struct {
 		Enabled                    bool   `json:"enabled"`
 		URL                        string `json:"url"`
@@ -259,6 +292,9 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		OrchestratorLLMURL         string `json:"orchestrator_llm_url"`
 		OrchestratorLLMModel       string `json:"orchestrator_llm_model"`
 		ChatBackend                string `json:"chat_backend"`
+		ChatHistoryLength          int    `json:"chat_history_length"`
+		AgentPrompt                string `json:"agent_prompt"`
+		AgentPromptDisplay         string `json:"agent_prompt_display"`
 	}{
 		Enabled:                    settings.IsAdreEnabled(),
 		URL:                        settings.GetAdreURL(),
@@ -270,12 +306,18 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		OrchestratorLLMURL:         settings.Adre.OrchestratorLLMURL,
 		OrchestratorLLMModel:       settings.Adre.OrchestratorLLMModel,
 		ChatBackend:                settings.Adre.ChatBackend,
+		ChatHistoryLength:         settings.Adre.ChatHistoryLength,
+		AgentPrompt:                settings.Adre.AgentPrompt,
+		AgentPromptDisplay:         agentPromptDisplayPost,
 	}
 	if resp.DefaultChatMode == "" {
 		resp.DefaultChatMode = "chat"
 	}
 	if resp.ChatBackend == "" {
 		resp.ChatBackend = "holmesgpt"
+	}
+	if resp.ChatHistoryLength <= 0 {
+		resp.ChatHistoryLength = 20
 	}
 	respBody, err := json.Marshal(resp)
 	if err != nil {
@@ -324,6 +366,14 @@ type chatRequestBody struct {
 	Mode *string `json:"mode,omitempty"`
 }
 
+// resolvePMMAgentPrompt returns the system prompt for the PMM Agent. Empty settings value uses built-in default.
+func resolvePMMAgentPrompt(settings *models.Settings) string {
+	if settings.Adre.AgentPrompt != "" {
+		return settings.Adre.AgentPrompt
+	}
+	return DefaultPMMAgentPrompt
+}
+
 // resolveChatPrompt returns the additional_system_prompt for chat from settings and mode. Empty settings value uses built-in default.
 func resolveChatPrompt(settings *models.Settings, mode string) string {
 	if mode == "investigation" {
@@ -360,7 +410,20 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
-	// Orchestrator backend: local Ollama chat (no investigation); stream in same SSE format as HolmesGPT.
+	// PMM Agent or orchestrator backend: use Holmes with replace_system_prompt when Holmes URL is set; otherwise fall back to Ollama.
+	if (settings.Adre.ChatBackend == "holmes_agent" || settings.Adre.ChatBackend == "orchestrator") && settings.GetAdreURL() != "" {
+		if strings.TrimSpace(body.Ask) == "" {
+			writeJSONError(w, http.StatusBadRequest, "ask is required")
+			return
+		}
+		if body.Stream {
+			RunPMMAgentChatStream(w, r, h.db, h.l, settings, body.Ask, body.ConversationHistory, h.streamTimeout)
+			return
+		}
+		writeJSONError(w, http.StatusBadRequest, "PMM Agent chat requires stream: true")
+		return
+	}
+	// Orchestrator backend (Ollama) when Holmes URL is not set.
 	if settings.Adre.ChatBackend == "orchestrator" && settings.Adre.OrchestratorLLMURL != "" {
 		if strings.TrimSpace(body.Ask) == "" {
 			writeJSONError(w, http.StatusBadRequest, "ask is required")
@@ -370,7 +433,6 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 			RunGeneralChatStream(w, r, h.db, h.l, settings, body.Ask, body.ConversationHistory, h.streamTimeout)
 			return
 		}
-		// Non-streaming orchestrator: run same flow but collect output and return JSON (optional; frontend typically uses stream).
 		writeJSONError(w, http.StatusBadRequest, "Orchestrator chat requires stream: true")
 		return
 	}

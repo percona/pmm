@@ -118,12 +118,16 @@ func (c *Client) Models(ctx context.Context) ([]string, error) {
 
 // ChatRequest is the request body for POST /api/chat.
 type ChatRequest struct {
-	Ask                   string        `json:"ask"`
-	ConversationHistory   []interface{} `json:"conversation_history,omitempty"`
-	Model                 string        `json:"model,omitempty"`
-	Stream                bool          `json:"stream,omitempty"`
-	AdditionalSystemPrompt string       `json:"additional_system_prompt,omitempty"`
-	PageContext          interface{}   `json:"page_context,omitempty"`
+	Ask                    string            `json:"ask"`
+	ConversationHistory    []interface{}     `json:"conversation_history,omitempty"`
+	Model                  string            `json:"model,omitempty"`
+	Stream                 bool              `json:"stream,omitempty"`
+	AdditionalSystemPrompt string            `json:"additional_system_prompt,omitempty"`
+	PageContext            interface{}       `json:"page_context,omitempty"`
+	// ReplaceSystemPrompt: when true, Holmes uses only AdditionalSystemPrompt as system message (PMM Agent mode).
+	ReplaceSystemPrompt bool `json:"replace_system_prompt,omitempty"`
+	// BehaviorControls overrides prompt components (e.g. {"todowrite_instructions": false}). Optional.
+	BehaviorControls map[string]bool `json:"behavior_controls,omitempty"`
 }
 
 // ChatResponse is the response from POST /api/chat.
@@ -199,6 +203,42 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadClose
 		return nil, fmt.Errorf("HolmesGPT /api/chat (stream): %s: %s", resp.Status, string(respBody))
 	}
 	return resp.Body, nil
+}
+
+// contentString extracts a string from a message "content" field (may be string or other type in some APIs).
+func contentString(m map[string]interface{}) string {
+	if c, ok := m["content"].(string); ok {
+		return c
+	}
+	if c := m["content"]; c != nil {
+		return fmt.Sprintf("%v", c)
+	}
+	return ""
+}
+
+// BuildChatRequestForHolmesAgent builds a ChatRequest for the Holmes Agent (default prompt) with multi-turn messages.
+// messages is the sub-conversation (e.g. from ask_holmes tool); each item has "role" and "content".
+// conversation_history is messages[0:len-1], ask is the last message's content. additionalSystemPrompt is the Chat/Investigation prompt.
+func BuildChatRequestForHolmesAgent(messages []map[string]interface{}, additionalSystemPrompt string) *ChatRequest {
+	req := &ChatRequest{
+		AdditionalSystemPrompt: additionalSystemPrompt,
+		Stream:                 false,
+	}
+	if len(messages) == 0 {
+		return req
+	}
+	if len(messages) == 1 {
+		req.Ask = contentString(messages[0])
+		return req
+	}
+	last := messages[len(messages)-1]
+	req.Ask = contentString(last)
+	history := make([]interface{}, 0, len(messages)-1)
+	for i := 0; i < len(messages)-1; i++ {
+		history = append(history, messages[i])
+	}
+	req.ConversationHistory = history
+	return req
 }
 
 // InvestigateRequest is the request body for POST /api/investigate.

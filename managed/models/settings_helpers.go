@@ -120,8 +120,12 @@ type ChangeSettingsParams struct {
 	OrchestratorLLMProvider *string
 	OrchestratorLLMURL      *string
 	OrchestratorLLMModel    *string
-	// ChatBackend: "holmesgpt" or "orchestrator".
+	// ChatBackend: "holmesgpt" or "holmes_agent" (or "orchestrator" for backward compat).
 	ChatBackend *string
+	// ChatHistoryLength: max messages to send to PMM Agent (5-100). Used when ChatBackend is holmes_agent.
+	ChatHistoryLength *int
+	// AgentPrompt: system prompt for PMM Agent when ChatBackend is holmes_agent. Max AdrePromptMaxBytes.
+	AgentPrompt *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -293,6 +297,12 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.ChatBackend != nil {
 		settings.Adre.ChatBackend = pointer.GetString(params.ChatBackend)
 	}
+	if params.ChatHistoryLength != nil {
+		settings.Adre.ChatHistoryLength = *params.ChatHistoryLength
+	}
+	if params.AgentPrompt != nil {
+		settings.Adre.AgentPrompt = pointer.GetString(params.AgentPrompt)
+	}
 
 	err = SaveSettings(q, settings)
 	if err != nil {
@@ -394,9 +404,18 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 	if params.ChatBackend != nil {
 		cb := strings.TrimSpace(*params.ChatBackend)
-		if cb != "holmesgpt" && cb != "orchestrator" {
-			return errors.New("chat_backend: must be \"holmesgpt\" or \"orchestrator\"")
+		if cb != "holmesgpt" && cb != "orchestrator" && cb != "holmes_agent" {
+			return errors.New("chat_backend: must be \"holmesgpt\", \"holmes_agent\", or \"orchestrator\"")
 		}
+	}
+	if params.ChatHistoryLength != nil {
+		n := *params.ChatHistoryLength
+		if n < 5 || n > 100 {
+			return errors.New("chat_history_length: must be between 5 and 100")
+		}
+	}
+	if params.AgentPrompt != nil && len(*params.AgentPrompt) > AdrePromptMaxBytes {
+		return errors.Errorf("agent_prompt: max %d bytes", AdrePromptMaxBytes)
 	}
 
 	return nil

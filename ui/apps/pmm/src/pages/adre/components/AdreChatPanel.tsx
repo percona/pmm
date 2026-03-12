@@ -244,9 +244,11 @@ export const AdreChatPanel: FC = () => {
           <Stack>
             <Typography variant="h6">Chat</Typography>
             <Typography variant="caption" color="text.secondary">
-              {settings?.chatBackend === 'orchestrator' && settings?.orchestratorLlmUrl
-                ? 'Chat via Local LLM'
-                : 'Chat via HolmesGPT'}
+              {settings?.chatBackend === 'holmes_agent' && settings?.url
+                ? 'Chat via PMM Agent'
+                : settings?.chatBackend === 'orchestrator' && settings?.orchestratorLlmUrl
+                  ? 'Chat via Local LLM'
+                  : 'Chat via Holmes Agent'}
             </Typography>
           </Stack>
           <ToggleButtonGroup

@@ -114,8 +114,12 @@ type Settings struct {
 		OrchestratorLLMProvider string `json:"orchestrator_llm_provider"`
 		OrchestratorLLMURL      string `json:"orchestrator_llm_url"`
 		OrchestratorLLMModel    string `json:"orchestrator_llm_model"`
-		// ChatBackend: "holmesgpt" = proxy ADRE chat to HolmesGPT; "orchestrator" = use local Ollama orchestrator.
+		// ChatBackend: "holmesgpt" = direct to Holmes Agent; "holmes_agent" or "orchestrator" = PMM Agent (Holmes with replace_system_prompt).
 		ChatBackend string `json:"chat_backend"`
+		// ChatHistoryLength is the max number of messages to send to the PMM Agent (trimmed from conversation_history). Used when ChatBackend is holmes_agent.
+		ChatHistoryLength int `json:"chat_history_length"`
+		// AgentPrompt is the system prompt for the PMM Agent when ChatBackend is holmes_agent. Empty = use built-in default.
+		AgentPrompt string `json:"agent_prompt"`
 	} `json:"adre"`
 
 	Alerting struct {
@@ -315,5 +319,8 @@ func (s *Settings) fillDefaults() {
 	}
 	if s.Adre.ChatBackend == "" {
 		s.Adre.ChatBackend = "holmesgpt"
+	}
+	if s.Adre.ChatHistoryLength <= 0 {
+		s.Adre.ChatHistoryLength = 20
 	}
 }
