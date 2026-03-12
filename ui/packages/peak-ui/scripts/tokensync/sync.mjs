@@ -42,7 +42,7 @@ function upperHex(s) {
  * Recursively resolve a Figma value (which may be a reference or mode-keyed
  * object) down to either a primitives reference or a literal value.
  *
- * Returns { type: 'ref', path } | { type: 'literal', value }
+ * Returns { type: 'ref', path } | { type: 'number', value } | { type: 'literal', value }
  */
 function resolveToCode(rawValue, mode) {
   if (rawValue && typeof rawValue === "object" && !Array.isArray(rawValue)) {
