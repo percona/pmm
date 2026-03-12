@@ -1,7 +1,9 @@
 # Real-time Query Analytics for MongoDB
 
-!!! warning "Technical Preview – MongoDB only"
-    RTA is not ready for production environments yet. Use for testing and feedback only. MySQL and PostgreSQL support is planned for future releases.
+!!! warning "MongoDB only"
+    Real-time Query Analytics (RTA) currently supports **MongoDB only**. Support for **MySQL** and **PostgreSQL** is planned for future releases.
+
+While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete—helping you analyze and optimize past performance—Real-time Query Analytics (RTA) displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
 
 While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) captures queries after they complete so you can optimize past performance, Real-time Query Analytics (RTA) shows queries as they execute so when your database is struggling, you can spot problematic operations right away and take action before they impact users. 
 
@@ -61,7 +63,9 @@ To identify operations that are taking too long:
 1. Click the **Elapsed time** column header to sort by duration, longest first.
 2. Click an operation to open the **Details** tab, then check **Plan summary** for `COLLSCAN`. This means the query scanned the entire collection—often a sign that an index is missing.
 
-    Repeated slow queries on the same collection often indicate it needs better indexing.
+    ![RTA Details tab](../../images/RTA_Details_tab.png)
+
+Repeated slow queries on the same collection often indicate it needs better indexing.
 
 ### Trace an operation to its source
 
@@ -86,6 +90,8 @@ If operations seem stuck, open the **Raw data** tab and look for:
 
 - `waitingForLock: true`: the operation is blocked waiting for a lock
 - `locks`: shows which lock types the operation holds
+
+![RTA Raw Data tab](../../images/Raw_data_RTA.png)
 
 Operations waiting for locks may indicate write contention or long-running operations blocking others.
 
