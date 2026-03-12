@@ -85,7 +85,7 @@ exit 0
 * Mon Mar 02 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.12-1
 - PMM-14829 Grafana 11.6.12
 
-* Wed July 09 2025 Ioana Maniga <ioana.maniga@ext.percona.com> - 11.6.3-1
+* Wed Jul 09 2025 Ioana Maniga <ioana.maniga@ext.percona.com> - 11.6.3-1
 - PMM-14015 Grafana 11.6.3
 
 * Thu May 22 2025 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.1-1
