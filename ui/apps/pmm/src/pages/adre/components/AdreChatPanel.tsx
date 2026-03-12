@@ -241,7 +241,14 @@ export const AdreChatPanel: FC = () => {
     <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
-          <Typography variant="h6">Chat</Typography>
+          <Stack>
+            <Typography variant="h6">Chat</Typography>
+            <Typography variant="caption" color="text.secondary">
+              {settings?.chatBackend === 'orchestrator' && settings?.orchestratorLlmUrl
+                ? 'Chat via Local LLM'
+                : 'Chat via HolmesGPT'}
+            </Typography>
+          </Stack>
           <ToggleButtonGroup
             value={mode}
             exclusive

@@ -114,6 +114,8 @@ type Settings struct {
 		OrchestratorLLMProvider string `json:"orchestrator_llm_provider"`
 		OrchestratorLLMURL      string `json:"orchestrator_llm_url"`
 		OrchestratorLLMModel    string `json:"orchestrator_llm_model"`
+		// ChatBackend: "holmesgpt" = proxy ADRE chat to HolmesGPT; "orchestrator" = use local Ollama orchestrator.
+		ChatBackend string `json:"chat_backend"`
 	} `json:"adre"`
 
 	Alerting struct {
@@ -310,5 +312,8 @@ func (s *Settings) fillDefaults() {
 	}
 	if s.Adre.OrchestratorLLMModel == "" {
 		s.Adre.OrchestratorLLMModel = "llama3.2"
+	}
+	if s.Adre.ChatBackend == "" {
+		s.Adre.ChatBackend = "holmesgpt"
 	}
 }

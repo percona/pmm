@@ -3,8 +3,12 @@ import {
   Button,
   Card,
   CardContent,
+  FormControl,
   FormControlLabel,
+  InputLabel,
   Link,
+  MenuItem,
+  Select,
   Stack,
   Switch,
   TextField,
@@ -31,13 +35,31 @@ const AdreSettingsPage: FC = () => {
   const updateSettings = useUpdateAdreSettings();
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
+  const [localOrchestratorUrl, setLocalOrchestratorUrl] = useState(
+    settings?.orchestratorLlmUrl ?? ''
+  );
+  const [localOrchestratorModel, setLocalOrchestratorModel] = useState(
+    settings?.orchestratorLlmModel ?? ''
+  );
+  const [localChatBackend, setLocalChatBackend] = useState<
+    'holmesgpt' | 'orchestrator'
+  >(settings?.chatBackend ?? 'holmesgpt');
 
   useEffect(() => {
     if (settings) {
       setLocalEnabled(settings.enabled);
       setLocalUrl(settings.url);
+      setLocalOrchestratorUrl(settings.orchestratorLlmUrl ?? '');
+      setLocalOrchestratorModel(settings.orchestratorLlmModel ?? '');
+      setLocalChatBackend(settings.chatBackend ?? 'holmesgpt');
     }
-  }, [settings?.enabled, settings?.url]);
+  }, [
+    settings?.enabled,
+    settings?.url,
+    settings?.orchestratorLlmUrl,
+    settings?.orchestratorLlmModel,
+    settings?.chatBackend,
+  ]);
 
   const isAdmin = user?.isPMMAdmin ?? false;
   const isForbidden = isError && isForbiddenError(error);
@@ -93,6 +115,9 @@ const AdreSettingsPage: FC = () => {
             </Typography>
             {isAdmin ? (
               <Stack gap={2}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  HolmesGPT
+                </Typography>
                 <FormControlLabel
                   control={
                     <Switch
@@ -110,12 +135,47 @@ const AdreSettingsPage: FC = () => {
                   size="small"
                   fullWidth
                 />
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
+                  Orchestrator (local LLM)
+                </Typography>
+                <TextField
+                  label="Orchestrator LLM URL"
+                  placeholder="http://localhost:11434"
+                  value={localOrchestratorUrl}
+                  onChange={(e) => setLocalOrchestratorUrl(e.target.value)}
+                  size="small"
+                  fullWidth
+                />
+                <TextField
+                  label="Orchestrator LLM model"
+                  placeholder="llama3.2"
+                  value={localOrchestratorModel}
+                  onChange={(e) => setLocalOrchestratorModel(e.target.value)}
+                  size="small"
+                  fullWidth
+                />
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Chat backend</InputLabel>
+                  <Select
+                    value={localChatBackend}
+                    label="Chat backend"
+                    onChange={(e) =>
+                      setLocalChatBackend(e.target.value as 'holmesgpt' | 'orchestrator')
+                    }
+                  >
+                    <MenuItem value="holmesgpt">HolmesGPT (direct)</MenuItem>
+                    <MenuItem value="orchestrator">Local LLM (Ollama)</MenuItem>
+                  </Select>
+                </FormControl>
                 <Button
                   variant="contained"
                   onClick={() =>
                     updateSettings.mutate({
                       enabled: localEnabled,
                       url: localUrl,
+                      orchestratorLlmUrl: localOrchestratorUrl,
+                      orchestratorLlmModel: localOrchestratorModel,
+                      chatBackend: localChatBackend,
                     })
                   }
                   disabled={updateSettings.isPending}

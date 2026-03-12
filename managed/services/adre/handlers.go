@@ -109,6 +109,9 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		ChatPromptDisplay          string `json:"chat_prompt_display"`
 		InvestigationPromptDisplay string `json:"investigation_prompt_display"`
 		DefaultChatMode            string `json:"default_chat_mode"`
+		OrchestratorLLMURL         string `json:"orchestrator_llm_url"`
+		OrchestratorLLMModel       string `json:"orchestrator_llm_model"`
+		ChatBackend                string `json:"chat_backend"`
 	}{
 		Enabled:                    settings.IsAdreEnabled(),
 		URL:                        settings.GetAdreURL(),
@@ -117,9 +120,15 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		ChatPromptDisplay:          chatPromptDisplay,
 		InvestigationPromptDisplay: investigationPromptDisplay,
 		DefaultChatMode:            settings.Adre.DefaultChatMode,
+		OrchestratorLLMURL:         settings.Adre.OrchestratorLLMURL,
+		OrchestratorLLMModel:       settings.Adre.OrchestratorLLMModel,
+		ChatBackend:                settings.Adre.ChatBackend,
 	}
 	if resp.DefaultChatMode == "" {
 		resp.DefaultChatMode = "chat"
+	}
+	if resp.ChatBackend == "" {
+		resp.ChatBackend = "holmesgpt"
 	}
 	body, err := json.Marshal(resp)
 	if err != nil {
@@ -146,15 +155,19 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ChatPrompt          *string `json:"chat_prompt"`
 		InvestigationPrompt *string `json:"investigation_prompt"`
 		DefaultChatMode     *string `json:"default_chat_mode"`
+		OrchestratorLLMURL  *string `json:"orchestrator_llm_url"`
+		OrchestratorLLMModel *string `json:"orchestrator_llm_model"`
+		ChatBackend         *string `json:"chat_backend"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
 	hasChange := body.Enabled != nil || body.URL != nil || body.ChatPrompt != nil ||
-		body.InvestigationPrompt != nil || body.DefaultChatMode != nil
+		body.InvestigationPrompt != nil || body.DefaultChatMode != nil ||
+		body.OrchestratorLLMURL != nil || body.OrchestratorLLMModel != nil || body.ChatBackend != nil
 	if !hasChange {
-		writeJSONError(w, http.StatusBadRequest, "No changes provided (set enabled, url, chat_prompt, investigation_prompt, and/or default_chat_mode)")
+		writeJSONError(w, http.StatusBadRequest, "No changes provided (set enabled, url, chat_prompt, investigation_prompt, default_chat_mode, orchestrator_llm_url, orchestrator_llm_model, and/or chat_backend)")
 		return
 	}
 	if body.URL != nil {
@@ -188,12 +201,38 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		}
 		body.DefaultChatMode = &mode
 	}
+	if body.OrchestratorLLMURL != nil {
+		trimmed := strings.TrimSpace(*body.OrchestratorLLMURL)
+		body.OrchestratorLLMURL = &trimmed
+		if trimmed != "" {
+			parsed, err := url.Parse(trimmed)
+			if err != nil || parsed.Host == "" {
+				writeJSONError(w, http.StatusBadRequest, "orchestrator_llm_url: must be a valid URL with host")
+				return
+			}
+			if parsed.Scheme != "http" && parsed.Scheme != "https" {
+				writeJSONError(w, http.StatusBadRequest, "orchestrator_llm_url: scheme must be http or https")
+				return
+			}
+		}
+	}
+	if body.ChatBackend != nil {
+		cb := strings.TrimSpace(*body.ChatBackend)
+		if cb != "holmesgpt" && cb != "orchestrator" {
+			writeJSONError(w, http.StatusBadRequest, "chat_backend: must be \"holmesgpt\" or \"orchestrator\"")
+			return
+		}
+		body.ChatBackend = &cb
+	}
 	params := &models.ChangeSettingsParams{
-		EnableAdre:             body.Enabled,
-		AdreURL:                body.URL,
-		AdreChatPrompt:         body.ChatPrompt,
+		EnableAdre:              body.Enabled,
+		AdreURL:                 body.URL,
+		AdreChatPrompt:          body.ChatPrompt,
 		AdreInvestigationPrompt: body.InvestigationPrompt,
-		AdreDefaultChatMode:    body.DefaultChatMode,
+		AdreDefaultChatMode:     body.DefaultChatMode,
+		OrchestratorLLMURL:      body.OrchestratorLLMURL,
+		OrchestratorLLMModel:    body.OrchestratorLLMModel,
+		ChatBackend:             body.ChatBackend,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -217,6 +256,9 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ChatPromptDisplay          string `json:"chat_prompt_display"`
 		InvestigationPromptDisplay string `json:"investigation_prompt_display"`
 		DefaultChatMode            string `json:"default_chat_mode"`
+		OrchestratorLLMURL         string `json:"orchestrator_llm_url"`
+		OrchestratorLLMModel       string `json:"orchestrator_llm_model"`
+		ChatBackend                string `json:"chat_backend"`
 	}{
 		Enabled:                    settings.IsAdreEnabled(),
 		URL:                        settings.GetAdreURL(),
@@ -225,9 +267,15 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ChatPromptDisplay:          chatPromptDisplay,
 		InvestigationPromptDisplay: investigationPromptDisplay,
 		DefaultChatMode:            settings.Adre.DefaultChatMode,
+		OrchestratorLLMURL:         settings.Adre.OrchestratorLLMURL,
+		OrchestratorLLMModel:       settings.Adre.OrchestratorLLMModel,
+		ChatBackend:                settings.Adre.ChatBackend,
 	}
 	if resp.DefaultChatMode == "" {
 		resp.DefaultChatMode = "chat"
+	}
+	if resp.ChatBackend == "" {
+		resp.ChatBackend = "holmesgpt"
 	}
 	respBody, err := json.Marshal(resp)
 	if err != nil {
@@ -291,18 +339,44 @@ func resolveChatPrompt(settings *models.Settings, mode string) string {
 }
 
 // PostChat handles POST /v1/adre/chat. If body has "stream": true, streams the response.
+// When settings.Adre.ChatBackend is "orchestrator" and OrchestratorLLMURL is set, runs local Ollama orchestrator chat instead of HolmesGPT.
 func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	settings, ok := h.checkAdreEnabled(w)
-	if !ok {
+	settings, err := models.GetSettings(h.db)
+	if err != nil {
+		h.l.Errorf("GetSettings: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
+		return
+	}
+	if !settings.IsAdreEnabled() {
+		writeJSONError(w, http.StatusBadRequest, adreDisabledMsg)
 		return
 	}
 	var body chatRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+	// Orchestrator backend: local Ollama chat (no investigation); stream in same SSE format as HolmesGPT.
+	if settings.Adre.ChatBackend == "orchestrator" && settings.Adre.OrchestratorLLMURL != "" {
+		if strings.TrimSpace(body.Ask) == "" {
+			writeJSONError(w, http.StatusBadRequest, "ask is required")
+			return
+		}
+		if body.Stream {
+			RunGeneralChatStream(w, r, h.db, h.l, settings, body.Ask, body.ConversationHistory, h.streamTimeout)
+			return
+		}
+		// Non-streaming orchestrator: run same flow but collect output and return JSON (optional; frontend typically uses stream).
+		writeJSONError(w, http.StatusBadRequest, "Orchestrator chat requires stream: true")
+		return
+	}
+	// HolmesGPT backend
+	if settings.GetAdreURL() == "" {
+		writeJSONError(w, http.StatusBadRequest, adreURLNotSetMsg)
 		return
 	}
 	mode := "chat"

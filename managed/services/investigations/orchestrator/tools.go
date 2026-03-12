@@ -30,6 +30,73 @@ Be concise and evidence-driven.`
 // RunReportSystemPrompt is used when the user explicitly runs "Generate report".
 const RunReportSystemPrompt = `You are building a full investigation report for this incident. Use get_investigation_context to read the current state, then use append_block to add blocks (type: summary, markdown, finding) with the report content. Add a short summary block at the top, then any findings or details. When you have added all blocks, respond with a brief final message and do not call more tools.`
 
+// GeneralSystemPrompt is used for ADRE chat when there is no active investigation (floating widget or ADRE page with orchestrator backend).
+// The LLM must ask for confirmation before calling create_investigation.
+const GeneralSystemPrompt = `You are the PMM AI Assistant. You help users with database reliability, investigations, and general questions about their PMM data.
+
+When the user asks to investigate something or to create an investigation report, you must first ask for confirmation (e.g. "Should I create an investigation for this?"). Only after the user confirms should you call the create_investigation tool. Never call create_investigation without explicit user confirmation.
+
+You have access to tools:
+- create_investigation: Creates a new investigation page. Call it only after the user has confirmed they want to create an investigation. Pass title, optional description/summary, optional source_type ("manual" or "alert"), and optional source_ref (e.g. comma-separated alert fingerprints).
+- holmes_investigate (when available): Use for observability/database-related questions that need deep analysis; pass the user's question.
+
+Answer general questions from your knowledge. Be concise. When you create an investigation via the tool, reply with the link to the new investigation page so the user can click to open it; do not navigate for them.`
+
+// GeneralToolRegistry returns tools for general ADRE chat (no investigation context): create_investigation and optionally holmes_investigate.
+func GeneralToolRegistry(includeHolmes bool) []ToolDefinition {
+	tools := []ToolDefinition{
+		{
+			Type: "function",
+			Function: ToolFunction{
+				Name:        "create_investigation",
+				Description: "Creates a new investigation page. Only call after the user has explicitly confirmed they want to create an investigation. Returns the investigation id and URL path so you can share the link with the user.",
+				Parameters: map[string]interface{}{
+					"type": "object",
+					"properties": map[string]interface{}{
+						"title": map[string]interface{}{
+							"type":        "string",
+							"description": "Short title for the investigation",
+						},
+						"description": map[string]interface{}{
+							"type":        "string",
+							"description": "Optional summary or description of what to investigate",
+						},
+						"source_type": map[string]interface{}{
+							"type":        "string",
+							"description": "Optional: 'manual' or 'alert'",
+						},
+						"source_ref": map[string]interface{}{
+							"type":        "string",
+							"description": "Optional: alert fingerprint(s), comma-separated if multiple",
+						},
+					},
+					"required": []interface{}{"title"},
+				},
+			},
+		},
+	}
+	if includeHolmes {
+		tools = append(tools, ToolDefinition{
+			Type: "function",
+			Function: ToolFunction{
+				Name:        "holmes_investigate",
+				Description: "Use when the user asks to investigate an issue, analyze a query, or run observability/database diagnostics. Pass the user's question.",
+				Parameters: map[string]interface{}{
+					"type": "object",
+					"properties": map[string]interface{}{
+						"question": map[string]interface{}{
+							"type":        "string",
+							"description": "The question or focus for investigation",
+						},
+					},
+					"required": []interface{}{"question"},
+				},
+			},
+		})
+	}
+	return tools
+}
+
 // DefaultToolRegistry returns the default set of tools for the orchestrator.
 // holmes_investigate is added in phase3 when the HolmesGPT adapter is wired.
 func DefaultToolRegistry(includeHolmes bool) []ToolDefinition {

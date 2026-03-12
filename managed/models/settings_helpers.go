@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -119,6 +120,8 @@ type ChangeSettingsParams struct {
 	OrchestratorLLMProvider *string
 	OrchestratorLLMURL      *string
 	OrchestratorLLMModel    *string
+	// ChatBackend: "holmesgpt" or "orchestrator".
+	ChatBackend *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -287,6 +290,9 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.OrchestratorLLMModel != nil {
 		settings.Adre.OrchestratorLLMModel = pointer.GetString(params.OrchestratorLLMModel)
 	}
+	if params.ChatBackend != nil {
+		settings.Adre.ChatBackend = pointer.GetString(params.ChatBackend)
+	}
 
 	err = SaveSettings(q, settings)
 	if err != nil {
@@ -384,6 +390,12 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 		if parsed.Scheme != "http" && parsed.Scheme != "https" {
 			return errors.New("orchestrator_llm_url: scheme must be http or https")
+		}
+	}
+	if params.ChatBackend != nil {
+		cb := strings.TrimSpace(*params.ChatBackend)
+		if cb != "holmesgpt" && cb != "orchestrator" {
+			return errors.New("chat_backend: must be \"holmesgpt\" or \"orchestrator\"")
 		}
 	}
 

@@ -1,17 +1,35 @@
 import {
+  Box,
   Button,
+  Checkbox,
   DialogActions,
   DialogContent,
   FormControl,
+  FormControlLabel,
+  FormGroup,
   InputLabel,
   MenuItem,
   Select,
   Stack,
   TextField,
+  Typography,
 } from '@mui/material';
 import { Dialog, DialogTitle } from '@percona/ui-lib';
 import { FC, useEffect, useState } from 'react';
+import { getAdreAlerts } from 'api/adre';
 import type { CreateInvestigationBody } from 'api/investigations';
+
+interface AlertItem {
+  labels?: Record<string, string>;
+  annotations?: Record<string, string>;
+  fingerprint?: string;
+  [k: string]: unknown;
+}
+
+function getAlertKey(a: AlertItem, index: number): string {
+  const fp = String(a.fingerprint ?? a.labels?.alertname ?? '');
+  return a.fingerprint ? fp : `${fp || 'alert'}-${index}`;
+}
 
 export interface CreateInvestigationModalProps {
   open: boolean;
@@ -29,27 +47,70 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
   isPending = false,
   initial,
 }) => {
+  const [summary, setSummary] = useState(initial?.summary ?? '');
   const [title, setTitle] = useState(initial?.title ?? '');
   const [sourceType, setSourceType] = useState<string>(initial?.sourceType ?? 'manual');
   const [sourceRef, setSourceRef] = useState(initial?.sourceRef ?? '');
   const [timeFrom, setTimeFrom] = useState(initial?.timeFrom ?? '');
   const [timeTo, setTimeTo] = useState(initial?.timeTo ?? '');
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [loadingAlerts, setLoadingAlerts] = useState(false);
+  const [selectedAlertKeys, setSelectedAlertKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (open) {
+      setSummary(initial?.summary ?? '');
       setTitle(initial?.title ?? '');
       setSourceType(initial?.sourceType ?? 'manual');
       setSourceRef(initial?.sourceRef ?? '');
       setTimeFrom(initial?.timeFrom ?? '');
       setTimeTo(initial?.timeTo ?? '');
+      setSelectedAlertKeys(new Set());
     }
-  }, [open, initial?.title, initial?.sourceType, initial?.sourceRef, initial?.timeFrom, initial?.timeTo]);
+  }, [open, initial?.summary, initial?.title, initial?.sourceType, initial?.sourceRef, initial?.timeFrom, initial?.timeTo]);
+
+  useEffect(() => {
+    if (!open || sourceType !== 'alert') return;
+    let cancelled = false;
+    setLoadingAlerts(true);
+    getAdreAlerts()
+      .then((data: unknown) => {
+        const raw = data as { data?: { alerts?: AlertItem[] }; alerts?: AlertItem[] };
+        const list = raw?.data?.alerts ?? raw?.alerts ?? [];
+        const arr = Array.isArray(list) ? list : [];
+        if (!cancelled) setAlerts(arr);
+      })
+      .catch(() => {
+        if (!cancelled) setAlerts([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingAlerts(false);
+      });
+    return () => { cancelled = true; };
+  }, [open, sourceType]);
+
+  const toggleAlert = (key: string) => {
+    setSelectedAlertKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   const handleSubmit = () => {
+    let finalSourceRef = sourceRef.trim();
+    if (sourceType === 'alert' && selectedAlertKeys.size > 0) {
+      const refs = alerts
+        .map((a, i) => (selectedAlertKeys.has(getAlertKey(a, i)) ? (a.fingerprint ?? getAlertKey(a, i)) : null))
+        .filter(Boolean) as string[];
+      finalSourceRef = refs.join(',');
+    }
     const body: CreateInvestigationBody = {
       title: title.trim() || 'New investigation',
+      summary: summary.trim() || undefined,
       sourceType: sourceType === 'manual' ? undefined : sourceType,
-      sourceRef: sourceRef.trim() || undefined,
+      sourceRef: finalSourceRef || undefined,
       timeFrom: timeFrom.trim() || undefined,
       timeTo: timeTo.trim() || undefined,
     };
@@ -70,12 +131,23 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
       <DialogContent>
         <Stack gap={2} sx={{ mt: 0.5 }}>
           <TextField
+            label="What would you like to investigate?"
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            placeholder="Describe what you want to investigate..."
+            size="small"
+            fullWidth
+            multiline
+            minRows={2}
+          />
+          <TextField
             label="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="What to investigate"
+            placeholder="Short title for this investigation"
             size="small"
             fullWidth
+            required
           />
           <FormControl size="small" fullWidth>
             <InputLabel>Source type</InputLabel>
@@ -89,14 +161,42 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
             </Select>
           </FormControl>
           {sourceType === 'alert' && (
-            <TextField
-              label="Alert reference"
-              value={sourceRef}
-              onChange={(e) => setSourceRef(e.target.value)}
-              placeholder="Fingerprint or alert ID"
-              size="small"
-              fullWidth
-            />
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                Firing alerts (select one or more)
+              </Typography>
+              {loadingAlerts ? (
+                <Typography variant="body2" color="text.secondary">
+                  Loading alerts...
+                </Typography>
+              ) : alerts.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  No firing alerts.
+                </Typography>
+              ) : (
+                <FormGroup>
+                  <Box sx={{ maxHeight: 180, overflow: 'auto' }}>
+                    {alerts.map((a, index) => {
+                      const key = getAlertKey(a, index);
+                      const label =
+                        a.labels?.alertname ?? a.annotations?.summary ?? a.fingerprint ?? key;
+                      return (
+                        <FormControlLabel
+                          key={key}
+                          control={
+                            <Checkbox
+                              checked={selectedAlertKeys.has(key)}
+                              onChange={() => toggleAlert(key)}
+                            />
+                          }
+                          label={String(label)}
+                        />
+                      );
+                    })}
+                  </Box>
+                </FormGroup>
+              )}
+            </Box>
           )}
           <TextField
             label="Time from"

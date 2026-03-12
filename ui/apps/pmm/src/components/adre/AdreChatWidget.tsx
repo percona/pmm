@@ -22,7 +22,12 @@ export const AdreChatWidget: FC = () => {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const isConfigured = settings?.enabled && !!settings?.url;
+  const isOrchestrator =
+    settings?.chatBackend === 'orchestrator' && !!settings?.orchestratorLlmUrl;
+  const isConfigured =
+    settings?.enabled &&
+    (!!settings?.url || isOrchestrator);
+  const chatViaLabel = isOrchestrator ? 'Chat via Local LLM' : 'Chat via HolmesGPT';
 
   const handleSend = useCallback(async () => {
     if (!ask.trim() || !isConfigured) return;
@@ -78,6 +83,7 @@ export const AdreChatWidget: FC = () => {
             height: 420,
             display: 'flex',
             flexDirection: 'column',
+            overflow: 'hidden',
             zIndex: 1300,
           }}
         >
@@ -87,7 +93,12 @@ export const AdreChatWidget: FC = () => {
             justifyContent="space-between"
             sx={{ p: 1, borderBottom: 1, borderColor: 'divider' }}
           >
-            <Typography variant="subtitle1">ADRE Chat</Typography>
+            <Stack>
+              <Typography variant="subtitle1">ADRE Chat</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {chatViaLabel}
+              </Typography>
+            </Stack>
             <IconButton size="small" onClick={() => setOpen(false)}>
               <CloseIcon />
             </IconButton>

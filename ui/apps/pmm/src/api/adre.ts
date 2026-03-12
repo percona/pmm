@@ -6,6 +6,12 @@ export interface AdreSettings {
   chatPrompt?: string;
   investigationPrompt?: string;
   defaultChatMode?: 'chat' | 'investigation';
+  /** Orchestrator (e.g. Ollama) URL for local LLM chat. */
+  orchestratorLlmUrl?: string;
+  /** Orchestrator model name. */
+  orchestratorLlmModel?: string;
+  /** "holmesgpt" = chat goes to HolmesGPT; "orchestrator" = chat goes to local Ollama. */
+  chatBackend?: 'holmesgpt' | 'orchestrator';
 }
 
 export interface AdreModelsResponse {
