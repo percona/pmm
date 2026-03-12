@@ -168,6 +168,8 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for RtaMongodbAgent
+
 	if len(errors) > 0 {
 		return AddMongoDBServiceParamsMultiError(errors)
 	}
@@ -380,6 +382,35 @@ func (m *MongoDBServiceResult) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return MongoDBServiceResultValidationError{
 				field:  "QanMongodbMongolog",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MongoDBServiceResultValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MongoDBServiceResultValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MongoDBServiceResultValidationError{
+				field:  "RtaMongodbAgent",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

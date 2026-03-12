@@ -141,6 +141,13 @@ func (svc *Service) RequestConfigurationUpdate() {
 	}
 }
 
+// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+// bypassing the batch delay. Use this for critical updates like port changes.
+func (svc *Service) ForceConfigurationUpdate(ctx context.Context) error {
+	svc.l.Debug("ForceConfigurationUpdate: triggering immediate configuration update")
+	return svc.updateConfiguration(ctx)
+}
+
 // Start is called when this node becomes the leader in HA mode.
 func (svc *Service) Start(_ context.Context) error { //nolint:unparam
 	svc.l.Info("Became leader, triggering configuration update to include external agents")

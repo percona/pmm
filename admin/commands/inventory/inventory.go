@@ -62,7 +62,8 @@ type AddAgentCommand struct {
 	QANPostgreSQLPgStatementsAgent  AddAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Add QAN PostgreSQL Stat Statements Agent to inventory"`
 	QANPostgreSQLPgStatMonitorAgent AddAgentQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Add QAN PostgreSQL Stat Monitor Agent to inventory"`
 
-	RDSExporter AddAgentRDSExporterCommand `cmd:"" help:"Add rds_exporter to inventory"`
+	RDSExporter     AddAgentRDSExporterCommand     `cmd:"" help:"Add rds_exporter to inventory"`
+	RTAMongoDBAgent AddAgentRTAMongoDBAgentCommand `cmd:"" name:"rta-mongodb-agent" help:"Add Real-Time Analytics MongoDB agent to inventory"`
 }
 
 // AddNodeCommand is used by Kong for CLI flags and commands.
