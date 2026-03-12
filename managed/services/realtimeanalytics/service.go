@@ -148,12 +148,17 @@ func (s *Service) fetchServices(serviceList []*models.Service) (any, error) {
 	for i, svc := range serviceList {
 		g.Go(func() error {
 			// Check that service has pmm-agent with version supporting RTA.
-			pmmAgent, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
+			pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
 			if err != nil {
 				return fmt.Errorf("failed to find pmm-agent for service with ID %s: %w", svc.ServiceID, err)
 			}
 
-			if !isPmmAgentSupportRta(pointer.Get(pointer.Get(pmmAgent[0]).Version)) {
+			if len(pmmAgents) == 0 {
+				// skip services without pmm-agent
+				return nil
+			}
+
+			if !isPmmAgentSupportRta(pointer.Get(pointer.Get(pmmAgents[0]).Version)) {
 				// skip services with unsupported pmm-agent version
 				return nil
 			}
