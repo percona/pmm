@@ -16,7 +16,6 @@ package inventory
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -24,18 +23,18 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
-var changeAgentRTAMongoDBAgentResultT = commands.ParseTemplate(`
-Real-Time Analytics MongoDB agent configuration updated.
+var changeAgentQANMongoDBMongologAgentResultT = commands.ParseTemplate(`
+QAN MongoDB Mongolog agent configuration updated.
 Agent ID              : {{ .Agent.AgentID }}
 PMM-Agent ID          : {{ .Agent.PMMAgentID }}
 Service ID            : {{ .Agent.ServiceID }}
 Username              : {{ .Agent.Username }}
 TLS enabled           : {{ .Agent.TLS }}
 Skip TLS verification : {{ .Agent.TLSSkipVerify }}
+Max query length      : {{ .Agent.MaxQueryLength }}
 
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ formatCustomLabels .Agent.CustomLabels }}
-Collect interval      : {{ .Agent.RtaOptions.CollectInterval }}
 Log level             : {{ formatLogLevel .Agent.LogLevel }}
 
 {{- if .Changes}}
@@ -46,23 +45,23 @@ Configuration changes applied:
 {{- end}}
 `)
 
-type changeAgentRTAMongoDBAgentResult struct {
-	Agent   *agents.ChangeAgentOKBodyRtaMongodbAgent `json:"rta_mongodb_agent"`
-	Changes []string                                 `json:"changes,omitempty"`
+type changeAgentQANMongoDBMongologAgentResult struct {
+	Agent   *agents.ChangeAgentOKBodyQANMongodbMongologAgent `json:"qan_mongodb_mongolog_agent"`
+	Changes []string                                         `json:"changes,omitempty"`
 }
 
-func (res *changeAgentRTAMongoDBAgentResult) Result() {}
+func (res *changeAgentQANMongoDBMongologAgentResult) Result() {}
 
-func (res *changeAgentRTAMongoDBAgentResult) String() string {
-	return commands.RenderTemplate(changeAgentRTAMongoDBAgentResultT, res)
+func (res *changeAgentQANMongoDBMongologAgentResult) String() string {
+	return commands.RenderTemplate(changeAgentQANMongoDBMongologAgentResultT, res)
 }
 
-// ChangeAgentRTAMongoDBAgentCommand is used by Kong for CLI flags and commands.
-type ChangeAgentRTAMongoDBAgentCommand struct {
+// ChangeAgentQANMongoDBMongologAgentCommand is used by Kong for CLI flags and commands.
+type ChangeAgentQANMongoDBMongologAgentCommand struct {
 	// Embedded flags
 	flags.LogLevelFatalChangeFlags
 
-	AgentID string `arg:"" help:"Real-Time Analytics MongoDB Agent ID"`
+	AgentID string `arg:"" help:"QAN MongoDB Mongolog Agent ID"`
 
 	// NOTE: Only provided flags will be changed, others will remain unchanged
 
@@ -78,22 +77,20 @@ type ChangeAgentRTAMongoDBAgentCommand struct {
 	TLSCertificateKeyFilePassword *string `help:"Password for certificate"`
 	TLSCaFile                     *string `help:"Path to certificate authority file"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength *int32 `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+
 	// MongoDB specific options
 	AuthenticationMechanism *string `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
-
-	// RTA specific options
-	CollectInterval *time.Duration `placeholder:"DURATION" help:"Query collect interval (default: server-defined 2s)"`
+	AuthenticationDatabase  *string `help:"Authentication database."`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
-// RunCmd executes the ChangeAgentRTAMongoDBAgentCommand and returns the result.
-func (cmd *ChangeAgentRTAMongoDBAgentCommand) RunCmd() (commands.Result, error) {
+// RunCmd executes the ChangeAgentQANMongoDBMongologAgentCommand and returns the result.
+func (cmd *ChangeAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result, error) {
 	var changes []string
-
-	// Parse custom labels if provided
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	// Read TLS files if provided
 	var tlsCertificateKey, tlsCa *string
@@ -116,7 +113,7 @@ func (cmd *ChangeAgentRTAMongoDBAgentCommand) RunCmd() (commands.Result, error) 
 		tlsCa = &content
 	}
 
-	body := &agents.ChangeAgentParamsBodyRtaMongodbAgent{
+	body := &agents.ChangeAgentParamsBodyQANMongodbMongologAgent{
 		Enable:                        cmd.Enable,
 		Username:                      cmd.Username,
 		Password:                      cmd.Password,
@@ -125,26 +122,24 @@ func (cmd *ChangeAgentRTAMongoDBAgentCommand) RunCmd() (commands.Result, error) 
 		TLSCertificateKey:             tlsCertificateKey,
 		TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 		TLSCa:                         tlsCa,
+		MaxQueryLength:                cmd.MaxQueryLength,
 		AuthenticationMechanism:       cmd.AuthenticationMechanism,
+		AuthenticationDatabase:        cmd.AuthenticationDatabase,
 		LogLevel:                      convertLogLevelPtr(cmd.LogLevel),
 	}
 
+	// Parse custom labels if provided
+	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 	if customLabels != nil {
-		body.CustomLabels = &agents.ChangeAgentParamsBodyRtaMongodbAgentCustomLabels{
+		body.CustomLabels = &agents.ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels{
 			Values: *customLabels,
-		}
-	}
-
-	if cmd.CollectInterval != nil {
-		body.RtaOptions = &agents.ChangeAgentParamsBodyRtaMongodbAgentRtaOptions{
-			CollectInterval: cmd.CollectInterval.String(),
 		}
 	}
 
 	params := &agents.ChangeAgentParams{
 		AgentID: cmd.AgentID,
 		Body: agents.ChangeAgentBody{
-			RtaMongodbAgent: body,
+			QANMongodbMongologAgent: body,
 		},
 		Context: commands.Ctx,
 	}
@@ -191,8 +186,14 @@ func (cmd *ChangeAgentRTAMongoDBAgentCommand) RunCmd() (commands.Result, error) 
 	if cmd.TLSCaFile != nil {
 		changes = append(changes, "updated TLS CA certificate")
 	}
+	if cmd.MaxQueryLength != nil {
+		changes = append(changes, fmt.Sprintf("changed max query length to %d", *cmd.MaxQueryLength))
+	}
 	if cmd.AuthenticationMechanism != nil {
 		changes = append(changes, "changed authentication mechanism to "+*cmd.AuthenticationMechanism)
+	}
+	if cmd.AuthenticationDatabase != nil {
+		changes = append(changes, "changed authentication database to "+*cmd.AuthenticationDatabase)
 	}
 	if cmd.LogLevel != nil {
 		changes = append(changes, fmt.Sprintf("changed log level to %s", *cmd.LogLevel))
@@ -205,12 +206,8 @@ func (cmd *ChangeAgentRTAMongoDBAgentCommand) RunCmd() (commands.Result, error) 
 		}
 	}
 
-	if cmd.CollectInterval != nil {
-		changes = append(changes, fmt.Sprintf("changed collect interval to %s", *cmd.CollectInterval))
-	}
-
-	return &changeAgentRTAMongoDBAgentResult{
-		Agent:   resp.Payload.RtaMongodbAgent,
+	return &changeAgentQANMongoDBMongologAgentResult{
+		Agent:   resp.Payload.QANMongodbMongologAgent,
 		Changes: changes,
 	}, nil
 }

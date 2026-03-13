@@ -61,6 +61,7 @@ type AddAgentQANMongoDBMongologAgentCommand struct {
 	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
 	TLSCaFile                     string            `help:"Path to certificate authority file"`
 	AuthenticationMechanism       string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
+	AuthenticationDatabase        string            `help:"Authentication database."`
 
 	flags.LogLevelFatalFlags
 }
@@ -94,6 +95,7 @@ func (cmd *AddAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result, er
 				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 				TLSCa:                         tlsCa,
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
+				AuthenticationDatabase:        cmd.AuthenticationDatabase,
 				LogLevel:                      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
