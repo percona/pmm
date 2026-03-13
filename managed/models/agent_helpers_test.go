@@ -597,4 +597,51 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Equal(t, "A8", agents[1].AgentID)
 		assert.Equal(t, "A9", agents[2].AgentID)
 	})
+
+	t.Run("UpdateAgent", func(t *testing.T) {
+		t.Run("PersistsCredentialsEncrypted", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			agent, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+
+			agent.Username = pointer.ToString("user")
+			agent.Password = pointer.ToString("secret")
+
+			err = models.UpdateAgent(q, agent)
+			require.NoError(t, err)
+
+			// Verify the decrypted view matches what we set.
+			updated, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			assert.Equal(t, pointer.ToString("user"), updated.Username)
+			assert.Equal(t, pointer.ToString("secret"), updated.Password)
+
+			// Verify the raw row in the DB is NOT plain-text (i.e. it was encrypted).
+			raw := &models.Agent{AgentID: "A2"}
+			require.NoError(t, q.Reload(raw))
+			assert.NotEqual(t, "user", pointer.GetString(raw.Username))
+			assert.NotEqual(t, "secret", pointer.GetString(raw.Password))
+		})
+
+		t.Run("PreservesNonSensitiveFields", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			agent, err := models.FindAgentByID(q, "A3")
+			require.NoError(t, err)
+
+			agent.Status = "RUNNING"
+
+			err = models.UpdateAgent(q, agent)
+			require.NoError(t, err)
+
+			updated, err := models.FindAgentByID(q, "A3")
+			require.NoError(t, err)
+			assert.Equal(t, "RUNNING", updated.Status)
+			assert.Equal(t, models.NodeExporterType, updated.AgentType)
+			assert.Equal(t, pointer.ToString("N1"), updated.NodeID)
+		})
+	})
 }

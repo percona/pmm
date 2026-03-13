@@ -31,7 +31,6 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/jstemmer/go-junit-report"
-	_ "github.com/quasilyte/go-consistent"
 	_ "github.com/reviewdog/reviewdog/cmd/reviewdog"
 	_ "github.com/vburenin/ifacemaker"
 	_ "github.com/vektra/mockery/v2"
@@ -49,7 +48,6 @@ import (
 //go:generate go build -o ../bin/buf github.com/bufbuild/buf/cmd/buf
 //go:generate go build -o ../bin/dlv github.com/go-delve/delve/cmd/dlv
 //go:generate go build -o ../bin/gci github.com/daixiang0/gci
-//go:generate go build -o ../bin/go-consistent github.com/quasilyte/go-consistent
 //go:generate go build -o ../bin/go-junit-report github.com/jstemmer/go-junit-report
 //go:generate go build -o ../bin/go-sumtype github.com/BurntSushi/go-sumtype
 //go:generate go build -o ../bin/gofumpt mvdan.cc/gofumpt

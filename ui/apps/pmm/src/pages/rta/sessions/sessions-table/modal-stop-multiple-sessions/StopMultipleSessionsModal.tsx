@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import { Dialog, DialogTitle } from '@percona/ui-lib';
+import { Dialog, DialogTitle } from '@percona/percona-ui';
 import { FC, useState } from 'react';
 import { Messages } from './StopMultipleSessionsModal.messages';
 
