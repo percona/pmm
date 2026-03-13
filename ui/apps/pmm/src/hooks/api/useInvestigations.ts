@@ -19,7 +19,7 @@ import {
 
 export const INVESTIGATIONS_KEYS = {
   all: ['investigations'] as const,
-  list: (params?: { status?: string }) =>
+  list: (params?: { status?: string; limit?: number; offset?: number; orderBy?: string; order?: 'asc' | 'desc' }) =>
     ['investigations', 'list', params] as const,
   detail: (id: string) => ['investigations', id] as const,
   comments: (id: string, blockId?: string) =>
@@ -32,6 +32,8 @@ export const useInvestigationsList = (params?: {
   status?: string;
   limit?: number;
   offset?: number;
+  orderBy?: string;
+  order?: 'asc' | 'desc';
   enabled?: boolean;
 }) =>
   useQuery({
@@ -41,6 +43,8 @@ export const useInvestigationsList = (params?: {
         status: params?.status,
         limit: params?.limit,
         offset: params?.offset,
+        orderBy: params?.orderBy,
+        order: params?.order,
       }),
     enabled: params?.enabled ?? true,
   });

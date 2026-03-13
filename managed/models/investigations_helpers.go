@@ -46,12 +46,24 @@ func GetInvestigationByID(q *reform.DB, id string) (*Investigation, error) {
 	return &inv, nil
 }
 
-// ListInvestigations returns investigations ordered by updated_at DESC. statusFilter empty means all.
-func ListInvestigations(q *reform.DB, statusFilter string, limit, offset int) ([]*Investigation, error) {
-	where := "ORDER BY updated_at DESC"
+// allowedOrderBy columns that can be used in ORDER BY (safe, no user-controlled SQL).
+var allowedOrderBy = map[string]bool{"title": true, "status": true, "created_at": true, "updated_at": true}
+
+// allowedOrder directions for ORDER BY.
+var allowedOrder = map[string]bool{"asc": true, "desc": true}
+
+// ListInvestigations returns investigations with optional status filter and configurable sort. statusFilter empty means all.
+func ListInvestigations(q *reform.DB, statusFilter string, limit, offset int, orderBy, order string) ([]*Investigation, error) {
+	if !allowedOrderBy[orderBy] {
+		orderBy = "updated_at"
+	}
+	if !allowedOrder[order] {
+		order = "desc"
+	}
+	where := fmt.Sprintf("ORDER BY %s %s", orderBy, order)
 	var args []interface{}
 	if statusFilter != "" {
-		where = "WHERE status = $1 ORDER BY updated_at DESC"
+		where = fmt.Sprintf("WHERE status = $1 ORDER BY %s %s", orderBy, order)
 		args = append(args, statusFilter)
 	}
 	if limit > 0 {

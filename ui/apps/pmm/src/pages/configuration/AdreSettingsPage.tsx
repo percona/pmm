@@ -36,15 +36,9 @@ const AdreSettingsPage: FC = () => {
   const updateSettings = useUpdateAdreSettings();
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
-  const [localOrchestratorUrl, setLocalOrchestratorUrl] = useState(
-    settings?.orchestratorLlmUrl ?? ''
+  const [localChatBackend, setLocalChatBackend] = useState<'holmesgpt' | 'holmes_agent'>(
+    (settings?.chatBackend === 'holmes_agent' ? 'holmes_agent' : 'holmesgpt')
   );
-  const [localOrchestratorModel, setLocalOrchestratorModel] = useState(
-    settings?.orchestratorLlmModel ?? ''
-  );
-  const [localChatBackend, setLocalChatBackend] = useState<
-    'holmesgpt' | 'holmes_agent' | 'orchestrator'
-  >((settings?.chatBackend as 'holmesgpt' | 'holmes_agent' | 'orchestrator') ?? 'holmesgpt');
   const [localChatHistoryLength, setLocalChatHistoryLength] = useState(
     settings?.chatHistoryLength ?? settings?.chat_history_length ?? 20
   );
@@ -62,9 +56,7 @@ const AdreSettingsPage: FC = () => {
     if (settings) {
       setLocalEnabled(settings.enabled);
       setLocalUrl(settings.url);
-      setLocalOrchestratorUrl(settings.orchestratorLlmUrl ?? '');
-      setLocalOrchestratorModel(settings.orchestratorLlmModel ?? '');
-      setLocalChatBackend((settings.chatBackend as 'holmesgpt' | 'holmes_agent' | 'orchestrator') ?? 'holmesgpt');
+      setLocalChatBackend(settings.chatBackend === 'holmes_agent' ? 'holmes_agent' : 'holmesgpt');
       setLocalChatHistoryLength(settings.chatHistoryLength ?? (settings as { chat_history_length?: number }).chat_history_length ?? 20);
       setLocalChatPrompt(settings.chatPromptDisplay ?? settings.chatPrompt ?? '');
       setLocalInvestigationPrompt(settings.investigationPromptDisplay ?? settings.investigationPrompt ?? '');
@@ -73,8 +65,6 @@ const AdreSettingsPage: FC = () => {
   }, [
     settings?.enabled,
     settings?.url,
-    settings?.orchestratorLlmUrl,
-    settings?.orchestratorLlmModel,
     settings?.chatBackend,
     settings?.chatHistoryLength,
     settings?.chatPrompt,
@@ -159,40 +149,20 @@ const AdreSettingsPage: FC = () => {
                   size="small"
                   fullWidth
                 />
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
-                  Orchestrator (local LLM)
-                </Typography>
-                <TextField
-                  label="Orchestrator LLM URL"
-                  placeholder="http://localhost:11434"
-                  value={localOrchestratorUrl}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalOrchestratorUrl(e.target.value)}
-                  size="small"
-                  fullWidth
-                />
-                <TextField
-                  label="Orchestrator LLM model"
-                  placeholder="llama3.2"
-                  value={localOrchestratorModel}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalOrchestratorModel(e.target.value)}
-                  size="small"
-                  fullWidth
-                />
                 <FormControl size="small" fullWidth>
                   <InputLabel>Chat backend</InputLabel>
                   <Select
                     value={localChatBackend}
                     label="Chat backend"
                     onChange={(e) =>
-                      setLocalChatBackend(e.target.value as 'holmesgpt' | 'holmes_agent' | 'orchestrator')
+                      setLocalChatBackend(e.target.value as 'holmesgpt' | 'holmes_agent')
                     }
                   >
                     <MenuItem value="holmesgpt">Holmes Agent (direct)</MenuItem>
                     <MenuItem value="holmes_agent">PMM Agent</MenuItem>
-                    <MenuItem value="orchestrator">Local LLM (Ollama)</MenuItem>
                   </Select>
                 </FormControl>
-                {(localChatBackend === 'holmes_agent' || localChatBackend === 'orchestrator') && (
+                {localChatBackend === 'holmes_agent' && (
                   <TextField
                     label="Conversation history length"
                     type="number"
@@ -229,7 +199,7 @@ const AdreSettingsPage: FC = () => {
                   minRows={3}
                   helperText="System prompt for Holmes Agent in investigation mode"
                 />
-                {(localChatBackend === 'holmes_agent' || localChatBackend === 'orchestrator') && (
+                {localChatBackend === 'holmes_agent' && (
                   <TextField
                     label="Agent prompt (PMM Agent)"
                     placeholder="System prompt for PMM Agent; empty = use built-in default"
@@ -248,8 +218,6 @@ const AdreSettingsPage: FC = () => {
                     updateSettings.mutate({
                       enabled: localEnabled,
                       url: localUrl,
-                      orchestrator_llm_url: localOrchestratorUrl,
-                      orchestrator_llm_model: localOrchestratorModel,
                       chat_backend: localChatBackend,
                       chat_history_length: localChatHistoryLength,
                       chat_prompt: localChatPrompt || undefined,

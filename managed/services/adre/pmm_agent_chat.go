@@ -30,6 +30,86 @@ import (
 
 const pmmAgentMaxTurns = 10
 
+// RunPMMAgentChatSync runs the PMM Agent loop (same as RunPMMAgentChatStream) without streaming and returns the final assistant content. Used by investigation run/chat when backend is holmes_agent. db may be nil (only ask_holmes and generate_investigation_report are executed).
+func RunPMMAgentChatSync(
+	ctx context.Context,
+	db reform.DBTX,
+	l *logrus.Entry,
+	settings *models.Settings,
+	ask string,
+	conversationHistory []interface{},
+	timeout time.Duration,
+) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	trimmed := trimConversationHistory(conversationHistory, settings.Adre.ChatHistoryLength)
+	if ask != "" && len(trimmed) > 0 {
+		if last, ok := trimmed[len(trimmed)-1].(map[string]interface{}); ok {
+			if role, _ := last["role"].(string); role == "user" {
+				if content, _ := last["content"].(string); content == ask {
+					trimmed = trimmed[:len(trimmed)-1]
+				}
+			}
+		}
+	}
+	agentPrompt := resolvePMMAgentPrompt(settings)
+	client := NewClient(settings.GetAdreURL())
+	history := ensureSystemFirst(trimmed, agentPrompt)
+	currentAsk := ask
+	investigationPrompt := settings.Adre.InvestigationPrompt
+	if investigationPrompt == "" {
+		investigationPrompt = DefaultInvestigationPrompt
+	}
+
+	var lastContent string
+	for turn := 0; turn < pmmAgentMaxTurns; turn++ {
+		req := &ChatRequest{
+			Ask:                    currentAsk,
+			ConversationHistory:   history,
+			ReplaceSystemPrompt:   true,
+			AdditionalSystemPrompt: agentPrompt,
+			Stream:                false,
+		}
+		resp, err := client.Chat(ctx, req)
+		if err != nil {
+			return "", err
+		}
+		lastContent = resp.Analysis
+		toolCalls := parseToolCalls(resp.ToolCalls)
+		if len(toolCalls) == 0 {
+			return lastContent, nil
+		}
+		var toolResults []map[string]interface{}
+		for _, tc := range toolCalls {
+			result := executePMMAgentTool(ctx, db, l, tc, client, investigationPrompt)
+			toolResults = append(toolResults, map[string]interface{}{"id": tc.ID, "name": tc.Name, "result": result})
+		}
+		if currentAsk != "" {
+			history = append(history, map[string]interface{}{"role": "user", "content": currentAsk})
+		}
+		assistantMsg := map[string]interface{}{"role": "assistant", "content": resp.Analysis}
+		if len(toolCalls) > 0 {
+			tcList := make([]map[string]interface{}, 0, len(toolCalls))
+			for _, tc := range toolCalls {
+				tcList = append(tcList, map[string]interface{}{
+					"id": tc.ID, "type": "function",
+					"function": map[string]interface{}{"name": tc.Name, "arguments": tc.Arguments},
+				})
+			}
+			assistantMsg["tool_calls"] = tcList
+		}
+		history = append(history, assistantMsg)
+		for _, tr := range toolResults {
+			history = append(history, map[string]interface{}{
+				"role": "tool", "tool_call_id": tr["id"], "content": tr["result"],
+			})
+		}
+		currentAsk = ""
+	}
+	return lastContent, nil
+}
+
 // RunPMMAgentChatStream runs the PMM Agent flow (Holmes with replace_system_prompt), optionally looping on tool_calls (ask_holmes, generate_investigation_report), and streams the final response as SSE.
 func RunPMMAgentChatStream(
 	w http.ResponseWriter,

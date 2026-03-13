@@ -10,12 +10,8 @@ export interface AdreSettings {
   /** Display value when investigation_prompt is empty (built-in default). */
   investigationPromptDisplay?: string;
   defaultChatMode?: 'chat' | 'investigation';
-  /** Orchestrator (e.g. Ollama) URL for local LLM chat. */
-  orchestratorLlmUrl?: string;
-  /** Orchestrator model name. */
-  orchestratorLlmModel?: string;
   /** "holmesgpt" = Holmes Agent (direct); "holmes_agent" = PMM Agent (Holmes with replace_system_prompt). */
-  chatBackend?: 'holmesgpt' | 'holmes_agent' | 'orchestrator';
+  chatBackend?: 'holmesgpt' | 'holmes_agent';
   /** Max messages sent to PMM Agent (5–100). Used when chatBackend is holmes_agent. */
   chatHistoryLength?: number;
   /** System prompt for PMM Agent when chatBackend is holmes_agent. Empty = use built-in default. */

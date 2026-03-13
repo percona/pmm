@@ -6,6 +6,9 @@ export interface InvestigationListItem {
   status: string;
   createdAt: string;
   updatedAt: string;
+  /** Backend may return snake_case */
+  created_at?: string;
+  updated_at?: string;
   timeFrom?: string;
   timeTo?: string;
 }
@@ -110,9 +113,19 @@ export const listInvestigations = async (params?: {
   status?: string;
   limit?: number;
   offset?: number;
+  orderBy?: string;
+  order?: 'asc' | 'desc';
 }): Promise<InvestigationListItem[]> => {
   const res = await api.get<InvestigationListItem[]>('/investigations', {
-    params: params ? { status: params.status, limit: params.limit, offset: params.offset } : undefined,
+    params: params
+      ? {
+          status: params.status,
+          limit: params.limit,
+          offset: params.offset,
+          ...(params.orderBy != null && { order_by: params.orderBy }),
+          ...(params.order != null && { order: params.order }),
+        }
+      : undefined,
   });
   return res.data;
 };

@@ -18,7 +18,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
@@ -116,11 +115,7 @@ type ChangeSettingsParams struct {
 	AdreInvestigationPrompt *string
 	// AdreDefaultChatMode is the default mode when UI does not send one: "chat" or "investigation".
 	AdreDefaultChatMode *string
-	// Orchestrator LLM for Investigations (Ollama by default).
-	OrchestratorLLMProvider *string
-	OrchestratorLLMURL      *string
-	OrchestratorLLMModel    *string
-	// ChatBackend: "holmesgpt" or "holmes_agent" (or "orchestrator" for backward compat).
+	// ChatBackend: "holmesgpt" or "holmes_agent".
 	ChatBackend *string
 	// ChatHistoryLength: max messages to send to PMM Agent (5-100). Used when ChatBackend is holmes_agent.
 	ChatHistoryLength *int
@@ -285,15 +280,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.AdreDefaultChatMode != nil {
 		settings.Adre.DefaultChatMode = pointer.GetString(params.AdreDefaultChatMode)
 	}
-	if params.OrchestratorLLMProvider != nil {
-		settings.Adre.OrchestratorLLMProvider = pointer.GetString(params.OrchestratorLLMProvider)
-	}
-	if params.OrchestratorLLMURL != nil {
-		settings.Adre.OrchestratorLLMURL = pointer.GetString(params.OrchestratorLLMURL)
-	}
-	if params.OrchestratorLLMModel != nil {
-		settings.Adre.OrchestratorLLMModel = pointer.GetString(params.OrchestratorLLMModel)
-	}
 	if params.ChatBackend != nil {
 		settings.Adre.ChatBackend = pointer.GetString(params.ChatBackend)
 	}
@@ -393,19 +379,10 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			return errors.New("default_chat_mode: must be \"chat\" or \"investigation\"")
 		}
 	}
-	if params.OrchestratorLLMURL != nil && *params.OrchestratorLLMURL != "" {
-		parsed, err := url.Parse(*params.OrchestratorLLMURL)
-		if err != nil || parsed.Host == "" {
-			return errors.New("orchestrator_llm_url: must be a valid URL with host")
-		}
-		if parsed.Scheme != "http" && parsed.Scheme != "https" {
-			return errors.New("orchestrator_llm_url: scheme must be http or https")
-		}
-	}
 	if params.ChatBackend != nil {
 		cb := strings.TrimSpace(*params.ChatBackend)
-		if cb != "holmesgpt" && cb != "orchestrator" && cb != "holmes_agent" {
-			return errors.New("chat_backend: must be \"holmesgpt\", \"holmes_agent\", or \"orchestrator\"")
+		if cb != "holmesgpt" && cb != "holmes_agent" {
+			return errors.New("chat_backend: must be \"holmesgpt\" or \"holmes_agent\"")
 		}
 	}
 	if params.ChatHistoryLength != nil {

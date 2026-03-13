@@ -22,17 +22,34 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
-	"gopkg.in/reform.v1"
-
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/investigations/orchestrator"
 	"github.com/percona/pmm/managed/services/adre"
 )
 
-const chatMaxTurns = 5
+const investigationRunTimeout = 5 * time.Minute
+const investigationChatTimeout = 2 * time.Minute
 
-// PostInvestigationChat handles POST /v1/investigations/:id/chat. Runs one round of orchestrator (single-round Q&A).
+func (h *Handlers) requireHolmesURL(w http.ResponseWriter, settings *models.Settings) bool {
+	if settings.GetAdreURL() == "" {
+		writeJSONError(w, http.StatusBadRequest, "HolmesGPT is not configured. Set HolmesGPT URL in AI Assistant Settings.")
+		return false
+	}
+	return true
+}
+
+func (h *Handlers) requireValidChatBackend(w http.ResponseWriter, settings *models.Settings) bool {
+	cb := settings.Adre.ChatBackend
+	if cb == "" {
+		cb = "holmesgpt"
+	}
+	if cb != "holmesgpt" && cb != "holmes_agent" {
+		writeJSONError(w, http.StatusBadRequest, "Chat backend must be PMM Agent or Holmes Agent. Configure it in AI Assistant Settings.")
+		return false
+	}
+	return true
+}
+
+// PostInvestigationChat handles POST /v1/investigations/:id/chat. Uses Holmes (PMM Agent or Holmes Agent) for one round.
 func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
@@ -61,41 +78,24 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
 		return
 	}
-	if settings.Adre.OrchestratorLLMURL == "" {
-		writeJSONError(w, http.StatusBadRequest, "Orchestrator LLM is not configured. Set Orchestrator URL in Settings.")
+	if !h.requireHolmesURL(w, settings) || !h.requireValidChatBackend(w, settings) {
 		return
 	}
-	provider := orchestrator.NewOllamaProvider(settings.Adre.OrchestratorLLMURL, settings.Adre.OrchestratorLLMModel)
-	tools := orchestrator.DefaultToolRegistry(settings.IsAdreEnabled() && settings.GetAdreURL() != "")
 
-	// Load last messages (newest first from DB; we'll reverse for context)
+	// Load existing messages before persisting the new user message so conversation_history does not duplicate it.
 	msgs, err := models.GetInvestigationMessages(h.db, id, 20, 0)
 	if err != nil {
 		h.l.Errorf("GetInvestigationMessages: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to load messages")
 		return
 	}
-	// Build conversation: system + context, then history (oldest first), then user message
-	ctxStr := buildInvestigationContext(inv)
-	systemContent := orchestrator.DefaultSystemPrompt + "\n\nCurrent investigation context:\n" + ctxStr
-	messages := []orchestrator.Message{{Role: "system", Content: systemContent}}
-	for i := len(msgs) - 1; i >= 0; i-- {
-		m := msgs[i]
-		role := m.Role
-		if role == "tool" {
-			messages = append(messages, orchestrator.Message{Role: "tool", Content: string(m.Content), Name: m.ToolName})
-		} else {
-			messages = append(messages, orchestrator.Message{Role: role, Content: m.Content})
-		}
-	}
-	messages = append(messages, orchestrator.Message{Role: "user", Content: body.Message})
 
 	// Persist user message
 	userMsg := &models.InvestigationMessage{
-		ID:              models.NewInvestigationID(),
+		ID:             models.NewInvestigationID(),
 		InvestigationID: id,
-		Role:            "user",
-		Content:         body.Message,
+		Role:           "user",
+		Content:        body.Message,
 	}
 	if err := models.CreateInvestigationMessage(h.db, userMsg); err != nil {
 		h.l.Errorf("CreateInvestigationMessage: %v", err)
@@ -103,60 +103,91 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Minute)
+	ctx, cancel := context.WithTimeout(r.Context(), investigationChatTimeout)
 	defer cancel()
 
-	// Orchestration loop: call LLM, execute tools, append results, repeat until no tool calls or max turns
-	turn := 0
-	var lastContent string
-	for turn < chatMaxTurns {
-		turn++
-		result, err := provider.Complete(ctx, messages, tools)
-		if err != nil {
-			h.l.Errorf("Orchestrator Complete: %v", err)
-			writeJSONError(w, http.StatusBadGateway, "Orchestrator failed: "+err.Error())
-			return
-		}
-		lastContent = result.Content
+	client := adre.NewClient(settings.GetAdreURL())
+	ctxStr := buildInvestigationContext(inv)
+	investigationPrompt := settings.Adre.InvestigationPrompt
+	if investigationPrompt == "" {
+		investigationPrompt = adre.DefaultInvestigationPrompt
+	}
+	systemWithContext := investigationPrompt + "\n\nCurrent investigation context:\n" + ctxStr
 
-		// Persist assistant message
-		assistantMsg := &models.InvestigationMessage{
-			ID:              models.NewInvestigationID(),
-			InvestigationID: id,
-			Role:            "assistant",
-			Content:         result.Content,
-		}
-		if err := models.CreateInvestigationMessage(h.db, assistantMsg); err != nil {
-			h.l.Warnf("CreateInvestigationMessage assistant: %v", err)
-		}
-		messages = append(messages, orchestrator.Message{Role: "assistant", Content: result.Content})
-
-		if len(result.ToolCalls) == 0 {
-			break
-		}
-
-		// Execute tool calls and append tool messages
-		for _, tc := range result.ToolCalls {
-			toolResult := executeTool(ctx, h.db, h.l, id, inv, tc, settings.GetAdreURL())
-			messages = append(messages, orchestrator.Message{Role: "tool", Content: toolResult, Name: tc.Name})
-			toolMsg := &models.InvestigationMessage{
-				ID:              models.NewInvestigationID(),
-				InvestigationID: id,
-				Role:            "tool",
-				Content:         toolResult,
-				ToolName:        tc.Name,
-			}
-			if err := models.CreateInvestigationMessage(h.db, toolMsg); err != nil {
-				h.l.Warnf("CreateInvestigationMessage tool: %v", err)
-			}
+	// Build history from existing messages only (oldest first); new user message is sent as Ask.
+	var history []interface{}
+	for i := len(msgs) - 1; i >= 0; i-- {
+		m := msgs[i]
+		if m.Role == "tool" {
+			history = append(history, map[string]interface{}{"role": "tool", "content": m.Content, "name": m.ToolName})
+		} else {
+			history = append(history, map[string]interface{}{"role": m.Role, "content": m.Content})
 		}
 	}
+
+	var lastContent string
+	cb := settings.Adre.ChatBackend
+	if cb == "" {
+		cb = "holmesgpt"
+	}
+	switch cb {
+	case "holmesgpt":
+		req := &adre.ChatRequest{
+			Ask:                    body.Message,
+			ConversationHistory:    history,
+			AdditionalSystemPrompt: systemWithContext,
+			Stream:                 false,
+		}
+		resp, err := client.Chat(ctx, req)
+		if err != nil {
+			h.l.Errorf("Holmes Chat: %v", err)
+			writeJSONError(w, http.StatusBadGateway, "Chat failed: "+err.Error())
+			return
+		}
+		lastContent = resp.Analysis
+	case "holmes_agent":
+		historyWithToolID := make([]interface{}, 0, len(history))
+		for _, v := range history {
+			m, _ := v.(map[string]interface{})
+			if m != nil && m["role"] == "tool" {
+				// Include tool_call_id for tool messages (PMM Agent sync may expect it).
+				withID := make(map[string]interface{}, len(m)+1)
+				for k, val := range m {
+					withID[k] = val
+				}
+				if _, has := withID["tool_call_id"]; !has {
+					withID["tool_call_id"] = ""
+				}
+				historyWithToolID = append(historyWithToolID, withID)
+			} else {
+				historyWithToolID = append(historyWithToolID, v)
+			}
+		}
+		content, err := adre.RunPMMAgentChatSync(ctx, h.db, h.l, settings, body.Message, historyWithToolID, investigationChatTimeout)
+		if err != nil {
+			h.l.Errorf("PMM Agent Chat: %v", err)
+			writeJSONError(w, http.StatusBadGateway, "Chat failed: "+err.Error())
+			return
+		}
+		lastContent = content
+	default:
+		writeJSONError(w, http.StatusBadRequest, "Chat backend must be PMM Agent or Holmes Agent.")
+		return
+	}
+
+	assistantMsg := &models.InvestigationMessage{
+		ID:             models.NewInvestigationID(),
+		InvestigationID: id,
+		Role:           "assistant",
+		Content:        lastContent,
+	}
+	_ = models.CreateInvestigationMessage(h.db, assistantMsg)
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent})
 }
 
-// PostInvestigationRun handles POST /v1/investigations/:id/run. Runs the multi-turn orchestration loop to build the report.
+// PostInvestigationRun handles POST /v1/investigations/:id/run. Uses Holmes (Investigate or PMM Agent sync) to generate the report.
 func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
@@ -174,72 +205,82 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
 		return
 	}
-	if settings.Adre.OrchestratorLLMURL == "" {
-		writeJSONError(w, http.StatusBadRequest, "Orchestrator LLM is not configured. Set Orchestrator URL in Settings.")
+	if !h.requireHolmesURL(w, settings) || !h.requireValidChatBackend(w, settings) {
 		return
 	}
-	provider := orchestrator.NewOllamaProvider(settings.Adre.OrchestratorLLMURL, settings.Adre.OrchestratorLLMModel)
-	tools := orchestrator.DefaultToolRegistry(settings.IsAdreEnabled() && settings.GetAdreURL() != "")
 
 	ctxStr := buildInvestigationContext(inv)
-	systemContent := orchestrator.RunReportSystemPrompt + "\n\nCurrent investigation context:\n" + ctxStr
-	messages := []orchestrator.Message{
-		{Role: "system", Content: systemContent},
-		{Role: "user", Content: "Generate the full investigation report based on the context above. Use get_investigation_context first, then append_block to add summary and finding blocks."},
-	}
-
-	// Persist the synthetic user message
 	userMsg := &models.InvestigationMessage{
-		ID:              models.NewInvestigationID(),
-		InvestigationID:  id,
-		Role:            "user",
-		Content:         "Generate the full investigation report.",
+		ID:             models.NewInvestigationID(),
+		InvestigationID: id,
+		Role:           "user",
+		Content:        "Generate the full investigation report.",
 	}
 	if err := models.CreateInvestigationMessage(h.db, userMsg); err != nil {
 		h.l.Warnf("CreateInvestigationMessage run user: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Minute)
+	ctx, cancel := context.WithTimeout(r.Context(), investigationRunTimeout)
 	defer cancel()
 
-	turn := 0
+	adreURL := settings.GetAdreURL()
 	var lastContent string
-	for turn < chatMaxTurns {
-		turn++
-		result, err := provider.Complete(ctx, messages, tools)
+	runBackend := settings.Adre.ChatBackend
+	if runBackend == "" {
+		runBackend = "holmesgpt"
+	}
+	switch runBackend {
+	case "holmesgpt":
+		req := &adre.InvestigateRequest{
+			Source:      "pmm-investigation",
+			Title:       inv.Title,
+			Description: "Generate the full investigation report based on the context below.",
+			Context: map[string]interface{}{
+				"investigation_id": id,
+				"time_from":       inv.TimeFrom.Format(time.RFC3339),
+				"time_to":         inv.TimeTo.Format(time.RFC3339),
+				"summary":         inv.Summary,
+				"context_text":    ctxStr,
+			},
+			AdditionalSystemPrompt: settings.Adre.InvestigationPrompt,
+		}
+		if req.AdditionalSystemPrompt == "" {
+			req.AdditionalSystemPrompt = adre.DefaultInvestigationPrompt
+		}
+		client := adre.NewClient(adreURL)
+		resp, err := client.Investigate(ctx, req)
 		if err != nil {
-			h.l.Errorf("Orchestrator Complete run: %v", err)
-			writeJSONError(w, http.StatusBadGateway, "Orchestrator failed: "+err.Error())
+			h.l.Errorf("Holmes Investigate: %v", err)
+			writeJSONError(w, http.StatusBadGateway, "Run failed: "+err.Error())
 			return
 		}
-		lastContent = result.Content
-
-		assistantMsg := &models.InvestigationMessage{
-			ID:              models.NewInvestigationID(),
-			InvestigationID:  id,
-			Role:            "assistant",
-			Content:         result.Content,
-		}
-		_ = models.CreateInvestigationMessage(h.db, assistantMsg)
-		messages = append(messages, orchestrator.Message{Role: "assistant", Content: result.Content})
-
-		if len(result.ToolCalls) == 0 {
-			break
-		}
-
-		for _, tc := range result.ToolCalls {
-			toolResult := executeTool(ctx, h.db, h.l, id, inv, tc, settings.GetAdreURL())
-			messages = append(messages, orchestrator.Message{Role: "tool", Content: toolResult, Name: tc.Name})
-			toolMsg := &models.InvestigationMessage{
-				ID:              models.NewInvestigationID(),
-				InvestigationID: id,
-				Role:            "tool",
-				Content:         toolResult,
-				ToolName:        tc.Name,
+		lastContent = resp.Analysis
+		if len(resp.Sections) > 0 {
+			for k, v := range resp.Sections {
+				lastContent += "\n\n## " + k + "\n" + v
 			}
-			_ = models.CreateInvestigationMessage(h.db, toolMsg)
 		}
+	case "holmes_agent":
+		ask := "Generate the full investigation report for this incident. Context:\n" + ctxStr
+		content, err := adre.RunPMMAgentChatSync(ctx, nil, h.l, settings, ask, nil, investigationRunTimeout)
+		if err != nil {
+			h.l.Errorf("PMM Agent run: %v", err)
+			writeJSONError(w, http.StatusBadGateway, "Run failed: "+err.Error())
+			return
+		}
+		lastContent = content
+	default:
+		writeJSONError(w, http.StatusBadRequest, "Chat backend must be PMM Agent or Holmes Agent.")
+		return
 	}
+
+	assistantMsg := &models.InvestigationMessage{
+		ID:             models.NewInvestigationID(),
+		InvestigationID: id,
+		Role:           "assistant",
+		Content:        lastContent,
+	}
+	_ = models.CreateInvestigationMessage(h.db, assistantMsg)
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent})
@@ -250,89 +291,4 @@ func buildInvestigationContext(inv *models.Investigation) string {
 		inv.Title, inv.Status,
 		inv.TimeFrom.Format(time.RFC3339), inv.TimeTo.Format(time.RFC3339),
 		inv.Summary)
-}
-
-func executeTool(ctx context.Context, db *reform.DB, l *logrus.Entry, investigationID string, inv *models.Investigation, tc orchestrator.ToolCall, adreURL string) string {
-	switch tc.Name {
-	case "get_investigation_context":
-		ctx := buildInvestigationContext(inv)
-		blocks, _ := models.GetInvestigationBlocks(db, investigationID)
-		if len(blocks) > 0 {
-			ctx += "\nBlocks: " + fmt.Sprintf("%d", len(blocks))
-		}
-		return ctx
-	case "append_block":
-		var args struct {
-			Type     string                 `json:"type"`
-			Title    string                 `json:"title"`
-			Position int                    `json:"position"`
-			DataJSON map[string]interface{} `json:"data_json"`
-		}
-		if err := json.Unmarshal([]byte(tc.Arguments), &args); err != nil {
-			l.Warnf("append_block unmarshal: %v", err)
-			return `{"error": "invalid arguments"}`
-		}
-		if args.Type == "" {
-			return `{"error": "type is required"}`
-		}
-		dataJSON, _ := json.Marshal(args.DataJSON)
-		block := &models.InvestigationBlock{
-			ID:             models.NewInvestigationID(),
-			InvestigationID: investigationID,
-			Type:           args.Type,
-			Title:          args.Title,
-			Position:       args.Position,
-			DataJSON:       dataJSON,
-		}
-		if err := models.CreateInvestigationBlock(db, block); err != nil {
-			l.Warnf("CreateInvestigationBlock: %v", err)
-			return `{"error": "failed to create block"}`
-		}
-		return fmt.Sprintf(`{"ok": true, "block_id": "%s"}`, block.ID)
-	case "holmes_investigate":
-		if adreURL == "" {
-			return `{"error": "HolmesGPT is not configured. Enable ADRE and set HolmesGPT URL in Settings."}`
-		}
-		var args struct {
-			Question string `json:"question"`
-		}
-		if err := json.Unmarshal([]byte(tc.Arguments), &args); err != nil {
-			l.Warnf("holmes_investigate unmarshal: %v", err)
-			return `{"error": "invalid arguments"}`
-		}
-		description := args.Question
-		if description == "" {
-			description = "Analyze this incident and provide findings."
-		}
-		req := &adre.InvestigateRequest{
-			Source:      "pmm-investigation",
-			Title:       inv.Title,
-			Description: description,
-			Context: map[string]interface{}{
-				"investigation_id": investigationID,
-				"time_from":       inv.TimeFrom.Format(time.RFC3339),
-				"time_to":         inv.TimeTo.Format(time.RFC3339),
-				"summary":         inv.Summary,
-			},
-		}
-		client := adre.NewClient(adreURL)
-		resp, err := client.Investigate(ctx, req)
-		if err != nil {
-			l.Warnf("HolmesGPT Investigate: %v", err)
-			out := map[string]string{"error": "HolmesGPT request failed: " + err.Error()}
-			if b, e := json.Marshal(out); e == nil {
-				return string(b)
-			}
-			return `{"error": "HolmesGPT request failed"}`
-		}
-		out := resp.Analysis
-		if len(resp.Sections) > 0 {
-			for k, v := range resp.Sections {
-				out += "\n\n## " + k + "\n" + v
-			}
-		}
-		return out
-	default:
-		return fmt.Sprintf(`{"error": "unknown tool: %s"}`, tc.Name)
-	}
 }

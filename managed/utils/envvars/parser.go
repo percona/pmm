@@ -242,31 +242,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.AdreURL = pointer.ToString(trimmed)
 			envSettings.EnableAdre = pointer.ToBool(true)
 
-		case pkgenv.OrchestratorLLMProvider:
-			trimmed := strings.TrimSpace(v)
-			if trimmed != "" {
-				envSettings.OrchestratorLLMProvider = pointer.ToString(trimmed)
-			}
-		case pkgenv.OrchestratorLLMURL:
-			trimmed := strings.TrimSpace(v)
-			if trimmed == "" {
-				continue
-			}
-			parsed, err := url.Parse(trimmed)
-			if err != nil || parsed.Host == "" {
-				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", trimmed, k))
-				continue
-			}
-			if parsed.Scheme != "http" && parsed.Scheme != "https" {
-				errs = append(errs, fmt.Errorf("environment variable %q must use http or https scheme", k))
-				continue
-			}
-			envSettings.OrchestratorLLMURL = pointer.ToString(trimmed)
-		case pkgenv.OrchestratorLLMModel:
-			trimmed := strings.TrimSpace(v)
-			if trimmed != "" {
-				envSettings.OrchestratorLLMModel = pointer.ToString(trimmed)
-			}
+		case pkgenv.OrchestratorLLMProvider, pkgenv.OrchestratorLLMURL, pkgenv.OrchestratorLLMModel:
+			// Orchestrator (Ollama) settings removed; ignore these env vars.
+			continue
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue

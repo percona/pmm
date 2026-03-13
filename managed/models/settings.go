@@ -110,11 +110,7 @@ type Settings struct {
 		ChatPrompt          string `json:"chat_prompt"`
 		InvestigationPrompt string `json:"investigation_prompt"`
 		DefaultChatMode     string `json:"default_chat_mode"`
-		// Orchestrator LLM (e.g. Ollama) for Investigations chat and run-investigation flow.
-		OrchestratorLLMProvider string `json:"orchestrator_llm_provider"`
-		OrchestratorLLMURL      string `json:"orchestrator_llm_url"`
-		OrchestratorLLMModel    string `json:"orchestrator_llm_model"`
-		// ChatBackend: "holmesgpt" = direct to Holmes Agent; "holmes_agent" or "orchestrator" = PMM Agent (Holmes with replace_system_prompt).
+		// ChatBackend: "holmesgpt" = direct Holmes Agent; "holmes_agent" = PMM Agent (Holmes with replace_system_prompt).
 		ChatBackend string `json:"chat_backend"`
 		// ChatHistoryLength is the max number of messages to send to the PMM Agent (trimmed from conversation_history). Used when ChatBackend is holmes_agent.
 		ChatHistoryLength int `json:"chat_history_length"`
@@ -307,15 +303,6 @@ func (s *Settings) fillDefaults() {
 	}
 	if s.Adre.DefaultChatMode == "" {
 		s.Adre.DefaultChatMode = "chat"
-	}
-	if s.Adre.OrchestratorLLMProvider == "" {
-		s.Adre.OrchestratorLLMProvider = "ollama"
-	}
-	if s.Adre.OrchestratorLLMURL == "" {
-		s.Adre.OrchestratorLLMURL = "http://localhost:11434"
-	}
-	if s.Adre.OrchestratorLLMModel == "" {
-		s.Adre.OrchestratorLLMModel = "llama3.2"
 	}
 	if s.Adre.ChatBackend == "" {
 		s.Adre.ChatBackend = "holmesgpt"

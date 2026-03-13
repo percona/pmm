@@ -12,6 +12,7 @@ import {
   MenuItem,
   Select,
   Stack,
+  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
@@ -100,6 +101,21 @@ const InvestigationDetailPage: FC = () => {
   const [commentText, setCommentText] = useState('');
   const [chatText, setChatText] = useState('');
   const [copyDone, setCopyDone] = useState(false);
+  const [snackMessage, setSnackMessage] = useState<string | null>(null);
+  const [snackSeverity, setSnackSeverity] = useState<'error' | 'success'>('error');
+
+  const showError = (msg: string) => {
+    setSnackMessage(msg);
+    setSnackSeverity('error');
+  };
+  const showSuccess = (msg: string) => {
+    setSnackMessage(msg);
+    setSnackSeverity('success');
+  };
+  const getErrorMessage = (err: unknown): string => {
+    const ax = err as { response?: { data?: { error?: string } } };
+    return ax?.response?.data?.error ?? (err as Error)?.message ?? 'Request failed';
+  };
 
   const handleCopyLink = () => {
     const url = `${window.location.origin}${window.location.pathname}`;
@@ -123,6 +139,7 @@ const InvestigationDetailPage: FC = () => {
     if (!chatText.trim() || !id) return;
     postChat.mutate(chatText.trim(), {
       onSuccess: () => setChatText(''),
+      onError: (err) => showError(`Chat failed: ${getErrorMessage(err)}`),
     });
   };
 
@@ -212,7 +229,13 @@ const InvestigationDetailPage: FC = () => {
           <Button
             variant="contained"
             size="small"
-            onClick={() => id && postRun.mutate()}
+            onClick={() =>
+              id &&
+              postRun.mutate(undefined, {
+                onError: (err) => showError(`Run failed: ${getErrorMessage(err)}`),
+                onSuccess: () => showSuccess('Investigation run completed'),
+              })
+            }
             disabled={postRun.isPending}
           >
             {postRun.isPending ? 'Running…' : 'Run investigation'}
@@ -441,6 +464,15 @@ const InvestigationDetailPage: FC = () => {
           </CardContent>
         </Card>
       </Stack>
+      <Snackbar
+        open={snackMessage != null}
+        autoHideDuration={6000}
+        onClose={() => setSnackMessage(null)}
+        message={snackMessage ?? ''}
+        ContentProps={{
+          sx: { bgcolor: snackSeverity === 'error' ? 'error.main' : 'success.main', color: 'white' },
+        }}
+      />
     </Page>
   );
 };

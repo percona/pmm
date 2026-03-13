@@ -167,7 +167,15 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 			offset = n
 		}
 	}
-	list, err := models.ListInvestigations(h.db, status, limit, offset)
+	orderBy := r.URL.Query().Get("order_by")
+	if orderBy == "" {
+		orderBy = "updated_at"
+	}
+	order := r.URL.Query().Get("order")
+	if order == "" {
+		order = "desc"
+	}
+	list, err := models.ListInvestigations(h.db, status, limit, offset, orderBy, order)
 	if err != nil {
 		h.l.Errorf("ListInvestigations: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to list investigations")
