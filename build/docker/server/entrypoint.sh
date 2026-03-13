@@ -95,30 +95,38 @@ if [ ! -f "$DIST_FILE" ]; then
     mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
 
-    echo "Initializing Postgres..."
-    install -d -m 750 "$POSTGRES_DATA_DIR"
-    
-    # Generate a random password for postgres superuser
-    declare POSTGRES_PASSWORD
-    POSTGRES_PASSWORD=$(openssl rand -hex 16)
-    
-    # Store the password securely with restricted permissions
-    echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
-    chmod 600 "$POSTGRES_PASSWORD_FILE"
-    
-    # Initialize database with password authentication
-    /usr/pgsql-14/bin/initdb -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
-    
-    echo "Enabling pg_stat_statements extension for PostgreSQL..."
-    /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
-    PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-    /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
-    
-    # Clean up password from environment
-    unset POSTGRES_PASSWORD
+    if [ "$PMM_HA_ENABLE" != "1" ] && [ "$PMM_HA_ENABLE" != "true" ]; then
+        echo "Initializing Postgres..."
+        install -d -m 750 "$POSTGRES_DATA_DIR"
+
+        # Generate a random password for postgres superuser
+        declare POSTGRES_PASSWORD
+        POSTGRES_PASSWORD=$(openssl rand -hex 16)
+
+        # Store the password securely with restricted permissions
+        echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
+        chmod 600 "$POSTGRES_PASSWORD_FILE"
+
+        # Initialize database with password authentication
+        /usr/pgsql-14/bin/initdb -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
+
+        echo "Enabling pg_stat_statements extension for PostgreSQL..."
+        /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
+        PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
+        /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
+
+        # Clean up password from environment
+        unset POSTGRES_PASSWORD
+    else
+        echo "Skipping embedded PostgreSQL initialization in HA mode."
+    fi
 fi
 
-bash /opt/ansible/roles/postgres/files/postgres-migration
+if [ "$PMM_HA_ENABLE" != "1" ] && [ "$PMM_HA_ENABLE" != "true" ]; then
+    bash /opt/ansible/roles/postgres/files/postgres-migration
+else
+    echo "Skipping embedded PostgreSQL migration in HA mode."
+fi
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1

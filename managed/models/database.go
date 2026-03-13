@@ -1173,7 +1173,7 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ADD COLUMN is_connected BOOLEAN NOT NULL DEFAULT false`,
 		`ALTER TABLE nodes ADD COLUMN is_pmm_server_node BOOLEAN NOT NULL DEFAULT false`,
 	},
-	126: {
+	116: {
 		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
 		`UPDATE agents SET rta_options = '{}'::jsonb`,
 	},
@@ -1263,6 +1263,12 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		// 28P01: invalid_password - with password-based auth (md5/scram-sha-256), PostgreSQL returns this
 		//        even when the role doesn't exist at all, to prevent user enumeration.
 		// See https://www.postgresql.org/docs/current/errcodes-appendix.html
+		//
+		// In HA mode the external PostgreSQL must be pre-provisioned; auto-provisioning via the
+		// embedded superuser password file is not available and must not be attempted.
+		if params.HANodeID != "" {
+			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
+		}
 		if err := initWithRoot(params); err != nil {
 			return nil, err
 		}
@@ -1378,11 +1384,7 @@ func initWithRoot(params SetupDBParams) error {
 	}
 
 	// we use postgres user for creating database
-	db, err := OpenDB(SetupDBParams{
-		Address:  params.Address,
-		Username: "postgres",
-		Password: string(passwordBytes),
-	})
+	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres", Password: string(passwordBytes)})
 	if err != nil {
 		return fmt.Errorf("failed to open the database: %w", err)
 	}
