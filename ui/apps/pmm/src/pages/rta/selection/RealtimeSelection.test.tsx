@@ -12,7 +12,6 @@ import * as servicesApi from 'api/services';
 import * as realtimeApi from 'api/rta';
 import {
   wrapWithQueryProvider,
-  wrapWithRouter,
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
