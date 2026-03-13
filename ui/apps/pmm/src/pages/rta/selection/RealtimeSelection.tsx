@@ -6,12 +6,12 @@ import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { Messages } from './RealtimeSelection.messages';
+import { RealtimeSelectionViewerEmptyState } from './empty-state';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
-  RealtimeSelectionEmptyState,
-  RealtimeSelectionViewerEmptyState,
-} from './empty-state';
-import { useNavigate } from 'react-router-dom';
-import { useAvailableServices } from 'hooks/api/useRealtime';
+  useAvailableServices,
+  useRealtimeSessions,
+} from 'hooks/api/useRealtime';
 import { DOCS_URLS } from 'lib/constants';
 import { RealtimeSession } from 'types/rta.types';
 import { createRealtimeOverviewUrl } from 'utils/link.utils';
@@ -20,10 +20,9 @@ import { RealtimeSelectionForm } from '../components/selection-form';
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const { availableServices, isLoading, services } = useAvailableServices();
-
-  const allServicesRunning =
-    !isLoading && availableServices.length === 0 && services.length > 0;
+  const { isLoading } = useAvailableServices();
+  const { data: sessions, isLoading: isLoadingSessions } =
+    useRealtimeSessions();
 
   const handleSuccess = (sessions: RealtimeSession[]) => {
     const serviceIds = sessions.map((s) => s.serviceId);
@@ -31,7 +30,7 @@ export const RealtimeSelection: FC = () => {
     navigate(createRealtimeOverviewUrl(serviceIds));
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingSessions) {
     return (
       <Page footer={null}>
         <Stack
@@ -55,6 +54,11 @@ export const RealtimeSelection: FC = () => {
     return <RealtimeSelectionViewerEmptyState />;
   }
 
+  // If there are any sessions alredy running, redirect to the sessions page
+  if (sessions?.length) {
+    return <Navigate to="/rta/sessions" />;
+  }
+
   return (
     <Page footer={null}>
       <Stack
@@ -68,38 +72,32 @@ export const RealtimeSelection: FC = () => {
           textAlign: 'center',
         }}
       >
-        {allServicesRunning ? (
-          <RealtimeSelectionEmptyState />
-        ) : (
-          <>
-            <Stack gap={1} sx={{ width: '100%' }}>
-              <Typography variant="h5">{Messages.title}</Typography>
-              <Typography variant="body1">{Messages.description}</Typography>
-            </Stack>
-            <RealtimeSelectionForm onSuccess={handleSuccess} />
-            <Stack gap={1} sx={{ width: '100%' }}>
-              <Typography variant="body2" color="text.secondary">
-                {Messages.mongoOnly}
-              </Typography>
-              <Stack direction="row" gap={2} justifyContent="center">
-                <Link
-                  href={DOCS_URLS.qan}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {Messages.documentation}
-                </Link>
-                <Link
-                  href={DOCS_URLS.forums}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {Messages.feedback}
-                </Link>
-              </Stack>
-            </Stack>
-          </>
-        )}
+        <Stack gap={1} sx={{ width: '100%' }}>
+          <Typography variant="h5">{Messages.title}</Typography>
+          <Typography variant="body1">{Messages.description}</Typography>
+        </Stack>
+        <RealtimeSelectionForm onSuccess={handleSuccess} />
+        <Stack gap={1} sx={{ width: '100%' }}>
+          <Typography variant="body2" color="text.secondary">
+            {Messages.mongoOnly}
+          </Typography>
+          <Stack direction="row" gap={2} justifyContent="center">
+            <Link
+              href={DOCS_URLS.qan}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {Messages.documentation}
+            </Link>
+            <Link
+              href={DOCS_URLS.forums}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {Messages.feedback}
+            </Link>
+          </Stack>
+        </Stack>
       </Stack>
     </Page>
   );
