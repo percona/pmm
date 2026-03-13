@@ -180,8 +180,8 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	errTX := h.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var agentIDs []string
 		var err error
-		req.AgentId = strings.TrimPrefix(req.AgentId, "/agent_id/")
-		PMMAgentID, agentIDs, err = h.r.roster.get(req.AgentId)
+		sAgentID := strings.TrimPrefix(req.AgentId, "/agent_id/")
+		PMMAgentID, agentIDs, err = h.r.roster.get(sAgentID)
 		if err != nil {
 			return err
 		}
@@ -256,7 +256,7 @@ func updateAgentStatus(
 	processExecPath *string,
 	version *string,
 ) error {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", "agents/handler")
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
 
 	agent, err := models.FindAgentByID(q, agentID)
@@ -270,7 +270,7 @@ func updateAgentStatus(
 		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)
 	}
 	if err != nil {
-		return errors.Wrap(err, "failed to select Agent by ID")
+		return fmt.Errorf("failed to select Agent by ID: %w", err)
 	}
 
 	if agent.Disabled {
@@ -286,8 +286,11 @@ func updateAgentStatus(
 	if version != nil {
 		agent.Version = version
 	}
-	if err = q.Update(agent); err != nil {
-		return errors.Wrap(err, "failed to update Agent")
+
+	err = models.UpdateAgent(q, agent)
+	if err != nil {
+		return fmt.Errorf("failed to update Agent: %w", err)
 	}
+
 	return nil
 }
