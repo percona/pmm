@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { Messages } from './RealtimeSelection.messages';
+import { Messages as RtaMessages } from '../messages';
 import {
   RealtimeSelectionEmptyState,
   RealtimeSelectionViewerEmptyState,
@@ -81,7 +82,7 @@ export const RealtimeSelection: FC = () => {
             <RealtimeSelectionForm onSuccess={handleSuccess} />
             <Stack gap={1} sx={{ width: '100%' }}>
               <Typography variant="body2" color="text.secondary">
-                {Messages.mongoOnly}
+                {RtaMessages.disclaimer}
               </Typography>
               <Stack direction="row" gap={2} justifyContent="center">
                 <Link
