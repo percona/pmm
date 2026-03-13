@@ -107,8 +107,6 @@ type ExporterOptions struct {
 	MetricsResolutions *MetricsResolutions `json:"metrics_resolutions"`
 	MetricsPath        string              `json:"metrics_path"`
 	MetricsScheme      string              `json:"metrics_scheme"`
-	// Connection timeout for exporter (in nanoseconds). Optional.
-	Timeout *time.Duration `json:"timeout,omitempty"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -205,8 +203,6 @@ type MongoDBOptions struct {
 	StatsCollections              []string `json:"stats_collections"`
 	CollectionsLimit              int32    `json:"collections_limit"`
 	EnableAllCollectors           bool     `json:"enable_all_collectors"`
-	// Connection timeout for exporter (in nanoseconds). Optional.
-	Timeout *time.Duration `json:"timeout,omitempty"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -244,8 +240,6 @@ type MySQLOptions struct {
 
 	// Extra DSN query parameters for MySQL.
 	ExtraDSNParams map[string]string `json:"extra_dsn_params"`
-	// Connection timeout for exporter (in nanoseconds). Optional.
-	Timeout *time.Duration `json:"timeout,omitempty"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -272,8 +266,6 @@ type PostgreSQLOptions struct {
 	DatabaseCount          int32   `json:"database_count"`
 	PGSMVersion            *string `json:"pgsm_version"`
 	MaxExporterConnections int32   `json:"max_exporter_connections"`
-	// Connection timeout for exporter (in nanoseconds). Optional.
-	Timeout *time.Duration `json:"timeout,omitempty"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -825,32 +817,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 // EffectiveDialTimeout returns the timeout configured for this agent's exporter.
 // Precedence: exporter-specific option (MySQLOptions/MongoDBOptions/PostgreSQLOptions) -> ExporterOptions.Timeout -> default 1s.
 func (s *Agent) EffectiveDialTimeout() time.Duration {
-	// MySQL
-	if s.AgentType == MySQLdExporterType {
-		if s.MySQLOptions.Timeout != nil {
-			return *s.MySQLOptions.Timeout
-		}
-	}
-	// MongoDB
-	if s.AgentType == MongoDBExporterType || s.AgentType == QANMongoDBProfilerAgentType || s.AgentType == QANMongoDBMongologAgentType || s.AgentType == RTAMongoDBAgentType {
-		if s.MongoDBOptions.Timeout != nil {
-			return *s.MongoDBOptions.Timeout
-		}
-	}
-	// Postgres
-	if s.AgentType == PostgresExporterType || s.AgentType == QANPostgreSQLPgStatementsAgentType || s.AgentType == QANPostgreSQLPgStatMonitorAgentType {
-		if s.PostgreSQLOptions.Timeout != nil {
-			return *s.PostgreSQLOptions.Timeout
-		}
-	}
-
-	if s.ExporterOptions.MetricsPath == "" || true {
-		if s.ExporterOptions.Timeout != nil {
-			return *s.ExporterOptions.Timeout
-		}
-	}
-
-	return time.Second
+	return *s.ExporterOptions.Timeout
 }
 
 // ExporterURL composes URL to an external exporter.

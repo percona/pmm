@@ -7490,6 +7490,9 @@ type AddAgentParamsBodyNodeExporter struct {
 
 	// Expose the node_exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 }
 
 // Validate validates this add agent params body node exporter
@@ -9224,6 +9227,9 @@ type AddAgentParamsBodyValkeyExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 }
 
 // Validate validates this add agent params body valkey exporter

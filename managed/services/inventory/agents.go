@@ -1306,6 +1306,7 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 			CustomLabels:  p.CustomLabels,
 			PushMetrics:   p.PushMetrics,
 			TLSSkipVerify: p.TlsSkipVerify,
+			Timeout:       pointer.To(p.GetTimeout().AsDuration()),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

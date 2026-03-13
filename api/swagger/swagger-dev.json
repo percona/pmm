@@ -7569,6 +7569,11 @@
                       "type": "boolean",
                       "title": "Expose the node_exporter process on all public interfaces",
                       "x-order": 5
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 6
                     }
                   },
                   "x-order": 1
@@ -8922,6 +8927,11 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 14
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 15
