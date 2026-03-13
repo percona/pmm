@@ -34,6 +34,7 @@ Use the RTA API to:
 
 ## Available endpoints
 
+- [List RTA-compatible services](ref:list-rta-services): retrieve services that support Real-Time Analytics
 - [Search real-time analytics queries](ref:search-rta-queries): retrieve currently executing queries from active sessions
 - [Manage real-time analytics sessions](ref:manage-rta-sessions): start, stop, and list real-time monitoring sessions for MongoDB services
 
@@ -43,9 +44,10 @@ Use the RTA API to:
 
 When your database is experiencing performance issues, use RTA to see exactly what queries are running and identify bottlenecks in real-time:
 
-1. Start a session with `POST /v1/realtimeanalytics/sessions:start`
-2. Search active queries with `POST /v1/realtimeanalytics/queries:search`
-3. Filter results by service to focus on specific instances
+1. List available services with `GET /v1/realtimeanalytics/services`
+2. Start a session with `POST /v1/realtimeanalytics/sessions:start`
+3. Search active queries with `POST /v1/realtimeanalytics/queries:search`
+4. Filter results by service to focus on specific instances
 
 ### Automated session management
 

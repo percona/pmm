@@ -145,8 +145,9 @@ The API returns an empty result set even though you expect to see query data. Th
 **Solutions:**
 
 1. Verify sessions are running with `GET /v1/realtimeanalytics/sessions`
-2. Start a session with `POST /v1/realtimeanalytics/sessions:start`
-3. Check that services have active database traffic
+2. Check the service supports RTA with `GET /v1/realtimeanalytics/services`
+3. Start a session with `POST /v1/realtimeanalytics/sessions:start`
+4. Check that services have active database traffic
 
 #### Empty mongo_db_payload
 

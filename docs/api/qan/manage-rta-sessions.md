@@ -202,7 +202,7 @@ You're unable to start an RTA session for a MongoDB service. This typically happ
 
 **Solutions:**
 
-1. Verify service_id using [List services](ref:listservices)
+1. List available services using `GET /v1/realtimeanalytics/services` to verify the service supports RTA
 2. Check PMM Client version: `pmm-admin status`
 3. Verify MongoDB exporter is running in PMM Inventory
 
