@@ -52,13 +52,13 @@ func TestLoadFromFile(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
 		t.Cleanup(func() { removeConfig(t, name) })
 
-		cfg, err := loadFromFile(name)
+		cfg, err := loadFromFile(name, nil)
 		require.NoError(t, err)
 		assert.Equal(t, &Config{ID: "agent-id"}, cfg)
 	})
 
 	t.Run("NotExist", func(t *testing.T) {
-		cfg, err := loadFromFile("not-exist.yaml")
+		cfg, err := loadFromFile("not-exist.yaml", nil)
 		assert.Equal(t, ConfigFileDoesNotExistError("not-exist.yaml"), err)
 		assert.Nil(t, cfg)
 	})
@@ -68,7 +68,7 @@ func TestLoadFromFile(t *testing.T) {
 		require.NoError(t, os.Chmod(name, 0o000))
 		t.Cleanup(func() { removeConfig(t, name) })
 
-		cfg, err := loadFromFile(name)
+		cfg, err := loadFromFile(name, nil)
 		require.IsType(t, (*os.PathError)(nil), err)
 		assert.Equal(t, "open", err.(*os.PathError).Op)                     //nolint:errorlint
 		require.EqualError(t, err.(*os.PathError).Err, "permission denied") //nolint:errorlint
@@ -80,7 +80,7 @@ func TestLoadFromFile(t *testing.T) {
 		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666)) //nolint:gosec
 		t.Cleanup(func() { removeConfig(t, name) })
 
-		cfg, err := loadFromFile(name)
+		cfg, err := loadFromFile(name, nil)
 		require.IsType(t, (*yaml.TypeError)(nil), err)
 		require.EqualError(t, err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `not YAML` into config.Config")
 		assert.Nil(t, cfg)
