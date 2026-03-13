@@ -13,24 +13,23 @@ category:
 
 Returns a list of services that support Real-time Analytics. Use this endpoint to discover which services can be monitored with RTA before starting a session.
 
+This endpoint only returns services where the corresponding PMM Agent is version 3.7.0 or later. Services monitored by older PMM Agents won't appear in the results, even if they're registered in PMM.
+
 ### Query parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `service_type` | string | No | Filter by service type. Default: `SERVICE_TYPE_UNSPECIFIED` (returns all supported types) |
 
+
 #### Supported service types
 
 | Value | Description |
 |-------|-------------|
-| `SERVICE_TYPE_UNSPECIFIED` | All supported service types (default) |
-| `SERVICE_TYPE_MONGODB_SERVICE` | MongoDB services only |
-| `SERVICE_TYPE_MYSQL_SERVICE` | MySQL services (future support) |
-| `SERVICE_TYPE_POSTGRESQL_SERVICE` | PostgreSQL services (future support) |
-| `SERVICE_TYPE_VALKEY_SERVICE` | Valkey services (future support) |
-| `SERVICE_TYPE_PROXYSQL_SERVICE` | ProxySQL services (future support) |
-| `SERVICE_TYPE_HAPROXY_SERVICE` | HAProxy services (future support) |
-| `SERVICE_TYPE_EXTERNAL_SERVICE` | External services (future support) |
+| `SERVICE_TYPE_UNSPECIFIED` | Returns all supported service types (default). Currently returns MongoDB services only. |
+| `SERVICE_TYPE_MONGODB_SERVICE` | MongoDB services |
+
+Other service types (MySQL, PostgreSQL, Valkey, ProxySQL, HAProxy, External) return an error. Support for additional database types is planned for future releases.
 
 ### Response
 ```json
