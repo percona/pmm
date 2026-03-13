@@ -25,11 +25,11 @@ Make sure to store and manage the custom encryption key securely to avoid potent
 
 ## Rotating the encryption key
 
-You may want to change or update the encryption key when the original key is compromised or as part of routine security maintenance. For this, you can use the **PMM Encryption Rotation Tool**.
+You may want to generate a new encryption key or rotate it when the original key is compromised or as part of routine security maintenance. For this, you can use the **PMM Encryption Rotation Tool**.
 
 This tool re-encrypts all existing sensitive data with a newly generated encryption key, ensuring continuous security with minimal disruption.
 
-To rotate or regenerate the encryption key:
+To rotate the encryption key:
 {.power-number}
 
 1. Log in to the container that runs PMM Server.

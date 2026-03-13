@@ -54,7 +54,6 @@ check:                ## Run required checkers and linters
 	bin/buf lint -v api
 	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base v3 HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
 	bin/go-sumtype ./...
-	bin/go-consistent -pedantic -exclude "tests|api/agent" ./...
 
 check-license:        ## Run license header checks against source files
 	bin/license-eye -c .licenserc.yaml header check

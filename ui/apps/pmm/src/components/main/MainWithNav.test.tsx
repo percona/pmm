@@ -7,18 +7,32 @@ const setup = ({
   isLoading = false,
   isLoggedIn = false,
   kioskModeActive = false,
+  search = '',
 }: {
   isLoading?: boolean;
   isLoggedIn?: boolean;
   kioskModeActive?: boolean;
-}) =>
-  render(
+  /** URL search string (e.g. "render=1" for Grafana renderer). Prepended with "?" when setting location.search */
+  search?: string;
+}) => {
+  const originalLocation = window.location;
+  const searchString = search ? `?${search}` : '';
+  Object.defineProperty(window, 'location', {
+    value: {
+      ...originalLocation,
+      search: searchString,
+    },
+    writable: true,
+  });
+
+  return render(
     <TestWrapper authContext={{ isLoading, isLoggedIn }}>
       {wrapWithQueryProvider(
         wrapWithGrafana(<MainWithNav />, { isFullScreen: kioskModeActive })
       )}
     </TestWrapper>
   );
+}
 
 describe('MainWithNav', () => {
   it('shows loading', () => {
@@ -43,5 +57,18 @@ describe('MainWithNav', () => {
     setup({ isLoading: false, isLoggedIn: true, kioskModeActive: true });
 
     expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
+  });
+
+  it('hides sidebar so the renderer gets a minimal layout', () => {
+    setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false, search: 'render=1' });
+
+    expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
+  });
+
+
+  it('shows sidebar when not in renderer mode', () => {
+    setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false });
+
+    expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
   });
 });

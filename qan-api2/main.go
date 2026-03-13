@@ -140,7 +140,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	marshaller := &grpc_gateway.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{
 			UseEnumNumbers:  false,
-			EmitUnpopulated: true,
+			EmitUnpopulated: false, // PMM-14566
 			UseProtoNames:   true,
 			Indent:          "  ",
 		},
