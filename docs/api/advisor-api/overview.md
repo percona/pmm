@@ -7,7 +7,7 @@ position: 0
 ---
 
 
-This section describes APIs to deal with Percona [Advisors](https://docs.percona.com/percona-monitoring-and-management/get-started/advisors.html), and [Advisors Checks](https://docs.percona.com/percona-monitoring-and-management/details/develop-checks/index.html).
+This section describes APIs to deal with Percona [Advisors](https://docs.percona.com/percona-monitoring-and-management/3/advisors/advisors.html), and [Advisors checks](https://docs.percona.com/percona-monitoring-and-management/3/advisors/advisor-details.html).
 
 - The [List of Problems Detected by Advisors](getfailedchecks) API endpoint offers detailed insights into potential infrastructure issues identified by Advisors.
 - [List Percona Advisors](ref:listadvisors) lists all Advisors available for your PMM instance.

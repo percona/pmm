@@ -586,6 +586,17 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 	return "", status.Errorf(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
 }
 
+// UpdateAgent updates the Agent in the database.
+func UpdateAgent(q *reform.Querier, agent *Agent) error {
+	eAgent := EncryptAgent(*agent)
+	err := q.Update(&eAgent)
+	if err != nil {
+		return fmt.Errorf("failed to update Agent: %w", err)
+	}
+
+	return nil
+}
+
 // ExtractPmmAgentVersionFromAgent extract PMM agent version from Agent by pmm-agent-id.
 func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.Parsed {
 	pmmAgentID, err := ExtractPmmAgentID(agent)

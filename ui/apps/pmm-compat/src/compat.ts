@@ -6,7 +6,7 @@ import {
   HistoryAction,
   LocationChangeMessage,
   ColorMode,
-  isHeadlessBrowser,
+  isRenderingServer,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
@@ -24,10 +24,9 @@ import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/docu
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
 import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
 
-
 export const initialize = () => {
   // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
-  if (isHeadlessBrowser()) {
+  if (isRenderingServer()) {
     return;
   }
 

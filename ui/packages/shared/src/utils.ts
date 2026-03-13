@@ -1,18 +1,5 @@
-/**
- * True when the page is loaded by the Grafana image renderer (or similar headless/automated context).
- * Unless in development or production environment, which might happen when running tests (e.g. Playwright).
- */
-export const isHeadlessBrowser = (): boolean => {
-  if (navigator === undefined || window === undefined) {
-    return false;
-  }
-  // Common headless/automated browser signals
-  if (
-    /HeadlessChrome|Headless/i.test(navigator.userAgent) &&
-    ['development', 'production'].includes(process.env.NODE_ENV || '')
-  ) {
-    return true;
-  }
+export const isRenderingServer = (): boolean => {
+  const params = new URLSearchParams(window.location.search);
 
-  return false;
+  return params.get('render') === '1';
 };
