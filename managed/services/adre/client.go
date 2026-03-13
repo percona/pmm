@@ -153,7 +153,9 @@ func (c *Client) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, err
 	httpReq.Header.Set("Accept", "application/json")
 	c.setAuth(httpReq)
 
-	resp, err := c.httpClient.Do(httpReq)
+	client := *c.httpClient
+	client.Timeout = streamTimeout
+	resp, err := client.Do(httpReq)
 	if err != nil {
 		return nil, err
 	}

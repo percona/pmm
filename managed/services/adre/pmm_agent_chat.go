@@ -74,7 +74,7 @@ func RunPMMAgentChatStream(
 		flusher.Flush()
 	}
 
-	history := trimmed
+	history := ensureSystemFirst(trimmed, agentPrompt)
 	currentAsk := ask
 	investigationPrompt := settings.Adre.InvestigationPrompt
 	if investigationPrompt == "" {
@@ -209,6 +209,22 @@ func trimConversationHistory(history []interface{}, maxMessages int) []interface
 		return history
 	}
 	return history[len(history)-maxMessages:]
+}
+
+// ensureSystemFirst returns a copy of history that starts with a system message, so Holmes ChatRequest validation passes.
+// Holmes requires: "The first item in conversation_history must contain 'role': 'system'".
+func ensureSystemFirst(history []interface{}, systemContent string) []interface{} {
+	if len(history) > 0 {
+		if m, ok := history[0].(map[string]interface{}); ok {
+			if role, _ := m["role"].(string); role == "system" {
+				return history
+			}
+		}
+	}
+	out := make([]interface{}, 0, len(history)+1)
+	out = append(out, map[string]interface{}{"role": "system", "content": systemContent})
+	out = append(out, history...)
+	return out
 }
 
 func executePMMAgentTool(ctx context.Context, db reform.DBTX, l *logrus.Entry, tc toolCall, client *Client, investigationPrompt string) string {
