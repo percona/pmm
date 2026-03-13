@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -67,7 +68,7 @@ func NewService(db *reform.DB, registry agentsRegistry, stateUpdater agentsState
 }
 
 // ListServices returns a list of Services that support Real-Time Analytics filtered by type (gRPC handler).
-func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest) (*rtav1.ListServicesResponse, error) {
+func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesRequest) (*rtav1.ListServicesResponse, error) {
 	var serviceList []*models.Service
 
 	requestedFilterModelServiceType := services.ProtoToModelServiceType(req.GetServiceType())
@@ -111,14 +112,23 @@ func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest
 	res := &rtav1.ListServicesResponse{}
 
 	for _, svc := range serviceList {
+		select {
+		case <-ctx.Done():
+			return nil, status.Error(codes.Canceled, "request canceled")
+		default:
+		}
+
 		// Check that service has pmm-agent with version supporting RTA.
-		pmmAgent, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
+		pmmAgents, err := models.FindPMMAgentsForService(s.db.WithContext(ctx), svc.ServiceID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to find pmm-agent for service with ID %s: %w", svc.ServiceID, err)
 		}
 
-		rtaFeatureSupported, err := isPmmAgentVersionSupported(*pmmAgent[0])
-		if err != nil || !rtaFeatureSupported {
+		if len(pmmAgents) == 0 {
+			continue // skip services without pmm-agent
+		}
+
+		if !isRtaFeatureSupported(*pmmAgents[0].Version) {
 			continue // skip services with unsupported pmm-agent version
 		}
 
@@ -137,18 +147,22 @@ func (s *Service) ListServices(_ context.Context, req *rtav1.ListServicesRequest
 		}
 	}
 
+	slices.SortStableFunc(res.Mongodb, func(a, b *inventoryv1.MongoDBService) int {
+		return strings.Compare(a.ServiceName, b.ServiceName)
+	})
+
 	return res, nil
 }
 
 // ListSessions returns the list of currently running Real-Time Analytics Sessions (gRPC handler).
-func (s *Service) ListSessions(_ context.Context, req *rtav1.ListSessionsRequest) (*rtav1.ListSessionsResponse, error) {
+func (s *Service) ListSessions(ctx context.Context, req *rtav1.ListSessionsRequest) (*rtav1.ListSessionsResponse, error) {
 	response := &rtav1.ListSessionsResponse{
 		Sessions: []*rtav1.Session{},
 	}
 
 	for _, at := range models.GetRTAAgentTypes() {
 		// fetch all RTA agents of this type
-		agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{
+		agents, err := models.FindAgents(s.db.WithContext(ctx), models.AgentFilters{
 			AgentType: &at,
 			Disabled:  pointer.To(false), // fetch enabled only
 		})
@@ -162,7 +176,13 @@ func (s *Service) ListSessions(_ context.Context, req *rtav1.ListSessionsRequest
 				continue
 			}
 
-			service, err := models.FindServiceByID(s.db.Querier, *agent.ServiceID)
+			select {
+			case <-ctx.Done():
+				return nil, status.Error(codes.Canceled, "request canceled")
+			default:
+			}
+
+			service, err := models.FindServiceByID(s.db.WithContext(ctx), *agent.ServiceID)
 			if err != nil {
 				return nil, err
 			}
@@ -175,6 +195,10 @@ func (s *Service) ListSessions(_ context.Context, req *rtav1.ListSessionsRequest
 			response.Sessions = append(response.Sessions, s.convertAgentToSession(agent, service))
 		}
 	}
+
+	slices.SortStableFunc(response.Sessions, func(a, b *rtav1.Session) int {
+		return strings.Compare(a.ServiceName, b.ServiceName)
+	})
 
 	return response, nil
 }
@@ -296,12 +320,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			return err
 		}
 
-		rtaFeatureSupported, err := isPmmAgentVersionSupported(*pmmAgent)
-		if err != nil {
-			return err
-		}
-
-		if !rtaFeatureSupported {
+		if !isRtaFeatureSupported(*pmmAgent.Version) {
 			return status.Errorf(codes.FailedPrecondition,
 				"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
 		}
@@ -567,19 +586,14 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	}
 }
 
-// isPmmAgentVersionSupported checks if the pmm-agent has version supporting RTA and returns an error if not.
-func isPmmAgentVersionSupported(pmmAgent models.Agent) (bool, error) {
-	// Get agent version
-	if pmmAgent.Version == nil {
-		return false, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s has no version specified.", pmmAgent.AgentID)
-	}
-
-	pmmAgentVersion, versionParseErr := version.Parse(*pmmAgent.Version)
+// isRtaFeatureSupported checks if the passed pmm-agent's version supporting RTA.
+func isRtaFeatureSupported(pmmAgentVersion string) bool {
+	versionParsed, versionParseErr := version.Parse(pmmAgentVersion)
 	if versionParseErr != nil {
-		return false, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", pmmAgent.AgentID)
+		return false
 	}
 
-	return pmmAgentVersion.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion), nil
+	return versionParsed.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion)
 }
 
 // check interfaces.
