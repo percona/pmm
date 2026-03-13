@@ -22,6 +22,7 @@ import {
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
+import { Messages as RtaMessages } from '../messages';
 
 vi.mock('api/services');
 vi.mock('api/rta');
@@ -102,11 +103,11 @@ describe('RealtimeSelection', () => {
       expect(screen.getByText(Messages.feedback)).toBeInTheDocument();
     });
 
-    it('renders MongoDB only message', async () => {
+    it('renders disclaimer message', async () => {
       renderComponent();
 
       await waitFor(() => {
-        expect(screen.getByText(Messages.mongoOnly)).toBeInTheDocument();
+        expect(screen.getByText(RtaMessages.disclaimer)).toBeInTheDocument();
       });
     });
   });
