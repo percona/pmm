@@ -1807,8 +1807,19 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 // ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.
 func (as *AgentsService) ChangeRTAMongoDBAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeRTAMongoDBAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
 	changeParams := &models.ChangeAgentParams{
-		Enabled:      p.Enable,
-		CustomLabels: convertCustomLabels(p.CustomLabels),
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		LogLevel:      convertLogLevel(p.LogLevel),
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		MongoDBOptions: &models.ChangeMongoDBOptions{
+			TLSCertificateKey:             p.TlsCertificateKey,
+			TLSCertificateKeyFilePassword: p.TlsCertificateKeyFilePassword,
+			TLSCa:                         p.TlsCa,
+			AuthenticationMechanism:       p.AuthenticationMechanism,
+		},
 	}
 
 	// Set RTA options if provided
