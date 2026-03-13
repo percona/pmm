@@ -246,9 +246,7 @@ export const AdreChatPanel: FC = () => {
             <Typography variant="caption" color="text.secondary">
               {settings?.chatBackend === 'holmes_agent' && settings?.url
                 ? 'Chat via PMM Agent'
-                : settings?.chatBackend === 'orchestrator' && settings?.orchestratorLlmUrl
-                  ? 'Chat via Local LLM'
-                  : 'Chat via Holmes Agent'}
+                : 'Chat via Holmes Agent'}
             </Typography>
           </Stack>
           <ToggleButtonGroup
