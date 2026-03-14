@@ -29,6 +29,7 @@ import {
   useInvestigation,
   useInvestigationComments,
   useInvestigationMessages,
+  useInvestigationTimeline,
   usePostInvestigationComment,
   usePostInvestigationChat,
   usePostInvestigationRun,
@@ -40,6 +41,7 @@ import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { getInvestigationExportPdfUrl } from 'api/investigations';
 import type { InvestigationBlock } from 'api/investigations';
 import { BlockRenderer } from './components/BlockRenderer';
+import { TimelineSection } from './components/TimelineSection';
 
 const STATUS_OPTIONS = ['open', 'in_progress', 'investigating', 'resolved', 'archived'] as const;
 
@@ -92,6 +94,7 @@ const InvestigationDetailPage: FC = () => {
   const { data: inv, isLoading, isError, error } = useInvestigation(id);
   const { data: comments = [] } = useInvestigationComments(id);
   const { data: messages = [] } = useInvestigationMessages(id, { limit: 50 });
+  const { data: timelineEvents = [] } = useInvestigationTimeline(id);
   const postComment = usePostInvestigationComment(id ?? '');
   const postChat = usePostInvestigationChat(id ?? '');
   const postRun = usePostInvestigationRun(id ?? '');
@@ -175,9 +178,11 @@ const InvestigationDetailPage: FC = () => {
     );
   }
 
+  const timeFrom = inv.timeFrom ?? (inv as { time_from?: string }).time_from;
+  const timeTo = inv.timeTo ?? (inv as { time_to?: string }).time_to;
   const timeRange =
-    inv.timeFrom && inv.timeTo
-      ? `${new Date(inv.timeFrom).toLocaleString()} — ${new Date(inv.timeTo).toLocaleString()}`
+    timeFrom && timeTo
+      ? `${new Date(timeFrom).toLocaleString()} — ${new Date(timeTo).toLocaleString()}`
       : null;
 
   return (
@@ -243,9 +248,14 @@ const InvestigationDetailPage: FC = () => {
         </Stack>
       }
     >
-      {/* Short summary */}
+      {/* Report title - large bold */}
+      <Typography variant="h4" component="h1" sx={{ mb: 2, fontWeight: 600 }}>
+        {inv.title || 'Investigation'}
+      </Typography>
+
+      {/* Summary */}
       {inv.summary && (
-        <Card variant="outlined" sx={{ mb: 2 }}>
+        <Card variant="outlined" sx={{ mb: 2, bgcolor: 'action.hover' }}>
           <CardContent>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
               Summary
@@ -257,7 +267,7 @@ const InvestigationDetailPage: FC = () => {
         </Card>
       )}
 
-      {/* Metadata */}
+      {/* Metadata row */}
       <Stack direction="row" flexWrap="wrap" gap={2} sx={{ mb: 2 }}>
         {timeRange && (
           <Typography variant="body2" color="text.secondary">
@@ -269,7 +279,25 @@ const InvestigationDetailPage: FC = () => {
             Source: {inv.sourceType}
           </Typography>
         )}
+        {(inv.nodeName ?? (inv as { node_name?: string }).node_name) && (
+          <Typography variant="body2" color="text.secondary">
+            Node: {inv.nodeName ?? (inv as { node_name?: string }).node_name}
+          </Typography>
+        )}
+        {(inv.serviceName ?? (inv as { service_name?: string }).service_name) && (
+          <Typography variant="body2" color="text.secondary">
+            Service: {inv.serviceName ?? (inv as { service_name?: string }).service_name}
+          </Typography>
+        )}
+        {(inv.clusterName ?? (inv as { cluster_name?: string }).cluster_name) && (
+          <Typography variant="body2" color="text.secondary">
+            Cluster: {inv.clusterName ?? (inv as { cluster_name?: string }).cluster_name}
+          </Typography>
+        )}
       </Stack>
+
+      {/* Timeline */}
+      <TimelineSection events={timelineEvents} />
 
       {/* Report body: blocks */}
       {inv.blocks && inv.blocks.length > 0 && (

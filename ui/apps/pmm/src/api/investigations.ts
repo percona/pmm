@@ -41,6 +41,9 @@ export interface Investigation {
   resolutionSummary: string;
   sourceType: string;
   sourceRef: string;
+  nodeName?: string;
+  serviceName?: string;
+  clusterName?: string;
   blocks?: InvestigationBlock[];
 }
 
@@ -72,6 +75,9 @@ export interface CreateInvestigationBody {
   sourceType?: string;
   sourceRef?: string;
   summary?: string;
+  nodeName?: string;
+  serviceName?: string;
+  clusterName?: string;
 }
 
 export interface PatchInvestigationBody {
@@ -138,7 +144,18 @@ export const getInvestigation = async (id: string): Promise<Investigation> => {
 export const createInvestigation = async (
   body: CreateInvestigationBody
 ): Promise<Investigation> => {
-  const res = await api.post<Investigation>('/investigations', body);
+  const payload: Record<string, unknown> = {
+    title: body.title,
+    ...(body.timeFrom != null && { time_from: body.timeFrom }),
+    ...(body.timeTo != null && { time_to: body.timeTo }),
+    ...(body.sourceType != null && { source_type: body.sourceType }),
+    ...(body.sourceRef != null && { source_ref: body.sourceRef }),
+    ...(body.summary != null && { summary: body.summary }),
+    ...(body.nodeName && { node_name: body.nodeName }),
+    ...(body.serviceName && { service_name: body.serviceName }),
+    ...(body.clusterName && { cluster_name: body.clusterName }),
+  };
+  const res = await api.post<Investigation>('/investigations', payload);
   return res.data;
 };
 
@@ -205,6 +222,26 @@ export const getInvestigationMessages = async (
   const res = await api.get<InvestigationMessage[]>(
     `/investigations/${id}/messages`,
     { params: params ?? {} }
+  );
+  return res.data;
+};
+
+export interface InvestigationTimelineEvent {
+  id: string;
+  investigationId: string;
+  /** API returns camelCase (eventTime) when using axios-case-converter */
+  eventTime: string;
+  type: string;
+  title: string;
+  description: string;
+  source: string;
+}
+
+export const getInvestigationTimeline = async (
+  id: string
+): Promise<InvestigationTimelineEvent[]> => {
+  const res = await api.get<InvestigationTimelineEvent[]>(
+    `/investigations/${id}/timeline`
   );
   return res.data;
 };

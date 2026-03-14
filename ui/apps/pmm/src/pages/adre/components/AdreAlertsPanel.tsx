@@ -70,6 +70,15 @@ export const AdreAlertsPanel: FC = () => {
     });
   };
 
+  const extractFromLabels = (labels?: Record<string, string>) => {
+    if (!labels) return {};
+    return {
+      nodeName: labels.node ?? labels.instance ?? labels.nodename ?? undefined,
+      serviceName: labels.service_name ?? labels.service ?? undefined,
+      clusterName: labels.cluster ?? undefined,
+    };
+  };
+
   const handleStartInvestigation = () => {
     const items = alerts.filter((a, i) => selected.has(getAlertKey(a, i)));
     if (items.length === 0) return;
@@ -81,11 +90,16 @@ export const AdreAlertsPanel: FC = () => {
       .map((a) => a.fingerprint ?? getAlertKey(a, alerts.indexOf(a)))
       .filter(Boolean)
       .join(',');
+    const first = items[0];
+    const { nodeName, serviceName, clusterName } = extractFromLabels(first?.labels);
     createMutation.mutate(
       {
         title,
         sourceType: 'alert',
         sourceRef: sourceRef || undefined,
+        ...(nodeName && { nodeName }),
+        ...(serviceName && { serviceName }),
+        ...(clusterName && { clusterName }),
       },
       {
         onSuccess: (inv) => {

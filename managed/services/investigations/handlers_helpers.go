@@ -65,26 +65,29 @@ func getBlockAndCheckInvestigation(db *reform.DB, investigationID, blockID strin
 // Response DTOs and conversion helpers.
 
 type investigationResponse struct {
-	ID                string                 `json:"id"`
-	Title             string                 `json:"title"`
-	Status            string                 `json:"status"`
-	Severity          string                 `json:"severity"`
-	CreatedAt         string                 `json:"created_at"`
-	UpdatedAt         string                 `json:"updated_at"`
-	CreatedBy         string                 `json:"created_by"`
-	TimeFrom          string                 `json:"time_from"`
-	TimeTo            string                 `json:"time_to"`
-	Summary           string                 `json:"summary"`
-	SummaryDetailed   string                 `json:"summary_detailed"`
-	RootCauseSummary  string                 `json:"root_cause_summary"`
-	ResolutionSummary string                 `json:"resolution_summary"`
-	SourceType        string                 `json:"source_type"`
-	SourceRef         string                 `json:"source_ref"`
-	Blocks            []blockResponse        `json:"blocks,omitempty"`
+	ID                string          `json:"id"`
+	Title             string          `json:"title"`
+	Status            string          `json:"status"`
+	Severity          string          `json:"severity"`
+	CreatedAt         string          `json:"created_at"`
+	UpdatedAt         string          `json:"updated_at"`
+	CreatedBy         string          `json:"created_by"`
+	TimeFrom          string          `json:"time_from"`
+	TimeTo            string          `json:"time_to"`
+	Summary           string          `json:"summary"`
+	SummaryDetailed   string          `json:"summary_detailed"`
+	RootCauseSummary  string          `json:"root_cause_summary"`
+	ResolutionSummary string          `json:"resolution_summary"`
+	SourceType        string          `json:"source_type"`
+	SourceRef         string          `json:"source_ref"`
+	NodeName          string          `json:"node_name,omitempty"`
+	ServiceName       string          `json:"service_name,omitempty"`
+	ClusterName       string          `json:"cluster_name,omitempty"`
+	Blocks            []blockResponse `json:"blocks,omitempty"`
 }
 
 func investigationToResponse(inv *models.Investigation) investigationResponse {
-	return investigationResponse{
+	resp := investigationResponse{
 		ID:                inv.ID,
 		Title:             inv.Title,
 		Status:            inv.Status,
@@ -101,6 +104,21 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 		SourceType:        inv.SourceType,
 		SourceRef:         inv.SourceRef,
 	}
+	if len(inv.Config) > 0 {
+		var cfg map[string]string
+		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
+			if v := cfg["node_name"]; v != "" {
+				resp.NodeName = v
+			}
+			if v := cfg["service_name"]; v != "" {
+				resp.ServiceName = v
+			}
+			if v := cfg["cluster_name"]; v != "" {
+				resp.ClusterName = v
+			}
+		}
+	}
+	return resp
 }
 
 type blockResponse struct {

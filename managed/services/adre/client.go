@@ -280,7 +280,10 @@ func (c *Client) Investigate(ctx context.Context, req *InvestigateRequest) (*Inv
 	httpReq.Header.Set("Accept", "application/json")
 	c.setAuth(httpReq)
 
-	resp, err := c.httpClient.Do(httpReq)
+	// Investigation can take several minutes; use same timeout as stream to avoid 504.
+	httpClient := *c.httpClient
+	httpClient.Timeout = streamTimeout
+	resp, err := httpClient.Do(httpReq)
 	if err != nil {
 		return nil, err
 	}

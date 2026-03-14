@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/percona/pmm/managed/models"
@@ -231,37 +232,48 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 	}
 	switch runBackend {
 	case "holmesgpt":
-		req := &adre.InvestigateRequest{
-			Source:      "pmm-investigation",
-			Title:       inv.Title,
-			Description: "Generate the full investigation report based on the context below.",
-			Context: map[string]interface{}{
-				"investigation_id": id,
-				"time_from":       inv.TimeFrom.Format(time.RFC3339),
-				"time_to":         inv.TimeTo.Format(time.RFC3339),
-				"summary":         inv.Summary,
-				"context_text":    ctxStr,
-			},
-			AdditionalSystemPrompt: settings.Adre.InvestigationPrompt,
-		}
-		if req.AdditionalSystemPrompt == "" {
-			req.AdditionalSystemPrompt = adre.DefaultInvestigationPrompt
+		invPrompt := settings.Adre.InvestigationPrompt
+		if invPrompt == "" {
+			invPrompt = adre.DefaultInvestigationPrompt
 		}
 		client := adre.NewClient(adreURL)
-		resp, err := client.Investigate(ctx, req)
-		if err != nil {
+		// Prefer /api/investigate when available; many HolmesGPT instances only have /api/chat.
+		invReq := &adre.InvestigateRequest{
+			Source:                 "pmm-investigation",
+			Title:                  inv.Title,
+			Description:            "Generate the full investigation report based on the context below.",
+			Subject:                map[string]interface{}{}, // required by HolmesGPT InvestigateRequest
+			Context:                map[string]interface{}{"investigation_id": id, "time_from": inv.TimeFrom.Format(time.RFC3339), "time_to": inv.TimeTo.Format(time.RFC3339), "summary": inv.Summary, "context_text": ctxStr},
+			AdditionalSystemPrompt: invPrompt,
+		}
+		resp, err := client.Investigate(ctx, invReq)
+		if err != nil && (strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found")) {
+			// Fallback: use /api/chat (supported by all HolmesGPT deployments).
+			ask := "Generate the full investigation report for this incident.\n\nContext:\n" + ctxStr
+			chatReq := &adre.ChatRequest{
+				Ask:                    ask,
+				ConversationHistory:    nil,
+				AdditionalSystemPrompt: invPrompt + "\n\nCurrent investigation context:\n" + ctxStr,
+				Stream:                 false,
+			}
+			var chatResp *adre.ChatResponse
+			chatResp, err = client.Chat(ctx, chatReq)
+			if err != nil {
+				h.l.Errorf("Holmes Chat (investigation fallback): %v", err)
+				writeJSONError(w, http.StatusBadGateway, "Run failed: "+err.Error())
+				return
+			}
+			lastContent = chatResp.Analysis
+		} else if err != nil {
 			h.l.Errorf("Holmes Investigate: %v", err)
 			writeJSONError(w, http.StatusBadGateway, "Run failed: "+err.Error())
 			return
-		}
-		lastContent = resp.Analysis
-		if len(resp.Sections) > 0 {
-			for k, v := range resp.Sections {
-				lastContent += "\n\n## " + k + "\n" + v
-			}
+		} else {
+			// Use only Analysis; it already contains the full report. Appending Sections would duplicate content.
+			lastContent = resp.Analysis
 		}
 	case "holmes_agent":
-		ask := "Generate the full investigation report for this incident. Context:\n" + ctxStr
+		ask := "Run the full investigation now. Use ask_holmes to gather logs, metrics, and alerts for this incident, then call generate_investigation_report with the gathered context. Do not ask for confirmation—execute the investigation immediately.\n\nContext:\n" + ctxStr
 		content, err := adre.RunPMMAgentChatSync(ctx, nil, h.l, settings, ask, nil, investigationRunTimeout)
 		if err != nil {
 			h.l.Errorf("PMM Agent run: %v", err)
@@ -272,6 +284,66 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 	default:
 		writeJSONError(w, http.StatusBadRequest, "Chat backend must be PMM Agent or Holmes Agent.")
 		return
+	}
+
+	// Pass 2: format raw report into structured JSON; update investigation and create blocks on success
+	client := adre.NewClient(adreURL)
+	formattedJSON, err := FormatInvestigationReport(ctx, client, lastContent)
+	if err == nil {
+		report, parseErr := ParseFormattedReport(formattedJSON)
+		if parseErr == nil {
+			inv.Summary = report.Summary
+			inv.SummaryDetailed = report.SummaryDetailed
+			inv.RootCauseSummary = report.RootCauseSummary
+			inv.ResolutionSummary = report.ResolutionSummary
+			if err := models.UpdateInvestigation(h.db, inv); err != nil {
+				h.l.Warnf("UpdateInvestigation after format: %v", err)
+			}
+			for pos, sec := range report.Sections {
+				blockType := sec.Type
+				if blockType != BlockTypeMarkdown && blockType != BlockTypeFinding && blockType != BlockTypeRemediationSteps {
+					blockType = BlockTypeMarkdown
+				}
+				dataJSON := buildBlockDataJSON(blockType, sec.Content)
+				block := &models.InvestigationBlock{
+					ID:              models.NewInvestigationID(),
+					InvestigationID: id,
+					Type:            blockType,
+					Title:           sec.Title,
+					Position:        pos,
+					DataJSON:        dataJSON,
+				}
+				if err := models.CreateInvestigationBlock(h.db, block); err != nil {
+					h.l.Warnf("CreateInvestigationBlock: %v", err)
+				}
+			}
+			for _, te := range report.TimelineEvents {
+				if te.EventTime == "" || te.Title == "" {
+					continue
+				}
+				eventTime, err := time.Parse(time.RFC3339, te.EventTime)
+				if err != nil {
+					h.l.Warnf("Parse timeline event_time %q: %v", te.EventTime, err)
+					continue
+				}
+				event := &models.InvestigationTimelineEvent{
+					ID:              models.NewInvestigationID(),
+					InvestigationID: id,
+					EventTime:       eventTime,
+					Type:            te.Type,
+					Title:           te.Title,
+					Description:     te.Description,
+					Source:          "format",
+				}
+				if err := models.CreateInvestigationTimelineEvent(h.db, event); err != nil {
+					h.l.Warnf("CreateInvestigationTimelineEvent: %v", err)
+				}
+			}
+		} else {
+			h.l.Warnf("ParseFormattedReport: %v", parseErr)
+		}
+	} else {
+		h.l.Warnf("FormatInvestigationReport: %v (fallback: raw report only)", err)
 	}
 
 	assistantMsg := &models.InvestigationMessage{

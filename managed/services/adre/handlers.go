@@ -540,11 +540,15 @@ func (h *Handlers) PostInvestigate(w http.ResponseWriter, r *http.Request) {
 	if investigationPrompt == "" {
 		investigationPrompt = DefaultInvestigationPrompt
 	}
+	subject := body.Subject
+	if subject == nil {
+		subject = map[string]interface{}{} // HolmesGPT InvestigateRequest requires subject
+	}
 	req := &InvestigateRequest{
 		Source:                 body.Source,
 		Title:                  body.Title,
 		Description:            body.Description,
-		Subject:                body.Subject,
+		Subject:                subject,
 		Context:                body.Context,
 		Model:                  body.Model,
 		AdditionalSystemPrompt: investigationPrompt,

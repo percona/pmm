@@ -6,6 +6,7 @@ import {
   patchInvestigation,
   getInvestigationComments,
   getInvestigationMessages,
+  getInvestigationTimeline,
   postInvestigationComment,
   postInvestigationChat,
   postInvestigationRun,
@@ -26,6 +27,7 @@ export const INVESTIGATIONS_KEYS = {
     ['investigations', id, 'comments', blockId] as const,
   messages: (id: string, params?: { limit?: number; offset?: number }) =>
     ['investigations', id, 'messages', params] as const,
+  timeline: (id: string) => ['investigations', id, 'timeline'] as const,
 };
 
 export const useInvestigationsList = (params?: {
@@ -98,6 +100,16 @@ export const useInvestigationMessages = (
     enabled: (options?.enabled ?? true) && !!id,
   });
 
+export const useInvestigationTimeline = (
+  id: string | undefined,
+  options?: { enabled?: boolean }
+) =>
+  useQuery({
+    queryKey: INVESTIGATIONS_KEYS.timeline(id ?? ''),
+    queryFn: () => getInvestigationTimeline(id!),
+    enabled: (options?.enabled ?? true) && !!id,
+  });
+
 export const usePostInvestigationComment = (investigationId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -137,6 +149,9 @@ export const usePostInvestigationRun = (investigationId: string) => {
       });
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.messages(investigationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.timeline(investigationId),
       });
     },
   });
