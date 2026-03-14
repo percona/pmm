@@ -126,6 +126,15 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		}
 	}
 
+	// HolmesGPT requires the first item in conversation_history to be role "system" when history is non-empty.
+	historyForHolmes := history
+	if len(historyForHolmes) > 0 {
+		withSystem := make([]interface{}, 0, len(historyForHolmes)+1)
+		withSystem = append(withSystem, map[string]interface{}{"role": "system", "content": systemWithContext})
+		withSystem = append(withSystem, historyForHolmes...)
+		historyForHolmes = withSystem
+	}
+
 	var lastContent string
 	cb := settings.Adre.ChatBackend
 	if cb == "" {
@@ -135,7 +144,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	case "holmesgpt":
 		req := &adre.ChatRequest{
 			Ask:                    body.Message,
-			ConversationHistory:    history,
+			ConversationHistory:    historyForHolmes,
 			AdditionalSystemPrompt: systemWithContext,
 			Stream:                 false,
 		}
