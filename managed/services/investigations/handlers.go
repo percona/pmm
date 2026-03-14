@@ -67,6 +67,8 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				h.GetInvestigation(w, r, id)
 			case http.MethodPatch:
 				h.PatchInvestigation(w, r, id)
+			case http.MethodDelete:
+				h.DeleteInvestigation(w, r, id)
 			default:
 				http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 			}
@@ -386,6 +388,15 @@ func (h *Handlers) PatchInvestigation(w http.ResponseWriter, r *http.Request, id
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(investigationToResponse(inv))
+}
+
+func (h *Handlers) DeleteInvestigation(w http.ResponseWriter, r *http.Request, id string) {
+	if err := models.DeleteInvestigation(h.db, id); err != nil {
+		h.l.Errorf("DeleteInvestigation: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to delete investigation")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handlers) GetInvestigationBlocks(w http.ResponseWriter, r *http.Request, id string) {

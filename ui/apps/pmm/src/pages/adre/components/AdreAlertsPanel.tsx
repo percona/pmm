@@ -72,10 +72,21 @@ export const AdreAlertsPanel: FC = () => {
 
   const extractFromLabels = (labels?: Record<string, string>) => {
     if (!labels) return {};
+    const instanceRaw = labels.instance;
+    const nodeFromInstance =
+      instanceRaw != null && instanceRaw.includes(':')
+        ? instanceRaw.split(':')[0]
+        : instanceRaw;
     return {
-      nodeName: labels.node ?? labels.instance ?? labels.nodename ?? undefined,
-      serviceName: labels.service_name ?? labels.service ?? undefined,
-      clusterName: labels.cluster ?? undefined,
+      nodeName:
+        labels.node ??
+        labels.node_name ??
+        labels.nodename ??
+        nodeFromInstance ??
+        undefined,
+      serviceName:
+        labels.service_name ?? labels.service ?? labels.job ?? undefined,
+      clusterName: labels.cluster ?? labels.cluster_name ?? undefined,
     };
   };
 

@@ -248,11 +248,6 @@ const InvestigationDetailPage: FC = () => {
         </Stack>
       }
     >
-      {/* Report title - large bold */}
-      <Typography variant="h4" component="h1" sx={{ mb: 2, fontWeight: 600 }}>
-        {inv.title || 'Investigation'}
-      </Typography>
-
       {/* Summary */}
       {inv.summary && (
         <Card variant="outlined" sx={{ mb: 2, bgcolor: 'action.hover' }}>

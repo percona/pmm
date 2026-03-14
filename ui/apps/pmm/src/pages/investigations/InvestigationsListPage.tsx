@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Chip,
   CircularProgress,
   Stack,
@@ -20,7 +21,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { FC, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
-import { useInvestigationsList, useCreateInvestigation } from 'hooks/api/useInvestigations';
+import { useInvestigationsList, useCreateInvestigation, useDeleteInvestigation } from 'hooks/api/useInvestigations';
 import { CreateInvestigationModal } from './CreateInvestigationModal';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import type { CreateInvestigationBody, Investigation, InvestigationListItem } from 'api/investigations';
@@ -34,8 +35,9 @@ const InvestigationsListPage: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [searchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false);
-  const [orderBy, setOrderBy] = useState<SortColumn>('updated_at');
+  const [orderBy, setOrderBy] = useState<SortColumn>('created_at');
   const [order, setOrder] = useState<SortOrder>('desc');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { data: list, isLoading, isError, error } = useInvestigationsList({
     orderBy,
     order,
@@ -59,6 +61,16 @@ const InvestigationsListPage: FC = () => {
       )
     ) : null;
   const createMutation = useCreateInvestigation();
+  const deleteMutation = useDeleteInvestigation();
+
+  const handleToggleRow = (id: string) => {
+    setSelectedIds((prev: Set<string>) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const initialFromParams = useMemo(() => {
     const sourceType = searchParams.get('source_type') ?? undefined;
@@ -113,11 +125,42 @@ const InvestigationsListPage: FC = () => {
 
   const investigations = list ?? [];
 
+  const handleSelectAll = () => {
+    if (selectedIds.size === investigations.length && investigations.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(investigations.map((inv: InvestigationListItem) => inv.id)));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+    const count = ids.length;
+    try {
+      await Promise.all(ids.map((id) => deleteMutation.mutateAsync(id)));
+      setSelectedIds(new Set());
+      enqueueSnackbar(`Deleted ${count} investigation${count === 1 ? '' : 's'}`, { variant: 'success' });
+    } catch (err) {
+      enqueueSnackbar(err instanceof Error ? err.message : 'Failed to delete some investigations', { variant: 'error' });
+    }
+  };
+
   return (
     <Page
       title="Investigations"
       topBar={
-        <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
+        <Stack direction="row" justifyContent="flex-end" alignItems="center" gap={1} sx={{ mb: 1 }}>
+          {selectedIds.size > 0 && (
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={handleDeleteSelected}
+              disabled={deleteMutation.isPending}
+            >
+              Delete selected ({selectedIds.size})
+            </Button>
+          )}
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -139,6 +182,14 @@ const InvestigationsListPage: FC = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        indeterminate={selectedIds.size > 0 && selectedIds.size < investigations.length}
+                        checked={investigations.length > 0 && selectedIds.size === investigations.length}
+                        onChange={handleSelectAll}
+                        aria-label="Select all"
+                      />
+                    </TableCell>
                     <TableCell
                       onClick={() => handleSort('title')}
                       sx={{ cursor: 'pointer', userSelect: 'none' }}
@@ -169,6 +220,13 @@ const InvestigationsListPage: FC = () => {
                 <TableBody>
                   {investigations.map((inv: InvestigationListItem) => (
                     <TableRow key={inv.id} hover>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedIds.has(inv.id)}
+                          onChange={() => handleToggleRow(inv.id)}
+                          aria-label={`Select ${inv.title || inv.id}`}
+                        />
+                      </TableCell>
                       <TableCell>{inv.title || inv.id}</TableCell>
                       <TableCell>
                         <Chip

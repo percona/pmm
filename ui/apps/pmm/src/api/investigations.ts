@@ -167,6 +167,10 @@ export const patchInvestigation = async (
   return res.data;
 };
 
+export const deleteInvestigation = async (id: string): Promise<void> => {
+  await api.delete(`/investigations/${id}`);
+};
+
 export const getInvestigationBlocks = async (
   id: string
 ): Promise<InvestigationBlock[]> => {

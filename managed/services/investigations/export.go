@@ -47,7 +47,13 @@ func (h *Handlers) GetInvestigationExportPDF(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	sort.Slice(blocks, func(i, j int) bool { return blocks[i].Position < blocks[j].Position })
-	htmlBytes, err := buildExportHTML(inv, blocks)
+	timelineEvents, err := models.GetInvestigationTimelineEvents(h.db, id)
+	if err != nil {
+		h.l.Errorf("GetInvestigationTimelineEvents: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to load timeline")
+		return
+	}
+	htmlBytes, err := buildExportHTML(inv, blocks, timelineEvents)
 	if err != nil {
 		h.l.Errorf("buildExportHTML: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to build export")
@@ -58,27 +64,90 @@ func (h *Handlers) GetInvestigationExportPDF(w http.ResponseWriter, r *http.Requ
 	_, _ = w.Write(htmlBytes)
 }
 
-func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBlock) ([]byte, error) {
+func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBlock, timelineEvents []*models.InvestigationTimelineEvent) ([]byte, error) {
 	var b bytes.Buffer
+	// CSS: block-type borders (finding=blue, remediation_steps=green), meta, timeline
 	b.WriteString("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>")
 	b.WriteString(html.EscapeString(inv.Title))
-	b.WriteString("</title><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;padding:0 1em}h1{font-size:1.5em}.meta{color:#666;font-size:0.9em;margin:0.5em 0}.block{margin:1.5em 0;padding:1em;border:1px solid #ddd;border-radius:4px}.block h3{font-size:1em;margin:0 0 0.5em}.block pre{white-space:pre-wrap;background:#f5f5f5;padding:0.5em;overflow:auto}@media print{.block{break-inside:avoid}}</style></head><body>")
+	b.WriteString("</title><style>")
+	b.WriteString("body{font-family:sans-serif;max-width:800px;margin:2em auto;padding:0 1em}")
+	b.WriteString("h1{font-size:1.5em}")
+	b.WriteString(".meta{color:#666;font-size:0.9em;margin:0.5em 0}")
+	b.WriteString(".block{margin:1.5em 0;padding:1em;border:1px solid #ddd;border-radius:4px;border-left-width:4px}")
+	b.WriteString(".block-markdown{border-left-color:#ddd}")
+	b.WriteString(".block-finding{border-left-color:#1976d2}")
+	b.WriteString(".block-remediation_steps{border-left-color:#2e7d32}")
+	b.WriteString(".block-query_result{border-left-color:#ddd}")
+	b.WriteString(".block h3{font-size:1em;margin:0 0 0.5em}")
+	b.WriteString(".block pre{white-space:pre-wrap;background:#f5f5f5;padding:0.5em;overflow:auto}")
+	b.WriteString(".timeline{margin:1.5em 0}")
+	b.WriteString(".timeline-event{margin:0.5em 0;font-size:0.95em}")
+	b.WriteString("@media print{.block{break-inside:avoid}}")
+	b.WriteString("</style></head><body>")
 	b.WriteString("<h1>")
 	b.WriteString(html.EscapeString(inv.Title))
 	b.WriteString("</h1>")
+
+	// Metadata row: Time range, Source, Node, Service, Cluster
+	nodeName, serviceName, clusterName := "", "", ""
+	if len(inv.Config) > 0 {
+		var cfg map[string]string
+		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
+			nodeName = cfg["node_name"]
+			serviceName = cfg["service_name"]
+			clusterName = cfg["cluster_name"]
+		}
+	}
+	timeRange := formatTime(inv.TimeFrom) + " — " + formatTime(inv.TimeTo)
+	source := inv.SourceType
+	if source == "" {
+		source = "—"
+	}
 	b.WriteString("<div class=\"meta\">")
-	b.WriteString("Status: " + html.EscapeString(inv.Status) + " &middot; ")
-	b.WriteString("Severity: " + html.EscapeString(inv.Severity) + " &middot; ")
-	b.WriteString("Created: " + html.EscapeString(formatTime(inv.CreatedAt)))
+	b.WriteString("Time range: " + html.EscapeString(timeRange) + " &middot; ")
+	b.WriteString("Source: " + html.EscapeString(source))
+	if nodeName != "" {
+		b.WriteString(" &middot; Node: " + html.EscapeString(nodeName))
+	}
+	if serviceName != "" {
+		b.WriteString(" &middot; Service: " + html.EscapeString(serviceName))
+	}
+	if clusterName != "" {
+		b.WriteString(" &middot; Cluster: " + html.EscapeString(clusterName))
+	}
+	b.WriteString(" &middot; Status: " + html.EscapeString(inv.Status) + " &middot; Created: " + html.EscapeString(formatTime(inv.CreatedAt)))
+	b.WriteString("</div>")
+
+	// Summary
 	if inv.Summary != "" {
-		b.WriteString("</div><p>")
+		b.WriteString("<p>")
 		b.WriteString(html.EscapeString(inv.Summary))
 		b.WriteString("</p>")
-	} else {
-		b.WriteString("</div>")
 	}
+
+	// Timeline section
+	if len(timelineEvents) > 0 {
+		b.WriteString("<h2>Timeline</h2><ol class=\"timeline\">")
+		for _, te := range timelineEvents {
+			dtStr := te.EventTime.Format("2006-01-02 15:04") + " UTC"
+			label := dtStr
+			if te.Title != "" {
+				label += " - " + te.Title
+			}
+			if te.Description != "" {
+				label += " - " + te.Description
+			}
+			b.WriteString("<li class=\"timeline-event\">")
+			b.WriteString(html.EscapeString(label))
+			b.WriteString("</li>")
+		}
+		b.WriteString("</ol>")
+	}
+
+	// Report blocks
 	for _, blk := range blocks {
-		b.WriteString("<div class=\"block\">")
+		blockClass := "block block-" + blk.Type
+		b.WriteString("<div class=\"" + html.EscapeString(blockClass) + "\">")
 		b.WriteString("<h3>")
 		b.WriteString(html.EscapeString(blk.Type))
 		if blk.Title != "" {
@@ -93,12 +162,46 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 		b.WriteString(content)
 		b.WriteString("</div>")
 	}
+
+	// Root cause / Resolution
+	if inv.RootCauseSummary != "" {
+		b.WriteString("<h2>Root cause</h2><p>")
+		b.WriteString(html.EscapeString(inv.RootCauseSummary))
+		b.WriteString("</p>")
+	}
+	if inv.ResolutionSummary != "" {
+		b.WriteString("<h2>Resolution</h2><p>")
+		b.WriteString(html.EscapeString(inv.ResolutionSummary))
+		b.WriteString("</p>")
+	}
+
 	b.WriteString("<script>window.onload=function(){window.print()}</script></body></html>")
 	return b.Bytes(), nil
 }
 
 func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 	switch blk.Type {
+	case "remediation_steps":
+		var data map[string]interface{}
+		if len(blk.DataJSON) > 0 {
+			if err := json.Unmarshal(blk.DataJSON, &data); err != nil {
+				return "", errors.Wrap(err, "data_json")
+			}
+		}
+		steps, _ := data["steps"].([]interface{})
+		if len(steps) == 0 {
+			return "<p>(no steps)</p>", nil
+		}
+		var b bytes.Buffer
+		b.WriteString("<ul>")
+		for _, s := range steps {
+			text := fmt.Sprint(s)
+			b.WriteString("<li>")
+			b.WriteString(html.EscapeString(text))
+			b.WriteString("</li>")
+		}
+		b.WriteString("</ul>")
+		return b.String(), nil
 	case "summary", "markdown", "finding":
 		var data map[string]interface{}
 		if len(blk.DataJSON) > 0 {

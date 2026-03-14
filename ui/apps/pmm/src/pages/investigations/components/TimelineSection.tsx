@@ -10,12 +10,12 @@ export const TimelineSection: FC<{ events: InvestigationTimelineEvent[] }> = ({
   const formatEventTime = (eventTime: string) => {
     try {
       const d = new Date(eventTime);
-      return d.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'UTC',
-        hour12: false,
-      });
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const h = String(d.getUTCHours()).padStart(2, '0');
+      const min = String(d.getUTCMinutes()).padStart(2, '0');
+      return `${y}-${m}-${day} ${h}:${min} UTC`;
     } catch {
       return '';
     }

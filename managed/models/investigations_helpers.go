@@ -140,6 +140,12 @@ func DeleteInvestigationBlock(q *reform.DB, id string) error {
 	return q.Delete(&b)
 }
 
+// DeleteInvestigationBlocksForInvestigation removes all blocks for an investigation (e.g. before replacing with a new report).
+func DeleteInvestigationBlocksForInvestigation(q *reform.DB, investigationID string) error {
+	_, err := q.DeleteFrom(InvestigationBlockTable, " WHERE investigation_id = $1", investigationID)
+	return err
+}
+
 // CreateInvestigationMessage inserts a message.
 func CreateInvestigationMessage(q *reform.DB, m *InvestigationMessage) error {
 	if m.CreatedAt.IsZero() {
@@ -213,6 +219,12 @@ func GetInvestigationTimelineEvents(q *reform.DB, investigationID string) ([]*In
 		result[i] = r.(*InvestigationTimelineEvent)
 	}
 	return result, nil
+}
+
+// DeleteInvestigationTimelineEventsForInvestigation removes all timeline events for an investigation (e.g. before replacing with a new report).
+func DeleteInvestigationTimelineEventsForInvestigation(q *reform.DB, investigationID string) error {
+	_, err := q.DeleteFrom(InvestigationTimelineEventTable, " WHERE investigation_id = $1", investigationID)
+	return err
 }
 
 // CreateInvestigationArtifact inserts an artifact.

@@ -308,6 +308,12 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 			if err := models.UpdateInvestigation(h.db, inv); err != nil {
 				h.l.Warnf("UpdateInvestigation after format: %v", err)
 			}
+			if err := models.DeleteInvestigationBlocksForInvestigation(h.db, id); err != nil {
+				h.l.Warnf("DeleteInvestigationBlocksForInvestigation: %v", err)
+			}
+			if err := models.DeleteInvestigationTimelineEventsForInvestigation(h.db, id); err != nil {
+				h.l.Warnf("DeleteInvestigationTimelineEventsForInvestigation: %v", err)
+			}
 			for pos, sec := range report.Sections {
 				blockType := sec.Type
 				if blockType != BlockTypeMarkdown && blockType != BlockTypeFinding && blockType != BlockTypeRemediationSteps {

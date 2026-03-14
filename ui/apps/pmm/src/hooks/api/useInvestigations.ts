@@ -4,6 +4,7 @@ import {
   getInvestigation,
   createInvestigation,
   patchInvestigation,
+  deleteInvestigation,
   getInvestigationComments,
   getInvestigationMessages,
   getInvestigationTimeline,
@@ -75,6 +76,15 @@ export const usePatchInvestigation = (id: string) => {
       queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.detail(id) });
       queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.all });
     },
+  });
+};
+
+export const useDeleteInvestigation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteInvestigation(id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.all }),
   });
 };
 
