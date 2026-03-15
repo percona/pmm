@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { Modal } from './Modal';
-import { Typography } from '@mui/material';
+import Typography from '@mui/material/Typography';
 
 describe('Modal', () => {
   it('closes modal via button', () => {

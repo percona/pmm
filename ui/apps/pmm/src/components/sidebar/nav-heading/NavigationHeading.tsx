@@ -1,10 +1,10 @@
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import Stack from '@mui/material/Stack';
 import { FC, memo } from 'react';
 import { NavigationHeadingProps } from './NavigationHeading.types';
 import { Icon } from 'components/icon';
 import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
 import { logoMixin } from '../drawer/Drawer.styles';
 
 const NavigationHeading: FC<NavigationHeadingProps> = memo(
