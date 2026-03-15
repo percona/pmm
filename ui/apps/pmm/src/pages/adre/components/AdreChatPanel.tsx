@@ -1,22 +1,17 @@
 import {
   Box,
-  Button,
-  Card,
-  CardContent,
   Collapse,
-  FormControl,
   IconButton,
-  InputLabel,
   MenuItem,
   Select,
   Stack,
-  ToggleButton,
-  ToggleButtonGroup,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import Send from '@mui/icons-material/Send';
 import { FC, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -30,11 +25,25 @@ const STORAGE_KEY = 'pmm-adre-chat';
 const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
 const CHAT_HISTORY_MAX_MESSAGES = 300;
 
+export type ProgressStep = { id: string; toolName: string; description?: string; status: 'running' | 'done' };
+
+function isValidProgressStep(s: unknown): s is ProgressStep {
+  return (
+    typeof s === 'object' &&
+    s != null &&
+    typeof (s as ProgressStep).id === 'string' &&
+    typeof (s as ProgressStep).toolName === 'string' &&
+    ((s as ProgressStep).description === undefined || typeof (s as ProgressStep).description === 'string') &&
+    ((s as ProgressStep).status === 'running' || (s as ProgressStep).status === 'done')
+  );
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: number;
   reasoning?: string;
+  progressSteps?: ProgressStep[];
 }
 
 function loadFromStorage(): { response: string; reasoning: string; history: ChatMessage[] } {
@@ -47,12 +56,23 @@ function loadFromStorage(): { response: string; reasoning: string; history: Chat
         history?: unknown[];
       };
       const rawHistory = Array.isArray(parsed.history)
-        ? (parsed.history as ChatMessage[]).filter(
-            (m): m is ChatMessage =>
-              m && typeof m === 'object' && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string'
-          )
+        ? (parsed.history as unknown[]).filter((m): m is ChatMessage => {
+            if (!m || typeof m !== 'object' || typeof (m as ChatMessage).content !== 'string') return false;
+            const role = (m as ChatMessage).role;
+            if (role !== 'user' && role !== 'assistant') return false;
+            const steps = (m as ChatMessage).progressSteps;
+            if (steps !== undefined && (!Array.isArray(steps) || !steps.every(isValidProgressStep))) return false;
+            return true;
+          })
         : [];
-      const history = getWindowedHistory(rawHistory);
+      const normalizedHistory = rawHistory.map((m) => {
+        if (m.progressSteps?.length) {
+          const steps = m.progressSteps.filter(isValidProgressStep);
+          return { ...m, progressSteps: steps.length > 0 ? steps : undefined };
+        }
+        return m;
+      });
+      const history = getWindowedHistory(normalizedHistory);
       return {
         response: typeof parsed.response === 'string' ? parsed.response : '',
         reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
@@ -77,17 +97,22 @@ function saveToStorage(response: string, reasoning: string, history: ChatMessage
 function persistAssistantToHistory(
   userContent: string,
   assistantContent: string,
-  assistantReasoning: string
+  assistantReasoning: string,
+  progressSteps: ProgressStep[] = []
 ): void {
   const { history } = loadFromStorage();
   const last = history[history.length - 1];
   const hasUserMsg = last?.role === 'user' && last?.content === userContent;
+  const assistantMsg: ChatMessage = {
+    role: 'assistant',
+    content: assistantContent,
+    timestamp: Date.now(),
+    reasoning: assistantReasoning || undefined,
+    ...(progressSteps.length > 0 && { progressSteps }),
+  };
   const toAppend: ChatMessage[] = hasUserMsg
-    ? [{ role: 'assistant', content: assistantContent, timestamp: Date.now(), reasoning: assistantReasoning || undefined }]
-    : [
-        { role: 'user', content: userContent, timestamp: Date.now() },
-        { role: 'assistant', content: assistantContent, timestamp: Date.now(), reasoning: assistantReasoning || undefined },
-      ];
+    ? [assistantMsg]
+    : [{ role: 'user', content: userContent, timestamp: Date.now() }, assistantMsg];
   const updatedHistory = [...history, ...toAppend];
   const windowed = getWindowedHistory(updatedHistory);
   saveToStorage('', '', windowed);
@@ -126,9 +151,11 @@ export const AdreChatPanel: FC = () => {
   const [progressSteps, setProgressSteps] = useState<Array<{ id: string; toolName: string; description?: string; status: 'running' | 'done' }>>([]);
   const [history, setHistory] = useState<ChatMessage[]>(() => loadFromStorage().history);
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
+  const [expandedProgressIdx, setExpandedProgressIdx] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const streamStartTimeRef = useRef<number | null>(null);
+  const progressStepsRef = useRef<ProgressStep[]>([]);
 
   const defaultModeSyncedRef = useRef(false);
   useEffect(() => {
@@ -164,6 +191,7 @@ export const AdreChatPanel: FC = () => {
     setResponse('');
     setReasoning('');
     setProgressSteps([]);
+    progressStepsRef.current = [];
     streamStartTimeRef.current = Date.now();
     setAsk('');
     const userTimestamp = Date.now();
@@ -185,11 +213,13 @@ export const AdreChatPanel: FC = () => {
       let fullReasoning = '';
       const handleProgress = (event: AdreStreamProgressEvent) => {
         if (event.type === 'start_tool') {
-          setProgressSteps((prev) => [...prev, { id: event.id, toolName: event.toolName, description: event.description, status: 'running' }]);
+          const next = [...progressStepsRef.current, { id: event.id, toolName: event.toolName, description: event.description, status: 'running' as const }];
+          progressStepsRef.current = next;
+          setProgressSteps(next);
         } else {
-          setProgressSteps((prev) =>
-            prev.map((s) => (s.id === event.id ? { ...s, status: 'done' as const } : s))
-          );
+          const next = progressStepsRef.current.map((s: ProgressStep) => (s.id === event.id ? { ...s, status: 'done' as const } : s));
+          progressStepsRef.current = next;
+          setProgressSteps(next);
         }
       };
       await adreChatStream(req, {
@@ -201,7 +231,8 @@ export const AdreChatPanel: FC = () => {
         },
         onProgress: handleProgress,
       });
-      persistAssistantToHistory(userAsk, fullResponse, fullReasoning);
+      const finalProgressSteps = progressStepsRef.current;
+      persistAssistantToHistory(userAsk, fullResponse, fullReasoning, finalProgressSteps);
       setHistory((prev: ChatMessage[]) => [
         ...prev,
         {
@@ -209,6 +240,7 @@ export const AdreChatPanel: FC = () => {
           content: fullResponse,
           timestamp: Date.now(),
           reasoning: fullReasoning || undefined,
+          ...(finalProgressSteps.length > 0 && { progressSteps: finalProgressSteps }),
         },
       ]);
       setResponse('');
@@ -218,6 +250,7 @@ export const AdreChatPanel: FC = () => {
     } finally {
       setLoading(false);
       setProgressSteps([]);
+      progressStepsRef.current = [];
       streamStartTimeRef.current = null;
     }
   }, [ask, history, model, mode, enqueueSnackbar]);
@@ -238,32 +271,77 @@ export const AdreChatPanel: FC = () => {
   ];
 
   return (
-    <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
-          <Stack>
-            <Typography variant="h6">Chat</Typography>
-            <Typography variant="caption" color="text.secondary">
-              {settings?.chatBackend === 'holmes_agent' && settings?.url
-                ? 'Chat via PMM Agent'
-                : 'Chat via Holmes Agent'}
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mb: 1, px: 0 }}>
+        <Stack direction="row" alignItems="center" gap={2}>
+          <Stack direction="row" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Typography
+              component="button"
+              variant="body2"
+              onClick={() => setMode('chat')}
+              sx={{
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                p: 1,
+                pb: 1.5,
+                color: mode === 'chat' ? 'text.primary' : 'text.secondary',
+                borderBottom: mode === 'chat' ? 2 : 0,
+                borderColor: 'primary.main',
+                mb: -0.5,
+                borderRadius: 0,
+              }}
+            >
+              Chat
+            </Typography>
+            <Typography
+              component="button"
+              variant="body2"
+              onClick={() => setMode('investigation')}
+              sx={{
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                p: 1,
+                pb: 1.5,
+                color: mode === 'investigation' ? 'text.primary' : 'text.secondary',
+                borderBottom: mode === 'investigation' ? 2 : 0,
+                borderColor: 'primary.main',
+                mb: -0.5,
+                borderRadius: 0,
+              }}
+            >
+              Investigation
             </Typography>
           </Stack>
-          <ToggleButtonGroup
-            value={mode}
-            exclusive
-            onChange={(_, v) => v != null && setMode(v)}
-            size="small"
-            sx={{ '& .MuiToggleButton-root': { py: 0.25, px: 1 } }}
+          <Tooltip
+            title={
+              settings?.chatBackend === 'holmes_agent' && settings?.url
+                ? 'Chat via PMM Agent'
+                : 'Chat via Holmes Agent'
+            }
           >
-            <ToggleButton value="chat" aria-label="Chat (fast)">
-              Chat (fast)
-            </ToggleButton>
-            <ToggleButton value="investigation" aria-label="Investigation">
-              Investigation
-            </ToggleButton>
-          </ToggleButtonGroup>
+            <Typography variant="caption" color="text.secondary" sx={{ cursor: 'help' }}>
+              {settings?.chatBackend === 'holmes_agent' && settings?.url ? 'PMM Agent' : 'Holmes Agent'}
+            </Typography>
+          </Tooltip>
         </Stack>
+        <Select
+          value={model}
+          onChange={(e: { target: { value: string } }) => setModel(e.target.value)}
+          size="small"
+          displayEmpty
+          sx={{ minWidth: 120, fontSize: '0.8125rem' }}
+          renderValue={(v) => v || 'Default'}
+        >
+          <MenuItem value="">Default</MenuItem>
+          {models.map((m: string) => (
+            <MenuItem key={m} value={m}>
+              {m}
+            </MenuItem>
+          ))}
+        </Select>
+      </Stack>
         <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
           <Box
             ref={containerRef}
@@ -277,7 +355,7 @@ export const AdreChatPanel: FC = () => {
               display: 'flex',
               flexDirection: 'column',
               gap: 2,
-              bgcolor: 'action.hover',
+              bgcolor: '#212121',
               borderRadius: 1,
             }}
           >
@@ -286,7 +364,8 @@ export const AdreChatPanel: FC = () => {
                 Ask a question about your database environment...
               </Typography>
             ) : (
-              allMessages.map((msg, idx) => (
+              <Box sx={{ maxWidth: 768, width: '100%', alignSelf: 'center', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {allMessages.map((msg, idx) => (
                 <Box
                   key={idx}
                   sx={{
@@ -303,22 +382,21 @@ export const AdreChatPanel: FC = () => {
                       borderRadius: 2,
                       ...(msg.role === 'user'
                         ? {
-                            bgcolor: 'primary.main',
-                            color: 'primary.contrastText',
+                            bgcolor: '#2d3748',
+                            color: 'text.primary',
                           }
                         : {
-                            bgcolor: 'background.paper',
+                            bgcolor: 'rgba(255,255,255,0.05)',
                             border: 1,
-                            borderColor: 'divider',
-                            boxShadow: 1,
+                            borderColor: 'rgba(255,255,255,0.12)',
                           }),
                     }}
                   >
                     <Typography
                       variant="caption"
-                      color={msg.role === 'user' ? undefined : 'text.secondary'}
+                      color={msg.role === 'user' ? 'text.secondary' : 'text.secondary'}
                       display="block"
-                      sx={{ mb: 0.5, ...(msg.role === 'user' && { opacity: 0.9 }) }}
+                      sx={{ mb: 0.5, fontSize: '0.7rem', opacity: 0.8 }}
                     >
                       {msg.role === 'user' ? 'You' : 'Assistant'}
                       {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
@@ -361,13 +439,13 @@ export const AdreChatPanel: FC = () => {
                             {(msg.content ?? response) && <Box sx={{ mt: 1 }} />}
                           </>
                         )}
-                        {progressSteps.length > 0 && (
+                        {msg.streaming && progressSteps.length > 0 && (
                           <Box sx={{ mb: 1 }}>
                             <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
                               Progress
                             </Typography>
                             <Stack component="ul" sx={{ m: 0, pl: 2.5, listStyle: 'none' }}>
-                              {progressSteps.map((step) => (
+                              {progressSteps.map((step: ProgressStep) => (
                                 <Box
                                   component="li"
                                   key={step.id}
@@ -393,6 +471,53 @@ export const AdreChatPanel: FC = () => {
                             </Stack>
                           </Box>
                         )}
+                        {!msg.streaming && (msg.progressSteps?.length ?? 0) > 0 && (
+                          <Box sx={{ mb: 1 }}>
+                            <IconButton
+                              size="small"
+                              onClick={() => setExpandedProgressIdx((prev: number | null) => (prev === idx ? null : idx))}
+                              sx={{ p: 0, mr: 1 }}
+                            >
+                              {expandedProgressIdx === idx ? <ExpandLess /> : <ExpandMore />}
+                            </IconButton>
+                            <Typography
+                              component="span"
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ cursor: 'pointer' }}
+                              onClick={() => setExpandedProgressIdx((prev: number | null) => (prev === idx ? null : idx))}
+                            >
+                              Progress
+                            </Typography>
+                            <Collapse in={expandedProgressIdx === idx}>
+                              <Stack component="ul" sx={{ m: 0, pl: 2.5, listStyle: 'none', mt: 0.5 }}>
+                                {(msg.progressSteps ?? []).map((step: ProgressStep) => (
+                                  <Box
+                                    component="li"
+                                    key={step.id}
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'flex-start',
+                                      gap: 0.5,
+                                      py: 0.25,
+                                      fontSize: '0.8125rem',
+                                      color: 'text.secondary',
+                                    }}
+                                  >
+                                    <Typography component="span" variant="body2" color="inherit">
+                                      ✓ {step.toolName}
+                                    </Typography>
+                                    {step.description && (
+                                      <Typography component="span" variant="caption" color="text.secondary" sx={{ flex: 1 }}>
+                                        — {step.description.length > 60 ? `${step.description.slice(0, 60)}…` : step.description}
+                                      </Typography>
+                                    )}
+                                  </Box>
+                                ))}
+                              </Stack>
+                            </Collapse>
+                          </Box>
+                        )}
                         {(msg.content || response || '').trim() ? (
                           <Markdown
                             remarkPlugins={[remarkGfm]}
@@ -414,41 +539,42 @@ export const AdreChatPanel: FC = () => {
                     )}
                   </Box>
                 </Box>
-              ))
+              ))}
+              </Box>
             )}
             <div ref={messagesEndRef} />
           </Box>
-          <Stack direction="row" gap={1} alignItems="center">
-            <FormControl size="small" sx={{ minWidth: 140 }}>
-              <InputLabel>Model</InputLabel>
-              <Select value={model} label="Model" onChange={(e: { target: { value: string } }) => setModel(e.target.value)}>
-                <MenuItem value="">Default</MenuItem>
-                {models.map((m: string) => (
-                  <MenuItem key={m} value={m}>
-                    {m}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
-          <Stack direction="row" gap={1}>
+          <Stack>
             <TextField
               size="small"
-              placeholder="Ask something..."
+              placeholder="Message ADRE..."
               value={ask}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAsk(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAsk(e.target.value)}
               onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && !e.shiftKey && handleSend()}
               fullWidth
               multiline
               minRows={2}
               maxRows={6}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: '#1e1e1e',
+                  '& fieldset': { borderColor: 'rgba(255,255,255,0.12)' },
+                },
+              }}
             />
-            <Button variant="contained" onClick={handleSend} disabled={loading || !ask.trim()}>
-              Send
-            </Button>
+            <Stack direction="row" justifyContent="flex-end" sx={{ mt: 0.5 }}>
+              <IconButton
+                size="small"
+                onClick={handleSend}
+                disabled={loading || !ask.trim()}
+                sx={{ color: 'primary.main' }}
+                aria-label="Send"
+              >
+                <Send />
+              </IconButton>
+            </Stack>
           </Stack>
         </Stack>
-      </CardContent>
-    </Card>
+    </Box>
   );
 };

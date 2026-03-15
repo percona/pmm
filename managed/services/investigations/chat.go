@@ -374,8 +374,23 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 }
 
 func buildInvestigationContext(inv *models.Investigation) string {
-	return fmt.Sprintf("Title: %s\nStatus: %s\nTime range: %s — %s\nSummary: %s",
+	s := fmt.Sprintf("Title: %s\nStatus: %s\nTime range: %s — %s\nSummary: %s",
 		inv.Title, inv.Status,
 		inv.TimeFrom.Format(time.RFC3339), inv.TimeTo.Format(time.RFC3339),
 		inv.Summary)
+	if len(inv.Config) > 0 {
+		var cfg map[string]string
+		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
+			if v := cfg["node_name"]; v != "" {
+				s += fmt.Sprintf("\nNode: %s", v)
+			}
+			if v := cfg["service_name"]; v != "" {
+				s += fmt.Sprintf("\nService: %s", v)
+			}
+			if v := cfg["cluster_name"]; v != "" {
+				s += fmt.Sprintf("\nCluster: %s", v)
+			}
+		}
+	}
+	return s
 }

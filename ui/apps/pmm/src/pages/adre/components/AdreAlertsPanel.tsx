@@ -1,8 +1,6 @@
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -16,11 +14,15 @@ import { useCreateInvestigation } from 'hooks/api/useInvestigations';
 import { useSnackbar } from 'notistack';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 
-interface AlertItem {
+export interface AlertItem {
   labels?: Record<string, string>;
   annotations?: Record<string, string>;
   fingerprint?: string;
   [k: string]: unknown;
+}
+
+export interface AdreAlertsPanelProps {
+  alerts?: AlertItem[];
 }
 
 /** Unique key for an alert (fingerprint if set, else label+index). */
@@ -29,15 +31,18 @@ function getAlertKey(a: AlertItem, index: number): string {
   return a.fingerprint ? fp : `${fp || 'alert'}-${index}`;
 }
 
-export const AdreAlertsPanel: FC = () => {
+export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const createMutation = useCreateInvestigation();
-  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [internalAlerts, setInternalAlerts] = useState<AlertItem[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [loadingAlerts, setLoadingAlerts] = useState(true);
+  const [loadingAlerts, setLoadingAlerts] = useState(!alertsProp);
+
+  const alerts = alertsProp ?? internalAlerts;
 
   useEffect(() => {
+    if (alertsProp != null) return;
     let cancelled = false;
     const load = async () => {
       try {
@@ -47,10 +52,10 @@ export const AdreAlertsPanel: FC = () => {
         };
         const list = data?.data?.alerts ?? data?.alerts ?? [];
         const arr = Array.isArray(list) ? list : [];
-        if (!cancelled) setAlerts(arr);
+        if (!cancelled) setInternalAlerts(arr);
       } catch (err) {
         if (!cancelled) {
-          setAlerts([]);
+          setInternalAlerts([]);
           enqueueSnackbar('Failed to load alerts', { variant: 'warning' });
         }
       } finally {
@@ -59,7 +64,7 @@ export const AdreAlertsPanel: FC = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [enqueueSnackbar]);
+  }, [alertsProp, enqueueSnackbar]);
 
   const toggle = (key: string) => {
     setSelected((prev) => {
@@ -127,49 +132,66 @@ export const AdreAlertsPanel: FC = () => {
   };
 
   return (
-    <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <Typography variant="h6" gutterBottom>
-          Firing alerts
-        </Typography>
-        <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
-          {loadingAlerts ? (
-            <Typography color="text.secondary">Loading alerts...</Typography>
-          ) : alerts.length === 0 ? (
-            <Typography color="text.secondary">
-              No firing alerts. Alerts from Alertmanager will appear here.
-            </Typography>
-          ) : (
-            <FormGroup>
-              <Box sx={{ maxHeight: 150, overflow: 'auto' }}>
-                {alerts.map((a, index) => {
-                  const key = getAlertKey(a, index);
-                  const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (a.fingerprint ? String(a.fingerprint) : key);
-                  return (
-                    <FormControlLabel
-                      key={key}
-                      control={
-                        <Checkbox
-                          checked={selected.has(key)}
-                          onChange={() => toggle(key)}
-                        />
-                      }
-                      label={label}
-                    />
-                  );
-                })}
-              </Box>
-            </FormGroup>
-          )}
-          <Button
-            variant="contained"
-            onClick={handleStartInvestigation}
-            disabled={createMutation.isPending || selected.size === 0}
-          >
-            {createMutation.isPending ? 'Creating...' : 'Start investigation'}
-          </Button>
-        </Stack>
-      </CardContent>
-    </Card>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        p: 1.5,
+        borderLeft: 1,
+        borderColor: 'rgba(255,255,255,0.12)',
+      }}
+    >
+      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+        Firing alerts ({alerts.length})
+      </Typography>
+      <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
+        {loadingAlerts ? (
+          <Typography variant="caption" color="text.secondary">
+            Loading...
+          </Typography>
+        ) : alerts.length === 0 ? (
+          <Typography variant="caption" color="text.secondary">
+            No firing alerts.
+          </Typography>
+        ) : (
+          <FormGroup sx={{ gap: 0 }}>
+            <Box sx={{ maxHeight: 150, overflow: 'auto' }}>
+              {alerts.map((a, index) => {
+                const key = getAlertKey(a, index);
+                const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (a.fingerprint ? String(a.fingerprint) : key);
+                return (
+                  <FormControlLabel
+                    key={key}
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={selected.has(key)}
+                        onChange={() => toggle(key)}
+                      />
+                    }
+                    label={
+                      <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
+                        {String(label).length > 40 ? `${String(label).slice(0, 40)}…` : label}
+                      </Typography>
+                    }
+                    sx={{ m: 0, py: 0.25 }}
+                  />
+                );
+              })}
+            </Box>
+          </FormGroup>
+        )}
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleStartInvestigation}
+          disabled={createMutation.isPending || selected.size === 0}
+          sx={{ mt: 0.5 }}
+        >
+          {createMutation.isPending ? 'Creating...' : 'Start investigation'}
+        </Button>
+      </Stack>
+    </Box>
   );
 };

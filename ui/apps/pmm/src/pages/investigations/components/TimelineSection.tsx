@@ -15,7 +15,8 @@ export const TimelineSection: FC<{ events: InvestigationTimelineEvent[] }> = ({
       const day = String(d.getUTCDate()).padStart(2, '0');
       const h = String(d.getUTCHours()).padStart(2, '0');
       const min = String(d.getUTCMinutes()).padStart(2, '0');
-      return `${y}-${m}-${day} ${h}:${min} UTC`;
+      const sec = String(d.getUTCSeconds()).padStart(2, '0');
+      return `${y}-${m}-${day} ${h}:${min}:${sec} UTC`;
     } catch {
       return '';
     }
@@ -37,7 +38,7 @@ export const TimelineSection: FC<{ events: InvestigationTimelineEvent[] }> = ({
         {events.map((event) => {
           const eventTime = event.eventTime ?? (event as { event_time?: string }).event_time ?? '';
           const timeStr = formatEventTime(eventTime);
-          const label = [timeStr ? `${timeStr} UTC` : '', event.title, event.description]
+          const label = [timeStr, event.title, event.description]
             .filter(Boolean)
             .join(' - ');
           return (

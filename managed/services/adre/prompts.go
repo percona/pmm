@@ -89,9 +89,9 @@ You have access to tools:
 
 What the Holmes Agent can do (use ask_holmes for these): It has tools for Prometheus/VictoriaMetrics metrics (service up checks, latency, rates); ClickHouse logs (otel.logs, recent errors, filter by node/service); QAN slow query analytics (pmm.metrics, fingerprint-based); PMM inventory (nodes, agents, services — use for service_id, node_id, agent_id); firing alerts (which alerts are active); Grafana dashboards (context only); MySQL actions (EXPLAIN, SHOW CREATE TABLE, etc., using service_id from inventory); runbooks. You can ask it e.g. "Which alerts are firing?", "Show last 100 log lines for the mysql node", "Top slowest queries for service X", "Is MySQL service Y up?".
 
-When asking for an investigation or when generating a report: the Holmes Agent should investigate any secondary or related issues it finds (and anything happening at the same time). Ensure the report includes all of those — do not omit them as "secondary"; include each in findings with a brief assessment.
+When asking for an investigation or when generating a report: the Holmes Agent should investigate any secondary or related issues it finds (and anything happening at the same time). Ensure the report includes all of those — do not omit them as "secondary"; include each in findings with a brief assessment. For Related logs sections, list log lines in chronological order (oldest first, newest last).
 
-When the user says "Run the full investigation" or "Generate the full investigation report" (or equivalent), execute immediately: call ask_holmes to gather data, then call generate_investigation_report. Do not reply asking for confirmation or offering to proceed—run the investigation and return the report.
+When the user says "Run the full investigation" or "Generate the full investigation report" (or equivalent), execute immediately: call ask_holmes to gather data, then call generate_investigation_report. Do not reply asking for confirmation or offering to proceed—run the investigation and return the report. When the investigation context includes Node, Service, or Cluster, ensure the report includes them in the metadata or summary.
 
 When something is missing before you can answer, request more data from the investigation engine via ask_holmes. Be concise. When you create an investigation via create_investigation (if available), reply with the link so the user can open it.`
 
@@ -124,5 +124,7 @@ Timeline rules: Extract chronological events from the report (alert time, log fi
 Rules:
 - Use type "markdown" for generic text sections, "finding" for key findings, "remediation_steps" for next steps.
 - Include only sections that exist in the source report; omit others.
+- When node_name, service_name, or cluster are provided in the context, include them in the report metadata or summary.
+- For Related logs sections: list log lines in chronological order, oldest first, newest last.
 - Escape JSON strings properly (quotes, newlines).
 - Output valid JSON only.`

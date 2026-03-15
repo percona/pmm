@@ -297,7 +297,7 @@ const InvestigationDetailPage: FC = () => {
       {/* Report body: blocks */}
       {inv.blocks && inv.blocks.length > 0 && (
         <>
-          <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
             Report
           </Typography>
           {[...inv.blocks]
@@ -348,7 +348,7 @@ const InvestigationDetailPage: FC = () => {
       {/* Detailed summary */}
       {(inv.summaryDetailed || inv.rootCauseSummary || inv.resolutionSummary) && (
         <>
-          <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+          <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
             Detailed summary
           </Typography>
           <Card variant="outlined" sx={{ mb: 2 }}>

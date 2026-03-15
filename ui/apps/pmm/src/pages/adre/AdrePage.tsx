@@ -1,11 +1,11 @@
 import { Alert, Box, Button, Card, CardContent, FormControlLabel, Link, Stack, Switch, TextField, Typography } from '@mui/material';
 import { FC, useState, useEffect } from 'react';
 import { Page } from 'components/page';
-import { useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
+import { useAdreSettings, useAdreAlerts, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';
 import { AdreChatPanel } from './components/AdreChatPanel';
-import { AdreAlertsPanel } from './components/AdreAlertsPanel';
+import { AdreAlertsPanel, type AlertItem } from './components/AdreAlertsPanel';
 
 /** True when the error is an HTTP 403 (assumes axios-style error.response.status). */
 function isForbiddenError(err: unknown): boolean {
@@ -17,6 +17,7 @@ const AdrePage: FC = () => {
   const { user } = useUser();
   const { data: settings, isLoading, isError, error } = useAdreSettings();
   const updateSettings = useUpdateAdreSettings();
+  const { alerts } = useAdreAlerts({ enabled: !!(settings?.enabled && settings?.url) });
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
   useEffect(() => {
@@ -134,8 +135,8 @@ const AdrePage: FC = () => {
     <Page title="Autonomous Database Reliability Engineer">
       <Box
         sx={{
-          bgcolor: '#000',
-          color: 'common.white',
+          bgcolor: '#212121',
+          color: 'text.primary',
           flex: 1,
           minHeight: 0,
           m: -2,
@@ -143,21 +144,27 @@ const AdrePage: FC = () => {
           mb: -3,
           p: 3,
           '& .MuiCard-root': {
-            bgcolor: '#000',
+            bgcolor: '#212121',
             borderColor: 'rgba(255,255,255,0.12)',
-            color: 'common.white',
+            color: 'inherit',
           },
           '& .MuiCardContent-root': { bgcolor: 'transparent' },
-          '& #messages-container': { bgcolor: '#0a0a0a' },
+          '& #messages-container': { bgcolor: '#1e1e1e' },
         }}
       >
-        <Stack direction={{ xs: 'column', md: 'row' }} gap={2} sx={{ flex: 1, minHeight: 0 }}>
-          <Box sx={{ flex: 2, minWidth: 0 }}>
+        <Stack
+          direction={{ xs: 'column', md: alerts.length > 0 ? 'row' : 'column' }}
+          gap={2}
+          sx={{ flex: 1, minHeight: 0 }}
+        >
+          <Box sx={{ flex: alerts.length > 0 ? 2 : 1, minWidth: 0 }}>
             <AdreChatPanel />
           </Box>
-          <Box sx={{ flex: '0 0 280px', minWidth: 0 }}>
-            <AdreAlertsPanel />
-          </Box>
+          {alerts.length > 0 && (
+            <Box sx={{ flex: '0 0 260px', minWidth: 0 }}>
+              <AdreAlertsPanel alerts={alerts as AlertItem[]} />
+            </Box>
+          )}
         </Stack>
       </Box>
     </Page>

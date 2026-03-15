@@ -70,16 +70,17 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 	b.WriteString("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>")
 	b.WriteString(html.EscapeString(inv.Title))
 	b.WriteString("</title><style>")
-	b.WriteString("body{font-family:sans-serif;max-width:800px;margin:2em auto;padding:0 1em}")
-	b.WriteString("h1{font-size:1.5em}")
+	b.WriteString("body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.5;max-width:800px;margin:2em auto;padding:0 1em;color:#333}")
+	b.WriteString("h1{font-size:1.5em;margin-bottom:0.5em}")
+	b.WriteString("h2{font-size:1.2em;margin:1.5em 0 0.5em}")
 	b.WriteString(".meta{color:#666;font-size:0.9em;margin:0.5em 0}")
-	b.WriteString(".block{margin:1.5em 0;padding:1em;border:1px solid #ddd;border-radius:4px;border-left-width:4px}")
-	b.WriteString(".block-markdown{border-left-color:#ddd}")
+	b.WriteString(".block{margin:1.5em 0;padding:1em;border:1px solid #e0e0e0;border-radius:4px;border-left-width:4px}")
+	b.WriteString(".block-markdown{border-left-color:#9e9e9e}")
 	b.WriteString(".block-finding{border-left-color:#1976d2}")
 	b.WriteString(".block-remediation_steps{border-left-color:#2e7d32}")
-	b.WriteString(".block-query_result{border-left-color:#ddd}")
+	b.WriteString(".block-query_result{border-left-color:#9e9e9e}")
 	b.WriteString(".block h3{font-size:1em;margin:0 0 0.5em}")
-	b.WriteString(".block pre{white-space:pre-wrap;background:#f5f5f5;padding:0.5em;overflow:auto}")
+	b.WriteString(".block pre{white-space:pre-wrap;background:#f5f5f5;padding:0.5em;overflow:auto;border-radius:4px}")
 	b.WriteString(".timeline{margin:1.5em 0}")
 	b.WriteString(".timeline-event{margin:0.5em 0;font-size:0.95em}")
 	b.WriteString("@media print{.block{break-inside:avoid}}")
@@ -129,7 +130,7 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 	if len(timelineEvents) > 0 {
 		b.WriteString("<h2>Timeline</h2><ol class=\"timeline\">")
 		for _, te := range timelineEvents {
-			dtStr := te.EventTime.Format("2006-01-02 15:04") + " UTC"
+			dtStr := te.EventTime.Format("2006-01-02 15:04:05") + " UTC"
 			label := dtStr
 			if te.Title != "" {
 				label += " - " + te.Title
