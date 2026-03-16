@@ -6,6 +6,9 @@ For guidance on selecting the best deployment method based on these requirements
 ## PMM Server resource requirements
 Resource requirements scale with the number of nodes and services monitored. Here are our recommendations for different deployment scales:
 
+!!! tip "Running with less than 16 GB RAM"
+    If you experience ClickHouse memory issues (such as "memory limit exceeded" errors), you can switch to a low-memory configuration optimized for constrained environments. See [ClickHouse memory issues](../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments) for details.
+
 === "Typical deployment (1-30 nodes)"
 
     This is the most common deployment scenario, suitable for small to medium-sized environments:
@@ -33,6 +36,11 @@ Resource requirements scale with the number of nodes and services monitored. Her
     - **Memory**: 32+ GB
     - **Storage**: 500+ GB
     - **Example workloads**: Large enterprises, mission-critical database fleets
+
+### Optimize ClickHouse for limited memory
+
+If you experience ClickHouse memory issues (such as "memory limit exceeded" errors), you can switch to a low-memory configuration optimized for constrained environments. See [ClickHouse memory issues](../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments) for details.
+
 
 ## Storage planning
 Adjust storage calculations based on your data retention period and the number of metrics collected. To estimate storage requirements:

@@ -1,7 +1,7 @@
 
 # QAN issues
 
-This section focuses on problems with QAN, such as queries not being retrieved so on.
+This section focuses on problems with QAN, such as queries not being retrieved.
 
 ## Missing data
 
@@ -15,7 +15,7 @@ There might be multiple places where the problem might come from:
 
 ### Why don't I see the whole query?
 
-Long query examples and fingerprints is truncated to 2048 symbols by default to reduce space usage. In this case, the query explains section will not work. Max query size can be configured using flag `--max-query-length` while adding a service.
+Long query examples and fingerprints are truncated to 2048 symbols by default to reduce space usage. In this case, the Explain section will not work. Max query size can be configured using flag `--max-query-length` while adding a service.
 
 ## Incorrect metrics: unrealistic query execution times 
 
@@ -82,3 +82,32 @@ This happens when the ClickHouse schema migration is interrupted during the upgr
        ```bash
        supervisorctl status qan-api2
        ```
+## ClickHouse memory issues in low-memory environments
+
+If you're running PMM Server with less than 16 GB of RAM and seeing "memory limit exceeded" errors in ClickHouse logs, you can switch to a low-memory configuration optimized for constrained environments.
+
+### Switch to low-memory configuration
+
+Run the switch script inside the PMM Server container:
+
+```bash
+docker exec -it pmm-server ./switch-config.sh low
+```
+
+The script stops ClickHouse, applies the optimized configuration, and restarts the service.
+
+To switch back to the default configuration:
+
+```bash
+docker exec -it pmm-server ./switch-config.sh default
+```
+
+### Persistent configuration for containers with --rm
+
+If you run PMM Server with the `--rm` flag, run the switch script each time the container starts. To automate this with systemd, add `ExecStartPost=` to your unit file:
+
+```ini
+ExecStartPost=/usr/bin/docker exec pmm-server ./switch-config.sh low
+```
+
+See [Install PMM Server with Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) for `systemd` configuration examples.
