@@ -483,7 +483,7 @@ export const AdreChatPanel: FC = () => {
                 Ask a question about your database environment...
               </Typography>
             ) : (
-              <Box sx={{ maxWidth: 768, width: '100%', alignSelf: 'center', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ maxWidth: '100%', width: '100%', alignSelf: 'center', display: 'flex', flexDirection: 'column', gap: 2 }}>
               {allMessages.map((msg, idx) => (
                 <Box
                   key={idx}

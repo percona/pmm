@@ -9,9 +9,12 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
     <Typography
       sx={[
         {
-          color: (theme) => theme.palette.action.hover,
           fontFamily: 'Roboto Mono, monospace',
           whiteSpace: 'pre',
+          color: (theme) =>
+            theme.palette.mode === 'dark'
+              ? theme.palette.text.primary
+              : theme.palette.action.hover,
         },
         (theme) =>
           isSingleLine
@@ -27,7 +30,7 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
               },
         (theme) =>
           theme.applyStyles('dark', {
-            backgroundColor: theme.palette.action.hover,
+            backgroundColor: theme.palette.grey[800],
           }),
       ]}
     >

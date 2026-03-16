@@ -34,7 +34,7 @@ const AdrePage: FC = () => {
 
   if (isLoading) {
     return (
-      <Page title="Autonomous Database Reliability Engineer">
+      <Page title="">
         <Typography>Loading...</Typography>
       </Page>
     );
@@ -42,7 +42,7 @@ const AdrePage: FC = () => {
 
   if (isError && !isForbidden) {
     return (
-      <Page title="Autonomous Database Reliability Engineer">
+      <Page title="">
         <Card variant="outlined">
           <CardContent>
             <Alert severity="error">
@@ -56,7 +56,7 @@ const AdrePage: FC = () => {
 
   if (isForbidden) {
     return (
-      <Page title="Autonomous Database Reliability Engineer">
+      <Page title="">
         <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
@@ -74,7 +74,7 @@ const AdrePage: FC = () => {
 
   if (!isConfigured) {
     return (
-      <Page title="Autonomous Database Reliability Engineer">
+      <Page title="">
         <Card variant="outlined">
           <CardContent>
             <Stack gap={2}>
@@ -132,7 +132,7 @@ const AdrePage: FC = () => {
   }
 
   return (
-    <Page title="Autonomous Database Reliability Engineer">
+    <Page title="">
       <Box
         sx={{
           bgcolor: '#212121',
