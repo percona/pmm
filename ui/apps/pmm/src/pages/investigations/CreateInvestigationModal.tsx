@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { Dialog, DialogTitle } from '@percona/ui-lib';
+import { Dialog, DialogTitle } from '@percona/percona-ui';
 import { FC, useEffect, useState } from 'react';
 import { getAdreAlerts } from 'api/adre';
 import type { CreateInvestigationBody } from 'api/investigations';
