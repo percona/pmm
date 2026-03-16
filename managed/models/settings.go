@@ -204,17 +204,17 @@ func (s *Settings) fillDefaults() {
 	// no default for Telemetry UUID - it set by telemetry service
 
 	if s.MetricsResolutions.HR == 0 {
-		s.MetricsResolutions.HR = 5 * time.Second
+		s.MetricsResolutions.HR = 5 * time.Second //nolint:mnd
 	}
 	if s.MetricsResolutions.MR == 0 {
-		s.MetricsResolutions.MR = 10 * time.Second
+		s.MetricsResolutions.MR = 10 * time.Second //nolint:mnd
 	}
 	if s.MetricsResolutions.LR == 0 {
-		s.MetricsResolutions.LR = 60 * time.Second
+		s.MetricsResolutions.LR = 60 * time.Second //nolint:mnd
 	}
 
 	if s.DataRetention == 0 {
-		s.DataRetention = 30 * 24 * time.Hour
+		s.DataRetention = 30 * 24 * time.Hour //nolint:mnd
 	}
 
 	if len(s.AWSPartitions) == 0 {
@@ -222,15 +222,15 @@ func (s *Settings) fillDefaults() {
 	}
 
 	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.RareInterval = 78 * time.Hour
+		s.SaaS.AdvisorRunIntervals.RareInterval = 78 * time.Hour //nolint:mnd
 	}
 
 	if s.SaaS.AdvisorRunIntervals.StandardInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.StandardInterval = 24 * time.Hour
+		s.SaaS.AdvisorRunIntervals.StandardInterval = 24 * time.Hour //nolint:mnd
 	}
 
 	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour
+		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour //nolint:mnd
 	}
 
 	if s.Updates.SnoozeDuration == 0 {

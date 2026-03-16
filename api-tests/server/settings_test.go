@@ -706,6 +706,11 @@ func TestSettings(t *testing.T) {
 						require.NoError(t, err)
 						req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPut, changeURI.String(), bytes.NewReader(b))
 						require.NoError(t, err)
+						req.Header.Set("Content-Type", "application/json")
+						if u := pmmapitests.BaseURL.User; u != nil {
+							password, _ := u.Password()
+							req.SetBasicAuth(u.Username(), password)
+						}
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)
 							require.NoError(t, err)
@@ -736,6 +741,10 @@ func TestSettings(t *testing.T) {
 
 						req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, getURI.String(), nil)
 						require.NoError(t, err)
+						if u := pmmapitests.BaseURL.User; u != nil {
+							password, _ := u.Password()
+							req.SetBasicAuth(u.Username(), password)
+						}
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)
 							require.NoError(t, err)
