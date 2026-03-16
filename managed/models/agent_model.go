@@ -107,6 +107,8 @@ type ExporterOptions struct {
 	MetricsResolutions *MetricsResolutions `json:"metrics_resolutions"`
 	MetricsPath        string              `json:"metrics_path"`
 	MetricsScheme      string              `json:"metrics_scheme"`
+	// Connection timeout for exporter (in nanoseconds). Optional.
+	Timeout time.Duration `json:"timeout"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -122,7 +124,7 @@ func (c ExporterOptions) IsEmpty() bool {
 		len(c.DisabledCollectors) == 0 &&
 		c.MetricsResolutions == nil &&
 		c.MetricsPath == "" &&
-		c.MetricsScheme == ""
+		c.MetricsScheme == "" && c.Timeout == 0
 }
 
 // QANOptions represents structure for special QAN options.
@@ -815,9 +817,13 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 }
 
 // EffectiveDialTimeout returns the timeout configured for this agent's exporter.
-// Precedence: exporter-specific option (MySQLOptions/MongoDBOptions/PostgreSQLOptions) -> ExporterOptions.Timeout -> default 1s.
 func (s *Agent) EffectiveDialTimeout() time.Duration {
-	return *s.ExporterOptions.Timeout
+	if s.ExporterOptions.Timeout != 0 {
+		return s.ExporterOptions.Timeout
+	}
+
+	// TODO keep original
+	return 2 * time.Second
 }
 
 // ExporterURL composes URL to an external exporter.

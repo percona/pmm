@@ -124,6 +124,8 @@ type AddMySQLCommand struct {
 	flags.MetricsModeFlags
 	flags.CommentsParsingFlags
 	flags.LogLevelNoFatalFlags
+
+	Timeout string `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 }
 
 // GetServiceName returns the service name for AddMySQLCommand.
@@ -213,6 +215,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				Socket:         socket,
 				Port:           int64(port),
 				ExposeExporter: cmd.ExposeExporter,
+				Timeout:        cmd.Timeout,
 				PMMAgentID:     cmd.PMMAgentID,
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,

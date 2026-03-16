@@ -248,6 +248,9 @@ type RegisterNodeBody struct {
 
 	// AWS instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 }
 
 // Validate validates this register node body

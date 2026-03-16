@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -90,6 +91,8 @@ message AddMySQLServiceParams {
   bool expose_exporter = 32;
   // extra DSN parameters to be used for connecting to MySQL.
   map<string, string> extra_dsn_params = 33;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 34;
 }
 
 message MySQLServiceResult {

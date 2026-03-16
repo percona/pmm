@@ -14,6 +14,7 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
@@ -105,8 +106,10 @@ type AddMySQLServiceParams struct {
 	ExposeExporter bool `protobuf:"varint,32,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// extra DSN parameters to be used for connecting to MySQL.
 	ExtraDsnParams map[string]string `protobuf:"bytes,33,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,34,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddMySQLServiceParams) Reset() {
@@ -370,6 +373,13 @@ func (x *AddMySQLServiceParams) GetExtraDsnParams() map[string]string {
 	return nil
 }
 
+func (x *AddMySQLServiceParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
+	}
+	return nil
+}
+
 type MySQLServiceResult struct {
 	state              protoimpl.MessageState      `protogen:"open.v1"`
 	Service            *v1.MySQLService            `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -451,7 +461,7 @@ var File_management_v1_mysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_mysql_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xa6\f\n" +
+	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xdb\f\n" +
 	"\x15AddMySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -487,7 +497,8 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x1e \x01(\tR\ragentPassword\x123\n" +
 	"\tlog_level\x18\x1f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x12b\n" +
-	"\x10extra_dsn_params\x18! \x03(\v28.management.v1.AddMySQLServiceParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
+	"\x10extra_dsn_params\x18! \x03(\v28.management.v1.AddMySQLServiceParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x123\n" +
+	"\atimeout\x18\" \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
@@ -526,10 +537,11 @@ var (
 		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
 		(MetricsMode)(0),                   // 5: management.v1.MetricsMode
 		(v1.LogLevel)(0),                   // 6: inventory.v1.LogLevel
-		(*v1.MySQLService)(nil),            // 7: inventory.v1.MySQLService
-		(*v1.MySQLdExporter)(nil),          // 8: inventory.v1.MySQLdExporter
-		(*v1.QANMySQLPerfSchemaAgent)(nil), // 9: inventory.v1.QANMySQLPerfSchemaAgent
-		(*v1.QANMySQLSlowlogAgent)(nil),    // 10: inventory.v1.QANMySQLSlowlogAgent
+		(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
+		(*v1.MySQLService)(nil),            // 8: inventory.v1.MySQLService
+		(*v1.MySQLdExporter)(nil),          // 9: inventory.v1.MySQLdExporter
+		(*v1.QANMySQLPerfSchemaAgent)(nil), // 10: inventory.v1.QANMySQLPerfSchemaAgent
+		(*v1.QANMySQLSlowlogAgent)(nil),    // 11: inventory.v1.QANMySQLSlowlogAgent
 	}
 )
 
@@ -539,15 +551,16 @@ var file_management_v1_mysql_proto_depIdxs = []int32{
 	5,  // 2: management.v1.AddMySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
 	6,  // 3: management.v1.AddMySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
 	3,  // 4: management.v1.AddMySQLServiceParams.extra_dsn_params:type_name -> management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
-	7,  // 5: management.v1.MySQLServiceResult.service:type_name -> inventory.v1.MySQLService
-	8,  // 6: management.v1.MySQLServiceResult.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
-	9,  // 7: management.v1.MySQLServiceResult.qan_mysql_perfschema:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
-	10, // 8: management.v1.MySQLServiceResult.qan_mysql_slowlog:type_name -> inventory.v1.QANMySQLSlowlogAgent
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	7,  // 5: management.v1.AddMySQLServiceParams.timeout:type_name -> google.protobuf.Duration
+	8,  // 6: management.v1.MySQLServiceResult.service:type_name -> inventory.v1.MySQLService
+	9,  // 7: management.v1.MySQLServiceResult.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
+	10, // 8: management.v1.MySQLServiceResult.qan_mysql_perfschema:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
+	11, // 9: management.v1.MySQLServiceResult.qan_mysql_slowlog:type_name -> inventory.v1.QANMySQLSlowlogAgent
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_mysql_proto_init() }

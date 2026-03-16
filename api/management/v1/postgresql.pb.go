@@ -14,6 +14,7 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
@@ -101,8 +102,10 @@ type AddPostgreSQLServiceParams struct {
 	ExposeExporter bool `protobuf:"varint,32,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `protobuf:"varint,33,opt,name=max_exporter_connections,json=maxExporterConnections,proto3" json:"max_exporter_connections,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,34,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddPostgreSQLServiceParams) Reset() {
@@ -366,6 +369,13 @@ func (x *AddPostgreSQLServiceParams) GetMaxExporterConnections() int32 {
 	return 0
 }
 
+func (x *AddPostgreSQLServiceParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
+	}
+	return nil
+}
+
 type PostgreSQLServiceResult struct {
 	state                           protoimpl.MessageState              `protogen:"open.v1"`
 	Service                         *v1.PostgreSQLService               `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -447,7 +457,7 @@ var File_management_v1_postgresql_proto protoreflect.FileDescriptor
 
 const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\n" +
-	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xd7\v\n" +
+	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x8c\f\n" +
 	"\x1aAddPostgreSQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -483,7 +493,8 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\tlog_level\x18\x1e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x120\n" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
 	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x128\n" +
-	"\x18max_exporter_connections\x18! \x01(\x05R\x16maxExporterConnections\x1a?\n" +
+	"\x18max_exporter_connections\x18! \x01(\x05R\x16maxExporterConnections\x123\n" +
+	"\atimeout\x18\" \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb0\x03\n" +
@@ -516,27 +527,29 @@ var (
 		(*AddNodeParams)(nil),                      // 3: management.v1.AddNodeParams
 		(MetricsMode)(0),                           // 4: management.v1.MetricsMode
 		(v1.LogLevel)(0),                           // 5: inventory.v1.LogLevel
-		(*v1.PostgreSQLService)(nil),               // 6: inventory.v1.PostgreSQLService
-		(*v1.PostgresExporter)(nil),                // 7: inventory.v1.PostgresExporter
-		(*v1.QANPostgreSQLPgStatementsAgent)(nil),  // 8: inventory.v1.QANPostgreSQLPgStatementsAgent
-		(*v1.QANPostgreSQLPgStatMonitorAgent)(nil), // 9: inventory.v1.QANPostgreSQLPgStatMonitorAgent
+		(*durationpb.Duration)(nil),                // 6: google.protobuf.Duration
+		(*v1.PostgreSQLService)(nil),               // 7: inventory.v1.PostgreSQLService
+		(*v1.PostgresExporter)(nil),                // 8: inventory.v1.PostgresExporter
+		(*v1.QANPostgreSQLPgStatementsAgent)(nil),  // 9: inventory.v1.QANPostgreSQLPgStatementsAgent
+		(*v1.QANPostgreSQLPgStatMonitorAgent)(nil), // 10: inventory.v1.QANPostgreSQLPgStatMonitorAgent
 	}
 )
 
 var file_management_v1_postgresql_proto_depIdxs = []int32{
-	3, // 0: management.v1.AddPostgreSQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
-	2, // 1: management.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
-	4, // 2: management.v1.AddPostgreSQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	5, // 3: management.v1.AddPostgreSQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6, // 4: management.v1.PostgreSQLServiceResult.service:type_name -> inventory.v1.PostgreSQLService
-	7, // 5: management.v1.PostgreSQLServiceResult.postgres_exporter:type_name -> inventory.v1.PostgresExporter
-	8, // 6: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
-	9, // 7: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	3,  // 0: management.v1.AddPostgreSQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
+	2,  // 1: management.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
+	4,  // 2: management.v1.AddPostgreSQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	5,  // 3: management.v1.AddPostgreSQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	6,  // 4: management.v1.AddPostgreSQLServiceParams.timeout:type_name -> google.protobuf.Duration
+	7,  // 5: management.v1.PostgreSQLServiceResult.service:type_name -> inventory.v1.PostgreSQLService
+	8,  // 6: management.v1.PostgreSQLServiceResult.postgres_exporter:type_name -> inventory.v1.PostgresExporter
+	9,  // 7: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
+	10, // 8: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
+	9,  // [9:9] is the sub-list for method output_type
+	9,  // [9:9] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_postgresql_proto_init() }

@@ -81,6 +81,8 @@ type AddPostgreSQLCommand struct {
 	flags.MetricsModeFlags
 	flags.CommentsParsingFlags
 	flags.LogLevelNoFatalFlags
+
+	Timeout string `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 }
 
 // GetServiceName returns the service name for AddPostgreSQLCommand.
@@ -212,6 +214,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
 				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 				MaxExporterConnections: cmd.MaxExporterConnections,
+				Timeout:                cmd.Timeout,
 				LogLevel:               cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
 			},
 		},

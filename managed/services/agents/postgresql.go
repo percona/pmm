@@ -125,7 +125,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	sort.Strings(args)
 
 	dsnParams := models.DSNParams{
-		DialTimeout:              1 * time.Second,
+		DialTimeout:              exporter.EffectiveDialTimeout(),
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}

@@ -66,13 +66,6 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 		ExtraDSNParams: params.GetExtraDsnParams(),
 	}
 
-	if t, ok := params.(interface{ GetTimeout() *durationpb.Duration }); ok {
-		if td := t.GetTimeout(); td != nil {
-			d := td.AsDuration()
-			res.Timeout = &d
-		}
-	}
-
 	return res, nil
 }
 
@@ -100,14 +93,6 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOpti
 	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
 		res.AutoDiscoveryLimit = pointer.ToInt32(extendedOptions.GetAutoDiscoveryLimit())
 		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections()
-	}
-
-	// If request contains timeout, map it to internal representation.
-	if t, ok := params.(interface{ GetTimeout() *durationpb.Duration }); ok {
-		if td := t.GetTimeout(); td != nil {
-			d := td.AsDuration()
-			res.Timeout = &d
-		}
 	}
 
 	return res
@@ -158,14 +143,6 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
 
 	mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
 	mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
-
-	// Map timeout if present in request parameters.
-	if t, ok := params.(interface{ GetTimeout() *durationpb.Duration }); ok {
-		if td := t.GetTimeout(); td != nil {
-			d := td.AsDuration()
-			mdbOptions.Timeout = &d
-		}
-	}
 
 	// MongoDB exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(MongoDBExtendedOptionsParams); ok {
@@ -792,6 +769,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if metricsPath == "" {
 		metricsPath = "/metrics"
 	}
+
 	row := &Agent{
 		PMMAgentID:   pmmAgentID,
 		AgentID:      id,
@@ -805,7 +783,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			PushMetrics:   params.PushMetrics,
 			MetricsPath:   metricsPath,
 			MetricsScheme: scheme,
-			Timeout:       params.Timeout,
+			Timeout:       pointer.GetDuration(params.Timeout),
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}

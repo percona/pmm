@@ -64,6 +64,8 @@ type AddValkeyCommand struct {
 	AddCommonFlags
 	flags.MetricsModeFlags
 	flags.LogLevelNoFatalFlags
+
+	Timeout string `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 }
 
 // GetServiceName returns the service name for AddValkeyCommand.
@@ -156,6 +158,7 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				TLSKey:        tlsKey,
 				MetricsMode:   cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				LogLevel:      cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				Timeout:       cmd.Timeout,
 			},
 		},
 		Context: commands.Ctx,

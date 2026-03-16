@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
@@ -62,6 +63,12 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			return err
 		}
 
+		// TODO utils??
+		var timeoutPtr time.Duration
+		if req.Timeout != nil {
+			timeoutPtr = req.Timeout.AsDuration()
+		}
+
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
 			PMMAgentID:               req.PmmAgentId,
 			ServiceID:                service.ServiceID,
@@ -77,6 +84,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
+				Timeout:            timeoutPtr,
 			},
 		})
 		if err != nil {

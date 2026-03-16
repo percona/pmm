@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "google/protobuf/duration.proto";
 import "validate/validate.proto";
 
 // DiscoverAzureDatabaseRequest discover azure databases request.
@@ -109,6 +110,8 @@ message AddAzureDatabaseRequest {
   int32 tablestats_group_table_limit = 24;
   // Azure database resource type (mysql, maria, postgres)
   DiscoverAzureDatabaseType type = 25;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 26;
 }
 
 message AddAzureDatabaseResponse {}

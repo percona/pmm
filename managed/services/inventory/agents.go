@@ -19,6 +19,7 @@ package inventory
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -1294,6 +1295,14 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 		agent      *inventoryv1.ExternalExporter
 		PMMAgentID *string
 	)
+
+	// TODO utils
+	var timeoutPtr *time.Duration
+	if p.Timeout != nil {
+		t := p.Timeout.AsDuration() // returns time.Duration
+		timeoutPtr = &t
+	}
+
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
 			RunsOnNodeID:  p.RunsOnNodeId,
@@ -1306,7 +1315,7 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 			CustomLabels:  p.CustomLabels,
 			PushMetrics:   p.PushMetrics,
 			TLSSkipVerify: p.TlsSkipVerify,
-			Timeout:       pointer.To(p.GetTimeout().AsDuration()),
+			Timeout:       timeoutPtr,
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

@@ -19538,6 +19538,11 @@
                           }
                         },
                         "x-order": 41
+                      },
+                      "timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 42
                       }
                     }
                   },
@@ -20107,6 +20112,11 @@
                   "description": "AWS instance ID.",
                   "type": "string",
                   "x-order": 16
+                },
+                "timeout": {
+                  "description": "Connection timeout for exporter (if set).",
+                  "type": "string",
+                  "x-order": 17
                 }
               }
             }
@@ -21092,6 +21102,11 @@
                                 }
                               },
                               "x-order": 41
+                            },
+                            "timeout": {
+                              "description": "Connection timeout for exporter (if set).",
+                              "type": "string",
+                              "x-order": 42
                             }
                           }
                         },
@@ -21429,6 +21444,11 @@
                         "type": "string"
                       },
                       "x-order": 32
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 33
                     }
                   },
                   "x-order": 0
@@ -21705,6 +21725,11 @@
                       "description": "If true, adds Real-Time Analytics agent for the provided service.",
                       "type": "boolean",
                       "x-order": 34
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 35
                     }
                   },
                   "x-order": 1
@@ -21966,6 +21991,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 32
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 33
                     }
                   },
                   "x-order": 2
@@ -22169,6 +22199,11 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 21
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 22
                     }
                   },
                   "x-order": 3
@@ -22509,6 +22544,11 @@
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 5
@@ -22704,6 +22744,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 33
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 34
                     }
                   },
                   "x-order": 6
@@ -22914,6 +22959,11 @@
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
                       "x-order": 23
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 7
@@ -26168,6 +26218,11 @@
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
                   "x-order": 24
+                },
+                "timeout": {
+                  "description": "Connection timeout for exporter (if set).",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }

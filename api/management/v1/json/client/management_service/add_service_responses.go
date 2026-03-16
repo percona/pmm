@@ -9379,6 +9379,9 @@ type AddServiceParamsBodyExternal struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyExternalAddNode `json:"add_node,omitempty"`
 }
@@ -10110,6 +10113,9 @@ type AddServiceParamsBodyMongodb struct {
 	// If true, adds Real-Time Analytics agent for the provided service.
 	RtaMongodbAgent bool `json:"rta_mongodb_agent,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`
 }
@@ -10559,6 +10565,9 @@ type AddServiceParamsBodyMysql struct {
 	// extra DSN parameters to be used for connecting to MySQL.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyMysqlAddNode `json:"add_node,omitempty"`
 }
@@ -11004,6 +11013,9 @@ type AddServiceParamsBodyPostgresql struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyPostgresqlAddNode `json:"add_node,omitempty"`
 }
@@ -11415,6 +11427,9 @@ type AddServiceParamsBodyProxysql struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyProxysqlAddNode `json:"add_node,omitempty"`
@@ -11861,6 +11876,9 @@ type AddServiceParamsBodyRDS struct {
 
 	// Maximum number of exporter connections to PostgreSQL instance.
 	MaxPostgresqlExporterConnections int32 `json:"max_postgresql_exporter_connections,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 }
 
 // Validate validates this add service params body RDS
@@ -12079,6 +12097,9 @@ type AddServiceParamsBodyValkey struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyValkeyAddNode `json:"add_node,omitempty"`

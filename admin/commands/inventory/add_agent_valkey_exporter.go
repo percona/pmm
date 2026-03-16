@@ -66,6 +66,7 @@ type AddAgentValkeyExporterCommand struct {
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	Timeout             string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	flags.LogLevelNoFatalFlags
 }
@@ -113,6 +114,7 @@ func (cmd *AddAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:         cmd.PushMetrics,
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				Timeout:             cmd.Timeout,
 			},
 		},
 		Context: commands.Ctx,

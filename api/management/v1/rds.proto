@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/nodes.proto";
 import "inventory/v1/services.proto";
@@ -118,6 +119,8 @@ message AddRDSServiceParams {
   bool disable_comments_parsing = 32;
   // Maximum number of exporter connections to PostgreSQL instance.
   int32 max_postgresql_exporter_connections = 33;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 35;
 }
 
 message RDSServiceResult {

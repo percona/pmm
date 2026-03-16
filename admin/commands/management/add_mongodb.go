@@ -87,6 +87,8 @@ type AddMongoDBCommand struct {
 	AddCommonFlags
 	flags.MetricsModeFlags
 	flags.LogLevelFatalFlags
+
+	Timeout string `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 }
 
 // GetServiceName returns the service name for AddMongoDBCommand.
@@ -203,6 +205,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:    cmd.CollectionsLimit,
 				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				Timeout:             cmd.Timeout,
 			},
 		},
 		Context: commands.Ctx,
