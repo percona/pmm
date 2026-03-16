@@ -43,11 +43,11 @@ func (res *addOtelResult) String() string {
 
 // AddOtelCommand is used by Kong for CLI flags and commands.
 type AddOtelCommand struct {
-	PMMAgentID    string            `help:"Node ID where pmm-agent runs (default is autodetected)"`
-	LogFilePaths  []string          `name:"log-file-paths" help:"Comma-separated list of log file paths to collect (e.g. /var/log/mysql/error.log). Used with --parser-preset or as raw if --log-sources not set."`
-	LogSources    string            `name:"log-sources" help:"Comma-separated path:preset pairs (e.g. /var/log/mysql/error.log:mysql_error,/other.log:raw). Preset 'raw' means no parsing. Available presets: mysql_error, nginx_access, nginx_error, grafana, pmm_managed, pmm_agent, postgres, raw. Overrides --log-file-paths and --parser-preset."`
-	ParserPreset  string            `name:"parser-preset" help:"Parser preset for all paths from --log-file-paths. Available presets: mysql_error, nginx_access, nginx_error, grafana, pmm_managed, pmm_agent, postgres, raw. Ignored if --log-sources is set."`
-	CustomLabels  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	PMMAgentID   string            `help:"Node ID where pmm-agent runs (default is autodetected)"`
+	LogFilePaths []string          `name:"log-file-paths" help:"Comma-separated list of log file paths to collect (e.g. /var/log/mysql/error.log). Used with --parser-preset or as raw if --log-sources not set."`
+	LogSources   string            `name:"log-sources" help:"Comma-separated path:preset pairs (e.g. /var/log/mysql/error.log:mysql_error,/other.log:raw). Preset 'raw' means no parsing. Available presets: mysql_error, nginx_access, nginx_error, grafana, pmm_managed, pmm_agent, postgres, raw. Overrides --log-file-paths and --parser-preset."`
+	ParserPreset string            `name:"parser-preset" help:"Parser preset for all paths from --log-file-paths. Available presets: mysql_error, nginx_access, nginx_error, grafana, pmm_managed, pmm_agent, postgres, raw. Ignored if --log-sources is set."`
+	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
 // RunCmd runs the command for AddOtelCommand.
