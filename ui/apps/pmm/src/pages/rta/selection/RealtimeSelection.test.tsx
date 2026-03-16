@@ -11,7 +11,6 @@ import { Messages } from './RealtimeSelection.messages';
 import * as realtimeApi from 'api/rta';
 import {
   wrapWithQueryProvider,
-  wrapWithRouter,
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
@@ -22,6 +21,7 @@ import {
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Messages as RtaMessages } from '../messages';
 
 vi.mock('api/services');
@@ -48,9 +48,18 @@ const setupMocks = () => {
 const renderComponent = (user = TEST_USER_ADMIN) =>
   render(
     wrapWithQueryProvider(
-      wrapWithRouter(
-        wrapWithSnackbarProvider(
-          wrapWithUserProvider(<RealtimeSelection />, { user })
+      wrapWithSnackbarProvider(
+        wrapWithUserProvider(
+          <MemoryRouter initialEntries={['/rta/selection']} initialIndex={0}>
+            <Routes>
+              <Route path="/rta/selection" element={<RealtimeSelection />} />
+              <Route
+                path="/rta/sessions"
+                element={<div data-testid="realtime-sessions">Sessions</div>}
+              />
+            </Routes>
+          </MemoryRouter>,
+          { user }
         )
       )
     )
@@ -128,7 +137,7 @@ describe('RealtimeSelection', () => {
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        // Viewer should see empty state, not the form
+        // Editor should see empty state, not the form
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
       });
     });
@@ -251,6 +260,20 @@ describe('RealtimeSelection', () => {
           expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
         },
         { timeout: 3000 }
+      );
+    });
+  });
+
+  describe('Navigation', () => {
+    it('navigates to sessions page when there are any running sessions', async () => {
+      vi.mocked(realtimeApi.getRunningSessions).mockResolvedValueOnce([
+        TEST_REAL_TIME_SESSION,
+      ]);
+
+      renderComponent();
+
+      await waitFor(() =>
+        expect(screen.getByTestId('realtime-sessions')).toBeInTheDocument()
       );
     });
   });
