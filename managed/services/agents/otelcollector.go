@@ -23,11 +23,11 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"gopkg.in/reform.v1"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
-	"gopkg.in/reform.v1"
 )
 
 const (
