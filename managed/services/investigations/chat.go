@@ -27,8 +27,10 @@ import (
 	"github.com/percona/pmm/managed/services/adre"
 )
 
-const investigationRunTimeout = 5 * time.Minute
-const investigationChatTimeout = 2 * time.Minute
+const (
+	investigationRunTimeout  = 5 * time.Minute
+	investigationChatTimeout = 2 * time.Minute
+)
 
 func (h *Handlers) requireHolmesURL(w http.ResponseWriter, settings *models.Settings) bool {
 	if settings.GetAdreURL() == "" {
@@ -93,10 +95,10 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 
 	// Persist user message
 	userMsg := &models.InvestigationMessage{
-		ID:             models.NewInvestigationID(),
+		ID:              models.NewInvestigationID(),
 		InvestigationID: id,
-		Role:           "user",
-		Content:        body.Message,
+		Role:            "user",
+		Content:         body.Message,
 	}
 	if err := models.CreateInvestigationMessage(h.db, userMsg); err != nil {
 		h.l.Errorf("CreateInvestigationMessage: %v", err)
@@ -186,10 +188,10 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	}
 
 	assistantMsg := &models.InvestigationMessage{
-		ID:             models.NewInvestigationID(),
+		ID:              models.NewInvestigationID(),
 		InvestigationID: id,
-		Role:           "assistant",
-		Content:        lastContent,
+		Role:            "assistant",
+		Content:         lastContent,
 	}
 	_ = models.CreateInvestigationMessage(h.db, assistantMsg)
 
@@ -221,10 +223,10 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 
 	ctxStr := buildInvestigationContext(inv)
 	userMsg := &models.InvestigationMessage{
-		ID:             models.NewInvestigationID(),
+		ID:              models.NewInvestigationID(),
 		InvestigationID: id,
-		Role:           "user",
-		Content:        "Generate the full investigation report.",
+		Role:            "user",
+		Content:         "Generate the full investigation report.",
 	}
 	if err := models.CreateInvestigationMessage(h.db, userMsg); err != nil {
 		h.l.Warnf("CreateInvestigationMessage run user: %v", err)
@@ -362,10 +364,10 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 	}
 
 	assistantMsg := &models.InvestigationMessage{
-		ID:             models.NewInvestigationID(),
+		ID:              models.NewInvestigationID(),
 		InvestigationID: id,
-		Role:           "assistant",
-		Content:        lastContent,
+		Role:            "assistant",
+		Content:         lastContent,
 	}
 	_ = models.CreateInvestigationMessage(h.db, assistantMsg)
 

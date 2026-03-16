@@ -118,12 +118,12 @@ func (c *Client) Models(ctx context.Context) ([]string, error) {
 
 // ChatRequest is the request body for POST /api/chat.
 type ChatRequest struct {
-	Ask                    string            `json:"ask"`
-	ConversationHistory    []interface{}     `json:"conversation_history,omitempty"`
-	Model                  string            `json:"model,omitempty"`
-	Stream                 bool              `json:"stream,omitempty"`
-	AdditionalSystemPrompt string            `json:"additional_system_prompt,omitempty"`
-	PageContext            interface{}       `json:"page_context,omitempty"`
+	Ask                    string        `json:"ask"`
+	ConversationHistory    []interface{} `json:"conversation_history,omitempty"`
+	Model                  string        `json:"model,omitempty"`
+	Stream                 bool          `json:"stream,omitempty"`
+	AdditionalSystemPrompt string        `json:"additional_system_prompt,omitempty"`
+	PageContext            interface{}   `json:"page_context,omitempty"`
 	// ReplaceSystemPrompt: when true, Holmes uses only AdditionalSystemPrompt as system message (PMM Agent mode).
 	ReplaceSystemPrompt bool `json:"replace_system_prompt,omitempty"`
 	// BehaviorControls overrides prompt components (e.g. {"todowrite_instructions": false}). Optional.
@@ -246,23 +246,23 @@ func BuildChatRequestForHolmesAgent(messages []map[string]interface{}, additiona
 // InvestigateRequest is the request body for POST /api/investigate.
 // AdditionalSystemPrompt is sent if Holmes API supports it for investigation.
 type InvestigateRequest struct {
-	Source                  string      `json:"source"`
-	Title                   string      `json:"title"`
-	Description             string      `json:"description"`
-	Subject                 interface{} `json:"subject,omitempty"`
-	Context                 interface{} `json:"context,omitempty"`
-	IncludeToolCalls        bool        `json:"include_tool_calls,omitempty"`
-	Model                   string      `json:"model,omitempty"`
-	Stream                  bool        `json:"stream,omitempty"`
-	AdditionalSystemPrompt  string      `json:"additional_system_prompt,omitempty"`
+	Source                 string      `json:"source"`
+	Title                  string      `json:"title"`
+	Description            string      `json:"description"`
+	Subject                interface{} `json:"subject,omitempty"`
+	Context                interface{} `json:"context,omitempty"`
+	IncludeToolCalls       bool        `json:"include_tool_calls,omitempty"`
+	Model                  string      `json:"model,omitempty"`
+	Stream                 bool        `json:"stream,omitempty"`
+	AdditionalSystemPrompt string      `json:"additional_system_prompt,omitempty"`
 }
 
 // InvestigateResponse is the response from POST /api/investigate.
 type InvestigateResponse struct {
-	Analysis   string                 `json:"analysis"`
-	Sections   map[string]string      `json:"sections,omitempty"`
-	ToolCalls  []interface{}          `json:"tool_calls,omitempty"`
-	Instructions []interface{}        `json:"instructions,omitempty"`
+	Analysis     string            `json:"analysis"`
+	Sections     map[string]string `json:"sections,omitempty"`
+	ToolCalls    []interface{}     `json:"tool_calls,omitempty"`
+	Instructions []interface{}     `json:"instructions,omitempty"`
 }
 
 // Investigate sends an investigate request to HolmesGPT (non-streaming).

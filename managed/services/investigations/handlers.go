@@ -210,15 +210,15 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Title        string `json:"title"`
-		TimeFrom     string `json:"time_from"`
-		TimeTo       string `json:"time_to"`
-		SourceType   string `json:"source_type"`
-		SourceRef    string `json:"source_ref"`
-		Summary      string `json:"summary"`
-		NodeName     string `json:"node_name"`
-		ServiceName  string `json:"service_name"`
-		ClusterName  string `json:"cluster_name"`
+		Title       string `json:"title"`
+		TimeFrom    string `json:"time_from"`
+		TimeTo      string `json:"time_to"`
+		SourceType  string `json:"source_type"`
+		SourceRef   string `json:"source_ref"`
+		Summary     string `json:"summary"`
+		NodeName    string `json:"node_name"`
+		ServiceName string `json:"service_name"`
+		ClusterName string `json:"cluster_name"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -322,15 +322,15 @@ func (h *Handlers) PatchInvestigation(w http.ResponseWriter, r *http.Request, id
 		return
 	}
 	var body struct {
-		Title              *string `json:"title"`
-		Status             *string `json:"status"`
-		Summary            *string `json:"summary"`
-		SummaryDetailed    *string `json:"summary_detailed"`
-		RootCauseSummary   *string `json:"root_cause_summary"`
-		ResolutionSummary  *string `json:"resolution_summary"`
-		Severity           *string `json:"severity"`
-		TimeFrom           *string `json:"time_from"`
-		TimeTo             *string `json:"time_to"`
+		Title             *string `json:"title"`
+		Status            *string `json:"status"`
+		Summary           *string `json:"summary"`
+		SummaryDetailed   *string `json:"summary_detailed"`
+		RootCauseSummary  *string `json:"root_cause_summary"`
+		ResolutionSummary *string `json:"resolution_summary"`
+		Severity          *string `json:"severity"`
+		TimeFrom          *string `json:"time_from"`
+		TimeTo            *string `json:"time_to"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -443,7 +443,7 @@ func (h *Handlers) PostInvestigationBlock(w http.ResponseWriter, r *http.Request
 	}
 	block := &models.InvestigationBlock{
 		ID:              models.NewInvestigationID(),
-		InvestigationID:  id,
+		InvestigationID: id,
 		Type:            body.Type,
 		Title:           body.Title,
 		Position:        body.Position,
@@ -542,11 +542,11 @@ func (h *Handlers) PostInvestigationTimeline(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	var body struct {
-		EventTime   string          `json:"event_time"`
-		Type        string          `json:"type"`
-		Title       string          `json:"title"`
-		Description string          `json:"description"`
-		Source      string          `json:"source"`
+		EventTime    string          `json:"event_time"`
+		Type         string          `json:"type"`
+		Title        string          `json:"title"`
+		Description  string          `json:"description"`
+		Source       string          `json:"source"`
 		MetadataJSON json.RawMessage `json:"metadata_json"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -564,7 +564,7 @@ func (h *Handlers) PostInvestigationTimeline(w http.ResponseWriter, r *http.Requ
 	}
 	event := &models.InvestigationTimelineEvent{
 		ID:              models.NewInvestigationID(),
-		InvestigationID:  id,
+		InvestigationID: id,
 		EventTime:       t,
 		Type:            body.Type,
 		Title:           body.Title,
@@ -612,7 +612,7 @@ func (h *Handlers) PostInvestigationArtifact(w http.ResponseWriter, r *http.Requ
 		Type         string          `json:"type"`
 		URIOrBlobRef string          `json:"uri_or_blob_ref"`
 		Source       string          `json:"source"`
-		MetadataJSON  json.RawMessage `json:"metadata_json"`
+		MetadataJSON json.RawMessage `json:"metadata_json"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -624,7 +624,7 @@ func (h *Handlers) PostInvestigationArtifact(w http.ResponseWriter, r *http.Requ
 	}
 	artifact := &models.InvestigationArtifact{
 		ID:              models.NewInvestigationID(),
-		InvestigationID:  id,
+		InvestigationID: id,
 		Type:            body.Type,
 		URIOrBlobRef:    body.URIOrBlobRef,
 		Source:          body.Source,
@@ -687,7 +687,7 @@ func (h *Handlers) PostInvestigationComment(w http.ResponseWriter, r *http.Reque
 	}
 	c := &models.InvestigationComment{
 		ID:              models.NewInvestigationID(),
-		InvestigationID:  id,
+		InvestigationID: id,
 		BlockID:         body.BlockID,
 		AnchorJSON:      body.AnchorJSON,
 		Author:          body.Author,

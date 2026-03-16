@@ -126,7 +126,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		InvestigationPromptDisplay: investigationPromptDisplay,
 		DefaultChatMode:            settings.Adre.DefaultChatMode,
 		ChatBackend:                settings.Adre.ChatBackend,
-		ChatHistoryLength:         settings.Adre.ChatHistoryLength,
+		ChatHistoryLength:          settings.Adre.ChatHistoryLength,
 		AgentPrompt:                settings.Adre.AgentPrompt,
 		AgentPromptDisplay:         agentPromptDisplay,
 	}
@@ -278,7 +278,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		InvestigationPromptDisplay: investigationPromptDisplay,
 		DefaultChatMode:            settings.Adre.DefaultChatMode,
 		ChatBackend:                settings.Adre.ChatBackend,
-		ChatHistoryLength:         settings.Adre.ChatHistoryLength,
+		ChatHistoryLength:          settings.Adre.ChatHistoryLength,
 		AgentPrompt:                settings.Adre.AgentPrompt,
 		AgentPromptDisplay:         agentPromptDisplayPost,
 	}

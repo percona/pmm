@@ -26,8 +26,10 @@ import (
 )
 
 // safeUIDRe allows only dashboard UID and panel ID safe characters (alphanumeric, dash, underscore, dot).
-var safeUIDRe = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
-var safePanelIDRe = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
+var (
+	safeUIDRe     = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+	safePanelIDRe = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
+)
 
 // RenderHandler serves GET /v1/grafana/render: proxies Grafana panel render API
 // or returns JSON with image_url and dashboard_url when format=json or Accept: application/json.

@@ -87,9 +87,9 @@ import (
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/ha"
-	"github.com/percona/pmm/managed/services/investigations"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
+	"github.com/percona/pmm/managed/services/investigations"
 	"github.com/percona/pmm/managed/services/management"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
@@ -1233,7 +1233,7 @@ func main() { //nolint:maintidx,cyclop
 			})
 	})
 
-		wg.Go(func() {
+	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:          logs,
 			authServer:    authServer,

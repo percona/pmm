@@ -66,10 +66,10 @@ func RunPMMAgentChatSync(
 	for turn := 0; turn < pmmAgentMaxTurns; turn++ {
 		req := &ChatRequest{
 			Ask:                    currentAsk,
-			ConversationHistory:   history,
-			ReplaceSystemPrompt:   true,
+			ConversationHistory:    history,
+			ReplaceSystemPrompt:    true,
 			AdditionalSystemPrompt: agentPrompt,
-			Stream:                false,
+			Stream:                 false,
 		}
 		resp, err := client.Chat(ctx, req)
 		if err != nil {
@@ -164,10 +164,10 @@ func RunPMMAgentChatStream(
 	for turn := 0; turn < pmmAgentMaxTurns; turn++ {
 		req := &ChatRequest{
 			Ask:                    currentAsk,
-			ConversationHistory:   history,
-			ReplaceSystemPrompt:   true,
+			ConversationHistory:    history,
+			ReplaceSystemPrompt:    true,
 			AdditionalSystemPrompt: agentPrompt,
-			Stream:                false,
+			Stream:                 false,
 		}
 		resp, err := client.Chat(ctx, req)
 		if err != nil {
@@ -199,9 +199,9 @@ func RunPMMAgentChatStream(
 
 			result := executePMMAgentTool(ctx, db, l, tc, client, investigationPrompt)
 			toolResults = append(toolResults, map[string]interface{}{
-				"id":      tc.ID,
-				"name":    tc.Name,
-				"result":  result,
+				"id":     tc.ID,
+				"name":   tc.Name,
+				"result": result,
 			})
 			resultPayload, _ := json.Marshal(map[string]interface{}{
 				"tool_call_id": tc.ID,
@@ -233,9 +233,9 @@ func RunPMMAgentChatStream(
 		history = append(history, assistantMsg)
 		for _, tr := range toolResults {
 			history = append(history, map[string]interface{}{
-				"role":        "tool",
+				"role":         "tool",
 				"tool_call_id": tr["id"],
-				"content":     tr["result"],
+				"content":      tr["result"],
 			})
 		}
 		currentAsk = "" // Continuation: no new user message
@@ -337,8 +337,8 @@ func executePMMAgentTool(ctx context.Context, db reform.DBTX, l *logrus.Entry, t
 		}
 		_ = json.Unmarshal([]byte(tc.Arguments), &args)
 		report := map[string]interface{}{
-			"summary":      "Investigation report (placeholder; report generator not yet implemented).",
-			"findings":     []interface{}{},
+			"summary":         "Investigation report (placeholder; report generator not yet implemented).",
+			"findings":        []interface{}{},
 			"recommendations": []interface{}{},
 		}
 		b, _ := json.Marshal(report)

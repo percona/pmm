@@ -122,15 +122,15 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 }
 
 type blockResponse struct {
-	ID             string          `json:"id"`
-	InvestigationID string         `json:"investigation_id"`
-	Type           string         `json:"type"`
-	Title          string         `json:"title"`
-	Position       int            `json:"position"`
-	ConfigJSON     json.RawMessage `json:"config_json,omitempty"`
-	DataJSON       json.RawMessage `json:"data_json,omitempty"`
-	CreatedAt      string         `json:"created_at"`
-	UpdatedAt      string         `json:"updated_at"`
+	ID              string          `json:"id"`
+	InvestigationID string          `json:"investigation_id"`
+	Type            string          `json:"type"`
+	Title           string          `json:"title"`
+	Position        int             `json:"position"`
+	ConfigJSON      json.RawMessage `json:"config_json,omitempty"`
+	DataJSON        json.RawMessage `json:"data_json,omitempty"`
+	CreatedAt       string          `json:"created_at"`
+	UpdatedAt       string          `json:"updated_at"`
 }
 
 func blockToResponse(b *models.InvestigationBlock) blockResponse {
@@ -194,7 +194,7 @@ type artifactResponse struct {
 	URIOrBlobRef    string          `json:"uri_or_blob_ref"`
 	Source          string          `json:"source"`
 	MetadataJSON    json.RawMessage `json:"metadata_json,omitempty"`
-	CreatedAt       string         `json:"created_at"`
+	CreatedAt       string          `json:"created_at"`
 }
 
 func artifactToResponse(a *models.InvestigationArtifact) artifactResponse {
@@ -222,10 +222,10 @@ type commentResponse struct {
 	InvestigationID string          `json:"investigation_id"`
 	BlockID         *string         `json:"block_id,omitempty"`
 	AnchorJSON      json.RawMessage `json:"anchor_json,omitempty"`
-	Author          string         `json:"author"`
-	Content         string         `json:"content"`
-	CreatedAt       string         `json:"created_at"`
-	UpdatedAt       string         `json:"updated_at"`
+	Author          string          `json:"author"`
+	Content         string          `json:"content"`
+	CreatedAt       string          `json:"created_at"`
+	UpdatedAt       string          `json:"updated_at"`
 }
 
 func commentToResponse(c *models.InvestigationComment) commentResponse {
@@ -256,7 +256,7 @@ type messageResponse struct {
 	Content         string          `json:"content"`
 	ToolName        string          `json:"tool_name,omitempty"`
 	ToolResultJSON  json.RawMessage `json:"tool_result_json,omitempty"`
-	CreatedAt       string         `json:"created_at"`
+	CreatedAt       string          `json:"created_at"`
 }
 
 func messageToResponse(m *models.InvestigationMessage) messageResponse {
