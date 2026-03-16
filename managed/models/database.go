@@ -1181,6 +1181,9 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
 		`UPDATE agents SET rta_options = '{}'::jsonb`,
 	},
+	117: {
+		`DROP TABLE IF EXISTS percona_sso_details`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1219,8 +1222,8 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)  //nolint:mnd
+	db.SetMaxOpenConns(10) //nolint:mnd
 
 	return db, nil
 }
