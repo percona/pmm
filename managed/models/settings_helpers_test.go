@@ -58,6 +58,10 @@ func TestSettings(t *testing.T) {
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
+		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
+		expected.Adre.DefaultChatMode = "chat"
+		expected.Adre.ChatBackend = "holmesgpt"
+		expected.Adre.ChatHistoryLength = 20
 		assert.Equal(t, expected, actual)
 	})
 
@@ -71,8 +75,9 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
+			DataRetention:   30 * 24 * time.Hour,
+			AWSPartitions:   []string{"aws"},
+			DefaultRoleID:  0,
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
@@ -83,6 +88,10 @@ func TestSettings(t *testing.T) {
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
+		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
+		expected.Adre.DefaultChatMode = "chat"
+		expected.Adre.ChatBackend = "holmesgpt"
+		expected.Adre.ChatHistoryLength = 20
 		assert.Equal(t, expected, s)
 	})
 
