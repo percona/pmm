@@ -4451,6 +4451,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#clickhouse-configuration-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse configuration profiles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ClickHouse configuration profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-to-switch-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to switch profiles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#default-vs-low-memory-configuration-key-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default vs. low-memory configuration: key differences
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dashboard-components" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -15915,6 +15954,45 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
+  <a href="#clickhouse-configuration-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse configuration profiles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ClickHouse configuration profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-to-switch-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to switch profiles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#default-vs-low-memory-configuration-key-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default vs. low-memory configuration: key differences
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dashboard-components" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16059,6 +16137,127 @@ See <a href="mysql.html#limitations-with-performance-schema">Query Analytics wit
 </div>
 </div>
 </div>
+<h2 id="clickhouse-configuration-profiles">ClickHouse configuration profiles<a class="headerlink" href="#clickhouse-configuration-profiles" title="Permanent link">&para;</a></h2>
+<p>Query Analytics in PMM supports two ClickHouse configuration profiles for different memory environments:</p>
+<ul>
+<li><strong>default-config.xml</strong> <em>(default)</em> — for normal environments and better performance</li>
+<li><strong>low-memory-config.xml</strong> — for limited memory resources</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Low memory config is based on ClickHouse&rsquo; recommendations: https://clickhouse.com/docs/operations/tips#using-less-than-16gb-of-ram</p>
+</div>
+<p>Both files are located in <code>/etc/clickhouse-server/</code> inside the PMM Server container.</p>
+<h3 id="how-to-switch-profiles">How to switch profiles<a class="headerlink" href="#how-to-switch-profiles" title="Permanent link">&para;</a></h3>
+<p>To switch between profiles, use the <code>switch-config.sh</code> script (available in <code>/etc/clickhouse-server/</code> and as <code>/opt/switch-config.sh</code>).</p>
+<p><strong>Usage:</strong>
+Run inside the container from one of the paths mentioned above:</p>
+<div class="highlight"><pre><span></span><code>./switch-config.sh [low|default]
+</code></pre></div>
+<p>Or from outside the container:</p>
+<div class="highlight"><pre><span></span><code>docker exec -it -u pmm pmm-server ./switch-config.sh [low|default]
+</code></pre></div>
+<p>Replace <code>[low|default]</code> with the desired profile.</p>
+<p>Where:</p>
+<ul>
+<li><code>low</code> switches to the low-memory configuration</li>
+<li><code>default</code> switches to the default memory configuration</li>
+</ul>
+<p>The script will:</p>
+<ol>
+<li>Stop the ClickHouse service using <code>supervisorctl</code></li>
+<li>Update <code>/etc/clickhouse-server/config.xml</code> and <code>/etc/clickhouse-server/users.xml</code> to point to the selected profile (both config and users files are switched for <code>default</code> and <code>low</code>)</li>
+<li>Print a confirmation message</li>
+</ol>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code>/switch-config.sh low
+</code></pre></div>
+<p>This activates the low-memory configuration.</p>
+<h3 id="default-vs-low-memory-configuration-key-differences">Default vs. low-memory configuration: key differences<a class="headerlink" href="#default-vs-low-memory-configuration-key-differences" title="Permanent link">&para;</a></h3>
+<p>The following table summarizes the main differences between the two ClickHouse configuration profiles and explains each property:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+<th>Low memory</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>concurrent_threads_soft_limit_num</code></td>
+<td>0 (unlimited, uses all cores)</td>
+<td>1</td>
+<td>Maximum query processing threads. 1 limits parallelism for low memory.</td>
+</tr>
+<tr>
+<td><code>max_block_size</code></td>
+<td>65409</td>
+<td>8192</td>
+<td>Max block size (rows) for query processing. Lower value reduces memory per query.</td>
+</tr>
+<tr>
+<td><code>max_download_threads</code></td>
+<td>0 (unlimited)</td>
+<td>1</td>
+<td>Max threads for downloading data. 1 = less concurrency, less memory.</td>
+</tr>
+<tr>
+<td><code>input_format_parallel_parsing</code></td>
+<td>1</td>
+<td>0</td>
+<td>Disables parallel parsing of input formats. Saves memory.</td>
+</tr>
+<tr>
+<td><code>output_format_parallel_formatting</code></td>
+<td>1</td>
+<td>0</td>
+<td>Disables parallel formatting of output. Saves memory.</td>
+</tr>
+<tr>
+<td><code>trace_log</code></td>
+<td>1</td>
+<td>0</td>
+<td>Disables logging for this component. Saves memory.</td>
+</tr>
+<tr>
+<td><code>metric_log</code></td>
+<td>1</td>
+<td>0</td>
+<td>Disables logging for this component. Saves memory.</td>
+</tr>
+<tr>
+<td><code>asynchronus_metric_log</code></td>
+<td>1</td>
+<td>0</td>
+<td>Disables logging for this component. Saves memory.</td>
+</tr>
+<tr>
+<td><code>max_server_memory_usage_to_ram_ratio</code></td>
+<td>0.75</td>
+<td>0.5</td>
+<td>Fraction of system RAM ClickHouse can use. Lower value is safer for low-memory hosts.</td>
+</tr>
+<tr>
+<td><code>uncompressed_cache_size</code></td>
+<td>8 GB</td>
+<td>2 GB</td>
+<td>Cache for uncompressed data blocks. Lower value saves memory.</td>
+</tr>
+<tr>
+<td><code>mark_cache_size</code></td>
+<td>5 GB</td>
+<td>512 MB</td>
+<td>Cache for index marks. Lower value saves memory, but may slow queries.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Summary:</strong></p>
+<ul>
+<li>The <strong>default</strong> config is tuned for performance and parallelism, using more RAM and allowing more connections and threads.</li>
+<li>The <strong>low-memory</strong> config restricts concurrency, cache sizes, and memory usage to fit into smaller environments, at the cost of performance.</li>
+</ul>
 <h2 id="dashboard-components">Dashboard components<a class="headerlink" href="#dashboard-components" title="Permanent link">&para;</a></h2>
 <p>Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.</p>
 <h2 id="dashboard-layout">Dashboard layout<a class="headerlink" href="#dashboard-layout" title="Permanent link">&para;</a></h2>
@@ -16116,7 +16315,7 @@ See <a href="mysql.html#limitations-with-performance-schema">Query Analytics wit
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 19, 2025 15:35:17 UTC">November 19, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 16, 2026 11:39:40 UTC">March 16, 2026</span>
   </span>
 
     
