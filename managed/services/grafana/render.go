@@ -16,16 +16,24 @@
 package grafana
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
 )
+
+const defaultRenderCacheDir = "/srv/pmm/grafana_render_cache"
 
 // safeUIDRe allows only dashboard UID and panel ID safe characters (alphanumeric, dash, underscore, dot).
 var (
@@ -114,9 +122,15 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		height = "500"
 	}
 
-	// Build query string for Grafana render (and for image_url): panelId, from, to, width, height, scale, tz, and var-*
+	// Grafana render API expects panelId like "panel-92"; normalize if we got numeric "92".
+	grafanaPanelID := panelID
+	if grafanaPanelID != "" && !strings.HasPrefix(grafanaPanelID, "panel-") {
+		grafanaPanelID = "panel-" + grafanaPanelID
+	}
+	// Build query string for Grafana render (and for image_url): panelId, from, to, width, height, scale, tz, orgId, and var-*
 	renderParams := url.Values{}
-	renderParams.Set("panelId", panelID)
+	renderParams.Set("panelId", grafanaPanelID)
+	renderParams.Set("orgId", "1")
 	renderParams.Set("from", from)
 	renderParams.Set("to", to)
 	renderParams.Set("width", width)
@@ -128,7 +142,7 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			renderParams.Set(k, v[0])
 		}
 	}
-	// Copy our own params for image_url (excluding format=json)
+	// Copy our own params for image_url (excluding format=json and cache)
 	imageURLParams := url.Values{}
 	imageURLParams.Set("dashboard_uid", dashboardUID)
 	imageURLParams.Set("panel_id", panelID)
@@ -141,8 +155,12 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			imageURLParams.Set(k, v[0])
 		}
 	}
+	if q.Get("cache") == "1" {
+		imageURLParams.Set("cache", "1")
+	}
 
 	wantJSON := q.Get("format") == "json" || strings.Contains(r.Header.Get("Accept"), "application/json")
+	useCache := q.Get("cache") == "1"
 
 	if wantJSON {
 		imageURL := "/v1/grafana/render?" + imageURLParams.Encode()
@@ -166,6 +184,16 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Optional disk cache: only when cache=1
+	if useCache {
+		cacheKey := renderCacheKey(imageURLParams)
+		if cached, err := h.readRenderCache(cacheKey); err == nil {
+			w.Header().Set("Content-Type", "image/png")
+			_, _ = w.Write(cached)
+			return
+		}
+	}
+
 	// Proxy to Grafana render API
 	path := "/render/d-solo/" + dashboardUID + "/"
 	rawQuery := renderParams.Encode()
@@ -185,8 +213,54 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "failed to render panel"})
 		return
 	}
+	if useCache && len(body) > 0 {
+		_ = h.writeRenderCache(renderCacheKey(imageURLParams), body)
+	}
 	if contentType != "" {
 		w.Header().Set("Content-Type", contentType)
 	}
 	_, _ = w.Write(body)
+}
+
+// renderCacheKey returns a stable hash key from image params (excluding format and cache); same params => same key.
+func renderCacheKey(params url.Values) string {
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		if k == "format" || k == "cache" {
+			continue
+		}
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	h := sha256.New()
+	for _, k := range keys {
+		for _, v := range params[k] {
+			_, _ = h.Write([]byte(k))
+			_, _ = h.Write([]byte("\x00"))
+			_, _ = h.Write([]byte(v))
+			_, _ = h.Write([]byte("\x00"))
+		}
+	}
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (h *RenderHandler) readRenderCache(key string) ([]byte, error) {
+	dir := defaultRenderCacheDir
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		return nil, err
+	}
+	f, err := os.Open(filepath.Join(dir, key))
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return io.ReadAll(f)
+}
+
+func (h *RenderHandler) writeRenderCache(key string, body []byte) error {
+	dir := defaultRenderCacheDir
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(dir, key), body, 0o644)
 }

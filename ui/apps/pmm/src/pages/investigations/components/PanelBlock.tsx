@@ -136,6 +136,7 @@ export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
             to: timeTo,
             width: '1000',
             height: '500',
+            cache: '1',
           });
           Object.entries(config).forEach(([k, v]) => {
             if ((k.startsWith('var_') || k.startsWith('var-')) && v != null && typeof v === 'string') {

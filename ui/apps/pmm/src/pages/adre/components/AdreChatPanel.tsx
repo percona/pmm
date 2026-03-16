@@ -48,15 +48,30 @@ function toEpochMsOrOriginal(s: string): string {
   return String(date.getTime());
 }
 
-/** Build "Open in Grafana" URL from a PMM render URL. Uses epoch ms for from/to so Grafana shows the correct time range. */
+const GRAFANA_RENDER_PATH = '/v1/grafana/render';
+const GRAFANA_RENDER_D_SOLO = '/graph/render/d-solo/';
+const RENDER_IMAGE_TIMEOUT_MS = 60000;
+
+/** Build "Open in Grafana" URL from a PMM or Grafana render URL. Uses epoch ms for from/to when possible. */
 function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
   try {
-    const path = renderSrc.startsWith('/') ? renderSrc : `/${renderSrc}`;
+    const path = renderSrc.startsWith('/') ? renderSrc : renderSrc.includes('://') ? new URL(renderSrc).pathname : `/${renderSrc}`;
     const searchStart = path.indexOf('?');
-    if (searchStart === -1) return null;
-    const params = new URLSearchParams(path.slice(searchStart + 1));
-    const uid = params.get('dashboard_uid');
-    const panelId = params.get('panel_id');
+    const pathOnly = searchStart === -1 ? path : path.slice(0, searchStart);
+    const params = new URLSearchParams(searchStart === -1 ? '' : path.slice(searchStart + 1));
+
+    let uid: string | null = null;
+    let panelId: string | null = null;
+
+    if (pathOnly.includes(GRAFANA_RENDER_D_SOLO)) {
+      const match = pathOnly.match(/\/graph\/render\/d-solo\/([^/]+)/);
+      uid = match ? match[1] : null;
+      panelId = params.get('panelId');
+    } else {
+      uid = params.get('dashboard_uid');
+      panelId = params.get('panel_id');
+    }
+
     const from = params.get('from');
     const to = params.get('to');
     if (!uid) return null;
@@ -75,11 +90,9 @@ function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
   }
 }
 
-const GRAFANA_RENDER_PATH = '/v1/grafana/render';
-const RENDER_IMAGE_TIMEOUT_MS = 60000;
-
 function isGrafanaRenderImageSrc(src: string): boolean {
-  return src.includes(GRAFANA_RENDER_PATH) && src.includes('dashboard_uid=') && src.includes('panel_id=');
+  if (src.includes(GRAFANA_RENDER_PATH) && src.includes('dashboard_uid=') && src.includes('panel_id=')) return true;
+  return src.includes(GRAFANA_RENDER_D_SOLO) && src.includes('panelId=');
 }
 
 /** Fetches Grafana render image with credentials and long timeout so the panel image loads in chat. */
