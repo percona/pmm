@@ -21,11 +21,8 @@ import {
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
-<<<<<<< PMM-14917-rta-selection-redirect
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-=======
 import { Messages as RtaMessages } from '../messages';
->>>>>>> v3
 
 vi.mock('api/services');
 vi.mock('api/rta');
