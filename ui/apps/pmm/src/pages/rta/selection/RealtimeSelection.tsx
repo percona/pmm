@@ -23,11 +23,9 @@ export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   // TODO: Add other service types when available
-  const { availableServices, isLoading, services } = useAvailableServices([ServiceType.mongodb]);
+  const { isLoading } = useAvailableServices([ServiceType.mongodb]);
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
-  const allServicesRunning =
-    !isLoading && availableServices.length === 0 && services.mongodb.length > 0;
 
   const handleSuccess = (sessions: RealtimeSession[]) => {
     const serviceIds = sessions.map((s) => s.serviceId);
