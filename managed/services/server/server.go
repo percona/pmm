@@ -146,7 +146,7 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return errs
 	}
 
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		_, err := models.UpdateSettings(tx, envSettings)
 		return err
 	})
@@ -473,8 +473,7 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
-// While platform is no longer supported, the connectedToPlatform parameter is kept for compatibility.
-func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan bool, connectedToPlatform bool) *serverv1.Settings {
+func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan bool) *serverv1.Settings {
 	res := &serverv1.Settings{
 		UpdatesEnabled:   settings.IsUpdatesEnabled(),
 		TelemetryEnabled: settings.IsTelemetryEnabled(),
@@ -498,7 +497,6 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 
 		AlertingEnabled:         settings.IsAlertingEnabled(),
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
-		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
@@ -551,7 +549,7 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 	}
 
 	return &serverv1.GetSettingsResponse{
-		Settings: s.convertSettings(settings, disabledInternalPgQan, false),
+		Settings: s.convertSettings(settings, disabledInternalPgQan),
 	}, nil
 }
 
@@ -738,10 +736,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
-	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
-
 	return &serverv1.ChangeSettingsResponse{
-		Settings: s.convertSettings(newSettings, disableInternalPgQan, err == nil),
+		Settings: s.convertSettings(newSettings, disableInternalPgQan),
 	}, nil
 }
 
@@ -793,26 +789,20 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return errors.Wrap(err, "failed to get settings")
-	}
-	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
-	if err != nil {
-		if !errors.Is(err, models.ErrNotConnectedToPortal) {
-			return errors.Wrap(err, "failed to get SSO details")
-		}
+		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
 	if err := s.nomad.UpdateConfiguration(settings); err != nil {
-		return errors.Wrap(err, "failed to update nomad configuration")
+		return fmt.Errorf("failed to update nomad configuration: %w", err)
 	}
-	if err := s.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
-		return errors.Wrap(err, "failed to update supervisord configuration")
+	if err := s.supervisord.UpdateConfiguration(settings); err != nil {
+		return fmt.Errorf("failed to update supervisord configuration: %w", err)
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
 	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
-		return errors.Wrap(err, "failed to update agents state")
+		return fmt.Errorf("failed to update agents state: %w", err)
 	}
 	return nil
 }
