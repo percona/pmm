@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { Messages } from './RealtimeSelection.messages';
+import { Messages as RtaMessages } from '../messages';
 import {
   RealtimeSelectionEmptyState,
   RealtimeSelectionViewerEmptyState,
@@ -16,14 +17,16 @@ import { DOCS_URLS } from 'lib/constants';
 import { RealtimeSession } from 'types/rta.types';
 import { createRealtimeOverviewUrl } from 'utils/link.utils';
 import { RealtimeSelectionForm } from '../components/selection-form';
+import { ServiceType } from 'types/services.types';
 
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const { availableServices, isLoading, services } = useAvailableServices();
+  // TODO: Add other service types when available
+  const { availableServices, isLoading, services } = useAvailableServices([ServiceType.mongodb]);
 
   const allServicesRunning =
-    !isLoading && availableServices.length === 0 && services.length > 0;
+    !isLoading && availableServices.length === 0 && services.mongodb.length > 0;
 
   const handleSuccess = (sessions: RealtimeSession[]) => {
     const serviceIds = sessions.map((s) => s.serviceId);
@@ -79,7 +82,7 @@ export const RealtimeSelection: FC = () => {
             <RealtimeSelectionForm onSuccess={handleSuccess} />
             <Stack gap={1} sx={{ width: '100%' }}>
               <Typography variant="body2" color="text.secondary">
-                {Messages.mongoOnly}
+                {RtaMessages.disclaimer}
               </Typography>
               <Stack direction="row" gap={2} justifyContent="center">
                 <Link
