@@ -83,7 +83,7 @@ COPY --from=builder /usr/local/percona/pmm /usr/local/percona/pmm/
 
 ARG VERSION
 ARG BUILD_DATE
-ARG RELEASE=$(date +%s)
+ARG RELEASE
 
 # Satisfy as well https://docs.redhat.com/en-us/documentation/red_hat_software_certification/2026/pdf/red_hat_openshift_software_certification_policy_guide/Red_Hat_Software_Certification-2026-Red_Hat_OpenShift_Software_Certification_Policy_Guide-en-US.pdf
 LABEL org.opencontainers.image.created=${BUILD_DATE} \

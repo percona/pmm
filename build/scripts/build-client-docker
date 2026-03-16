@@ -13,7 +13,8 @@ if [ -z "${DOCKER_CLIENT_TAG}" ]; then
 fi
 
 docker build --build-arg BUILD_DATE="$(date -u +'%Y-%m-%d %H:%M:%S+00:00')"\
-             --build-arg VERSION="$(<<< VERSION)" \
+             --build-arg VERSION="$(cat VERSION)" \
+             --build-arg RELEASE="$(date +%s)" \
              -f "${DOCKER_FILE_LOCATION}/${docker_file}" \
              -t "${DOCKER_CLIENT_TAG}" \
              ${DOCKER_FILE_LOCATION}
