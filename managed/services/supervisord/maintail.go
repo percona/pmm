@@ -67,8 +67,8 @@ type event struct {
 
 // parseEvent returns parsed event from supervisord maintail line, or nil.
 func parseEvent(line string) *event {
-	parts := strings.SplitN(line, " ", 4)
-	if len(parts) != 4 {
+	parts := strings.SplitN(line, " ", 4) //nolint:mnd
+	if len(parts) != 4 {                  //nolint:mnd
 		return nil
 	}
 
