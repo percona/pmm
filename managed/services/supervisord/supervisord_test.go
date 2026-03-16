@@ -61,7 +61,7 @@ func TestConfig(t *testing.T) {
 			t.Parallel()
 			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
 			require.NoError(t, err)
-			actual, err := s.marshalConfig(tmpl, settings, nil)
+			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
@@ -108,7 +108,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini")) //nolint:gosec
 			require.NoError(t, err)
-			actual, err := s.marshalConfig(tmpl, settings, nil)
+			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
