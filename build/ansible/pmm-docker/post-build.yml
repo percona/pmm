@@ -24,11 +24,15 @@
         name: pmm-managed
         force: true
         state: absent
+      environment:
+        PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
     - name: Remove pmm-managed role from PostgreSQL database
       postgresql_user:
         name: pmm-managed
         state: absent
+      environment:
+        PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
     - name: Stop supervisord service
       command: supervisorctl shutdown

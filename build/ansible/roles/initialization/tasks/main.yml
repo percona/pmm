@@ -66,6 +66,8 @@
           name: grafana
           login_user: postgres
           state: present
+        environment:
+          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
       - name: Create grafana user in postgres
         postgresql_user:
@@ -77,6 +79,8 @@
           login_user: postgres
           state: present
         when: not ansible_check_mode
+        environment:
+          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
     when:
       - lookup('env','GF_DATABASE_URL') == ''
       - lookup('env','GF_DATABASE_HOST') == ''

@@ -325,20 +325,14 @@ func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName
 
 func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, error) {
 	var settings *models.Settings
-	useServerID := false
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var e error
 		if settings, e = models.GetSettings(tx); e != nil {
 			return e
 		}
 
-		if _, err := models.GetPerconaSSODetails(ctx, s.db.Querier); err == nil {
-			useServerID = true
-		} else if settings.Telemetry.UUID == "" {
-			settings.Telemetry.UUID, e = generateUUID()
-			if e != nil {
-				return e
-			}
+		if settings.Telemetry.UUID == "" {
+			settings.Telemetry.UUID = uuid.NewString()
 			return models.SaveSettings(tx, settings)
 		}
 		return nil
@@ -347,12 +341,7 @@ func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, e
 		return nil, err
 	}
 
-	var serverID string
-	if useServerID {
-		serverID = settings.PMMServerID
-	} else {
-		serverID = settings.Telemetry.UUID
-	}
+	serverID := settings.Telemetry.UUID
 
 	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
@@ -367,15 +356,6 @@ func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, e
 			{Key: "DistributionMethod", Value: distMethod.String()},
 		},
 	}, nil
-}
-
-func generateUUID() (string, error) {
-	uuid, err := uuid.NewRandom()
-	if err != nil {
-		return "", errors.Wrap(err, "can't generate UUID")
-	}
-
-	return uuid.String(), nil
 }
 
 func (s *Service) send(ctx context.Context, report *telemetryv1.ReportRequest) error {

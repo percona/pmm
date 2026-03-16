@@ -44,8 +44,21 @@
     group: root
     mode: 0750
 
-- name: Initialize Postgres database
-  command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
+- name: Generate random password for postgres superuser
+  shell: openssl rand -hex 16
+  register: postgres_password
+  changed_when: false
+
+- name: Store postgres password securely
+  copy:
+    content: "{{ postgres_password.stdout }}"
+    dest: /srv/.postgres_password
+    owner: pmm
+    group: root
+    mode: 0600
+
+- name: Initialize Postgres database with password authentication
+  command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
   become: true
   become_user: pmm
   become_method: su
@@ -55,37 +68,41 @@
   become: true
   become_user: pmm
   become_method: su
-
-- name: Create postgres user
-  shell: /usr/pgsql-14/bin/createuser --echo --superuser --no-password postgres
-  become: true
-  become_user: pmm
-  become_method: su
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create pmm-managed database
   postgresql_db:
     name: pmm-managed
     state: present
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create pmm-managed user
   postgresql_user:
     db: pmm-managed
     name: pmm-managed
-    password: "md5da757ec3e22c6d86a2bb8e70307fa937"
+    password: pmm-managed
     priv: "ALL"
     expires: infinity
     state: present
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create pg_stat_statements extension
   postgresql_ext:
     db: postgres
     name: pg_stat_statements
     schema: public
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create grafana database in postgres
   postgresql_db:
     name: grafana
     state: present
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Create grafana user in postgres
   postgresql_user:
@@ -96,12 +113,14 @@
     expires: infinity
     state: present
   when: not ansible_check_mode
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
 - name: Upgrade grafana database to the latest schema
   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
   changed_when: true
 
-- name: Stop Postgres 14 database without supervisor
+- name: Stop Postgres 14 database
   command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
   become: true
   become_user: pmm

@@ -31,6 +31,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     header: Messages.columns.operationId,
     accessorKey: 'queryId',
     enableColumnFilter: false,
+    enableSorting: false,
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
       'data-testid': `query-${row.original.queryId}-operation-id-cell`,
