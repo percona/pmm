@@ -19,12 +19,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/percona/saas/pkg/check"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -47,6 +47,9 @@ type agentsStateUpdater interface {
 // FIXME Rename to victoriaMetrics.Service, update tests.
 type prometheusService interface {
 	RequestConfigurationUpdate()
+	// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+	// bypassing the batch delay. Use this for critical updates like port changes.
+	ForceConfigurationUpdate(ctx context.Context) error
 }
 
 // checksService is a subset of methods of checks.Service used by this package.

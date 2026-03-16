@@ -7,10 +7,12 @@ import { useGrafana } from 'contexts/grafana';
 import { UpdateModal } from 'components/main/update-modal';
 import { DelayedRender } from 'components/delayed-render';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
+import { isRenderingServer } from '@pmm/shared';
+import Header from './header/Header';
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
-  const { isOnGrafanaPage, isFullScreen } = useGrafana();
+  const { isFullScreen } = useGrafana();
 
   if (!isReady) {
     return (
@@ -29,15 +31,12 @@ export const MainWithNav = () => {
 
   return (
     <Stack direction="row" flex={1}>
-      {!isFullScreen && (
-        <>
-          <Sidebar />
-          <Stack flex={isOnGrafanaPage ? 0 : 1} direction="column">
-            <Outlet />
-          </Stack>
-        </>
-      )}
-      <GrafanaPage />
+      {!isFullScreen && !isRenderingServer() && <Sidebar />}
+      <Stack flex={1} direction="column">
+        {!isFullScreen && <Header />}
+        <Outlet />
+        <GrafanaPage />
+      </Stack>
       <DelayedRender delay={SHOW_UPDATE_INFO_DELAY_MS}>
         <UpdateModal />
       </DelayedRender>

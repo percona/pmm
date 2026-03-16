@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set up Go release
-        uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
@@ -115,22 +115,6 @@ jobs:
           golangci_lint_flags: "-c=.golangci.yml"
           golangci_lint_version: v2.6.2 # Version should match specified in Makefile
 
-      - name: Run go-consistent
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-        run: |
-          if out=$(bin/go-consistent -pedantic -exclude "tests|api/agent" ./...); exit_code=$?; [ $exit_code -eq 0 ]; then
-            echo "$out"
-            exit 0
-          fi
-
-          if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
-            echo "$out"
-            exit $exit_code
-          fi
-
-          echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-level=error
-
       - name: Test common API
         run: make test-common
 
@@ -150,7 +134,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Check spelling of md files
-        uses: crate-ci/typos@78bc6fb2c0d734235d57a2d6b9de923cc325ebdd # v1.43.4
+        uses: crate-ci/typos@631208b7aac2daa8b707f55e7331f9112b0e062d # v1.44.0
         with:
           files: "**/*.md ./documentation/**/*.md"
 
