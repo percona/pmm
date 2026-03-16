@@ -1,5 +1,5 @@
 # keep that format for easier search
-ARG GO_VERSION=1.25.7
+ARG GO_VERSION=1.25.8
 
 FROM golang:${GO_VERSION} AS golang
 

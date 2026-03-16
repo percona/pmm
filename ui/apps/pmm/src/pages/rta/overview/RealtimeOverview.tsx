@@ -1,5 +1,9 @@
 import { FC, useRef, useState } from 'react';
-import { Link as RouterLink, useSearchParams } from 'react-router-dom';
+import {
+  Navigate,
+  Link as RouterLink,
+  useSearchParams,
+} from 'react-router-dom';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
@@ -29,7 +33,7 @@ const RealtimeOverviewPage: FC = () => {
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
-  const { data: sessions = [] } = useRealtimeSessions();
+  const { data: sessions = [], isLoading } = useRealtimeSessions();
 
   const handleQueryChange = (query: QueryData, index: number) => {
     setSelectedQuery(query);
@@ -77,6 +81,14 @@ const RealtimeOverviewPage: FC = () => {
 
     setSearchParams({ serviceIds: newServiceIds });
   };
+
+  if (isLoading) {
+    return <RealtimePage />;
+  }
+
+  if (sessions.length === 0) {
+    return <Navigate to="/rta/selection" />;
+  }
 
   return (
     <RealtimePage>

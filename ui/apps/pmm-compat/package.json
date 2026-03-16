@@ -14,8 +14,8 @@
     "sign": "npx --yes @grafana/sign-plugin@latest",
     "clean": "rm -rf dist"
   },
-  "author": "Percona",
-  "license": "AGPLv3",
+  "author": "Percona LLC",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "@grafana/eslint-config": "^8.0.0",
     "@grafana/plugin-e2e": "^1.17.1",
@@ -68,10 +68,10 @@
   },
   "dependencies": {
     "@emotion/css": "11.10.6",
-    "@grafana/data": "^11.5.2",
-    "@grafana/runtime": "^11.5.2",
-    "@grafana/schema": "^11.5.2",
-    "@grafana/ui": "^11.5.2",
+    "@grafana/data": "^11.6.13",
+    "@grafana/runtime": "^11.6.13",
+    "@grafana/schema": "^11.6.13",
+    "@grafana/ui": "^11.6.13",
     "@pmm/shared": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
