@@ -990,3 +990,70 @@ telemetry:
         column: "PMM_POSTGRES_ADDR"
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"
+
+  - id: RTADBVersion
+    source: PMMDB_SELECT
+    query: >
+      a.agent_type as agent_type,
+      s.version as db_version,
+      count(a.agent_id) as agent_count
+      FROM
+        agents a
+      INNER JOIN
+        services s ON a.service_id = s.service_id
+      WHERE
+        a.agent_type = 'rta-mongodb-agent'
+        AND a.created_at >= now() -  interval '1 day'
+      GROUP BY
+        agent_type, db_version;
+    summary: "Real-Time Analytics agents used for last day grouped by DB version"
+    transform:
+      type: JSON
+      metric: "rta_db_versions"
+    data:
+      - metric_name: "agent_type"
+        column: "agent_type"
+      - metric_name: "db_version"
+        column: "db_version"
+      - metric_name: "agent_count"
+        column: "agent_count"
+
+  - id: RTASessionDuration
+    source: PMMDB_SELECT
+    query: >
+      agent_type,
+      EXTRACT(EPOCH FROM updated_at  - created_at)::int  AS duration_sec
+      FROM agents
+      WHERE
+        agent_type = 'rta-mongodb-agent'
+        AND EXTRACT(EPOCH FROM updated_at  - created_at)::int > 0
+        AND created_at >= now() -  interval '1 day';
+    summary: "Real-Time Analytics session durations for last day"
+    transform:
+      type: JSON
+      metric: "rta_session_durations"
+    data:
+      - metric_name: "agent_type"
+        column: "agent_type"
+      - metric_name: "duration_sec"
+        column: "duration_sec"
+
+  - id: RTAAgentCollectInterval
+    source: PMMDB_SELECT
+    query: >
+      agent_type,
+      ((rta_options->'collect_interval')::numeric / 1000000000)::int as collect_interval_sec
+      FROM agents
+      WHERE
+        agent_type = 'rta-mongodb-agent'
+        AND rta_options->'collect_interval' != 'null'
+        AND created_at >= now() -  interval '1 day';
+    summary: "Real-Time Analytics collect interval (sec)"
+    transform:
+      type: JSON
+      metric: "rta_agent_collect_interval"
+    data:
+      - metric_name: "agent_type"
+        column: "agent_type"
+      - metric_name: "collect_interval_sec"
+        column: "collect_interval_sec"

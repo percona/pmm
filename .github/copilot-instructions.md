@@ -32,16 +32,3 @@ Every component is written in Go, with the exception of the UI, which is based o
 ### Other Directories
 - **build** (`/build`) - Build scripts and Dockerfiles
 - **scripts** (`/scripts`) - Utility scripts for development and maintenance
-
-# AI Agent Instructions
-
-The following guidelines are intended to help AI coding agents contribute effectively to the PMM codebase. 
-
-## Component-Specific Guidelines
-
-Each PMM component can have its own `AGENT.md` file in its respective directory, providing detailed development guidelines specific to that component. This file serves as a general overview and points to these component-specific instructions.
-
-Currently available component guidelines:
-- [managed/AGENT.md](../managed/AGENT.md) - Comprehensive AI-driven `pmm-managed` development guidelines
-
-Additional components may add their own `AGENT.md` files as needed (e.g., `agent/AGENT.md`, `ui/AGENT.md`, etc.).

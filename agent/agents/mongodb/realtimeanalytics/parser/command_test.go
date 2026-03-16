@@ -111,14 +111,14 @@ var dataCommand = []byte(`
 func Test_parseCommand(t *testing.T) {
 	t.Parallel()
 
-	raw := parseBsonRaw(dataCommand)
+	raw := parseBsonRaw(t, dataCommand)
 	result := parseCommand(raw)
 	require.NotEmpty(t, result, "Expected non-empty result from parseCommand")
 	require.Contains(t, result, "db.runCommand({", "Expected fingerprint to contain 'db.runCommand({'")
 }
 
 func Benchmark(b *testing.B) {
-	raw := parseBsonRaw(dataAggregate)
+	raw := parseBsonRaw(b, dataAggregate)
 	for b.Loop() {
 		parseCommand(raw)
 	}
