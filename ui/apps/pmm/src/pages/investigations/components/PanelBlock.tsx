@@ -1,9 +1,84 @@
 import { Box, Card, CardContent, Link, Typography } from '@mui/material';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import type { InvestigationBlock } from 'api/investigations';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
 const RENDER_API_PATH = '/v1/grafana/render';
+const RENDER_IMAGE_TIMEOUT_MS = 60000;
+
+/** Fetches panel image with credentials and long timeout so the image loads in reports. */
+const PanelImageWithFetch: FC<{
+  src: string;
+  alt: string;
+  href: string | null;
+}> = ({ src, alt, href }) => {
+  const [state, setState] = useState<'loading' | { status: 'success'; url: string } | { status: 'error' }>('loading');
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), RENDER_IMAGE_TIMEOUT_MS);
+
+    fetch(src, { credentials: 'include', signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        objectUrl = URL.createObjectURL(blob);
+        setState({ status: 'success', url: objectUrl });
+      })
+      .catch(() => setState({ status: 'error' }))
+      .finally(() => clearTimeout(timeoutId));
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [src]);
+
+  if (state === 'loading') {
+    return (
+      <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+        Loading panel image…
+      </Typography>
+    );
+  }
+  if (state.status === 'error') {
+    return (
+      <Box sx={{ mb: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          Image failed to load
+        </Typography>
+        {href && (
+          <Link href={href} target="_blank" rel="noopener noreferrer" sx={{ display: 'inline-block', mt: 0.5 }}>
+            Open panel in Grafana
+          </Link>
+        )}
+      </Box>
+    );
+  }
+  const img = (
+    <Box
+      component="img"
+      src={state.url}
+      alt={alt}
+      loading="lazy"
+      sx={{ maxWidth: '100%', height: 'auto', borderRadius: 1, display: 'block' }}
+    />
+  );
+  return (
+    <Box sx={{ mb: 1 }}>
+      {href ? (
+        <Link href={href} target="_blank" rel="noopener noreferrer" sx={{ display: 'block' }}>
+          {img}
+        </Link>
+      ) : (
+        img
+      )}
+    </Box>
+  );
+};
 
 export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const config = (block.configJson || {}) as Record<string, unknown> & {
@@ -25,10 +100,15 @@ export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const imageUrl = typeof config.image_url === 'string' ? config.image_url : null;
   const dashboardUrl = typeof config.dashboard_url === 'string' ? config.dashboard_url : null;
 
+  const toEpochMsOrOriginal = (s: string) => {
+    if (!s) return s;
+    const date = new Date(s);
+    return Number.isNaN(date.getTime()) ? s : String(date.getTime());
+  };
   const href =
     dashboardUrl ??
     (dashboardUid && panelId
-      ? `${PMM_NEW_NAV_GRAFANA_PATH}/d/${dashboardUid}?viewPanel=${panelId}${timeFrom ? `&from=${encodeURIComponent(timeFrom)}` : ''}${timeTo ? `&to=${encodeURIComponent(timeTo)}` : ''}`
+      ? `${PMM_NEW_NAV_GRAFANA_PATH}/d/${dashboardUid}?viewPanel=${panelId}${timeFrom ? `&from=${encodeURIComponent(toEpochMsOrOriginal(timeFrom))}` : ''}${timeTo ? `&to=${encodeURIComponent(toEpochMsOrOriginal(timeTo))}` : ''}`
       : dashboardUid
         ? `${PMM_NEW_NAV_GRAFANA_PATH}/d/${dashboardUid}`
         : null);
@@ -75,32 +155,11 @@ export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
           </Typography>
         )}
         {renderImageSrc && (
-          <Box sx={{ mb: 1 }}>
-            {href ? (
-              <Link
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ display: 'block' }}
-              >
-                <Box
-                  component="img"
-                  src={renderImageSrc}
-                  alt={block.title || 'Grafana panel'}
-                  loading="lazy"
-                  sx={{ maxWidth: '100%', height: 'auto', borderRadius: 1, display: 'block' }}
-                />
-              </Link>
-            ) : (
-              <Box
-                component="img"
-                src={renderImageSrc}
-                alt={block.title || 'Grafana panel'}
-                loading="lazy"
-                sx={{ maxWidth: '100%', height: 'auto', borderRadius: 1, display: 'block' }}
-              />
-            )}
-          </Box>
+          <PanelImageWithFetch
+            src={renderImageSrc}
+            alt={block.title || 'Grafana panel'}
+            href={href}
+          />
         )}
         {embedSrc && (
           <iframe

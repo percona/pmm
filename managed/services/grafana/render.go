@@ -20,7 +20,9 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -30,6 +32,26 @@ var (
 	safeUIDRe     = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 	safePanelIDRe = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
 )
+
+// isoToEpochMs parses from/to as ISO 8601 and returns epoch milliseconds for Grafana dashboard URL. If either parse fails, returns false.
+func isoToEpochMs(from, to string) (fromMs, toMs int64, ok bool) {
+	parse := func(s string) (int64, bool) {
+		t, err := time.Parse(time.RFC3339, s)
+		if err != nil {
+			t, err = time.Parse(time.RFC3339Nano, s)
+		}
+		if err != nil {
+			return 0, false
+		}
+		return t.UnixMilli(), true
+	}
+	fms, okFrom := parse(from)
+	tms, okTo := parse(to)
+	if !okFrom || !okTo {
+		return 0, 0, false
+	}
+	return fms, tms, true
+}
 
 // RenderHandler serves GET /v1/grafana/render: proxies Grafana panel render API
 // or returns JSON with image_url and dashboard_url when format=json or Accept: application/json.
@@ -124,7 +146,13 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if wantJSON {
 		imageURL := "/v1/grafana/render?" + imageURLParams.Encode()
-		dashboardURL := "/graph/d/" + dashboardUID + "?viewPanel=" + panelID + "&from=" + url.QueryEscape(from) + "&to=" + url.QueryEscape(to)
+		// Grafana dashboard URL accepts from/to in epoch ms or relative (e.g. now-12h); ISO 8601 can show wrong range (1970). Use epoch ms for dashboard_url.
+		fromParam, toParam := from, to
+		if fromMs, toMs, ok := isoToEpochMs(from, to); ok {
+			fromParam = strconv.FormatInt(fromMs, 10)
+			toParam = strconv.FormatInt(toMs, 10)
+		}
+		dashboardURL := "/graph/d/" + dashboardUID + "?viewPanel=" + panelID + "&from=" + url.QueryEscape(fromParam) + "&to=" + url.QueryEscape(toParam)
 		for k, v := range imageURLParams {
 			if strings.HasPrefix(k, "var-") && len(v) > 0 {
 				dashboardURL += "&" + url.QueryEscape(k) + "=" + url.QueryEscape(v[0])

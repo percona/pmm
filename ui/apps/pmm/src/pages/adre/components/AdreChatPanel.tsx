@@ -40,7 +40,15 @@ function isValidProgressStep(s: unknown): s is ProgressStep {
   );
 }
 
-/** Build "Open in Grafana" URL from a PMM render URL (e.g. /v1/grafana/render?dashboard_uid=...&panel_id=...&from=...&to=...). */
+/** Parse ISO 8601 to epoch ms for Grafana dashboard URL; return original string if not parseable. */
+function toEpochMsOrOriginal(s: string): string {
+  if (!s) return s;
+  const date = new Date(s);
+  if (Number.isNaN(date.getTime())) return s;
+  return String(date.getTime());
+}
+
+/** Build "Open in Grafana" URL from a PMM render URL. Uses epoch ms for from/to so Grafana shows the correct time range. */
 function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
   try {
     const path = renderSrc.startsWith('/') ? renderSrc : `/${renderSrc}`;
@@ -55,8 +63,8 @@ function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
     const base = `${PMM_NEW_NAV_GRAFANA_PATH}/d/${uid}`;
     const q = new URLSearchParams();
     if (panelId) q.set('viewPanel', panelId);
-    if (from) q.set('from', from);
-    if (to) q.set('to', to);
+    if (from) q.set('from', toEpochMsOrOriginal(from));
+    if (to) q.set('to', toEpochMsOrOriginal(to));
     params.forEach((v, k) => {
       if (k.startsWith('var-')) q.set(k, v);
     });
@@ -68,9 +76,86 @@ function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
 }
 
 const GRAFANA_RENDER_PATH = '/v1/grafana/render';
+const RENDER_IMAGE_TIMEOUT_MS = 60000;
+
 function isGrafanaRenderImageSrc(src: string): boolean {
   return src.includes(GRAFANA_RENDER_PATH) && src.includes('dashboard_uid=') && src.includes('panel_id=');
 }
+
+/** Fetches Grafana render image with credentials and long timeout so the panel image loads in chat. */
+const GrafanaPanelImage: FC<{
+  src: string;
+  alt: string;
+  dashboardHref: string | null;
+}> = ({ src, alt, dashboardHref }) => {
+  const [state, setState] = useState<'loading' | { status: 'success'; url: string } | { status: 'error' }>('loading');
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), RENDER_IMAGE_TIMEOUT_MS);
+
+    fetch(src, { credentials: 'include', signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        objectUrl = URL.createObjectURL(blob);
+        setState({ status: 'success', url: objectUrl });
+      })
+      .catch(() => setState({ status: 'error' }))
+      .finally(() => clearTimeout(timeoutId));
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [src]);
+
+  if (state === 'loading') {
+    return (
+      <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+        Loading panel image…
+      </Typography>
+    );
+  }
+  if (state.status === 'error') {
+    return (
+      <Box sx={{ my: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          Image failed to load
+        </Typography>
+        {dashboardHref && (
+          <Link href={dashboardHref} target="_blank" rel="noopener noreferrer" sx={{ display: 'inline-block', mt: 0.5, fontSize: '0.8125rem' }}>
+            Open in Grafana
+          </Link>
+        )}
+      </Box>
+    );
+  }
+  return (
+    <Box sx={{ my: 1 }}>
+      <Box
+        component="img"
+        src={state.url}
+        alt={alt}
+        loading="lazy"
+        sx={{ maxWidth: '100%', height: 'auto', borderRadius: 1, display: 'block' }}
+      />
+      {dashboardHref && (
+        <Link
+          href={dashboardHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ display: 'inline-block', mt: 0.5, fontSize: '0.8125rem' }}
+        >
+          Open in Grafana
+        </Link>
+      )}
+    </Box>
+  );
+};
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -564,25 +649,11 @@ export const AdreChatPanel: FC = () => {
                                 if (src && isGrafanaRenderImageSrc(src)) {
                                   const dashboardHref = dashboardUrlFromRenderUrl(src);
                                   return (
-                                    <Box sx={{ my: 1 }}>
-                                      <Box
-                                        component="img"
-                                        src={src}
-                                        alt={alt ?? 'Grafana panel'}
-                                        loading="lazy"
-                                        sx={{ maxWidth: '100%', height: 'auto', borderRadius: 1, display: 'block' }}
-                                      />
-                                      {dashboardHref && (
-                                        <Link
-                                          href={dashboardHref}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          sx={{ display: 'inline-block', mt: 0.5, fontSize: '0.8125rem' }}
-                                        >
-                                          Open in Grafana
-                                        </Link>
-                                      )}
-                                    </Box>
+                                    <GrafanaPanelImage
+                                      src={src}
+                                      alt={alt ?? 'Grafana panel'}
+                                      dashboardHref={dashboardHref}
+                                    />
                                   );
                                 }
                                 return <Box component="img" src={src} alt={alt ?? ''} />;
