@@ -80,7 +80,6 @@ This happens when the ClickHouse schema migration is interrupted during the upgr
     ```bash
     supervisorctl status qan-api2
     ```
-
 ## ClickHouse memory issues in low-memory environments
 
 If you're running PMM Server with less than 16 GB RAM and seeing "memory limit exceeded" errors in ClickHouse logs, switch to the low-memory configuration.
@@ -92,14 +91,13 @@ PMM includes two ClickHouse profiles:
 
 ### Switch to low-memory configuration
 
-Run from outside the container:
 ```bash
-docker exec -it pmm-server ./switch-config.sh low
+docker exec -it -u pmm pmm-server ./switch-config.sh low
 ```
 
 To switch back:
 ```bash
-docker exec -it pmm-server ./switch-config.sh default
+docker exec -it -u pmm pmm-server ./switch-config.sh default
 ```
 
 The script stops ClickHouse, updates the configuration, and restarts the service.
@@ -107,9 +105,18 @@ The script stops ClickHouse, updates the configuration, and restarts the service
 ### Persistent configuration
 
 If you run PMM Server with the `--rm` flag, run the switch script each time the container starts. For systemd, add to your unit file:
-
 ```ini
-ExecStartPost=/usr/bin/docker exec pmm-server ./switch-config.sh low
+ExecStartPost=/usr/bin/docker exec -u pmm pmm-server ./switch-config.sh low
 ```
 
 See [Install PMM Server with Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) for systemd configuration examples.
+
+??? note "Configuration details"
+    Both configuration files are located in `/etc/clickhouse-server/` inside the PMM Server container:
+    
+    - `default-config.xml` — default profile
+    - `low-memory-config.xml` — low-memory profile
+    
+    The script is available at `/etc/clickhouse-server/switch-config.sh` or `/opt/switch-config.sh`.
+    
+    When switching profiles, both `config.xml` and `users.xml` are updated to point to the selected profile.
