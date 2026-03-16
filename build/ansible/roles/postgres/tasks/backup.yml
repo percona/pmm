@@ -42,6 +42,8 @@
       name: pmm-managed
       state: dump
       target: /srv/backup/pmm-managed.sql
+    environment:
+      PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
   - name: Dump grafana database
     postgresql_db:
@@ -49,6 +51,8 @@
       state: dump
       target: /srv/backup/grafana.sql
     when: not is_ha
+    environment:
+      PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
   - name: Stop Postgres database without supervisor
     command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14

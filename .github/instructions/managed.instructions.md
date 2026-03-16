@@ -124,6 +124,7 @@ Multiple code generation tools are used:
 - Use `status.Error()` for gRPC errors with proper codes
 - Check `reform.ErrNoRows` for "not found" scenarios
 - Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
+- When adding information to errors, avoid redundant information that the underlying error already provides
 - Return early on errors to avoid deep nesting
 - Use `errors.Is()` and `errors.As()` for error type checking
 - Use `errors.WithStack()` wisely and only when stack traces are needed
