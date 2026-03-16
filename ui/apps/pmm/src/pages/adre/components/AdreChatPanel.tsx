@@ -2,6 +2,7 @@ import {
   Box,
   Collapse,
   IconButton,
+  Link,
   MenuItem,
   Select,
   Stack,
@@ -20,6 +21,7 @@ import { useAdreModels, useAdreSettings } from 'hooks/api/useAdre';
 import { adreChatStream, type AdreStreamProgressEvent } from 'api/adre';
 import { useSnackbar } from 'notistack';
 import { CodeBlock } from 'pages/updates/change-log/code-block';
+import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
 const STORAGE_KEY = 'pmm-adre-chat';
 const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -36,6 +38,38 @@ function isValidProgressStep(s: unknown): s is ProgressStep {
     ((s as ProgressStep).description === undefined || typeof (s as ProgressStep).description === 'string') &&
     ((s as ProgressStep).status === 'running' || (s as ProgressStep).status === 'done')
   );
+}
+
+/** Build "Open in Grafana" URL from a PMM render URL (e.g. /v1/grafana/render?dashboard_uid=...&panel_id=...&from=...&to=...). */
+function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
+  try {
+    const path = renderSrc.startsWith('/') ? renderSrc : `/${renderSrc}`;
+    const searchStart = path.indexOf('?');
+    if (searchStart === -1) return null;
+    const params = new URLSearchParams(path.slice(searchStart + 1));
+    const uid = params.get('dashboard_uid');
+    const panelId = params.get('panel_id');
+    const from = params.get('from');
+    const to = params.get('to');
+    if (!uid) return null;
+    const base = `${PMM_NEW_NAV_GRAFANA_PATH}/d/${uid}`;
+    const q = new URLSearchParams();
+    if (panelId) q.set('viewPanel', panelId);
+    if (from) q.set('from', from);
+    if (to) q.set('to', to);
+    params.forEach((v, k) => {
+      if (k.startsWith('var-')) q.set(k, v);
+    });
+    const qs = q.toString();
+    return qs ? `${base}?${qs}` : base;
+  } catch {
+    return null;
+  }
+}
+
+const GRAFANA_RENDER_PATH = '/v1/grafana/render';
+function isGrafanaRenderImageSrc(src: string): boolean {
+  return src.includes(GRAFANA_RENDER_PATH) && src.includes('dashboard_uid=') && src.includes('panel_id=');
 }
 
 interface ChatMessage {
@@ -526,6 +560,33 @@ export const AdreChatPanel: FC = () => {
                               code: ({ children }: { children?: ReactNode }) => (
                                 <CodeBlock>{children}</CodeBlock>
                               ),
+                              img: ({ src, alt }: { src?: string; alt?: string }) => {
+                                if (src && isGrafanaRenderImageSrc(src)) {
+                                  const dashboardHref = dashboardUrlFromRenderUrl(src);
+                                  return (
+                                    <Box sx={{ my: 1 }}>
+                                      <Box
+                                        component="img"
+                                        src={src}
+                                        alt={alt ?? 'Grafana panel'}
+                                        loading="lazy"
+                                        sx={{ maxWidth: '100%', height: 'auto', borderRadius: 1, display: 'block' }}
+                                      />
+                                      {dashboardHref && (
+                                        <Link
+                                          href={dashboardHref}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          sx={{ display: 'inline-block', mt: 0.5, fontSize: '0.8125rem' }}
+                                        >
+                                          Open in Grafana
+                                        </Link>
+                                      )}
+                                    </Box>
+                                  );
+                                }
+                                return <Box component="img" src={src} alt={alt ?? ''} />;
+                              },
                             }}
                           >
                             {msg.content || response}

@@ -453,6 +453,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	addAdreHandlers(mux, deps.db, deps.grafanaClient)
+	mux.Handle("/v1/grafana/render", grafana.NewRenderHandler(deps.grafanaClient))
 	addInvestigationsHandlers(mux, deps.db)
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)

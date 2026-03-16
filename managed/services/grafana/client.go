@@ -163,6 +163,49 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	return nil
 }
 
+// DoRaw performs an HTTP request and returns the response body and Content-Type.
+// It does not decode JSON; used for binary responses (e.g. image/png from render API).
+func (c *Client) DoRaw(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte) ([]byte, string, error) {
+	u := url.URL{
+		Scheme:   "http",
+		Host:     c.addr,
+		Path:     path,
+		RawQuery: rawQuery,
+	}
+	req, err := http.NewRequest(method, u.String(), bytes.NewReader(body))
+	if err != nil {
+		return nil, "", errors.WithStack(err)
+	}
+	if len(body) != 0 {
+		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	}
+	for k := range headers {
+		req.Header.Set(k, headers.Get(k))
+	}
+	req = req.WithContext(ctx)
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, "", errors.WithStack(err)
+	}
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, "", errors.WithStack(err)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode > 202 {
+		cErr := &clientError{
+			Method: req.Method,
+			URL:    req.URL.String(),
+			Code:   resp.StatusCode,
+			Body:   string(b),
+		}
+		_ = json.Unmarshal(b, cErr)
+		return nil, "", errors.WithStack(cErr)
+	}
+	contentType := resp.Header.Get("Content-Type")
+	return b, contentType, nil
+}
+
 type authUser struct {
 	role   role
 	userID int

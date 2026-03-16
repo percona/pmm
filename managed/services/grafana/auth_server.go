@@ -124,6 +124,9 @@ var rules = map[string]role{
 	"/v1/adre/settings": viewer,
 	"/v1/adre":          viewer,
 
+	// Grafana panel render (image or JSON with image_url/dashboard_url).
+	"/v1/grafana/render": viewer,
+
 	// Investigations (AI Investigations).
 	"/v1/investigations": viewer,
 
