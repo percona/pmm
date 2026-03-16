@@ -8,4 +8,9 @@ export const Messages = {
     next: 'Next query',
     close: 'Close details pane',
   },
+  tooltips: {
+    previous: 'Previous query',
+    next: 'Next query',
+    close: 'Close details',
+  },
 };

@@ -8,6 +8,7 @@ import { UpdateModal } from 'components/main/update-modal';
 import { DelayedRender } from 'components/delayed-render';
 import { AdreChatWidget } from 'components/adre/AdreChatWidget';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
+import { isRenderingServer } from '@pmm/shared';
 import Header from './header/Header';
 
 export const MainWithNav = () => {
@@ -31,7 +32,7 @@ export const MainWithNav = () => {
 
   return (
     <Stack direction="row" flex={1}>
-      {!isFullScreen && <Sidebar />}
+      {!isFullScreen && !isRenderingServer() && <Sidebar />}
       <Stack flex={1} direction="column">
         {!isFullScreen && <Header />}
         <Outlet />

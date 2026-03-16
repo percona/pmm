@@ -19,7 +19,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsonrw"
 )
 
 var dataAggregate = []byte(`
@@ -145,20 +146,18 @@ var dataAggregate = []byte(`
   }
 `)
 
-func parseBsonRaw(data []byte) bson.Raw {
-	vr, err := bson.NewExtJSONValueReader(bytes.NewReader(data), true)
-	if err != nil {
-		panic(err)
-	}
-
-	decoder := bson.NewDecoder(vr)
-
+func parseBsonRaw(tb testing.TB, data []byte) bson.Raw {
+	tb.Helper()
 	var raw bson.Raw
 
-	err = decoder.Decode(&raw)
-	if err != nil {
-		panic(err)
-	}
+	vr, err := bsonrw.NewExtJSONValueReader(bytes.NewReader(data), true)
+	require.NoError(tb, err)
+
+	dec, err := bson.NewDecoder(vr)
+	require.NoError(tb, err)
+
+	err = dec.Decode(&raw)
+	require.NoError(tb, err)
 
 	return raw
 }
@@ -166,7 +165,7 @@ func parseBsonRaw(data []byte) bson.Raw {
 func Test_parseCommandAggregate(t *testing.T) {
 	t.Parallel()
 
-	raw := parseBsonRaw(dataAggregate)
+	raw := parseBsonRaw(t, dataAggregate)
 	commandRaw, ok := raw.Lookup("command").DocumentOK()
 	require.True(t, ok, "Expected to find 'command' field in raw BSON")
 
@@ -179,7 +178,7 @@ func Test_parseCommandAggregate(t *testing.T) {
 }
 
 func Benchmark_ParseCommandAggregate(b *testing.B) {
-	raw := parseBsonRaw(dataAggregate)
+	raw := parseBsonRaw(b, dataAggregate)
 	commandRaw, _ := raw.Lookup("command").DocumentOK()
 	ns, _ := raw.Lookup("ns").StringValueOK()
 

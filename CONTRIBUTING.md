@@ -1,6 +1,6 @@
 # Welcome to Percona Monitoring and Management (PMM)!
 
-We'd be glad to welcome you to Percona community which tries to keep the open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is an open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers. Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
+We'd be glad to welcome you to Percona community which tries to keep the open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is an open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers. Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html#architecture) for the actual architecture.
 
 ## Table of contents
 1. [Project repos structure](#project-repos-structure)
@@ -125,7 +125,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.
 * To work correctly, pmm-agent needs vmagent and exporters installed on the system.
-  * The first option is to install pmm-client using this instruction https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
+  * The first option is to install pmm-client using this instruction https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/index.html. It will install all exporters as well.
   * Another option is to do it manually
     * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in `pmm-agent-dev.yaml` file.
     * All paths to exporter binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually if necessary.
