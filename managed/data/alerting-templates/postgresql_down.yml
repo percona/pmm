@@ -3,7 +3,7 @@ templates:
   - name: pmm_postgresql_down
     version: 1
     summary: PostgreSQL down
-    expr: sum by (service_name, node_name) (pg_up) == bool 0 and on(node_name) pmm_managed_inventory_agents{agent_type="postgres_exporter", disabled="0"} == 1
+    expr: sum by (service_name, node_name) (pg_up) == bool 0 and on(node_name) pmm_managed_inventory_agents{agent_type="postgres_exporter", disabled="0"}
     for: 1m
     severity: critical
     annotations:

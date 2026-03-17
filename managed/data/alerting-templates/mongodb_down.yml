@@ -3,7 +3,7 @@ templates:
   - name: pmm_mongodb_down
     version: 1
     summary: MongoDB down
-    expr: sum by (service_name, node_name) (mongodb_up) == bool 0 and on(node_name) pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0"} == 1
+    expr: sum by (service_name, node_name) (mongodb_up) == bool 0 and on(node_name) pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0"}
     for: 1m
     severity: critical
     annotations:
