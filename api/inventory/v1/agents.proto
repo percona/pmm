@@ -129,6 +129,8 @@ message NodeExporter {
   bool expose_exporter = 14;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 15;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 16;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -186,6 +188,8 @@ message MySQLdExporter {
   common.MetricsResolutions metrics_resolutions = 26;
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 27;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 28;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -283,6 +287,8 @@ message PostgresExporter {
   int32 max_exporter_connections = 26;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 27;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 28;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -324,6 +330,8 @@ message ProxySQLExporter {
   bool expose_exporter = 24;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 25;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 26;
 }
 
 // ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
@@ -363,6 +371,8 @@ message ValkeyExporter {
   bool expose_exporter = 23;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 24;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 25;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -679,6 +689,8 @@ message RDSExporter {
   int32 auto_discovery_limit = 25;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 26;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 27;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -711,6 +723,8 @@ message ExternalExporter {
   bool tls_skip_verify = 13;
   // Actual Agent status.
   AgentStatus status = 14;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 15;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
@@ -746,6 +760,8 @@ message AzureDatabaseExporter {
   LogLevel log_level = 14;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 15;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 16;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.

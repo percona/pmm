@@ -72,14 +72,14 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			exporterOptions.Timeout = *to
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ValkeyExporterType, &models.CreateAgentParams{
-			PMMAgentID:        req.PmmAgentId,
-			ServiceID:         service.ServiceID,
-			Username:          req.Username,
-			Password:          req.Password,
-			TLS:               req.Tls,
-			TLSSkipVerify:     req.TlsSkipVerify,
-			ExporterOptions:   exporterOptions,
-			ValkeyOptions:     models.ValkeyOptionsFromRequest(req),
+			PMMAgentID:      req.PmmAgentId,
+			ServiceID:       service.ServiceID,
+			Username:        req.Username,
+			Password:        req.Password,
+			TLS:             req.Tls,
+			TLSSkipVerify:   req.TlsSkipVerify,
+			ExporterOptions: exporterOptions,
+			ValkeyOptions:   models.ValkeyOptionsFromRequest(req),
 		})
 		if err != nil {
 			return err

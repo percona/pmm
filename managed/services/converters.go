@@ -259,7 +259,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.NodeExporterType:
-		return &inventoryv1.NodeExporter{
+		exporter := &inventoryv1.NodeExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			Disabled:           agent.Disabled,
@@ -272,7 +272,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		if agent.ExporterOptions.Timeout != 0 {
+			exporter.Timeout = durationpb.New(agent.ExporterOptions.Timeout)
+		}
+		return exporter, nil
 
 	case models.MySQLdExporterType:
 		exporter := &inventoryv1.MySQLdExporter{
@@ -321,7 +325,6 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-
 		if agent.ExporterOptions.Timeout != 0 {
 			exporter.Timeout = durationpb.New(agent.ExporterOptions.Timeout)
 		}
@@ -489,7 +492,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.RDSExporterType:
-		return &inventoryv1.RDSExporter{
+		exporter := &inventoryv1.RDSExporter{
 			AgentId:                 agent.AgentID,
 			PmmAgentId:              pointer.GetString(agent.PMMAgentID),
 			NodeId:                  nodeID,
@@ -504,7 +507,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:         processExecPath,
 			LogLevel:                inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:      ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		if agent.ExporterOptions.Timeout != 0 {
+			exporter.Timeout = durationpb.New(agent.ExporterOptions.Timeout)
+		}
+		return exporter, nil
 
 	case models.ExternalExporterType:
 		if agent.RunsOnNodeID == nil && agent.PMMAgentID != nil {
@@ -530,10 +537,13 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 		}
+		if agent.ExporterOptions.Timeout != 0 {
+			ext.Timeout = durationpb.New(agent.ExporterOptions.Timeout)
+		}
 		return ext, nil
 
 	case models.AzureDatabaseExporterType:
-		return &inventoryv1.AzureDatabaseExporter{
+		exporter := &inventoryv1.AzureDatabaseExporter{
 			AgentId:                     agent.AgentID,
 			PmmAgentId:                  pointer.GetString(agent.PMMAgentID),
 			NodeId:                      nodeID,
@@ -546,7 +556,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:             processExecPath,
 			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:          ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		if agent.ExporterOptions.Timeout != 0 {
+			exporter.Timeout = durationpb.New(agent.ExporterOptions.Timeout)
+		}
+		return exporter, nil
 
 	case models.VMAgentType:
 		return &inventoryv1.VMAgent{

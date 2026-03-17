@@ -671,6 +671,7 @@ func CreateNodeExporter(q *reform.Querier,
 	disableCollectors []string,
 	agentPassword *string,
 	logLevel string,
+	timeout time.Duration,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
@@ -693,6 +694,7 @@ func CreateNodeExporter(q *reform.Querier,
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
+			Timeout:            timeout,
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}

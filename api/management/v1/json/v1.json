@@ -4070,6 +4070,11 @@
                             "type": "string"
                           },
                           "x-order": 22
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 23
                         }
                       },
                       "x-order": 1
@@ -5072,6 +5077,11 @@
                             }
                           },
                           "x-order": 17
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 1
@@ -5480,6 +5490,11 @@
                             }
                           },
                           "x-order": 15
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 16
                         }
                       },
                       "x-order": 1
@@ -5640,6 +5655,11 @@
                             "AGENT_STATUS_UNKNOWN"
                           ],
                           "x-order": 13
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 14
                         }
                       },
                       "x-order": 1
@@ -5816,6 +5836,11 @@
                             "AGENT_STATUS_UNKNOWN"
                           ],
                           "x-order": 13
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 14
                         }
                       },
                       "x-order": 1
@@ -5997,6 +6022,11 @@
                             }
                           },
                           "x-order": 14
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 15
                         }
                       },
                       "x-order": 1
@@ -6243,6 +6273,11 @@
                             "type": "string"
                           },
                           "x-order": 22
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 23
                         }
                       },
                       "x-order": 3
@@ -6589,6 +6624,11 @@
                             }
                           },
                           "x-order": 17
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 6
@@ -6875,6 +6915,11 @@
                             }
                           },
                           "x-order": 14
+                        },
+                        "timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 15
                         }
                       },
                       "x-order": 1

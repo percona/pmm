@@ -173,7 +173,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	var agent *inventoryv1.NodeExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, p.PmmAgentId, p.CustomLabels, p.PushMetrics, p.ExposeExporter,
-			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR))
+			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), *duration.FromProto(p.Timeout))
 		if err != nil {
 			return err
 		}
@@ -253,17 +253,17 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 			exporterOptions.Timeout = *to
 		}
 		params := &models.CreateAgentParams{
-			PMMAgentID:        p.PmmAgentId,
-			ServiceID:         p.ServiceId,
-			Username:          p.Username,
-			Password:          p.Password,
-			AgentPassword:     p.AgentPassword,
-			CustomLabels:      p.CustomLabels,
-			TLS:               p.Tls,
-			TLSSkipVerify:     p.TlsSkipVerify,
-			ExporterOptions:   exporterOptions,
-			MySQLOptions:      mysqlOptions,
-			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+			PMMAgentID:      p.PmmAgentId,
+			ServiceID:       p.ServiceId,
+			Username:        p.Username,
+			Password:        p.Password,
+			AgentPassword:   p.AgentPassword,
+			CustomLabels:    p.CustomLabels,
+			TLS:             p.Tls,
+			TLSSkipVerify:   p.TlsSkipVerify,
+			ExporterOptions: exporterOptions,
+			MySQLOptions:    mysqlOptions,
+			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		}
 		var err error
 		row, err = models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
@@ -715,17 +715,17 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 			exporterOptions.Timeout = *to
 		}
 		params := &models.CreateAgentParams{
-			PMMAgentID:          p.PmmAgentId,
-			ServiceID:           p.ServiceId,
-			Username:            p.Username,
-			Password:            p.Password,
-			AgentPassword:       p.AgentPassword,
-			CustomLabels:        p.CustomLabels,
-			TLS:                 p.Tls,
-			TLSSkipVerify:       p.TlsSkipVerify,
-			ExporterOptions:     exporterOptions,
-			PostgreSQLOptions:   models.PostgreSQLOptionsFromRequest(p),
-			LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+			PMMAgentID:        p.PmmAgentId,
+			ServiceID:         p.ServiceId,
+			Username:          p.Username,
+			Password:          p.Password,
+			AgentPassword:     p.AgentPassword,
+			CustomLabels:      p.CustomLabels,
+			TLS:               p.Tls,
+			TLSSkipVerify:     p.TlsSkipVerify,
+			ExporterOptions:   exporterOptions,
+			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(p),
+			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, params)
 		if err != nil {
@@ -825,17 +825,17 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 			exporterOptions.Timeout = *to
 		}
 		params := &models.CreateAgentParams{
-			PMMAgentID:        p.PmmAgentId,
-			ServiceID:         p.ServiceId,
-			Username:          p.Username,
-			Password:          p.Password,
-			AgentPassword:     p.AgentPassword,
-			CustomLabels:      p.CustomLabels,
-			TLS:               p.Tls,
-			TLSSkipVerify:     p.TlsSkipVerify,
-			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
-			ExporterOptions:  exporterOptions,
-			ValkeyOptions:     models.ValkeyOptionsFromRequest(p),
+			PMMAgentID:      p.PmmAgentId,
+			ServiceID:       p.ServiceId,
+			Username:        p.Username,
+			Password:        p.Password,
+			AgentPassword:   p.AgentPassword,
+			CustomLabels:    p.CustomLabels,
+			TLS:             p.Tls,
+			TLSSkipVerify:   p.TlsSkipVerify,
+			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+			ExporterOptions: exporterOptions,
+			ValkeyOptions:   models.ValkeyOptionsFromRequest(p),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ValkeyExporterType, params)
 		if err != nil {
@@ -1151,16 +1151,16 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 			exporterOptions.Timeout = *to
 		}
 		params := &models.CreateAgentParams{
-			PMMAgentID:        p.PmmAgentId,
-			ServiceID:         p.ServiceId,
-			Username:          p.Username,
-			Password:          p.Password,
-			AgentPassword:     p.AgentPassword,
-			CustomLabels:     p.CustomLabels,
-			TLS:               p.Tls,
-			TLSSkipVerify:     p.TlsSkipVerify,
-			ExporterOptions:   exporterOptions,
-			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:      p.PmmAgentId,
+			ServiceID:       p.ServiceId,
+			Username:        p.Username,
+			Password:        p.Password,
+			AgentPassword:   p.AgentPassword,
+			CustomLabels:    p.CustomLabels,
+			TLS:             p.Tls,
+			TLSSkipVerify:   p.TlsSkipVerify,
+			ExporterOptions: exporterOptions,
+			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, params)
 		if err != nil {
