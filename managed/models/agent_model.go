@@ -380,80 +380,80 @@ type Agent struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-func (s *Agent) BeforeInsert() error {
+func (a *Agent) BeforeInsert() error {
 	now := Now()
-	s.CreatedAt = now
-	s.UpdatedAt = now
-	if len(s.CustomLabels) == 0 {
-		s.CustomLabels = nil
+	a.CreatedAt = now
+	a.UpdatedAt = now
+	if len(a.CustomLabels) == 0 {
+		a.CustomLabels = nil
 	}
-	if len(s.EnvironmentVariables) == 0 {
-		s.EnvironmentVariables = nil
+	if len(a.EnvironmentVariables) == 0 {
+		a.EnvironmentVariables = nil
 	}
-	if s.Status == "" && s.AgentType != PMMAgentType {
-		s.Status = AgentStatusUnknown
+	if a.Status == "" && a.AgentType != PMMAgentType {
+		a.Status = AgentStatusUnknown
 	}
-	if s.Disabled {
-		s.Status = agentStatusDone
+	if a.Disabled {
+		a.Status = agentStatusDone
 	}
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-func (s *Agent) BeforeUpdate() error {
-	s.UpdatedAt = Now()
-	if len(s.CustomLabels) == 0 {
-		s.CustomLabels = nil
+func (a *Agent) BeforeUpdate() error {
+	a.UpdatedAt = Now()
+	if len(a.CustomLabels) == 0 {
+		a.CustomLabels = nil
 	}
-	if len(s.EnvironmentVariables) == 0 {
-		s.EnvironmentVariables = nil
+	if len(a.EnvironmentVariables) == 0 {
+		a.EnvironmentVariables = nil
 	}
-	if s.Disabled {
-		s.Status = agentStatusDone
+	if a.Disabled {
+		a.Status = agentStatusDone
 	}
 	return nil
 }
 
 // AfterFind implements reform.AfterFinder interface.
-func (s *Agent) AfterFind() error {
-	s.CreatedAt = s.CreatedAt.UTC()
-	s.UpdatedAt = s.UpdatedAt.UTC()
-	if len(s.CustomLabels) == 0 {
-		s.CustomLabels = nil
+func (a *Agent) AfterFind() error {
+	a.CreatedAt = a.CreatedAt.UTC()
+	a.UpdatedAt = a.UpdatedAt.UTC()
+	if len(a.CustomLabels) == 0 {
+		a.CustomLabels = nil
 	}
-	if len(s.EnvironmentVariables) == 0 {
-		s.EnvironmentVariables = nil
+	if len(a.EnvironmentVariables) == 0 {
+		a.EnvironmentVariables = nil
 	}
 	return nil
 }
 
 // GetCustomLabels decodes custom labels.
-func (s *Agent) GetCustomLabels() (map[string]string, error) {
-	return getLabels(s.CustomLabels)
+func (a *Agent) GetCustomLabels() (map[string]string, error) {
+	return getLabels(a.CustomLabels)
 }
 
 // SetCustomLabels encodes custom labels.
-func (s *Agent) SetCustomLabels(m map[string]string) error {
-	return setLabels(m, &s.CustomLabels)
+func (a *Agent) SetCustomLabels(m map[string]string) error {
+	return setLabels(m, &a.CustomLabels)
 }
 
 // GetEnvironmentVariableNames decodes shared environment variable names.
-func (s *Agent) GetEnvironmentVariableNames() ([]string, error) {
-	if s.EnvironmentVariables == nil {
+func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
+	if a.EnvironmentVariables == nil {
 		return nil, nil
 	}
 
 	var names []string
-	if err := json.Unmarshal(s.EnvironmentVariables, &names); err != nil {
+	if err := json.Unmarshal(a.EnvironmentVariables, &names); err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
 	}
 	return names, nil
 }
 
 // SetEnvironmentVariableNames encodes shared environment variable names.
-func (s *Agent) SetEnvironmentVariableNames(names []string) error {
+func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
-		s.EnvironmentVariables = nil
+		a.EnvironmentVariables = nil
 		return nil
 	}
 
@@ -461,30 +461,30 @@ func (s *Agent) SetEnvironmentVariableNames(names []string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal shared environment variable names")
 	}
-	s.EnvironmentVariables = b
+	a.EnvironmentVariables = b
 	return nil
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.
-func (s *Agent) GetAgentPassword() string {
-	password := s.AgentID
-	if pointer.GetString(s.AgentPassword) != "" {
-		password = *s.AgentPassword
+func (a *Agent) GetAgentPassword() string {
+	password := a.AgentID
+	if pointer.GetString(a.AgentPassword) != "" {
+		password = *a.AgentPassword
 	}
 
 	return password
 }
 
 // UnifiedLabels returns combined standard and custom labels with empty labels removed.
-func (s *Agent) UnifiedLabels() (map[string]string, error) {
-	custom, err := s.GetCustomLabels()
+func (a *Agent) UnifiedLabels() (map[string]string, error) {
+	custom, err := a.GetCustomLabels()
 	if err != nil {
 		return nil, err
 	}
 
 	res := map[string]string{
-		"agent_id":   s.AgentID,
-		"agent_type": string(s.AgentType),
+		"agent_id":   a.AgentID,
+		"agent_type": string(a.AgentType),
 	}
 	maps.Copy(res, custom)
 
@@ -509,10 +509,10 @@ func (c *DBConfig) Valid() bool {
 }
 
 // DBConfig returns DBConfig for given Service with this agent.
-func (s *Agent) DBConfig(service *Service) *DBConfig {
+func (a *Agent) DBConfig(service *Service) *DBConfig {
 	return &DBConfig{
-		User:     pointer.GetString(s.Username),
-		Password: pointer.GetString(s.Password),
+		User:     pointer.GetString(a.Username),
+		Password: pointer.GetString(a.Password),
 		Address:  pointer.GetString(service.Address),
 		Port:     int(pointer.GetUint16(service.Port)),
 		Socket:   pointer.GetString(service.Socket),
@@ -528,18 +528,18 @@ type DSNParams struct {
 }
 
 // DSN returns a DSN string for accessing a given Service with this Agent (and an implicit driver).
-func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:cyclop,maintidx
+func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
-	username := pointer.GetString(s.Username)
-	password := pointer.GetString(s.Password)
+	username := pointer.GetString(a.Username)
+	password := pointer.GetString(a.Password)
 
 	if tdp == nil {
-		tdp = s.TemplateDelimiters(service)
+		tdp = a.TemplateDelimiters(service)
 	}
 
-	switch s.AgentType {
+	switch a.AgentType {
 	case MySQLdExporterType:
 		cfg := mysql.NewConfig()
 		cfg.User = username
@@ -553,26 +553,26 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		cfg.Timeout = dsnParams.DialTimeout
 		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
-		if s.TLS {
+		if a.TLS {
 			// It is mandatory to have "custom" as the first case.
 			// Except case for backward compatibility.
 			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
 			// Backward compatibility
-			case s.TLSSkipVerify && (pmmAgentVersion == nil || pmmAgentVersion.Less(v2_42)):
+			case a.TLSSkipVerify && (pmmAgentVersion == nil || pmmAgentVersion.Less(v2_42)):
 				cfg.Params["tls"] = skipVerify
-			case len(s.Files()) != 0:
+			case len(a.Files()) != 0:
 				cfg.Params["tls"] = "custom"
-			case s.TLSSkipVerify:
+			case a.TLSSkipVerify:
 				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
 		}
 
-		if s.MySQLOptions.ExtraDSNParams != nil {
+		if a.MySQLOptions.ExtraDSNParams != nil {
 			// Add extra DSN parameters if they are set.
-			for k, v := range s.MySQLOptions.ExtraDSNParams {
+			for k, v := range a.MySQLOptions.ExtraDSNParams {
 				cfg.Params[k] = v
 			}
 		}
@@ -595,26 +595,26 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		cfg.Timeout = dsnParams.DialTimeout
 		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
-		if s.TLS {
+		if a.TLS {
 			// It is mandatory to have "custom" as the first case.
 			// Except case for backward compatibility.
 			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
 			// Backward compatibility
-			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42):
+			case pmmAgentVersion != nil && a.TLSSkipVerify && pmmAgentVersion.Less(v2_42):
 				cfg.Params["tls"] = skipVerify
-			case len(s.Files()) != 0:
+			case len(a.Files()) != 0:
 				cfg.Params["tls"] = "custom"
-			case s.TLSSkipVerify:
+			case a.TLSSkipVerify:
 				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
 		}
 
-		if s.MySQLOptions.ExtraDSNParams != nil {
+		if a.MySQLOptions.ExtraDSNParams != nil {
 			// Add extra DSN parameters if they are set.
-			for k, v := range s.MySQLOptions.ExtraDSNParams {
+			for k, v := range a.MySQLOptions.ExtraDSNParams {
 				cfg.Params[k] = v
 			}
 		}
@@ -641,8 +641,8 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		cfg.Timeout = dsnParams.DialTimeout
 		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
-		if s.TLS {
-			if s.TLSSkipVerify {
+		if a.TLS {
+			if a.TLSSkipVerify {
 				cfg.Params["tls"] = "skip-verify"
 			} else {
 				cfg.Params["tls"] = trueStr
@@ -674,27 +674,27 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		// prevents driver from switching to Primary node.
 		q.Add("directConnection", trueStr)
 
-		if s.TLS {
+		if a.TLS {
 			q.Add("ssl", trueStr)
-			if s.TLSSkipVerify {
+			if a.TLSSkipVerify {
 				q.Add("tlsInsecure", trueStr)
 			}
 		}
 
-		if s.MongoDBOptions.TLSCertificateKey != "" {
+		if a.MongoDBOptions.TLSCertificateKey != "" {
 			q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
 		}
-		if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
-			q.Add("tlsCertificateKeyFilePassword", s.MongoDBOptions.TLSCertificateKeyFilePassword)
+		if a.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
+			q.Add("tlsCertificateKeyFilePassword", a.MongoDBOptions.TLSCertificateKeyFilePassword)
 		}
-		if s.MongoDBOptions.TLSCa != "" {
+		if a.MongoDBOptions.TLSCa != "" {
 			q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
 		}
-		if s.MongoDBOptions.AuthenticationMechanism != "" {
-			q.Add("authMechanism", s.MongoDBOptions.AuthenticationMechanism)
+		if a.MongoDBOptions.AuthenticationMechanism != "" {
+			q.Add("authMechanism", a.MongoDBOptions.AuthenticationMechanism)
 		}
-		if s.MongoDBOptions.AuthenticationDatabase != "" {
-			q.Add("authSource", s.MongoDBOptions.AuthenticationDatabase)
+		if a.MongoDBOptions.AuthenticationDatabase != "" {
+			q.Add("authSource", a.MongoDBOptions.AuthenticationDatabase)
 		}
 
 		address := socket
@@ -723,8 +723,8 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		q := make(url.Values)
 
 		sslmode := DisableSSLMode
-		if s.TLS {
-			if s.TLSSkipVerify {
+		if a.TLS {
+			if a.TLSSkipVerify {
 				sslmode = RequireSSLMode
 			} else {
 				sslmode = VerifyCaSSLMode
@@ -735,7 +735,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		}
 		q.Set("sslmode", sslmode)
 
-		if files := s.Files(); len(files) != 0 {
+		if files := a.Files(); len(files) != 0 {
 			for key := range files {
 				switch key {
 				case caFilePlaceholder:
@@ -784,7 +784,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 	case ValkeyExporterType:
 		urlScheme := "redis"
-		if s.TLS {
+		if a.TLS {
 			urlScheme += "s"
 		}
 		address := ""
@@ -812,31 +812,39 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return dsn
 	default:
-		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
+		panic(fmt.Errorf("unhandled AgentType %q", a.AgentType))
 	}
 }
 
 // EffectiveDialTimeout returns the timeout configured for this agent's exporter.
-func (s *Agent) EffectiveDialTimeout() time.Duration {
-	if s.ExporterOptions.Timeout != 0 {
-		return s.ExporterOptions.Timeout
+func (a *Agent) EffectiveDialTimeout() time.Duration {
+	if a.ExporterOptions.Timeout != 0 {
+		return a.ExporterOptions.Timeout
 	}
 
-	// TODO keep original
+	switch a.AgentType {
+	case PostgresExporterType:
+		return 1 * time.Second
+	case MySQLdExporterType:
+		return 1 * time.Second
+	case MongoDBExporterType:
+		return 1 * time.Second
+	}
+
 	return 2 * time.Second
 }
 
 // ExporterURL composes URL to an external exporter.
-func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
-	scheme := s.ExporterOptions.MetricsScheme
-	path := s.ExporterOptions.MetricsPath
-	listenPort := int(pointer.GetUint16(s.ListenPort))
-	username := pointer.GetString(s.Username)
-	password := pointer.GetString(s.Password)
+func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
+	scheme := a.ExporterOptions.MetricsScheme
+	path := a.ExporterOptions.MetricsPath
+	listenPort := int(pointer.GetUint16(a.ListenPort))
+	username := pointer.GetString(a.Username)
+	password := pointer.GetString(a.Password)
 
 	host := "127.0.0.1"
-	if !s.ExporterOptions.PushMetrics {
-		node, err := FindNodeByID(q, *s.RunsOnNodeID)
+	if !a.ExporterOptions.PushMetrics {
+		node, err := FindNodeByID(q, *a.RunsOnNodeID)
 		if err != nil {
 			return "", err
 		}
@@ -868,20 +876,20 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 }
 
 // IsMySQLTablestatsGroupEnabled returns true if mysqld_exporter tablestats group collectors should be enabled.
-func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
-	if s.AgentType != MySQLdExporterType {
-		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
+func (a *Agent) IsMySQLTablestatsGroupEnabled() bool {
+	if a.AgentType != MySQLdExporterType {
+		panic(fmt.Errorf("unhandled AgentType %q", a.AgentType))
 	}
 
 	switch {
-	case s.MySQLOptions.TableCountTablestatsGroupLimit == 0: // server defined
+	case a.MySQLOptions.TableCountTablestatsGroupLimit == 0: // server defined
 		return true
-	case s.MySQLOptions.TableCountTablestatsGroupLimit < 0: // always disabled
+	case a.MySQLOptions.TableCountTablestatsGroupLimit < 0: // always disabled
 		return false
-	case s.MySQLOptions.TableCount == nil: // for compatibility with 2.0
+	case a.MySQLOptions.TableCount == nil: // for compatibility with 2.0
 		return true
 	default:
-		return *s.MySQLOptions.TableCount <= s.MySQLOptions.TableCountTablestatsGroupLimit
+		return *a.MySQLOptions.TableCount <= a.MySQLOptions.TableCountTablestatsGroupLimit
 	}
 }
 
@@ -1010,10 +1018,10 @@ const webConfigTemplate = `basic_auth_users:
 `
 
 // BuildWebConfigFile builds prometheus-compatible basic auth configuration.
-func (s *Agent) BuildWebConfigFile() (string, error) {
+func (a *Agent) BuildWebConfigFile() (string, error) {
 	// If not provided by the user, it is the `agent_id`.
-	password := s.GetAgentPassword()
-	salt := getPasswordSalt(s)
+	password := a.GetAgentPassword()
+	salt := getPasswordSalt(a)
 
 	hashedPassword, err := HashPassword(password, salt)
 	if err != nil {
@@ -1034,9 +1042,9 @@ func (s *Agent) BuildWebConfigFile() (string, error) {
 	return config, nil
 }
 
-func getPasswordSalt(s *Agent) string {
-	if s.AgentID != "" && len(s.AgentID) >= bcrypt.MaxSaltSize {
-		return s.AgentID[len(s.AgentID)-bcrypt.MaxSaltSize:]
+func getPasswordSalt(a *Agent) string {
+	if a.AgentID != "" && len(a.AgentID) >= bcrypt.MaxSaltSize {
+		return a.AgentID[len(a.AgentID)-bcrypt.MaxSaltSize:]
 	}
 
 	return "pmm-salt-magic--"
