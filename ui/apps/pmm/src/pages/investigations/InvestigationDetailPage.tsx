@@ -22,7 +22,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Page } from 'components/page';
 import {
@@ -40,6 +40,11 @@ import {
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { getInvestigationExportPdfUrl } from 'api/investigations';
 import type { InvestigationBlock } from 'api/investigations';
+import {
+  getAdreAlerts,
+  getAlertMetadataFromLabels,
+  type AlertMetadataFromLabels,
+} from 'api/adre';
 import { BlockRenderer } from './components/BlockRenderer';
 import { TimelineSection } from './components/TimelineSection';
 
@@ -55,6 +60,9 @@ const BlockWithActions: FC<{
   isPending: boolean;
 }> = ({ block, index, total, onMoveUp, onMoveDown, onDelete, isPending }) => (
   <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 2 }}>
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      <BlockRenderer block={block} />
+    </Box>
     <Stack direction="row" sx={{ mt: 1 }} spacing={0}>
       <IconButton
         size="small"
@@ -82,9 +90,6 @@ const BlockWithActions: FC<{
         <DeleteOutlineIcon fontSize="small" />
       </IconButton>
     </Stack>
-    <Box sx={{ flex: 1, minWidth: 0 }}>
-      <BlockRenderer block={block} />
-    </Box>
   </Box>
 );
 
@@ -106,6 +111,32 @@ const InvestigationDetailPage: FC = () => {
   const [copyDone, setCopyDone] = useState(false);
   const [snackMessage, setSnackMessage] = useState<string | null>(null);
   const [snackSeverity, setSnackSeverity] = useState<'error' | 'success'>('error');
+  const [fetchedAlertMeta, setFetchedAlertMeta] = useState<AlertMetadataFromLabels>({});
+
+  // When investigation is from an alert but API didn't return node/service, fetch alerts and derive metadata
+  useEffect(() => {
+    if (!inv || inv.sourceType !== 'alert' || !inv.sourceRef) return;
+    const refs = new Set(inv.sourceRef.split(',').map((s) => s.trim()).filter(Boolean));
+    if (refs.size === 0) return;
+    let cancelled = false;
+    getAdreAlerts()
+      .then((data: unknown) => {
+        if (cancelled) return;
+        const raw = data as { alerts?: Array<{ fingerprint?: string; labels?: Record<string, string> }> };
+        const list = raw?.alerts ?? [];
+        const arr = Array.isArray(list) ? list : [];
+        const match = arr.find(
+          (a) => a.fingerprint && refs.has(a.fingerprint)
+        );
+        if (match?.labels) {
+          setFetchedAlertMeta(getAlertMetadataFromLabels(match.labels));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [inv?.id, inv?.sourceType, inv?.sourceRef]);
 
   const showError = (msg: string) => {
     setSnackMessage(msg);
@@ -252,7 +283,7 @@ const InvestigationDetailPage: FC = () => {
       {inv.summary && (
         <Card variant="outlined" sx={{ mb: 2, bgcolor: 'action.hover' }}>
           <CardContent>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               Summary
             </Typography>
             <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -274,19 +305,19 @@ const InvestigationDetailPage: FC = () => {
             Source: {inv.sourceType}
           </Typography>
         )}
-        {(inv.nodeName ?? (inv as { node_name?: string }).node_name) && (
+        {(inv.nodeName ?? (inv as { node_name?: string }).node_name ?? fetchedAlertMeta.nodeName) && (
           <Typography variant="body2" color="text.secondary">
-            Node: {inv.nodeName ?? (inv as { node_name?: string }).node_name}
+            Node: {inv.nodeName ?? (inv as { node_name?: string }).node_name ?? fetchedAlertMeta.nodeName}
           </Typography>
         )}
-        {(inv.serviceName ?? (inv as { service_name?: string }).service_name) && (
+        {(inv.serviceName ?? (inv as { service_name?: string }).service_name ?? fetchedAlertMeta.serviceName) && (
           <Typography variant="body2" color="text.secondary">
-            Service: {inv.serviceName ?? (inv as { service_name?: string }).service_name}
+            Service: {inv.serviceName ?? (inv as { service_name?: string }).service_name ?? fetchedAlertMeta.serviceName}
           </Typography>
         )}
-        {(inv.clusterName ?? (inv as { cluster_name?: string }).cluster_name) && (
+        {(inv.clusterName ?? (inv as { cluster_name?: string }).cluster_name ?? fetchedAlertMeta.clusterName) && (
           <Typography variant="body2" color="text.secondary">
-            Cluster: {inv.clusterName ?? (inv as { cluster_name?: string }).cluster_name}
+            Cluster: {inv.clusterName ?? (inv as { cluster_name?: string }).cluster_name ?? fetchedAlertMeta.clusterName}
           </Typography>
         )}
       </Stack>

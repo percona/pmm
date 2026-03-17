@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { Dialog, DialogTitle } from '@percona/percona-ui';
 import { FC, useEffect, useState } from 'react';
-import { getAdreAlerts } from 'api/adre';
+import { getAdreAlerts, getAlertMetadataFromLabels } from 'api/adre';
 import type { CreateInvestigationBody } from 'api/investigations';
 
 interface AlertItem {
@@ -100,11 +100,14 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
 
   const handleSubmit = () => {
     let finalSourceRef = sourceRef.trim();
+    let alertMeta: { nodeName?: string; serviceName?: string; clusterName?: string } = {};
     if (sourceType === 'alert' && selectedAlertKeys.size > 0) {
       const refs = alerts
         .map((a, i) => (selectedAlertKeys.has(getAlertKey(a, i)) ? (a.fingerprint ?? getAlertKey(a, i)) : null))
         .filter(Boolean) as string[];
       finalSourceRef = refs.join(',');
+      const firstSelected = alerts.find((a, i) => selectedAlertKeys.has(getAlertKey(a, i)));
+      alertMeta = getAlertMetadataFromLabels(firstSelected?.labels);
     }
     const body: CreateInvestigationBody = {
       title: title.trim() || 'New investigation',
@@ -113,6 +116,9 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
       sourceRef: finalSourceRef || undefined,
       timeFrom: timeFrom.trim() || undefined,
       timeTo: timeTo.trim() || undefined,
+      ...(alertMeta.nodeName && { nodeName: alertMeta.nodeName }),
+      ...(alertMeta.serviceName && { serviceName: alertMeta.serviceName }),
+      ...(alertMeta.clusterName && { clusterName: alertMeta.clusterName }),
     };
     onSubmit(body);
   };

@@ -188,6 +188,35 @@ export const getAdreAlerts = async (): Promise<unknown> => {
   return res.data;
 };
 
+export interface AlertMetadataFromLabels {
+  nodeName?: string;
+  serviceName?: string;
+  clusterName?: string;
+}
+
+/** Extract node/service/cluster from alert labels (PMM/VictoriaMetrics conventions). */
+export function getAlertMetadataFromLabels(
+  labels?: Record<string, string>
+): AlertMetadataFromLabels {
+  if (!labels) return {};
+  const instanceRaw = labels.instance;
+  const nodeFromInstance =
+    instanceRaw != null && instanceRaw.includes(':')
+      ? instanceRaw.split(':')[0]
+      : instanceRaw;
+  return {
+    nodeName:
+      labels.node ??
+      labels.node_name ??
+      labels.nodename ??
+      nodeFromInstance ??
+      undefined,
+    serviceName:
+      labels.service_name ?? labels.service ?? labels.job ?? undefined,
+    clusterName: labels.cluster ?? labels.cluster_name ?? undefined,
+  };
+}
+
 export const adreInvestigate = async (
   body: AdreInvestigateRequest
 ): Promise<AdreInvestigateResponse> => {
