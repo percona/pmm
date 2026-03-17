@@ -3123,6 +3123,9 @@ type AddAgentOKBodyMongodbExporter struct {
 	// Environment variable names passed to the exporter.
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

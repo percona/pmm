@@ -610,6 +610,11 @@
                           "type": "string"
                         },
                         "x-order": 19
+                      },
+                      "timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 20
                       }
                     }
                   },
@@ -4248,6 +4253,11 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
                     }
                   },
                   "x-order": 3
@@ -6303,6 +6313,11 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
                     }
                   },
                   "x-order": 4
@@ -8046,6 +8061,11 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -9210,6 +9230,11 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
                     }
                   },
                   "x-order": 2

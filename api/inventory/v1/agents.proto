@@ -236,6 +236,8 @@ message MongoDBExporter {
   common.MetricsResolutions metrics_resolutions = 28;
   // Environment variable names passed to the exporter.
   repeated string environment_variable_names = 29;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 30;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -1096,6 +1098,8 @@ message ChangeMongoDBExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 // Add/Change PostgresExporter
