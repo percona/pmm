@@ -77,7 +77,8 @@ type ChangeAgentAzureDatabaseExporterCommand struct {
 	AzureResourceGroup  *string `help:"Azure Resource Group"`
 
 	// Exporter options
-	PushMetrics *bool `help:"Enable push metrics with vmagent"`
+	PushMetrics *bool  `help:"Enable push metrics with vmagent"`
+	Timeout     string `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -99,6 +100,7 @@ func (cmd *ChangeAgentAzureDatabaseExporterCommand) RunCmd() (commands.Result, e
 		AzureResourceGroup:  cmd.AzureResourceGroup,
 		EnablePushMetrics:   cmd.PushMetrics,
 		LogLevel:            convertLogLevelPtr(cmd.LogLevel),
+		Timeout:             cmd.Timeout,
 	}
 
 	if customLabels != nil {

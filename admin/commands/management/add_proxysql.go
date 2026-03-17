@@ -60,6 +60,7 @@ type AddProxySQLCommand struct {
 	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	Timeout             string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -152,6 +153,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				Timeout:             cmd.Timeout,
 			},
 		},
 		Context: commands.Ctx,

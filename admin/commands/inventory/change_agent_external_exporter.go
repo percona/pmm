@@ -69,6 +69,7 @@ type ChangeAgentExternalExporterCommand struct {
 	MetricsScheme *string `help:"Metrics scheme (http or https)"`
 	MetricsPath   *string `help:"Metrics path"`
 	PushMetrics   *bool   `help:"Enable push metrics with vmagent"`
+	Timeout       string  `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -88,6 +89,7 @@ func (cmd *ChangeAgentExternalExporterCommand) RunCmd() (commands.Result, error)
 		Scheme:            cmd.MetricsScheme,
 		MetricsPath:       cmd.MetricsPath,
 		EnablePushMetrics: cmd.PushMetrics,
+		Timeout:           cmd.Timeout,
 	}
 
 	if customLabels != nil {

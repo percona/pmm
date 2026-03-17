@@ -63,12 +63,11 @@ type AddValkeyCommand struct {
 	TLSKeyFile          string            `name:"tls-key" help:"Path to client key file"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	Timeout             string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
 	flags.LogLevelNoFatalFlags
-
-	Timeout string `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 }
 
 // GetServiceName returns the service name for AddValkeyCommand.

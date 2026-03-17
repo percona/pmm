@@ -120,13 +120,12 @@ type AddMySQLCommand struct {
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	Timeout                string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
 	flags.CommentsParsingFlags
 	flags.LogLevelNoFatalFlags
-
-	Timeout string `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 }
 
 // GetServiceName returns the service name for AddMySQLCommand.
@@ -216,7 +215,6 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				Socket:         socket,
 				Port:           int64(port),
 				ExposeExporter: cmd.ExposeExporter,
-				Timeout:        cmd.Timeout,
 				PMMAgentID:     cmd.PMMAgentID,
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
@@ -245,6 +243,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				Timeout:                   cmd.Timeout,
 			},
 		},
 		Context: commands.Ctx,
