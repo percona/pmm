@@ -7,7 +7,7 @@ PMM helps users to:
 - Optimize Database Performance
 - Improve Data Security
 
-See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
+See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-management/index.html) for more information.
 
 ## Pre-Requisites
 
