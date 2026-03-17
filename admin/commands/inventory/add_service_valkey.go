@@ -15,6 +15,8 @@
 package inventory
 
 import (
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
@@ -62,7 +64,7 @@ type AddServiceValkeyCommand struct {
 
 // RunCmd runs the command for AddServiceValkeyCommand.
 func (cmd *AddServiceValkeyCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
 			Valkey: &services.AddServiceParamsBodyValkey{
@@ -74,7 +76,7 @@ func (cmd *AddServiceValkeyCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   pointer.Get(customLabels),
 			},
 		},
 		Context: commands.Ctx,

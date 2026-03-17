@@ -104,7 +104,7 @@ func (cmd *AddExternalServerlessCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddExternalServerlessCommand.
 func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	scheme, metricsPath, address, port, err := cmd.processURLFlags()
 	if err != nil {
@@ -139,7 +139,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 					NodeModel:     cmd.NodeModel,
 					Region:        cmd.Region,
 					Az:            cmd.Az,
-					CustomLabels:  customLabels,
+					CustomLabels:  *customLabels,
 				},
 				Address:             address,
 				ServiceName:         serviceName,
@@ -151,7 +151,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 				Environment:         cmd.Environment,
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
-				CustomLabels:        customLabels,
+				CustomLabels:        *customLabels,
 				MetricsMode:         pointer.ToString(mservice.AddServiceParamsBodyExternalMetricsModeMETRICSMODEPULL),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
