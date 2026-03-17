@@ -152,6 +152,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:       pgExporterID,
 					AgentType:     "postgres_exporter",
+					Timeout:       durationpb.New(1 * time.Second),
 					PmmAgentId:    models.PMMServerAgentID,
 					IsConnected:   false,
 					CreatedAt:     timestamppb.New(now),
@@ -169,6 +170,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:       pgStatStatementID,
 					AgentType:     "qan-postgresql-pgstatements-agent",
+					Timeout:       durationpb.New(2 * time.Second),
 					PmmAgentId:    models.PMMServerAgentID,
 					IsConnected:   false,
 					CreatedAt:     timestamppb.New(now),
@@ -187,6 +189,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:      models.PMMServerAgentID,
 					AgentType:    "pmm-agent",
+					Timeout:       durationpb.New(2 * time.Second),
 					RunsOnNodeId: models.PMMServerAgentID,
 					IsConnected:  true,
 					CreatedAt:    timestamppb.New(now),
@@ -236,6 +239,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:     rdsExporter.AgentID,
 					AgentType:   "rds_exporter",
+					Timeout:       durationpb.New(2 * time.Second),
 					PmmAgentId:  "00000000-0000-4000-8000-000000000007",
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
@@ -286,6 +290,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:      azureExporter.AgentID,
 					AgentType:    "azure_database_exporter",
+					Timeout:       durationpb.New(2 * time.Second),
 					PmmAgentId:   "00000000-0000-4000-8000-000000000007",
 					IsConnected:  false,
 					CreatedAt:    timestamppb.New(now),
@@ -340,6 +345,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:       rtaAgent.AgentID,
 					AgentType:     "rta-mongodb-agent",
+					Timeout:       durationpb.New(2 * time.Second),
 					PmmAgentId:    "00000000-0000-4000-8000-000000000007",
 					IsConnected:   false,
 					CreatedAt:     timestamppb.New(now),
