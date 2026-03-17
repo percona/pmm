@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	RealtimeAnalyticsService_ListServices_FullMethodName  = "/realtimeanalytics.v1.RealtimeAnalyticsService/ListServices"
 	RealtimeAnalyticsService_ListSessions_FullMethodName  = "/realtimeanalytics.v1.RealtimeAnalyticsService/ListSessions"
 	RealtimeAnalyticsService_StartSession_FullMethodName  = "/realtimeanalytics.v1.RealtimeAnalyticsService/StartSession"
 	RealtimeAnalyticsService_StopSession_FullMethodName   = "/realtimeanalytics.v1.RealtimeAnalyticsService/StopSession"
@@ -32,6 +33,8 @@ const (
 //
 // RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.
 type RealtimeAnalyticsServiceClient interface {
+	// ListServices returns a list of Services that support Real-Time Analytics filtered by type.
+	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 	// ListSessions returns the list of currently running Real-Time Analytics Sessions.
 	ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error)
 	// StartSession starts Real-Time Analytics session for a specified service.
@@ -48,6 +51,16 @@ type realtimeAnalyticsServiceClient struct {
 
 func NewRealtimeAnalyticsServiceClient(cc grpc.ClientConnInterface) RealtimeAnalyticsServiceClient {
 	return &realtimeAnalyticsServiceClient{cc}
+}
+
+func (c *realtimeAnalyticsServiceClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListServicesResponse)
+	err := c.cc.Invoke(ctx, RealtimeAnalyticsService_ListServices_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *realtimeAnalyticsServiceClient) ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error) {
@@ -96,6 +109,8 @@ func (c *realtimeAnalyticsServiceClient) SearchQueries(ctx context.Context, in *
 //
 // RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.
 type RealtimeAnalyticsServiceServer interface {
+	// ListServices returns a list of Services that support Real-Time Analytics filtered by type.
+	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	// ListSessions returns the list of currently running Real-Time Analytics Sessions.
 	ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error)
 	// StartSession starts Real-Time Analytics session for a specified service.
@@ -113,6 +128,10 @@ type RealtimeAnalyticsServiceServer interface {
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
 type UnimplementedRealtimeAnalyticsServiceServer struct{}
+
+func (UnimplementedRealtimeAnalyticsServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListServices not implemented")
+}
 
 func (UnimplementedRealtimeAnalyticsServiceServer) ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListSessions not implemented")
@@ -150,6 +169,24 @@ func RegisterRealtimeAnalyticsServiceServer(s grpc.ServiceRegistrar, srv Realtim
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&RealtimeAnalyticsService_ServiceDesc, srv)
+}
+
+func _RealtimeAnalyticsService_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListServicesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RealtimeAnalyticsServiceServer).ListServices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RealtimeAnalyticsService_ListServices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RealtimeAnalyticsServiceServer).ListServices(ctx, req.(*ListServicesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _RealtimeAnalyticsService_ListSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -231,6 +268,10 @@ var RealtimeAnalyticsService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "realtimeanalytics.v1.RealtimeAnalyticsService",
 	HandlerType: (*RealtimeAnalyticsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListServices",
+			Handler:    _RealtimeAnalyticsService_ListServices_Handler,
+		},
 		{
 			MethodName: "ListSessions",
 			Handler:    _RealtimeAnalyticsService_ListSessions_Handler,
