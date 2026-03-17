@@ -153,7 +153,18 @@ const GrafanaPanelImage: FC<{
           Image failed to load
         </Typography>
         {dashboardHref && (
-          <Link href={dashboardHref} target="_blank" rel="noopener noreferrer" sx={{ display: 'inline-block', mt: 0.5, fontSize: '0.8125rem' }}>
+          <Link
+            href={dashboardHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              display: 'inline-block',
+              mt: 0.5,
+              fontSize: '0.8125rem',
+              color: 'primary.light',
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
             Open in Grafana
           </Link>
         )}
@@ -174,7 +185,13 @@ const GrafanaPanelImage: FC<{
           href={dashboardHref}
           target="_blank"
           rel="noopener noreferrer"
-          sx={{ display: 'inline-block', mt: 0.5, fontSize: '0.8125rem' }}
+          sx={{
+            display: 'inline-block',
+            mt: 0.5,
+            fontSize: '0.8125rem',
+            color: 'primary.light',
+            '&:hover': { color: 'primary.main' },
+          }}
         >
           Open in Grafana
         </Link>
@@ -670,6 +687,20 @@ export const AdreChatPanel: FC = () => {
                             components={{
                               code: ({ children }: { children?: ReactNode }) => (
                                 <CodeBlock>{children}</CodeBlock>
+                              ),
+                              a: ({ href, children }: { href?: string; children?: ReactNode }) => (
+                                <Link
+                                  href={href ?? '#'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  sx={{
+                                    fontSize: '0.8125rem',
+                                    color: 'primary.light',
+                                    '&:hover': { color: 'primary.main' },
+                                  }}
+                                >
+                                  {children}
+                                </Link>
                               ),
                               img: ({ src, alt }: { src?: string; alt?: string }) => {
                                 if (src && isGrafanaRenderImageSrc(src)) {
