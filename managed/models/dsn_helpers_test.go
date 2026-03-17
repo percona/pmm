@@ -191,7 +191,8 @@ func TestFindDSNByServiceID(t *testing.T) {
 
 		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S2", "PA1", "test")
 		require.NoError(t, err)
-		expected := "pmm-user@tcp(127.0.0.1:3306)/test?clientFoundRows=true&parseTime=true&timeout=1s"
+		// Resolved agent (exporter or QAN) determines timeout: exporter 1s, QAN 2s default.
+		expected := "pmm-user@tcp(127.0.0.1:3306)/test?clientFoundRows=true&parseTime=true&timeout=2s"
 		assert.Equal(t, expected, dsn)
 		assert.NotNil(t, agent)
 	})

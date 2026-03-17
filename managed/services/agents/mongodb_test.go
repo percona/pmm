@@ -820,7 +820,7 @@ func Test_rtaMongoDBAgentConfig(t *testing.T) {
 			pmmAgentVersion: version.MustParse("3.7.0"),
 			want: &agentv1.SetStateRequest_BuiltinAgent{
 				Type: inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
-				Dsn:  "mongodb://username:password@127.0.0.1:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+				Dsn:  "mongodb://username:password@127.0.0.1:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000",
 				RtaOptions: &inventoryv1.RTAOptions{
 					CollectInterval: durationpb.New(2 * time.Second),
 				},
