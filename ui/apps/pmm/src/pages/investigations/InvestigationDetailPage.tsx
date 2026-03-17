@@ -115,7 +115,9 @@ const InvestigationDetailPage: FC = () => {
 
   // When investigation is from an alert but API didn't return node/service, fetch alerts and derive metadata
   useEffect(() => {
-    if (!inv || inv.sourceType !== 'alert' || !inv.sourceRef) return;
+    if (!inv) return;
+    setFetchedAlertMeta({});
+    if (inv.sourceType !== 'alert' || !inv.sourceRef) return;
     const refs = new Set(inv.sourceRef.split(',').map((s) => s.trim()).filter(Boolean));
     if (refs.size === 0) return;
     let cancelled = false;
