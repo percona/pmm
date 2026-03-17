@@ -38,7 +38,6 @@ Query Analytics offers two ways to analyze queries:
     - PMM agent has read permissions to the MongoDB log file
     - Appropriate user roles: `clusterMonitor`, or custom monitoring roles (`getCmdLineOpts` privilege on `{ cluster: true }`)
 
-
 ## Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
