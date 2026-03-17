@@ -5,15 +5,20 @@
 
 While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete—helping you analyze and optimize past performance—Real-time Query Analytics (RTA) displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
 
-While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) captures queries after they complete so you can optimize past performance, Real-time Query Analytics (RTA) shows queries as they execute so when your database is struggling, you can spot problematic operations right away and take action before they impact users. 
-
 RTA displays live query data that updates every 1-5 seconds. Data is not stored so you only see currently executing operations. Use the **Pause** button to freeze the view for investigation.
 
 ## Before you start
 
+### Service requirements
+
 RTA requires at least one MongoDB service monitored by PMM. If you haven't set this up yet, see [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md).
 
 RTA reuses your existing MongoDB exporter credentials, so you don't need to configure anything else.
+
+### Role requirements
+
+Starting and stopping RTA sessions requires the **Admin** role. Users with other roles have View-only access to sessions that an Admin has already started.
+For details on PMM roles, see [Standard role permissions](../../admin/roles/index.md).
 
 ## Start an RTA session
 
@@ -24,8 +29,9 @@ To start monitoring a MongoDB service:
 2. Select the **Real-time** tab.
 3. If no sessions are active, select a MongoDB service from the dropdown and click **Start session**.
 
-The live operations table appears and begins updating automatically. 
+The live operations table appears and begins updating automatically:
 
+![RTA live table](../../images/RTA_live.png)
 ## Explore the Real-time view
 
 ### Filter by service
@@ -51,7 +57,9 @@ Click the **Share** icon to copy a link to your clipboard. The link preserves yo
 When someone opens your link, they see live data with your filters applied—not the exact operations you were viewing, since RTA data updates continuously.
 ### View all sessions
 
-Click **All sessions** to see and manage all running RTA sessions. From here you can stop individual sessions or stop all sessions at once.
+Click **All sessions** to see and manage all running RTA sessions. From here you can stop individual sessions or stop all sessions at once:
+
+![Stop RTA session](../../images/stop_RTA_session.png)
 
 ## Monitor and investigate operations
 
@@ -157,10 +165,11 @@ Check the **Raw data** tab to see exactly what MongoDB returned.
 
 ### Session won't start
 
-RTA requires PMM Client 3.7.0 or later and a configured MongoDB exporter. If either is missing, the session won't start.
+Check the following requirements:
 
-To check your client version, run `pmm-admin status` on the monitored host. 
-To verify the exporter, go to **PMM Inventory > Services**, select your MongoDB service, and check that the MongoDB exporter shows **Running**.
+- **PMM Client version**: 3.7.0 or later. Run `pmm-admin status` on the monitored host to check.
+- **MongoDB exporter**: Must be configured and running. Go to **PMM Inventory > Services**, select your MongoDB service, and check that the MongoDB exporter shows **Running**.
+- **Admin role**: Only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. Users with other roles can view live data from running sessions.
 
 ## See also
 
