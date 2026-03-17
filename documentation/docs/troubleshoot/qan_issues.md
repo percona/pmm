@@ -23,6 +23,7 @@ If you're seeing query execution times that seem impossible (like 50,000+ second
 This is because enabling query plans causes `pg_stat_monitor` to create multiple records for each query, leading to incorrect timing calculations.
 
 To fix the issue, disable query plan collection:
+
 ```sql
 -- Check if query plan collection is enabled 
 SHOW pg_stat_monitor.pgsm_enable_query_plan;
@@ -50,7 +51,6 @@ This happens when the ClickHouse schema migration is interrupted during the upgr
 
 - **PMM 3.5.0 and later:** The issue is **fixed automatically**. PMM detects and completes the interrupted schema migration upon restart.
 - **Earlier versions:** Use the following manual workaround:
-
     {.power-number}
 
     1. Access the PMM container:
@@ -80,6 +80,7 @@ This happens when the ClickHouse schema migration is interrupted during the upgr
     ```bash
     supervisorctl status qan-api2
     ```
+
 ## ClickHouse memory issues in low-memory environments
 
 If you're running PMM Server with less than 16 GB RAM and seeing "memory limit exceeded" errors in ClickHouse logs, switch to the low-memory configuration.
@@ -111,11 +112,11 @@ ExecStartPost=/usr/bin/docker exec -u pmm pmm-server ./switch-config.sh low
 
 See [Install PMM Server with Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) for systemd configuration examples.
 
-??? note "Configuration details"
+!!! note "Configuration details"
     Both configuration files are located in `/etc/clickhouse-server/` inside the PMM Server container:
     
-    - `default-config.xml` — default profile
-    - `low-memory-config.xml` — low-memory profile
+    - `default-config.xml`: default profile
+    - `low-memory-config.xml`: low-memory profile
     
     The script is available at `/etc/clickhouse-server/switch-config.sh` or `/opt/switch-config.sh`.
     
