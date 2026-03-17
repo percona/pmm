@@ -18,6 +18,8 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+
+	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -83,6 +85,95 @@ func (SessionStatus) EnumDescriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{0}
 }
 
+type ListServicesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Return only services filtered by service type.
+	ServiceType   v1.ServiceType `protobuf:"varint,1,opt,name=service_type,json=serviceType,proto3,enum=inventory.v1.ServiceType" json:"service_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListServicesRequest) Reset() {
+	*x = ListServicesRequest{}
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListServicesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListServicesRequest) ProtoMessage() {}
+
+func (x *ListServicesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListServicesRequest.ProtoReflect.Descriptor instead.
+func (*ListServicesRequest) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ListServicesRequest) GetServiceType() v1.ServiceType {
+	if x != nil {
+		return x.ServiceType
+	}
+	return v1.ServiceType(0)
+}
+
+type ListServicesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Mongodb       []*v1.MongoDBService   `protobuf:"bytes,1,rep,name=mongodb,proto3" json:"mongodb,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListServicesResponse) Reset() {
+	*x = ListServicesResponse{}
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListServicesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListServicesResponse) ProtoMessage() {}
+
+func (x *ListServicesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListServicesResponse.ProtoReflect.Descriptor instead.
+func (*ListServicesResponse) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListServicesResponse) GetMongodb() []*v1.MongoDBService {
+	if x != nil {
+		return x.Mongodb
+	}
+	return nil
+}
+
 // Session represents an active Real-Time Analytics session.
 type Session struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -104,7 +195,7 @@ type Session struct {
 
 func (x *Session) Reset() {
 	*x = Session{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[0]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -116,7 +207,7 @@ func (x *Session) String() string {
 func (*Session) ProtoMessage() {}
 
 func (x *Session) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[0]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -129,7 +220,7 @@ func (x *Session) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Session.ProtoReflect.Descriptor instead.
 func (*Session) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{0}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Session) GetServiceId() string {
@@ -185,7 +276,7 @@ type ListSessionsRequest struct {
 
 func (x *ListSessionsRequest) Reset() {
 	*x = ListSessionsRequest{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[1]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -197,7 +288,7 @@ func (x *ListSessionsRequest) String() string {
 func (*ListSessionsRequest) ProtoMessage() {}
 
 func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[1]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -210,7 +301,7 @@ func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{1}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListSessionsRequest) GetClusterName() string {
@@ -231,7 +322,7 @@ type ListSessionsResponse struct {
 
 func (x *ListSessionsResponse) Reset() {
 	*x = ListSessionsResponse{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[2]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -243,7 +334,7 @@ func (x *ListSessionsResponse) String() string {
 func (*ListSessionsResponse) ProtoMessage() {}
 
 func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[2]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -256,7 +347,7 @@ func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
 func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{2}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListSessionsResponse) GetSessions() []*Session {
@@ -277,7 +368,7 @@ type StartSessionRequest struct {
 
 func (x *StartSessionRequest) Reset() {
 	*x = StartSessionRequest{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[3]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -289,7 +380,7 @@ func (x *StartSessionRequest) String() string {
 func (*StartSessionRequest) ProtoMessage() {}
 
 func (x *StartSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[3]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -302,7 +393,7 @@ func (x *StartSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartSessionRequest.ProtoReflect.Descriptor instead.
 func (*StartSessionRequest) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{3}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *StartSessionRequest) GetServiceId() string {
@@ -322,7 +413,7 @@ type StartSessionResponse struct {
 
 func (x *StartSessionResponse) Reset() {
 	*x = StartSessionResponse{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -334,7 +425,7 @@ func (x *StartSessionResponse) String() string {
 func (*StartSessionResponse) ProtoMessage() {}
 
 func (x *StartSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[4]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -347,7 +438,7 @@ func (x *StartSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartSessionResponse.ProtoReflect.Descriptor instead.
 func (*StartSessionResponse) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{4}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *StartSessionResponse) GetSession() *Session {
@@ -368,7 +459,7 @@ type StopSessionRequest struct {
 
 func (x *StopSessionRequest) Reset() {
 	*x = StopSessionRequest{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -380,7 +471,7 @@ func (x *StopSessionRequest) String() string {
 func (*StopSessionRequest) ProtoMessage() {}
 
 func (x *StopSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[5]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -393,7 +484,7 @@ func (x *StopSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopSessionRequest.ProtoReflect.Descriptor instead.
 func (*StopSessionRequest) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{5}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *StopSessionRequest) GetServiceId() string {
@@ -412,7 +503,7 @@ type StopSessionResponse struct {
 
 func (x *StopSessionResponse) Reset() {
 	*x = StopSessionResponse{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +515,7 @@ func (x *StopSessionResponse) String() string {
 func (*StopSessionResponse) ProtoMessage() {}
 
 func (x *StopSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[6]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +528,7 @@ func (x *StopSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopSessionResponse.ProtoReflect.Descriptor instead.
 func (*StopSessionResponse) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{6}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{8}
 }
 
 // SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.
@@ -453,7 +544,7 @@ type SearchQueriesRequest struct {
 
 func (x *SearchQueriesRequest) Reset() {
 	*x = SearchQueriesRequest{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -465,7 +556,7 @@ func (x *SearchQueriesRequest) String() string {
 func (*SearchQueriesRequest) ProtoMessage() {}
 
 func (x *SearchQueriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[7]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -478,7 +569,7 @@ func (x *SearchQueriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchQueriesRequest.ProtoReflect.Descriptor instead.
 func (*SearchQueriesRequest) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{7}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SearchQueriesRequest) GetServiceIds() []string {
@@ -506,7 +597,7 @@ type SearchQueriesResponse struct {
 
 func (x *SearchQueriesResponse) Reset() {
 	*x = SearchQueriesResponse{}
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[8]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -518,7 +609,7 @@ func (x *SearchQueriesResponse) String() string {
 func (*SearchQueriesResponse) ProtoMessage() {}
 
 func (x *SearchQueriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[8]
+	mi := &file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -531,7 +622,7 @@ func (x *SearchQueriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchQueriesResponse.ProtoReflect.Descriptor instead.
 func (*SearchQueriesResponse) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{8}
+	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SearchQueriesResponse) GetQueries() []*QueryData {
@@ -545,7 +636,11 @@ var File_realtimeanalytics_v1_realtimeanalytics_proto protoreflect.FileDescripto
 
 const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\n" +
-	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a realtimeanalytics/v1/query.proto\x1a\x17validate/validate.proto\"\xac\x02\n" +
+	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a realtimeanalytics/v1/query.proto\x1a\x17validate/validate.proto\"S\n" +
+	"\x13ListServicesRequest\x12<\n" +
+	"\fservice_type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"N\n" +
+	"\x14ListServicesResponse\x126\n" +
+	"\amongodb\x18\x01 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\"\xac\x02\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -579,8 +674,9 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\x1aSESSION_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14SESSION_STATUS_ERROR\x10\x01\x12\x1a\n" +
 	"\x16SESSION_STATUS_RUNNING\x10\x02\x12\x17\n" +
-	"\x13SESSION_STATUS_DOWN\x10\x032\x81\t\n" +
-	"\x18RealtimeAnalyticsService\x12\xcc\x02\n" +
+	"\x13SESSION_STATUS_DOWN\x10\x032\x94\v\n" +
+	"\x18RealtimeAnalyticsService\x12\x90\x02\n" +
+	"\fListServices\x12).realtimeanalytics.v1.ListServicesRequest\x1a*.realtimeanalytics.v1.ListServicesResponse\"\xa8\x01\x92A\x7f\x12.List Services that support Real-Time Analytics\x1aMReturns a list of Services that support Real-Time Analytics filtered by type.\x82\xd3\xe4\x93\x02 \x12\x1e/v1/realtimeanalytics/services\x12\xcc\x02\n" +
 	"\fListSessions\x12).realtimeanalytics.v1.ListSessionsRequest\x1a*.realtimeanalytics.v1.ListSessionsResponse\"\xe4\x01\x92A\xba\x01\x12)List Running Real-Time Analytics Sessions\x1a\x8c\x01Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information.\x82\xd3\xe4\x93\x02 \x12\x1e/v1/realtimeanalytics/sessions\x12\xf9\x01\n" +
 	"\fStartSession\x12).realtimeanalytics.v1.StartSessionRequest\x1a*.realtimeanalytics.v1.StartSessionResponse\"\x91\x01\x92A_\x12!Start Real-Time Analytics session\x1a:Start Real-Time Analytics session for a specified service.\x82\xd3\xe4\x93\x02):\x01*\"$/v1/realtimeanalytics/sessions:start\x12\xf3\x01\n" +
 	"\vStopSession\x12(.realtimeanalytics.v1.StopSessionRequest\x1a).realtimeanalytics.v1.StopSessionResponse\"\x8e\x01\x92A]\x12 Stop Real-Time Analytics session\x1a9Stop Real-Time Analytics session for a specified service.\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/realtimeanalytics/sessions:stop\x12\xa3\x02\n" +
@@ -601,44 +697,52 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP() []byte {
 
 var (
 	file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes  = make([]protoimpl.MessageInfo, 9)
+	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes  = make([]protoimpl.MessageInfo, 11)
 	file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes   = []any{
 		(SessionStatus)(0),            // 0: realtimeanalytics.v1.SessionStatus
-		(*Session)(nil),               // 1: realtimeanalytics.v1.Session
-		(*ListSessionsRequest)(nil),   // 2: realtimeanalytics.v1.ListSessionsRequest
-		(*ListSessionsResponse)(nil),  // 3: realtimeanalytics.v1.ListSessionsResponse
-		(*StartSessionRequest)(nil),   // 4: realtimeanalytics.v1.StartSessionRequest
-		(*StartSessionResponse)(nil),  // 5: realtimeanalytics.v1.StartSessionResponse
-		(*StopSessionRequest)(nil),    // 6: realtimeanalytics.v1.StopSessionRequest
-		(*StopSessionResponse)(nil),   // 7: realtimeanalytics.v1.StopSessionResponse
-		(*SearchQueriesRequest)(nil),  // 8: realtimeanalytics.v1.SearchQueriesRequest
-		(*SearchQueriesResponse)(nil), // 9: realtimeanalytics.v1.SearchQueriesResponse
-		(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),   // 11: google.protobuf.Duration
-		(*QueryData)(nil),             // 12: realtimeanalytics.v1.QueryData
+		(*ListServicesRequest)(nil),   // 1: realtimeanalytics.v1.ListServicesRequest
+		(*ListServicesResponse)(nil),  // 2: realtimeanalytics.v1.ListServicesResponse
+		(*Session)(nil),               // 3: realtimeanalytics.v1.Session
+		(*ListSessionsRequest)(nil),   // 4: realtimeanalytics.v1.ListSessionsRequest
+		(*ListSessionsResponse)(nil),  // 5: realtimeanalytics.v1.ListSessionsResponse
+		(*StartSessionRequest)(nil),   // 6: realtimeanalytics.v1.StartSessionRequest
+		(*StartSessionResponse)(nil),  // 7: realtimeanalytics.v1.StartSessionResponse
+		(*StopSessionRequest)(nil),    // 8: realtimeanalytics.v1.StopSessionRequest
+		(*StopSessionResponse)(nil),   // 9: realtimeanalytics.v1.StopSessionResponse
+		(*SearchQueriesRequest)(nil),  // 10: realtimeanalytics.v1.SearchQueriesRequest
+		(*SearchQueriesResponse)(nil), // 11: realtimeanalytics.v1.SearchQueriesResponse
+		(v1.ServiceType)(0),           // 12: inventory.v1.ServiceType
+		(*v1.MongoDBService)(nil),     // 13: inventory.v1.MongoDBService
+		(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 15: google.protobuf.Duration
+		(*QueryData)(nil),             // 16: realtimeanalytics.v1.QueryData
 	}
 )
 
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
-	10, // 0: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
-	11, // 1: realtimeanalytics.v1.Session.collect_interval:type_name -> google.protobuf.Duration
-	0,  // 2: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
-	1,  // 3: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
-	1,  // 4: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
-	12, // 5: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
-	2,  // 6: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
-	4,  // 7: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
-	6,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
-	8,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
-	3,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
-	5,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
-	7,  // 12: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
-	9,  // 13: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	12, // 0: realtimeanalytics.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
+	13, // 1: realtimeanalytics.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
+	14, // 2: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
+	15, // 3: realtimeanalytics.v1.Session.collect_interval:type_name -> google.protobuf.Duration
+	0,  // 4: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
+	3,  // 5: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
+	3,  // 6: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
+	16, // 7: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
+	1,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:input_type -> realtimeanalytics.v1.ListServicesRequest
+	4,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
+	6,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
+	8,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
+	10, // 12: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
+	2,  // 13: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:output_type -> realtimeanalytics.v1.ListServicesResponse
+	5,  // 14: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
+	7,  // 15: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
+	9,  // 16: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
+	11, // 17: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
+	13, // [13:18] is the sub-list for method output_type
+	8,  // [8:13] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_realtimeanalytics_proto_init() }
@@ -653,7 +757,7 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc), len(file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

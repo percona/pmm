@@ -1,6 +1,6 @@
 import vscDarkPlus from 'react-syntax-highlighter/dist/esm/styles/prism/vsc-dark-plus';
 import { Theme } from '@mui/material/styles';
-import { PEAK_DARK_THEME, PEAK_LIGHT_THEME } from '@pmm/shared';
+import { primitives } from '@percona/percona-ui';
 import { CodeLanguage } from 'types/util.types';
 
 export const getSyntaxHighlighterStyle = (
@@ -13,25 +13,26 @@ export const getSyntaxHighlighterStyle = (
   const tokens = {
     fontFamily: 'Roboto Mono, monospace',
     background: 'transparent',
-    base: isLight ? PEAK_LIGHT_THEME.text.sky : PEAK_DARK_THEME.text.sky,
-    attrValue: isLight ? PEAK_LIGHT_THEME.text.aqua : PEAK_DARK_THEME.text.aqua,
-    string: isLight ? PEAK_LIGHT_THEME.text.aqua : PEAK_DARK_THEME.text.aqua,
-    number: isLight
-      ? PEAK_LIGHT_THEME.text.primary
-      : PEAK_DARK_THEME.text.primary,
+    base:
+      language === 'text'
+        ? theme.palette.text.primary
+        : isLight
+          ? primitives.brand.sky[600]
+          : primitives.brand.sky[200],
+    attrValue: isLight
+      ? primitives.brand.aqua[700]
+      : primitives.brand.aqua[300],
+    string: isLight ? primitives.brand.aqua[700] : primitives.brand.aqua[300],
+    number: theme.palette.text.primary,
     property: isLight
-      ? PEAK_LIGHT_THEME.text.lavender
-      : PEAK_DARK_THEME.text.sky,
+      ? primitives.brand.lavender[600]
+      : primitives.brand.sky[200],
     function: isLight
-      ? PEAK_LIGHT_THEME.text.lavender
-      : PEAK_DARK_THEME.text.lavender,
-    operator: isLight ? PEAK_LIGHT_THEME.text.aqua : PEAK_DARK_THEME.text.aqua,
+      ? primitives.brand.lavender[600]
+      : primitives.brand.lavender[200],
+    operator: isLight ? primitives.brand.aqua[700] : primitives.brand.aqua[300],
     punctuation: theme.palette.text.secondary,
   };
-
-  if (language === 'text') {
-    tokens.base = theme.palette.text.primary;
-  }
 
   // Define your custom styles to override the base VSC Dark Plus colors
   const customStyle = {

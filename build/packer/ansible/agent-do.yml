@@ -143,6 +143,25 @@
         - docker==7.1.0
         - linode-cli==5.55.0
 
+    - name: Blacklist KVM modules to allow VirtualBox to use VT-x
+      block:
+        - name: Create modprobe blacklist file for KVM
+          copy:
+            dest: /etc/modprobe.d/blacklist-kvm.conf
+            content: |
+              # Blacklist KVM modules to allow VirtualBox to use hardware virtualization
+              blacklist kvm
+              blacklist kvm_intel
+              blacklist kvm_amd
+            mode: '0644'
+
+        - name: Unload KVM modules if currently loaded
+          shell: |
+            modprobe -r kvm_intel 2>/dev/null || true
+            modprobe -r kvm_amd 2>/dev/null || true
+            modprobe -r kvm 2>/dev/null || true
+          ignore_errors: yes
+
     - name: Install virtual box (only for Digital Ocean)
       block:
         - name: Add base repository for VirtualBox

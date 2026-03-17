@@ -1,11 +1,12 @@
 import { getThemeById, type GrafanaTheme2 } from '@grafana/data';
 import { config, getAppEvents, ThemeChangedEvent } from '@grafana/runtime';
+import { ColorMode } from '@pmm/shared';
 
 /**
  * Apply Grafana theme by id and ensure the proper CSS bundle is loaded.
  * Based on Grafana's public/app/core/services/theme.ts (trimmed).
  */
-const applyGrafanaTheme = async (mode: 'light' | 'dark'): Promise<GrafanaTheme2> => {
+const applyGrafanaTheme = async (mode: ColorMode): Promise<GrafanaTheme2> => {
   const oldTheme = config.theme2;
   const newTheme = getThemeById(mode);
 

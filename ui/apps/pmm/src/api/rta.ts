@@ -1,7 +1,7 @@
 import {
+  AvailableServicesResponse,
   ListRunningSessionsResponse,
   RealtimeSession,
-  RealtimeSessionStatus,
   SearchQueriesPayload,
   SearchQueriesResponse,
   StartSessionPayload,
@@ -9,72 +9,34 @@ import {
   StopSessionPayload,
 } from 'types/rta.types';
 import { api } from './api';
-import { changeRealtimeAgent, getRunningRealtimeAgents } from './rta.fallback';
 import { EmptyResponse } from 'types/util.types';
+import { ServiceType } from 'types/services.types';
 
 export const getRunningSessions = async (): Promise<RealtimeSession[]> => {
-  try {
-    const res = await api.get<ListRunningSessionsResponse>(
-      '/realtimeanalytics/sessions'
-    );
-    return res.data.sessions;
-  } catch (error) {
-    // todo: temporary fallback till https://github.com/percona/pmm/pull/4956 gets merged
-    const agents = await getRunningRealtimeAgents();
-    return agents.map<RealtimeSession>((agent) => ({
-      status: RealtimeSessionStatus.unspecified,
-      startTime: agent.startedAt,
-      serviceId: agent.serviceId,
-      serviceName: agent.serviceName,
-      clusterName: agent.cluster,
-    }));
-  }
+  const res = await api.get<ListRunningSessionsResponse>(
+    '/realtimeanalytics/sessions'
+  );
+  return res.data.sessions;
 };
 
 export const startSession = async (
   payload: StartSessionPayload
 ): Promise<StartSessionResponse> => {
-  try {
-    const res = await api.post<StartSessionResponse>(
-      '/realtimeanalytics/sessions:start',
-      payload
-    );
-    return res.data;
-  } catch (error) {
-    // todo: temporary fallback till https://github.com/percona/pmm/pull/4956 gets merged
-    await changeRealtimeAgent({
-      serviceId: payload.serviceId,
-      enable: true,
-    });
-    return {
-      session: {
-        serviceId: payload.serviceId,
-        serviceName: '',
-        clusterName: '',
-        startTime: new Date().toISOString(),
-        status: RealtimeSessionStatus.unspecified,
-      },
-    };
-  }
+  const res = await api.post<StartSessionResponse>(
+    '/realtimeanalytics/sessions:start',
+    payload
+  );
+  return res.data;
 };
 
 export const stopSession = async (
   payload: StopSessionPayload
 ): Promise<EmptyResponse> => {
-  try {
-    const res = await api.post<EmptyResponse>(
-      '/realtimeanalytics/sessions:stop',
-      payload
-    );
-    return res.data;
-  } catch (error) {
-    // todo: temporary fallback till https://github.com/percona/pmm/pull/4956 gets merged
-    await changeRealtimeAgent({
-      serviceId: payload.serviceId,
-      enable: false,
-    });
-    return {};
-  }
+  const res = await api.post<EmptyResponse>(
+    '/realtimeanalytics/sessions:stop',
+    payload
+  );
+  return res.data;
 };
 
 export const searchQueries = async (
@@ -83,6 +45,16 @@ export const searchQueries = async (
   const res = await api.post<SearchQueriesResponse>(
     '/realtimeanalytics/queries:search',
     payload
+  );
+  return res.data;
+};
+
+export const getAvailableServices = async (
+  serviceTypes?: ServiceType[]
+): Promise<AvailableServicesResponse> => {
+  const params = serviceTypes ? `?service_types=${serviceTypes.join(',')}` : '';
+  const res = await api.get<AvailableServicesResponse>(
+    `/realtimeanalytics/services${params}`
   );
   return res.data;
 };
