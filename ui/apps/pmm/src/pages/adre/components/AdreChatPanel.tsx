@@ -95,6 +95,19 @@ function isGrafanaRenderImageSrc(src: string): boolean {
   return src.includes(GRAFANA_RENDER_D_SOLO) && src.includes('panelId=');
 }
 
+/** Ensure /v1/grafana/render URLs include cache=1 so the backend caches the image on disk. */
+function withRenderCacheParam(src: string): string {
+  if (!src || !src.includes(GRAFANA_RENDER_PATH)) return src;
+  if (/[?&]cache=1(?=&|$)/.test(src)) return src;
+  try {
+    const u = new URL(src, window.location.origin);
+    u.searchParams.set('cache', '1');
+    return u.toString();
+  } catch {
+    return src.includes('?') ? `${src}&cache=1` : `${src}?cache=1`;
+  }
+}
+
 /** Fetches Grafana render image with credentials and long timeout so the panel image loads in chat. */
 const GrafanaPanelImage: FC<{
   src: string;
@@ -660,10 +673,11 @@ export const AdreChatPanel: FC = () => {
                               ),
                               img: ({ src, alt }: { src?: string; alt?: string }) => {
                                 if (src && isGrafanaRenderImageSrc(src)) {
+                                  const imageSrc = withRenderCacheParam(src);
                                   const dashboardHref = dashboardUrlFromRenderUrl(src);
                                   return (
                                     <GrafanaPanelImage
-                                      src={src}
+                                      src={imageSrc}
                                       alt={alt ?? 'Grafana panel'}
                                       dashboardHref={dashboardHref}
                                     />

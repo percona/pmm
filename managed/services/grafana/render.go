@@ -194,8 +194,7 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Proxy to Grafana render API
-	path := "/render/d-solo/" + dashboardUID + "/"
+	// Call Grafana render API. Path must include /graph prefix (serve_from_sub_path = true in grafana.ini).
 	rawQuery := renderParams.Encode()
 	headers := make(http.Header)
 	if auth := r.Header.Get("Authorization"); auth != "" {
@@ -205,6 +204,7 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		headers.Set("Cookie", cookie)
 	}
 
+	path := "/graph/render/d-solo/" + dashboardUID + "/"
 	body, contentType, err := h.client.DoRaw(r.Context(), http.MethodGet, path, rawQuery, headers, nil)
 	if err != nil {
 		h.l.Warnf("Grafana render: %v", err)
