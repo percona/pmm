@@ -1,6 +1,6 @@
 import { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 import { RealtimeSession } from 'types/rta.types';
-import { ManagedService } from 'types/services.types';
+import { VersionedService } from 'types/services.types';
 
 export type TagPresentation = 'label' | 'tags';
 
@@ -18,7 +18,7 @@ type PropsWithSessions = BaseProps & {
 };
 
 type PropsWithServices = BaseProps & {
-  services: ManagedService[];
+  services: VersionedService[];
 };
 
 export type ServicesAutocompleteInputProps =

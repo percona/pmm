@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package models contains generated Reform records and helpers.
-//
 // Common order of helpers:
 //   - unexported validators (checkXXX);
 //   - FindAllXXX;
@@ -23,6 +21,8 @@
 //   - CreateXXX;
 //   - ChangeXXX;
 //   - RemoveXXX.
+
+// Package models provides the data models and helpers for the managed package.
 package models
 
 import (
@@ -55,7 +55,7 @@ const (
 
 // MergeLabels merges unified labels of Node, Service, and Agent (each can be nil).
 func MergeLabels(node *Node, service *Service, agent *Agent) (map[string]string, error) {
-	res := make(map[string]string, 16)
+	res := make(map[string]string, 16) //nolint:mnd
 
 	if node != nil {
 		labels, err := node.UnifiedLabels()
