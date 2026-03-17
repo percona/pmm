@@ -8731,6 +8731,14 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
 	if len(errors) > 0 {
 		return ChangeNodeExporterParamsMultiError(errors)
 	}
@@ -9122,6 +9130,54 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.TablestatsGroupTableLimit != nil {
+		// no validation rules for TablestatsGroupTableLimit
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
 	if len(errors) > 0 {
 		return ChangeMySQLdExporterParamsMultiError(errors)
 	}
@@ -9277,6 +9333,8 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	// no validation rules for ExposeExporter
+
+	// no validation rules for EnableAllCollectors
 
 	if all {
 		switch v := interface{}(m.GetTimeout()).(type) {
@@ -9504,6 +9562,66 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.CollectionsLimit != nil {
+		// no validation rules for CollectionsLimit
+	}
+
+	if m.EnableAllCollectors != nil {
+		// no validation rules for EnableAllCollectors
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
 	}
 
 	if len(errors) > 0 {
@@ -9898,6 +10016,58 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.AutoDiscoveryLimit != nil {
+		// no validation rules for AutoDiscoveryLimit
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if m.MaxExporterConnections != nil {
+		// no validation rules for MaxExporterConnections
+	}
+
 	if len(errors) > 0 {
 		return ChangePostgresExporterParamsMultiError(errors)
 	}
@@ -10280,6 +10450,34 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
 	if len(errors) > 0 {
 		return ChangeProxySQLExporterParamsMultiError(errors)
 	}
@@ -10614,6 +10812,54 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -10953,6 +11199,58 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.MaxSlowlogFileSize != nil {
+		// no validation rules for MaxSlowlogFileSize
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMySQLSlowlogAgentParamsMultiError(errors)
 	}
@@ -11279,6 +11577,50 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -11603,6 +11945,50 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -11940,6 +12326,46 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANPostgreSQLPgStatementsAgentParamsMultiError(errors)
 	}
@@ -12275,6 +12701,50 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -12647,6 +13117,26 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.AwsAccessKey != nil {
+		// no validation rules for AwsAccessKey
+	}
+
+	if m.AwsSecretKey != nil {
+		// no validation rules for AwsSecretKey
+	}
+
+	if m.DisableBasicMetrics != nil {
+		// no validation rules for DisableBasicMetrics
+	}
+
+	if m.DisableEnhancedMetrics != nil {
+		// no validation rules for DisableEnhancedMetrics
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
 	if len(errors) > 0 {
 		return ChangeRDSExporterParamsMultiError(errors)
 	}
@@ -13013,6 +13503,22 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Scheme != nil {
+		// no validation rules for Scheme
+	}
+
+	if m.MetricsPath != nil {
+		// no validation rules for MetricsPath
+	}
+
+	if m.ListenPort != nil {
+		// no validation rules for ListenPort
 	}
 
 	if len(errors) > 0 {
@@ -13399,6 +13905,30 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.AzureClientId != nil {
+		// no validation rules for AzureClientId
+	}
+
+	if m.AzureClientSecret != nil {
+		// no validation rules for AzureClientSecret
+	}
+
+	if m.AzureTenantId != nil {
+		// no validation rules for AzureTenantId
+	}
+
+	if m.AzureSubscriptionId != nil {
+		// no validation rules for AzureSubscriptionId
+	}
+
+	if m.AzureResourceGroup != nil {
+		// no validation rules for AzureResourceGroup
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
 	if len(errors) > 0 {
 		return ChangeAzureDatabaseExporterParamsMultiError(errors)
 	}
@@ -13665,6 +14195,8 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for LogLevel
+
 	if all {
 		switch v := interface{}(m.GetTimeout()).(type) {
 		case interface{ ValidateAll() error }:
@@ -13901,6 +14433,55 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		if utf8.RuneCountInString(m.GetUsername()) < 1 {
+			err := ChangeValkeyExporterParamsValidationError{
+				field:  "Username",
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
 	if len(errors) > 0 {
 		return ChangeValkeyExporterParamsMultiError(errors)
 	}
@@ -14047,8 +14628,6 @@ func (m *AddRTAMongoDBAgentParams) validate(all bool) error {
 
 	// no validation rules for AuthenticationMechanism
 
-	// no validation rules for AuthenticationDatabase
-
 	if all {
 		switch v := interface{}(m.GetRtaOptions()).(type) {
 		case interface{ ValidateAll() error }:
@@ -14180,35 +14759,6 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetRtaOptions()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
-					field:  "RtaOptions",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
-					field:  "RtaOptions",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeRTAMongoDBAgentParamsValidationError{
-				field:  "RtaOptions",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -14237,6 +14787,73 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeRTAMongoDBAgentParamsValidationError{
 					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.RtaOptions != nil {
+		if all {
+			switch v := interface{}(m.GetRtaOptions()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

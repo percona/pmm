@@ -1,0 +1,62 @@
+#!/bin/bash
+set -o errexit
+set -o pipefail
+
+declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:-/srv/postgres14}"
+declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:-/srv/.postgres_password}"
+
+ensure_postgres_password() {
+    # This check is meant to verify if the data directory is empty.
+    if [ ! -f "$POSTGRES_DATA_DIR/PG_VERSION" ]; then
+        return
+    fi
+    if [ -f "$POSTGRES_PASSWORD_FILE" ]; then
+        return
+    fi
+
+    echo "Generating postgres superuser password for existing data directory..."
+    declare POSTGRES_PASSWORD
+    POSTGRES_PASSWORD=$(openssl rand -hex 16)
+    echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
+    chmod 600 "$POSTGRES_PASSWORD_FILE"
+
+    local started=0
+    if ! /usr/pgsql-14/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
+        started=1
+    fi
+
+    PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres \
+        -c "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}'"
+
+    if [ "$started" -eq 1 ]; then
+        /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
+    fi
+
+    unset POSTGRES_PASSWORD
+}
+
+update_pg_hba_auth() {
+    local hba="$POSTGRES_DATA_DIR/pg_hba.conf"
+ 
+    if [ ! -f "$hba" ]; then
+        return 1
+    fi
+
+    if ! grep -Eq '^[[:space:]]*host[[:space:]].*[[:space:]]trust[[:space:]]*$' "$hba"; then
+        return 1
+    fi
+
+    echo "Updating $hba to require scram-sha-256 for host connections..."
+    local tmp
+    tmp=$(mktemp)
+    sed -E 's/^([[:space:]]*host[[:space:]].*[[:space:]])trust([[:space:]]*)$/\1scram-sha-256\2/' "$hba" > "$tmp"
+    mv "$tmp" "$hba"
+
+    if /usr/pgsql-14/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        /usr/pgsql-14/bin/pg_ctl reload -D "$POSTGRES_DATA_DIR"
+    fi
+}
+
+ensure_postgres_password
+update_pg_hba_auth || true

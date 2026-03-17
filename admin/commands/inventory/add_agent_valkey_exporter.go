@@ -15,6 +15,8 @@
 package inventory
 
 import (
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -73,7 +75,7 @@ type AddAgentValkeyExporterCommand struct {
 
 // RunCmd executes the AddAgentValkeyExporterCommand and returns the result.
 func (cmd *AddAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -104,7 +106,7 @@ func (cmd *AddAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 				Username:            cmd.Username,
 				Password:            cmd.Password,
 				AgentPassword:       cmd.AgentPassword,
-				CustomLabels:        customLabels,
+				CustomLabels:        pointer.Get(customLabels),
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLS:                 cmd.TLS,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
@@ -114,6 +116,7 @@ func (cmd *AddAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:         cmd.PushMetrics,
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:            convertLogLevelPtr(&cmd.LogLevel),
 				Timeout:             cmd.Timeout,
 			},
 		},
