@@ -284,7 +284,7 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 			lastContent = resp.Analysis
 		}
 	case "holmes_agent":
-		ask := "Run the full investigation now. Use ask_holmes to gather logs, metrics, and alerts for this incident, then call generate_investigation_report with the gathered context. Do not ask for confirmation—execute the investigation immediately.\n\nContext:\n" + ctxStr
+		ask := "Run the full investigation now. Use ask_holmes to gather multiple metrics and panels (QPS, connections, redo log, replication, etc.); do not stop after one metric. Then gather logs and alerts, then call generate_investigation_report with the gathered context. Do not ask for confirmation—execute the investigation immediately.\n\nContext:\n" + ctxStr
 		content, err := adre.RunPMMAgentChatSync(ctx, nil, h.l, settings, ask, nil, investigationRunTimeout)
 		if err != nil {
 			h.l.Errorf("PMM Agent run: %v", err)

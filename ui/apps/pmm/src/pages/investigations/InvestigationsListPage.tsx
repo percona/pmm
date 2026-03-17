@@ -196,6 +196,9 @@ const InvestigationsListPage: FC = () => {
                     >
                       Title <SortIcon column="title" />
                     </TableCell>
+                    <TableCell>Source</TableCell>
+                    <TableCell>Node</TableCell>
+                    <TableCell>Service</TableCell>
                     <TableCell
                       onClick={() => handleSort('status')}
                       sx={{ cursor: 'pointer', userSelect: 'none' }}
@@ -228,6 +231,17 @@ const InvestigationsListPage: FC = () => {
                         />
                       </TableCell>
                       <TableCell>{inv.title || inv.id}</TableCell>
+                      <TableCell>
+                        {(inv.sourceType ?? inv.source_type) === 'alert'
+                          ? 'Alert'
+                          : 'User request'}
+                      </TableCell>
+                      <TableCell>
+                        {inv.nodeName ?? inv.node_name ?? '—'}
+                      </TableCell>
+                      <TableCell>
+                        {inv.serviceName ?? inv.service_name ?? '—'}
+                      </TableCell>
                       <TableCell>
                         <Chip
                           label={inv.status}

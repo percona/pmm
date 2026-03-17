@@ -21,7 +21,7 @@ import { useAdreModels, useAdreSettings } from 'hooks/api/useAdre';
 import { adreChatStream, type AdreStreamProgressEvent } from 'api/adre';
 import { useSnackbar } from 'notistack';
 import { CodeBlock } from 'pages/updates/change-log/code-block';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { PMM_BASE_PATH, PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
 const STORAGE_KEY = 'pmm-adre-chat';
 const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -68,13 +68,34 @@ function toSameOriginUrl(url: string): string {
   }
 }
 
-/** Build "Open in Grafana" URL from a PMM or Grafana render URL. Uses epoch ms for from/to when possible. */
+/** Normalize Grafana dashboard links so they open under the app base path and preserve query params (from/to, var-service_name, etc.). */
+function toGrafanaDashboardLink(href: string): string {
+  if (!href || href === '#') return href;
+  const sameOrigin = toSameOriginUrl(href);
+  try {
+    const u = new URL(sameOrigin, window.location.origin);
+    if (!u.pathname.startsWith('/graph/d/')) return sameOrigin;
+    return PMM_BASE_PATH + u.pathname + u.search;
+  } catch {
+    return sameOrigin;
+  }
+}
+
+/** Build "Open in Grafana" URL from a PMM or Grafana render URL. Uses epoch ms for from/to when possible. Stays under app base path so query params are preserved. */
 function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
   try {
-    const path = renderSrc.startsWith('/') ? renderSrc : renderSrc.includes('://') ? new URL(renderSrc).pathname : `/${renderSrc}`;
-    const searchStart = path.indexOf('?');
-    const pathOnly = searchStart === -1 ? path : path.slice(0, searchStart);
-    const params = new URLSearchParams(searchStart === -1 ? '' : path.slice(searchStart + 1));
+    let pathOnly: string;
+    let params: URLSearchParams;
+    if (renderSrc.includes('://')) {
+      const u = new URL(renderSrc);
+      pathOnly = u.pathname;
+      params = u.searchParams;
+    } else {
+      const path = renderSrc.startsWith('/') ? renderSrc : `/${renderSrc}`;
+      const searchStart = path.indexOf('?');
+      pathOnly = searchStart === -1 ? path : path.slice(0, searchStart);
+      params = new URLSearchParams(searchStart === -1 ? '' : path.slice(searchStart + 1));
+    }
 
     let uid: string | null = null;
     let panelId: string | null = null;
@@ -91,7 +112,7 @@ function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
     const from = params.get('from');
     const to = params.get('to');
     if (!uid) return null;
-    const base = `${PMM_NEW_NAV_GRAFANA_PATH}/d/${uid}`;
+    const base = `${PMM_BASE_PATH}${PMM_NEW_NAV_GRAFANA_PATH}/d/${uid}`;
     const q = new URLSearchParams();
     if (panelId) q.set('viewPanel', panelId);
     if (from) q.set('from', toEpochMsOrOriginal(from));
@@ -706,7 +727,7 @@ export const AdreChatPanel: FC = () => {
                               ),
                               a: ({ href, children }: { href?: string; children?: ReactNode }) => (
                                 <Link
-                                  href={href ? toSameOriginUrl(href) : '#'}
+                                  href={href ? toGrafanaDashboardLink(href) : '#'}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   sx={{

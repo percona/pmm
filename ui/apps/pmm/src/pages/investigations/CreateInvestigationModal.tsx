@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { Dialog, DialogTitle } from '@percona/percona-ui';
 import { FC, useEffect, useState } from 'react';
 import { getAdreAlerts, getAlertMetadataFromLabels } from 'api/adre';
@@ -29,6 +30,12 @@ interface AlertItem {
 function getAlertKey(a: AlertItem, index: number): string {
   const fp = String(a.fingerprint ?? a.labels?.alertname ?? '');
   return a.fingerprint ? fp : `${fp || 'alert'}-${index}`;
+}
+
+function parseISODate(s: string): Date | null {
+  if (!s.trim()) return null;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
 export interface CreateInvestigationModalProps {
@@ -88,6 +95,21 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
       });
     return () => { cancelled = true; };
   }, [open, sourceType]);
+
+  // When creating from alert, set default title to "Alert: <alertname>" when selection changes (only if title is empty or already a default).
+  useEffect(() => {
+    if (sourceType !== 'alert' || selectedAlertKeys.size === 0) return;
+    const firstIndex = alerts.findIndex((a, i) => selectedAlertKeys.has(getAlertKey(a, i)));
+    if (firstIndex === -1) return;
+    const first = alerts[firstIndex];
+    const alertname =
+      first?.labels?.alertname ?? first?.annotations?.summary ?? 'Alert';
+    const defaultTitle = `Alert: ${alertname}`;
+    setTitle((prev) => {
+      if (prev === '' || prev.startsWith('Alert: ')) return defaultTitle;
+      return prev;
+    });
+  }, [sourceType, selectedAlertKeys, alerts]);
 
   const toggleAlert = (key: string) => {
     setSelectedAlertKeys((prev) => {
@@ -162,7 +184,7 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
               label="Source type"
               onChange={(e) => setSourceType(e.target.value)}
             >
-              <MenuItem value="manual">Manual</MenuItem>
+              <MenuItem value="manual">User request</MenuItem>
               <MenuItem value="alert">Alert</MenuItem>
             </Select>
           </FormControl>
@@ -204,21 +226,33 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
               )}
             </Box>
           )}
-          <TextField
+          <DateTimePicker
             label="Time from"
-            value={timeFrom}
-            onChange={(e) => setTimeFrom(e.target.value)}
-            placeholder="e.g. 2025-01-01T00:00:00Z"
-            size="small"
-            fullWidth
+            value={parseISODate(timeFrom)}
+            onChange={(newValue) =>
+              setTimeFrom(newValue ? newValue.toISOString() : '')
+            }
+            slotProps={{
+              textField: {
+                size: 'small',
+                fullWidth: true,
+                placeholder: 'e.g. 2025-01-01T00:00:00Z',
+              },
+            }}
           />
-          <TextField
+          <DateTimePicker
             label="Time to"
-            value={timeTo}
-            onChange={(e) => setTimeTo(e.target.value)}
-            placeholder="e.g. 2025-01-01T23:59:59Z"
-            size="small"
-            fullWidth
+            value={parseISODate(timeTo)}
+            onChange={(newValue) =>
+              setTimeTo(newValue ? newValue.toISOString() : '')
+            }
+            slotProps={{
+              textField: {
+                size: 'small',
+                fullWidth: true,
+                placeholder: 'e.g. 2025-01-01T23:59:59Z',
+              },
+            }}
           />
         </Stack>
       </DialogContent>

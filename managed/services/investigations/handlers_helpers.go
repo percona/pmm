@@ -105,20 +105,33 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 		SourceRef:         inv.SourceRef,
 	}
 	if len(inv.Config) > 0 {
+		nodeName, serviceName := configNodeService(inv)
+		if nodeName != "" {
+			resp.NodeName = nodeName
+		}
+		if serviceName != "" {
+			resp.ServiceName = serviceName
+		}
 		var cfg map[string]string
 		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
-			if v := cfg["node_name"]; v != "" {
-				resp.NodeName = v
-			}
-			if v := cfg["service_name"]; v != "" {
-				resp.ServiceName = v
-			}
 			if v := cfg["cluster_name"]; v != "" {
 				resp.ClusterName = v
 			}
 		}
 	}
 	return resp
+}
+
+// configNodeService returns node_name and service_name from investigation config JSON.
+func configNodeService(inv *models.Investigation) (nodeName, serviceName string) {
+	if len(inv.Config) == 0 {
+		return "", ""
+	}
+	var cfg map[string]string
+	if err := json.Unmarshal(inv.Config, &cfg); err != nil {
+		return "", ""
+	}
+	return cfg["node_name"], cfg["service_name"]
 }
 
 type blockResponse struct {

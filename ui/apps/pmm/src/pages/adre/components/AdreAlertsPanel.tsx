@@ -81,7 +81,7 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
     const titles = items
       .map((a) => a.labels?.alertname ?? a.annotations?.summary ?? 'Alert')
       .filter(Boolean);
-    const title = titles[0] ?? 'Alerts';
+    const title = `Alert: ${titles[0] ?? 'Alerts'}`;
     const sourceRef = items
       .map((a) => a.fingerprint ?? getAlertKey(a, alerts.indexOf(a)))
       .filter(Boolean)

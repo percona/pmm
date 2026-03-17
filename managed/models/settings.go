@@ -36,7 +36,7 @@ const (
 	OtelCollectorEnabledDefault        = true
 	OtelLogsRetentionDaysDefault       = 7
 	AdreEnabledDefault                 = false
-	AdrePromptMaxBytes                 = 2048
+	AdrePromptMaxBytes                 = 4096
 	awsPartitionID                     = "aws"
 )
 

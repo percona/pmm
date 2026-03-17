@@ -11,6 +11,12 @@ export interface InvestigationListItem {
   updated_at?: string;
   timeFrom?: string;
   timeTo?: string;
+  sourceType?: string;
+  source_type?: string;
+  nodeName?: string;
+  node_name?: string;
+  serviceName?: string;
+  service_name?: string;
 }
 
 export interface InvestigationBlock {

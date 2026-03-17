@@ -109,9 +109,9 @@ type ChangeSettingsParams struct {
 	EnableAdre *bool
 	// AdreURL is the HolmesGPT base URL (e.g. http://holmesgpt:8080).
 	AdreURL *string
-	// AdreChatPrompt is the system prompt for chat (fast) mode. Max 2048 bytes.
+	// AdreChatPrompt is the system prompt for chat (fast) mode. Max 4096 bytes.
 	AdreChatPrompt *string
-	// AdreInvestigationPrompt is the system prompt for investigation mode. Max 2048 bytes.
+	// AdreInvestigationPrompt is the system prompt for investigation mode. Max 4096 bytes.
 	AdreInvestigationPrompt *string
 	// AdreDefaultChatMode is the default mode when UI does not send one: "chat" or "investigation".
 	AdreDefaultChatMode *string

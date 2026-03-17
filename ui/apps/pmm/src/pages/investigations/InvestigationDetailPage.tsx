@@ -309,7 +309,8 @@ const InvestigationDetailPage: FC = () => {
         )}
         {inv.sourceType && (
           <Typography variant="body2" color="text.secondary">
-            Source: {inv.sourceType}
+            Source:{' '}
+            {inv.sourceType === 'alert' ? 'Alert' : 'User request'}
           </Typography>
         )}
         {(inv.nodeName ?? (inv as { node_name?: string }).node_name ?? fetchedAlertMeta.nodeName) && (

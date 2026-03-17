@@ -18,6 +18,7 @@ import { FC, useState, useEffect, ChangeEvent } from 'react';
 import { Page } from 'components/page';
 import { useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import type { AdreSettings } from 'api/adre';
+import { useSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';
 
@@ -32,6 +33,7 @@ function isForbiddenError(err: unknown): boolean {
 
 const AdreSettingsPage: FC = () => {
   const { user } = useUser();
+  const { enqueueSnackbar } = useSnackbar();
   const { data: settings, isLoading, isError, error } = useAdreSettings();
   const updateSettings = useUpdateAdreSettings();
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
@@ -215,15 +217,27 @@ const AdreSettingsPage: FC = () => {
                 <Button
                   variant="contained"
                   onClick={() =>
-                    updateSettings.mutate({
-                      enabled: localEnabled,
-                      url: localUrl,
-                      chat_backend: localChatBackend,
-                      chat_history_length: localChatHistoryLength,
-                      chat_prompt: localChatPrompt || undefined,
-                      investigation_prompt: localInvestigationPrompt || undefined,
-                      agent_prompt: localAgentPrompt || undefined,
-                    } as Partial<AdreSettings> & Record<string, unknown>)
+                    updateSettings.mutate(
+                      {
+                        enabled: localEnabled,
+                        url: localUrl,
+                        chat_backend: localChatBackend,
+                        chat_history_length: localChatHistoryLength,
+                        chat_prompt: localChatPrompt || undefined,
+                        investigation_prompt: localInvestigationPrompt || undefined,
+                        agent_prompt: localAgentPrompt || undefined,
+                      } as Partial<AdreSettings> & Record<string, unknown>,
+                      {
+                        onError: (err: unknown) => {
+                          const msg =
+                            (err as { response?: { data?: { error?: string } } })?.response?.data
+                              ?.error ??
+                            (err as Error)?.message ??
+                            'Failed to save settings';
+                          enqueueSnackbar(msg, { variant: 'error' });
+                        },
+                      }
+                    )
                   }
                   disabled={updateSettings.isPending}
                 >

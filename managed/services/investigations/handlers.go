@@ -184,24 +184,31 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	type item struct {
-		ID        string `json:"id"`
-		Title     string `json:"title"`
-		Status    string `json:"status"`
-		CreatedAt string `json:"created_at"`
-		UpdatedAt string `json:"updated_at"`
-		TimeFrom  string `json:"time_from,omitempty"`
-		TimeTo    string `json:"time_to,omitempty"`
+		ID         string `json:"id"`
+		Title      string `json:"title"`
+		Status     string `json:"status"`
+		CreatedAt  string `json:"created_at"`
+		UpdatedAt  string `json:"updated_at"`
+		TimeFrom   string `json:"time_from,omitempty"`
+		TimeTo     string `json:"time_to,omitempty"`
+		SourceType string `json:"source_type,omitempty"`
+		NodeName   string `json:"node_name,omitempty"`
+		ServiceName string `json:"service_name,omitempty"`
 	}
 	out := make([]item, len(list))
 	for i, inv := range list {
+		nodeName, serviceName := configNodeService(inv)
 		out[i] = item{
-			ID:        inv.ID,
-			Title:     inv.Title,
-			Status:    inv.Status,
-			CreatedAt: inv.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-			UpdatedAt: inv.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
-			TimeFrom:  inv.TimeFrom.Format("2006-01-02T15:04:05Z07:00"),
-			TimeTo:    inv.TimeTo.Format("2006-01-02T15:04:05Z07:00"),
+			ID:          inv.ID,
+			Title:       inv.Title,
+			Status:      inv.Status,
+			CreatedAt:   inv.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+			UpdatedAt:   inv.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+			TimeFrom:    inv.TimeFrom.Format("2006-01-02T15:04:05Z07:00"),
+			TimeTo:      inv.TimeTo.Format("2006-01-02T15:04:05Z07:00"),
+			SourceType:  inv.SourceType,
+			NodeName:    nodeName,
+			ServiceName: serviceName,
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")
