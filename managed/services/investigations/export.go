@@ -66,30 +66,35 @@ func (h *Handlers) GetInvestigationExportPDF(w http.ResponseWriter, r *http.Requ
 
 func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBlock, timelineEvents []*models.InvestigationTimelineEvent) ([]byte, error) {
 	var b bytes.Buffer
-	// CSS: block-type borders (finding=blue, remediation_steps=green), meta, timeline
 	b.WriteString("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>")
 	b.WriteString(html.EscapeString(inv.Title))
 	b.WriteString("</title><style>")
-	b.WriteString("body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.5;max-width:800px;margin:2em auto;padding:0 1em;color:#333}")
-	b.WriteString("h1{font-size:1.5em;margin-bottom:0.5em}")
-	b.WriteString("h2{font-size:1.2em;margin:1.5em 0 0.5em}")
-	b.WriteString(".meta{color:#666;font-size:0.9em;margin:0.5em 0}")
-	b.WriteString(".block{margin:1.5em 0;padding:1em;border:1px solid #e0e0e0;border-radius:4px;border-left-width:4px}")
-	b.WriteString(".block-markdown{border-left-color:#9e9e9e}")
-	b.WriteString(".block-finding{border-left-color:#1976d2}")
-	b.WriteString(".block-remediation_steps{border-left-color:#2e7d32}")
-	b.WriteString(".block-query_result{border-left-color:#9e9e9e}")
-	b.WriteString(".block h3{font-size:1em;margin:0 0 0.5em}")
-	b.WriteString(".block pre{white-space:pre-wrap;background:#f5f5f5;padding:0.5em;overflow:auto;border-radius:4px}")
-	b.WriteString(".timeline{margin:1.5em 0}")
-	b.WriteString(".timeline-event{margin:0.5em 0;font-size:0.95em}")
-	b.WriteString("@media print{.block{break-inside:avoid}}")
+	b.WriteString("body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.55;max-width:820px;margin:0 auto;padding:0 1.5em;color:#1a1a1a;background:#fff}")
+	b.WriteString(".report-header{background:linear-gradient(135deg,#1e3a5f 0%,#2c5282 100%);color:#fff;padding:1.25em 1.5em;margin:0 -1.5em 1.5em;border-radius:0 0 8px 8px}")
+	b.WriteString(".report-header h1{font-size:1.4em;margin:0 0 0.25em;font-weight:600}")
+	b.WriteString(".report-header .subtitle{font-size:0.85em;opacity:0.9}")
+	b.WriteString("h2{font-size:1.15em;margin:1.75em 0 0.5em;color:#1e3a5f;font-weight:600}")
+	b.WriteString(".meta-block{background:#f0f4f8;border:1px solid #e2e8f0;border-radius:6px;padding:0.75em 1em;margin-bottom:1.5em;font-size:0.9em;color:#475569}")
+	b.WriteString(".meta-block span+span::before{content:\" · \";color:#94a3b8}")
+	b.WriteString(".summary-block{background:#f8fafc;border-left:4px solid #2c5282;border-radius:0 6px 6px 0;padding:1em 1.25em;margin:1em 0 1.5em}")
+	b.WriteString(".summary-block p{margin:0;white-space:pre-wrap}")
+	b.WriteString(".block{margin:1.25em 0;padding:1em 1.25em;border:1px solid #e2e8f0;border-radius:6px;border-left-width:4px;background:#fff}")
+	b.WriteString(".block-markdown{border-left-color:#64748b}")
+	b.WriteString(".block-finding{border-left-color:#2563eb;background:#f8fafc}")
+	b.WriteString(".block-remediation_steps{border-left-color:#16a34a;background:#f0fdf4}")
+	b.WriteString(".block-query_result{border-left-color:#64748b;background:#f8fafc}")
+	b.WriteString(".block h3{font-size:1em;margin:0 0 0.5em;color:#1e293b;font-weight:600}")
+	b.WriteString(".block pre{white-space:pre-wrap;background:#f1f5f9;padding:0.75em;overflow:auto;border-radius:4px;margin:0.5em 0;font-size:0.9em;border:1px solid #e2e8f0}")
+	b.WriteString(".timeline{margin:0.5em 0;padding-left:1.25em}")
+	b.WriteString(".timeline-event{margin:0.4em 0;font-size:0.95em;color:#475569}")
+	b.WriteString(".report-footer{margin-top:2em;padding-top:1em;border-top:1px solid #e2e8f0;font-size:0.8em;color:#94a3b8;text-align:center}")
+	b.WriteString("@media print{.report-header{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}.block{break-inside:avoid;box-shadow:none}.meta-block,.summary-block{box-shadow:none}}")
 	b.WriteString("</style></head><body>")
-	b.WriteString("<h1>")
+	b.WriteString("<div class=\"report-header\"><h1>")
 	b.WriteString(html.EscapeString(inv.Title))
-	b.WriteString("</h1>")
+	b.WriteString("</h1><div class=\"subtitle\">Investigation Report</div></div>")
 
-	// Metadata row: Time range, Source, Node, Service, Cluster
+	// Metadata block
 	nodeName, serviceName, clusterName := "", "", ""
 	if len(inv.Config) > 0 {
 		var cfg map[string]string
@@ -104,26 +109,26 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 	if source == "" {
 		source = "—"
 	}
-	b.WriteString("<div class=\"meta\">")
-	b.WriteString("Time range: " + html.EscapeString(timeRange) + " &middot; ")
-	b.WriteString("Source: " + html.EscapeString(source))
+	b.WriteString("<div class=\"meta-block\"><span>Time range: " + html.EscapeString(timeRange) + "</span>")
+	b.WriteString("<span>Source: " + html.EscapeString(source) + "</span>")
 	if nodeName != "" {
-		b.WriteString(" &middot; Node: " + html.EscapeString(nodeName))
+		b.WriteString("<span>Node: " + html.EscapeString(nodeName) + "</span>")
 	}
 	if serviceName != "" {
-		b.WriteString(" &middot; Service: " + html.EscapeString(serviceName))
+		b.WriteString("<span>Service: " + html.EscapeString(serviceName) + "</span>")
 	}
 	if clusterName != "" {
-		b.WriteString(" &middot; Cluster: " + html.EscapeString(clusterName))
+		b.WriteString("<span>Cluster: " + html.EscapeString(clusterName) + "</span>")
 	}
-	b.WriteString(" &middot; Status: " + html.EscapeString(inv.Status) + " &middot; Created: " + html.EscapeString(formatTime(inv.CreatedAt)))
+	b.WriteString("<span>Status: " + html.EscapeString(inv.Status) + "</span>")
+	b.WriteString("<span>Created: " + html.EscapeString(formatTime(inv.CreatedAt)) + "</span>")
 	b.WriteString("</div>")
 
 	// Summary
 	if inv.Summary != "" {
-		b.WriteString("<p>")
+		b.WriteString("<h2>Summary</h2><div class=\"summary-block\"><p>")
 		b.WriteString(html.EscapeString(inv.Summary))
-		b.WriteString("</p>")
+		b.WriteString("</p></div>")
 	}
 
 	// Timeline section
@@ -166,16 +171,19 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 
 	// Root cause / Resolution
 	if inv.RootCauseSummary != "" {
-		b.WriteString("<h2>Root cause</h2><p>")
+		b.WriteString("<h2>Root cause</h2><div class=\"summary-block\"><p>")
 		b.WriteString(html.EscapeString(inv.RootCauseSummary))
-		b.WriteString("</p>")
+		b.WriteString("</p></div>")
 	}
 	if inv.ResolutionSummary != "" {
-		b.WriteString("<h2>Resolution</h2><p>")
+		b.WriteString("<h2>Resolution</h2><div class=\"summary-block\"><p>")
 		b.WriteString(html.EscapeString(inv.ResolutionSummary))
-		b.WriteString("</p>")
+		b.WriteString("</p></div>")
 	}
 
+	b.WriteString("<div class=\"report-footer\">Generated by Percona Monitoring and Management · ")
+	b.WriteString(html.EscapeString(formatTime(inv.CreatedAt)))
+	b.WriteString("</div>")
 	b.WriteString("<script>window.onload=function(){window.print()}</script></body></html>")
 	return b.Bytes(), nil
 }

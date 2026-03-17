@@ -124,8 +124,11 @@ const InvestigationDetailPage: FC = () => {
     getAdreAlerts()
       .then((data: unknown) => {
         if (cancelled) return;
-        const raw = data as { alerts?: Array<{ fingerprint?: string; labels?: Record<string, string> }> };
-        const list = raw?.alerts ?? [];
+        const raw = data as {
+          data?: { alerts?: Array<{ fingerprint?: string; labels?: Record<string, string> }> };
+          alerts?: Array<{ fingerprint?: string; labels?: Record<string, string> }>;
+        };
+        const list = raw?.data?.alerts ?? raw?.alerts ?? [];
         const arr = Array.isArray(list) ? list : [];
         const match = arr.find(
           (a) => a.fingerprint && refs.has(a.fingerprint)
@@ -283,16 +286,18 @@ const InvestigationDetailPage: FC = () => {
     >
       {/* Summary */}
       {inv.summary && (
-        <Card variant="outlined" sx={{ mb: 2, bgcolor: 'action.hover' }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Summary
-            </Typography>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-              {inv.summary}
-            </Typography>
-          </CardContent>
-        </Card>
+        <>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Summary
+          </Typography>
+          <Card variant="outlined" sx={{ mb: 2, bgcolor: 'action.hover' }}>
+            <CardContent>
+              <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                {inv.summary}
+              </Typography>
+            </CardContent>
+          </Card>
+        </>
       )}
 
       {/* Metadata row */}
@@ -320,6 +325,11 @@ const InvestigationDetailPage: FC = () => {
         {(inv.clusterName ?? (inv as { cluster_name?: string }).cluster_name ?? fetchedAlertMeta.clusterName) && (
           <Typography variant="body2" color="text.secondary">
             Cluster: {inv.clusterName ?? (inv as { cluster_name?: string }).cluster_name ?? fetchedAlertMeta.clusterName}
+          </Typography>
+        )}
+        {(inv.severity ?? (inv as { severity?: string }).severity ?? fetchedAlertMeta.severity) && (
+          <Typography variant="body2" color="text.secondary">
+            Severity: {inv.severity ?? (inv as { severity?: string }).severity ?? fetchedAlertMeta.severity}
           </Typography>
         )}
       </Stack>

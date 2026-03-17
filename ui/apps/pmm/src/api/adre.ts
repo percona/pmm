@@ -192,9 +192,10 @@ export interface AlertMetadataFromLabels {
   nodeName?: string;
   serviceName?: string;
   clusterName?: string;
+  severity?: string;
 }
 
-/** Extract node/service/cluster from alert labels (PMM/VictoriaMetrics conventions). */
+/** Extract node/service/cluster/severity from alert labels (PMM/VictoriaMetrics conventions). Supports both camelCase and snake_case (axios-case-converter). */
 export function getAlertMetadataFromLabels(
   labels?: Record<string, string>
 ): AlertMetadataFromLabels {
@@ -207,13 +208,20 @@ export function getAlertMetadataFromLabels(
   return {
     nodeName:
       labels.node ??
+      labels.nodeName ??
       labels.node_name ??
       labels.nodename ??
       nodeFromInstance ??
       undefined,
     serviceName:
-      labels.service_name ?? labels.service ?? labels.job ?? undefined,
-    clusterName: labels.cluster ?? labels.cluster_name ?? undefined,
+      labels.serviceName ??
+      labels.service_name ??
+      labels.service ??
+      labels.job ??
+      undefined,
+    clusterName:
+      labels.clusterName ?? labels.cluster ?? labels.cluster_name ?? undefined,
+    severity: labels.severity ?? labels.Severity ?? undefined,
   };
 }
 

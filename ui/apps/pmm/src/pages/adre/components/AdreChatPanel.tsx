@@ -52,6 +52,22 @@ const GRAFANA_RENDER_PATH = '/v1/grafana/render';
 const GRAFANA_RENDER_D_SOLO = '/graph/render/d-solo/';
 const RENDER_IMAGE_TIMEOUT_MS = 60000;
 
+/** Rewrite absolute PMM URLs (e.g. https://pmm-server:8443/...) to current origin so images and links work in the user's browser. */
+function toSameOriginUrl(url: string): string {
+  if (!url || url.startsWith('/')) return url;
+  try {
+    const u = new URL(url, window.location.origin);
+    if (u.origin === window.location.origin) return url;
+    const path = u.pathname + u.search;
+    if (path.startsWith('/v1/grafana/render') || path.startsWith('/graph/')) {
+      return window.location.origin + path;
+    }
+    return url;
+  } catch {
+    return url;
+  }
+}
+
 /** Build "Open in Grafana" URL from a PMM or Grafana render URL. Uses epoch ms for from/to when possible. */
 function dashboardUrlFromRenderUrl(renderSrc: string): string | null {
   try {
@@ -690,7 +706,7 @@ export const AdreChatPanel: FC = () => {
                               ),
                               a: ({ href, children }: { href?: string; children?: ReactNode }) => (
                                 <Link
-                                  href={href ?? '#'}
+                                  href={href ? toSameOriginUrl(href) : '#'}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   sx={{
@@ -704,7 +720,7 @@ export const AdreChatPanel: FC = () => {
                               ),
                               img: ({ src, alt }: { src?: string; alt?: string }) => {
                                 if (src && isGrafanaRenderImageSrc(src)) {
-                                  const imageSrc = withRenderCacheParam(src);
+                                  const imageSrc = toSameOriginUrl(withRenderCacheParam(src));
                                   const dashboardHref = dashboardUrlFromRenderUrl(src);
                                   return (
                                     <GrafanaPanelImage
@@ -714,7 +730,7 @@ export const AdreChatPanel: FC = () => {
                                     />
                                   );
                                 }
-                                return <Box component="img" src={src} alt={alt ?? ''} />;
+                                return <Box component="img" src={src ? toSameOriginUrl(src) : undefined} alt={alt ?? ''} />;
                               },
                             }}
                           >
