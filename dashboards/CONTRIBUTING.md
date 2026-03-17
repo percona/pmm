@@ -73,7 +73,7 @@ yarn dev
 
 5.  Make changes to the code in your branch.
 
-6.  Make a commit. It is essential to provide a meaningfull description. Use the following formula: "[JIRA_ISSUE_ID] What is being done."
+6.  Make a commit. It is essential to provide a meaningful description. Use the following formula: "[JIRA_ISSUE_ID] What is being done."
 
     Example:
 
