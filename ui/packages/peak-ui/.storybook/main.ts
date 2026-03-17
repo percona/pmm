@@ -20,7 +20,6 @@ const config: StorybookConfig = {
   viteFinal: async (config) => {
     const { mergeConfig } = await import("vite");
     return mergeConfig(config, {
-      base: '/percona-ui/',
       plugins: [tsconfigPaths()],
     });
   },
