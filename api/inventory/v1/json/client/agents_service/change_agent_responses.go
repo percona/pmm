@@ -7028,6 +7028,9 @@ type ChangeAgentParamsBodyAzureDatabaseExporter struct {
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -7273,6 +7276,9 @@ type ChangeAgentParamsBodyExternalExporter struct {
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyExternalExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -7769,6 +7775,9 @@ type ChangeAgentParamsBodyMysqldExporter struct {
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMysqldExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -8014,6 +8023,9 @@ type ChangeAgentParamsBodyNodeExporter struct {
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyNodeExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -8298,6 +8310,9 @@ type ChangeAgentParamsBodyPostgresExporter struct {
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyPostgresExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -8543,6 +8558,9 @@ type ChangeAgentParamsBodyProxysqlExporter struct {
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyProxysqlExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -10266,6 +10284,9 @@ type ChangeAgentParamsBodyRDSExporter struct {
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRDSExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -10748,6 +10769,9 @@ type ChangeAgentParamsBodyValkeyExporter struct {
 
 	// Enables push metrics with vmagent.
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	Timeout string `json:"timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyValkeyExporterCustomLabels `json:"custom_labels,omitempty"`

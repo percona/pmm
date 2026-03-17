@@ -978,6 +978,8 @@ message ChangeNodeExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 // Add/Change MySQLdExporter
@@ -1034,6 +1036,8 @@ message ChangeMySQLdExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 // Add/Change MongoDBExporter
@@ -1154,6 +1158,8 @@ message ChangePostgresExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 // Add/Change ProxySQLExporter
@@ -1185,6 +1191,8 @@ message AddProxySQLExporterParams {
   LogLevel log_level = 12;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 13;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 14;
 }
 
 message ChangeProxySQLExporterParams {
@@ -1196,6 +1204,8 @@ message ChangeProxySQLExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -1506,6 +1516,8 @@ message AddRDSExporterParams {
   bool push_metrics = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 11;
 }
 
 message ChangeRDSExporterParams {
@@ -1517,6 +1529,8 @@ message ChangeRDSExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 // Add/Change ExternalExporter
@@ -1558,6 +1572,8 @@ message ChangeExternalExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 // Add/Change AzureDatabaseExporter
@@ -1587,6 +1603,8 @@ message AddAzureDatabaseExporterParams {
   bool push_metrics = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 13;
 }
 
 message ChangeAzureDatabaseExporterParams {
@@ -1598,6 +1616,8 @@ message ChangeAzureDatabaseExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 message ChangeNomadAgentParams {
@@ -1651,6 +1671,8 @@ message ChangeValkeyExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration timeout = 5;
 }
 
 // Add/Change RTAMongoDBAgent

@@ -5540,8 +5540,10 @@ type ChangeNodeExporterParams struct {
 	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,5,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeNodeExporterParams) Reset() {
@@ -5598,6 +5600,13 @@ func (x *ChangeNodeExporterParams) GetEnablePushMetrics() bool {
 func (x *ChangeNodeExporterParams) GetMetricsResolutions() *common.MetricsResolutions {
 	if x != nil {
 		return x.MetricsResolutions
+	}
+	return nil
+}
+
+func (x *ChangeNodeExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
 	}
 	return nil
 }
@@ -5821,8 +5830,10 @@ type ChangeMySQLdExporterParams struct {
 	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,5,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeMySQLdExporterParams) Reset() {
@@ -5879,6 +5890,13 @@ func (x *ChangeMySQLdExporterParams) GetEnablePushMetrics() bool {
 func (x *ChangeMySQLdExporterParams) GetMetricsResolutions() *common.MetricsResolutions {
 	if x != nil {
 		return x.MetricsResolutions
+	}
+	return nil
+}
+
+func (x *ChangeMySQLdExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
 	}
 	return nil
 }
@@ -6419,8 +6437,10 @@ type ChangePostgresExporterParams struct {
 	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,5,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangePostgresExporterParams) Reset() {
@@ -6481,6 +6501,13 @@ func (x *ChangePostgresExporterParams) GetMetricsResolutions() *common.MetricsRe
 	return nil
 }
 
+func (x *ChangePostgresExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
+	}
+	return nil
+}
+
 type AddProxySQLExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -6509,8 +6536,10 @@ type AddProxySQLExporterParams struct {
 	LogLevel LogLevel `protobuf:"varint,12,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,13,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,14,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddProxySQLExporterParams) Reset() {
@@ -6634,6 +6663,13 @@ func (x *AddProxySQLExporterParams) GetExposeExporter() bool {
 	return false
 }
 
+func (x *AddProxySQLExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
+	}
+	return nil
+}
+
 type ChangeProxySQLExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -6644,8 +6680,10 @@ type ChangeProxySQLExporterParams struct {
 	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,5,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeProxySQLExporterParams) Reset() {
@@ -6702,6 +6740,13 @@ func (x *ChangeProxySQLExporterParams) GetEnablePushMetrics() bool {
 func (x *ChangeProxySQLExporterParams) GetMetricsResolutions() *common.MetricsResolutions {
 	if x != nil {
 		return x.MetricsResolutions
+	}
+	return nil
+}
+
+func (x *ChangeProxySQLExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
 	}
 	return nil
 }
@@ -8208,7 +8253,9 @@ type AddRDSExporterParams struct {
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,10,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,10,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,11,opt,name=timeout,proto3" json:"timeout,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8313,6 +8360,13 @@ func (x *AddRDSExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddRDSExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
+	}
+	return nil
+}
+
 type ChangeRDSExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -8323,8 +8377,10 @@ type ChangeRDSExporterParams struct {
 	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,5,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeRDSExporterParams) Reset() {
@@ -8381,6 +8437,13 @@ func (x *ChangeRDSExporterParams) GetEnablePushMetrics() bool {
 func (x *ChangeRDSExporterParams) GetMetricsResolutions() *common.MetricsResolutions {
 	if x != nil {
 		return x.MetricsResolutions
+	}
+	return nil
+}
+
+func (x *ChangeRDSExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
 	}
 	return nil
 }
@@ -8530,8 +8593,10 @@ type ChangeExternalExporterParams struct {
 	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,5,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeExternalExporterParams) Reset() {
@@ -8592,6 +8657,13 @@ func (x *ChangeExternalExporterParams) GetMetricsResolutions() *common.MetricsRe
 	return nil
 }
 
+func (x *ChangeExternalExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
+	}
+	return nil
+}
+
 type AddAzureDatabaseExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -8617,7 +8689,9 @@ type AddAzureDatabaseExporterParams struct {
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,11,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,12,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,12,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8736,6 +8810,13 @@ func (x *AddAzureDatabaseExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddAzureDatabaseExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
+	}
+	return nil
+}
+
 type ChangeAzureDatabaseExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -8746,8 +8827,10 @@ type ChangeAzureDatabaseExporterParams struct {
 	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,5,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeAzureDatabaseExporterParams) Reset() {
@@ -8804,6 +8887,13 @@ func (x *ChangeAzureDatabaseExporterParams) GetEnablePushMetrics() bool {
 func (x *ChangeAzureDatabaseExporterParams) GetMetricsResolutions() *common.MetricsResolutions {
 	if x != nil {
 		return x.MetricsResolutions
+	}
+	return nil
+}
+
+func (x *ChangeAzureDatabaseExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
 	}
 	return nil
 }
@@ -9043,8 +9133,10 @@ type ChangeValkeyExporterParams struct {
 	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	Timeout       *durationpb.Duration `protobuf:"bytes,5,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeValkeyExporterParams) Reset() {
@@ -9101,6 +9193,13 @@ func (x *ChangeValkeyExporterParams) GetEnablePushMetrics() bool {
 func (x *ChangeValkeyExporterParams) GetMetricsResolutions() *common.MetricsResolutions {
 	if x != nil {
 		return x.MetricsResolutions
+	}
+	return nil
+}
+
+func (x *ChangeValkeyExporterParams) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
 	}
 	return nil
 }
@@ -10013,12 +10112,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\atimeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xab\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe0\x02\n" +
 	"\x18ChangeNodeExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
+	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metrics\"\xfa\a\n" +
@@ -10050,12 +10150,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xad\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe2\x02\n" +
 	"\x1aChangeMySQLdExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
+	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metrics\"\xdc\b\n" +
@@ -10122,15 +10223,16 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\atimeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaf\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe4\x02\n" +
 	"\x1cChangePostgresExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
+	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
-	"\x14_enable_push_metrics\"\x95\x05\n" +
+	"\x14_enable_push_metrics\"\xca\x05\n" +
 	"\x19AddProxySQLExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -10147,15 +10249,17 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x03(\tR\x11disableCollectors\x12%\n" +
 	"\x0eagent_password\x18\v \x01(\tR\ragentPassword\x123\n" +
 	"\tlog_level\x18\f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18\r \x01(\bR\x0eexposeExporter\x1a?\n" +
+	"\x0fexpose_exporter\x18\r \x01(\bR\x0eexposeExporter\x123\n" +
+	"\atimeout\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaf\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe4\x02\n" +
 	"\x1cChangeProxySQLExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
+	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metrics\"\x97\a\n" +
@@ -10346,7 +10450,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
-	"\x14_enable_push_metrics\"\xc5\x04\n" +
+	"\x14_enable_push_metrics\"\xfa\x04\n" +
 	"\x14AddRDSExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -10359,15 +10463,17 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18disable_enhanced_metrics\x18\b \x01(\bR\x16disableEnhancedMetrics\x12!\n" +
 	"\fpush_metrics\x18\t \x01(\bR\vpushMetrics\x123\n" +
 	"\tlog_level\x18\n" +
-	" \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	" \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x123\n" +
+	"\atimeout\x18\v \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaa\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdf\x02\n" +
 	"\x17ChangeRDSExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
+	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metrics\"\xac\x04\n" +
@@ -10388,15 +10494,16 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\atimeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaf\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe4\x02\n" +
 	"\x1cChangeExternalExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
+	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
-	"\x14_enable_push_metrics\"\xcf\x05\n" +
+	"\x14_enable_push_metrics\"\x84\x06\n" +
 	"\x1eAddAzureDatabaseExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -10411,15 +10518,17 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\n" +
 	" \x01(\bR\x13skipConnectionCheck\x12!\n" +
 	"\fpush_metrics\x18\v \x01(\bR\vpushMetrics\x123\n" +
-	"\tlog_level\x18\f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x123\n" +
+	"\atimeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe9\x02\n" +
 	"!ChangeAzureDatabaseExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
+	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metrics\"@\n" +
@@ -10448,12 +10557,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\atimeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xad\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe2\x02\n" +
 	"\x1aChangeValkeyExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutionsB\t\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
+	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metrics\"\xa8\x06\n" +
@@ -10835,91 +10945,102 @@ var file_inventory_v1_agents_proto_depIdxs = []int32{
 	111, // 176: inventory.v1.AddNodeExporterParams.timeout:type_name -> google.protobuf.Duration
 	112, // 177: inventory.v1.ChangeNodeExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 178: inventory.v1.ChangeNodeExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	90,  // 179: inventory.v1.AddMySQLdExporterParams.custom_labels:type_name -> inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
-	109, // 180: inventory.v1.AddMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	91,  // 181: inventory.v1.AddMySQLdExporterParams.extra_dsn_params:type_name -> inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
-	111, // 182: inventory.v1.AddMySQLdExporterParams.timeout:type_name -> google.protobuf.Duration
-	112, // 183: inventory.v1.ChangeMySQLdExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 184: inventory.v1.ChangeMySQLdExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	92,  // 185: inventory.v1.AddMongoDBExporterParams.custom_labels:type_name -> inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
-	109, // 186: inventory.v1.AddMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 187: inventory.v1.AddMongoDBExporterParams.timeout:type_name -> google.protobuf.Duration
-	112, // 188: inventory.v1.ChangeMongoDBExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 189: inventory.v1.ChangeMongoDBExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 190: inventory.v1.ChangeMongoDBExporterParams.timeout:type_name -> google.protobuf.Duration
-	93,  // 191: inventory.v1.AddPostgresExporterParams.custom_labels:type_name -> inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
-	109, // 192: inventory.v1.AddPostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 193: inventory.v1.AddPostgresExporterParams.timeout:type_name -> google.protobuf.Duration
-	112, // 194: inventory.v1.ChangePostgresExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 195: inventory.v1.ChangePostgresExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	94,  // 196: inventory.v1.AddProxySQLExporterParams.custom_labels:type_name -> inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
-	109, // 197: inventory.v1.AddProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 198: inventory.v1.ChangeProxySQLExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 199: inventory.v1.ChangeProxySQLExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	95,  // 200: inventory.v1.AddQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
-	109, // 201: inventory.v1.AddQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	96,  // 202: inventory.v1.AddQANMySQLPerfSchemaAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
-	112, // 203: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 204: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	97,  // 205: inventory.v1.AddQANMySQLSlowlogAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
-	109, // 206: inventory.v1.AddQANMySQLSlowlogAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	98,  // 207: inventory.v1.AddQANMySQLSlowlogAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
-	112, // 208: inventory.v1.ChangeQANMySQLSlowlogAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 209: inventory.v1.ChangeQANMySQLSlowlogAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	99,  // 210: inventory.v1.AddQANMongoDBProfilerAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
-	109, // 211: inventory.v1.AddQANMongoDBProfilerAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 212: inventory.v1.ChangeQANMongoDBProfilerAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 213: inventory.v1.ChangeQANMongoDBProfilerAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	100, // 214: inventory.v1.AddQANMongoDBMongologAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
-	109, // 215: inventory.v1.AddQANMongoDBMongologAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 216: inventory.v1.ChangeQANMongoDBMongologAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 217: inventory.v1.ChangeQANMongoDBMongologAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	101, // 218: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
-	109, // 219: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 220: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 221: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	102, // 222: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
-	109, // 223: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 224: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 225: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	103, // 226: inventory.v1.AddRDSExporterParams.custom_labels:type_name -> inventory.v1.AddRDSExporterParams.CustomLabelsEntry
-	109, // 227: inventory.v1.AddRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 228: inventory.v1.ChangeRDSExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 229: inventory.v1.ChangeRDSExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	104, // 230: inventory.v1.AddExternalExporterParams.custom_labels:type_name -> inventory.v1.AddExternalExporterParams.CustomLabelsEntry
-	111, // 231: inventory.v1.AddExternalExporterParams.timeout:type_name -> google.protobuf.Duration
-	112, // 232: inventory.v1.ChangeExternalExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 233: inventory.v1.ChangeExternalExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	105, // 234: inventory.v1.AddAzureDatabaseExporterParams.custom_labels:type_name -> inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
-	109, // 235: inventory.v1.AddAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 236: inventory.v1.ChangeAzureDatabaseExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 237: inventory.v1.ChangeAzureDatabaseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	106, // 238: inventory.v1.AddValkeyExporterParams.custom_labels:type_name -> inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
-	111, // 239: inventory.v1.AddValkeyExporterParams.timeout:type_name -> google.protobuf.Duration
-	112, // 240: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 241: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	107, // 242: inventory.v1.AddRTAMongoDBAgentParams.custom_labels:type_name -> inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
-	109, // 243: inventory.v1.AddRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	14,  // 244: inventory.v1.AddRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
-	112, // 245: inventory.v1.ChangeRTAMongoDBAgentParams.custom_labels:type_name -> common.StringMap
-	14,  // 246: inventory.v1.ChangeRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
-	22,  // 247: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
-	24,  // 248: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
-	26,  // 249: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
-	28,  // 250: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
-	30,  // 251: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
-	66,  // 252: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
-	23,  // 253: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
-	25,  // 254: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
-	27,  // 255: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
-	29,  // 256: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
-	31,  // 257: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
-	67,  // 258: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
-	253, // [253:259] is the sub-list for method output_type
-	247, // [247:253] is the sub-list for method input_type
-	247, // [247:247] is the sub-list for extension type_name
-	247, // [247:247] is the sub-list for extension extendee
-	0,   // [0:247] is the sub-list for field type_name
+	111, // 179: inventory.v1.ChangeNodeExporterParams.timeout:type_name -> google.protobuf.Duration
+	90,  // 180: inventory.v1.AddMySQLdExporterParams.custom_labels:type_name -> inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
+	109, // 181: inventory.v1.AddMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	91,  // 182: inventory.v1.AddMySQLdExporterParams.extra_dsn_params:type_name -> inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
+	111, // 183: inventory.v1.AddMySQLdExporterParams.timeout:type_name -> google.protobuf.Duration
+	112, // 184: inventory.v1.ChangeMySQLdExporterParams.custom_labels:type_name -> common.StringMap
+	110, // 185: inventory.v1.ChangeMySQLdExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	111, // 186: inventory.v1.ChangeMySQLdExporterParams.timeout:type_name -> google.protobuf.Duration
+	92,  // 187: inventory.v1.AddMongoDBExporterParams.custom_labels:type_name -> inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
+	109, // 188: inventory.v1.AddMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	111, // 189: inventory.v1.AddMongoDBExporterParams.timeout:type_name -> google.protobuf.Duration
+	112, // 190: inventory.v1.ChangeMongoDBExporterParams.custom_labels:type_name -> common.StringMap
+	110, // 191: inventory.v1.ChangeMongoDBExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	111, // 192: inventory.v1.ChangeMongoDBExporterParams.timeout:type_name -> google.protobuf.Duration
+	93,  // 193: inventory.v1.AddPostgresExporterParams.custom_labels:type_name -> inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
+	109, // 194: inventory.v1.AddPostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	111, // 195: inventory.v1.AddPostgresExporterParams.timeout:type_name -> google.protobuf.Duration
+	112, // 196: inventory.v1.ChangePostgresExporterParams.custom_labels:type_name -> common.StringMap
+	110, // 197: inventory.v1.ChangePostgresExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	111, // 198: inventory.v1.ChangePostgresExporterParams.timeout:type_name -> google.protobuf.Duration
+	94,  // 199: inventory.v1.AddProxySQLExporterParams.custom_labels:type_name -> inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
+	109, // 200: inventory.v1.AddProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	111, // 201: inventory.v1.AddProxySQLExporterParams.timeout:type_name -> google.protobuf.Duration
+	112, // 202: inventory.v1.ChangeProxySQLExporterParams.custom_labels:type_name -> common.StringMap
+	110, // 203: inventory.v1.ChangeProxySQLExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	111, // 204: inventory.v1.ChangeProxySQLExporterParams.timeout:type_name -> google.protobuf.Duration
+	95,  // 205: inventory.v1.AddQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
+	109, // 206: inventory.v1.AddQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	96,  // 207: inventory.v1.AddQANMySQLPerfSchemaAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
+	112, // 208: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> common.StringMap
+	110, // 209: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	97,  // 210: inventory.v1.AddQANMySQLSlowlogAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
+	109, // 211: inventory.v1.AddQANMySQLSlowlogAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	98,  // 212: inventory.v1.AddQANMySQLSlowlogAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
+	112, // 213: inventory.v1.ChangeQANMySQLSlowlogAgentParams.custom_labels:type_name -> common.StringMap
+	110, // 214: inventory.v1.ChangeQANMySQLSlowlogAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	99,  // 215: inventory.v1.AddQANMongoDBProfilerAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
+	109, // 216: inventory.v1.AddQANMongoDBProfilerAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	112, // 217: inventory.v1.ChangeQANMongoDBProfilerAgentParams.custom_labels:type_name -> common.StringMap
+	110, // 218: inventory.v1.ChangeQANMongoDBProfilerAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	100, // 219: inventory.v1.AddQANMongoDBMongologAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
+	109, // 220: inventory.v1.AddQANMongoDBMongologAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	112, // 221: inventory.v1.ChangeQANMongoDBMongologAgentParams.custom_labels:type_name -> common.StringMap
+	110, // 222: inventory.v1.ChangeQANMongoDBMongologAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	101, // 223: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
+	109, // 224: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	112, // 225: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> common.StringMap
+	110, // 226: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	102, // 227: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
+	109, // 228: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	112, // 229: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> common.StringMap
+	110, // 230: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	103, // 231: inventory.v1.AddRDSExporterParams.custom_labels:type_name -> inventory.v1.AddRDSExporterParams.CustomLabelsEntry
+	109, // 232: inventory.v1.AddRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	111, // 233: inventory.v1.AddRDSExporterParams.timeout:type_name -> google.protobuf.Duration
+	112, // 234: inventory.v1.ChangeRDSExporterParams.custom_labels:type_name -> common.StringMap
+	110, // 235: inventory.v1.ChangeRDSExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	111, // 236: inventory.v1.ChangeRDSExporterParams.timeout:type_name -> google.protobuf.Duration
+	104, // 237: inventory.v1.AddExternalExporterParams.custom_labels:type_name -> inventory.v1.AddExternalExporterParams.CustomLabelsEntry
+	111, // 238: inventory.v1.AddExternalExporterParams.timeout:type_name -> google.protobuf.Duration
+	112, // 239: inventory.v1.ChangeExternalExporterParams.custom_labels:type_name -> common.StringMap
+	110, // 240: inventory.v1.ChangeExternalExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	111, // 241: inventory.v1.ChangeExternalExporterParams.timeout:type_name -> google.protobuf.Duration
+	105, // 242: inventory.v1.AddAzureDatabaseExporterParams.custom_labels:type_name -> inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
+	109, // 243: inventory.v1.AddAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	111, // 244: inventory.v1.AddAzureDatabaseExporterParams.timeout:type_name -> google.protobuf.Duration
+	112, // 245: inventory.v1.ChangeAzureDatabaseExporterParams.custom_labels:type_name -> common.StringMap
+	110, // 246: inventory.v1.ChangeAzureDatabaseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	111, // 247: inventory.v1.ChangeAzureDatabaseExporterParams.timeout:type_name -> google.protobuf.Duration
+	106, // 248: inventory.v1.AddValkeyExporterParams.custom_labels:type_name -> inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
+	111, // 249: inventory.v1.AddValkeyExporterParams.timeout:type_name -> google.protobuf.Duration
+	112, // 250: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
+	110, // 251: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	111, // 252: inventory.v1.ChangeValkeyExporterParams.timeout:type_name -> google.protobuf.Duration
+	107, // 253: inventory.v1.AddRTAMongoDBAgentParams.custom_labels:type_name -> inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
+	109, // 254: inventory.v1.AddRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	14,  // 255: inventory.v1.AddRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
+	112, // 256: inventory.v1.ChangeRTAMongoDBAgentParams.custom_labels:type_name -> common.StringMap
+	14,  // 257: inventory.v1.ChangeRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
+	22,  // 258: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
+	24,  // 259: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
+	26,  // 260: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
+	28,  // 261: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
+	30,  // 262: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
+	66,  // 263: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
+	23,  // 264: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
+	25,  // 265: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
+	27,  // 266: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
+	29,  // 267: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
+	31,  // 268: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
+	67,  // 269: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
+	264, // [264:270] is the sub-list for method output_type
+	258, // [258:264] is the sub-list for method input_type
+	258, // [258:258] is the sub-list for extension type_name
+	258, // [258:258] is the sub-list for extension extendee
+	0,   // [0:258] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_agents_proto_init() }

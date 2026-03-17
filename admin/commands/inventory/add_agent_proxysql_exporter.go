@@ -60,6 +60,7 @@ type AddAgentProxysqlExporterCommand struct {
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	Timeout             string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	flags.LogLevelFatalFlags
 }
@@ -83,6 +84,7 @@ func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				Timeout:             cmd.Timeout,
 			},
 		},
 		Context: commands.Ctx,
