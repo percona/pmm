@@ -316,6 +316,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+			Timeout:            durationpb.New(agent.EffectiveDialTimeout()),
 		}
 
 		exporter.StatsCollections = agent.MongoDBOptions.StatsCollections

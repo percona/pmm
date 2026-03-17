@@ -175,6 +175,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
 	ua.PushMetrics = agent.ExporterOptions.PushMetrics
 	ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
+	ua.Timeout = durationpb.New(agent.EffectiveDialTimeout())
 
 	// QAN options
 	ua.MaxQueryLength = agent.QANOptions.MaxQueryLength

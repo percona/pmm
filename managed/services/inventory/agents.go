@@ -30,6 +30,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
 )
@@ -65,6 +66,8 @@ type commonAgentParams struct {
 	MetricsResolutions *common.MetricsResolutions
 	// Real-Time Analytics options.
 	RTAOptions *models.RTAOptions
+	// Timeout for exporter connection.
+	Timeout *time.Duration
 }
 
 func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventoryv1.Agent, error) { //nolint:ireturn
@@ -87,6 +90,7 @@ func (as *AgentsService) changeAgent(ctx context.Context, agentID string, common
 			Enabled:           common.Enable,
 			EnablePushMetrics: common.EnablePushMetrics,
 			RTAOptions:        common.RTAOptions,
+			Timeout:           common.Timeout,
 		}
 		if common.CustomLabels != nil {
 			params.CustomLabels = &common.CustomLabels.Values
@@ -381,6 +385,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
+				Timeout:            *duration.FromProto(p.Timeout),
 			},
 			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
@@ -432,6 +437,7 @@ func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, agentID stri
 		EnablePushMetrics:  p.EnablePushMetrics,
 		CustomLabels:       p.CustomLabels,
 		MetricsResolutions: p.MetricsResolutions,
+		Timeout:            duration.FromProto(p.Timeout),
 	}
 	ag, err := as.changeAgent(ctx, agentID, common)
 	if err != nil {
@@ -1296,13 +1302,6 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 		PMMAgentID *string
 	)
 
-	// TODO utils
-	var timeoutPtr *time.Duration
-	if p.Timeout != nil {
-		t := p.Timeout.AsDuration() // returns time.Duration
-		timeoutPtr = &t
-	}
-
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
 			RunsOnNodeID:  p.RunsOnNodeId,
@@ -1315,7 +1314,7 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 			CustomLabels:  p.CustomLabels,
 			PushMetrics:   p.PushMetrics,
 			TLSSkipVerify: p.TlsSkipVerify,
-			Timeout:       timeoutPtr,
+			Timeout:       *duration.FromProto(p.Timeout),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

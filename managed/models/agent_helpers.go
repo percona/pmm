@@ -722,7 +722,7 @@ type CreateExternalExporterParams struct {
 	PushMetrics   bool
 	TLSSkipVerify bool
 	// Timeout for exporter connection (nanoseconds). Optional.
-	Timeout *time.Duration
+	Timeout time.Duration
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -783,7 +783,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			PushMetrics:   params.PushMetrics,
 			MetricsPath:   metricsPath,
 			MetricsScheme: scheme,
-			Timeout:       pointer.GetDuration(params.Timeout),
+			Timeout:       params.Timeout,
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
@@ -1023,6 +1023,7 @@ type ChangeCommonAgentParams struct {
 	EnablePushMetrics  *bool
 	MetricsResolutions ChangeMetricsResolutionsParams
 	RTAOptions         *RTAOptions
+	Timeout            *time.Duration
 }
 
 // ChangeMetricsResolutionsParams contains metrics resolutions for change.

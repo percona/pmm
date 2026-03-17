@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
@@ -26,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent", "QAN MongoDB Profiler" and "Real-Time Analytics Agent".
@@ -63,12 +63,6 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			return err
 		}
 
-		// TODO utils??
-		var timeoutPtr time.Duration
-		if req.Timeout != nil {
-			timeoutPtr = req.Timeout.AsDuration()
-		}
-
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
 			PMMAgentID:               req.PmmAgentId,
 			ServiceID:                service.ServiceID,
@@ -84,7 +78,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
-				Timeout:            timeoutPtr,
+				Timeout:            *duration.FromProto(req.Timeout),
 			},
 		})
 		if err != nil {
