@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
@@ -64,21 +65,25 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			return err
 		}
 
+		exporterOptions := models.ExporterOptions{
+			ExposeExporter:     req.ExposeExporter,
+			PushMetrics:        isPushMode(req.MetricsMode),
+			DisabledCollectors: req.DisableCollectors,
+		}
+		if to := duration.FromProto(req.Timeout); to != nil {
+			exporterOptions.Timeout = *to
+		}
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     service.ServiceID,
-			Username:      req.Username,
-			Password:      req.Password,
-			AgentPassword: req.AgentPassword,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
-			ExporterOptions: models.ExporterOptions{
-				ExposeExporter:     req.ExposeExporter,
-				PushMetrics:        isPushMode(req.MetricsMode),
-				DisabledCollectors: req.DisableCollectors,
-			},
-			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+			PMMAgentID:          req.PmmAgentId,
+			ServiceID:           service.ServiceID,
+			Username:            req.Username,
+			Password:            req.Password,
+			AgentPassword:       req.AgentPassword,
+			TLS:                 req.Tls,
+			TLSSkipVerify:       req.TlsSkipVerify,
+			ExporterOptions:    exporterOptions,
+			PostgreSQLOptions:  models.PostgreSQLOptionsFromRequest(req),
+			LogLevel:            services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
 		if err != nil {
 			return err

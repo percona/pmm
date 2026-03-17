@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // addValkey adds a new Valkey service and an accompanying "Valkey Exporter agent".
@@ -63,18 +64,22 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			return err
 		}
 
+		exporterOptions := models.ExporterOptions{
+			ExposeExporter: req.ExposeExporter,
+			PushMetrics:    isPushMode(req.MetricsMode),
+		}
+		if to := duration.FromProto(req.Timeout); to != nil {
+			exporterOptions.Timeout = *to
+		}
 		row, err := models.CreateAgent(tx.Querier, models.ValkeyExporterType, &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     service.ServiceID,
-			Username:      req.Username,
-			Password:      req.Password,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
-			ExporterOptions: models.ExporterOptions{
-				ExposeExporter: req.ExposeExporter,
-				PushMetrics:    isPushMode(req.MetricsMode),
-			},
-			ValkeyOptions: models.ValkeyOptionsFromRequest(req),
+			PMMAgentID:        req.PmmAgentId,
+			ServiceID:         service.ServiceID,
+			Username:          req.Username,
+			Password:          req.Password,
+			TLS:               req.Tls,
+			TLSSkipVerify:     req.TlsSkipVerify,
+			ExporterOptions:   exporterOptions,
+			ValkeyOptions:     models.ValkeyOptionsFromRequest(req),
 		})
 		if err != nil {
 			return err

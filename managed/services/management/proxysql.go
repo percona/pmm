@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // AddProxySQL adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
@@ -62,20 +63,24 @@ func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.A
 			return err
 		}
 
+		exporterOptions := models.ExporterOptions{
+			ExposeExporter:     req.ExposeExporter,
+			PushMetrics:        isPushMode(req.MetricsMode),
+			DisabledCollectors: req.DisableCollectors,
+		}
+		if to := duration.FromProto(req.Timeout); to != nil {
+			exporterOptions.Timeout = *to
+		}
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     service.ServiceID,
-			Username:      req.Username,
-			Password:      req.Password,
-			AgentPassword: req.AgentPassword,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
-			ExporterOptions: models.ExporterOptions{
-				ExposeExporter:     req.ExposeExporter,
-				PushMetrics:        isPushMode(req.MetricsMode),
-				DisabledCollectors: req.DisableCollectors,
-			},
-			LogLevel: services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:        req.PmmAgentId,
+			ServiceID:         service.ServiceID,
+			Username:          req.Username,
+			Password:          req.Password,
+			AgentPassword:     req.AgentPassword,
+			TLS:               req.Tls,
+			TLSSkipVerify:     req.TlsSkipVerify,
+			ExporterOptions:   exporterOptions,
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err

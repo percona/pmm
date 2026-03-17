@@ -829,6 +829,10 @@ func (a *Agent) EffectiveDialTimeout() time.Duration {
 		return 1 * time.Second
 	case MongoDBExporterType:
 		return 1 * time.Second
+	case ProxySQLExporterType:
+		return 1 * time.Second
+	case ValkeyExporterType:
+		return 1 * time.Second
 	}
 
 	return 2 * time.Second

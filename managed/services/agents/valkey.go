@@ -17,7 +17,6 @@ package agents
 
 import (
 	"sort"
-	"time"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -42,7 +41,7 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 	}
 
 	dnsParams := models.DSNParams{
-		DialTimeout: 3 * time.Second,
+		DialTimeout: exporter.EffectiveDialTimeout(),
 	}
 
 	args = append(args, "--redis.addr="+exporter.DSN(service, dnsParams, nil, pmmAgentVersion))

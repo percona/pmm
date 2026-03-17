@@ -48,28 +48,32 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 	var agentTypes []AgentType
 	switch svc.ServiceType {
 	case MySQLServiceType:
+		// Prefer exporter agents first so exporter-specific settings (like timeout)
+		// are used when resolving DSN. QAN agents are fallback candidates.
 		agentTypes = append(
 			agentTypes,
-			QANMySQLSlowlogAgentType,
+			MySQLdExporterType,
 			QANMySQLPerfSchemaAgentType,
-			MySQLdExporterType)
+			QANMySQLSlowlogAgentType)
 	case PostgreSQLServiceType:
+		// Prefer exporter agents first, then QAN agents.
 		agentTypes = append(
 			agentTypes,
+			PostgresExporterType,
 			QANPostgreSQLPgStatementsAgentType,
-			QANPostgreSQLPgStatMonitorAgentType,
-			PostgresExporterType)
+			QANPostgreSQLPgStatMonitorAgentType)
 		dsnParams.PostgreSQLSupportsSSLSNI, err = IsPostgreSQLSSLSniSupported(q, pmmAgentID)
 		if err != nil {
 			return "", nil, err
 		}
 	case MongoDBServiceType:
+		// Prefer exporter agents and RTA agents after; QAN agents are lower priority.
 		agentTypes = append(
 			agentTypes,
-			QANMongoDBProfilerAgentType,
-			QANMongoDBMongologAgentType,
 			MongoDBExporterType,
-			RTAMongoDBAgentType)
+			RTAMongoDBAgentType,
+			QANMongoDBProfilerAgentType,
+			QANMongoDBMongologAgentType)
 	default:
 		return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as service is unsupported")
 	}
