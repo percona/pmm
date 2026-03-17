@@ -22,6 +22,7 @@ import (
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 )
 
+// FromProto converts a protobuf Duration to a time.Duration.
 func FromProto(d *durationpb.Duration) *time.Duration {
 	if d == nil {
 		return nil
