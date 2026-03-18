@@ -117,6 +117,7 @@ const QanAiInsightsPage: FC = () => {
       <Stack gap={2} sx={{ maxWidth: 900 }}>
         {hasContext && (
           <Typography variant="body2" color="text.secondary">
+            {hasUrlContext ? 'Opened from Query Analytics. ' : ''}
             Service: {serviceId}
             {queryId && ` · Query ID: ${queryId}`}
           </Typography>
