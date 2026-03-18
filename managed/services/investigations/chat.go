@@ -375,22 +375,80 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent})
 }
 
+// alertSnapshotEntry is a single alert from Grafana Alertmanager (labels, annotations, fingerprint, etc.).
+type alertSnapshotEntry struct {
+	Labels       map[string]string `json:"labels"`
+	Annotations  map[string]string `json:"annotations"`
+	Fingerprint  string            `json:"fingerprint"`
+	StartsAt     string            `json:"startsAt"`
+	EndsAt       string            `json:"endsAt"`
+	GeneratorURL string            `json:"generatorURL"`
+}
+
 func buildInvestigationContext(inv *models.Investigation) string {
 	s := fmt.Sprintf("Title: %s\nStatus: %s\nTime range: %s — %s\nSummary: %s",
 		inv.Title, inv.Status,
 		inv.TimeFrom.Format(time.RFC3339), inv.TimeTo.Format(time.RFC3339),
 		inv.Summary)
 	if len(inv.Config) > 0 {
-		var cfg map[string]string
+		var cfg map[string]interface{}
 		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
-			if v := cfg["node_name"]; v != "" {
+			if v, _ := cfg["node_name"].(string); v != "" {
 				s += fmt.Sprintf("\nNode: %s", v)
 			}
-			if v := cfg["service_name"]; v != "" {
+			if v, _ := cfg["service_name"].(string); v != "" {
 				s += fmt.Sprintf("\nService: %s", v)
 			}
-			if v := cfg["cluster_name"]; v != "" {
+			if v, _ := cfg["cluster_name"].(string); v != "" {
 				s += fmt.Sprintf("\nCluster: %s", v)
+			}
+			if raw, ok := cfg["alert_snapshot"].(string); ok && raw != "" {
+				var alerts []alertSnapshotEntry
+				if err := json.Unmarshal([]byte(raw), &alerts); err == nil && len(alerts) > 0 {
+					s += "\n\nFull alert(s):"
+					for i, a := range alerts {
+						s += fmt.Sprintf("\n[Alert %d]", i+1)
+						if len(a.Labels) > 0 {
+							pairs := make([]string, 0, len(a.Labels))
+							for k, v := range a.Labels {
+								pairs = append(pairs, k+"="+v)
+							}
+							s += "\nLabels: " + strings.Join(pairs, ", ")
+						}
+						if len(a.Annotations) > 0 {
+							pairs := make([]string, 0, len(a.Annotations))
+							for k, v := range a.Annotations {
+								pairs = append(pairs, k+"="+v)
+							}
+							s += "\nAnnotations: " + strings.Join(pairs, ", ")
+						}
+						if a.Fingerprint != "" {
+							s += "\nFingerprint: " + a.Fingerprint
+						}
+					}
+				} else {
+					var single alertSnapshotEntry
+					if err := json.Unmarshal([]byte(raw), &single); err == nil {
+						s += "\n\nFull alert(s):\n[Alert 1]"
+						if len(single.Labels) > 0 {
+							pairs := make([]string, 0, len(single.Labels))
+							for k, v := range single.Labels {
+								pairs = append(pairs, k+"="+v)
+							}
+							s += "\nLabels: " + strings.Join(pairs, ", ")
+						}
+						if len(single.Annotations) > 0 {
+							pairs := make([]string, 0, len(single.Annotations))
+							for k, v := range single.Annotations {
+								pairs = append(pairs, k+"="+v)
+							}
+							s += "\nAnnotations: " + strings.Join(pairs, ", ")
+						}
+						if single.Fingerprint != "" {
+							s += "\nFingerprint: " + single.Fingerprint
+						}
+					}
+				}
 			}
 		}
 	}

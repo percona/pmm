@@ -84,6 +84,8 @@ export interface CreateInvestigationBody {
   nodeName?: string;
   serviceName?: string;
   clusterName?: string;
+  /** Full alert payload(s) when creating from alert; sent to backend for Holmes context. */
+  alertSnapshot?: unknown;
 }
 
 export interface PatchInvestigationBody {
@@ -160,6 +162,7 @@ export const createInvestigation = async (
     ...(body.nodeName && { node_name: body.nodeName }),
     ...(body.serviceName && { service_name: body.serviceName }),
     ...(body.clusterName && { cluster_name: body.clusterName }),
+    ...(body.alertSnapshot != null && { alert_snapshot: body.alertSnapshot }),
   };
   const res = await api.post<Investigation>('/investigations', payload);
   return res.data;

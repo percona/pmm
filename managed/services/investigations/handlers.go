@@ -217,15 +217,16 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Title       string `json:"title"`
-		TimeFrom    string `json:"time_from"`
-		TimeTo      string `json:"time_to"`
-		SourceType  string `json:"source_type"`
-		SourceRef   string `json:"source_ref"`
-		Summary     string `json:"summary"`
-		NodeName    string `json:"node_name"`
-		ServiceName string `json:"service_name"`
-		ClusterName string `json:"cluster_name"`
+		Title        string          `json:"title"`
+		TimeFrom     string          `json:"time_from"`
+		TimeTo       string          `json:"time_to"`
+		SourceType   string          `json:"source_type"`
+		SourceRef    string          `json:"source_ref"`
+		Summary      string          `json:"summary"`
+		NodeName     string          `json:"node_name"`
+		ServiceName  string          `json:"service_name"`
+		ClusterName  string          `json:"cluster_name"`
+		AlertSnapshot json.RawMessage `json:"alert_snapshot"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -255,17 +256,20 @@ func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 		timeTo = t
 	}
 	config := []byte("{}")
-	if body.NodeName != "" || body.ServiceName != "" || body.ClusterName != "" {
-		cfg := map[string]string{}
-		if body.NodeName != "" {
-			cfg["node_name"] = body.NodeName
-		}
-		if body.ServiceName != "" {
-			cfg["service_name"] = body.ServiceName
-		}
-		if body.ClusterName != "" {
-			cfg["cluster_name"] = body.ClusterName
-		}
+	cfg := map[string]string{}
+	if body.NodeName != "" {
+		cfg["node_name"] = body.NodeName
+	}
+	if body.ServiceName != "" {
+		cfg["service_name"] = body.ServiceName
+	}
+	if body.ClusterName != "" {
+		cfg["cluster_name"] = body.ClusterName
+	}
+	if len(body.AlertSnapshot) > 0 {
+		cfg["alert_snapshot"] = string(body.AlertSnapshot)
+	}
+	if len(cfg) > 0 {
 		if b, err := json.Marshal(cfg); err == nil {
 			config = b
 		}

@@ -96,6 +96,7 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
         ...(nodeName && { nodeName }),
         ...(serviceName && { serviceName }),
         ...(clusterName && { clusterName }),
+        alertSnapshot: items,
       },
       {
         onSuccess: (inv) => {

@@ -123,6 +123,7 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
   const handleSubmit = () => {
     let finalSourceRef = sourceRef.trim();
     let alertMeta: { nodeName?: string; serviceName?: string; clusterName?: string } = {};
+    let selectedAlerts: AlertItem[] = [];
     if (sourceType === 'alert' && selectedAlertKeys.size > 0) {
       const refs = alerts
         .map((a, i) => (selectedAlertKeys.has(getAlertKey(a, i)) ? (a.fingerprint ?? getAlertKey(a, i)) : null))
@@ -130,6 +131,7 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
       finalSourceRef = refs.join(',');
       const firstSelected = alerts.find((a, i) => selectedAlertKeys.has(getAlertKey(a, i)));
       alertMeta = getAlertMetadataFromLabels(firstSelected?.labels);
+      selectedAlerts = alerts.filter((a, i) => selectedAlertKeys.has(getAlertKey(a, i)));
     }
     const body: CreateInvestigationBody = {
       title: title.trim() || 'New investigation',
@@ -141,6 +143,7 @@ export const CreateInvestigationModal: FC<CreateInvestigationModalProps> = ({
       ...(alertMeta.nodeName && { nodeName: alertMeta.nodeName }),
       ...(alertMeta.serviceName && { serviceName: alertMeta.serviceName }),
       ...(alertMeta.clusterName && { clusterName: alertMeta.clusterName }),
+      ...(selectedAlerts.length > 0 && { alertSnapshot: selectedAlerts }),
     };
     onSubmit(body);
   };
