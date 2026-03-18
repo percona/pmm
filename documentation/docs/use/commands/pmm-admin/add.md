@@ -17,8 +17,7 @@ pmm-admin add <SERVICE_TYPE> [FLAGS] [NAME] [ADDRESS]
 Control connection settings, TLS, query collection, metric collectors, and service organization using the flags available for each database type:
 
 ### Connection flags
-
-| Flag | Description | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
 |------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--username` | Database username | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `--password` | Database password | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -32,7 +31,7 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 ### TLS flags
 
-| Flag | Description | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
 |------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--tls` | Use TLS connection | ✓ | ✓ | ✓ | ✓ | ✓ | |
 | `--tls-skip-verify` | Skip certificate validation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -44,7 +43,7 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 ### Query Analytics (QAN) flags
 
-| Flag | Description | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
 |------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--query-source` | Query source | ✓ | ✓ | ✓ | | | |
 | `--disable-queryexamples` | Disable query examples | ✓ | ✓ | | | | |
@@ -54,7 +53,7 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 ### Collector flags
 
-| Flag | Description | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
 |------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--disable-collectors` | Exclude collectors | ✓ | | ✓ | | ✓ | |
 | `--enable-all-collectors` | Enable all collectors | | | ✓ | | | |
@@ -65,7 +64,7 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 ### Service organization flags
 
-| Flag | Description | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
 |------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--environment` | Environment name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `--cluster` | Cluster name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -74,7 +73,7 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 ### Agent flags
 
-| Flag | Description | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
 |------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--agent-password` | Override metrics endpoint password | ✓ | ✓ | ✓ | ✓ | ✓ | |
 | `--agent-env-vars` | Environment variables for exporter | | | ✓ | | | |
@@ -277,7 +276,7 @@ Configure query collection for QAN:
 
 ### Examples
 
-Add PostgreSQL with pg_stat_statements:
+Add PostgreSQL with `pg_stat_statements`:
 
 ```bash
 pmm-admin add postgresql \
@@ -287,7 +286,7 @@ pmm-admin add postgresql \
   postgres-prod 192.168.1.30:5432
 ```
 
-Add PostgreSQL with pg_stat_monitor:
+Add PostgreSQL with `pg_stat_monitor`:
 
 ```bash
 pmm-admin add postgresql \
@@ -728,11 +727,11 @@ pmm-admin add mysql \
   mysql-prod 192.168.1.10:3306
 ```
 
-Options:
+#### Available modes
 
-- `auto` — Server chooses (default)
-- `push` — Agent pushes metrics to server
-- `pull` — Server scrapes metrics from agent
+- `auto`: Server chooses (default)
+- `push`: Agent pushes metrics to server
+- `pull`: Server scrapes metrics from agent
 
 ## See also
 

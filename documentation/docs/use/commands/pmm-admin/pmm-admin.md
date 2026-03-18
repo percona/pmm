@@ -1,4 +1,10 @@
-# pmm-admin - PMM Client CLI
+# Manage databases from the command line with pmm-admin
+
+`pmm-admin` is the command-line tool for managing your PMM monitoring setup. Use it to add databases, check connection status, update agent configurations, and troubleshoot issues from your terminal.
+
+`pmm-admin` is installed automatically with PMM Client.
+
+To add services through the UI instead, see [Connect databases via the web interface](../../../install-pmm/install-pmm-client/connect-database/index.md). For programmatic access, see the [PMM API](../../../api/index.md).
 
 Use `pmm-admin` to:
 
@@ -7,10 +13,6 @@ Use `pmm-admin` to:
 - list monitored services and their agents
 - modify agent configurations without removing services
 - create diagnostic archives for troubleshooting
-
-`pmm-admin` is installed automatically with PMM Client.
-
-To add services through the UI instead, see [Connect databases via the web interface](../../../install-pmm/install-pmm-client/connect-database/index.md). For programmatic access, see the [PMM API](../../../api/index.md).
 
 ## Syntax
 
@@ -62,15 +64,15 @@ Find all available commands for managing monitored services:
 
 | Command | Description | Documentation |
 |---------|-------------|---------------|
-| `pmm-admin add` | Add database services to monitoring | [Add database services](pmm-admin-add.md) |
-| `pmm-admin inventory` | List and modify agents and services | [Manage inventory](pmm-admin-inventory.md) |
-| `pmm-admin config` | Configure local pmm-agent | [Configuration commands](pmm-admin-config.md) |
-| `pmm-admin register` | Register node with PMM Server | [Configuration commands](pmm-admin-config.md) |
-| `pmm-admin remove` | Remove service from monitoring | [Configuration commands](pmm-admin-config.md) |
-| `pmm-admin annotate` | Add event annotations | [Configuration commands](pmm-admin-config.md) |
-| `pmm-admin status` | Show PMM Client status | [Status and diagnostics](pmm-admin-status.md) |
-| `pmm-admin list` | List monitored services | [Status and diagnostics](pmm-admin-status.md) |
-| `pmm-admin summary` | Create diagnostic archive | [Status and diagnostics](pmm-admin-status.md) |
+| `pmm-admin add` | Add database services to monitoring | [Add database services](../pmm-admin/add.md) |
+| `pmm-admin inventory` | List and modify agents and services | [Manage inventory](../pmm-admin/inventory.md) |
+| `pmm-admin config` | Configure local pmm-agent | [Configuration commands](../pmm-admin/config.md) |
+| `pmm-admin register` | Register node with PMM Server | [Configuration commands](../pmm-admin/config.md) |
+| `pmm-admin remove` | Remove service from monitoring | [Configuration commands](../pmm-admin/config.md) |
+| `pmm-admin annotate` | Add event annotations | [Configuration commands](../pmm-admin/config.md) |
+| `pmm-admin status` | Show PMM Client status | [Status and diagnostics](../pmm-admin/status.md) |
+| `pmm-admin list` | List monitored services | [Status and diagnostics](../pmm-admin/status.md) |
+| `pmm-admin summary` | Create diagnostic archive | [Status and diagnostics](../pmm-admin/status.md) |
 
 ## Common flags
 
