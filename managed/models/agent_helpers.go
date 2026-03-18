@@ -59,14 +59,12 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 			}
 		}
 	}
-	res := MySQLOptions{
+	return MySQLOptions{
 		TLSCa:          params.GetTlsCa(),
 		TLSCert:        params.GetTlsCert(),
 		TLSKey:         params.GetTlsKey(),
 		ExtraDSNParams: params.GetExtraDsnParams(),
-	}
-
-	return res, nil
+	}, nil
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
