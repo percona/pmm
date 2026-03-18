@@ -412,7 +412,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 			},
 			RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=1\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
 				"tlsCa":     "content-of-tls-ca",
 				"tlsCert":   "content-of-tls-certificate-key",
 				"tlsKey":    "content-of-tls-key",
@@ -477,7 +477,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 			},
 			RedactWords: []string{"agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nconnect_timeout=1\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
 				"tlsCa":     "content-of-tls-ca",
 				"tlsCert":   "content-of-tls-certificate-key",
 				"tlsKey":    "content-of-tls-key",
@@ -540,7 +540,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 				"--web.config.file={{ .TextFiles.webConfig }}",
 			},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\n\n\n\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=1\n\n\n\n\n",
 				"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 			},
 		}

@@ -616,6 +616,7 @@ func scrapeConfigsForAzureDatabase(s *models.MetricsResolutions, params *scrapeC
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/metrics",
 	}
+	applyExporterScrapeTimeout(cfg, params.agent)
 
 	port := int(*params.agent.ListenPort)
 	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
