@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"google.golang.org/protobuf/types/known/durationpb"
 
@@ -168,7 +169,7 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent,
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
-		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
 		TextFiles: &agentv1.TextFiles{
@@ -185,7 +186,7 @@ func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent,
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT,
-		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
 		TextFiles: &agentv1.TextFiles{
