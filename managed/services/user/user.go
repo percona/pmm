@@ -18,6 +18,7 @@ package user
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -164,4 +165,13 @@ func (s *Service) ListUsers(_ context.Context, _ *userv1.ListUsersRequest) (*use
 	}
 
 	return resp, nil
+}
+
+// GetDemoUserCredentials is an internal API to retrieve demo user credentials from PMM server.
+// It is not exposed to external users and is only used for testing and demonstration purposes.
+func (s *Service) GetDemoUserCredentials(_ context.Context, _ *userv1.GetDemoUserCredentialsRequest) (*userv1.GetDemoUserCredentialsResponse, error) { //nolint:unparam
+	return &userv1.GetDemoUserCredentialsResponse{
+		Username: os.Getenv("PMM_DEMO_USER_USERNAME"),
+		Password: os.Getenv("PMM_DEMO_USER_PASSWORD"),
+	}, nil
 }

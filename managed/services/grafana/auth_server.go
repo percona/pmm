@@ -86,6 +86,9 @@ var rules = map[string]role{
 	"/v1/platform:":                   admin,
 	"/v1/platform/":                   viewer,
 	"/v1/users":                       viewer,
+	// special case - used on Grafana login page before user can be authenticated.
+	// Used for PMM Demo user only.
+	"/v1/users/demo/credentials": none,
 
 	// must be available without authentication for health checking
 	"/v1/server/readyz":            none,

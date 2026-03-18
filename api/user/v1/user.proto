@@ -3,6 +3,7 @@ syntax = "proto3";
 package user.v1;
 
 import "google/api/annotations.proto";
+import "google/api/visibility.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
@@ -26,6 +27,19 @@ message GetUserResponse {
   google.protobuf.Timestamp snoozed_at = 6;
   // Number of times the update was snoozed
   uint32 snooze_count = 7;
+}
+
+message GetDemoUserCredentialsRequest {
+  option (google.api.message_visibility).restriction = "INTERNAL";
+}
+
+message GetDemoUserCredentialsResponse {
+  option (google.api.message_visibility).restriction = "INTERNAL";
+
+  // Demo username
+  string username = 1;
+  // Demo password
+  string password = 2;
 }
 
 message UpdateUserRequest {
@@ -90,6 +104,17 @@ service UserService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List all users"
       description: "Retrieve user details for all users from PMM server"
+    };
+  }
+
+  // GetDemoUserCredentials is an internal API to retrieve demo user credentials from PMM server.
+  // It is not exposed to external users and is only used for testing and demonstration purposes.
+  rpc GetDemoUserCredentials(GetDemoUserCredentialsRequest) returns (GetDemoUserCredentialsResponse) {
+    option (google.api.method_visibility).restriction = "INTERNAL";
+    option (google.api.http) = {get: "/v1/users/demo/credentials"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get demo user credentials"
+      description: "Retrieve demo user credentials from PMM server"
     };
   }
 }

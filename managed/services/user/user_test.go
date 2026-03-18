@@ -285,3 +285,19 @@ func TestSnoozeUpdate(t *testing.T) {
 		mockClient.AssertExpectations(t)
 	})
 }
+
+func TestService_GetDemoUserCredentials(t *testing.T) {
+	// Set environment variables for the test
+	demoUserUsername := "demo_user"
+	demoUserPassword := "demo_pass"
+	t.Setenv("PMM_DEMO_USER_USERNAME", demoUserUsername)
+	t.Setenv("PMM_DEMO_USER_PASSWORD", demoUserPassword)
+
+	s := &Service{}
+
+	resp, err := s.GetDemoUserCredentials(context.Background(), &userv1.GetDemoUserCredentialsRequest{})
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, demoUserUsername, resp.Username)
+	assert.Equal(t, demoUserPassword, resp.Password)
+}

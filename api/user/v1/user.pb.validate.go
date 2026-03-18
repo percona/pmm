@@ -274,6 +274,216 @@ var _ interface {
 	ErrorName() string
 } = GetUserResponseValidationError{}
 
+// Validate checks the field values on GetDemoUserCredentialsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetDemoUserCredentialsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetDemoUserCredentialsRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetDemoUserCredentialsRequestMultiError, or nil if none found.
+func (m *GetDemoUserCredentialsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetDemoUserCredentialsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetDemoUserCredentialsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetDemoUserCredentialsRequestMultiError is an error wrapping multiple
+// validation errors returned by GetDemoUserCredentialsRequest.ValidateAll()
+// if the designated constraints aren't met.
+type GetDemoUserCredentialsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetDemoUserCredentialsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetDemoUserCredentialsRequestMultiError) AllErrors() []error { return m }
+
+// GetDemoUserCredentialsRequestValidationError is the validation error
+// returned by GetDemoUserCredentialsRequest.Validate if the designated
+// constraints aren't met.
+type GetDemoUserCredentialsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetDemoUserCredentialsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetDemoUserCredentialsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetDemoUserCredentialsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetDemoUserCredentialsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetDemoUserCredentialsRequestValidationError) ErrorName() string {
+	return "GetDemoUserCredentialsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetDemoUserCredentialsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetDemoUserCredentialsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetDemoUserCredentialsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetDemoUserCredentialsRequestValidationError{}
+
+// Validate checks the field values on GetDemoUserCredentialsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetDemoUserCredentialsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetDemoUserCredentialsResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetDemoUserCredentialsResponseMultiError, or nil if none found.
+func (m *GetDemoUserCredentialsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetDemoUserCredentialsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	if len(errors) > 0 {
+		return GetDemoUserCredentialsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetDemoUserCredentialsResponseMultiError is an error wrapping multiple
+// validation errors returned by GetDemoUserCredentialsResponse.ValidateAll()
+// if the designated constraints aren't met.
+type GetDemoUserCredentialsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetDemoUserCredentialsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetDemoUserCredentialsResponseMultiError) AllErrors() []error { return m }
+
+// GetDemoUserCredentialsResponseValidationError is the validation error
+// returned by GetDemoUserCredentialsResponse.Validate if the designated
+// constraints aren't met.
+type GetDemoUserCredentialsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetDemoUserCredentialsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetDemoUserCredentialsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetDemoUserCredentialsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetDemoUserCredentialsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetDemoUserCredentialsResponseValidationError) ErrorName() string {
+	return "GetDemoUserCredentialsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetDemoUserCredentialsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetDemoUserCredentialsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetDemoUserCredentialsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetDemoUserCredentialsResponseValidationError{}
+
 // Validate checks the field values on UpdateUserRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
