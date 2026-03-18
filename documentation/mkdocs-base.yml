@@ -499,8 +499,12 @@ nav:
               - api/index.md
               - api/authentication.md
           - PMM commands:
-              - use/commands/index.md
-              - use/commands/pmm-admin.md
+              - About PMM commands: use/commands/index.md
+              - pmm-admin:
+                - Add database services: 
+                - Manage inventory: 
+                - Configuration commands:
+                - Status and diagnostics: 
               - use/commands/pmm-agent.md
       - PMM dashboards:
           - Insight:
