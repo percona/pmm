@@ -141,6 +141,6 @@ pmm-admin inventory change agent mongodb-exporter /agent_id/abc123 \
 
 ## See also
 
-- [pmm-admin add](pmm-admin-add.md) 
-- [Configuration commands](pmm-admin-config.md) 
-- [Status and diagnostics](pmm-admin-status.md)
+- [pmm-admin add](add.md) 
+- [Configuration commands](config.md) 
+- [Status and diagnostics](status.md)
