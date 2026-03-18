@@ -108,6 +108,6 @@ pmm-admin inventory change agent --help
 
 ## See also
 
-- [PMM Client agent](pmm-agent.md)
+- [PMM Client agent](../pmm-agent.md)
 - [Connect databases to PMM](../../../install-pmm/install-pmm-client/connect-database/index.md)
-- [Remove databases from monitoring](../remove-services.md)
+- [Remove databases from monitoring](../../remove-services.md)
