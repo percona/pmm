@@ -218,6 +218,13 @@ func addAdreHandlers(mux *http.ServeMux, db reform.DBTX, grafanaAlertsFetch adre
 	mux.HandleFunc("/v1/adre/chat", h.PostChat)
 	mux.HandleFunc("/v1/adre/alerts", h.GetAlerts)
 	mux.HandleFunc("/v1/adre/investigate", h.PostInvestigate)
+	mux.HandleFunc("/v1/adre/qan-insights", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		h.PostQanInsights(w, r)
+	})
 }
 
 func addInvestigationsHandlers(mux *http.ServeMux, db *reform.DB) {

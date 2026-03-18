@@ -20,6 +20,12 @@ export interface AdreSettings {
   agentPromptDisplay?: string;
   /** Backend may return snake_case; frontend may use either. */
   chat_history_length?: number;
+  /** System prompt for QAN AI Insights. Empty = use built-in default. */
+  qanInsightsPrompt?: string;
+  /** Display value when qan_insights_prompt is empty (built-in default). */
+  qanInsightsPromptDisplay?: string;
+  qan_insights_prompt?: string;
+  qan_insights_prompt_display?: string;
 }
 
 export interface AdreModelsResponse {
@@ -60,6 +66,19 @@ export interface AdreInvestigateResponse {
   instructions?: unknown[];
 }
 
+export interface AdreQanInsightsRequest {
+  serviceId: string;
+  queryText: string;
+  queryId?: string;
+  fingerprint?: string;
+  timeFrom?: string;
+  timeTo?: string;
+}
+
+export interface AdreQanInsightsResponse {
+  analysis: string;
+}
+
 export const getAdreSettings = async (): Promise<AdreSettings> => {
   const res = await api.get<AdreSettings>('/adre/settings');
   return res.data;
@@ -81,6 +100,13 @@ export const adreChat = async (
   body: AdreChatRequest
 ): Promise<AdreChatResponse> => {
   const res = await api.post<AdreChatResponse>('/adre/chat', body);
+  return res.data;
+};
+
+export const adreQanInsights = async (
+  body: AdreQanInsightsRequest
+): Promise<AdreQanInsightsResponse> => {
+  const res = await api.post<AdreQanInsightsResponse>('/adre/qan-insights', body);
   return res.data;
 };
 

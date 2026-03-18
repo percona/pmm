@@ -3,18 +3,20 @@ import {
   Button,
   Card,
   CardContent,
+  Divider,
   FormControl,
   FormControlLabel,
   InputLabel,
   Link,
   MenuItem,
   Select,
+  SelectChangeEvent,
   Stack,
   Switch,
   TextField,
   Typography,
 } from '@mui/material';
-import { FC, useState, useEffect, ChangeEvent } from 'react';
+import { FC, useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
 import { Page } from 'components/page';
 import { useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import type { AdreSettings } from 'api/adre';
@@ -53,6 +55,9 @@ const AdreSettingsPage: FC = () => {
   const [localAgentPrompt, setLocalAgentPrompt] = useState(
     settings?.agentPromptDisplay ?? settings?.agentPrompt ?? ''
   );
+  const [localQanInsightsPrompt, setLocalQanInsightsPrompt] = useState(
+    settings?.qanInsightsPromptDisplay ?? settings?.qanInsightsPrompt ?? ''
+  );
 
   useEffect(() => {
     if (settings) {
@@ -63,6 +68,9 @@ const AdreSettingsPage: FC = () => {
       setLocalChatPrompt(settings.chatPromptDisplay ?? settings.chatPrompt ?? '');
       setLocalInvestigationPrompt(settings.investigationPromptDisplay ?? settings.investigationPrompt ?? '');
       setLocalAgentPrompt(settings.agentPromptDisplay ?? settings.agentPrompt ?? '');
+      setLocalQanInsightsPrompt(
+        settings.qanInsightsPromptDisplay ?? settings.qanInsightsPrompt ?? settings.qan_insights_prompt_display ?? settings.qan_insights_prompt ?? ''
+      );
     }
   }, [
     settings?.enabled,
@@ -75,6 +83,8 @@ const AdreSettingsPage: FC = () => {
     settings?.investigationPromptDisplay,
     settings?.agentPrompt,
     settings?.agentPromptDisplay,
+    settings?.qanInsightsPrompt,
+    settings?.qanInsightsPromptDisplay,
   ]);
 
   const isAdmin = user?.isPMMAdmin ?? false;
@@ -122,98 +132,120 @@ const AdreSettingsPage: FC = () => {
 
   return (
     <Page title="AI Assistant Settings">
-      <Card variant="outlined" sx={{ maxWidth: 560 }}>
+      <Card variant="outlined" sx={{ maxWidth: 640 }}>
         <CardContent>
-          <Stack gap={2}>
+          <Stack gap={3}>
             <Typography variant="body2" color="text.secondary">
               Configure the Autonomous Database Reliability Engineer (ADRE) and
               HolmesGPT integration for AI-assisted investigations.
             </Typography>
             {isAdmin ? (
-              <Stack gap={2}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  HolmesGPT
-                </Typography>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={localEnabled}
-                      onChange={(_, v: boolean) => setLocalEnabled(v)}
-                    />
-                  }
-                  label="Enable ADRE"
-                />
-                <TextField
-                  label="HolmesGPT URL"
-                  placeholder="http://holmesgpt:8080"
-                  value={localUrl}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalUrl(e.target.value)}
-                  size="small"
-                  fullWidth
-                />
-                <FormControl size="small" fullWidth>
-                  <InputLabel>Chat backend</InputLabel>
-                  <Select
-                    value={localChatBackend}
-                    label="Chat backend"
-                    onChange={(e) =>
-                      setLocalChatBackend(e.target.value as 'holmesgpt' | 'holmes_agent')
+              <Stack gap={3}>
+                <Stack gap={2}>
+                  <Typography variant="subtitle1" fontWeight={600}>
+                    Connection
+                  </Typography>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={localEnabled}
+                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalEnabled(v)}
+                      />
                     }
-                  >
-                    <MenuItem value="holmesgpt">Holmes Agent (direct)</MenuItem>
-                    <MenuItem value="holmes_agent">PMM Agent</MenuItem>
-                  </Select>
-                </FormControl>
-                {localChatBackend === 'holmes_agent' && (
+                    label="Enable ADRE"
+                  />
                   <TextField
-                    label="Conversation history length"
-                    type="number"
-                    inputProps={{ min: 5, max: 100 }}
-                    value={localChatHistoryLength}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatHistoryLength(parseInt(e.target.value, 10) || 20)}
+                    label="HolmesGPT URL"
+                    placeholder="http://holmesgpt:8080"
+                    value={localUrl}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalUrl(e.target.value)}
                     size="small"
                     fullWidth
-                    helperText="Max messages sent to PMM Agent (5–100)"
                   />
-                )}
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
-                  Prompts for Holmes Agent
-                </Typography>
-                <TextField
-                  label="Chat prompt"
-                  placeholder="System prompt for Holmes Agent (chat mode)"
-                  value={localChatPrompt}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatPrompt(e.target.value)}
-                  size="small"
-                  fullWidth
-                  multiline
-                  minRows={3}
-                  helperText="System prompt for Holmes Agent when talking in chat mode"
-                />
-                <TextField
-                  label="Investigation prompt"
-                  placeholder="System prompt for investigations"
-                  value={localInvestigationPrompt}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalInvestigationPrompt(e.target.value)}
-                  size="small"
-                  fullWidth
-                  multiline
-                  minRows={3}
-                  helperText="System prompt for Holmes Agent in investigation mode"
-                />
-                {localChatBackend === 'holmes_agent' && (
+                </Stack>
+                <Divider />
+                <Stack gap={2}>
+                  <Typography variant="subtitle1" fontWeight={600}>
+                    Chat
+                  </Typography>
+                  <FormControl size="small" fullWidth>
+                    <InputLabel>Chat backend</InputLabel>
+                    <Select
+                      value={localChatBackend}
+                      label="Chat backend"
+                      onChange={(e: SelectChangeEvent<'holmesgpt' | 'holmes_agent'>) =>
+                        setLocalChatBackend(e.target.value as 'holmesgpt' | 'holmes_agent')
+                      }
+                    >
+                      <MenuItem value="holmesgpt">Holmes Agent (direct)</MenuItem>
+                      <MenuItem value="holmes_agent">PMM Agent</MenuItem>
+                    </Select>
+                  </FormControl>
+                  {localChatBackend === 'holmes_agent' && (
+                    <TextField
+                      label="Conversation history length"
+                      type="number"
+                      inputProps={{ min: 5, max: 100 }}
+                      value={localChatHistoryLength}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatHistoryLength(parseInt(e.target.value, 10) || 20)}
+                      size="small"
+                      fullWidth
+                      helperText="Max messages sent to PMM Agent (5–100)"
+                    />
+                  )}
+                </Stack>
+                <Divider />
+                <Stack gap={2}>
+                  <Typography variant="subtitle1" fontWeight={600}>
+                    Prompts
+                  </Typography>
                   <TextField
-                    label="Agent prompt (PMM Agent)"
-                    placeholder="System prompt for PMM Agent; empty = use built-in default"
-                    value={localAgentPrompt}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalAgentPrompt(e.target.value)}
+                    label="Chat prompt"
+                    placeholder="System prompt for Holmes Agent (chat mode)"
+                    value={localChatPrompt}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatPrompt(e.target.value)}
                     size="small"
                     fullWidth
                     multiline
                     minRows={3}
-                    helperText="System prompt when using PMM Agent; leave empty for default"
+                    helperText="System prompt for Holmes Agent when talking in chat mode"
                   />
-                )}
+                  <TextField
+                    label="Investigation prompt"
+                    placeholder="System prompt for investigations"
+                    value={localInvestigationPrompt}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalInvestigationPrompt(e.target.value)}
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={3}
+                    helperText="System prompt for Holmes Agent in investigation mode"
+                  />
+                  <TextField
+                    label="QAN AI Insights prompt"
+                    placeholder="System prompt for QAN AI Insights (query analytics and optimization). Leave empty for default."
+                    value={localQanInsightsPrompt}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalQanInsightsPrompt(e.target.value)}
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={3}
+                    helperText="Used when analyzing a query from Query Analytics; leave empty for default"
+                  />
+                  {localChatBackend === 'holmes_agent' && (
+                    <TextField
+                      label="Agent prompt (PMM Agent)"
+                      placeholder="System prompt for PMM Agent; empty = use built-in default"
+                      value={localAgentPrompt}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalAgentPrompt(e.target.value)}
+                      size="small"
+                      fullWidth
+                      multiline
+                      minRows={3}
+                      helperText="System prompt when using PMM Agent; leave empty for default"
+                    />
+                  )}
+                </Stack>
                 <Button
                   variant="contained"
                   onClick={() =>
@@ -226,6 +258,7 @@ const AdreSettingsPage: FC = () => {
                         chat_prompt: localChatPrompt || undefined,
                         investigation_prompt: localInvestigationPrompt || undefined,
                         agent_prompt: localAgentPrompt || undefined,
+                        qan_insights_prompt: localQanInsightsPrompt || undefined,
                       } as Partial<AdreSettings> & Record<string, unknown>,
                       {
                         onError: (err: unknown) => {
@@ -236,12 +269,15 @@ const AdreSettingsPage: FC = () => {
                             'Failed to save settings';
                           enqueueSnackbar(msg, { variant: 'error' });
                         },
+                        onSuccess: () => {
+                          enqueueSnackbar('Settings saved', { variant: 'success' });
+                        },
                       }
                     )
                   }
                   disabled={updateSettings.isPending}
                 >
-                  Save
+                  {updateSettings.isPending ? 'Saving...' : 'Save'}
                 </Button>
               </Stack>
             ) : (

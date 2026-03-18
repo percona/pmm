@@ -116,6 +116,8 @@ type Settings struct {
 		ChatHistoryLength int `json:"chat_history_length"`
 		// AgentPrompt is the system prompt for the PMM Agent when ChatBackend is holmes_agent. Empty = use built-in default.
 		AgentPrompt string `json:"agent_prompt"`
+		// QanInsightsPrompt is the system prompt for QAN AI Insights (query analytics and optimization). Empty = use built-in default.
+		QanInsightsPrompt string `json:"qan_insights_prompt"`
 	} `json:"adre"`
 
 	Alerting struct {
