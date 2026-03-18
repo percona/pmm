@@ -68,6 +68,8 @@ services:
       - ${PMM_PORT_HTTPS:-443}:8443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
+      # Vite HMR
+      - ${PMM_PORT_VITE:-5173}:5173
       # PG
       - ${PMM_PORT_PG:-5432}:5432
       # VM
@@ -121,6 +123,7 @@ services:
       - WATCHTOWER_HTTP_API_UPDATE=1
       - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
       - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
+      - DOCKER_API_VERSION=1.52
     hostname: watchtower
     networks:
       - ${NETWORK:-default}

@@ -36,6 +36,7 @@ export default defineConfig({
     host: '0.0.0.0',
     strictPort: true,
     hmr: {
+      protocol: 'ws',
       clientPort: 5173,
     },
     allowedHosts: ['host.docker.internal'],
