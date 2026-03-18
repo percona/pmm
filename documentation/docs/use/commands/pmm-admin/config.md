@@ -243,7 +243,7 @@ pmm-admin annotate "Deployed hotfix v2.1.1" \
 
 ## See also
 
-- [`pmm-admin` command overview](index.md)
-- [Add database services to monitoring](pmm-admin-add.md)
-- [Modify agent configurations to manage inventory](pmm-admin-inventory.md)
-- [Check connection status and troubleshoot](pmm-admin-status.md)
+- [`pmm-admin` command overview](pmm-admin.md)
+- [Add database services to monitoring](add.md)
+- [Modify agent configurations to manage inventory](inventory.md)
+- [Check connection status and troubleshoot](status.md)
