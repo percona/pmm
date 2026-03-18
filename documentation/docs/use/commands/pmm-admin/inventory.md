@@ -2,7 +2,7 @@
 
 Use `pmm-admin inventory` from the command line to list registered services and agents, and modify agent configurations without removing and re-adding services.
 
-To manage inventory in the UI, see [PMM Inventory](link). For programmatic access, see the [PMM API](../../../api/index.md).
+To manage inventory in the UI, see [PMM Inventory](../../inventory.md). For programmatic access, see the [PMM API](../../../api/index.md).
 
 ## Commands
 
