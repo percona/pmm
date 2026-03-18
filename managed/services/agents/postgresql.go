@@ -31,6 +31,8 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const postgresRemoteCloudDefaultDialTimeout = 5 * time.Second
+
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
@@ -135,13 +137,13 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		if exporter.ExporterOptions.Timeout != 0 {
 			dsnParams.DialTimeout = exporter.ExporterOptions.Timeout
 		} else {
-			dsnParams.DialTimeout = 5 * time.Second
+			dsnParams.DialTimeout = postgresRemoteCloudDefaultDialTimeout
 		}
 	case node.NodeType == models.RemoteRDSNodeType:
 		if exporter.ExporterOptions.Timeout != 0 {
 			dsnParams.DialTimeout = exporter.ExporterOptions.Timeout
 		} else {
-			dsnParams.DialTimeout = 5 * time.Second
+			dsnParams.DialTimeout = postgresRemoteCloudDefaultDialTimeout
 		}
 	default:
 		dsnParams.DialTimeout = exporter.EffectiveDialTimeout()

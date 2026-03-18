@@ -56,6 +56,8 @@ const (
 	trueStr         = "true"
 	unix            = "unix"
 	skipVerify      = "skip-verify"
+	// effectiveDialTimeoutFallbackSec is default dial timeout (seconds) for agents not using exporter default (1s).
+	effectiveDialTimeoutFallbackSec = 2
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -841,7 +843,7 @@ func (a *Agent) EffectiveDialTimeout() time.Duration {
 	default:
 	}
 
-	return 2 * time.Second
+	return time.Duration(effectiveDialTimeoutFallbackSec) * time.Second
 }
 
 // ExporterURL composes URL to an external exporter.

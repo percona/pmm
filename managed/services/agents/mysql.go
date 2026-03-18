@@ -242,10 +242,7 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 	tdp := agent.TemplateDelimiters(service)
 
 	var configBuffer bytes.Buffer
-	connectSec := int(agent.EffectiveDialTimeout().Seconds())
-	if connectSec < 1 {
-		connectSec = 1
-	}
+	connectSec := max(1, int(agent.EffectiveDialTimeout().Seconds()))
 	myCnfParams := struct {
 		User                    string
 		Password                string

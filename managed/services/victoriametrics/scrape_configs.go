@@ -37,6 +37,11 @@ func ScrapeTimeout(interval time.Duration) config.Duration {
 	return scrapeTimeout(interval)
 }
 
+const (
+	exporterScrapeIntervalCap    = 0.9
+	exporterScrapeTimeoutFloorMs = 100
+)
+
 // scrapeTimeout returns default scrape timeout for given scrape interval.
 func scrapeTimeout(interval time.Duration) config.Duration {
 	switch {
@@ -54,14 +59,9 @@ func applyExporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
 		return
 	}
 	interval := time.Duration(cfg.ScrapeInterval)
-	maxT := time.Duration(float64(interval) * 0.9) //nolint:mnd
-	t := agent.ExporterOptions.Timeout
-	if t > maxT {
-		t = maxT
-	}
-	if t < 100*time.Millisecond { //nolint:mnd
-		t = 100 * time.Millisecond
-	}
+	maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
+	t := min(agent.ExporterOptions.Timeout, maxT)
+	t = max(t, exporterScrapeTimeoutFloorMs*time.Millisecond)
 	cfg.ScrapeTimeout = config.Duration(t)
 }
 
@@ -269,14 +269,9 @@ func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hos
 		},
 	}
 	if exporterTimeout > 0 {
-		maxT := time.Duration(float64(interval) * 0.9) //nolint:mnd
-		t := exporterTimeout
-		if t > maxT {
-			t = maxT
-		}
-		if t < 100*time.Millisecond { //nolint:mnd
-			t = 100 * time.Millisecond
-		}
+		maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
+		t := min(exporterTimeout, maxT)
+		t = max(t, exporterScrapeTimeoutFloorMs*time.Millisecond)
 		cfg.ScrapeTimeout = config.Duration(t)
 	}
 	return cfg
