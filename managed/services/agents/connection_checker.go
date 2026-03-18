@@ -28,8 +28,8 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
-	agentv1 "github.com/percona/pmm/api/agent/v1"
-	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
@@ -60,7 +60,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	}()
 
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
-	if !agent.ExporterOptions.PushMetrics && (service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType) {
+	if !agent.PushMetrics && (service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType) {
 		pmmAgentID = models.PMMServerAgentID
 	}
 
@@ -86,9 +86,9 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return err
 	}
 
-	sanitizedDSN := request.Dsn
+	var sanitizedDSN string
 	for _, word := range redactWords(agent) {
-		sanitizedDSN = strings.ReplaceAll(sanitizedDSN, word, "****")
+		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
 	}
 	l.Infof("CheckConnectionRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
 
@@ -99,12 +99,25 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	l.Infof("CheckConnection response: %+v.", resp)
 
 	switch service.ServiceType {
-	case models.MySQLServiceType,
-		models.ExternalServiceType,
+	case models.MySQLServiceType:
+		// TODO: remove the whole block after v3 release.
+		isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
+		if err != nil {
+			l.Warnf("Failed to check if serviceInfoBroker is supported: %s.", err)
+		}
+		// In newer clients this gets handled by the ServiceInfoBroker.
+		if !isSibSupported {
+			tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert,staticcheck
+			agent.TableCount = &tableCount
+			l.Debugf("Updating table count: %d.", tableCount)
+			if err = q.Update(agent); err != nil {
+				return errors.Wrap(err, "failed to update table count")
+			}
+		}
+	case models.ExternalServiceType,
 		models.HAProxyServiceType,
 		models.PostgreSQLServiceType,
 		models.MongoDBServiceType,
-		models.ValkeyServiceType,
 		models.ProxySQLServiceType:
 		// nothing yet
 
@@ -112,7 +125,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 
-	msg := resp.(*agentv1.CheckConnectionResponse).Error //nolint:forcetypeassert
+	msg := resp.(*agentpb.CheckConnectionResponse).Error //nolint:forcetypeassert
 	switch msg {
 	case "":
 		return nil
@@ -122,18 +135,18 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
 }
 
-func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentv1.CheckConnectionRequest, error) {
-	var request *agentv1.CheckConnectionRequest
+func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.CheckConnectionRequest, error) {
+	var request *agentpb.CheckConnectionRequest
 
 	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentv1.CheckConnectionRequest{
-			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
-			TextFiles: &agentv1.TextFiles{
+		request = &agentpb.CheckConnectionRequest{
+			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
+			Timeout: durationpb.New(3 * time.Second),
+			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
@@ -142,17 +155,16 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
-
 		sqlSniSupported, err := models.IsPostgreSQLSSLSniSupported(q, pointer.GetString(agent.PMMAgentID))
 		if err != nil {
 			return nil, err
 		}
-		request = &agentv1.CheckConnectionRequest{
-			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
-			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
+		request = &agentpb.CheckConnectionRequest{
+			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
-			TextFiles: &agentv1.TextFiles{
+			Timeout: durationpb.New(3 * time.Second),
+			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
@@ -160,21 +172,21 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 	case models.MongoDBServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentv1.CheckConnectionRequest{
-			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName}, nil, pmmAgentVersion),
+		request = &agentpb.CheckConnectionRequest{
+			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentv1.TextFiles{
+			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
 			},
 		}
 	case models.ProxySQLServiceType:
-		request = &agentv1.CheckConnectionRequest{
-			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
+		request = &agentpb.CheckConnectionRequest{
+			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -182,11 +194,10 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			return nil, err
 		}
 
-		request = &agentv1.CheckConnectionRequest{
-			Type:          inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
-			Dsn:           exporterURL,
-			Timeout:       durationpb.New(agent.EffectiveDialTimeout() + time.Second),
-			TlsSkipVerify: agent.TLSSkipVerify,
+		request = &agentpb.CheckConnectionRequest{
+			Type:    inventorypb.ServiceType_EXTERNAL_SERVICE,
+			Dsn:     exporterURL,
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.HAProxyServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -194,24 +205,10 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			return nil, err
 		}
 
-		request = &agentv1.CheckConnectionRequest{
-			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
+		request = &agentpb.CheckConnectionRequest{
+			Type:    inventorypb.ServiceType_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
-		}
-	case models.ValkeyServiceType:
-		tdp := agent.TemplateDelimiters(service)
-		request = &agentv1.CheckConnectionRequest{
-			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
-			Tls:  agent.TLS,
-			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout()},
-				nil, pmmAgentVersion),
-			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
-			TextFiles: &agentv1.TextFiles{
-				Files:              agent.Files(),
-				TemplateLeftDelim:  tdp.Left,
-				TemplateRightDelim: tdp.Right,
-			},
+			Timeout: durationpb.New(3 * time.Second),
 		}
 	default:
 		return nil, errors.Errorf("unhandled Service type %s", service.ServiceType)
