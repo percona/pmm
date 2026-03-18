@@ -2,7 +2,7 @@
 
 Use these `pmm-admin` commands from the command line to configure PMM Client, register nodes with PMM Server, remove services from monitoring, and add event annotations.
 
-To perform these tasks in the UI instead, see [PMM Settings](link). For programmatic access, see the [PMM API](../../../api/index.md).
+To perform these tasks in the UI instead, see [PMM Settings](https://docs.percona.com/percona-monitoring-and-management/settings.html). For programmatic access, see the [PMM API](../../../api/index.md).
 
 ## Commands
 
