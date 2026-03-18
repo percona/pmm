@@ -67,9 +67,7 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 		exporterOptions := models.ExporterOptions{
 			ExposeExporter: req.ExposeExporter,
 			PushMetrics:    isPushMode(req.MetricsMode),
-		}
-		if to := duration.FromProto(req.Timeout); to != nil {
-			exporterOptions.Timeout = *to
+			Timeout:        duration.FromProto(req.Timeout),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ValkeyExporterType, &models.CreateAgentParams{
 			PMMAgentID:      req.PmmAgentId,

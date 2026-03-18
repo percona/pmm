@@ -67,10 +67,7 @@ func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.A
 			ExposeExporter:     req.ExposeExporter,
 			PushMetrics:        isPushMode(req.MetricsMode),
 			DisabledCollectors: req.DisableCollectors,
-			Timeout:            *duration.FromProto(req.Timeout),
-		}
-		if to := duration.FromProto(req.Timeout); to != nil {
-			exporterOptions.Timeout = *to
+			Timeout:            duration.FromProto(req.Timeout),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, &models.CreateAgentParams{
 			PMMAgentID:      req.PmmAgentId,

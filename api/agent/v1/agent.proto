@@ -602,8 +602,6 @@ message StartJobRequest {
   }
 
   string job_id = 1;
-  // Timeout for the job.
-  google.protobuf.Duration timeout = 2;
   oneof job {
     MySQLBackup mysql_backup = 11;
     MySQLRestoreBackup mysql_restore_backup = 12;

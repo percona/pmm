@@ -78,7 +78,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
-				Timeout:            *duration.FromProto(req.Timeout),
+				Timeout:            duration.FromProto(req.Timeout),
 			},
 		})
 		if err != nil {

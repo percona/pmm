@@ -173,7 +173,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	var agent *inventoryv1.NodeExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, p.PmmAgentId, p.CustomLabels, p.PushMetrics, p.ExposeExporter,
-			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), *duration.FromProto(p.Timeout))
+			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), duration.FromProto(p.Timeout))
 		if err != nil {
 			return err
 		}
@@ -248,9 +248,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-		}
-		if to := duration.FromProto(p.Timeout); to != nil {
-			exporterOptions.Timeout = *to
+			Timeout:            duration.FromProto(p.Timeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -374,7 +372,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 				ExposeExporter:     p.ExposeExporter,
-				Timeout:            *duration.FromProto(p.Timeout),
+				Timeout:            duration.FromProto(p.Timeout),
 			},
 			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
@@ -710,9 +708,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-		}
-		if to := duration.FromProto(p.Timeout); to != nil {
-			exporterOptions.Timeout = *to
+			Timeout:            duration.FromProto(p.Timeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:        p.PmmAgentId,
@@ -820,9 +816,7 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 		exporterOptions := models.ExporterOptions{
 			PushMetrics:    p.PushMetrics,
 			ExposeExporter: p.ExposeExporter,
-		}
-		if to := duration.FromProto(p.Timeout); to != nil {
-			exporterOptions.Timeout = *to
+			Timeout:        duration.FromProto(p.Timeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -1146,9 +1140,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-		}
-		if to := duration.FromProto(p.Timeout); to != nil {
-			exporterOptions.Timeout = *to
+			Timeout:            duration.FromProto(p.Timeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -1573,7 +1565,7 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 			CustomLabels:  p.CustomLabels,
 			PushMetrics:   p.PushMetrics,
 			TLSSkipVerify: p.TlsSkipVerify,
-			Timeout:       *duration.FromProto(p.Timeout),
+			Timeout:       duration.FromProto(p.Timeout),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

@@ -97,9 +97,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 			ExposeExporter:     req.ExposeExporter,
 			PushMetrics:        isPushMode(req.MetricsMode),
 			DisabledCollectors: req.DisableCollectors,
-		}
-		if to := duration.FromProto(req.Timeout); to != nil {
-			exporterOptions.Timeout = *to
+			Timeout:            duration.FromProto(req.Timeout),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
 			PMMAgentID:      req.PmmAgentId,

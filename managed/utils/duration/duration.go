@@ -23,11 +23,10 @@ import (
 )
 
 // FromProto converts a protobuf Duration to a time.Duration.
-func FromProto(d *durationpb.Duration) *time.Duration {
+func FromProto(d *durationpb.Duration) time.Duration {
 	if d == nil {
-		return nil
+		return 0
 	}
-	duration := d.AsDuration()
 
-	return &duration
+	return d.AsDuration()
 }
