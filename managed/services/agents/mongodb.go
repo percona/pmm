@@ -208,7 +208,7 @@ func rtaMongoDBAgentConfig(service *models.Service, agent *models.Agent, pmmAgen
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:        inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT,
-		Dsn:         agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
+		Dsn:         agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
 		RtaOptions:  apiRTAOptions,
 		ServiceId:   service.ServiceID,
 		ServiceName: service.ServiceName,
