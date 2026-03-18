@@ -817,18 +817,23 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 }
 
 // EffectiveDialTimeout returns the timeout configured for this agent's exporter.
-// Agent only has AgentType; defaults align with DB inventory services:
-// MySQL / PostgreSQL / MongoDB / ProxySQL / Valkey → 2s; other exporters → 1s.
 func (a *Agent) EffectiveDialTimeout() time.Duration {
 	if a.ExporterOptions.Timeout != 0 {
 		return a.ExporterOptions.Timeout
 	}
 
 	switch a.AgentType {
-	case MySQLdExporterType, PostgresExporterType, MongoDBExporterType, ProxySQLExporterType, ValkeyExporterType:
-		return 2 * time.Second
-	case NodeExporterType, RDSExporterType, AzureDatabaseExporterType, ExternalExporterType:
+	case NodeExporterType,
+		MySQLdExporterType,
+		MongoDBExporterType,
+		PostgresExporterType,
+		ProxySQLExporterType,
+		RDSExporterType,
+		AzureDatabaseExporterType,
+		ExternalExporterType,
+		ValkeyExporterType:
 		return 1 * time.Second
+	default:
 	}
 
 	return 2 * time.Second
