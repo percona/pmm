@@ -226,6 +226,7 @@ const myCnfTemplate = `[client]
 {{if .User}}user={{ .User }}{{end}}
 {{if .Password}}password={{ .Password }}{{end}}
 {{if .Socket}}socket={{ .Socket }}{{end}}
+{{if .ConnectTimeout}}connect_timeout={{ .ConnectTimeout }}{{end}}
 {{if .CaFile}}ssl-ca={{ .CaFile }}{{end}}
 {{if .CertFile}}ssl-cert={{ .CertFile }}{{end}}
 {{if .KeyFile}}ssl-key={{ .KeyFile }}{{end}}
@@ -241,22 +242,28 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 	tdp := agent.TemplateDelimiters(service)
 
 	var configBuffer bytes.Buffer
+	connectSec := int(agent.EffectiveDialTimeout().Seconds())
+	if connectSec < 1 {
+		connectSec = 1
+	}
 	myCnfParams := struct {
 		User                    string
 		Password                string
 		Socket                  string
 		Host                    string
 		Port                    int
+		ConnectTimeout          int
 		CaFile                  string
 		CertFile                string
 		KeyFile                 string
 		EnableClearTextPassword bool
 		MyCnfPath               string
 	}{
-		User:     pointer.GetString(agent.Username),
-		Password: pointer.GetString(agent.Password),
-		Host:     pointer.GetString(service.Address),
-		Port:     int(pointer.GetUint16(service.Port)),
+		User:           pointer.GetString(agent.Username),
+		Password:       pointer.GetString(agent.Password),
+		Host:           pointer.GetString(service.Address),
+		Port:           int(pointer.GetUint16(service.Port)),
+		ConnectTimeout: connectSec,
 	}
 
 	if files["tlsCa"] != "" {

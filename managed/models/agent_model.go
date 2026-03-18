@@ -805,6 +805,11 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		case username != "":
 			u.User = url.User(username)
 		}
+		if dsnParams.DialTimeout > 0 {
+			q := u.Query()
+			q.Set("dial_timeout", dsnParams.DialTimeout.String())
+			u.RawQuery = q.Encode()
+		}
 
 		dsn := u.String()
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Left), tdp.Left)

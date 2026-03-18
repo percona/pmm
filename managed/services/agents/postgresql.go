@@ -125,20 +125,26 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	sort.Strings(args)
 
 	dsnParams := models.DSNParams{
-		DialTimeout:              exporter.EffectiveDialTimeout(),
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	// On AWS and Azure, we need to have a higher value for DialTimeout to avoid connection issues
-
-	// TODO: refactor with https://perconadev.atlassian.net/browse/PMM-12832
-	if node.NodeType == models.RemoteRDSNodeType {
-		dsnParams.DialTimeout = 5 * time.Second
-	}
-
-	if exporter.AzureOptions.ClientID != "" {
-		dsnParams.DialTimeout = 5 * time.Second
+	// Remote RDS / Azure: default 5s dial unless the user set ExporterOptions.Timeout.
+	switch {
+	case exporter.AzureOptions.ClientID != "":
+		if exporter.ExporterOptions.Timeout != 0 {
+			dsnParams.DialTimeout = exporter.ExporterOptions.Timeout
+		} else {
+			dsnParams.DialTimeout = 5 * time.Second
+		}
+	case node.NodeType == models.RemoteRDSNodeType:
+		if exporter.ExporterOptions.Timeout != 0 {
+			dsnParams.DialTimeout = exporter.ExporterOptions.Timeout
+		} else {
+			dsnParams.DialTimeout = 5 * time.Second
+		}
+	default:
+		dsnParams.DialTimeout = exporter.EffectiveDialTimeout()
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
