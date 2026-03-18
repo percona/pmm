@@ -736,6 +736,6 @@ Options:
 
 ## See also
 
-- [Manage inventory to modify agent configurations](pmm-admin-inventory.md)
-- [Remove services from monitoring](../remove-services.md)
+- [Manage inventory to modify agent configurations](inventory.md)
+- [Remove services from monitoring](../../remove-services.md)
 - [Connect databases to PMM](../../../install-pmm/install-pmm-client/connect-database/index.md)
