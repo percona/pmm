@@ -69,6 +69,16 @@ If your MCP server runs inside or alongside PMM, ensure HolmesGPT can reach it (
 
 See [HolmesGPT MCP Servers](https://holmesgpt.dev/data-sources/remote-mcp-servers/).
 
+## Grafana panel render and dashboard links
+
+When Holmes (or a tool) renders a Grafana panel image via PMM’s render API and includes an “Open in Grafana” link in the same message, follow this contract so the UI shows one correct link per panel:
+
+1. **Use the render tool’s `dashboard_url`.** When the render tool (e.g. calling PMM `GET /v1/grafana/render?format=json`) returns `image_url` and `dashboard_url`, the model must use that exact `dashboard_url` for any “Open in Grafana” (or “Open the … panel”) link in the same message as the panel image. Do not construct the dashboard link from other parameters or default time ranges; otherwise the link can have the wrong timeframe.
+
+2. **Match panel to narrative.** The panel id (and dashboard) used for the render must match what the model describes (e.g. if the answer says “QPS graph”, the rendered panel must be the QPS panel, not a different one like “MySQL Connections”).
+
+3. **Duplicate links are suppressed by PMM.** Duplicate “Open in Grafana” links in markdown are suppressed by the PMM UI when they refer to a panel that already has a render image in the message; the only link shown is the one under the image (with the correct timeframe). So one link per panel from the render tool response is enough.
+
 ## API
 
 PMM proxies requests to HolmesGPT. Endpoints (all require authentication):

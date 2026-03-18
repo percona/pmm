@@ -132,6 +132,75 @@ function isGrafanaRenderImageSrc(src: string): boolean {
   return src.includes(GRAFANA_RENDER_D_SOLO) && src.includes('panelId=');
 }
 
+/** Normalize panel ID for comparison (e.g. "92" and "panel-92" both become "92"). */
+function normalizePanelId(panelId: string | null): string {
+  if (!panelId) return '';
+  const s = panelId.trim();
+  return s.startsWith('panel-') ? s.slice(6) : s;
+}
+
+/** Extract all Grafana render image URLs from markdown content (image syntax ![...](url)). */
+function getRenderImageUrlsInContent(content: string): string[] {
+  if (!content) return [];
+  const urls: string[] = [];
+  const re = /!\[[^\]]*\]\((.*?)\)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content)) !== null) {
+    const url = m[1]?.trim();
+    if (url && isGrafanaRenderImageSrc(url)) urls.push(url);
+  }
+  return urls;
+}
+
+/** Parse a render image URL to a canonical key "uid|panelId" for comparison, or null. */
+function parseRenderImageUrlToPanelKey(url: string): string | null {
+  try {
+    let pathOnly: string;
+    let params: URLSearchParams;
+    if (url.includes('://')) {
+      const u = new URL(url);
+      pathOnly = u.pathname;
+      params = u.searchParams;
+    } else {
+      const path = url.startsWith('/') ? url : `/${url}`;
+      const searchStart = path.indexOf('?');
+      pathOnly = searchStart === -1 ? path : path.slice(0, searchStart);
+      params = new URLSearchParams(searchStart === -1 ? '' : path.slice(searchStart + 1));
+    }
+    let uid: string | null = null;
+    let panelId: string | null = null;
+    if (pathOnly.includes(GRAFANA_RENDER_D_SOLO)) {
+      const match = pathOnly.match(/\/graph\/render\/d-solo\/([^/]+)/);
+      uid = match ? match[1] : null;
+      panelId = params.get('panelId');
+    } else {
+      uid = params.get('dashboard_uid');
+      panelId = params.get('panel_id');
+    }
+    if (!uid) return null;
+    return `${uid}|${normalizePanelId(panelId)}`;
+  } catch {
+    return null;
+  }
+}
+
+/** Parse a Grafana dashboard link href to the same canonical key "uid|panelId", or null. */
+function parseDashboardLinkToPanelKey(href: string): string | null {
+  if (!href || href === '#') return null;
+  try {
+    const sameOrigin = toSameOriginUrl(href);
+    const u = new URL(sameOrigin, window.location.origin);
+    if (!u.pathname.startsWith('/graph/d/')) return null;
+    const match = u.pathname.match(/\/graph\/d\/([^/]+)/);
+    const uid = match ? match[1] : null;
+    const viewPanel = u.searchParams.get('viewPanel');
+    if (!uid) return null;
+    return `${uid}|${normalizePanelId(viewPanel)}`;
+  } catch {
+    return null;
+  }
+}
+
 /** Ensure /v1/grafana/render URLs include cache=1 so the backend caches the image on disk. */
 function withRenderCacheParam(src: string): string {
   if (!src || !src.includes(GRAFANA_RENDER_PATH)) return src;
@@ -718,6 +787,12 @@ export const AdreChatPanel: FC = () => {
                           </Box>
                         )}
                         {(msg.content || response || '').trim() ? (
+                          (() => {
+                            const content = msg.content || response || '';
+                            const panelKeysFromImages = new Set(
+                              getRenderImageUrlsInContent(content).map(parseRenderImageUrlToPanelKey).filter(Boolean)
+                            );
+                            return (
                           <Markdown
                             remarkPlugins={[remarkGfm]}
                             rehypePlugins={[rehypeRaw]}
@@ -725,7 +800,10 @@ export const AdreChatPanel: FC = () => {
                               code: ({ children }: { children?: ReactNode }) => (
                                 <CodeBlock>{children}</CodeBlock>
                               ),
-                              a: ({ href, children }: { href?: string; children?: ReactNode }) => (
+                              a: ({ href, children }: { href?: string; children?: ReactNode }) => {
+                                const panelKey = href ? parseDashboardLinkToPanelKey(href) : null;
+                                if (panelKey !== null && panelKeysFromImages.has(panelKey)) return null;
+                                return (
                                 <Link
                                   href={href ? toGrafanaDashboardLink(href) : '#'}
                                   target="_blank"
@@ -738,7 +816,8 @@ export const AdreChatPanel: FC = () => {
                                 >
                                   {children}
                                 </Link>
-                              ),
+                                );
+                              },
                               img: ({ src, alt }: { src?: string; alt?: string }) => {
                                 if (src && isGrafanaRenderImageSrc(src)) {
                                   const imageSrc = toSameOriginUrl(withRenderCacheParam(src));
@@ -757,6 +836,8 @@ export const AdreChatPanel: FC = () => {
                           >
                             {msg.content || response}
                           </Markdown>
+                            );
+                          })()
                         ) : msg.streaming && loading && !response ? (
                           <Typography color="text.secondary" variant="body2">
                             {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
