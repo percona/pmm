@@ -132,7 +132,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -151,7 +151,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -174,7 +174,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout(), Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
 		}
 	case models.ExternalServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -185,7 +185,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		request = &agentv1.CheckConnectionRequest{
 			Type:          inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 			Dsn:           exporterURL,
-			Timeout:       durationpb.New(3 * time.Second),
+			Timeout:       durationpb.New(agent.EffectiveDialTimeout() + time.Second),
 			TlsSkipVerify: agent.TLSSkipVerify,
 		}
 	case models.HAProxyServiceType:
@@ -197,7 +197,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
 		}
 	case models.ValkeyServiceType:
 		tdp := agent.TemplateDelimiters(service)
@@ -206,7 +206,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			Tls:  agent.TLS,
 			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: agent.EffectiveDialTimeout()},
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(agent.EffectiveDialTimeout() + time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,

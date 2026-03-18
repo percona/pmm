@@ -239,7 +239,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:     rdsExporter.AgentID,
 					AgentType:   "rds_exporter",
-					Timeout:     durationpb.New(2 * time.Second),
+					Timeout:     durationpb.New(1 * time.Second),
 					PmmAgentId:  "00000000-0000-4000-8000-000000000007",
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),
@@ -290,7 +290,7 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:      azureExporter.AgentID,
 					AgentType:    "azure_database_exporter",
-					Timeout:      durationpb.New(2 * time.Second),
+					Timeout:      durationpb.New(1 * time.Second),
 					PmmAgentId:   "00000000-0000-4000-8000-000000000007",
 					IsConnected:  false,
 					CreatedAt:    timestamppb.New(now),
