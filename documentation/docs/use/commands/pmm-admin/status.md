@@ -123,7 +123,7 @@ pmm-admin list [FLAGS]
 
 ```
 Service type        Service name        Address and port        Service ID
-MySQL               mysql-prod          192.168.1.10:3306       /service_id/abc123
+MySQL               mysql-prod          192.168.1.10:3306       abc123
 MongoDB             mongodb-prod        192.168.1.20:27017      /service_id/def456
 PostgreSQL          postgres-prod       192.168.1.30:5432       /service_id/ghi789
 
