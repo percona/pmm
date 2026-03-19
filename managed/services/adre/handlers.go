@@ -123,6 +123,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		AgentPromptDisplay            string `json:"agent_prompt_display"`
 		QanInsightsPrompt             string `json:"qan_insights_prompt"`
 		QanInsightsPromptDisplay      string `json:"qan_insights_prompt_display"`
+		ReplaceSystemPrompt           bool   `json:"replace_system_prompt"`
 	}{
 		Enabled:                       settings.IsAdreEnabled(),
 		URL:                           settings.GetAdreURL(),
@@ -137,6 +138,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		AgentPromptDisplay:           agentPromptDisplay,
 		QanInsightsPrompt:            settings.Adre.QanInsightsPrompt,
 		QanInsightsPromptDisplay:     qanInsightsPromptDisplay,
+		ReplaceSystemPrompt:          settings.Adre.ReplaceSystemPrompt,
 	}
 	if resp.DefaultChatMode == "" {
 		resp.DefaultChatMode = "chat"
@@ -176,6 +178,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ChatHistoryLength    *int    `json:"chat_history_length"`
 		AgentPrompt          *string `json:"agent_prompt"`
 		QanInsightsPrompt    *string `json:"qan_insights_prompt"`
+		ReplaceSystemPrompt  *bool   `json:"replace_system_prompt"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -183,9 +186,10 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	hasChange := body.Enabled != nil || body.URL != nil || body.ChatPrompt != nil ||
 		body.InvestigationPrompt != nil || body.DefaultChatMode != nil ||
-		body.ChatBackend != nil || body.ChatHistoryLength != nil || body.AgentPrompt != nil || body.QanInsightsPrompt != nil
+		body.ChatBackend != nil || body.ChatHistoryLength != nil || body.AgentPrompt != nil ||
+		body.QanInsightsPrompt != nil || body.ReplaceSystemPrompt != nil
 	if !hasChange {
-		writeJSONError(w, http.StatusBadRequest, "No changes provided (set enabled, url, chat_prompt, investigation_prompt, default_chat_mode, chat_backend, chat_history_length, agent_prompt, and/or qan_insights_prompt)")
+		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
 	}
 	if body.URL != nil {
@@ -252,6 +256,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ChatHistoryLength:        body.ChatHistoryLength,
 		AgentPrompt:              body.AgentPrompt,
 		AdreQanInsightsPrompt:    body.QanInsightsPrompt,
+		ReplaceSystemPrompt:      body.ReplaceSystemPrompt,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -289,6 +294,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		AgentPromptDisplay            string `json:"agent_prompt_display"`
 		QanInsightsPrompt             string `json:"qan_insights_prompt"`
 		QanInsightsPromptDisplay      string `json:"qan_insights_prompt_display"`
+		ReplaceSystemPrompt           bool   `json:"replace_system_prompt"`
 	}{
 		Enabled:                       settings.IsAdreEnabled(),
 		URL:                           settings.GetAdreURL(),
@@ -303,6 +309,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		AgentPromptDisplay:           agentPromptDisplayPost,
 		QanInsightsPrompt:            settings.Adre.QanInsightsPrompt,
 		QanInsightsPromptDisplay:     qanInsightsPromptDisplayPost,
+		ReplaceSystemPrompt:          settings.Adre.ReplaceSystemPrompt,
 	}
 	if resp.DefaultChatMode == "" {
 		resp.DefaultChatMode = "chat"
@@ -424,29 +431,24 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
-	if cb == "holmes_agent" {
-		if strings.TrimSpace(body.Ask) == "" {
-			writeJSONError(w, http.StatusBadRequest, "ask is required")
-			return
-		}
-		if body.Stream {
-			RunPMMAgentChatStream(w, r, h.db, h.l, settings, body.Ask, body.ConversationHistory, h.streamTimeout)
-			return
-		}
-		writeJSONError(w, http.StatusBadRequest, "PMM Agent chat requires stream: true")
+	if strings.TrimSpace(body.Ask) == "" {
+		writeJSONError(w, http.StatusBadRequest, "ask is required")
 		return
 	}
-	// holmesgpt: direct Holmes chat
+	// Both backends proxy to Holmes /api/chat; they differ only in which prompt is used.
 	mode := "chat"
 	if body.Mode != nil && (*body.Mode == "chat" || *body.Mode == "investigation") {
 		mode = *body.Mode
 	} else if settings.Adre.DefaultChatMode == "investigation" {
 		mode = "investigation"
-	} else {
-		mode = "chat"
 	}
 	req := &body.ChatRequest
-	req.AdditionalSystemPrompt = resolveChatPrompt(settings, mode)
+	if cb == "holmes_agent" {
+		req.AdditionalSystemPrompt = resolvePMMAgentPrompt(settings)
+	} else {
+		req.AdditionalSystemPrompt = resolveChatPrompt(settings, mode)
+	}
+	req.ReplaceSystemPrompt = settings.Adre.ReplaceSystemPrompt
 	client := NewClient(settings.GetAdreURL())
 	if req.Stream {
 		ctx, cancel := context.WithTimeout(r.Context(), h.streamTimeout)

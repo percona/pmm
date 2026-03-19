@@ -58,6 +58,9 @@ const AdreSettingsPage: FC = () => {
   const [localQanInsightsPrompt, setLocalQanInsightsPrompt] = useState(
     settings?.qanInsightsPromptDisplay ?? settings?.qanInsightsPrompt ?? ''
   );
+  const [localReplaceSystemPrompt, setLocalReplaceSystemPrompt] = useState(
+    settings?.replaceSystemPrompt ?? settings?.replace_system_prompt ?? false
+  );
 
   useEffect(() => {
     if (settings) {
@@ -71,6 +74,7 @@ const AdreSettingsPage: FC = () => {
       setLocalQanInsightsPrompt(
         settings.qanInsightsPromptDisplay ?? settings.qanInsightsPrompt ?? settings.qan_insights_prompt_display ?? settings.qan_insights_prompt ?? ''
       );
+      setLocalReplaceSystemPrompt(settings.replaceSystemPrompt ?? settings.replace_system_prompt ?? false);
     }
   }, [
     settings?.enabled,
@@ -85,6 +89,7 @@ const AdreSettingsPage: FC = () => {
     settings?.agentPromptDisplay,
     settings?.qanInsightsPrompt,
     settings?.qanInsightsPromptDisplay,
+    settings?.replaceSystemPrompt,
   ]);
 
   const isAdmin = user?.isPMMAdmin ?? false;
@@ -181,6 +186,19 @@ const AdreSettingsPage: FC = () => {
                       <MenuItem value="holmes_agent">PMM Agent</MenuItem>
                     </Select>
                   </FormControl>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={localReplaceSystemPrompt}
+                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalReplaceSystemPrompt(v)}
+                      />
+                    }
+                    label="Replace Holmes system prompt"
+                  />
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
+                    When enabled, the PMM prompt fully replaces Holmes&apos; default system prompt.
+                    When disabled, the PMM prompt is appended to Holmes&apos; default.
+                  </Typography>
                   {localChatBackend === 'holmes_agent' && (
                     <TextField
                       label="Conversation history length"
@@ -259,6 +277,7 @@ const AdreSettingsPage: FC = () => {
                         investigation_prompt: localInvestigationPrompt || undefined,
                         agent_prompt: localAgentPrompt || undefined,
                         qan_insights_prompt: localQanInsightsPrompt || undefined,
+                        replace_system_prompt: localReplaceSystemPrompt,
                       } as Partial<AdreSettings> & Record<string, unknown>,
                       {
                         onError: (err: unknown) => {

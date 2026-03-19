@@ -26,6 +26,9 @@ export interface AdreSettings {
   qanInsightsPromptDisplay?: string;
   qan_insights_prompt?: string;
   qan_insights_prompt_display?: string;
+  /** When true, Holmes uses only the PMM-provided prompt (replaces Holmes' default system prompt). */
+  replaceSystemPrompt?: boolean;
+  replace_system_prompt?: boolean;
 }
 
 export interface AdreModelsResponse {

@@ -118,6 +118,8 @@ type Settings struct {
 		AgentPrompt string `json:"agent_prompt"`
 		// QanInsightsPrompt is the system prompt for QAN AI Insights (query analytics and optimization). Empty = use built-in default.
 		QanInsightsPrompt string `json:"qan_insights_prompt"`
+		// ReplaceSystemPrompt: when true, Holmes uses only the PMM-provided prompt as the system message (replaces Holmes' default prompt).
+		ReplaceSystemPrompt bool `json:"replace_system_prompt"`
 	} `json:"adre"`
 
 	Alerting struct {

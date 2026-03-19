@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -30,7 +29,9 @@ import (
 
 const pmmAgentMaxTurns = 10
 
-// RunPMMAgentChatSync runs the PMM Agent loop (same as RunPMMAgentChatStream) without streaming and returns the final assistant content. Used by investigation run/chat when backend is holmes_agent. db may be nil (only ask_holmes and generate_investigation_report are executed).
+// RunPMMAgentChatSync runs the PMM Agent loop without streaming and returns the final assistant content.
+// Used by investigation run/chat when backend is holmes_agent. db may be nil (only ask_holmes and generate_investigation_report are executed).
+// NOTE: Chat no longer uses this function — chat proxies directly to Holmes /api/chat. This remains only for the investigation flow.
 func RunPMMAgentChatSync(
 	ctx context.Context,
 	db reform.DBTX,
@@ -108,138 +109,6 @@ func RunPMMAgentChatSync(
 		currentAsk = ""
 	}
 	return lastContent, nil
-}
-
-// RunPMMAgentChatStream runs the PMM Agent flow (Holmes with replace_system_prompt), optionally looping on tool_calls (ask_holmes, generate_investigation_report), and streams the final response as SSE.
-func RunPMMAgentChatStream(
-	w http.ResponseWriter,
-	r *http.Request,
-	db reform.DBTX,
-	l *logrus.Entry,
-	settings *models.Settings,
-	ask string,
-	conversationHistory []interface{},
-	streamTimeout time.Duration,
-) {
-	ctx, cancel := context.WithTimeout(r.Context(), streamTimeout)
-	defer cancel()
-
-	trimmed := trimConversationHistory(conversationHistory, settings.Adre.ChatHistoryLength)
-	// Avoid duplicate current user message: frontend often sends it in both conversation_history and ask.
-	if ask != "" && len(trimmed) > 0 {
-		if last, ok := trimmed[len(trimmed)-1].(map[string]interface{}); ok {
-			if role, _ := last["role"].(string); role == "user" {
-				if content, _ := last["content"].(string); content == ask {
-					trimmed = trimmed[:len(trimmed)-1]
-				}
-			}
-		}
-	}
-	agentPrompt := resolvePMMAgentPrompt(settings)
-	client := NewClient(settings.GetAdreURL())
-
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming not supported", http.StatusInternalServerError)
-		return
-	}
-	writeSSE := func(event, data string) {
-		if event != "" {
-			fmt.Fprintf(w, "event: %s\n", event)
-		}
-		fmt.Fprintf(w, "data: %s\n\n", data)
-		flusher.Flush()
-	}
-
-	history := ensureSystemFirst(trimmed, agentPrompt)
-	currentAsk := ask
-	investigationPrompt := settings.Adre.InvestigationPrompt
-	if investigationPrompt == "" {
-		investigationPrompt = DefaultInvestigationPrompt
-	}
-
-	for turn := 0; turn < pmmAgentMaxTurns; turn++ {
-		req := &ChatRequest{
-			Ask:                    currentAsk,
-			ConversationHistory:    history,
-			ReplaceSystemPrompt:    true,
-			AdditionalSystemPrompt: agentPrompt,
-			Stream:                 false,
-		}
-		resp, err := client.Chat(ctx, req)
-		if err != nil {
-			l.Errorf("PMM Agent Chat: %v", err)
-			contentJSON, _ := json.Marshal(map[string]string{"content": "PMM Agent failed: " + err.Error()})
-			writeSSE("", string(contentJSON))
-			return
-		}
-
-		if resp.Analysis != "" {
-			contentJSON, _ := json.Marshal(map[string]string{"content": resp.Analysis})
-			writeSSE("", string(contentJSON))
-		}
-
-		toolCalls := parseToolCalls(resp.ToolCalls)
-		if len(toolCalls) == 0 {
-			return
-		}
-
-		// Emit tool call progress and execute tools.
-		var toolResults []map[string]interface{}
-		for _, tc := range toolCalls {
-			startPayload, _ := json.Marshal(map[string]string{
-				"id":          tc.ID,
-				"tool_name":   tc.Name,
-				"description": tc.Name,
-			})
-			writeSSE("start_tool_calling", string(startPayload))
-
-			result := executePMMAgentTool(ctx, db, l, tc, client, investigationPrompt)
-			toolResults = append(toolResults, map[string]interface{}{
-				"id":     tc.ID,
-				"name":   tc.Name,
-				"result": result,
-			})
-			resultPayload, _ := json.Marshal(map[string]interface{}{
-				"tool_call_id": tc.ID,
-				"name":         tc.Name,
-				"result":       map[string]string{"data": result},
-			})
-			writeSSE("tool_calling_result", string(resultPayload))
-		}
-
-		// Build next turn: append user message (if any), then assistant message (content + tool_calls), then tool results.
-		if currentAsk != "" {
-			history = append(history, map[string]interface{}{"role": "user", "content": currentAsk})
-		}
-		assistantMsg := map[string]interface{}{"role": "assistant", "content": resp.Analysis}
-		if len(toolCalls) > 0 {
-			tcList := make([]map[string]interface{}, 0, len(toolCalls))
-			for _, tc := range toolCalls {
-				tcList = append(tcList, map[string]interface{}{
-					"id":   tc.ID,
-					"type": "function",
-					"function": map[string]interface{}{
-						"name":      tc.Name,
-						"arguments": tc.Arguments,
-					},
-				})
-			}
-			assistantMsg["tool_calls"] = tcList
-		}
-		history = append(history, assistantMsg)
-		for _, tr := range toolResults {
-			history = append(history, map[string]interface{}{
-				"role":         "tool",
-				"tool_call_id": tr["id"],
-				"content":      tr["result"],
-			})
-		}
-		currentAsk = "" // Continuation: no new user message
-	}
 }
 
 // toolCall holds a single tool call from the LLM response.
@@ -330,7 +199,6 @@ func executePMMAgentTool(ctx context.Context, db reform.DBTX, l *logrus.Entry, t
 		}
 		return resp.Analysis
 	case "generate_investigation_report":
-		// Stub: return placeholder JSON until Holmes report generator is implemented.
 		var args struct {
 			Messages []map[string]interface{} `json:"messages"`
 			Summary  string                   `json:"summary"`

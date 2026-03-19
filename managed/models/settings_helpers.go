@@ -123,6 +123,8 @@ type ChangeSettingsParams struct {
 	AgentPrompt *string
 	// AdreQanInsightsPrompt: system prompt for QAN AI Insights. Max AdrePromptMaxBytes.
 	AdreQanInsightsPrompt *string
+	// ReplaceSystemPrompt: when true, Holmes uses only the PMM-provided prompt (replaces Holmes' default).
+	ReplaceSystemPrompt *bool
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -293,6 +295,9 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.AdreQanInsightsPrompt != nil {
 		settings.Adre.QanInsightsPrompt = pointer.GetString(params.AdreQanInsightsPrompt)
+	}
+	if params.ReplaceSystemPrompt != nil {
+		settings.Adre.ReplaceSystemPrompt = *params.ReplaceSystemPrompt
 	}
 
 	err = SaveSettings(q, settings)
