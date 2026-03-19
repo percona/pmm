@@ -53,10 +53,10 @@ export const useUpdateSettings = (
 
   return useMutation({
     mutationFn: (payload) => updateSettings(payload),
-    onSuccess: async (data, variables, context) => {
-      await queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
-      await options?.onSuccess?.(data, variables, context);
-    },
     ...options,
+    onSuccess: (data, variables, onMutate, context) => {
+      void queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
+      options?.onSuccess?.(data, variables, onMutate, context);
+    },
   });
 };
