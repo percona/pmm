@@ -32,7 +32,7 @@ pmm-admin status [FLAGS]
 ### Example output
 
 ```
-Agent ID : /agent_id/abcd1234-5678-90ef-ghij-klmnopqrstuv
+Agent ID : abcd1234-5678-90ef-ghij-klmnopqrstuv
 Node ID  : /node_id/abcd1234-5678-90ef-ghij-klmnopqrstuv
 Node name: db-server-01
 
@@ -77,7 +77,7 @@ pmm-admin status
 Check that PMM Server is running and the URL is correct:
 
 ```bash
-pmm-admin config --server-url=https://admin:admin@192.168.1.100:443
+pmm-admin config --server-url=https://username:password@192.168.1.100:443
 ```
 
 #### Certificate errors
@@ -123,7 +123,7 @@ pmm-admin list [FLAGS]
 
 ```
 Service type        Service name        Address and port        Service ID
-MySQL               mysql-prod          192.168.1.10:3306       /service_id/abc123
+MySQL               mysql-prod          192.168.1.10:3306       abc123
 MongoDB             mongodb-prod        192.168.1.20:27017      /service_id/def456
 PostgreSQL          postgres-prod       192.168.1.30:5432       /service_id/ghi789
 
