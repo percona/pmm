@@ -1,5 +1,6 @@
 import {
   Box,
+  Collapse,
   IconButton,
   Paper,
   Stack,
@@ -9,43 +10,65 @@ import {
 import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
-import { FC, useState, useCallback } from 'react';
-import { useAdreSettings } from 'hooks/api/useAdre';
-import { adreChatStream } from 'api/adre';
-import { useSnackbar } from 'notistack';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import { FC, useState, useCallback, useEffect, useRef } from 'react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { useLocation } from 'react-router-dom';
+import { useAdreChat, formatTimestamp, type ProgressStep } from 'hooks/useAdreChat';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
+
+function buildDashboardContext(pathname: string, search: string): string {
+  if (!pathname.includes('/graph/d/')) return '';
+  const fullUrl = `${window.location.origin}${pathname}${search}`;
+
+  return `The user is currently viewing this Grafana dashboard URL: ${fullUrl}. Use the dashboard UID, panel ID (viewPanel param), template variables (var-*), and time range (from/to) from this URL as context for your answer. If the user refers to "this graph" or "this panel", they mean the one in this URL.`;
+}
 
 export const AdreChatWidget: FC = () => {
-  const { data: settings } = useAdreSettings();
-  const { enqueueSnackbar } = useSnackbar();
+  const { loading, progressSteps, allMessages, settings, response, reasoning, handleSend } = useAdreChat();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [ask, setAsk] = useState('');
-  const [response, setResponse] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
+  const [expandedProgressIdx, setExpandedProgressIdx] = useState<number | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastScrollRef = useRef(0);
 
   const isPMMAgent = settings?.chatBackend === 'holmes_agent' && !!settings?.url;
   const isConfigured = settings?.enabled && !!settings?.url;
   const chatViaLabel = isPMMAgent ? 'Chat via PMM Agent' : 'Chat via Holmes Agent';
 
-  const handleSend = useCallback(async () => {
-    if (!ask.trim() || !isConfigured) return;
-    setLoading(true);
-    setResponse('');
-    try {
-      await adreChatStream(
-        { ask: ask.trim(), stream: true },
-        (contentChunk) => {
-          if (contentChunk) setResponse((prev) => prev + contentChunk);
-        }
-      );
-    } catch (err) {
-      enqueueSnackbar(
-        err instanceof Error ? err.message : 'Chat failed',
-        { variant: 'error' }
-      );
-    } finally {
-      setLoading(false);
+  const scrollToBottom = useCallback((instant?: boolean) => {
+    const now = Date.now();
+    if (!instant && now - lastScrollRef.current < 200) return;
+    lastScrollRef.current = now;
+    messagesEndRef.current?.scrollIntoView({ behavior: instant ? 'auto' : 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    if (open) scrollToBottom(loading);
+  }, [allMessages.length, response, reasoning, loading, open, scrollToBottom]);
+
+  useEffect(() => {
+    if (open) {
+      const id = requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      });
+
+      return () => cancelAnimationFrame(id);
     }
-  }, [ask, isConfigured, enqueueSnackbar]);
+  }, [open]);
+
+  const onSend = useCallback(async () => {
+    if (!ask.trim() || !isConfigured) return;
+    const userAsk = ask;
+    setAsk('');
+    const dashboardContext = buildDashboardContext(location.pathname, location.search);
+    await handleSend(userAsk, { dashboardContext: dashboardContext || undefined });
+  }, [ask, isConfigured, location.pathname, location.search, handleSend]);
 
   if (!isConfigured) return null;
 
@@ -63,10 +86,11 @@ export const AdreChatWidget: FC = () => {
           height: 56,
           boxShadow: 2,
           '&:hover': { bgcolor: 'primary.dark' },
+          zIndex: 1300,
         }}
         aria-label="Open ADRE chat"
       >
-        <ChatIcon />
+        {open ? <CloseIcon /> : <ChatIcon />}
       </IconButton>
       {open && (
         <Paper
@@ -75,9 +99,9 @@ export const AdreChatWidget: FC = () => {
             position: 'fixed',
             bottom: 90,
             right: 24,
-            width: 360,
+            width: 420,
             maxWidth: 'calc(100vw - 48px)',
-            height: 420,
+            height: 520,
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
@@ -105,31 +129,191 @@ export const AdreChatWidget: FC = () => {
               flex: 1,
               overflow: 'auto',
               p: 1,
-              bgcolor: 'action.hover',
+              bgcolor: '#212121',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1,
             }}
           >
-            {response ? (
-              <Typography component="pre" sx={{ whiteSpace: 'pre-wrap', fontSize: '0.875rem' }}>
-                {response}
+            {allMessages.length === 0 ? (
+              <Typography color="text.secondary" variant="body2" sx={{ alignSelf: 'center', mt: 2 }}>
+                Ask a question about your database environment...
               </Typography>
             ) : (
-              <Typography color="text.secondary" variant="body2">
-                Ask a question...
-              </Typography>
+              allMessages.map((msg, idx) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                    maxWidth: '90%',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      px: 1.5,
+                      py: 1,
+                      borderRadius: 2,
+                      ...(msg.role === 'user'
+                        ? { bgcolor: '#2d3748', color: 'text.primary' }
+                        : { bgcolor: 'rgba(255,255,255,0.05)', border: 1, borderColor: 'rgba(255,255,255,0.12)' }),
+                      '& img': { maxWidth: '100%' },
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                      sx={{ mb: 0.25, fontSize: '0.65rem', opacity: 0.8 }}
+                    >
+                      {msg.role === 'user' ? 'You' : 'Assistant'}
+                      {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
+                    </Typography>
+                    {msg.role === 'user' ? (
+                      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{msg.content}</Typography>
+                    ) : (
+                      <Box>
+                        {(msg.reasoning ?? (msg.streaming && reasoning)) && (
+                          <>
+                            <IconButton
+                              size="small"
+                              onClick={() => setExpandedReasoningIdx((prev) => (prev === idx ? null : idx))}
+                              sx={{ p: 0, mr: 0.5 }}
+                            >
+                              {expandedReasoningIdx === idx ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                            </IconButton>
+                            <Typography
+                              component="span"
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ cursor: 'pointer', fontSize: '0.75rem' }}
+                              onClick={() => setExpandedReasoningIdx((prev) => (prev === idx ? null : idx))}
+                            >
+                              Reasoning
+                            </Typography>
+                            <Collapse in={expandedReasoningIdx === idx}>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mt: 0.5, fontStyle: 'italic', whiteSpace: 'pre-wrap', fontSize: '0.8rem' }}
+                              >
+                                {msg.reasoning ?? reasoning}
+                              </Typography>
+                            </Collapse>
+                            {(msg.content ?? response) && <Box sx={{ mt: 0.5 }} />}
+                          </>
+                        )}
+                        {msg.streaming && progressSteps.length > 0 && (
+                          <Box sx={{ mb: 0.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.25, fontSize: '0.7rem' }}>
+                              Progress
+                            </Typography>
+                            <Stack component="ul" sx={{ m: 0, pl: 2, listStyle: 'none' }}>
+                              {progressSteps.map((step: ProgressStep) => (
+                                <Box
+                                  component="li"
+                                  key={step.id}
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 0.5,
+                                    py: 0.15,
+                                    fontSize: '0.75rem',
+                                    color: step.status === 'done' ? 'text.secondary' : 'text.primary',
+                                  }}
+                                >
+                                  <Typography component="span" variant="caption" color="inherit">
+                                    {step.status === 'running' ? '⟳' : '✓'} {step.toolName}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Stack>
+                          </Box>
+                        )}
+                        {!msg.streaming && (msg.progressSteps?.length ?? 0) > 0 && (
+                          <Box sx={{ mb: 0.5 }}>
+                            <IconButton
+                              size="small"
+                              onClick={() => setExpandedProgressIdx((prev) => (prev === idx ? null : idx))}
+                              sx={{ p: 0, mr: 0.5 }}
+                            >
+                              {expandedProgressIdx === idx ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                            </IconButton>
+                            <Typography
+                              component="span"
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ cursor: 'pointer', fontSize: '0.7rem' }}
+                              onClick={() => setExpandedProgressIdx((prev) => (prev === idx ? null : idx))}
+                            >
+                              Progress
+                            </Typography>
+                            <Collapse in={expandedProgressIdx === idx}>
+                              <Stack component="ul" sx={{ m: 0, pl: 2, listStyle: 'none', mt: 0.25 }}>
+                                {(msg.progressSteps ?? []).map((step: ProgressStep) => (
+                                  <Box
+                                    component="li"
+                                    key={step.id}
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'flex-start',
+                                      gap: 0.5,
+                                      py: 0.15,
+                                      fontSize: '0.75rem',
+                                      color: 'text.secondary',
+                                    }}
+                                  >
+                                    <Typography component="span" variant="caption" color="inherit">
+                                      ✓ {step.toolName}
+                                    </Typography>
+                                  </Box>
+                                ))}
+                              </Stack>
+                            </Collapse>
+                          </Box>
+                        )}
+                        {(msg.content || response || '').trim() ? (
+                          <Markdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeRaw]}
+                            components={getMarkdownComponents(msg.content || response || '')}
+                          >
+                            {msg.content || response}
+                          </Markdown>
+                        ) : msg.streaming && loading && !response ? (
+                          <Typography color="text.secondary" variant="body2" sx={{ fontSize: '0.8rem' }}>
+                            {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
+                          </Typography>
+                        ) : null}
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+              ))
             )}
+            <div ref={messagesEndRef} />
           </Box>
           <Stack direction="row" gap={0.5} sx={{ p: 1 }}>
             <TextField
               size="small"
-              placeholder="Ask..."
+              placeholder="Message ADRE..."
               value={ask}
               onChange={(e) => setAsk(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}
               fullWidth
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  fontSize: '0.85rem',
+                  bgcolor: '#1e1e1e',
+                  '& fieldset': { borderColor: 'rgba(255,255,255,0.12)' },
+                },
+              }}
             />
             <IconButton
               color="primary"
-              onClick={handleSend}
+              onClick={onSend}
               disabled={loading || !ask.trim()}
             >
               <SendIcon />

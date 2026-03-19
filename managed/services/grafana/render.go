@@ -122,14 +122,9 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		height = "500"
 	}
 
-	// Grafana render API expects panelId like "panel-92"; normalize if we got numeric "92".
-	grafanaPanelID := panelID
-	if grafanaPanelID != "" && !strings.HasPrefix(grafanaPanelID, "panel-") {
-		grafanaPanelID = "panel-" + grafanaPanelID
-	}
 	// Build query string for Grafana render (and for image_url): panelId, from, to, width, height, scale, tz, orgId, and var-*
 	renderParams := url.Values{}
-	renderParams.Set("panelId", grafanaPanelID)
+	renderParams.Set("panelId", panelID)
 	renderParams.Set("orgId", "1")
 	renderParams.Set("from", from)
 	renderParams.Set("to", to)
