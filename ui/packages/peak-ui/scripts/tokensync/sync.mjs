@@ -94,7 +94,9 @@ function buildPrimitivesTs(prims) {
   };
 
   lines.push("  brand: {");
-  for (const [name, scale] of Object.entries(prims.brand)) {
+  const brandNames = Object.keys(prims.brand).sort();
+  for (const name of brandNames) {
+    const scale = prims.brand[name];
     lines.push(`    ${name}: {`);
     emitScale(scale, "      ");
     lines.push("    },");
@@ -102,7 +104,9 @@ function buildPrimitivesTs(prims) {
   lines.push("  },");
 
   lines.push("  extra: {");
-  for (const [name, scale] of Object.entries(prims.extra)) {
+  const extraNames = Object.keys(prims.extra).sort();
+  for (const name of extraNames) {
+    const scale = prims.extra[name];
     lines.push(`    ${name}: {`);
     emitScale(scale, "      ");
     lines.push("    },");
@@ -110,7 +114,9 @@ function buildPrimitivesTs(prims) {
   lines.push("  },");
 
   lines.push("  base: {");
-  for (const [name, entry] of Object.entries(prims.base)) {
+  const baseNames = Object.keys(prims.base).sort();
+  for (const name of baseNames) {
+    const entry = prims.base[name];
     lines.push(`    ${name}: "${upperHex(entry.$value)}",`);
   }
   lines.push("  }");
