@@ -17,7 +17,7 @@ pmm-admin add <SERVICE_TYPE> [FLAGS] [NAME] [ADDRESS]
 Control connection settings, TLS, query collection, metric collectors, and service organization using the flags available for each database type:
 
 ### Connection flags
-| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
+| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA Proxy|
 |------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--username` | Database username | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `--password` | Database password | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
