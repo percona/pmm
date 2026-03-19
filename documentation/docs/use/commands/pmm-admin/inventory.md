@@ -60,8 +60,8 @@ pmm-admin inventory change agent <AGENT_TYPE> <AGENT_ID> [FLAGS]
 Currently supports MongoDB agent types only:
 
 - `mongodb-exporter`
-- `mongodb-profiler-agent`
 - `qan-mongodb-profiler-agent`
+- `qan-mongodb-mongolog-agent`
 - `rta-mongodb-agent`
 
 Only the flags you specify are updated — all other settings remain unchanged. Changes take effect immediately without restarting the agent. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
