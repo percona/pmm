@@ -66,7 +66,12 @@ const LabelWithTooltip: FC<{
       </IconButton>
     </Tooltip>
     {link && (
-      <Link href={link} target="_blank" rel="noopener noreferrer" variant="body2">
+      <Link
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        variant="body2"
+      >
         {Messages.tooltipLinkText}
       </Link>
     )}
@@ -88,7 +93,9 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     formState: { isDirty, errors },
   } = useForm<FormValues>({
     defaultValues: {
-      retention: String(convertSecondsToDays(settings.dataRetention ?? '86400s') || '1'),
+      retention: String(
+        convertSecondsToDays(settings.dataRetention ?? '86400s') || '1'
+      ),
       telemetry: settings.telemetryEnabled ?? false,
       updates: settings.updatesEnabled ?? false,
       alerting: settings.alertingEnabled ?? false,
@@ -108,7 +115,9 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
 
   useEffect(() => {
     reset({
-      retention: String(convertSecondsToDays(settings.dataRetention ?? '86400s') || '1'),
+      retention: String(
+        convertSecondsToDays(settings.dataRetention ?? '86400s') || '1'
+      ),
       telemetry: settings.telemetryEnabled ?? false,
       updates: settings.updatesEnabled ?? false,
       alerting: settings.alertingEnabled ?? false,
@@ -161,7 +170,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   const validateRetention = (v: string) => {
     const n = parseFloat(v);
     if (isNaN(n) || v === '') return 'Required';
-    if (n < MIN_DAYS || n > MAX_DAYS) return `Must be between ${MIN_DAYS} and ${MAX_DAYS}`;
+    if (n < MIN_DAYS || n > MAX_DAYS)
+      return `Must be between ${MIN_DAYS} and ${MAX_DAYS}`;
     return true;
   };
 
@@ -177,7 +187,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
       component="form"
       onSubmit={handleSubmit(onSubmit)}
       gap={2}
-      maxWidth={600}
+      maxWidth={{ xs: '100%', md: 600 }}
     >
       <Stack direction="row" alignItems="center" gap={1}>
         <LabelWithTooltip
@@ -265,21 +275,36 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
       ))}
 
       <Stack direction="row" alignItems="center" gap={1}>
-        <LabelWithTooltip label={m.publicAddressLabel} tooltip={m.publicAddressTooltip} />
+        <LabelWithTooltip
+          label={m.publicAddressLabel}
+          tooltip={m.publicAddressTooltip}
+        />
       </Stack>
-      <Stack direction="row" gap={1} alignItems="flex-start">
+      <Stack direction="row" gap={1} alignItems="center">
         <Controller
           name="publicAddress"
           control={control}
           render={({ field }) => (
-            <TextField {...field} fullWidth size="small" placeholder="https://..." />
+            <TextField
+              {...field}
+              fullWidth
+              size="small"
+              placeholder="https://..."
+            />
           )}
         />
         <Button
           type="button"
           variant="outlined"
           startIcon={<LinkIcon />}
-          onClick={() => setValue('publicAddress', window.location.host, { shouldDirty: true })}
+          onClick={() =>
+            setValue('publicAddress', window.location.host, {
+              shouldDirty: true,
+            })
+          }
+          sx={{
+            width: 250,
+          }}
         >
           {m.publicAddressButton}
         </Button>
@@ -291,13 +316,22 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
         render={({ field }) => (
           <FormControlLabel
             control={<Switch {...field} checked={field.value} />}
-            label={<LabelWithTooltip label={m.advisorsLabel} tooltip={m.advisorsTooltip} link={m.advisorsLink} />}
+            label={
+              <LabelWithTooltip
+                label={m.advisorsLabel}
+                tooltip={m.advisorsTooltip}
+                link={m.advisorsLink}
+              />
+            }
           />
         )}
       />
 
       <Stack direction="row" alignItems="center" gap={1}>
-        <LabelWithTooltip label={m.sttCheckIntervalsLabel} tooltip={m.sttCheckIntervalTooltip} />
+        <LabelWithTooltip
+          label={m.sttCheckIntervalsLabel}
+          tooltip={m.sttCheckIntervalTooltip}
+        />
       </Stack>
       <Stack direction="row" gap={2} flexWrap="wrap">
         {STT_CHECK_INTERVALS.map(({ name, label }) => (
@@ -341,7 +375,11 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
         </Typography>
         <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
           {m.technicalPreviewDescription}{' '}
-          <Link href={TECHNICAL_PREVIEW_DOC_URL} target="_blank" rel="noreferrer">
+          <Link
+            href={TECHNICAL_PREVIEW_DOC_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
             {m.technicalPreviewLinkText}
           </Link>
         </Alert>
