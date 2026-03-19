@@ -32,19 +32,13 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 ### TLS flags
 
-### Connection flags
-
 | Flag | MySQL | PG | Mongo | Valkey | Proxy | HAProxy |
 |------|:-----:|:--:|:-----:|:------:|:-----:|:-------:|
-| `--username`<br>Database username | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--password`<br>Database password | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--address`<br>Host and port | ✓ | | | | | |
-| `--socket`<br>Unix socket path | ✓ | | | | | |
-| `--database`<br>Database name | | ✓ | | | | |
-| `--extra-dsn`<br>Additional DSN parameters | ✓ | | | | | |
-| `--listen-port`<br>Metrics listen port | | | | | | ✓ |
-| `--scheme`<br>URI scheme (http/https) | | | | | | ✓ |
-| `--metrics-path`<br>Metrics endpoint path | | | | | | ✓ |
+| `--tls`<br>(enable TLS for connection) | ✓ | ✓ | ✓ | | ✓ | ✓ |
+| `--tls-skip-verify`<br>(skip certificate verification) | ✓ | ✓ | ✓ | | ✓ | ✓ |
+| `--tls-ca-file`<br>(CA certificate file path) | ✓ | ✓ | ✓ | | ✓ | ✓ |
+| `--tls-cert-file`<br>(client certificate file path) | ✓ | ✓ | ✓ | | ✓ | ✓ |
+| `--tls-key-file`<br>(client key file path) | ✓ | ✓ | ✓ | | ✓ | ✓ |
 
 ### Query Analytics (QAN) flags
 
