@@ -505,7 +505,7 @@ nav:
                 - Manage inventory: use/commands/pmm-admin/inventory.md
                 - Configuration commands: use/commands/pmm-admin/config.md
                 - Status and diagnostics: use/commands/pmm-admin/status.md
-              - use/commands/pmm-agent.md
+              - pmm-agent: use/commands/pmm-agent.md
       - PMM dashboards:
           - Insight:
               - reference/dashboards/dashboard-home.md
