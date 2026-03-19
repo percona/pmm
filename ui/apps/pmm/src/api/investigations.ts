@@ -52,6 +52,8 @@ export interface Investigation {
   clusterName?: string;
   servicenowTicketId?: string;
   servicenow_ticket_id?: string;
+  servicenowTicketNumber?: string;
+  servicenow_ticket_number?: string;
   blocks?: InvestigationBlock[];
 }
 
@@ -298,6 +300,7 @@ export const getInvestigationExportPdfUrl = (id: string): string => {
 export interface CreateServiceNowTicketResponse {
   success: boolean;
   ticket_id: string;
+  ticket_number?: string;
   message: string;
 }
 

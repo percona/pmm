@@ -29,7 +29,7 @@ import (
 
 const (
 	investigationRunTimeout  = 5 * time.Minute
-	investigationChatTimeout = 2 * time.Minute
+	investigationChatTimeout = 5 * time.Minute
 )
 
 func (h *Handlers) requireHolmesURL(w http.ResponseWriter, settings *models.Settings) bool {
@@ -199,7 +199,8 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent})
 }
 
-// PostInvestigationRun handles POST /v1/investigations/:id/run. Uses Holmes (Investigate or PMM Agent sync) to generate the report.
+// PostInvestigationRun handles POST /v1/investigations/:id/run.
+// Sets status to "running", returns 202 immediately, and runs the investigation in a background goroutine.
 func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
@@ -208,6 +209,21 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 			return
 		}
 		writeJSONError(w, http.StatusInternalServerError, "Failed to get investigation")
+		return
+	}
+
+	switch inv.Status {
+	case "running":
+		writeJSONError(w, http.StatusConflict, "Investigation is already running")
+		return
+	case "completed":
+		writeJSONError(w, http.StatusConflict, "Investigation has already completed — create a new investigation to re-analyze")
+		return
+	case "failed":
+		writeJSONError(w, http.StatusConflict, "Investigation previously failed — create a new investigation to retry")
+		return
+	case "resolved", "archived":
+		writeJSONError(w, http.StatusConflict, "Investigation is "+inv.Status+" and cannot be re-run")
 		return
 	}
 
@@ -221,7 +237,13 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	ctxStr := buildInvestigationContext(inv)
+	inv.Status = "running"
+	if err := models.UpdateInvestigation(h.db, inv); err != nil {
+		h.l.Errorf("UpdateInvestigation (running): %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to update investigation status")
+		return
+	}
+
 	userMsg := &models.InvestigationMessage{
 		ID:              models.NewInvestigationID(),
 		InvestigationID: id,
@@ -232,15 +254,33 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		h.l.Warnf("CreateInvestigationMessage run user: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), investigationRunTimeout)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	_ = json.NewEncoder(w).Encode(map[string]string{"status": "running"})
+
+	go h.runInvestigationBackground(id, inv, settings)
+}
+
+// runInvestigationBackground executes the investigation in a background goroutine (not tied to the HTTP request).
+func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation, settings *models.Settings) {
+	ctx, cancel := context.WithTimeout(context.Background(), investigationRunTimeout)
 	defer cancel()
 
+	inv, err := models.GetInvestigationByID(h.db, id)
+	if err != nil || inv == nil {
+		h.l.Errorf("runInvestigationBackground: failed to reload investigation %s: %v", id, err)
+		return
+	}
+
+	ctxStr := buildInvestigationContext(inv)
 	adreURL := settings.GetAdreURL()
 	var lastContent string
 	runBackend := settings.Adre.ChatBackend
 	if runBackend == "" {
 		runBackend = "holmesgpt"
 	}
+
+	var runErr error
 	switch runBackend {
 	case "holmesgpt":
 		invPrompt := settings.Adre.InvestigationPrompt
@@ -248,18 +288,16 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 			invPrompt = adre.DefaultInvestigationPrompt
 		}
 		client := adre.NewClient(adreURL)
-		// Prefer /api/investigate when available; many HolmesGPT instances only have /api/chat.
 		invReq := &adre.InvestigateRequest{
 			Source:                 "pmm-investigation",
 			Title:                  inv.Title,
 			Description:            "Generate the full investigation report based on the context below.",
-			Subject:                map[string]interface{}{}, // required by HolmesGPT InvestigateRequest
+			Subject:                map[string]interface{}{},
 			Context:                map[string]interface{}{"investigation_id": id, "time_from": inv.TimeFrom.Format(time.RFC3339), "time_to": inv.TimeTo.Format(time.RFC3339), "summary": inv.Summary, "context_text": ctxStr},
 			AdditionalSystemPrompt: invPrompt,
 		}
 		resp, err := client.Investigate(ctx, invReq)
 		if err != nil && (strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found")) {
-			// Fallback: use /api/chat (supported by all HolmesGPT deployments).
 			ask := "Generate the full investigation report for this incident.\n\nContext:\n" + ctxStr
 			chatReq := &adre.ChatRequest{
 				Ask:                    ask,
@@ -270,34 +308,43 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 			var chatResp *adre.ChatResponse
 			chatResp, err = client.Chat(ctx, chatReq)
 			if err != nil {
-				h.l.Errorf("Holmes Chat (investigation fallback): %v", err)
-				writeJSONError(w, http.StatusBadGateway, "Run failed: "+err.Error())
-				return
+				runErr = fmt.Errorf("Holmes Chat (investigation fallback): %w", err)
+			} else {
+				lastContent = chatResp.Analysis
 			}
-			lastContent = chatResp.Analysis
 		} else if err != nil {
-			h.l.Errorf("Holmes Investigate: %v", err)
-			writeJSONError(w, http.StatusBadGateway, "Run failed: "+err.Error())
-			return
+			runErr = fmt.Errorf("Holmes Investigate: %w", err)
 		} else {
-			// Use only Analysis; it already contains the full report. Appending Sections would duplicate content.
 			lastContent = resp.Analysis
 		}
 	case "holmes_agent":
 		ask := "Run the full investigation now. Use ask_holmes to gather multiple metrics and panels (QPS, connections, redo log, replication, etc.); do not stop after one metric. Then gather logs and alerts, then call generate_investigation_report with the gathered context. Do not ask for confirmation—execute the investigation immediately.\n\nContext:\n" + ctxStr
 		content, err := adre.RunPMMAgentChatSync(ctx, nil, h.l, settings, ask, nil, investigationRunTimeout)
 		if err != nil {
-			h.l.Errorf("PMM Agent run: %v", err)
-			writeJSONError(w, http.StatusBadGateway, "Run failed: "+err.Error())
-			return
+			runErr = fmt.Errorf("PMM Agent run: %w", err)
+		} else {
+			lastContent = content
 		}
-		lastContent = content
 	default:
-		writeJSONError(w, http.StatusBadRequest, "Chat backend must be PMM Agent or Holmes Agent.")
+		runErr = fmt.Errorf("unknown chat backend: %s", runBackend)
+	}
+
+	if runErr != nil {
+		h.l.Errorf("Investigation run failed [%s]: %v", id, runErr)
+		inv.Status = "failed"
+		if err := models.UpdateInvestigation(h.db, inv); err != nil {
+			h.l.Errorf("UpdateInvestigation (failed): %v", err)
+		}
+		errMsg := &models.InvestigationMessage{
+			ID:              models.NewInvestigationID(),
+			InvestigationID: id,
+			Role:            "assistant",
+			Content:         "Investigation failed: " + runErr.Error(),
+		}
+		_ = models.CreateInvestigationMessage(h.db, errMsg)
 		return
 	}
 
-	// Pass 2: format raw report into structured JSON; update investigation and create blocks on success
 	client := adre.NewClient(adreURL)
 	formattedJSON, err := FormatInvestigationReport(ctx, client, lastContent)
 	if err == nil {
@@ -307,9 +354,6 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 			inv.SummaryDetailed = report.SummaryDetailed
 			inv.RootCauseSummary = report.RootCauseSummary
 			inv.ResolutionSummary = report.ResolutionSummary
-			if err := models.UpdateInvestigation(h.db, inv); err != nil {
-				h.l.Warnf("UpdateInvestigation after format: %v", err)
-			}
 			if err := models.DeleteInvestigationBlocksForInvestigation(h.db, id); err != nil {
 				h.l.Warnf("DeleteInvestigationBlocksForInvestigation: %v", err)
 			}
@@ -363,6 +407,11 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		h.l.Warnf("FormatInvestigationReport: %v (fallback: raw report only)", err)
 	}
 
+	inv.Status = "completed"
+	if err := models.UpdateInvestigation(h.db, inv); err != nil {
+		h.l.Errorf("UpdateInvestigation (completed): %v", err)
+	}
+
 	assistantMsg := &models.InvestigationMessage{
 		ID:              models.NewInvestigationID(),
 		InvestigationID: id,
@@ -370,9 +419,6 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		Content:         lastContent,
 	}
 	_ = models.CreateInvestigationMessage(h.db, assistantMsg)
-
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent})
 }
 
 // alertSnapshotEntry is a single alert from Grafana Alertmanager (labels, annotations, fingerprint, etc.).

@@ -27,24 +27,25 @@ import (
 //
 //reform:investigations
 type Investigation struct {
-	ID                string    `reform:"id,pk"`
-	Title             string    `reform:"title"`
-	Status            string    `reform:"status"`
-	Severity          string    `reform:"severity"`
-	CreatedAt         time.Time `reform:"created_at"`
-	UpdatedAt         time.Time `reform:"updated_at"`
-	CreatedBy         string    `reform:"created_by"`
-	TimeFrom          time.Time `reform:"time_from"`
-	TimeTo            time.Time `reform:"time_to"`
-	Summary           string    `reform:"summary"`
-	SummaryDetailed   string    `reform:"summary_detailed"`
-	RootCauseSummary  string    `reform:"root_cause_summary"`
-	ResolutionSummary string    `reform:"resolution_summary"`
-	SourceType        string    `reform:"source_type"`
-	SourceRef         string    `reform:"source_ref"`
-	Tags              []byte    `reform:"tags"`
-	Config            []byte    `reform:"config"`
-	ServiceNowTicketID string  `reform:"servicenow_ticket_id"`
+	ID                     string    `reform:"id,pk"`
+	Title                  string    `reform:"title"`
+	Status                 string    `reform:"status"`
+	Severity               string    `reform:"severity"`
+	CreatedAt              time.Time `reform:"created_at"`
+	UpdatedAt              time.Time `reform:"updated_at"`
+	CreatedBy              string    `reform:"created_by"`
+	TimeFrom               time.Time `reform:"time_from"`
+	TimeTo                 time.Time `reform:"time_to"`
+	Summary                string    `reform:"summary"`
+	SummaryDetailed        string    `reform:"summary_detailed"`
+	RootCauseSummary       string    `reform:"root_cause_summary"`
+	ResolutionSummary      string    `reform:"resolution_summary"`
+	SourceType             string    `reform:"source_type"`
+	SourceRef              string    `reform:"source_ref"`
+	Tags                   []byte    `reform:"tags"`
+	Config                 []byte    `reform:"config"`
+	ServiceNowTicketID     string    `reform:"servicenow_ticket_id"`
+	ServiceNowTicketNumber string    `reform:"servicenow_ticket_number"`
 }
 
 // InvestigationBlock represents a block (section) within an investigation report.

@@ -45,6 +45,8 @@ func (v *investigationTableType) Columns() []string {
 		"source_ref",
 		"tags",
 		"config",
+		"servicenow_ticket_id",
+		"servicenow_ticket_number",
 	}
 }
 
@@ -86,6 +88,8 @@ var InvestigationTable = &investigationTableType{
 			{Name: "SourceRef", Type: "string", Column: "source_ref"},
 			{Name: "Tags", Type: "[]uint8", Column: "tags"},
 			{Name: "Config", Type: "[]uint8", Column: "config"},
+			{Name: "ServiceNowTicketID", Type: "string", Column: "servicenow_ticket_id"},
+			{Name: "ServiceNowTicketNumber", Type: "string", Column: "servicenow_ticket_number"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -94,7 +98,7 @@ var InvestigationTable = &investigationTableType{
 
 // String returns a string representation of this struct or record.
 func (s Investigation) String() string {
-	res := make([]string, 17)
+	res := make([]string, 19)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Title: " + reform.Inspect(s.Title, true)
 	res[2] = "Status: " + reform.Inspect(s.Status, true)
@@ -112,6 +116,8 @@ func (s Investigation) String() string {
 	res[14] = "SourceRef: " + reform.Inspect(s.SourceRef, true)
 	res[15] = "Tags: " + reform.Inspect(s.Tags, true)
 	res[16] = "Config: " + reform.Inspect(s.Config, true)
+	res[17] = "ServiceNowTicketID: " + reform.Inspect(s.ServiceNowTicketID, true)
+	res[18] = "ServiceNowTicketNumber: " + reform.Inspect(s.ServiceNowTicketNumber, true)
 	return strings.Join(res, ", ")
 }
 
@@ -136,6 +142,8 @@ func (s *Investigation) Values() []interface{} {
 		s.SourceRef,
 		s.Tags,
 		s.Config,
+		s.ServiceNowTicketID,
+		s.ServiceNowTicketNumber,
 	}
 }
 
@@ -160,6 +168,8 @@ func (s *Investigation) Pointers() []interface{} {
 		&s.SourceRef,
 		&s.Tags,
 		&s.Config,
+		&s.ServiceNowTicketID,
+		&s.ServiceNowTicketNumber,
 	}
 }
 

@@ -55,7 +55,7 @@ func NewHandlers(db reform.DBTX, grafanaAlertsFetch GrafanaAlertsFetcher) *Handl
 	return &Handlers{
 		db:                 db,
 		grafanaAlertsFetch: grafanaAlertsFetch,
-		reqTimeout:         60 * time.Second,
+		reqTimeout:         5 * time.Minute,
 		streamTimeout:      5 * time.Minute,
 		l:                  logrus.WithField("component", "adre-handlers"),
 	}
@@ -528,10 +528,10 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, "service_id and query_text are required")
 		return
 	}
-	userMessage := "Analyze this query and provide optimization suggestions based on QAN metrics and schema. Query: " + body.QueryText
-	if body.TimeFrom != "" || body.TimeTo != "" {
-		userMessage += " Time range: from " + body.TimeFrom + " to " + body.TimeTo + "."
-	}
+	userMessage := fmt.Sprintf(
+		"Analyze this query and provide optimization suggestions based on QAN metrics and schema.\n"+
+			"service_id: %s\nquery_id: %s\nfingerprint: %s\nquery_text: %s\ntime_from: %s\ntime_to: %s",
+		body.ServiceID, body.QueryID, body.Fingerprint, body.QueryText, body.TimeFrom, body.TimeTo)
 	pageContext := map[string]string{
 		"service_id":  body.ServiceID,
 		"query_text":  body.QueryText,
@@ -541,7 +541,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		"time_to":     body.TimeTo,
 	}
 	client := NewClient(settings.GetAdreURL())
-	ctx, cancel := context.WithTimeout(r.Context(), 90*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
 	chatResp, err := client.Chat(ctx, &ChatRequest{
 		Ask:                    userMessage,

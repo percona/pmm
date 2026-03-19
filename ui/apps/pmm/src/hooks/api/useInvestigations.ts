@@ -53,11 +53,12 @@ export const useInvestigationsList = (params?: {
     enabled: params?.enabled ?? true,
   });
 
-export const useInvestigation = (id: string | undefined, options?: { enabled?: boolean }) =>
+export const useInvestigation = (id: string | undefined, options?: { enabled?: boolean; refetchInterval?: number | false }) =>
   useQuery({
     queryKey: INVESTIGATIONS_KEYS.detail(id ?? ''),
     queryFn: () => getInvestigation(id!),
     enabled: (options?.enabled ?? true) && !!id,
+    refetchInterval: options?.refetchInterval,
   });
 
 export const useCreateInvestigation = () => {

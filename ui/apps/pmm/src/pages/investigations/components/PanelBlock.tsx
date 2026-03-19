@@ -12,7 +12,7 @@ const PanelImageWithFetch: FC<{
   alt: string;
   href: string | null;
 }> = ({ src, alt, href }) => {
-  const [state, setState] = useState<'loading' | { status: 'success'; url: string } | { status: 'error' }>('loading');
+  const [state, setState] = useState<'loading' | { status: 'success'; url: string } | { status: 'error'; detail?: string }>('loading');
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -20,15 +20,35 @@ const PanelImageWithFetch: FC<{
     const timeoutId = setTimeout(() => controller.abort(), RENDER_IMAGE_TIMEOUT_MS);
 
     fetch(src, { credentials: 'include', signal: controller.signal })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      .then(async (res) => {
+        const contentType = res.headers.get('Content-Type') ?? '';
+        if (!res.ok) {
+          let detail = `HTTP ${res.status}`;
+          if (contentType.includes('application/json')) {
+            try {
+              const json = await res.json();
+              if (json.error) detail += `: ${json.error}`;
+            } catch { /* ignore */ }
+          }
+          throw new Error(detail);
+        }
+        if (!contentType.includes('image/')) {
+          let detail = `Unexpected content type: ${contentType}`;
+          if (contentType.includes('application/json')) {
+            try {
+              const json = await res.json();
+              if (json.error) detail = json.error;
+            } catch { /* ignore */ }
+          }
+          throw new Error(detail);
+        }
         return res.blob();
       })
       .then((blob) => {
         objectUrl = URL.createObjectURL(blob);
         setState({ status: 'success', url: objectUrl });
       })
-      .catch(() => setState({ status: 'error' }))
+      .catch((err) => setState({ status: 'error', detail: err instanceof Error ? err.message : undefined }))
       .finally(() => clearTimeout(timeoutId));
 
     return () => {
@@ -48,7 +68,7 @@ const PanelImageWithFetch: FC<{
     return (
       <Box sx={{ mb: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          Image failed to load
+          Image failed to load{state.detail ? ` (${state.detail})` : ''}
         </Typography>
         {href && (
           <Link href={href} target="_blank" rel="noopener noreferrer" sx={{ display: 'inline-block', mt: 0.5 }}>

@@ -1581,6 +1581,9 @@ $yaml$,
 	131: {
 		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS servicenow_ticket_id VARCHAR NOT NULL DEFAULT ''`,
 	},
+	132: {
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS servicenow_ticket_number VARCHAR NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

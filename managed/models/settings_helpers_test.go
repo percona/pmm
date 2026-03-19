@@ -75,9 +75,9 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention:   30 * 24 * time.Hour,
-			AWSPartitions:   []string{"aws"},
-			DefaultRoleID:  0,
+			DataRetention: 30 * 24 * time.Hour,
+			AWSPartitions: []string{"aws"},
+			DefaultRoleID: 0,
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,

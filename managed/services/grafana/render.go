@@ -202,10 +202,21 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := "/graph/render/d-solo/" + dashboardUID + "/"
 	body, contentType, err := h.client.DoRaw(r.Context(), http.MethodGet, path, rawQuery, headers, nil)
 	if err != nil {
-		h.l.Warnf("Grafana render: %v", err)
+		h.l.Warnf("Grafana render error (dashboard=%s panel=%s): %v", dashboardUID, panelID, err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadGateway)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "failed to render panel"})
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "failed to render panel: " + err.Error()})
+		return
+	}
+	if !strings.HasPrefix(contentType, "image/") {
+		h.l.Warnf("Grafana render returned non-image content-type %q (dashboard=%s panel=%s): %s", contentType, dashboardUID, panelID, string(body))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadGateway)
+		errMsg := "Grafana returned non-image response (content-type: " + contentType + ")"
+		if len(body) > 0 && len(body) < 1024 {
+			errMsg += ": " + string(body)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": errMsg})
 		return
 	}
 	if useCache && len(body) > 0 {

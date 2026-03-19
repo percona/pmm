@@ -17,10 +17,12 @@ package investigations
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -42,6 +44,81 @@ type serviceNowCreateResponse struct {
 		Message      string `json:"message"`
 		ErrorMessage string `json:"error_message"`
 	} `json:"result"`
+}
+
+type serviceNowDetailsRequest struct {
+	ClientToken string `json:"client_token"`
+	TicketID    string `json:"ticket_id"`
+}
+
+type serviceNowDetailsResponse struct {
+	Result struct {
+		Success       bool `json:"success"`
+		TicketDetails struct {
+			Number string `json:"number"`
+			State  string `json:"state"`
+		} `json:"ticket_details"`
+		ErrorMessage string `json:"error_message"`
+	} `json:"result"`
+}
+
+// deriveServiceNowInstanceURL extracts the base instance URL from the API URL
+// (e.g. "https://perconadev.service-now.com/api/pellc/percona_connector/create" -> "https://perconadev.service-now.com").
+func deriveServiceNowInstanceURL(apiURL string) string {
+	u, err := url.Parse(apiURL)
+	if err != nil {
+		return ""
+	}
+	return u.Scheme + "://" + u.Host
+}
+
+// deriveTicketDetailsURL replaces "/create" with "/ticket_details" in the API URL.
+func deriveTicketDetailsURL(createURL string) string {
+	if i := strings.LastIndex(createURL, "/create"); i >= 0 {
+		return createURL[:i] + "/ticket_details"
+	}
+	return ""
+}
+
+// fetchTicketNumber calls the ServiceNow /ticket_details endpoint to get the human-readable ticket number.
+func fetchTicketNumber(ctx context.Context, detailsURL, apiKey, clientToken, ticketID string) (string, error) {
+	payload, err := json.Marshal(serviceNowDetailsRequest{
+		ClientToken: clientToken,
+		TicketID:    ticketID,
+	})
+	if err != nil {
+		return "", fmt.Errorf("marshal details request: %w", err)
+	}
+
+	client := &http.Client{Timeout: 15 * time.Second}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, detailsURL, bytes.NewReader(payload))
+	if err != nil {
+		return "", fmt.Errorf("build details request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-sn-apikey", apiKey)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("details request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("read details response: %w", err)
+	}
+
+	var detailsResp serviceNowDetailsResponse
+	if err := json.Unmarshal(body, &detailsResp); err != nil {
+		return "", fmt.Errorf("unmarshal details response: %w", err)
+	}
+
+	if !detailsResp.Result.Success {
+		return "", fmt.Errorf("details error: %s", detailsResp.Result.ErrorMessage)
+	}
+
+	return detailsResp.Result.TicketDetails.Number, nil
 }
 
 // buildDescription assembles a markdown description from the investigation and its blocks.
@@ -198,6 +275,18 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 	}
 
 	inv.ServiceNowTicketID = snResp.Result.TicketID
+
+	// Fetch ticket details to get the human-readable number (e.g. INC0289676)
+	detailsURL := deriveTicketDetailsURL(settings.Adre.ServiceNowURL)
+	if detailsURL != "" {
+		number, err := fetchTicketNumber(r.Context(), detailsURL, settings.Adre.ServiceNowAPIKey, settings.Adre.ServiceNowClientToken, snResp.Result.TicketID)
+		if err != nil {
+			h.l.Warnf("Failed to fetch ticket number (ticket created OK): %v", err)
+		} else if number != "" {
+			inv.ServiceNowTicketNumber = number
+		}
+	}
+
 	if err := models.UpdateInvestigation(h.db, inv); err != nil {
 		h.l.Errorf("UpdateInvestigation (ticket ID): %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Ticket created but failed to save ticket ID")
@@ -207,8 +296,9 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"success":   true,
-		"ticket_id": snResp.Result.TicketID,
-		"message":   snResp.Result.Message,
+		"success":       true,
+		"ticket_id":     snResp.Result.TicketID,
+		"ticket_number": inv.ServiceNowTicketNumber,
+		"message":       snResp.Result.Message,
 	})
 }

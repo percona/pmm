@@ -1,8 +1,11 @@
 import { Card, CardContent, Typography } from '@mui/material';
 import { FC, useMemo } from 'react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import type { InvestigationBlock } from 'api/investigations';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
 
-// Matches log lines with timestamp: YYYY-MM-DD HH:mm:ss or YYYY-MM-DD HH:mm:ss.SSS
 const LOG_TIMESTAMP_RE = /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?)\s/;
 
 function sortLogLinesOldestFirst(text: string): string {
@@ -51,12 +54,14 @@ export const MarkdownBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
         </CardContent>
       )}
       <CardContent>
-        <Typography
-          component="div"
-          variant="body2"
-          sx={{ whiteSpace: 'pre-wrap' }}
-        >
-          {content}
+        <Typography component="div" variant="body2">
+          <Markdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={getMarkdownComponents(content)}
+          >
+            {content}
+          </Markdown>
         </Typography>
       </CardContent>
     </Card>

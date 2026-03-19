@@ -24,7 +24,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Page } from 'components/page';
 import {
@@ -52,7 +52,7 @@ import {
 import { BlockRenderer } from './components/BlockRenderer';
 import { TimelineSection } from './components/TimelineSection';
 
-const STATUS_OPTIONS = ['open', 'in_progress', 'investigating', 'resolved', 'archived'] as const;
+const STATUS_OPTIONS = ['open', 'in_progress', 'investigating', 'running', 'completed', 'failed', 'resolved', 'archived'] as const;
 
 const BlockWithActions: FC<{
   block: InvestigationBlock;
@@ -100,7 +100,10 @@ const BlockWithActions: FC<{
 const InvestigationDetailPage: FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: inv, isLoading, isError, error } = useInvestigation(id);
+  const [isRunning, setIsRunning] = useState(false);
+  const { data: inv, isLoading, isError, error } = useInvestigation(id, {
+    refetchInterval: isRunning ? 5000 : false,
+  });
   const { data: comments = [] } = useInvestigationComments(id);
   const { data: messages = [] } = useInvestigationMessages(id, { limit: 50 });
   const { data: timelineEvents = [] } = useInvestigationTimeline(id);
@@ -118,6 +121,19 @@ const InvestigationDetailPage: FC = () => {
   const [snackMessage, setSnackMessage] = useState<string | null>(null);
   const [snackSeverity, setSnackSeverity] = useState<'error' | 'success'>('error');
   const [fetchedAlertMeta, setFetchedAlertMeta] = useState<AlertMetadataFromLabels>({});
+  const prevStatusRef = useRef<string | undefined>();
+
+  useEffect(() => {
+    const status = inv?.status;
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = status;
+    setIsRunning(status === 'running');
+    if (prev === 'running' && status === 'completed') {
+      showSuccess('Investigation completed');
+    } else if (prev === 'running' && status === 'failed') {
+      showError('Investigation failed');
+    }
+  }, [inv?.status]);
 
   // When investigation is from an alert but API didn't return node/service, fetch alerts and derive metadata
   useEffect(() => {
@@ -246,7 +262,7 @@ const InvestigationDetailPage: FC = () => {
                 patchInv.mutate({ status: e.target.value as string })
               }
               displayEmpty
-              disabled={patchInv.isPending}
+              disabled={patchInv.isPending || isRunning}
             >
               {STATUS_OPTIONS.map((s) => (
                 <MenuItem key={s} value={s}>
@@ -275,15 +291,26 @@ const InvestigationDetailPage: FC = () => {
           </Button>
           {(() => {
             const ticketId = inv.servicenowTicketId ?? inv.servicenow_ticket_id;
+            const ticketNumber = inv.servicenowTicketNumber ?? inv.servicenow_ticket_number;
             const snConfigured = adreSettings?.servicenowConfigured ?? adreSettings?.servicenow_configured ?? false;
             if (ticketId) {
+              const snApiUrl = adreSettings?.servicenowUrl ?? adreSettings?.servicenow_url ?? '';
+              let instanceUrl = '';
+              try {
+                const u = new URL(snApiUrl);
+                instanceUrl = u.origin;
+              } catch { /* ignore */ }
+              const label = ticketNumber || ticketId;
+              const href = instanceUrl ? `${instanceUrl}/nav_to.do?uri=incident.do?sys_id=${ticketId}` : '';
               return (
                 <Chip
                   icon={<CheckCircleOutlineIcon />}
-                  label={`ServiceNow: ${ticketId}`}
+                  label={`ServiceNow: ${label}`}
                   color="success"
                   size="small"
                   variant="outlined"
+                  clickable={!!href}
+                  onClick={href ? () => window.open(href, '_blank', 'noopener,noreferrer') : undefined}
                 />
               );
             }
@@ -301,7 +328,7 @@ const InvestigationDetailPage: FC = () => {
                       id &&
                       createSNTicket.mutate(undefined, {
                         onError: (err) => showError(`ServiceNow: ${getErrorMessage(err)}`),
-                        onSuccess: (data) => showSuccess(`ServiceNow ticket created: ${data.ticket_id}`),
+                        onSuccess: (data) => showSuccess(`ServiceNow ticket created: ${data.ticket_number || data.ticket_id}`),
                       })
                     }
                   >
@@ -318,16 +345,22 @@ const InvestigationDetailPage: FC = () => {
               id &&
               postRun.mutate(undefined, {
                 onError: (err) => showError(`Run failed: ${getErrorMessage(err)}`),
-                onSuccess: () => showSuccess('Investigation run completed'),
+                onSuccess: () => setIsRunning(true),
               })
             }
-            disabled={postRun.isPending}
+            disabled={postRun.isPending || isRunning}
           >
-            {postRun.isPending ? 'Running…' : 'Run investigation'}
+            {isRunning ? 'Running…' : 'Run investigation'}
           </Button>
         </Stack>
       }
     >
+      {/* Running banner */}
+      {isRunning && (
+        <Alert severity="info" icon={<CircularProgress size={20} />} sx={{ mb: 2 }}>
+          Investigation is running. Results will appear automatically when complete.
+        </Alert>
+      )}
       {/* Summary */}
       {inv.summary && (
         <>

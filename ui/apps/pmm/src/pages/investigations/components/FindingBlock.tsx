@@ -1,6 +1,10 @@
 import { Card, CardContent, Typography } from '@mui/material';
 import { FC } from 'react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import type { InvestigationBlock } from 'api/investigations';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
 
 export const FindingBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const data = (block.dataJson || {}) as { content?: string; summary?: string };
@@ -15,9 +19,21 @@ export const FindingBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
         </CardContent>
       )}
       <CardContent>
-        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-          {text || '(No content)'}
-        </Typography>
+        {text ? (
+          <Typography component="div" variant="body2">
+            <Markdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={getMarkdownComponents(text)}
+            >
+              {text}
+            </Markdown>
+          </Typography>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            (No content)
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );
