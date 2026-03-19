@@ -74,8 +74,6 @@ Find all available commands for managing monitored services:
 | `pmm-admin list` | List monitored services | [Status and diagnostics](../pmm-admin/status.md) |
 | `pmm-admin summary` | Create diagnostic archive | [Status and diagnostics](../pmm-admin/status.md) |
 
-## Command reference
-
 ### Add and remove services
 
 - [`pmm-admin add`](../pmm-admin/add.md): Add database services to monitoring
