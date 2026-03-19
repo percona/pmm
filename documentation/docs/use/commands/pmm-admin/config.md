@@ -2,7 +2,7 @@
 
 Use these `pmm-admin` commands from the command line to configure PMM Client, register nodes with PMM Server, remove services from monitoring, and add event annotations.
 
-To perform these tasks in the UI instead, see [PMM Settings](link). For programmatic access, see the [PMM API](../../../api/index.md).
+`config` and `register` are CLI-only operations. To perform some of these tasks from the UI, go to **PMM Inventory** to add or remove services, or see [Annotate dashboards](../../use/dashboards-panels/annotate/annotate.md) to add event markers. For programmatic access, see the [PMM API](../../../api/index.md).
 
 ## Commands
 
