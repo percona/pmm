@@ -9,15 +9,17 @@ import {
 } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import SendIcon from '@mui/icons-material/Send';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { FC, useState, useCallback, useEffect, useRef } from 'react';
+import { FC, useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useLocation } from 'react-router-dom';
-import { useAdreChat, formatTimestamp, type ProgressStep } from 'hooks/useAdreChat';
+import { useSnackbar } from 'notistack';
+import { useAdreChat, formatTimestamp, type ProgressStep, type ChatMessage } from 'hooks/useAdreChat';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
 
 function buildDashboardContext(pathname: string, search: string): string {
@@ -27,8 +29,185 @@ function buildDashboardContext(pathname: string, search: string): string {
   return `The user is currently viewing this Grafana dashboard URL: ${fullUrl}. Use the dashboard UID, panel ID (viewPanel param), template variables (var-*), and time range (from/to) from this URL as context for your answer. If the user refers to "this graph" or "this panel", they mean the one in this URL.`;
 }
 
+interface ChatMessageBubbleProps {
+  msg: ChatMessage & { streaming?: boolean };
+  idx: number;
+  expandedReasoningIdx: number | null;
+  setExpandedReasoningIdx: React.Dispatch<React.SetStateAction<number | null>>;
+  expandedProgressIdx: number | null;
+  setExpandedProgressIdx: React.Dispatch<React.SetStateAction<number | null>>;
+  reasoning: string;
+  response: string;
+  loading: boolean;
+  progressSteps: ProgressStep[];
+}
+
+const ChatMessageBubble = memo<ChatMessageBubbleProps>(({
+  msg, idx, expandedReasoningIdx, setExpandedReasoningIdx,
+  expandedProgressIdx, setExpandedProgressIdx,
+  reasoning, response, loading, progressSteps,
+}) => {
+  const mdComponents = useMemo(
+    () => getMarkdownComponents(msg.content || response || ''),
+    [msg.content, response]
+  );
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+        alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+        maxWidth: '90%',
+      }}
+    >
+      <Box
+        sx={{
+          px: 1.5,
+          py: 1,
+          borderRadius: 2,
+          ...(msg.role === 'user'
+            ? { bgcolor: '#2d3748', color: 'text.primary' }
+            : { bgcolor: 'rgba(255,255,255,0.05)', border: 1, borderColor: 'rgba(255,255,255,0.12)' }),
+          '& img': { maxWidth: '100%' },
+          fontSize: '0.85rem',
+        }}
+      >
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          display="block"
+          sx={{ mb: 0.25, fontSize: '0.65rem', opacity: 0.8 }}
+        >
+          {msg.role === 'user' ? 'You' : 'Assistant'}
+          {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
+        </Typography>
+        {msg.role === 'user' ? (
+          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{msg.content}</Typography>
+        ) : (
+          <Box>
+            {(msg.reasoning ?? (msg.streaming && reasoning)) && (
+              <>
+                <IconButton
+                  size="small"
+                  onClick={() => setExpandedReasoningIdx((prev) => (prev === idx ? null : idx))}
+                  sx={{ p: 0, mr: 0.5 }}
+                >
+                  {expandedReasoningIdx === idx ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                </IconButton>
+                <Typography
+                  component="span"
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ cursor: 'pointer', fontSize: '0.75rem' }}
+                  onClick={() => setExpandedReasoningIdx((prev) => (prev === idx ? null : idx))}
+                >
+                  Reasoning
+                </Typography>
+                <Collapse in={expandedReasoningIdx === idx}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 0.5, fontStyle: 'italic', whiteSpace: 'pre-wrap', fontSize: '0.8rem' }}
+                  >
+                    {msg.reasoning ?? reasoning}
+                  </Typography>
+                </Collapse>
+                {(msg.content ?? response) && <Box sx={{ mt: 0.5 }} />}
+              </>
+            )}
+            {msg.streaming && progressSteps.length > 0 && (
+              <Box sx={{ mb: 0.5 }}>
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.25, fontSize: '0.7rem' }}>
+                  Progress
+                </Typography>
+                <Stack component="ul" sx={{ m: 0, pl: 2, listStyle: 'none' }}>
+                  {progressSteps.map((step: ProgressStep) => (
+                    <Box
+                      component="li"
+                      key={step.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 0.5,
+                        py: 0.15,
+                        fontSize: '0.75rem',
+                        color: step.status === 'done' ? 'text.secondary' : 'text.primary',
+                      }}
+                    >
+                      <Typography component="span" variant="caption" color="inherit">
+                        {step.status === 'running' ? '⟳' : '✓'} {step.toolName}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+            )}
+            {!msg.streaming && (msg.progressSteps?.length ?? 0) > 0 && (
+              <Box sx={{ mb: 0.5 }}>
+                <IconButton
+                  size="small"
+                  onClick={() => setExpandedProgressIdx((prev) => (prev === idx ? null : idx))}
+                  sx={{ p: 0, mr: 0.5 }}
+                >
+                  {expandedProgressIdx === idx ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                </IconButton>
+                <Typography
+                  component="span"
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ cursor: 'pointer', fontSize: '0.7rem' }}
+                  onClick={() => setExpandedProgressIdx((prev) => (prev === idx ? null : idx))}
+                >
+                  Progress
+                </Typography>
+                <Collapse in={expandedProgressIdx === idx}>
+                  <Stack component="ul" sx={{ m: 0, pl: 2, listStyle: 'none', mt: 0.25 }}>
+                    {(msg.progressSteps ?? []).map((step: ProgressStep) => (
+                      <Box
+                        component="li"
+                        key={step.id}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 0.5,
+                          py: 0.15,
+                          fontSize: '0.75rem',
+                          color: 'text.secondary',
+                        }}
+                      >
+                        <Typography component="span" variant="caption" color="inherit">
+                          ✓ {step.toolName}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                </Collapse>
+              </Box>
+            )}
+            {(msg.content || response || '').trim() ? (
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+                components={mdComponents}
+              >
+                {msg.content || response}
+              </Markdown>
+            ) : msg.streaming && loading && !response ? (
+              <Typography color="text.secondary" variant="body2" sx={{ fontSize: '0.8rem' }}>
+                {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
+              </Typography>
+            ) : null}
+          </Box>
+        )}
+      </Box>
+    </Box>
+  );
+});
+
 export const AdreChatWidget: FC = () => {
-  const { loading, progressSteps, allMessages, settings, response, reasoning, handleSend } = useAdreChat();
+  const { loading, progressSteps, allMessages, settings, response, reasoning, handleSend, clearHistory } = useAdreChat();
+  const { enqueueSnackbar } = useSnackbar();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [ask, setAsk] = useState('');
@@ -120,9 +299,21 @@ export const AdreChatWidget: FC = () => {
                 {chatViaLabel}
               </Typography>
             </Stack>
-            <IconButton size="small" onClick={() => setOpen(false)}>
-              <CloseIcon />
-            </IconButton>
+            <Stack direction="row" gap={0.5}>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  clearHistory();
+                  enqueueSnackbar('Conversation cleared', { variant: 'info', autoHideDuration: 2000 });
+                }}
+                title="New conversation"
+              >
+                <DeleteSweepIcon fontSize="small" />
+              </IconButton>
+              <IconButton size="small" onClick={() => setOpen(false)}>
+                <CloseIcon />
+              </IconButton>
+            </Stack>
           </Stack>
           <Box
             sx={{
@@ -141,156 +332,19 @@ export const AdreChatWidget: FC = () => {
               </Typography>
             ) : (
               allMessages.map((msg, idx) => (
-                <Box
-                  key={idx}
-                  sx={{
-                    display: 'flex',
-                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    maxWidth: '90%',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      px: 1.5,
-                      py: 1,
-                      borderRadius: 2,
-                      ...(msg.role === 'user'
-                        ? { bgcolor: '#2d3748', color: 'text.primary' }
-                        : { bgcolor: 'rgba(255,255,255,0.05)', border: 1, borderColor: 'rgba(255,255,255,0.12)' }),
-                      '& img': { maxWidth: '100%' },
-                      fontSize: '0.85rem',
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      display="block"
-                      sx={{ mb: 0.25, fontSize: '0.65rem', opacity: 0.8 }}
-                    >
-                      {msg.role === 'user' ? 'You' : 'Assistant'}
-                      {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
-                    </Typography>
-                    {msg.role === 'user' ? (
-                      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{msg.content}</Typography>
-                    ) : (
-                      <Box>
-                        {(msg.reasoning ?? (msg.streaming && reasoning)) && (
-                          <>
-                            <IconButton
-                              size="small"
-                              onClick={() => setExpandedReasoningIdx((prev) => (prev === idx ? null : idx))}
-                              sx={{ p: 0, mr: 0.5 }}
-                            >
-                              {expandedReasoningIdx === idx ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
-                            </IconButton>
-                            <Typography
-                              component="span"
-                              variant="caption"
-                              color="text.secondary"
-                              sx={{ cursor: 'pointer', fontSize: '0.75rem' }}
-                              onClick={() => setExpandedReasoningIdx((prev) => (prev === idx ? null : idx))}
-                            >
-                              Reasoning
-                            </Typography>
-                            <Collapse in={expandedReasoningIdx === idx}>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ mt: 0.5, fontStyle: 'italic', whiteSpace: 'pre-wrap', fontSize: '0.8rem' }}
-                              >
-                                {msg.reasoning ?? reasoning}
-                              </Typography>
-                            </Collapse>
-                            {(msg.content ?? response) && <Box sx={{ mt: 0.5 }} />}
-                          </>
-                        )}
-                        {msg.streaming && progressSteps.length > 0 && (
-                          <Box sx={{ mb: 0.5 }}>
-                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.25, fontSize: '0.7rem' }}>
-                              Progress
-                            </Typography>
-                            <Stack component="ul" sx={{ m: 0, pl: 2, listStyle: 'none' }}>
-                              {progressSteps.map((step: ProgressStep) => (
-                                <Box
-                                  component="li"
-                                  key={step.id}
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: 0.5,
-                                    py: 0.15,
-                                    fontSize: '0.75rem',
-                                    color: step.status === 'done' ? 'text.secondary' : 'text.primary',
-                                  }}
-                                >
-                                  <Typography component="span" variant="caption" color="inherit">
-                                    {step.status === 'running' ? '⟳' : '✓'} {step.toolName}
-                                  </Typography>
-                                </Box>
-                              ))}
-                            </Stack>
-                          </Box>
-                        )}
-                        {!msg.streaming && (msg.progressSteps?.length ?? 0) > 0 && (
-                          <Box sx={{ mb: 0.5 }}>
-                            <IconButton
-                              size="small"
-                              onClick={() => setExpandedProgressIdx((prev) => (prev === idx ? null : idx))}
-                              sx={{ p: 0, mr: 0.5 }}
-                            >
-                              {expandedProgressIdx === idx ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
-                            </IconButton>
-                            <Typography
-                              component="span"
-                              variant="caption"
-                              color="text.secondary"
-                              sx={{ cursor: 'pointer', fontSize: '0.7rem' }}
-                              onClick={() => setExpandedProgressIdx((prev) => (prev === idx ? null : idx))}
-                            >
-                              Progress
-                            </Typography>
-                            <Collapse in={expandedProgressIdx === idx}>
-                              <Stack component="ul" sx={{ m: 0, pl: 2, listStyle: 'none', mt: 0.25 }}>
-                                {(msg.progressSteps ?? []).map((step: ProgressStep) => (
-                                  <Box
-                                    component="li"
-                                    key={step.id}
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'flex-start',
-                                      gap: 0.5,
-                                      py: 0.15,
-                                      fontSize: '0.75rem',
-                                      color: 'text.secondary',
-                                    }}
-                                  >
-                                    <Typography component="span" variant="caption" color="inherit">
-                                      ✓ {step.toolName}
-                                    </Typography>
-                                  </Box>
-                                ))}
-                              </Stack>
-                            </Collapse>
-                          </Box>
-                        )}
-                        {(msg.content || response || '').trim() ? (
-                          <Markdown
-                            remarkPlugins={[remarkGfm]}
-                            rehypePlugins={[rehypeRaw]}
-                            components={getMarkdownComponents(msg.content || response || '')}
-                          >
-                            {msg.content || response}
-                          </Markdown>
-                        ) : msg.streaming && loading && !response ? (
-                          <Typography color="text.secondary" variant="body2" sx={{ fontSize: '0.8rem' }}>
-                            {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
-                          </Typography>
-                        ) : null}
-                      </Box>
-                    )}
-                  </Box>
-                </Box>
+                <ChatMessageBubble
+                  key={`${msg.role}-${msg.timestamp ?? idx}`}
+                  msg={msg}
+                  idx={idx}
+                  expandedReasoningIdx={expandedReasoningIdx}
+                  setExpandedReasoningIdx={setExpandedReasoningIdx}
+                  expandedProgressIdx={expandedProgressIdx}
+                  setExpandedProgressIdx={setExpandedProgressIdx}
+                  reasoning={reasoning}
+                  response={response}
+                  loading={loading}
+                  progressSteps={progressSteps}
+                />
               ))
             )}
             <div ref={messagesEndRef} />

@@ -8,13 +8,15 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import { Page } from 'components/page';
-import { adreQanInsights } from 'api/adre';
-import { CodeBlock } from 'pages/updates/change-log/code-block';
+import { adreQanInsights, getQanInsightsCache } from 'api/adre';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
 
 const RUNNING_MESSAGE =
   'Query analysis and optimisation is running. Results will appear here soon.';
@@ -24,9 +26,25 @@ function getParam(params: URLSearchParams, snakeKey: string): string {
   return params.get(snakeKey) ?? params.get(camelKey) ?? '';
 }
 
+function formatCacheTimestamp(iso: string): string {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return iso;
+  }
+}
+
 const QanAiInsightsPage: FC = () => {
   const [searchParams] = useSearchParams();
   const [analysis, setAnalysis] = useState<string | null>(null);
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualServiceId, setManualServiceId] = useState('');
@@ -54,62 +72,66 @@ const QanAiInsightsPage: FC = () => {
 
   const hasContext = Boolean(serviceId.trim() && queryText.trim());
 
-  useEffect(() => {
-    if (!hasUrlContext || runOnceRef.current || loading || analysis) return;
-    runOnceRef.current = true;
+  const runAnalysis = (force: boolean) => {
     setLoading(true);
     setError(null);
-    let cancelled = false;
-    const checkMounted = () => !cancelled && mountedRef.current;
     adreQanInsights({
-      serviceId: urlServiceId.trim(),
-      queryText: urlQueryText.trim(),
+      serviceId: serviceId.trim(),
+      queryText: queryText.trim(),
       ...(queryId && { queryId }),
       ...(fingerprint && { fingerprint }),
       ...(timeFrom && { timeFrom }),
       ...(timeTo && { timeTo }),
+      force,
     })
       .then((res) => {
-        if (checkMounted()) setAnalysis(res.analysis ?? '');
-      })
-      .catch((err: Error & { response?: { data?: { error?: string } } }) => {
-        if (checkMounted()) {
-          const msg =
-            err?.response?.data?.error ?? err?.message ?? 'Failed to get AI insights';
-          setError(msg);
+        if (mountedRef.current) {
+          setAnalysis(res.analysis ?? '');
+          setCachedAt(res.created_at ?? null);
         }
-      })
-      .finally(() => {
-        if (checkMounted()) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [hasUrlContext, urlServiceId, urlQueryText, queryId, fingerprint, timeFrom, timeTo, loading, analysis]);
-
-  const handleRunManual = () => {
-    if (!manualServiceId.trim() || !manualQueryText.trim()) return;
-    runOnceRef.current = false;
-    setAnalysis(null);
-    setError(null);
-    setLoading(true);
-    adreQanInsights({
-      serviceId: manualServiceId.trim(),
-      queryText: manualQueryText.trim(),
-    })
-      .then((res) => {
-        if (mountedRef.current) setAnalysis(res.analysis ?? '');
       })
       .catch((err: Error & { response?: { data?: { error?: string } } }) => {
         if (mountedRef.current) {
-          setError(
-            err?.response?.data?.error ?? err?.message ?? 'Failed to get AI insights'
-          );
+          setError(err?.response?.data?.error ?? err?.message ?? 'Failed to get AI insights');
         }
       })
       .finally(() => {
         if (mountedRef.current) setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    if (!hasUrlContext || runOnceRef.current || loading || analysis) return;
+    runOnceRef.current = true;
+
+    if (queryId) {
+      setLoading(true);
+      getQanInsightsCache(queryId, urlServiceId.trim())
+        .then((cached) => {
+          if (!mountedRef.current) return;
+          if (cached?.analysis) {
+            setAnalysis(cached.analysis);
+            setCachedAt(cached.created_at ?? null);
+            setLoading(false);
+          } else {
+            runAnalysis(false);
+          }
+        })
+        .catch(() => {
+          if (mountedRef.current) runAnalysis(false);
+        });
+    } else {
+      runAnalysis(false);
+    }
+  }, [hasUrlContext, urlServiceId, urlQueryText, queryId, fingerprint, timeFrom, timeTo]);
+
+  const handleRunManual = () => {
+    if (!manualServiceId.trim() || !manualQueryText.trim()) return;
+    runOnceRef.current = false;
+    setAnalysis(null);
+    setCachedAt(null);
+    setError(null);
+    runAnalysis(false);
   };
 
   return (
@@ -167,9 +189,27 @@ const QanAiInsightsPage: FC = () => {
         {!loading && analysis !== null && (
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                Analysis
-              </Typography>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                <Stack>
+                  <Typography variant="subtitle1" fontWeight={600}>
+                    Analysis
+                  </Typography>
+                  {cachedAt && (
+                    <Typography variant="caption" color="text.secondary">
+                      Last analyzed: {formatCacheTimestamp(cachedAt)}
+                    </Typography>
+                  )}
+                </Stack>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<RefreshIcon />}
+                  onClick={() => runAnalysis(true)}
+                  disabled={loading}
+                >
+                  Re-run Analysis
+                </Button>
+              </Stack>
               <Typography
                 component="div"
                 variant="body2"
@@ -177,9 +217,8 @@ const QanAiInsightsPage: FC = () => {
               >
                 <Markdown
                   remarkPlugins={[remarkGfm]}
-                  components={{
-                    code: ({ children }) => <CodeBlock>{children}</CodeBlock>,
-                  }}
+                  rehypePlugins={[rehypeRaw]}
+                  components={getMarkdownComponents(analysis ?? '')}
                 >
                   {analysis}
                 </Markdown>

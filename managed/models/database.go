@@ -1584,6 +1584,20 @@ $yaml$,
 	132: {
 		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS servicenow_ticket_number VARCHAR NOT NULL DEFAULT ''`,
 	},
+	133: {
+		`CREATE TABLE IF NOT EXISTS qan_insights_cache (
+			id VARCHAR NOT NULL,
+			query_id VARCHAR NOT NULL,
+			service_id VARCHAR NOT NULL,
+			fingerprint VARCHAR NOT NULL DEFAULT '',
+			time_from VARCHAR NOT NULL DEFAULT '',
+			time_to VARCHAR NOT NULL DEFAULT '',
+			analysis TEXT NOT NULL,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			PRIMARY KEY (id)
+		)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_qan_insights_cache_query_service ON qan_insights_cache (query_id, service_id)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

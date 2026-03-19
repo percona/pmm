@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -121,6 +122,33 @@ func fetchTicketNumber(ctx context.Context, detailsURL, apiKey, clientToken, tic
 	return detailsResp.Result.TicketDetails.Number, nil
 }
 
+var (
+	mdCodeFenceRe  = regexp.MustCompile("(?s)```(?:[a-zA-Z]*)\n?(.*?)```")
+	mdHeaderRe     = regexp.MustCompile(`(?m)^(#{1,4})\s+(.+)$`)
+	mdInlineCodeRe = regexp.MustCompile("`([^`]+)`")
+)
+
+// markdownToServiceNowHTML converts markdown formatting to HTML suitable for ServiceNow description fields.
+func markdownToServiceNowHTML(md string) string {
+	s := md
+	s = mdCodeFenceRe.ReplaceAllString(s, "<pre><code>$1</code></pre>")
+	s = mdHeaderRe.ReplaceAllStringFunc(s, func(match string) string {
+		parts := mdHeaderRe.FindStringSubmatch(match)
+		if len(parts) < 3 {
+			return match
+		}
+		level := len(parts[1])
+		if level < 1 {
+			level = 1
+		} else if level > 4 {
+			level = 4
+		}
+		return fmt.Sprintf("<h%d>%s</h%d>", level, parts[2], level)
+	})
+	s = mdInlineCodeRe.ReplaceAllString(s, "<code>$1</code>")
+	return s
+}
+
 // buildDescription assembles a markdown description from the investigation and its blocks.
 func buildDescription(inv *models.Investigation, blocks []*models.InvestigationBlock) string {
 	var sb strings.Builder
@@ -166,7 +194,7 @@ func buildDescription(inv *models.Investigation, blocks []*models.InvestigationB
 		}
 	}
 
-	return strings.TrimSpace(sb.String())
+	return markdownToServiceNowHTML(strings.TrimSpace(sb.String()))
 }
 
 // PostServiceNowTicket handles POST /v1/investigations/:id/servicenow.

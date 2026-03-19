@@ -131,10 +131,28 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	renderParams.Set("width", width)
 	renderParams.Set("height", height)
 	renderParams.Set("scale", "1")
-	renderParams.Set("tz", "browser")
+	tz := q.Get("tz")
+	if tz == "" {
+		tz = "browser"
+	}
+	renderParams.Set("tz", tz)
+	renderParams.Set("__feature.dashboardSceneSolo", "true")
+	renderParams.Set("viewPanel", "panel-"+panelID)
 	for k, v := range q {
 		if strings.HasPrefix(k, "var-") && len(v) > 0 {
 			renderParams.Set(k, v[0])
+		}
+	}
+	defaultVars := map[string]string{
+		"var-environment":  "$__all",
+		"var-service_type": "$__all",
+		"var-database":     "$__all",
+		"var-username":     "$__all",
+		"var-schema":       "$__all",
+	}
+	for k, v := range defaultVars {
+		if _, exists := q[k]; !exists {
+			renderParams.Set(k, v)
 		}
 	}
 	// Copy our own params for image_url (excluding format=json and cache)

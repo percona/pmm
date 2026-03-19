@@ -129,6 +129,8 @@ type ChangeSettingsParams struct {
 	ServiceNowURL         *string
 	ServiceNowAPIKey      *string
 	ServiceNowClientToken *string
+	// DisableRunbooks: when true, chat mode will not call fetch_runbook.
+	DisableRunbooks *bool
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -311,6 +313,9 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.ServiceNowClientToken != nil {
 		settings.Adre.ServiceNowClientToken = pointer.GetString(params.ServiceNowClientToken)
+	}
+	if params.DisableRunbooks != nil {
+		settings.Adre.DisableRunbooks = *params.DisableRunbooks
 	}
 
 	err = SaveSettings(q, settings)

@@ -1,5 +1,5 @@
 import { Box, Link, Typography } from '@mui/material';
-import { FC, useState, useEffect, ReactNode } from 'react';
+import { FC, useState, useEffect, ReactNode, memo } from 'react';
 import { CodeBlock } from 'pages/updates/change-log/code-block';
 import { PMM_BASE_PATH, PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
@@ -178,7 +178,27 @@ export function withRenderCacheParam(src: string): string {
   }
 }
 
-export const GrafanaPanelImage: FC<{
+const PANEL_IMAGE_CACHE_MAX = 50;
+const panelImageCache = new Map<string, string>();
+
+function panelImageCacheSet(key: string, value: string) {
+  if (panelImageCache.size >= PANEL_IMAGE_CACHE_MAX) {
+    const oldest = panelImageCache.keys().next().value;
+    if (oldest !== undefined) {
+      const url = panelImageCache.get(oldest);
+      if (url) URL.revokeObjectURL(url);
+      panelImageCache.delete(oldest);
+    }
+  }
+  panelImageCache.set(key, value);
+}
+
+export function clearPanelImageCache() {
+  panelImageCache.forEach((url) => URL.revokeObjectURL(url));
+  panelImageCache.clear();
+}
+
+const GrafanaPanelImageInner: FC<{
   src: string;
   alt: string;
   dashboardHref: string | null;
@@ -186,6 +206,11 @@ export const GrafanaPanelImage: FC<{
   const [state, setState] = useState<'loading' | { status: 'success'; url: string } | { status: 'error'; detail?: string }>('loading');
 
   useEffect(() => {
+    const cached = panelImageCache.get(src);
+    if (cached) {
+      setState({ status: 'success', url: cached });
+      return;
+    }
     let objectUrl: string | null = null;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), RENDER_IMAGE_TIMEOUT_MS);
@@ -218,6 +243,7 @@ export const GrafanaPanelImage: FC<{
       })
       .then((blob) => {
         objectUrl = URL.createObjectURL(blob);
+        panelImageCacheSet(src, objectUrl);
         setState({ status: 'success', url: objectUrl });
       })
       .catch((err) => setState({ status: 'error', detail: err instanceof Error ? err.message : undefined }))
@@ -225,7 +251,6 @@ export const GrafanaPanelImage: FC<{
 
     return () => {
       clearTimeout(timeoutId);
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [src]);
 
@@ -239,10 +264,13 @@ export const GrafanaPanelImage: FC<{
     );
   }
   if (state.status === 'error') {
+    const friendlyDetail = state.detail && (state.detail.includes('<!DOCTYPE') || state.detail.length > 200)
+      ? 'Panel render timed out — try opening in Grafana directly'
+      : state.detail;
     return (
       <Box sx={{ my: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          Image failed to load{state.detail ? ` (${state.detail})` : ''}
+          Image failed to load{friendlyDetail ? ` (${friendlyDetail})` : ''}
         </Typography>
         {dashboardHref && (
           <Link
@@ -292,6 +320,8 @@ export const GrafanaPanelImage: FC<{
     </Box>
   );
 };
+
+export const GrafanaPanelImage = memo(GrafanaPanelImageInner);
 
 /** Returns markdown component overrides for rendering Grafana panel images, code blocks, and dashboard links within chat messages. */
 export function getMarkdownComponents(content: string) {

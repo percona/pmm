@@ -124,6 +124,8 @@ type Settings struct {
 		ServiceNowURL         string `json:"servicenow_url"`
 		ServiceNowAPIKey      string `json:"servicenow_api_key"`
 		ServiceNowClientToken string `json:"servicenow_client_token"`
+		// DisableRunbooks: when true, chat mode will not call fetch_runbook or use todowrite_instructions.
+		DisableRunbooks bool `json:"disable_runbooks"`
 	} `json:"adre"`
 
 	Alerting struct {

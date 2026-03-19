@@ -98,6 +98,7 @@ type adreSettingsResponse struct {
 	ReplaceSystemPrompt        bool   `json:"replace_system_prompt"`
 	ServiceNowURL              string `json:"servicenow_url"`
 	ServiceNowConfigured       bool   `json:"servicenow_configured"`
+	DisableRunbooks            bool   `json:"disable_runbooks"`
 }
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
@@ -157,6 +158,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		ReplaceSystemPrompt:          settings.Adre.ReplaceSystemPrompt,
 		ServiceNowURL:                settings.Adre.ServiceNowURL,
 		ServiceNowConfigured:         settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
+		DisableRunbooks:              settings.Adre.DisableRunbooks,
 	}
 	applyAdreSettingsDefaults(&resp)
 	body, err := json.Marshal(resp)
@@ -192,6 +194,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowURL         *string `json:"servicenow_url"`
 		ServiceNowAPIKey      *string `json:"servicenow_api_key"`
 		ServiceNowClientToken *string `json:"servicenow_client_token"`
+		DisableRunbooks       *bool   `json:"disable_runbooks"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -201,7 +204,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		body.InvestigationPrompt != nil || body.DefaultChatMode != nil ||
 		body.ChatBackend != nil || body.ChatHistoryLength != nil || body.AgentPrompt != nil ||
 		body.QanInsightsPrompt != nil || body.ReplaceSystemPrompt != nil ||
-		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil
+		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
+		body.DisableRunbooks != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
@@ -274,6 +278,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowURL:            body.ServiceNowURL,
 		ServiceNowAPIKey:         body.ServiceNowAPIKey,
 		ServiceNowClientToken:    body.ServiceNowClientToken,
+		DisableRunbooks:          body.DisableRunbooks,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -314,6 +319,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ReplaceSystemPrompt:          settings.Adre.ReplaceSystemPrompt,
 		ServiceNowURL:                settings.Adre.ServiceNowURL,
 		ServiceNowConfigured:         settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
+		DisableRunbooks:              settings.Adre.DisableRunbooks,
 	}
 	applyAdreSettingsDefaults(&resp)
 	respBody, err := json.Marshal(resp)
@@ -439,6 +445,12 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		mode = "investigation"
 	}
 	req := &body.ChatRequest
+	if settings.Adre.DisableRunbooks || mode == "chat" {
+		req.BehaviorControls = map[string]bool{
+			"fetch_runbook":          false,
+			"todowrite_instructions": false,
+		}
+	}
 	if cb == "holmes_agent" {
 		req.AdditionalSystemPrompt = resolvePMMAgentPrompt(settings)
 	} else {
@@ -511,12 +523,13 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		ServiceID  string `json:"service_id"`
-		QueryText  string `json:"query_text"`
-		QueryID    string `json:"query_id"`
+		ServiceID   string `json:"service_id"`
+		QueryText   string `json:"query_text"`
+		QueryID     string `json:"query_id"`
 		Fingerprint string `json:"fingerprint"`
-		TimeFrom   string `json:"time_from"`
-		TimeTo     string `json:"time_to"`
+		TimeFrom    string `json:"time_from"`
+		TimeTo      string `json:"time_to"`
+		Force       bool   `json:"force"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -527,6 +540,27 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 	if body.ServiceID == "" || body.QueryText == "" {
 		writeJSONError(w, http.StatusBadRequest, "service_id and query_text are required")
 		return
+	}
+	if !body.Force && body.QueryID != "" {
+		rows, err := h.db.Query(
+			"SELECT analysis, created_at FROM qan_insights_cache WHERE query_id = $1 AND service_id = $2 ORDER BY created_at DESC LIMIT 1",
+			body.QueryID, body.ServiceID,
+		)
+		if err == nil {
+			var cachedAnalysis string
+			var cachedAt time.Time
+			found := rows.Next() && rows.Scan(&cachedAnalysis, &cachedAt) == nil
+			rows.Close()
+			if found {
+				w.Header().Set("Content-Type", "application/json")
+				_ = json.NewEncoder(w).Encode(map[string]interface{}{
+					"analysis":   cachedAnalysis,
+					"created_at": cachedAt.Format(time.RFC3339),
+					"cached":     true,
+				})
+				return
+			}
+		}
 	}
 	userMessage := fmt.Sprintf(
 		"Analyze this query and provide optimization suggestions based on QAN metrics and schema.\n"+
@@ -554,13 +588,68 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadGateway, err.Error())
 		return
 	}
-	out := struct {
-		Analysis string `json:"analysis"`
-	}{Analysis: chatResp.Analysis}
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(out); err != nil {
-		h.l.Errorf("Encode qan-insights: %v", err)
+	if body.QueryID != "" {
+		_, err := h.db.Exec(
+			`INSERT INTO qan_insights_cache (id, query_id, service_id, fingerprint, time_from, time_to, analysis, created_at)
+			 VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, NOW())
+			 ON CONFLICT (query_id, service_id) DO UPDATE SET analysis = $6, fingerprint = $3, time_from = $4, time_to = $5, created_at = NOW()`,
+			body.QueryID, body.ServiceID, body.Fingerprint, body.TimeFrom, body.TimeTo, chatResp.Analysis,
+		)
+		if err != nil {
+			h.l.Warnf("QanInsights cache upsert: %v", err)
+		}
 	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"analysis":   chatResp.Analysis,
+		"created_at": time.Now().Format(time.RFC3339),
+		"cached":     false,
+	})
+}
+
+// GetQanInsights handles GET /v1/adre/qan-insights. Returns cached analysis for a query+service pair, or 404 if not cached.
+func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	_, ok := h.checkAdreEnabled(w)
+	if !ok {
+		return
+	}
+	queryID := strings.TrimSpace(r.URL.Query().Get("query_id"))
+	serviceID := strings.TrimSpace(r.URL.Query().Get("service_id"))
+	if queryID == "" || serviceID == "" {
+		writeJSONError(w, http.StatusBadRequest, "query_id and service_id are required")
+		return
+	}
+	rows, err := h.db.Query(
+		"SELECT analysis, created_at FROM qan_insights_cache WHERE query_id = $1 AND service_id = $2 ORDER BY created_at DESC LIMIT 1",
+		queryID, serviceID,
+	)
+	if err != nil {
+		h.l.Errorf("GetQanInsights cache lookup: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to check cache")
+		return
+	}
+	defer rows.Close()
+	if !rows.Next() {
+		writeJSONError(w, http.StatusNotFound, "No cached analysis found")
+		return
+	}
+	var analysis string
+	var createdAt time.Time
+	if err := rows.Scan(&analysis, &createdAt); err != nil {
+		h.l.Errorf("GetQanInsights scan: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to read cache")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"analysis":   analysis,
+		"created_at": createdAt.Format(time.RFC3339),
+		"cached":     true,
+	})
 }
 
 // GetAlerts handles GET /v1/adre/alerts — fetches firing alerts from Grafana's Alertmanager API.

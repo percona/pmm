@@ -67,6 +67,9 @@ const AdreSettingsPage: FC = () => {
   );
   const [localServiceNowAPIKey, setLocalServiceNowAPIKey] = useState('');
   const [localServiceNowClientToken, setLocalServiceNowClientToken] = useState('');
+  const [localDisableRunbooks, setLocalDisableRunbooks] = useState(
+    settings?.disableRunbooks ?? settings?.disable_runbooks ?? false
+  );
 
   useEffect(() => {
     if (settings) {
@@ -84,6 +87,7 @@ const AdreSettingsPage: FC = () => {
       setLocalServiceNowURL(
         settings.servicenowUrl ?? settings.servicenow_url ?? 'https://perconadev.service-now.com/api/pellc/percona_connector/create'
       );
+      setLocalDisableRunbooks(settings.disableRunbooks ?? settings.disable_runbooks ?? false);
     }
   }, [
     settings?.enabled,
@@ -205,6 +209,19 @@ const AdreSettingsPage: FC = () => {
                     }
                     label="Replace Holmes system prompt"
                   />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={localDisableRunbooks}
+                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalDisableRunbooks(v)}
+                      />
+                    }
+                    label="Disable Runbooks in chat"
+                  />
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
+                    When enabled, the AI will not fetch or execute runbooks in chat mode.
+                    Investigation mode keeps runbooks available by default.
+                  </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
                     When enabled, the PMM prompt fully replaces Holmes&apos; default system prompt.
                     When disabled, the PMM prompt is appended to Holmes&apos; default.
@@ -329,6 +346,7 @@ const AdreSettingsPage: FC = () => {
                         agent_prompt: localAgentPrompt || undefined,
                         qan_insights_prompt: localQanInsightsPrompt || undefined,
                         replace_system_prompt: localReplaceSystemPrompt,
+                        disable_runbooks: localDisableRunbooks,
                         servicenow_url: localServiceNowURL || undefined,
                         ...(localServiceNowAPIKey ? { servicenow_api_key: localServiceNowAPIKey } : {}),
                         ...(localServiceNowClientToken ? { servicenow_client_token: localServiceNowClientToken } : {}),

@@ -41,6 +41,9 @@ export interface AdreSettings {
   /** True when URL + API key + client token are all configured server-side. */
   servicenowConfigured?: boolean;
   servicenow_configured?: boolean;
+  /** When true, chat mode will not call fetch_runbook or use todowrite_instructions. */
+  disableRunbooks?: boolean;
+  disable_runbooks?: boolean;
 }
 
 export interface AdreModelsResponse {
@@ -88,10 +91,13 @@ export interface AdreQanInsightsRequest {
   fingerprint?: string;
   timeFrom?: string;
   timeTo?: string;
+  force?: boolean;
 }
 
 export interface AdreQanInsightsResponse {
   analysis: string;
+  created_at?: string;
+  cached?: boolean;
 }
 
 export const getAdreSettings = async (): Promise<AdreSettings> => {
@@ -123,6 +129,20 @@ export const adreQanInsights = async (
 ): Promise<AdreQanInsightsResponse> => {
   const res = await api.post<AdreQanInsightsResponse>('/adre/qan-insights', body);
   return res.data;
+};
+
+export const getQanInsightsCache = async (
+  queryId: string,
+  serviceId: string
+): Promise<AdreQanInsightsResponse | null> => {
+  try {
+    const res = await api.get<AdreQanInsightsResponse>('/adre/qan-insights', {
+      params: { query_id: queryId, service_id: serviceId },
+    });
+    return res.data;
+  } catch {
+    return null;
+  }
 };
 
 /** Callback for adreChatStream: receives content chunks and/or reasoning chunks. */

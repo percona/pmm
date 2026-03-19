@@ -68,7 +68,11 @@ const PanelImageWithFetch: FC<{
     return (
       <Box sx={{ mb: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          Image failed to load{state.detail ? ` (${state.detail})` : ''}
+          Image failed to load{(() => {
+            if (!state.detail) return '';
+            if (state.detail.includes('<!DOCTYPE') || state.detail.length > 200) return ' (Panel render timed out — try opening in Grafana directly)';
+            return ` (${state.detail})`;
+          })()}
         </Typography>
         {href && (
           <Link href={href} target="_blank" rel="noopener noreferrer" sx={{ display: 'inline-block', mt: 0.5 }}>

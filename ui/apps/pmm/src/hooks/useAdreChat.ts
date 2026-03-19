@@ -2,10 +2,11 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { adreChatStream, type AdreStreamProgressEvent } from 'api/adre';
 import { useAdreSettings } from 'hooks/api/useAdre';
 import { useSnackbar } from 'notistack';
+import { clearPanelImageCache } from 'components/adre/adre-chat-markdown';
 
 const STORAGE_KEY = 'pmm-adre-chat';
 const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
-const CHAT_HISTORY_MAX_MESSAGES = 300;
+const CHAT_HISTORY_MAX_MESSAGES = 30;
 
 export type ProgressStep = { id: string; toolName: string; description?: string; status: 'running' | 'done' };
 
@@ -229,6 +230,18 @@ export function useAdreChat() {
       : []),
   ];
 
+  const clearHistory = useCallback(() => {
+    setHistory([]);
+    setResponse('');
+    setReasoning('');
+    setProgressSteps([]);
+    progressStepsRef.current = [];
+    clearPanelImageCache();
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch { /* ignore */ }
+  }, []);
+
   return {
     history,
     response,
@@ -238,6 +251,7 @@ export function useAdreChat() {
     allMessages,
     settings,
     handleSend,
+    clearHistory,
   };
 }
 
