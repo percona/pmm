@@ -51,12 +51,11 @@ const (
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
 	// AgentStatusDone indicates thay the agent has either been stopped or disabled.
-	agentStatusDone = "AGENT_STATUS_DONE"
-	tcp             = "tcp"
-	trueStr         = "true"
-	unix            = "unix"
-	skipVerify      = "skip-verify"
-	// effectiveDialTimeoutFallbackSec is default dial timeout (seconds) for agents not using exporter default (1s).
+	agentStatusDone                 = "AGENT_STATUS_DONE"
+	tcp                             = "tcp"
+	trueStr                         = "true"
+	unix                            = "unix"
+	skipVerify                      = "skip-verify"
 	effectiveDialTimeoutFallbackSec = 2
 )
 
