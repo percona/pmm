@@ -78,24 +78,24 @@ Find all available commands for managing monitored services:
 
 ### Add and remove services
 
-- [`pmm-admin add`](pmm-admin-add.md) — Add database services to monitoring
-- [`pmm-admin remove`](pmm-admin-config.md) — Remove service from monitoring
+- [`pmm-admin add`](../pmm-admin/add.md): Add database services to monitoring
+- [`pmm-admin remove`](../pmm-admin/config.md): Remove service from monitoring
 
 ### Manage inventory
 
-- [`pmm-admin inventory`](pmm-admin-inventory.md) — List and modify agents and services
+- [`pmm-admin inventory`](../pmm-admin/inventory.md): List and modify agents and services
 
 ### Configure and register
 
-- [`pmm-admin config`](pmm-admin-config.md) — Configure local pmm-agent
-- [`pmm-admin register`](pmm-admin-config.md) — Register node with PMM Server
-- [`pmm-admin annotate`](pmm-admin-config.md) — Add event annotations
+- [`pmm-admin config`](../pmm-admin/config.md): Configure local pmm-agent
+- [`pmm-admin register`](../pmm-admin/config.md): Register node with PMM Server
+- [`pmm-admin annotate`](../pmm-admin/config.md): Add event annotations
 
 ### Status and troubleshooting
 
-- [`pmm-admin status`](pmm-admin-status.md) — Show PMM Client status
-- [`pmm-admin list`](pmm-admin-status.md) — List monitored services
-- [`pmm-admin summary`](pmm-admin-status.md) — Create diagnostic archive
+- [`pmm-admin status`](../pmm-admin/status.md): Show PMM Client status
+- [`pmm-admin list`](../pmm-admin/status.md): List monitored services
+- [`pmm-admin summary`](../pmm-admin/status.md): Create diagnostic archive
 
 ## Get help
 

@@ -486,7 +486,7 @@ The PostgreSQL exporter can execute custom queries to collect additional metrics
 
 ## Related topics
 
-- [`pmm-admin` man page for `pmm-admin add postgresql`](../../../use/commands/pmm-admin/pmm-admin.md#database-commands)
+- [`pmm-admin` man page for `pmm-admin add postgresql`](../../../use/commands/pmm-admin/pmm-admin.md#command-reference)
 - [Configuring Percona repositories with percona-release][PERCONA_RELEASE]
 - [Running custom MySQL queries in PMM][BLOG_CUSTOM_QUERIES_MYSQL]
 
