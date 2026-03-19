@@ -277,4 +277,4 @@ After successfully connecting your Valkey or Redis instance to PMM:
 - Use [PMM Inventory](../../../use/dashboard-inventory.md) to view and manage all monitored instances.
 - [Valkey official documentation](https://valkey.io/docs/)
 - [Redis official Documentation](https://redis.io/docs/)
-- [pmm-admin command reference](../../..//use/commands/pmm-admin/pmm-admin.md)
+- [pmm-admin command reference](../../../use/commands/pmm-admin/pmm-admin.md)

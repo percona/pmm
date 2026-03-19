@@ -2,14 +2,14 @@
 
 Use `pmm-admin add` to add database services to PMM monitoring from the command line. This command supports MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, and HAProxy.
 
-To add services through the web interface instead, see [Connect databases in the PMM UI](../../../install-pmm/install-pmm-client/connect-database/index.md). For programmatic access, see the [PMM API](../../../api/index.md).
+To add services through the web interface instead, see [Connect databases in the PMM UI](../../../install-pmm/install-pmm-client/connect-database/index.md). For programmatic access, see the [PMM API](../../../api/index.md)
 
 ## Syntax
 
 Run the `add` command in the format below. Keep in mind that `SERVICE_TYPE` is one of: `mysql`, `postgresql`, `mongodb`, `valkey`, `proxysql`, `haproxy`, `external`, `external-serverless`:
 
 ```bash
-pmm-admin add <SERVICE_TYPE> [FLAGS] [NAME] [ADDRESS]
+pmm-admin add <SERVICE_TYPE> [NAME] [ADDRESS] [FLAGS]
 ```
 
 ## Flag reference
@@ -17,78 +17,83 @@ pmm-admin add <SERVICE_TYPE> [FLAGS] [NAME] [ADDRESS]
 Control connection settings, TLS, query collection, metric collectors, and service organization using the flags available for each database type:
 
 ### Connection flags
-| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA Proxy|
-|------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
-| `--username` | Database username | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--password` | Database password | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--address` | Host and port | ✓ | | | | | |
-| `--socket` | Unix socket path | ✓ | | | | | |
-| `--database` | Database name | | ✓ | | | | |
-| `--extra-dsn` | Additional DSN parameters | ✓ | | | | | |
-| `--listen-port` | Metrics listen port | | | | | | ✓ |
-| `--scheme` | URI scheme (http/https) | | | | | | ✓ |
-| `--metrics-path` | Metrics endpoint path | | | | | | ✓ |
+
+| Flag | MySQL | PG | Mongo | Valkey | Proxy | HAProxy |
+|------|:-----:|:--:|:-----:|:------:|:-----:|:-------:|
+| `--username`<br>(database username) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--password`<br>(database password) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--address`<br>(host and port) | ✓ | | | | | |
+| `--socket`<br>(Unix socket path) | ✓ | | | | | |
+| `--database`<br>(database name) | | ✓ | | | | |
+| `--extra-dsn`<br>(additional DSN parameters) | ✓ | | | | | |
+| `--listen-port`<br>(metrics listen port) | | | | | | ✓ |
+| `--scheme`<br>(http/https) | | | | | | ✓ |
+| `--metrics-path`<br>(metrics endpoint path) | | | | | | ✓ |
 
 ### TLS flags
 
-| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
-|------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
-| `--tls` | Use TLS connection | ✓ | ✓ | ✓ | ✓ | ✓ | |
-| `--tls-skip-verify` | Skip certificate validation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--tls-ca` / `--tls-ca-file` | CA certificate file | ✓ | ✓ | ✓ | | | |
-| `--tls-cert` / `--tls-cert-file` | Client certificate file | ✓ | ✓ | | | | |
-| `--tls-key` / `--tls-key-file` | Client key file | ✓ | ✓ | | | | |
-| `--tls-certificate-key-file` | Combined cert/key file | | | ✓ | | | |
-| `--tls-certificate-key-file-password` | Password for cert/key file | | | ✓ | | | |
+### Connection flags
+
+| Flag | MySQL | PG | Mongo | Valkey | Proxy | HAProxy |
+|------|:-----:|:--:|:-----:|:------:|:-----:|:-------:|
+| `--username`<br>Database username | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--password`<br>Database password | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--address`<br>Host and port | ✓ | | | | | |
+| `--socket`<br>Unix socket path | ✓ | | | | | |
+| `--database`<br>Database name | | ✓ | | | | |
+| `--extra-dsn`<br>Additional DSN parameters | ✓ | | | | | |
+| `--listen-port`<br>Metrics listen port | | | | | | ✓ |
+| `--scheme`<br>URI scheme (http/https) | | | | | | ✓ |
+| `--metrics-path`<br>Metrics endpoint path | | | | | | ✓ |
 
 ### Query Analytics (QAN) flags
 
-| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
-|------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
-| `--query-source` | Query source | ✓ | ✓ | ✓ | | | |
-| `--disable-queryexamples` | Disable query examples | ✓ | ✓ | | | | |
-| `--max-query-length` | Max query length | ✓ | ✓ | ✓ | | | |
-| `--comments-parsing` | Parse query comments | ✓ | ✓ | | | | |
-| `--size-slow-logs` | Slow log rotation size | ✓ | | | | | |
+| Flag | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+|------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
+| `--query-source`<br>Query source | ✓ | ✓ | ✓ | | | |
+| `--disable-queryexamples`<br>Disable query examples | ✓ | ✓ | | | | |
+| `--max-query-length`<br>Max query length | ✓ | ✓ | ✓ | | | |
+| `--comments-parsing`<br>Parse query comments | ✓ | ✓ | | | | |
+| `--size-slow-logs`<br>Slow log rotation size | ✓ | | | | | |
 
 ### Collector flags
 
-| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
-|------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
-| `--disable-collectors` | Exclude collectors | ✓ | | ✓ | | ✓ | |
-| `--enable-all-collectors` | Enable all collectors | | | ✓ | | | |
-| `--max-collections-limit` | Max collections to monitor | | | ✓ | | | |
-| `--stats-collections` | Collections for stats | | | ✓ | | | |
-| `--disable-tablestats` | Disable table statistics | ✓ | | | | | |
-| `--disable-tablestats-limit` | Table count limit | ✓ | | | | | |
+| Flag | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+|------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
+| `--disable-collectors`<br>Exclude collectors | ✓ | | ✓ | | ✓ | |
+| `--enable-all-collectors`<br>Enable all collectors | | | ✓ | | | |
+| `--max-collections-limit`<br>Max collections to monitor | | | ✓ | | | |
+| `--stats-collections`<br>Collections for stats | | | ✓ | | | |
+| `--disable-tablestats`<br>Disable table statistics | ✓ | | | | | |
+| `--disable-tablestats-limit`<br>Table count limit | ✓ | | | | | |
 
 ### Service organization flags
 
-| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
-|------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
-| `--environment` | Environment name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--cluster` | Cluster name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--replication-set` | Replication set name | ✓ | ✓ | ✓ | | ✓ | ✓ |
-| `--custom-labels` | Custom labels | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Flag | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+|------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
+| `--environment`<br>Environment name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--cluster`<br>Cluster name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--replication-set`<br>Replication set name | ✓ | ✓ | ✓ | | ✓ | ✓ |
+| `--custom-labels`<br>Custom labels | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### Agent flags
 
-| Flag | Description | MySQL | PG | Mongo | Valkey | Proxy | HA |
-|------|-------------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
-| `--agent-password` | Override metrics endpoint password | ✓ | ✓ | ✓ | ✓ | ✓ | |
-| `--agent-env-vars` | Environment variables for exporter | | | ✓ | | | |
-| `--metrics-mode` | Metrics flow mode (auto/push/pull) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--node-id` | Node ID | ✓ | ✓ | ✓ | ✓ | ✓ | |
-| `--pmm-agent-id` | PMM Agent ID | ✓ | ✓ | ✓ | ✓ | ✓ | |
-| `--service-node-id` | Service node ID | | | | | | ✓ |
-| `--skip-connection-check` | Skip connection check | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Flag | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
+|------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
+| `--agent-password`<br>Override metrics endpoint password | ✓ | ✓ | ✓ | ✓ | ✓ | |
+| `--agent-env-vars`<br>Environment variables for exporter | | | ✓ | | | |
+| `--metrics-mode`<br>Metrics flow mode (auto/push/pull) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--node-id`<br>Node ID | ✓ | ✓ | ✓ | ✓ | ✓ | |
+| `--pmm-agent-id`<br>PMM Agent ID | ✓ | ✓ | ✓ | ✓ | ✓ | |
+| `--service-node-id`<br>Service node ID | | | | | | ✓ |
+| `--skip-connection-check`<br>Skip connection check | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ## Add MySQL
 
 Add a MySQL instance to monitoring:
 
 ```bash
-pmm-admin add mysql [FLAGS] [NAME] [ADDRESS]
+pmm-admin add mysql [NAME] [ADDRESS] [FLAGS]
 ```
 
 ### Connection options
@@ -232,7 +237,7 @@ For available collectors, see the [mysqld_exporter repository](https://github.co
 Add a PostgreSQL instance to monitoring:
 
 ```bash
-pmm-admin add postgresql [FLAGS] [NAME] [ADDRESS]
+pmm-admin add postgresql [NAME] [ADDRESS] [FLAGS]
 ```
 
 ### Connection options
@@ -323,7 +328,7 @@ pmm-admin add postgresql \
 Add a MongoDB instance to monitoring:
 
 ```bash
-pmm-admin add mongodb [FLAGS] [NAME] [ADDRESS]
+pmm-admin add mongodb [NAME] [ADDRESS] [FLAGS]
 ```
 
 ### Connection options
@@ -485,7 +490,7 @@ pmm-admin add mongodb \
 Add a Valkey or Redis instance to monitoring:
 
 ```bash
-pmm-admin add valkey [FLAGS] [NAME] [ADDRESS]
+pmm-admin add valkey [NAME] [ADDRESS] [FLAGS]
 ```
 
 ### Connection options
@@ -544,7 +549,7 @@ pmm-admin add valkey \
 Add a ProxySQL instance to monitoring:
 
 ```bash
-pmm-admin add proxysql [FLAGS] [NAME] [ADDRESS]
+pmm-admin add proxysql [NAME] [ADDRESS] [FLAGS]
 ```
 
 ### Connection options
@@ -599,7 +604,7 @@ pmm-admin add proxysql \
 Add an HAProxy instance to monitoring:
 
 ```bash
-pmm-admin add haproxy [FLAGS] [NAME]
+pmm-admin add haproxy [NAME] [FLAGS]
 ```
 
 ### Connection options
@@ -655,7 +660,7 @@ Add custom Prometheus exporters to PMM.
 Add an external Prometheus exporter running on a known port:
 
 ```bash
-pmm-admin add external [FLAGS] [NAME] [ADDRESS]
+pmm-admin add external [NAME] [ADDRESS] [FLAGS]
 ```
 
 ```bash
@@ -671,7 +676,7 @@ pmm-admin add external \
 Add an external serverless service with a full URL:
 
 ```bash
-pmm-admin add external-serverless [FLAGS] [NAME] [ADDRESS]
+pmm-admin add external-serverless [NAME] [ADDRESS] [FLAGS]
 ```
 
 ```bash

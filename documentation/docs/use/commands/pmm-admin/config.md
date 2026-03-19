@@ -156,7 +156,7 @@ pmm-admin register [FLAGS] [node-address] [node-type] [node-name]
 
 Stop monitoring a service and remove it from PMM. This removes the service and its agents from PMM Server but does not delete any collected data. 
 
-Data remains on PMM Server for the configured [retention period](../../reference/faq.md#retention).
+Data remains on PMM Server for the configured [retention period](../../../reference/faq.md#retention).
 
 ### Syntax
 

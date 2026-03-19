@@ -4,7 +4,7 @@ PMM provides two command-line tools for managing your monitoring setup from the 
 
 Use these tools to add databases, configure agents, check status, and troubleshoot issues without leaving the command line.
 
-You can also perform most of these tasks through the [PMM web interface](https://docs.percona.com/percona-monitoring-and-management/get-started/interface.html) or the [PMM API](../../../api/index.md).
+You can also perform most of these tasks through the [PMM web interface](https://docs.percona.com/percona-monitoring-and-management/get-started/interface.html) or the [PMM API](../../api/index.md).
 
 ## Command-line tools
 
@@ -18,7 +18,9 @@ You can also perform most of these tasks through the [PMM web interface](https:/
 `pmm-agent`
 :   The daemon process that runs on each monitored host. It manages exporters and agents locally, coordinating data collection and communication between PMM Client and PMM Server. 
 
-    You typically don't interact with `pmm-agent` directly, `pmm-admin` sends commands to it. See [`pmm-agent` reference](pmm-agent.md) for configuration options and startup flags.
+    You typically don't interact with pmm-agent directly, `pmm-admin` communicates with PMM Server, which then sends commands to `pmm-agent`. See [Coordinate monitoring agents with pmm-agent](pmm-agent.md) for configuration options and startup flags.
+
+
 
 ## Next steps
  

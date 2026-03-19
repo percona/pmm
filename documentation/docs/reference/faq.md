@@ -76,7 +76,7 @@ pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
 ```
 
 !!! seealso alert alert-info "See also"
-    [`pmm-admin add mysql`](..//use/commands/pmm-admin/pmm-admin.md#database-commands)
+    [`pmm-admin add mysql`](../use/commands/pmm-admin/pmm-admin.md#database-commands)
 
 ## Can I rename instances?
 
@@ -143,7 +143,7 @@ See [Troubleshoot update](../troubleshoot/upgrade_issues.md).
 PMM protects an exporter's output from unauthorized access by adding an authorization layer. To access an exporter, you can use `pmm` as a user name and the Agent ID as a password. You can find the Agent ID corresponding to a given exporter by running `pmm-admin list`.
 
 !!! seealso alert alert-info "See also"
-    [`pmm-admin list`](..//use/commands/pmm-admin/pmm-admin.md#information-commands)
+    [`pmm-admin list`](../use/commands/pmm-admin/pmm-admin.md#information-commands)
 
 ## How to provision PMM Server with non-default admin password?
 

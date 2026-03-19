@@ -1,4 +1,4 @@
-# Manage databases from the command line with pmm-admin
+# pmm-admin command overview
 
 `pmm-admin` is the command-line tool for managing your PMM monitoring setup. Use it to add databases, check connection status, update agent configurations, and troubleshoot issues from your terminal.
 
@@ -74,24 +74,28 @@ Find all available commands for managing monitored services:
 | `pmm-admin list` | List monitored services | [Status and diagnostics](../pmm-admin/status.md) |
 | `pmm-admin summary` | Create diagnostic archive | [Status and diagnostics](../pmm-admin/status.md) |
 
-## Common flags
+## Command reference
 
-Add these flags to any command:
+### Add and remove services
 
-| Flag | Description |
-|------|-------------|
-| `-h`, `--help` | Show help and exit |
-| `--help-long` | Show extended help and exit |
-| `--help-man` | Generate man page |
-| `--debug` | Enable debug logging |
-| `--trace` | Enable trace logging (implies debug) |
-| `--log-level` | Set log level (INFO, WARNING, ERROR, FATAL) |
-| `--json` | Enable JSON output |
-| `--version` | Show application version and exit |
-| `--server-url=URL` | PMM Server URL in `https://username:password@pmm-server-host/` format |
-| `--server-insecure-tls` | Skip PMM Server TLS certificate validation |
-| `--group=<group-name>` | Group name for external services (default: `external`) |
-| `--expose-exporter` | Allow remote access to exporter endpoints. When disabled (default), endpoints are accessible only locally |
+- [`pmm-admin add`](pmm-admin-add.md) — Add database services to monitoring
+- [`pmm-admin remove`](pmm-admin-config.md) — Remove service from monitoring
+
+### Manage inventory
+
+- [`pmm-admin inventory`](pmm-admin-inventory.md) — List and modify agents and services
+
+### Configure and register
+
+- [`pmm-admin config`](pmm-admin-config.md) — Configure local pmm-agent
+- [`pmm-admin register`](pmm-admin-config.md) — Register node with PMM Server
+- [`pmm-admin annotate`](pmm-admin-config.md) — Add event annotations
+
+### Status and troubleshooting
+
+- [`pmm-admin status`](pmm-admin-status.md) — Show PMM Client status
+- [`pmm-admin list`](pmm-admin-status.md) — List monitored services
+- [`pmm-admin summary`](pmm-admin-status.md) — Create diagnostic archive
 
 ## Get help
 

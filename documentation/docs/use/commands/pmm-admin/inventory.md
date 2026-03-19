@@ -2,53 +2,44 @@
 
 Use `pmm-admin inventory` from the command line to list registered services and agents, and modify agent configurations without removing and re-adding services.
 
-To manage inventory in the UI, see [PMM Inventory](../../inventory.md). For programmatic access, see the [PMM API](../../../api/index.md).
+To manage inventory in the UI, go to **Configuration > Inventory**. For programmatic access, see the [PMM API](../../../api/index.md).
 
 ## Commands
 
-- [`pmm-admin inventory list`](#pmm-admin-inventory-list)
-:   Shows registered nodes, services, and agents
+- [`pmm-admin inventory list agents|nodes|services`](#pmm-admin-inventory-list)
+:   Shows registered agents, nodes, or services
 
 - [`pmm-admin inventory change agent`](#pmm-admin-inventory-change-agent)
 :   Modifies agent configuration without removing the service
 
 ## pmm-admin inventory list
 
-View all nodes, services, and agents registered with PMM Server:
+View agents, nodes, or services registered with PMM Server. You must specify which type to list:
 
 ```bash
-pmm-admin inventory list [FLAGS]
+pmm-admin inventory list agents
+pmm-admin inventory list nodes
+pmm-admin inventory list services
 ```
-
-### Flags
-
-- `--agents`
-:   List only agents
-
-- `--services`
-:   List only services
-
-- `--nodes`
-:   List only nodes
 
 ### Examples
 
-- List all inventory items:
+- List all agents:
 
     ```bash
-    pmm-admin inventory list
+    pmm-admin inventory list agents
     ```
 
-- List only agents:
+- List all nodes:
 
     ```bash
-    pmm-admin inventory list --agents
+    pmm-admin inventory list nodes
     ```
 
-- List only services:
+- List all services:
 
     ```bash
-    pmm-admin inventory list --services
+    pmm-admin inventory list services
     ```
 
 ## pmm-admin inventory change agent
@@ -72,8 +63,6 @@ Currently supports MongoDB agent types only:
 - `mongodb-profiler-agent`
 - `qan-mongodb-profiler-agent`
 - `rta-mongodb-agent`
-
-<!-- TODO: Verify which MongoDB agent subtypes are supported in 3.7.0 before publishing. The Jira ticket confirms mongodb-exporter; confirm the others with the dev team. -->
 
 Only the flags you specify are updated — all other settings remain unchanged. Changes take effect immediately without restarting the agent. The command fails with a clear error if the agent ID doesn't exist or the type doesn't match.
 
@@ -99,7 +88,7 @@ Only the flags you specify are updated — all other settings remain unchanged. 
 Get the agent ID from the inventory list:
 
 ```bash
-pmm-admin inventory list --agents
+pmm-admin inventory list agents
 ```
 
 Look for the agent ID in the output (format: `/agent_id/...`):

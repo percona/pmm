@@ -501,7 +501,7 @@ nav:
           - PMM commands:
               - About PMM commands: use/commands/index.md
               - pmm-admin:
-                - Overview: use/commands/pmm-admin/pmm-admin.md
+                - pmm-admin overview: use/commands/pmm-admin/pmm-admin.md
                 - Add database services: use/commands/pmm-admin/add.md
                 - Manage inventory: use/commands/pmm-admin/inventory.md
                 - Configuration commands: use/commands/pmm-admin/config.md
