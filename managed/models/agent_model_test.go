@@ -622,3 +622,46 @@ func TestExporterURL(t *testing.T) {
 		}
 	})
 }
+
+func TestEffectiveDialTimeout(t *testing.T) {
+	t.Parallel()
+
+	custom := 7 * time.Second
+	t.Run("explicit ExporterOptions.Timeout", func(t *testing.T) {
+		t.Parallel()
+		a := &models.Agent{
+			AgentType: models.QANMySQLPerfSchemaAgentType,
+			ExporterOptions: models.ExporterOptions{
+				Timeout: custom,
+			},
+		}
+		assert.Equal(t, custom, a.EffectiveDialTimeout())
+	})
+
+	t.Run("exporter agent types default to 1s", func(t *testing.T) {
+		t.Parallel()
+		for _, typ := range []models.AgentType{
+			models.NodeExporterType,
+			models.MySQLdExporterType,
+			models.MongoDBExporterType,
+			models.PostgresExporterType,
+			models.ProxySQLExporterType,
+			models.RDSExporterType,
+			models.AzureDatabaseExporterType,
+			models.ExternalExporterType,
+			models.ValkeyExporterType,
+		} {
+			t.Run(string(typ), func(t *testing.T) {
+				t.Parallel()
+				a := &models.Agent{AgentType: typ}
+				assert.Equal(t, time.Second, a.EffectiveDialTimeout())
+			})
+		}
+	})
+
+	t.Run("non-exporter agent falls back to 2s", func(t *testing.T) {
+		t.Parallel()
+		a := &models.Agent{AgentType: models.QANMySQLPerfSchemaAgentType}
+		assert.Equal(t, 2*time.Second, a.EffectiveDialTimeout())
+	})
+}

@@ -31,6 +31,50 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+func TestApplyExporterScrapeTimeout(t *testing.T) {
+	t.Parallel()
+
+	interval := 10 * time.Second
+	t.Run("uses ExporterOptions.Timeout when within cap", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 3 * time.Second}}
+		applyExporterScrapeTimeout(cfg, agent)
+		assert.Equal(t, config.Duration(3*time.Second), cfg.ScrapeTimeout)
+	})
+
+	t.Run("caps at 90% of scrape interval", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 15 * time.Second}}
+		applyExporterScrapeTimeout(cfg, agent)
+		assert.Equal(t, config.Duration(9*time.Second), cfg.ScrapeTimeout)
+	})
+
+	t.Run("floors at 100ms", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 50 * time.Microsecond}}
+		applyExporterScrapeTimeout(cfg, agent)
+		assert.Equal(t, config.Duration(100*time.Millisecond), cfg.ScrapeTimeout)
+	})
+
+	t.Run("no-op when cfg or agent nil or timeout zero", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval), ScrapeTimeout: config.Duration(time.Second)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 2 * time.Second}}
+
+		applyExporterScrapeTimeout(nil, agent)
+		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
+
+		applyExporterScrapeTimeout(cfg, nil)
+		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
+
+		applyExporterScrapeTimeout(cfg, &models.Agent{ExporterOptions: models.ExporterOptions{}})
+		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
+	})
+}
+
 func TestScrapeConfig(t *testing.T) {
 	s := &models.MetricsResolutions{
 		HR: 5 * time.Second,

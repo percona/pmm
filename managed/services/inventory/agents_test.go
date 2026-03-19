@@ -150,6 +150,7 @@ func TestAgents(t *testing.T) {
 				PmmAgentId: pmmAgentID,
 				ServiceId:  ms.ServiceId,
 				Username:   "username",
+				Timeout:    durationpb.New(11 * time.Second),
 			})
 			require.NoError(t, err)
 			expectedMySQLdExporter = &inventoryv1.MySQLdExporter{
@@ -158,6 +159,7 @@ func TestAgents(t *testing.T) {
 				ServiceId:  ms.ServiceId,
 				Username:   "username",
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Timeout:    durationpb.New(11 * time.Second),
 			}
 			assert.Equal(t, expectedMySQLdExporter, actualAgent.GetMysqldExporter())
 
@@ -232,6 +234,7 @@ func TestAgents(t *testing.T) {
 				PmmAgentId: pmmAgentID,
 				ServiceId:  ps.ServiceId,
 				Username:   "username",
+				Timeout:    durationpb.New(13 * time.Second),
 			})
 			require.NoError(t, err)
 			expectedPostgresExporter = &inventoryv1.PostgresExporter{
@@ -240,6 +243,7 @@ func TestAgents(t *testing.T) {
 				ServiceId:  ps.ServiceId,
 				Username:   "username",
 				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Timeout:    durationpb.New(13 * time.Second),
 			}
 			assert.Equal(t, expectedPostgresExporter, actualAgent.GetPostgresExporter())
 
