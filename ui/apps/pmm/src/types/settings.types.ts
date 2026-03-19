@@ -10,12 +10,51 @@ export interface ReadonlySettings {
   enableAccessControl: boolean;
 }
 
+export interface MetricsResolutions {
+  hr: string;
+  mr: string;
+  lr: string;
+}
+
+export interface AdvisorRunIntervalsSettings {
+  rareInterval: string;
+  standardInterval: string;
+  frequentInterval: string;
+}
+
 export interface GetReadonlySettingsResponse {
   settings: ReadonlySettings;
 }
 
 export interface Settings extends ReadonlySettings {
-  updateSnoozeDuration: string;
+  updateSnoozeDuration?: string;
+  metricsResolutions?: MetricsResolutions;
+  dataRetention?: string;
+  sshKey?: string;
+  advisorRunIntervals?: AdvisorRunIntervalsSettings;
+  telemetrySummaries?: string[];
+  enableInternalPgQan?: boolean;
+}
+
+/** Payload for PUT /server/settings - partial updates supported */
+export interface UpdateSettingsPayload {
+  sshKey?: string;
+  metricsResolutions?: MetricsResolutions;
+  dataRetention?: string;
+  pmmPublicAddress?: string;
+  enableTelemetry?: boolean;
+  enableAlerting?: boolean;
+  enableAdvisor?: boolean;
+  advisorRunIntervals?: {
+    rareInterval: string;
+    standardInterval: string;
+    frequentInterval: string;
+  };
+  enableBackupManagement?: boolean;
+  enableAzurediscover?: boolean;
+  enableUpdates?: boolean;
+  enableAccessControl?: boolean;
+  enableInternalPgQan?: boolean;
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}
