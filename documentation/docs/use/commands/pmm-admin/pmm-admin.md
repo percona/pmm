@@ -56,7 +56,7 @@ pmm-admin list
 pmm-admin summary
 ```
 
-For complete options and flags, see [Add database services](pmm-admin-add.md), [Manage inventory](pmm-admin-inventory.md), [Configuration commands](pmm-admin-config.md), and [Status and diagnostics](pmm-admin-status.md).
+For complete options and flags, see [Add database services](../pmm-admin/add.md), [Manage inventory](../pmm-admin/inventory.md), [Configuration commands](../pmm-admin/config.md), and [Status and diagnostics](../pmm-admin/status.md).
 
 ## Command reference
 

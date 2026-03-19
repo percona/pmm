@@ -197,7 +197,7 @@ pmm-admin status
 
 - [Install PMM Client using Docker](../install-pmm-client/docker.md) 
 - [Connect database services](../install-pmm-client/connect-database/index.md) 
-- [PMM Client command reference](../../use/commands/pmm-admin.md) 
+- [PMM Client command reference](../..//use/commands/pmm-admin/pmm-admin.md) 
 - [Upgrade PMM Client](../../pmm-upgrade/upgrade_client.md) 
 - [Uninstall PMM Client](../../uninstall-pmm/index.md)
 - [Unregister PMM Client](../../uninstall-pmm/unregister_client.md)
